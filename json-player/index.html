@@ -176,7 +176,7 @@
 	
 	function parseObj(s, _freq, _vol, _time, _tempo) {
 		if(s.timeDelta) {_time += s.timeDelta}
-		if(s.tempo) {_tempo *= s.tempo}
+		if(s.tempo) {_tempo *= parseNumber(s.tempo)}
 		if(s.volRatio) {_vol *= s.volRatio}
 		if(s.freqRatio) {_freq *= parseNumber(s.freqRatio)}
 
@@ -255,14 +255,14 @@
 	<pre id="structuredScript" contenteditable="true">
 {
 "freqRatio": 440,
-"volRatio": 1,
+"volRatio": 0.5,
 "timeDelta": 0,
-"tempo": 1,
+"tempo": 0.5,
 "pat1":[
-{"noteStart": 0, "noteStop": 0.5, "freq": 1},
-{"noteStart": 0.5, "noteStop": 1, "freq": "5/4"},
-{"noteStart": 1, "noteStop": 1.5, "freq": [-1,1]},
-{"noteStart": 1.5, "noteStop": 2, "freq": {"2": -2, "7": 1}}
+{"noteStart": 0, "noteStop": 1, "freq": 1},
+{"noteStart": 1, "noteStop": 2, "freq": "5/4"},
+{"noteStart": 2, "noteStop": 3, "freq": [-1,1]},
+{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
 ],
 "0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
 "1": {"freqRatio": 2, "timeDelta": 2, "0": "pat1"}
@@ -277,7 +277,7 @@
 	<!--to do: use output element instead of span?-->
 	Play time: <span id="outAudioT">0</span> s.</p>
 	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, tempo and time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
-	<p>Frequencies support several number formats:</p>
+	<p>Frequencies and tempo support several number formats:</p>
 	<ul>
 		<li>1.25 = 1.25</li>
 		<li>"1.25" = 1.25</li>
