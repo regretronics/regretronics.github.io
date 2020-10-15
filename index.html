@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Sound, test 01</title>
+	<style type="text/css">
+	/*<![CDATA[*/
+	body {
+		background-color: #243c24;
+		color: #b0b0b0;
+	}
+	#structuredScript, #flatScript {
+		background-color: #c0c0c0;
+		color: #243c24;
+		height: 12em;
+		font-size: 100%;
+		width: 100%;
+		/*resize: both;*/
+		overflow-y: scroll;
+		min-height: 8em;
+	}
+	button {
+		font-size: 1em;
+	}
+	/*]]>*/
+	</style>
+	<!--<script type="text/javascript">
+	//<![CDATA[
+	//to do: check performance difference of strict mode.
+	"use strict";
+	//as of 2020-10-12, this page has been only tested on Firefox 82 beta.
+	//to do: use defer="true" or async in any script tag?
+	//  idea: have a "reload script" button?
+	//]]>
+	</script>-->
+	<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+	var audioCtx, oscs = [], gains = [];
+	var ctlFlatScript, ctlStructuredScript, outAudioT;
+	
+	function docLoaded() {
+		ctlFlatScript = document.getElementById("flatScript");
+		ctlStructuredScript = document.getElementById("structuredScript");
+		outAudioT = document.getElementById("outAudioT");
+	}
+	
+	var playing = false;
+	function defOnEnded() {
+		oscs.splice(oscs.indexOf(this), 1);
+		let g = this.assocGain1;
+		if(g) {
+			gains.splice(gains.indexOf(g), 1);
+		}
+		g = this.assocGain2;
+		if(g) {
+			gains.splice(gains.indexOf(g), 1);
+		}
+		if(oscs.length == 0) {stop();}
+		//console.log("onended")
+		//to do: also delete gain node
+	}
+	
+	function audioTimer() {
+		if(!playing) return;
+		outAudioT.innerText = audioCtx.currentTime.toFixed(3);
+		window.setTimeout(audioTimer, 100);
+	}
+	
+	var struct, flat;
+	function play() {
+		if(playing) return;
+		playing = true;
+		if(!audioCtx) {
+			audioCtx = new AudioContext();
+		}
+		audioTimer();
+		let flat = JSON.parse(ctlFlatScript.innerText);
+		let t0 = audioCtx.currentTime;
+		//let iStart = 0, iStop = 0;
+		for(let i = 0, osc1, gain1, gain2; i < flat.length; i++) {
+			if(flat[i].freq) {
+				osc1 = audioCtx.createOscillator();
+				oscs.push(osc1);
+				osc1.type = "sine";
+				osc1.frequency.value = flat[i].freq;
+				osc1.onended = defOnEnded;
+
+				//volume decay
+				gain1 = audioCtx.createGain();
+				gains.push(gain1);
+				gain1.gain.value = flat[i].hasOwnProperty("vol") ? flat[i].vol : 1;
+				gain1.gain.setTargetAtTime(0, t0 + flat[i].noteStart, 256 / flat[i].freq);
+				//to do: a better volume ramp into an array
+				osc1.connect(gain1);
+				osc1.assocGain1 = gain1;
+				
+				//volume attack
+				gain2 = audioCtx.createGain();
+				gains.push(gain2);
+				gain2.gain.value = 0;
+				gain2.gain.setTargetAtTime(1, t0 + flat[i].noteStart, 0.25);
+				gain1.connect(gain2);
+				osc1.assocGain2 = gain2;
+				
+				gain2.connect(audioCtx.destination);
+				//osc1.start(t0 + flat[i].noteStart, 0, t0 + flat[i].noteStop);
+				osc1.start(t0 + flat[i].noteStart);
+				osc1.stop(t0 + flat[i].noteStop);
+			}
+		}
+	}
+	function stop() {
+		for(const osc of oscs) {
+			osc.stop();
+			osc.disconnect();
+		}
+		oscs = [];
+		for(const gain of gains) {
+			gain.disconnect();
+		}
+		gains = [];
+		audioCtx = null;
+		playing = false;
+	}
+	
+	var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+	
+	function parseNumber(n) {
+		//simple attempts first.
+		if(typeof(n) == "number") return n;
+		let r = Number(n);
+		if(!isNaN(r)) return r;
+		//can be a fraction
+		if(typeof(n) == "string") {
+			//to do: maybe support ^
+			let f = n.indexOf("*");
+			if(f > 0) {
+				return parseNumber(n.slice(0, f)) * parseNumber(n.slice(f + 1));
+			} else {
+				let f = n.indexOf("/");
+				if(f > 0) {
+					return parseNumber(n.slice(0, f)) / parseNumber(n.slice(f + 1));
+				} else {
+					return null;
+				}
+			}
+			
+			/*let f = n.split("*");
+			if(f.length == 2) {
+				return parseNumber(f[0]) * parseNumber(f[1]);
+			} else {
+				let f = n.split("/");
+				return parseNumber(f[0]) / parseNumber(f[1]);
+			}*/
+		}
+		//prime factor-based
+		r = 1;
+		let i;
+		if(Array.isArray(n)) {
+			for(i in n) {
+				r *= Math.pow(primes[i], parseNumber(n[i]));
+			}
+			return r;
+		}
+		//to do: objects with explicit factors
+		for(i in n) {
+			let iNum = parseNumber(i);
+			if(isNaN(iNum)) continue;
+			r *= Math.pow(iNum, parseNumber(n[i]));
+		}
+		return r;
+	}
+	
+	function parseObj(s, _freq, _vol, _time, _tempo) {
+		if(s.timeDelta) {_time += s.timeDelta}
+		if(s.tempo) {_tempo *= s.tempo}
+		if(s.volRatio) {_vol *= s.volRatio}
+		if(s.freqRatio) {_freq *= parseNumber(s.freqRatio)}
+
+		if(s.hasOwnProperty("noteStart") && s.hasOwnProperty("noteStop")) {
+			//register a note.
+			let noteVol = 1;
+			let noteFreq = 1;
+			if(s.hasOwnProperty("vol")) {noteVol = s.vol;}
+			if(s.hasOwnProperty("freq")) {noteFreq = parseNumber(s.freq);}
+			flat.push({noteStart: _time + _tempo * s.noteStart, noteStop: _time + _tempo * s.noteStop, freq: _freq * noteFreq});
+			noteVol *= _vol;
+			if(noteVol != 1) {flat[flat.length - 1].vol = noteVol;}
+		}
+
+		let iNote = 0;
+		let t;
+		while(t = s[iNote]) {
+			if(typeof(t) == "string") {
+				if(struct.hasOwnProperty(t)) {
+				parseObj(struct[t],  _freq, _vol, _time, _tempo);
+				}
+			} else {
+				parseObj(t,  _freq, _vol, _time, _tempo);
+			}
+			iNote++;
+		}
+	}
+	
+	function parseScript() {
+		struct = JSON.parse(ctlStructuredScript.innerText);
+		//to do: catch errors and display
+		flat = [];
+		if(Array.isArray(struct)) {
+			for(let x of struct) {
+				parseObj(x, 1, 1, 0, 1);
+			}
+		} else {
+			parseObj(struct, 1, 1, 0, 1);
+		}
+		
+		//finally, yield the flattened version
+		//to do: insert whitespace
+		//
+		ctlFlatScript.innerText = JSON.stringify(flat, null, "\t");
+	}
+	
+	let textSize = 1;
+	function rescaleText(f) {
+		textSize *= f;
+		document.body.style.fontSize = textSize + "em";
+	}
+	
+	function overflowToggle() {
+		if(ctlStructuredScript.style.height == "auto") {
+			ctlStructuredScript.style.height = "12em";
+		} else {
+			ctlStructuredScript.style.height = "auto";
+		}
+		if(ctlFlatScript.style.height == "auto") {
+			ctlFlatScript.style.height = "12em";
+		} else {
+			ctlFlatScript.style.height = "auto";
+		}
+	}
+	//]]>
+	</script>
+</head>
+<body onload="docLoaded()">
+	<h1>HTML5/JSON music player</h1>
+	<p>Text size:
+	<button id="btnTextShrink" onclick="rescaleText(0.8)">Shrink</button>
+	<button id="btnTextEnlarge" onclick="rescaleText(1.25)">Enlarge</button>
+	<button id="btnOverflowToggle" onclick="overflowToggle()">Toggle overflow</button>
+	</p>
+	<p>Structured music:<br />
+	<pre id="structuredScript" contenteditable="true">
+{
+"freqRatio": 440,
+"volRatio": 1,
+"timeDelta": 0,
+"tempo": 1,
+"pat1":[
+{"noteStart": 0, "noteStop": 0.5, "freq": 1},
+{"noteStart": 0.5, "noteStop": 1, "freq": "5/4"},
+{"noteStart": 1, "noteStop": 1.5, "freq": [-1,1]},
+{"noteStart": 1.5, "noteStop": 2, "freq": {"2": -2, "7": 1}}
+],
+"0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
+"1": {"freqRatio": 2, "timeDelta": 2, "0": "pat1"}
+}</pre></p>
+	<p><button id="btnParseScript" onclick="parseScript()">Flatten</button></p>
+	<p>Flattened:<br />
+	<pre id="flatScript">
+[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
+ {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre></p>
+	<p><button id="btnPlay" onclick="play()">Play</button>
+	<button id="btnStop" onclick="stop()">Stop</button>
+	<!--to do: use output element instead of span?-->
+	Play time: <span id="outAudioT">0</span> s.</p>
+	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, tempo and time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
+	<p>Frequencies support several number formats:</p>
+	<ul>
+		<li>1.25 = 1.25</li>
+		<li>"1.25" = 1.25</li>
+		<li>"5/4" = 1.25</li>
+		<li>[-2, 0, 1] = 2^(-2) * 3^0 * 5^1 = 5/4 = 1.25 (uses prime factors implicitly)</li>
+		<li>{"2": -2, "5": 1} = 2^(-2) * 5^1 = 5/4 = 1.25 (for use with prime factors)</li>
+	</ul>
+</body>
+</html>
