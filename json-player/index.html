@@ -28,9 +28,8 @@
 	</style>
 	<!--<script type="text/javascript">
 	//<![CDATA[
-	//to do: check performance difference of strict mode.
+	//to do: check performance difference of strict mode?
 	"use strict";
-	//as of 2020-10-12, this page has been only tested on Firefox 82 beta.
 	//to do: use defer="true" or async in any script tag?
 	//  idea: have a "reload script" button?
 	//]]>
@@ -49,6 +48,7 @@
 	
 	var playing = false;
 	function defOnEnded() {
+		//remove modules from list.
 		oscs.splice(oscs.indexOf(this), 1);
 		let g = this.assocGain1;
 		if(g) {
@@ -59,8 +59,6 @@
 			gains.splice(gains.indexOf(g), 1);
 		}
 		if(oscs.length == 0) {stop();}
-		//console.log("onended")
-		//to do: also delete gain node
 	}
 	
 	function audioTimer() {
@@ -73,12 +71,12 @@
 	function play() {
 		if(playing) return;
 		playing = true;
-		if(!audioCtx) {
-			audioCtx = new AudioContext();
-		}
+		if(!audioCtx) {audioCtx = new AudioContext();}
 		audioTimer();
+		
 		let flat = JSON.parse(ctlFlatScript.innerText);
 		let t0 = audioCtx.currentTime;
+		//to do: ?gradually enter notes
 		//let iStart = 0, iStop = 0;
 		for(let i = 0, osc1, gain1, gain2; i < flat.length; i++) {
 			if(flat[i].freq) {
@@ -175,6 +173,7 @@
 	}
 	
 	function parseObj(s, _freq, _vol, _time, _tempo) {
+		//alter context.
 		if(s.timeDelta) {_time += s.timeDelta}
 		if(s.tempo) {_tempo *= parseNumber(s.tempo)}
 		if(s.volRatio) {_vol *= s.volRatio}
@@ -186,6 +185,7 @@
 			let noteFreq = 1;
 			if(s.hasOwnProperty("vol")) {noteVol = s.vol;}
 			if(s.hasOwnProperty("freq")) {noteFreq = parseNumber(s.freq);}
+			
 			flat.push({noteStart: _time + _tempo * s.noteStart, noteStop: _time + _tempo * s.noteStop, freq: _freq * noteFreq});
 			noteVol *= _vol;
 			if(noteVol != 1) {flat[flat.length - 1].vol = noteVol;}
@@ -195,10 +195,17 @@
 		let t;
 		while(t = s[iNote]) {
 			if(typeof(t) == "string") {
+				//pattern invocation, global
 				if(struct.hasOwnProperty(t)) {
-				parseObj(struct[t],  _freq, _vol, _time, _tempo);
+					parseObj(struct[t],  _freq, _vol, _time, _tempo);
+				} else {
+					//pattern invocation, local
+					if(s.hasOwnProperty(t)) {
+						parseObj(s[t],  _freq, _vol, _time, _tempo);
+					}
 				}
 			} else {
+				//primary recursion point.
 				parseObj(t,  _freq, _vol, _time, _tempo);
 			}
 			iNote++;
@@ -206,21 +213,25 @@
 	}
 	
 	function parseScript() {
-		struct = JSON.parse(ctlStructuredScript.innerText);
-		//to do: catch errors and display
-		flat = [];
-		if(Array.isArray(struct)) {
-			for(let x of struct) {
-				parseObj(x, 1, 1, 0, 1);
+		try {
+			struct = JSON.parse(ctlStructuredScript.innerText);
+			flat = [];
+			if(Array.isArray(struct)) {
+				for(let x of struct) {
+					parseObj(x, 1, 1, 0, 1);
+				}
+			} else {
+				parseObj(struct, 1, 1, 0, 1);
 			}
-		} else {
-			parseObj(struct, 1, 1, 0, 1);
+			
+			//finally, yield the flattened version
+			//to do: insert whitespace
+			//
+			ctlFlatScript.innerText = JSON.stringify(flat, null, "\t");
+		} catch(err) {
+			//ctlFlatScript.innerText = err.name + ": " + err.message;
+			ctlFlatScript.innerText = err.toString();
 		}
-		
-		//finally, yield the flattened version
-		//to do: insert whitespace
-		//
-		ctlFlatScript.innerText = JSON.stringify(flat, null, "\t");
 	}
 	
 	let textSize = 1;
@@ -241,6 +252,29 @@
 			ctlFlatScript.style.height = "auto";
 		}
 	}
+	
+	function addInterval(refNote, targetNote) {
+		let iPrime = Math.floor(4 * Math.random());
+		let sign = Math.random >= 0.5 ? 1 : -1;
+		Object.assign(targetNote, refNote);
+		targetNote[primes[iPrime]] += sign;
+		//to do: round? floor?
+		if(iPrime > 0) {targetNote[2] -= sign * Math.round(Math.log2(primes[iPrime]));}	
+	}
+	
+	function makeChord() {
+		struct = {freqRatio: 440, 0: {freq: {2: 0, 3: 0, 5: 0, 7: 0}}};
+		struct[1] = {freq: {}};
+		addInterval(struct[0].freq, struct[1].freq);
+		struct[2] = {freq: {}};
+		addInterval(struct[Math.floor(2 * Math.random())].freq, struct[2].freq);
+		for(let i = 0; i < 3; i++) {
+			struct[i].noteStart = i;
+			struct[i].noteStop = i + 1;
+		}
+
+		ctlStructuredScript.innerText = JSON.stringify(struct, null, "\t");
+	}
 	//]]>
 	</script>
 </head>
@@ -251,7 +285,8 @@
 	<button id="btnTextEnlarge" onclick="rescaleText(1.25)">Enlarge</button>
 	<button id="btnOverflowToggle" onclick="overflowToggle()">Toggle overflow</button>
 	</p>
-	<p>Structured music:<br />
+	<p>Structured music:
+	<button id="btnChordGen" onclick="makeChord()">Make chord</button><br />
 	<pre id="structuredScript" contenteditable="true">
 {
 "freqRatio": 440,
@@ -281,7 +316,7 @@
 	<ul>
 		<li>1.25 = 1.25</li>
 		<li>"1.25" = 1.25</li>
-		<li>"5/4" = 1.25</li>
+		<li>"5/2/2" = 5/4 = 1.25</li>
 		<li>[-2, 0, 1] = 2^(-2) * 3^0 * 5^1 = 5/4 = 1.25 (uses prime factors implicitly)</li>
 		<li>{"2": -2, "5": 1} = 2^(-2) * 5^1 = 5/4 = 1.25 (for use with prime factors)</li>
 	</ul>
