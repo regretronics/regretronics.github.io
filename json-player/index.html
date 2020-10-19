@@ -68,6 +68,7 @@
 	}
 	
 	var struct, flat;
+	const defaultDecayFactor = 256, defaultAttack = 0.125;
 	function play() {
 		if(playing) return;
 		playing = true;
@@ -91,7 +92,9 @@
 				gain1 = audioCtx.createGain();
 				gains.push(gain1);
 				gain1.gain.value = flat[i].hasOwnProperty("vol") ? flat[i].vol : 1;
-				gain1.gain.setTargetAtTime(0, t0 + flat[i].noteStart, 256 / flat[i].freq);
+				let decayFactor = flat[i].decayFactor;
+				if(!decayFactor) decayFactor = defaultDecayFactor;
+				gain1.gain.setTargetAtTime(0, t0 + flat[i].noteStart, decayFactor / flat[i].freq);
 				osc1.connect(gain1);
 				osc1.assocGain1 = gain1;
 				
@@ -99,7 +102,9 @@
 				gain2 = audioCtx.createGain();
 				gains.push(gain2);
 				gain2.gain.value = 0;
-				gain2.gain.setTargetAtTime(1, t0 + flat[i].noteStart, 0.25);
+				let attack = flat[i].attack;
+				if(!attack) attack = defaultAttack;
+				gain2.gain.setTargetAtTime(1, t0 + flat[i].noteStart, attack);
 				gain1.connect(gain2);
 				osc1.assocGain2 = gain2;
 				
@@ -172,13 +177,16 @@
 		return r;
 	}
 	
-	function parseObj(s, _freq, _vol, _time, _tempo) {
+	function parseObj(s, _freq, _vol, _time, _tempo, _decayFactor, _attack) {
 		//alter context.
-		if(s.timeDelta) {_time += s.timeDelta}
+		if(s.timeDelta) {_time += _tempo * s.timeDelta}
 		if(s.tempo) {_tempo *= parseNumber(s.tempo)}
 		if(s.volRatio) {_vol *= s.volRatio}
 		if(s.freqRatio) {_freq *= parseNumber(s.freqRatio)}
+		if(s.decayFactor) {_decayFactor = s.decayFactor}
+		if(s.attack) {_attack = s.attack}
 
+		//to do: allow notestart to be inferred
 		if(s.hasOwnProperty("noteStart") && (s.hasOwnProperty("noteStop") || s.hasOwnProperty("duration"))) {
 			//register a note.
 			let noteVol = 1;
@@ -190,6 +198,8 @@
 			flat.push({noteStart: _time + _tempo * s.noteStart, noteStop: _time + _tempo * s.noteStop, freq: _freq * noteFreq});
 			noteVol *= _vol;
 			if(noteVol != 1) {flat[flat.length - 1].vol = noteVol;}
+			if(_decayFactor != defaultDecayFactor) {flat[flat.length - 1].decayFactor = _decayFactor;}
+			if(_attack != defaultAttack) {flat[flat.length - 1].attack = _attack;}
 		}
 
 		let iNote = 0;
@@ -198,16 +208,16 @@
 			if(typeof(t) == "string") {
 				//pattern invocation, global
 				if(struct.hasOwnProperty(t)) {
-					parseObj(struct[t],  _freq, _vol, _time, _tempo);
+					parseObj(struct[t],  _freq, _vol, _time, _tempo, _decayFactor, _attack);
 				} else {
 					//pattern invocation, local
 					if(s.hasOwnProperty(t)) {
-						parseObj(s[t],  _freq, _vol, _time, _tempo);
+						parseObj(s[t],  _freq, _vol, _time, _tempo, _decayFactor, _attack);
 					}
 				}
 			} else {
 				//primary recursion point.
-				parseObj(t,  _freq, _vol, _time, _tempo);
+				parseObj(t,  _freq, _vol, _time, _tempo, _decayFactor, _attack);
 			}
 			iNote++;
 		}
@@ -219,10 +229,10 @@
 			flat = [];
 			if(Array.isArray(struct)) {
 				for(let x of struct) {
-					parseObj(x, 1, 1, 0, 1);
+					parseObj(x, 1, 1, 0, 1, defaultDecayFactor, defaultAttack);
 				}
 			} else {
-				parseObj(struct, 1, 1, 0, 1);
+				parseObj(struct, 1, 1, 0, 1, defaultDecayFactor, defaultAttack);
 			}
 			
 			//finally, yield the flattened version
@@ -273,9 +283,10 @@
 		}
 
 		let s = JSON.stringify(struct, null, "\t");
-		//to do: use regex for long sequences of tabs
-		s = s.split(",\n\t\t\t").join(", ");
-		s = s.split("\n\t\t}").join("}");
+		let regex = new RegExp(/\n\t{3,}/, "g");
+		s = s.replace(regex, " ");
+		regex = new RegExp(/\n\t{2,}\}/, "g");
+		s = s.replace(regex, "}");
 		ctlStructuredScript.innerText = s;
 		parseScript();
 	}
@@ -298,7 +309,7 @@
 		
 		let noteCount = Math.floor(Math.random() * signature.beats);
 		if(noteCount < 2) {noteCount = 2;}
-		let bar = [{freq: 0.25, noteStart: 0, duration: signature.beats}];
+		let bar = [{freq: 0.5, noteStart: 0, duration: signature.beats}];
 		for(let x = 0; x < noteCount; x++) {
 			bar.push({noteStart: 0, duration: 1});
 		}
@@ -310,7 +321,7 @@
 			bar[x + 1].noteStart = y;
 			y += bar[x + 1].duration;
 		}
-		struct = {freqRatio: 440, bar: bar};
+		struct = {freqRatio: 440, volRatio: 0.5, tempo: 0.5, bar: bar};
 		//struct.bar = bar;
 		for(let x = 0; x < 4; x++) {
 			struct[x] = {timeDelta: x * signature.beats};
@@ -340,6 +351,7 @@
 "volRatio": 0.5,
 "timeDelta": 0,
 "tempo": 0.5,
+"decayFactor": 128,
 "pat1":[
 {"noteStart": 0, "duration": 1, "freq": 1},
 {"noteStart": 1, "duration": 1, "freq": "5/4"},
@@ -365,7 +377,7 @@
 		<li>"1.25" = 1.25</li>
 		<li>"5/2/2" = 5/4 = 1.25</li>
 		<li>[-2, 0, 1] = 2^(-2) * 3^0 * 5^1 = 5/4 = 1.25 (uses prime factors implicitly)</li>
-		<li>{"2": -2, "5": 1} = 2^(-2) * 5^1 = 5/4 = 1.25 (for use with prime factors)</li>
+		<li>{"2": -2, "5": 1} = 2^(-2) * 5^1 = 5/4 = 1.25 (great for use with prime factors)</li>
 	</ul>
 </body>
 </html>
