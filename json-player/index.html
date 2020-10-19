@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Sound, test 01</title>
+	<title>JSON music player</title>
 	<style type="text/css">
 	/*<![CDATA[*/
 	body {
@@ -87,11 +87,11 @@
 				osc1.onended = defOnEnded;
 
 				//volume decay
+				//to do: allow attack and decay properties
 				gain1 = audioCtx.createGain();
 				gains.push(gain1);
 				gain1.gain.value = flat[i].hasOwnProperty("vol") ? flat[i].vol : 1;
 				gain1.gain.setTargetAtTime(0, t0 + flat[i].noteStart, 256 / flat[i].freq);
-				//to do: a better volume ramp into an array
 				osc1.connect(gain1);
 				osc1.assocGain1 = gain1;
 				
@@ -163,7 +163,7 @@
 			}
 			return r;
 		}
-		//to do: objects with explicit factors
+		//objects with explicit factors
 		for(i in n) {
 			let iNum = parseNumber(i);
 			if(isNaN(iNum)) continue;
@@ -179,12 +179,13 @@
 		if(s.volRatio) {_vol *= s.volRatio}
 		if(s.freqRatio) {_freq *= parseNumber(s.freqRatio)}
 
-		if(s.hasOwnProperty("noteStart") && s.hasOwnProperty("noteStop")) {
+		if(s.hasOwnProperty("noteStart") && (s.hasOwnProperty("noteStop") || s.hasOwnProperty("duration"))) {
 			//register a note.
 			let noteVol = 1;
 			let noteFreq = 1;
 			if(s.hasOwnProperty("vol")) {noteVol = s.vol;}
 			if(s.hasOwnProperty("freq")) {noteFreq = parseNumber(s.freq);}
+			if(s.hasOwnProperty("duration")) {s.noteStop = s.noteStart + parseNumber(s.duration);}
 			
 			flat.push({noteStart: _time + _tempo * s.noteStart, noteStop: _time + _tempo * s.noteStop, freq: _freq * noteFreq});
 			noteVol *= _vol;
@@ -225,8 +226,6 @@
 			}
 			
 			//finally, yield the flattened version
-			//to do: insert whitespace
-			//
 			ctlFlatScript.innerText = JSON.stringify(flat, null, "\t");
 		} catch(err) {
 			//ctlFlatScript.innerText = err.name + ": " + err.message;
@@ -253,13 +252,13 @@
 		}
 	}
 	
-	function addInterval(refNote, targetNote) {
+	function addInterval(refFreq, targetFreq) {
 		let iPrime = Math.floor(4 * Math.random());
 		let sign = Math.random >= 0.5 ? 1 : -1;
-		Object.assign(targetNote, refNote);
-		targetNote[primes[iPrime]] += sign;
+		Object.assign(targetFreq, refFreq);
+		targetFreq[primes[iPrime]] += sign;
 		//to do: round? floor?
-		if(iPrime > 0) {targetNote[2] -= sign * Math.round(Math.log2(primes[iPrime]));}	
+		if(iPrime > 0) {targetFreq[2] -= sign * Math.round(Math.log2(primes[iPrime]));}
 	}
 	
 	function makeChord() {
@@ -270,10 +269,57 @@
 		addInterval(struct[Math.floor(2 * Math.random())].freq, struct[2].freq);
 		for(let i = 0; i < 3; i++) {
 			struct[i].noteStart = i;
-			struct[i].noteStop = i + 1;
+			struct[i].duration = 1;
 		}
 
-		ctlStructuredScript.innerText = JSON.stringify(struct, null, "\t");
+		let s = JSON.stringify(struct, null, "\t");
+		//to do: use regex for long sequences of tabs
+		s = s.split(",\n\t\t\t").join(", ");
+		s = s.split("\n\t\t}").join("}");
+		ctlStructuredScript.innerText = s;
+		parseScript();
+	}
+	
+	function makeRhythm() {
+		let signature = {2: 0, 3: 0, 5: 0, 7: 0};
+		signature.beats = 1;
+		for(let i = 0, y; i < 4; i++) {
+			let y = Math.floor(- Math.log(Math.random()) / primes[i]);
+			signature[primes[i]] = y;
+			signature.beats *= Math.pow(primes[i], y);
+		}
+		if(signature.beats == 1) {
+			let x = Math.random();
+			x = Math.floor(4 * x * x);
+			signature[primes[x]]++;
+			signature.beats *= primes[x];
+		}
+		if(signature.beats < 2) {signature.beats = 2;}
+		
+		let noteCount = Math.floor(Math.random() * signature.beats);
+		if(noteCount < 2) {noteCount = 2;}
+		let bar = [{freq: 0.25, noteStart: 0, duration: signature.beats}];
+		for(let x = 0; x < noteCount; x++) {
+			bar.push({noteStart: 0, duration: 1});
+		}
+		for(let x = signature.beats - noteCount; x > 0; x--) {
+			bar[Math.floor(Math.random() * noteCount) + 1].duration++;
+		}
+		let y = 0;
+		for(let x = 0; x < noteCount; x++) {
+			bar[x + 1].noteStart = y;
+			y += bar[x + 1].duration;
+		}
+		struct = {freqRatio: 440, bar: bar};
+		//struct.bar = bar;
+		for(let x = 0; x < 4; x++) {
+			struct[x] = {timeDelta: x * signature.beats};
+			struct[x][0] = "bar";
+		}
+		
+		let s = JSON.stringify(struct, null, "\t");
+		ctlStructuredScript.innerText = s;
+		parseScript();
 	}
 	//]]>
 	</script>
@@ -286,7 +332,8 @@
 	<button id="btnOverflowToggle" onclick="overflowToggle()">Toggle overflow</button>
 	</p>
 	<p>Structured music:
-	<button id="btnChordGen" onclick="makeChord()">Make chord</button><br />
+	<button id="btnChordGen" onclick="makeChord()">Make chord</button>
+	<button id="btnRhythmGen" onclick="makeRhythm()">Make rhythm</button><br />
 	<pre id="structuredScript" contenteditable="true">
 {
 "freqRatio": 440,
@@ -294,9 +341,9 @@
 "timeDelta": 0,
 "tempo": 0.5,
 "pat1":[
-{"noteStart": 0, "noteStop": 1, "freq": 1},
-{"noteStart": 1, "noteStop": 2, "freq": "5/4"},
-{"noteStart": 2, "noteStop": 3, "freq": [-1,1]},
+{"noteStart": 0, "duration": 1, "freq": 1},
+{"noteStart": 1, "duration": 1, "freq": "5/4"},
+{"noteStart": 2, "duration": 1, "freq": [-1,1]},
 {"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
 ],
 "0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
@@ -311,8 +358,8 @@
 	<button id="btnStop" onclick="stop()">Stop</button>
 	<!--to do: use output element instead of span?-->
 	Play time: <span id="outAudioT">0</span> s.</p>
-	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, tempo and time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
-	<p>Frequencies and tempo support several number formats:</p>
+	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale and time displacement), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
+	<p>Frequencies, tempo and duration support several number formats:</p>
 	<ul>
 		<li>1.25 = 1.25</li>
 		<li>"1.25" = 1.25</li>
