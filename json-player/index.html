@@ -359,7 +359,7 @@
 {"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
 ],
 "0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
-"1": {"freqRatio": 2, "timeDelta": 2, "0": "pat1"}
+"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre></p>
 	<p><button id="btnParseScript" onclick="parseScript()">Flatten</button></p>
 	<p>Flattened:<br />
@@ -370,7 +370,7 @@
 	<button id="btnStop" onclick="stop()">Stop</button>
 	<!--to do: use output element instead of span?-->
 	Play time: <span id="outAudioT">0</span> s.</p>
-	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale and time displacement), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
+	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
 	<p>Frequencies, tempo and duration support several number formats:</p>
 	<ul>
 		<li>1.25 = 1.25</li>
