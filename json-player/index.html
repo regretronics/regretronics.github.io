@@ -37,7 +37,7 @@
 	<script type="text/javascript">
 	//<![CDATA[
 	"use strict";
-	var audioCtx, oscs = [], gains = [];
+	var audioCtx = null, oscs = [], gains = [];
 	var ctlFlatScript, ctlStructuredScript, outAudioT;
 	
 	function docLoaded() {
@@ -114,6 +114,7 @@
 				osc1.stop(t0 + flat[i].noteStop);
 			}
 		}
+		audioCtx.play();
 	}
 	function stop() {
 		for(const osc of oscs) {
@@ -307,7 +308,7 @@
 		}
 		if(signature.beats < 2) {signature.beats = 2;}
 		
-		let noteCount = Math.floor(Math.random() * signature.beats);
+		let noteCount = Math.floor((0.125 + 0.875 * Math.random()) * signature.beats);
 		if(noteCount < 2) {noteCount = 2;}
 		let bar = [{freq: 0.5, noteStart: 0, duration: signature.beats}];
 		for(let x = 0; x < noteCount; x++) {
@@ -363,7 +364,7 @@
 }</pre></p>
 	<p><button id="btnParseScript" onclick="parseScript()">Flatten</button></p>
 	<p>Flattened:<br />
-	<pre id="flatScript">
+	<pre id="flatScript" contenteditable="true">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
  {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre></p>
 	<p><button id="btnPlay" onclick="play()">Play</button>
