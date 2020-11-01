@@ -291,7 +291,7 @@
 		let signature = {2: 0, 3: 0, 5: 0, 7: 0};
 		signature.beats = 1;
 		for(let i = 0, y; i < 4; i++) {
-			let y = Math.floor(- Math.log(Math.random()) / primes[i]);
+			let y = Math.floor(- 2 * Math.log(Math.random()) / primes[i]);
 			signature[primes[i]] = y;
 			signature.beats *= Math.pow(primes[i], y);
 		}
@@ -303,7 +303,7 @@
 		}
 		if(signature.beats < 2) {signature.beats = 2;}
 		
-		let noteCount = Math.floor((0.1875 + 0.8125 * Math.random()) * signature.beats);
+		let noteCount = Math.floor((0.25 + 0.75 * Math.random()) * signature.beats);
 		if(noteCount < 2) {noteCount = 2;}
 		let bar = [{freq: 0.5, noteStart: 0, duration: signature.beats}];
 		for(let x = 0; x < noteCount; x++) {
@@ -357,7 +357,7 @@
 "timeDelta": 0,
 "tempo": 0.5,
 "decayFactor": 128,
-"pat1":[
+"pat1": [
 {"noteStart": 0, "duration": 1, "freq": 1},
 {"noteStart": 1, "duration": 1, "freq": "5/4"},
 {"noteStart": 2, "duration": 1, "freq": [-1,1]},
@@ -379,7 +379,7 @@
 	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
 	<p>The formats are based on an existing one, called JSON. The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
 	<p>Block (inheritable) properties are: freqRatio, volRatio, timeDelta, tempo, decayFactor, attack.</p>
-	<p>Note properties are:</p>
+	<p>Note properties are (most of them relative):</p>
 	<dl>
 		<dt>noteStart</dt>
 		<dd>The moment in time the note is played.</dd>
