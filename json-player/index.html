@@ -44,6 +44,7 @@
 		ctlFlatScript = document.getElementById("flatScript");
 		ctlStructuredScript = document.getElementById("structuredScript");
 		outAudioT = document.getElementById("outAudioT");
+		outAudioT.innerText = "0";
 	}
 	
 	var playing = false;
@@ -366,8 +367,8 @@
 "0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
 "1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre></p>
-	<p><button id="btnParseScript" onclick="parseScript()">Flatten</button></p>
 	<p>Flattened:
+	<button id="btnParseScript" onclick="parseScript()">Flatten</button>
 	<button id="btnOverflowToggle" onclick="overflowToggle(ctlFlatScript)">Toggle overflow</button><br />
 	<pre id="flatScript" contenteditable="true">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
@@ -375,7 +376,7 @@
 	<p><button id="btnPlay" onclick="play()">Play</button>
 	<button id="btnStop" onclick="stop()">Stop</button>
 	<!--to do: use output element instead of span?-->
-	Play time: <span id="outAudioT">0</span> s.</p>
+	Play time: <span id="outAudioT"></span> s.</p>
 	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
 	<p>The formats are based on an existing one, called JSON. The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
 	<p>Block (inheritable) properties are: freqRatio, volRatio, timeDelta, tempo, decayFactor, attack.</p>
@@ -392,17 +393,17 @@
 		<dt>vol</dt>
 		<dd>Amplitude.</dd>
 		<dt>decayFactor</dt>
-		<dd>How slowly the note sound is dampened while still playing.</dd>
+		<dd>How slowly the note amplitude is dampened while still playing.</dd>
 		<dt>attack</dt>
-		<dd>How slowly the note sound comes.</dd>
+		<dd>How slowly the note amplitude comes.</dd>
 	</dl>
 	<p>Frequencies, tempo and duration support several number formats:</p>
 	<ul>
 		<li>1.25 = 1.25</li>
 		<li>"1.25" = 1.25</li>
 		<li>"5/2/2" = 5/4 = 1.25</li>
-		<li>[-2, 0, 1] = 2^(-2) * 3^0 * 5^1 = 5/4 = 1.25 (uses prime factors implicitly)</li>
-		<li>{"2": -2, "5": 1} = 2^(-2) * 5^1 = 5/4 = 1.25 (great for use with prime factors)</li>
+		<li>[-2, 0, 1] = 2<sup>-2</sup> * 3<sup>0</sup> * 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+		<li>{"2": -2, "5": 1} = 2<sup>-2</sup> * 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors)</li>
 	</ul>
 	<!--
 	to do:
