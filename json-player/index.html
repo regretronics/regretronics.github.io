@@ -183,7 +183,7 @@
 		//alter context.
 		if(s.timeDelta) {_time += _tempo * s.timeDelta}
 		if(s.tempo) {_tempo *= parseNumber(s.tempo)}
-		if(s.volRatio) {_vol *= s.volRatio}
+		if(s.volRatio) {_vol *= parseNumber(s.volRatio)}
 		if(s.freqRatio) {_freq *= parseNumber(s.freqRatio)}
 		if(s.decayFactor) {_decayFactor = s.decayFactor}
 		if(s.attack) {_attack = s.attack}
@@ -336,13 +336,16 @@
 	
 	const maxPitches = [5, 2, 1, 1, 0], voiceCount = 3;
 	
+	//recursive call
 	function melodyVoice(_struct, index, timeScale, voiceDepth) {
 		let newStruct = {freq: Object.assign({}, _struct.freq), timeDelta: timeScale * index, noteStart: 0, duration: timeScale};
 		let p = 1 + Math.floor(3 * Math.random());
 		let sign = Math.random() >= 0.5 ? 1 : -1;
 		let newExp = newStruct.freq[primes[p]] + sign;
+		//bounds (tonality) check
 		if((newExp < 0) || (newExp > maxPitches[p])) {sign *= -1;}
 		newStruct.freq[primes[p]] += sign;
+		//one octave up
 		newStruct.freq[2] -= sign * Math.round(Math.log2(primes[p])) - 1;
 		
 		if(voiceDepth > 1) {
@@ -355,7 +358,7 @@
 	function makeMelody() {
 		const repeatCount = 2, barCount = 4;
 	
-		struct = {freqRatio: 220};
+		struct = {freqRatio: 160, volRatio: "1/" + voiceCount};
 		//to do!
 		for(let x = 0; x < barCount; x++) {
 			//randomize an initial note
