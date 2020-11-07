@@ -189,13 +189,17 @@
 		if(s.attack) {_attack = s.attack}
 
 		//to do: allow notestart to be inferred
-		if(s.hasOwnProperty("noteStart") && (s.hasOwnProperty("noteStop") || s.hasOwnProperty("duration"))) {
+		if(s.hasOwnProperty("noteStart")) {
 			//register a note.
 			let noteVol = 1;
 			let noteFreq = 1;
 			if(s.hasOwnProperty("vol")) {noteVol = s.vol;}
 			if(s.hasOwnProperty("freq")) {noteFreq = parseNumber(s.freq);}
-			if(s.hasOwnProperty("duration")) {s.noteStop = s.noteStart + parseNumber(s.duration);}
+			if(s.hasOwnProperty("duration")) {
+				s.noteStop = s.noteStart + parseNumber(s.duration);
+			} else {
+				if (!s.hasOwnProperty("noteStop")) {s.noteStop = s.noteStart + 1;}
+			}
 			
 			flat.push({noteStart: _time + _tempo * s.noteStart, noteStop: _time + _tempo * s.noteStop, freq: _freq * noteFreq});
 			noteVol *= _vol;
@@ -261,7 +265,7 @@
 	
 	function addInterval(refFreq, targetFreq) {
 		let iPrime = Math.floor(4 * Math.random());
-		let sign = Math.random >= 0.5 ? 1 : -1;
+		let sign = Math.random() >= 0.5 ? 1 : -1;
 		Object.assign(targetFreq, refFreq);
 		targetFreq[primes[iPrime]] += sign;
 		//to do: round? floor?
@@ -330,6 +334,54 @@
 		parseScript();
 	}
 	
+	const maxPitches = [5, 2, 1, 1, 0], voiceCount = 3;
+	
+	function melodyVoice(_struct, index, timeScale, voiceDepth) {
+		let newStruct = {freq: Object.assign({}, _struct.freq), timeDelta: timeScale * index, noteStart: 0, duration: timeScale};
+		let p = 1 + Math.floor(3 * Math.random());
+		let sign = Math.random() >= 0.5 ? 1 : -1;
+		let newExp = newStruct.freq[primes[p]] + sign;
+		if((newExp < 0) || (newExp > maxPitches[p])) {sign *= -1;}
+		newStruct.freq[primes[p]] += sign;
+		newStruct.freq[2] -= sign * Math.round(Math.log2(primes[p])) - 1;
+		
+		if(voiceDepth > 1) {
+			newStruct[0] = melodyVoice(newStruct, 0, timeScale / 2, voiceDepth - 1);
+			newStruct[1] = melodyVoice(newStruct[0], 1, timeScale / 2, voiceDepth - 1);
+		}
+		return newStruct;
+	}
+	
+	function makeMelody() {
+		const repeatCount = 2, barCount = 4;
+	
+		struct = {freqRatio: 220};
+		//to do!
+		for(let x = 0; x < barCount; x++) {
+			//randomize an initial note
+			struct[x] = {freq: {2: 0, 3: 0, 5: 0, 7: 0}, timeDelta: 4 * x, noteStart: 0, duration: 4};
+			let product = 1;
+			for(let p = 1; p < 4; p++) {
+				let y = Math.floor((maxPitches[p] + 1) * Math.random());
+				struct[x].freq[primes[p]] = y;
+				product *= primes[p] ** y;
+			}
+			//multiply the primes and balance factor 2
+			struct[x].freq[2] = - Math.round(Math.log2(product));
+			
+			struct[x][0] = melodyVoice(struct[x], 0, 2, voiceCount - 1);
+			struct[x][1] = melodyVoice(struct[x][0], 1, 2, voiceCount - 1);
+		}
+
+		let s = JSON.stringify(struct, null, "\t");
+		let regex = new RegExp(/\n\t{5,}/, "g");
+		s = s.replace(regex, " ");
+		regex = new RegExp(/\n\t{4,}\}/, "g");
+		s = s.replace(regex, "}");
+		ctlStructuredScript.innerText = s;
+		parseScript();
+	}
+	
 	var FlattenTimeoutID;
 	function scriptChanged() {
 		if(FlattenTimeoutID) {
@@ -350,7 +402,8 @@
 	<p>Structured music:
 	<button id="btnOverflowToggle" onclick="overflowToggle(ctlStructuredScript)">Toggle overflow</button>
 	<button id="btnChordGen" onclick="makeChord()">Make chord</button>
-	<button id="btnRhythmGen" onclick="makeRhythm()">Make rhythm</button><br />
+	<button id="btnRhythmGen" onclick="makeRhythm()">Make rhythm</button>
+	<button id="btnMelodyGen" onclick="makeMelody()">Make melody</button><br />
 	<pre id="structuredScript" contenteditable="true" oninput="scriptChanged()">
 {
 "freqRatio": 440,
@@ -393,9 +446,9 @@
 		<dt>vol</dt>
 		<dd>Amplitude.</dd>
 		<dt>decayFactor</dt>
-		<dd>How slowly the note amplitude is dampened while still playing.</dd>
+		<dd>How slowly the note amplitude is dampened while still playing (absolute).</dd>
 		<dt>attack</dt>
-		<dd>How slowly the note amplitude comes.</dd>
+		<dd>How slowly the note amplitude comes (absolute).</dd>
 	</dl>
 	<p>Frequencies, tempo and duration support several number formats:</p>
 	<ul>
