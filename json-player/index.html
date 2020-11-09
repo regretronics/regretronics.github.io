@@ -346,7 +346,8 @@
 		if((newExp < 0) || (newExp > maxPitches[p])) {sign *= -1;}
 		newStruct.freq[primes[p]] += sign;
 		//one octave up
-		newStruct.freq[2] -= sign * Math.round(Math.log2(primes[p])) - 1;
+		newStruct.freq[2] -= sign * Math.round(Math.log2(primes[p]));
+		if(index == 0) {newStruct.freq[2] += 1;}
 		
 		if(voiceDepth > 1) {
 			newStruct[0] = melodyVoice(newStruct, 0, timeScale / 2, voiceDepth - 1);
@@ -359,7 +360,7 @@
 		const repeatCount = 2, barCount = 4;
 	
 		struct = {freqRatio: 160, volRatio: "1/" + voiceCount};
-		//to do!
+		//struct = {freqRatio: 660, volRatio: "1/" + voiceCount};
 		for(let x = 0; x < barCount; x++) {
 			//randomize an initial note
 			struct[x] = {freq: {2: 0, 3: 0, 5: 0, 7: 0}, timeDelta: 4 * x, noteStart: 0, duration: 4};
@@ -417,7 +418,7 @@
 "pat1": [
 {"noteStart": 0, "duration": 1, "freq": 1},
 {"noteStart": 1, "duration": 1, "freq": "5/4"},
-{"noteStart": 2, "duration": 1, "freq": [-1,1]},
+{"noteStart": 2, "duration": 1, "freq": [-1, 1]},
 {"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
 ],
 "0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
