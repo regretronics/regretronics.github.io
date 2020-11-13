@@ -442,16 +442,16 @@
 	</p>
 	<p>Structured music:
 	<button id="btnOverflowToggle" onclick="overflowToggle(ctlStructuredScript)">Toggle overflow</button>
-	<button id="btnChordGen" onclick="makeChord()">Make chord</button>
-	<button id="btnRhythmGen" onclick="makeRhythm()">Make rhythm</button>
-	<button id="btnMelodyGen" onclick="makeMelody()">Make melody</button></p>
+	<button id="btnChordGen" onclick="makeChord()" accesskey="c">Make <u>c</u>hord</button>
+	<button id="btnRhythmGen" onclick="makeRhythm()" accesskey="r">Make <u>r</u>hythm</button>
+	<button id="btnMelodyGen" onclick="makeMelody()" accesskey="m">Make <u>m</u>elody</button></p>
 	<p>Parameters: 
-	<label for="txtFreq">base freq.</label> <input type="text" id="txtFreq" value="440" style="width: 4em" />
-	<label for="txtVoices">voices</label> <input type="text" id="txtVoices" value="3" style="width: 4em" />
-	<label for="txtTime">time scale</label> <input type="text" id="txtTime" value="0.5" style="width: 4em" />
-	<label for="txtBars">bars</label> <input type="text" id="txtBars" value="4" style="width: 4em" />
-	<label for="txtRepPeriod">rep. period (melody)</label> <input type="text" id="txtRepPeriod" value="2" style="width: 4em" />
-	<label for="txtRepCount">rep. count (melody)</label> <input type="text" id="txtRepCount" value="2" style="width: 4em" />
+	<label for="txtFreq">base freq. (Hz)</label> <input type="number" id="txtFreq" value="440" style="width: 4em" />
+	<label for="txtVoices">voices</label> <input type="number" id="txtVoices" value="3" step="1" style="width: 4em" />
+	<label for="txtTime">time scale</label> <input type="number" id="txtTime" value="0.5" style="width: 4em" />
+	<label for="txtBars">bars</label> <input type="number" id="txtBars" value="4" step="1" style="width: 4em" />
+	<label for="txtRepPeriod">rep. period (melody)</label> <input type="number" id="txtRepPeriod" value="2" step="1" style="width: 4em" />
+	<label for="txtRepCount">rep. count (melody)</label> <input type="number" id="txtRepCount" value="2" step="1" style="width: 4em" />
 	</p>
 	<pre id="structuredScript" contenteditable="true" oninput="scriptChanged()">
 {
@@ -475,8 +475,8 @@
 	<pre id="flatScript" contenteditable="true">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
  {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre></p>
-	<p><button id="btnPlay" onclick="play()">Play</button>
-	<button id="btnStop" onclick="stop()">Stop</button>
+	<p><button id="btnPlay" onclick="play()" accesskey="p"><u>P</u>lay</button>
+	<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top</button>
 	<!--to do: use output element instead of span?-->
 	Play time: <span id="outAudioT"></span> s.</p>
 	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
@@ -499,7 +499,7 @@
 		<dt>attack</dt>
 		<dd>How slowly the note amplitude comes (absolute).</dd>
 	</dl>
-	<p>Frequencies, tempo and duration support several number formats:</p>
+	<p>Frequencies, tempo and duration support several number formats. Examples:</p>
 	<ul>
 		<li>1.25 = 1.25</li>
 		<li>"1.25" = 1.25</li>
