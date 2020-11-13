@@ -38,9 +38,17 @@
 	//<![CDATA[
 	"use strict";
 	var audioCtx = null, oscs = [], gains = [];
+	var txtFreq, txtVoices, txtTime, txtBars, txtRepPeriod, txtRepCount;
 	var ctlFlatScript, ctlStructuredScript, outAudioT;
 	
 	function docLoaded() {
+		txtFreq = document.getElementById("txtFreq");
+		txtVoices = document.getElementById("txtVoices");
+		txtTime = document.getElementById("txtTime");
+		txtBars = document.getElementById("txtBars");
+		txtRepPeriod = document.getElementById("txtRepPeriod");
+		txtRepCount = document.getElementById("txtRepCount");
+		
 		ctlFlatScript = document.getElementById("flatScript");
 		ctlStructuredScript = document.getElementById("structuredScript");
 		outAudioT = document.getElementById("outAudioT");
@@ -115,7 +123,7 @@
 				osc1.stop(t0 + flat[i].noteStop);
 			}
 		}
-		audioCtx.play();
+		//audioCtx.play();
 	}
 	function stop() {
 		for(const osc of oscs) {
@@ -263,8 +271,10 @@
 		}
 	}
 	
+	const primeCount = 4;
+	
 	function addInterval(refFreq, targetFreq) {
-		let iPrime = Math.floor(4 * Math.random());
+		let iPrime = Math.floor(primeCount * Math.random());
 		let sign = Math.random() >= 0.5 ? 1 : -1;
 		Object.assign(targetFreq, refFreq);
 		targetFreq[primes[iPrime]] += sign;
@@ -273,14 +283,16 @@
 	}
 	
 	function makeChord() {
-		struct = {freqRatio: 440, 0: {freq: {2: 0, 3: 0, 5: 0, 7: 0}}};
-		struct[1] = {freq: {}};
-		addInterval(struct[0].freq, struct[1].freq);
-		struct[2] = {freq: {}};
-		addInterval(struct[Math.floor(2 * Math.random())].freq, struct[2].freq);
-		for(let i = 0; i < 3; i++) {
+		let voiceCount = parseInt(txtVoices.value);
+		
+		struct = {freqRatio: parseFloat(txtFreq.value), tempo: parseFloat(txtTime.value), volRatio: 0.5, 0: {freq: {2: 0, 3: 0, 5: 0, 7: 0}}};
+		for(let i = 1; i < voiceCount; i++) {
+			struct[i] = {freq: {}};
+			addInterval(struct[Math.floor(i * Math.random())].freq, struct[i].freq);
+		}
+		for(let i = 0; i < voiceCount; i++) {
 			struct[i].noteStart = i;
-			struct[i].duration = 1;
+			struct[i].duration = 2;
 		}
 
 		let s = JSON.stringify(struct, null, "\t");
@@ -300,6 +312,7 @@
 			signature[primes[i]] = y;
 			signature.beats *= Math.pow(primes[i], y);
 		}
+		//if the number of beats is still small
 		if(signature.beats == 1) {
 			let x = Math.random();
 			x = Math.floor(4 * x * x);
@@ -322,9 +335,9 @@
 			bar[x + 1].noteStart = y;
 			y += bar[x + 1].duration;
 		}
-		struct = {freqRatio: 440, volRatio: 0.5, tempo: 0.5, bar: bar};
+		struct = {freqRatio: parseFloat(txtFreq.value), volRatio: 0.5, tempo: parseFloat(txtTime.value), bar: bar};
 		//struct.bar = bar;
-		for(let x = 0; x < 4; x++) {
+		for(let x = 0; x < parseFloat(txtBars.value); x++) {
 			struct[x] = {timeDelta: x * signature.beats};
 			struct[x][0] = "bar";
 		}
@@ -334,19 +347,20 @@
 		parseScript();
 	}
 	
-	const maxPitches = [5, 2, 1, 1, 0], voiceCount = 3;
+	const maxPitches = [5, 2, 1, 1, 0];
 	
 	//recursive call
 	function melodyVoice(_struct, index, timeScale, voiceDepth) {
+		if(voiceDepth < 1) {return;}
 		let newStruct = {freq: Object.assign({}, _struct.freq), timeDelta: timeScale * index, noteStart: 0, duration: timeScale};
-		let p = 1 + Math.floor(3 * Math.random());
+		let p = 1 + Math.floor((primeCount - 1) * Math.random());
 		let sign = Math.random() >= 0.5 ? 1 : -1;
 		let newExp = newStruct.freq[primes[p]] + sign;
 		//bounds (tonality) check
 		if((newExp < 0) || (newExp > maxPitches[p])) {sign *= -1;}
 		newStruct.freq[primes[p]] += sign;
-		//one octave up
 		newStruct.freq[2] -= sign * Math.round(Math.log2(primes[p]));
+		//one octave up
 		if(index == 0) {newStruct.freq[2] += 1;}
 		
 		if(voiceDepth > 1) {
@@ -357,24 +371,47 @@
 	}
 	
 	function makeMelody() {
-		const repeatCount = 2, barCount = 4;
+		//const repeatCount = 2, repPeriod = 2;
+		let barCount = parseFloat(txtBars.value);
+		let voiceCount = parseInt(txtVoices.value);
+		let repPeriod = parseInt(txtRepPeriod.value);
+		let repeatCount = parseInt(txtRepCount.value);
 	
-		struct = {freqRatio: 160, volRatio: "1/" + voiceCount};
 		//struct = {freqRatio: 660, volRatio: "1/" + voiceCount};
-		for(let x = 0; x < barCount; x++) {
+		//struct = {freqRatio: 160, volRatio: "1/" + voiceCount, tempo: parseFloat(txtTime.value)};
+		struct = {freqRatio: parseFloat(txtFreq.value) / 2 ** Math.floor(voiceCount / 2), volRatio: "1/" + voiceCount.toString(), tempo: parseFloat(txtTime.value)};
+		for(let x = 0; x < /*repeatCount **/ barCount; x++) {
 			//randomize an initial note
-			struct[x] = {freq: {2: 0, 3: 0, 5: 0, 7: 0}, timeDelta: 4 * x, noteStart: 0, duration: 4};
+			//let bar = {freq: {2: 0, 3: 0, 5: 0, 7: 0}, timeDelta: 4 * x, noteStart: 0, duration: 2 ** (voiceCount - 1)};
+			let bar = {freq: {2: 0, 3: 0, 5: 0, 7: 0}, noteStart: 0, duration: 2 ** (voiceCount - 1)};
 			let product = 1;
-			for(let p = 1; p < 4; p++) {
+			for(let p = 1; p < primeCount; p++) {
 				let y = Math.floor((maxPitches[p] + 1) * Math.random());
-				struct[x].freq[primes[p]] = y;
+				bar.freq[primes[p]] = y;
 				product *= primes[p] ** y;
 			}
 			//multiply the primes and balance factor 2
-			struct[x].freq[2] = - Math.round(Math.log2(product));
+			bar.freq[2] = - Math.round(Math.log2(product));
 			
-			struct[x][0] = melodyVoice(struct[x], 0, 2, voiceCount - 1);
-			struct[x][1] = melodyVoice(struct[x][0], 1, 2, voiceCount - 1);
+			if(voiceCount > 1) {
+				bar[0] = melodyVoice(bar, 0, 2 ** (voiceCount - 2), voiceCount - 1);
+				bar[1] = melodyVoice(bar[0], 1, 2 ** (voiceCount - 2), voiceCount - 1);
+			}
+			
+			//struct[x] = bar;
+			struct["bar" + x.toString()] = bar;
+		}
+		for(let x = 0; x < Math.ceil(barCount / repPeriod); x++) {
+		//for(let x = 0; x < barCount; x++) {
+			for(let y = 0; (y < repeatCount); y++) {
+				for(let z = 0; (z < repPeriod) && (x * repPeriod + z < barCount); z++) {
+					struct[(x * repeatCount + y) * repPeriod + z] = {
+						0: "bar" + (x * repPeriod + z).toString(),
+						timeDelta: 2 ** (voiceCount - 1) * ((x * repeatCount + y) * repPeriod + z)};
+					//struct[x][0] = "bar" + x.toString();
+					//struct[x].timeDelta = 2 ** (voiceCount - 1) * x;
+				}
+			}
 		}
 
 		let s = JSON.stringify(struct, null, "\t");
@@ -407,7 +444,15 @@
 	<button id="btnOverflowToggle" onclick="overflowToggle(ctlStructuredScript)">Toggle overflow</button>
 	<button id="btnChordGen" onclick="makeChord()">Make chord</button>
 	<button id="btnRhythmGen" onclick="makeRhythm()">Make rhythm</button>
-	<button id="btnMelodyGen" onclick="makeMelody()">Make melody</button><br />
+	<button id="btnMelodyGen" onclick="makeMelody()">Make melody</button></p>
+	<p>Parameters: 
+	<label for="txtFreq">base freq.</label> <input type="text" id="txtFreq" value="440" style="width: 4em" />
+	<label for="txtVoices">voices</label> <input type="text" id="txtVoices" value="3" style="width: 4em" />
+	<label for="txtTime">time scale</label> <input type="text" id="txtTime" value="0.5" style="width: 4em" />
+	<label for="txtBars">bars</label> <input type="text" id="txtBars" value="4" style="width: 4em" />
+	<label for="txtRepPeriod">rep. period (melody)</label> <input type="text" id="txtRepPeriod" value="2" style="width: 4em" />
+	<label for="txtRepCount">rep. count (melody)</label> <input type="text" id="txtRepCount" value="2" style="width: 4em" />
+	</p>
 	<pre id="structuredScript" contenteditable="true" oninput="scriptChanged()">
 {
 "freqRatio": 440,
@@ -423,7 +468,7 @@
 ],
 "0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
 "1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
-}</pre></p>
+}</pre>
 	<p>Flattened:
 	<button id="btnParseScript" onclick="parseScript()">Flatten</button>
 	<button id="btnOverflowToggle" onclick="overflowToggle(ctlFlatScript)">Toggle overflow</button><br />
