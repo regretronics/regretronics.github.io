@@ -446,12 +446,12 @@
 	<button id="btnRhythmGen" onclick="makeRhythm()" accesskey="r">Make <u>r</u>hythm</button>
 	<button id="btnMelodyGen" onclick="makeMelody()" accesskey="m">Make <u>m</u>elody</button></p>
 	<p>Parameters: 
-	<label for="txtFreq">base freq. (Hz)</label> <input type="number" id="txtFreq" value="440" style="width: 4em" />
-	<label for="txtVoices">voices</label> <input type="number" id="txtVoices" value="3" step="1" style="width: 4em" />
-	<label for="txtTime">time scale</label> <input type="number" id="txtTime" value="0.5" style="width: 4em" />
-	<label for="txtBars">bars</label> <input type="number" id="txtBars" value="4" step="1" style="width: 4em" />
-	<label for="txtRepPeriod">rep. period (melody)</label> <input type="number" id="txtRepPeriod" value="2" step="1" style="width: 4em" />
-	<label for="txtRepCount">rep. count (melody)</label> <input type="number" id="txtRepCount" value="2" step="1" style="width: 4em" />
+	<label for="txtFreq">base freq. (Hz)</label> <input type="number" id="txtFreq" value="440" min="1" style="width: 4em" />
+	<label for="txtVoices">voices</label> <input type="number" id="txtVoices" value="3" min="1" step="1" style="width: 4em" />
+	<label for="txtTime">time scale</label> <input type="number" id="txtTime" value="0.5" min="0" style="width: 4em" />
+	<label for="txtBars">bars</label> <input type="number" id="txtBars" value="4" step="1" min="1" style="width: 4em" />
+	<label for="txtRepPeriod">rept. period (melody)</label> <input type="number" id="txtRepPeriod" value="2" step="1" min="1" style="width: 4em" />
+	<label for="txtRepCount">rept. count (melody)</label> <input type="number" id="txtRepCount" value="2" step="1" min="1" style="width: 4em" />
 	</p>
 	<pre id="structuredScript" contenteditable="true" oninput="scriptChanged()">
 {
@@ -479,7 +479,7 @@
 	<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top</button>
 	<!--to do: use output element instead of span?-->
 	Play time: <span id="outAudioT"></span> s.</p>
-	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment.</p>
+	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one, used when playing. But you don't have to worry with the flattened one until the last moment. This page encourages just intonation via prime factors and fractions.</p>
 	<p>The formats are based on an existing one, called JSON. The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
 	<p>Block (inheritable) properties are: freqRatio, volRatio, timeDelta, tempo, decayFactor, attack.</p>
 	<p>Note properties are (most of them relative):</p>
