@@ -41,6 +41,9 @@
 	var txtFreq, txtVoices, txtTime, txtBars, txtRepPeriod, txtRepCount;
 	var ctlFlatScript, ctlStructuredScript, outAudioT;
 	
+	var releaseCurve;
+	const releaseCurveSize = 512;
+	
 	function docLoaded() {
 		txtFreq = document.getElementById("txtFreq");
 		txtVoices = document.getElementById("txtVoices");
@@ -53,20 +56,26 @@
 		ctlStructuredScript = document.getElementById("structuredScript");
 		outAudioT = document.getElementById("outAudioT");
 		outAudioT.innerText = "0";
+		
+		releaseCurve = new Float32Array(releaseCurveSize);
+		for(let i = 0; i < releaseCurveSize; i++) {
+			releaseCurve[i] = 1 - Math.exp(0.125 * (releaseCurveSize - 1 - i) / releaseCurveSize);
+		}
+	}
+	
+	function removeFrom(arr, item) {
+		if(item) {
+			arr.splice(arr.indexOf(item), 1);
+		}
 	}
 	
 	var playing = false;
 	function defOnEnded() {
 		//remove modules from list.
 		oscs.splice(oscs.indexOf(this), 1);
-		let g = this.assocGain1;
-		if(g) {
-			gains.splice(gains.indexOf(g), 1);
-		}
-		g = this.assocGain2;
-		if(g) {
-			gains.splice(gains.indexOf(g), 1);
-		}
+		removeFrom(gains, this.assocGain1);
+		removeFrom(gains, this.assocGain2);
+		removeFrom(gains, this.assocGain3);
 		if(oscs.length == 0) {stop();}
 	}
 	
@@ -88,7 +97,7 @@
 		let t0 = audioCtx.currentTime;
 		//to do: ?gradually enter notes
 		//let iStart = 0, iStop = 0;
-		for(let i = 0, osc1, gain1, gain2; i < flat.length; i++) {
+		for(let i = 0, osc1, gain1, gain2, gain3; i < flat.length; i++) {
 			if(flat[i].freq) {
 				osc1 = audioCtx.createOscillator();
 				oscs.push(osc1);
@@ -117,7 +126,15 @@
 				gain1.connect(gain2);
 				osc1.assocGain2 = gain2;
 				
-				gain2.connect(audioCtx.destination);
+				//volume attack
+				gain3 = audioCtx.createGain();
+				gains.push(gain3);
+				gain3.gain.setValueCurveAtTime(releaseCurve, t0 + flat[i].noteStart, flat[i].noteStop - flat[i].noteStart);
+				gain2.connect(gain3);
+				osc1.assocGain3 = gain3;
+				
+				//gain2.connect(audioCtx.destination);
+				gain3.connect(audioCtx.destination);
 				//osc1.start(t0 + flat[i].noteStart, 0, t0 + flat[i].noteStop);
 				osc1.start(t0 + flat[i].noteStart);
 				osc1.stop(t0 + flat[i].noteStop);
