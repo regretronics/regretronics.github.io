@@ -17,36 +17,59 @@ function defOnEnded() {
 }
 
 function audioTimer() {
-	if(!playing) return;
-	outAudioT.innerText = audioCtx.currentTime.toFixed(2);
-	window.setTimeout(audioTimer, 100);
+	if(!playing || !audioCtx) return;
+	elems.outAudioT.innerText = audioCtx.currentTime.toFixed(timeDisplPrecision);
+	if(audioCtx.state !== 'closed') {window.setTimeout(audioTimer, 100);}
 }
 
-//to do: note release time? (so that duration may affect nonspecified next noteStart, but release won't)
-var struct, flatStruct;
-const defaultFreqScale = 1, defaultVol = 1, defaultTimeScale = 1, defaultTimeDelta = 0, defaultDecayFactor = 256, defaultAttack = 0.125;
+var struct, flatStruct, songDuration;
+//to do: add note release time? (so that duration may affect nonspecified next noteStart, but release won't)
+const defaultBlockNode = {
+	freqRatio: 1,
+	volRatio: 1,
+	timeDelta: 0,
+	timeScale: 1,
+	decayFactor: 256,
+	attack: 0.125
+};
+const defaultNoteNode = {
+	noteStart: 0,
+	duration: 1,
+	freq: defaultBlockNode.freqRatio,
+	vol: defaultBlockNode.volRatio,
+	decayFactor: defaultBlockNode.decayFactor,
+	attack: defaultBlockNode.attack
+};
 //play() assumes that a flattened representation already exists in ctlFlatScript.innerText.
 function play() {
 	if(playing) return;
-	playing = true;
+	let playFreqScale = nullToDefault(parseNumber(elems.txtPlayFreqScale.value), defaultBlockNode.freqRatio);
+	if(playFreqScale <= 0) return;
+	let playVolScale = nullToDefault(parseNumber(elems.txtPlayVolScale.value), defaultBlockNode.volRatio);
+	if(playVolScale < 0) return;
+	let playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	if(playTimeScale <= 0) return;
+	let playTimeDelta = nullToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
+	let flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
+
+	songDuration = 0;
 	if(!audioCtx) {audioCtx = new AudioContext();}
-	audioTimer();
-	
-	let playFreqScale = nullToDefault(parseNumber(txtPlayFreqScale.value), defaultFreqScale);
-	let playVolScale = nullToDefault(parseNumber(txtPlayVolScale.value), defaultVol);
-	let playTimeScale = nullToDefault(parseNumber(txtPlayTimeScale.value), defaultTimeScale);
-	let playTimeDelta = nullToDefault(parseNumber(txtPlayTimeDelta.value), defaultTimeDelta);
-	let flatStruct = JSON.parse(ctlFlatScript.innerText);
+	audioCtx.suspend();
+	playing = true;
+
 	let t0 = audioCtx.currentTime + playTimeDelta;
-	//to do: ?gradually enter notes
+	//to do: ?progressively enter notes
 	//let iStart = 0, iStop = 0;
 	let len = flatStruct.length;
-	for(let i = 0, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3; i < len; i++) {
+	for(let i = 0, note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3; i < len; i++) {
+		note = flatStruct[i];
 		//in the flattened structure, all notes must have frequency.
-		if(!flatStruct[i].freq) continue;
-		noteFreq = playFreqScale * flatStruct[i].freq;
-		noteStart = playTimeScale * flatStruct[i].noteStart;
-		noteStop = playTimeScale * flatStruct[i].noteStop;
+		if(!note.freq) continue;
+		noteFreq = playFreqScale * note.freq;
+		noteStart = playTimeScale * note.noteStart;
+		noteStop = playTimeScale * note.noteStop;
+		if(noteStop <= noteStart) continue;
+		//to do: negative frequency? negative volume? (check if web audio supports phase inversion)
 
 		osc1 = audioCtx.createOscillator();
 		oscs.push(osc1);
@@ -54,13 +77,12 @@ function play() {
 		osc1.frequency.value = noteFreq;
 		osc1.onended = defOnEnded;
 
-		//to do: review this (looks wrong)
 		//volume scale and decay (from vol to 0)
 		gain1 = audioCtx.createGain();
 		gains.push(gain1);
-		gain1.gain.value = playVolScale * (flatStruct[i].hasOwnProperty("vol") ? flatStruct[i].vol : defaultVol);
-		let decayFactor = flatStruct[i].decayFactor;
-		if(!decayFactor) decayFactor = defaultDecayFactor;
+		gain1.gain.value = playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol);
+		let decayFactor = note.decayFactor;
+		if(!decayFactor) decayFactor = defaultNoteNode.decayFactor;
 		//to do: should decay factor be subject to playTimeScale?
 		gain1.gain.setTargetAtTime(0, t0 + noteStart, decayFactor / noteFreq);
 		osc1.connect(gain1);
@@ -70,16 +92,16 @@ function play() {
 		gain2 = audioCtx.createGain();
 		gains.push(gain2);
 		gain2.gain.value = 0;
-		let attack = flatStruct[i].attack;
-		if(!attack) attack = defaultAttack;
+		let attack = note.attack;
+		if(!attack) attack = defaultNoteNode.attack;
 		//to do: should attack time be subject to playTimeScale?
 		gain2.gain.setTargetAtTime(1, t0 + noteStart, playTimeScale * attack);
 		gain1.connect(gain2);
 		osc1.assocGain2 = gain2;
 		
-		//volume decay within note time
-		//wtf have i done here?
 		if(noteStop > noteStart) {
+			//volume decay within note time
+			//to do: review this (may be wrong)
 			gain3 = audioCtx.createGain();
 			gains.push(gain3);
 			gain3.gain.setValueCurveAtTime(releaseCurve, t0 + noteStart, noteStop - noteStart);
@@ -95,11 +117,15 @@ function play() {
 		//osc1.start(t0 + noteStart, 0, t0 + noteStop);
 		osc1.start(t0 + noteStart);
 		osc1.stop(t0 + noteStop);
+		songDuration = Math.max(songDuration, t0 + noteStop);
 	}
 	//audioCtx.play();
+	audioCtx.resume();
+	outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
+	audioTimer();
 }
 function stop() {
-	outAudioT.innerText = audioCtx.currentTime.toFixed(2);
+	if(audioCtx) {elems.outAudioT.innerText = audioCtx.currentTime.toFixed(timeDisplPrecision);}
 	for(const osc of oscs) {
 		osc.stop();
 		osc.disconnect();
@@ -109,12 +135,23 @@ function stop() {
 		gain.disconnect();
 	}
 	gains = [];
-	audioCtx = null;
 	playing = false;
+	audioCtx = null;
+	elems.btnPause.innerHTML = "<u>P</u>ause";
 }
-
-//of course there are infinite primes, but those here are more than enough.
-var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+function pauseToggle() {
+	if(!playing || !audioCtx) return;
+	elems.outAudioT.innerText = audioCtx.currentTime.toFixed(timeDisplPrecision);
+	if(audioCtx.state === 'closed') return;
+	if(audioCtx.state === 'running') {
+		audioCtx.suspend();
+		elems.btnPause.innerHTML = "Un<u>p</u>ause";
+	} else {
+		audioCtx.resume();
+		elems.btnPause.innerHTML = "<u>P</u>ause";
+		window.setTimeout(audioTimer, 100);
+	}
+}
 
 function nullToDefault(x, def) {
 	return x === null ? def : x;
@@ -192,44 +229,44 @@ function parseNumber(n) {
 
 //recursive call
 //to do: put context values into a context object (instead of lots of parameters)
-function parseObj(node, _freq, _vol, _time, _timeScale, _decayFactor, _attack) {
+function parseObj(node, blockContext) {
 	//alter context.
-	_time += _timeScale * nullToDefault(parseNumber(node.timeDelta), 0); //additive
+	let newContext = {};
+	Object.assign(newContext, blockContext);
+	//to do: bounds check and node elimination? (e.g. when freqRatio <= 0)
+	newContext.timeDelta += newContext.timeScale * nullToDefault(parseNumber(node.timeDelta), 0); //additive
 	
 	//multiplicative
-	_timeScale *= nullToDefault(parseNumber(node.timeScale), 1);
-	_vol *= nullToDefault(parseNumber(node.volRatio), 1);
-	_freq *= nullToDefault(parseNumber(node.freqRatio), 1);
+	newContext.timeScale *= nullToDefault(parseNumber(node.timeScale), 1);
+	newContext.volRatio *= nullToDefault(parseNumber(node.volRatio), 1);
+	newContext.freqRatio *= nullToDefault(parseNumber(node.freqRatio), 1);
 
 	//absolute
-	_decayFactor = nullToDefault(parseNumber(node.decayFactor), _decayFactor);
-	_attack = nullToDefault(parseNumber(node.attack), _attack);
+	newContext.decayFactor = nullToDefault(parseNumber(node.decayFactor), newContext.decayFactor);
+	newContext.attack = nullToDefault(parseNumber(node.attack), newContext.attack);
 
 	//to do: allow noteStart to be inferred from previous noteStop
 	if(node.hasOwnProperty("noteStart")) {
 		//register a note.
-		let noteVol = nullToDefault(parseNumber(node.vol), defaultVol);
-		let noteFreq = nullToDefault(parseNumber(node.freq), defaultFreqScale);
-
-		const defaultNoteStart = 0, defaultDuration = 1;
-		node.noteStart = nullToDefault(parseNumber(node.noteStart), defaultNoteStart);
-		//if a node doesn't have the duration property, don't add it, because it may be a block. adding it might override noteStop.
+		//const defaultNoteStart = 0, defaultDuration = 1;
+		node.noteStart = nullToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
+		//if a node doesn't have the duration property, don't add it; adding it might override noteStop.
 		if(node.hasOwnProperty("duration")) {
-			node.duration = nullToDefault(parseNumber(node.duration), defaultDuration);
+			node.duration = nullToDefault(parseNumber(node.duration), defaultNoteNode.duration);
 			node.noteStop = node.noteStart + node.duration;
 		} else {
-			node.noteStop = nullToDefault(parseNumber(node.noteStop), node.noteStart + defaultDuration);
+			node.noteStop = nullToDefault(parseNumber(node.noteStop), node.noteStart + defaultNoteNode.duration);
 		}
 		
 		let newNote = {
-			noteStart: _time + _timeScale * node.noteStart,
-			noteStop: _time + _timeScale * node.noteStop,
-			freq: _freq * noteFreq
+			noteStart: newContext.timeDelta + newContext.timeScale * node.noteStart,
+			noteStop: newContext.timeDelta + newContext.timeScale * node.noteStop,
+			freq: newContext.freqRatio * nullToDefault(parseNumber(node.freq), defaultNoteNode.freq)
 		};
-		noteVol *= _vol;
-		if(noteVol != defaultVol) {newNote.vol = noteVol;}
-		if(_decayFactor != defaultDecayFactor) {newNote.decayFactor = _decayFactor;}
-		if(_attack != defaultAttack) {newNote.attack = _attack;}
+		let noteVol = newContext.volRatio * nullToDefault(parseNumber(node.vol), defaultNoteNode.vol);
+		if(noteVol != defaultNoteNode.vol) {newNote.vol = noteVol;}
+		if(newContext.decayFactor != defaultNoteNode.decayFactor) {newNote.decayFactor = newContext.decayFactor;}
+		if(newContext.attack != defaultNoteNode.attack) {newNote.attack = newContext.attack;}
 		flatStruct.push(newNote);
 	}
 
@@ -238,16 +275,14 @@ function parseObj(node, _freq, _vol, _time, _timeScale, _decayFactor, _attack) {
 			//pattern invocation, global
 			//to do: local first?
 			if(struct.hasOwnProperty(t)) {
-				parseObj(struct[t],  _freq, _vol, _time, _timeScale, _decayFactor, _attack);
+				parseObj(struct[t],  newContext);
 			} else {
 				//pattern invocation, local
-				if(node.hasOwnProperty(t)) {
-					parseObj(node[t],  _freq, _vol, _time, _timeScale, _decayFactor, _attack);
-				}
+				if(node.hasOwnProperty(t)) {parseObj(node[t],  newContext);}
 			}
 		} else {
 			//primary recursion point.
-			parseObj(t,  _freq, _vol, _time, _timeScale, _decayFactor, _attack);
+			parseObj(t,  newContext);
 		}
 	}
 }
@@ -255,32 +290,40 @@ function parseObj(node, _freq, _vol, _time, _timeScale, _decayFactor, _attack) {
 var hasScriptChanged = false;
 function parseScript() {
 	try {
-		struct = JSON.parse(ctlStructuredScript.innerText);
+		struct = JSON.parse(elems.ctlStructuredScript.innerText);
 		flatStruct = []; //out with the old always
 		if(Array.isArray(struct)) {
 			for(let x of struct) {
-				parseObj(x, defaultFreqScale, defaultVol, defaultTimeDelta, defaultTimeScale, defaultDecayFactor, defaultAttack);
+				parseObj(x, defaultBlockNode);
 			}
 		} else {
-			parseObj(struct, defaultFreqScale, defaultVol, defaultTimeDelta, defaultTimeScale, defaultDecayFactor, defaultAttack);
+			parseObj(struct, defaultBlockNode);
 		}
 		
 		//finally, yield the flattened version
-		ctlFlatScript.innerText = JSON.stringify(flatStruct, null, "\t");
+		let s = JSON.stringify(flatStruct, null, "\t");
+		//final adjustments on indentation
+		let regex = new RegExp(/\{\n\t{2,}/, "g");
+		s = s.replace(regex, "{");
+		regex = new RegExp(/\n\t{2,}/, "g");
+		s = s.replace(regex, " ");
+		regex = new RegExp(/\n\t{1,}\}/, "g");
+		s = s.replace(regex, "}");
+		elems.ctlFlatScript.innerText = s;
 	} catch(err) {
-		//ctlFlatScript.innerText = err.name + ": " + err.message;
-		ctlFlatScript.innerText = err.toString();
+		//elems.ctlFlatScript.innerText = err.name + ": " + err.message;
+		elems.ctlFlatScript.innerText = err.toString();
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
-	btnParseScript.innerText = "Flattened";
+	elems.btnParseScript.innerText = "Flattened";
 }
 
 var flattenTimeoutID;
 const flattenInterval = 1000 * 1.5;
 function scriptChanged() {
 	hasScriptChanged = true;
-	btnParseScript.innerText = "Flatten";
+	elems.btnParseScript.innerText = "Flatten";
 	
 	if(flattenTimeoutID) {
 		window.clearTimeout(flattenTimeoutID);
