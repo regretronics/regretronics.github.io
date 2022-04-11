@@ -2,12 +2,13 @@ const defaultFreq = 440;
 
 //makes a simple interval by introducing a random prime factor up or down one unit
 function addInterval(refFreq, targetFreq) {
+	//to do: weighted random on factor selection?
 	let iPrime = Math.floor(primeCount * Math.random());
 	let sign = Math.random() >= 0.5 ? 1 : -1;
 	Object.assign(targetFreq, refFreq);
 	targetFreq[primes[iPrime]] += sign;
 	//pitch normalization into factor 2, i.e. octave normalization
-	//to do: round? floor?
+	//to do: round()? floor()?
 	if(iPrime > 0) {targetFreq[2] -= sign * Math.round(Math.log2(primes[iPrime]));}
 }
 
@@ -46,6 +47,7 @@ function makeChord() {
 	parseScript();
 }
 
+//to do: offer an easier visualization or report of resulting rhythm
 function makeRhythm() {
 	//number of beats as a product of (random) prime factors
 	let signature = {};
@@ -117,7 +119,11 @@ const maxPitches = [5, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 //recursive call
 function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	if(voiceDepth < 1) return;
-	let p = 1 + Math.floor((primeCount - 1) * Math.random());
+	//to do: weighted random on factor selection?
+	//to do: restricted choice for strong (index #0) beats?
+	//let p = 1 + Math.floor((primeCount - 1) * Math.random());
+	//let p = Math.min(1 + Math.floor(- 2 * Math.log2(Math.random())), primeCount - 1);
+	let p = Math.floor(primeCount ** Math.random());
 	let sign = Math.random() >= 0.5 ? 1 : -1;
 
 	let newStruct = {
@@ -143,28 +149,31 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	return newStruct;
 }
 
+//to do: allow more arbitrary rhythms
 function makeMelody() {
 	let patCount = parseFloat(elems.txtPatterns.value);
 	if(patCount <= 0) return;
 	let voiceCount = parseInt(elems.txtVoices.value);
-	if(voiceCount <= 0) return;
+	if(voiceCount < 1) return;
 	let repPeriod = parseInt(elems.txtRepPeriod.value);
 	if(repPeriod <= 0) return;
 	let repeatCount = parseInt(elems.txtRepCount.value);
 	if(repeatCount <= 0) return;
 
 	//top-level node
-	//struct = {freqRatio: 660, volRatio: "1/" + voiceCount};
-	//struct = {freqRatio: 160, volRatio: "1/" + voiceCount, timeScale: parseFloat(elems.txtTimeScale.value)};
 	struct = {
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq) * 0.5 ** Math.floor(voiceCount * 0.5),
 		volRatio: "1/" + voiceCount.toString(),
 		timeScale: nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale)
 	};
+	//rebuild table of variance per prime factor
+	//to do: too simple?
+	for(let i in primes) {
+		maxPitches[i] = 3 / Math.log2(primes[i]);
+	}
 	//make various patterns of notes
 	for(let x = 0; x < /*repeatCount **/ patCount; x++) {
 		//randomize an initial note
-		//let pattern = {freq: {}, timeDelta: 4 * x, noteStart: 0, duration: 2 ** (voiceCount - 1)};
 		let pattern = {
 			freq: {},
 			noteStart: 0,
@@ -172,6 +181,8 @@ function makeMelody() {
 		};
 		let product = 1;
 		for(let p = 1; p < primeCount; p++) {
+			//to do: signed (bipolar) random is probably better
+			//to do: use round() instead of floor()?
 			let y = Math.floor((maxPitches[p] + 1) * Math.random());
 			pattern.freq[primes[p]] = y;
 			product *= primes[p] ** y;
