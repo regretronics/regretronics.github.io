@@ -91,7 +91,7 @@ function parseScript() {
 }
 
 var flattenTimeoutID;
-const flattenInterval = 1.5 * 1000;
+const flattenInterval = 1.5;
 function scriptChanged() {
 	hasScriptChanged = true;
 	elems.btnParseScript.innerText = "Flatten";
@@ -101,14 +101,14 @@ function scriptChanged() {
 		flattenTimeoutID = undefined;
 	}
 	if(autoFlatten) {
-		flattenTimeoutID = window.setTimeout(parseScript, flattenInterval);
+		flattenTimeoutID = window.setTimeout(parseScript, flattenInterval * 1000);
 	}
 }
 
 function setAutoFlatten(value) {
 	autoFlatten = value;
 	if(autoFlatten) {
-		if(hasScriptChanged && !flattenTimeoutID) {flattenTimeoutID = window.setTimeout(parseScript, flattenInterval);}
+		if(hasScriptChanged && !flattenTimeoutID) {flattenTimeoutID = window.setTimeout(parseScript, flattenInterval * 1000);}
 	} else {
 		if(flattenTimeoutID) {
 			window.clearTimeout(flattenTimeoutID);

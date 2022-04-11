@@ -1,12 +1,4 @@
 //to do: add note release time? (so that duration may affect nonspecified next noteStart, but release won't)
-const defaultBlockNode = {
-	freqRatio: 1,
-	volRatio: 1,
-	timeDelta: 0,
-	timeScale: 1,
-	decayFactor: 256,
-	attack: 0.125
-};
 const defaultNoteNode = {
 	noteStart: 0,
 	duration: 1,

@@ -84,6 +84,7 @@ function makeRhythm() {
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
 		volRatio: 0.5,
 		timeScale: nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale),
+		decayFactor: 1024,
 		pat: pattern
 	};
 	let barCount = parseFloat(elems.txtPatterns.value);
@@ -163,7 +164,8 @@ function makeMelody() {
 	struct = {
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq) * 0.5 ** Math.floor(voiceCount * 0.5),
 		volRatio: "1/" + voiceCount.toString(),
-		timeScale: nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale)
+		timeScale: nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale),
+		decayFactor: 1024
 	};
 	//build table of variance per prime factor
 	//to do: too simple? should it depend on primeCount?

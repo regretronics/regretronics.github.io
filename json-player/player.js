@@ -20,12 +20,12 @@ function defOnEnded() {
 	if(oscs.length == 0) {stop();}
 }
 
-var flatStruct, playFreqScale, playVolScale, playTimeScale;
+var flatStruct, playTimeScale;
 function enqueueNotes(maxT) {
 	//progressively enter notes
 	//  to do: sort array by notestart (leave for later?)
 	//let iStart = 0, iStop = 0;
-	maxT /= playTimeScale; //to do: move this outside this procedure?
+	maxT /= playTimeScale; //to do: move this outside this procedure (to facilitate variable time scale)?
 	let note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3;
 	while((flatStruct.length > 0) && (flatStruct[0].noteStart <= maxT)) {
 		note = flatStruct.shift();
@@ -41,6 +41,7 @@ function enqueueNotes(maxT) {
 		oscs.push(osc1);
 		osc1.type = "sine";
 		osc1.frequency.value = noteFreq;
+		//osc1.detune.value = 0;
 		osc1.onended = defOnEnded;
 
 		//volume scale and decay (from vol to 0)
@@ -60,6 +61,7 @@ function enqueueNotes(maxT) {
 		gain2.gain.value = 0;
 		let attack = note.attack;
 		if(!attack) attack = defaultNoteNode.attack;
+		//to do: should attack time be subject to noteFreq?
 		//to do: should attack time be subject to playTimeScale?
 		gain2.gain.setTargetAtTime(1, t0 + noteStart, playTimeScale * attack);
 		gain1.connect(gain2);
@@ -88,14 +90,15 @@ function enqueueNotes(maxT) {
 
 function audioTUpdate() {
 	if(audioCtx) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
+	elems.outOscCount.innerText = oscs.length.toString();
 }
-const audioTimerInterval = 0.1 * 1000;
-function audioTimer() {
+const audioTimerInterval = 0.1;
+function audioTimer(noEnqueue) {
 	if(!playing || !audioCtx) return;
 	audioTUpdate();
 	if(audioCtx.state !== 'closed') {
-		window.setTimeout(audioTimer, audioTimerInterval);
-		enqueueNotes(audioCtx.currentTime - t0 + 2 * audioTimerInterval);
+		window.setTimeout(audioTimer, audioTimerInterval * 1000);
+		if(!noEnqueue) enqueueNotes(audioCtx.currentTime - t0 + 2 * audioTimerInterval);
 	}
 }
 
@@ -103,9 +106,9 @@ function audioTimer() {
 function play() {
 	if(playing) return;
 	//to do: allow dynamic change of those parameters (except for playTimeDelta and perhaps playTimeScale)
-	playFreqScale = nullToDefault(parseNumber(elems.txtPlayFreqScale.value), defaultBlockNode.freqRatio);
+	//playFreqScale = nullToDefault(parseNumber(elems.txtPlayFreqScale.value), defaultBlockNode.freqRatio);
 	if(playFreqScale <= 0) return;
-	playVolScale = nullToDefault(parseNumber(elems.txtPlayVolScale.value), defaultBlockNode.volRatio);
+	//playVolScale = nullToDefault(parseNumber(elems.txtPlayVolScale.value), defaultBlockNode.volRatio);
 	if(playVolScale < 0) return;
 	playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//to do: allow reverse playback?
@@ -136,7 +139,6 @@ function play() {
 	elems.btnPause.disabled = false;
 }
 function stop() {
-	audioTUpdate();
 	for(const osc of oscs) {
 		osc.stop();
 		osc.disconnect();
@@ -146,14 +148,15 @@ function stop() {
 		gain.disconnect();
 	}
 	gains = [];
+	audioTUpdate();
 	playing = false;
-	audioCtx.close();
+	if(audioCtx) audioCtx.close();
 	audioCtx = null;
 	elems.btnPause.innerHTML = "<u>P</u>ause";
 }
 function pauseToggle() {
 	if(!playing || !audioCtx) return;
-	audioTUpdate();
+	//audioTUpdate();
 	if(audioCtx.state === 'closed') return;
 	if(audioCtx.state === 'running') {
 		audioCtx.suspend();
@@ -161,6 +164,7 @@ function pauseToggle() {
 	} else {
 		audioCtx.resume();
 		elems.btnPause.innerHTML = "<u>P</u>ause";
-		window.setTimeout(audioTimer, audioTimerInterval);
+		//window.setTimeout(audioTimer, audioTimerInterval * 1000);
 	}
+	audioTimer(audioCtx.state !== 'running');
 }
