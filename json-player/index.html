@@ -8,12 +8,13 @@
 	<style type="text/css">
 	/*<![CDATA[*/
 	body {
-		background-color: hsl(120, 50%, 12.5%);
+		background-color: hsl(120, 37.5%, 25%);
 		color: hsl(120, 25%, 87.5%);
 	}
-	#ctlStructuredScript, #ctlFlatScript {
+
+	.codeEditor {
 		background-color: hsl(120, 12.5%, 75%);
-		color: hsl(120, 25%, 12.5%);
+		color: hsl(120, 25%, 0%);
 		height: 12em;
 		font-size: 85%;
 		width: 100%;
@@ -24,14 +25,30 @@
 	#ctlStructuredScript {
 		tab-size: 4;
 	}
-	button {
+	button, input {
 		font-size: 0.85em;
 	}
+	input[type=number] {
+		background-color: hsl(120, 50%, 12.5%);
+		color: hsl(120, 50%, 87.5%);
+		text-align: right;
+		width: 4em;
+	}
+	input.exp {
+		width: 5em;
+	}
+	.cell {
+		display: inline-block;
+	}
+	
 	a:link {
 		color: hsl(120, 75%, 62.5%);
 	}
 	a:visited {
 		color: hsl(30, 75%, 62.5%);
+	}
+	a:active {
+		color: hsl(120, 100%, 87.5%);
 	}
 	/*]]>*/
 	</style>
@@ -122,30 +139,50 @@
 </head>
 <body onload="docLoaded()">
 	<!--to do: relative step for spinners, based on round(log2(value))-->
-	<h1>HTML5/JSON music format and player</h1>
-	<p><strong>Text size:</strong> 
+	<h1>HTML5/JSON music&nbsp;format and player</h1>
+	<p><strong>Text&nbsp;size:</strong> 
 		<button id="btnTextShrink" onclick="rescaleText(0.8)">Shrink</button>
 		<button id="btnTextEnlarge" onclick="rescaleText(1.25)">Enlarge</button>
 	</p>
-	<p><strong>Structured music:</strong> 
-		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlStructuredScript)">Toggle overflow</button>
+	<p><strong>Structured&nbsp;music:</strong> 
+		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlStructuredScript)">Toggle overflow</button> <wbr />
 		<button id="btnChordGen" onclick="makeChord()" accesskey="c">Make <u>c</u>hord</button>
 		<button id="btnRhythmGen" onclick="makeRhythm()" accesskey="r">Make <u>r</u>hythm</button>
 		<button id="btnMelodyGen" onclick="makeMelody()" accesskey="m">Make <u>m</u>elody</button>
 	</p>
-	<p><strong>Parameters, basic:</strong> 
-		<label for="txtFreq">base freq. (Hz)</label> <input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" style="width: 4em" />
-		<label for="txtTimeScale">time scale (s)</label> <input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" style="width: 4em" />
-		<label for="txtPrimeCount">prime factor count</label> <input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" style="width: 4em" />
+	<p><strong>Parameters,&nbsp;basic:</strong> 
+		<datalist id="tunings">
+			<option value="256" />
+			<option value="258.65" />
+			<option value="415" />
+			<option value="427" />
+			<option value="430" />
+			<option value="432" />
+			<option value="435" />
+			<option value="440" />
+			<option value="442" />
+			<option value="443" />
+			<option value="466" />
+		</datalist>
+		<span class="cell"><label for="txtFreq">base&nbsp;freq.&nbsp;(Hz)</label>
+		<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" class="exp" list="tunings" /></span> <wbr />
+		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
+		<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factor&nbsp;count</label>
+		<input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" /></span>
 		<output id="outPrimeList"></output>
 	</p>
-	<p><strong>Parameters, additional:</strong> 
-		<label for="txtVoices">voices</label> <input type="number" id="txtVoices" value="3" min="1" step="1" style="width: 4em" />
-		<label for="txtPatterns">patterns</label> <input type="number" id="txtPatterns" value="4" step="1" min="1" style="width: 4em" />
-		<label for="txtRepPeriod">rept. period (melody)</label> <input type="number" id="txtRepPeriod" value="2" step="1" min="1" style="width: 4em" />
-		<label for="txtRepCount">rept. count (melody)</label> <input type="number" id="txtRepCount" value="2" step="1" min="1" style="width: 4em" />
+	<p><strong>Parameters,&nbsp;additional:</strong> 
+		<span class="cell"><label for="txtVoices">voices</label>
+		<input type="number" id="txtVoices" value="3" min="1" step="1" /></span> <wbr />
+		<span class="cell"><label for="txtPatterns">patterns</label>
+		<input type="number" id="txtPatterns" value="4" step="1" min="1" /></span> <wbr />
+		<span class="cell"><label for="txtRepPeriod">rept.&nbsp;period&nbsp;(melody)</label>
+		<input type="number" id="txtRepPeriod" value="2" step="1" min="1" /></span> <wbr />
+		<span class="cell"><label for="txtRepCount">rept.&nbsp;count&nbsp;(melody)</label>
+		<input type="number" id="txtRepCount" value="2" step="1" min="1" /></span>
 	</p>
-	<pre id="ctlStructuredScript" contenteditable="true" oninput="scriptChanged()">
+	<pre id="ctlStructuredScript" contenteditable="true" oninput="scriptChanged()" class="codeEditor" spellcheck="false">
 {
 	"freqRatio": 440,
 	"volRatio": 0.5,
@@ -163,24 +200,29 @@
 }</pre>
 	<p><strong>Flattened:</strong> 
 		<button id="btnParseScript" onclick="parseScript()">Flatten</button>
-		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlFlatScript)">Toggle overflow</button>
-		<input type="checkbox" id="chkAutoFlatten" onclick="setAutoFlatten(elems.chkAutoFlatten.checked)" /><label for="chkAutoFlatten">Automatically flatten</label>
+		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlFlatScript)">Toggle overflow</button>  <wbr />
+		<span class="cell"><input type="checkbox" id="chkAutoFlatten" onclick="setAutoFlatten(elems.chkAutoFlatten.checked)" />
+		<label for="chkAutoFlatten">Automatically&nbsp;flatten</label></span>
 	</p>
-	<pre id="ctlFlatScript" contenteditable="true">
+	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
  {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
- 	<p><strong>Final adjustments:</strong> 
-		<label for="txtPlayFreqScale">freq./tuning</label> <input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" style="width: 4em" />
-		<label for="txtPlayVolScale">volume</label> <input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged()" value="2" step="0.25" style="width: 4em" />
-		<label for="txtPlayTimeScale">time scale</label> <input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" style="width: 4em" />
-		<label for="txtPlayTimeDelta">time delta (lead-in)</label> <input type="number" id="txtPlayTimeDelta" value="0.25" min="0" step="0.25" style="width: 4em" />
+ 	<p><strong>Final&nbsp;adjustments:</strong> 
+		<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
+		<input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPlayVolScale">volume</label>
+		<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged()" value="2" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
+		<input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in)</label>
+		<input type="number" id="txtPlayTimeDelta" value="0.25" min="0" step="0.25" /></span>
 	</p>
 	<p><strong>Player:</strong> 
 		<button id="btnPlay" onclick="play()" accesskey="l"><u>L</u>oad and play</button>
 		<button id="btnPause" onclick="pauseToggle()" accesskey="p"><u>P</u>ause</button>
-		<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top</button>
+		<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top</button> <wbr />
 		<!--to do: use output element instead of span?-->
-		Play time: <span id="outAudioT"></span> s/<span id="outAudioDur"></span> s.</p>
+		Play&nbsp;time: <wbr /><span id="outAudioT"></span>&nbsp;s/<span id="outAudioDur"></span>&nbsp;s.</p>
 	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one (non-recursive), used when playing. But you don't have to worry with the flattened one until the last moment. This page encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a>.</p>
 	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Usage of alphabetic characters is case-sensitive and names are strict. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>. As it is a text format, it becomes easy to perfectly (and manually) save and load content.</p>
 	<p>Block (inheritable) properties are:</p>
