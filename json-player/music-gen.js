@@ -112,9 +112,8 @@ function makeRhythm() {
 	parseScript();
 }
 
-//variability per prime factor (2, 3, 5, 7, 11)
-//to do: soft-code this. i will need more sophistication.
-const maxPitches = [5, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+//variability per prime factor (2, 3, 5, 7, ...)
+const maxPitches = null;
 
 //recursive call
 function melodyVoice(_struct, index, timeScale, voiceDepth) {
@@ -168,8 +167,11 @@ function makeMelody() {
 	};
 	//rebuild table of variance per prime factor
 	//to do: too simple?
-	for(let i in primes) {
-		maxPitches[i] = 3 / Math.log2(primes[i]);
+	if(maxPitches === null) {
+		maxPitches = new Array(primes.length);
+		for(let i in primes) {
+			maxPitches[i] = 3 / Math.log2(primes[i]);
+		}
 	}
 	//make various patterns of notes
 	for(let x = 0; x < /*repeatCount **/ patCount; x++) {

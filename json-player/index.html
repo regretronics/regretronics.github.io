@@ -135,12 +135,13 @@
 	function expSpinnerChanged() {
 		let elem = event.target, val = elem.valueAsNumber;
 		let magnitude = Math.round(Math.log2(val)), step = (elem.step = 0.25 * 2 ** magnitude);
-		if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
+		//if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
+		elem.min = val - 2 * step;
 	}
 	//]]>
 	</script>
 	<script type="text/javascript" src="general.js"></script>
-	<script type="text/javascript" src="player-main.js"></script>
+	<script type="text/javascript" src="player.js"></script>
 	<script type="text/javascript" src="musical-format.js"></script>
 	<script type="text/javascript" src="music-gen.js"></script>
 </head>

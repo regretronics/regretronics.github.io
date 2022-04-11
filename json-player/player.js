@@ -42,7 +42,7 @@ function play() {
 	let flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
 
 	songDuration = 0;
-	if(!audioCtx) {audioCtx = new AudioContext();}
+	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
 	//to do: use Promise here to defer the rest of the procedure?
 	audioCtx.suspend();
 	playing = true;
