@@ -114,16 +114,21 @@ function makeRhythm() {
 }
 
 //variability per prime factor (2, 3, 5, 7, ...)
-var maxPitches = null;
+let maxPitches = null;
 
 //recursive call
 function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	if(voiceDepth < 1) return;
-	//to do: weighted random on factor selection?
-	//to do: restricted choice for strong (index #0) beats?
+	//factor selecion
 	//let p = 1 + Math.floor((primeCount - 1) * Math.random());
 	//let p = Math.min(1 + Math.floor(- 2 * Math.log2(Math.random())), primeCount - 1);
-	let p = Math.floor(primeCount ** Math.random());
+	let p;
+	if(index === 0) {
+		//conservative choice for strong (index #0) beats
+		p = Math.floor((0.5 * primeCount) ** Math.random());
+	} else {
+		p = Math.floor(primeCount ** Math.random());
+	}
 	let sign = Math.random() >= 0.5 ? 1 : -1;
 
 	let newStruct = {
@@ -134,12 +139,13 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	};
 	let newExp = newStruct.freq[primes[p]] + sign;
 	//bounds (tonality) check
-	if((newExp < 0) || (newExp > maxPitches[p])) {sign *= -1;}
+	if((newExp < 0) || (newExp > maxPitches[p] + 1)) {sign *= -1;}
 	newStruct.freq[primes[p]] += sign;
 	//pitch normalization into factor 2, i.e. octave normalization
+	//to do: absolute normalization (recalc?)
 	newStruct.freq[2] -= sign * Math.round(Math.log2(primes[p]));
-	//one octave up
-	if(index == 0) {newStruct.freq[2] += 1;}
+	//new level -> one octave up
+	if(index === 0) {newStruct.freq[2] += 1;}
 	
 	if(voiceDepth > 1) {
 		//upper voice in double speed
@@ -187,7 +193,7 @@ function makeMelody() {
 		let product = 1;
 		for(let p = 1; p < primeCount; p++) {
 			//to do: signed (bipolar) random is probably better
-			//to do: use round() instead of floor()?
+			//  to do: in such case, use round() instead of floor()?
 			let y = Math.floor((maxPitches[p] + 1) * Math.random());
 			pattern.freq[primes[p]] = y;
 			product *= primes[p] ** y;

@@ -9,7 +9,7 @@ function removeFrom(arr, item) {
 	if(i >= 0) {arr.splice(i, 1);}
 }
 
-var playing = false;
+let playing = false;
 function defOnEnded() {
 	//remove modules from list.
 	//console.debug("Note release: " + audioCtx.currentTime);
@@ -20,7 +20,7 @@ function defOnEnded() {
 	if(oscs.length == 0) {stop();}
 }
 
-var flatStruct, playTimeScale;
+let flatStruct, playTimeScale;
 function enqueueNotes(maxT) {
 	//progressively enter notes
 	//  to do: sort array by notestart (leave for later?)
@@ -67,7 +67,7 @@ function enqueueNotes(maxT) {
 		gain1.connect(gain2);
 		osc1.assocGain2 = gain2;
 		
-		if(noteStop > noteStart) {
+		if(releaseCurve) {
 			//volume decay within note time
 			//to do: review this (may be wrong)
 			gain3 = audioCtx.createGain();

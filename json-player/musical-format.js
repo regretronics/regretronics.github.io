@@ -1,7 +1,7 @@
-var struct, flatStruct;
+let struct;
 
 //recursive call
-function parseObj(node, blockContext) {
+function parseObj(flatStruct, node, blockContext) {
 	//alter context.
 	let newContext = {};
 	Object.assign(newContext, blockContext);
@@ -46,14 +46,14 @@ function parseObj(node, blockContext) {
 			//pattern invocation, local
 			//to do: local first really?
 			if(node.hasOwnProperty(t)) {
-				parseObj(node[t], newContext);
+				parseObj(flatStruct, node[t], newContext);
 			} else {
 				//pattern invocation, global
-				if(struct.hasOwnProperty(t)) {parseObj(struct[t], newContext);}
+				if(struct.hasOwnProperty(t)) {parseObj(flatStruct, struct[t], newContext);}
 			}
 		} else {
 			//primary recursion point.
-			parseObj(t, newContext);
+			parseObj(flatStruct, t, newContext);
 		}
 	}
 }
@@ -62,13 +62,13 @@ var hasScriptChanged = false;
 function parseScript() {
 	try {
 		struct = JSON.parse(elems.ctlStructuredScript.innerText);
-		flatStruct = []; //out with the old regardless of success
+		let flatStruct = []; //out with the old regardless of success
 		if(Array.isArray(struct)) {
 			for(let x of struct) {
-				parseObj(x, defaultBlockNode);
+				parseObj(flatStruct, x, defaultBlockNode);
 			}
 		} else {
-			parseObj(struct, defaultBlockNode);
+			parseObj(flatStruct, struct, defaultBlockNode);
 		}
 		
 		//finally, yield the flattened version

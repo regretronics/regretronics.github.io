@@ -106,9 +106,11 @@
 		//initialize look-up table, to be used in the volume envelope
 		releaseCurve = new Float32Array(releaseCurveSize);
 		for(let i = 0; i < releaseCurveSize; i++) {
-			//to do: review this (looks wrong): wtf have i done here?
-			releaseCurve[i] = 1 - Math.exp(0.125 * (releaseCurveSize - 1 - i) / releaseCurveSize);
-			releaseCurve[i] *= 7.5; //quick fix for now
+			//opposite of growing exponential
+			//releaseCurve[i] = 1 - Math.pow(2, 4 * (i / releaseCurveSize - 1));
+
+			//parabolic
+			releaseCurve[i] = 1 - (i / releaseCurveSize) ** 2;
 		}
 	}
 	
@@ -252,7 +254,7 @@
 	<p><strong>Player:</strong> 
 		<button id="btnPlay" onclick="play()" accesskey="l"><u>L</u>oad and play</button>
 		<button id="btnPause" onclick="pauseToggle()" accesskey="p"><u>P</u>ause</button>
-		<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top</button> <wbr />
+		<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top and unload</button> <wbr />
 		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT"></output>&nbsp;s/<output id="outAudioDur"></output>&nbsp;s.</span>
 		<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
 	</p>
