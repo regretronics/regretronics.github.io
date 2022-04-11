@@ -1,5 +1,5 @@
 //variables for web audio
-var audioCtx = null, oscs = [], gains = [];
+var audioCtx = null, oscs = [], gains = [], t0;
 
 //finds item in arr and remove from it.
 //currently an in-place operation, not functional.
@@ -20,46 +20,21 @@ function defOnEnded() {
 	if(oscs.length == 0) {stop();}
 }
 
-const audioTimerInterval = 0.1 * 1000;
-function audioTimer() {
-	if(!playing || !audioCtx) return;
-	elems.outAudioT.innerText = audioCtx.currentTime.toFixed(timeDisplPrecision);
-	if(audioCtx.state !== 'closed') {window.setTimeout(audioTimer, audioTimerInterval);}
-}
-
-var songDuration;
-//play() assumes that a flattened representation already exists in ctlFlatScript.innerText.
-function play() {
-	if(playing) return;
-	let playFreqScale = nullToDefault(parseNumber(elems.txtPlayFreqScale.value), defaultBlockNode.freqRatio);
-	if(playFreqScale <= 0) return;
-	let playVolScale = nullToDefault(parseNumber(elems.txtPlayVolScale.value), defaultBlockNode.volRatio);
-	if(playVolScale < 0) return;
-	let playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
-	//to do: allow reverse playback?
-	if(playTimeScale <= 0) return;
-	let playTimeDelta = nullToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
-	let flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
-
-	songDuration = 0;
-	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
-	//to do: use Promise here to defer the rest of the procedure?
-	audioCtx.suspend();
-	playing = true;
-
-	let t0 = audioCtx.currentTime + playTimeDelta;
-	//to do: ?progressively enter notes
+var flatStruct, playFreqScale, playVolScale, playTimeScale;
+function enqueueNotes(maxT) {
+	//progressively enter notes
 	//  to do: sort array by notestart (leave for later?)
 	//let iStart = 0, iStop = 0;
-	let len = flatStruct.length;
-	for(let i = 0, note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3; i < len; i++) {
-		note = flatStruct[i];
+	maxT /= playTimeScale; //to do: move this outside this procedure?
+	let note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3;
+	while((flatStruct.length > 0) && (flatStruct[0].noteStart <= maxT)) {
+		note = flatStruct.shift();
 		//in the flattened structure, all notes must have frequency.
 		if(!note.freq) continue;
+		if(note.noteStop <= note.noteStart) continue;
 		noteFreq = playFreqScale * note.freq;
 		noteStart = playTimeScale * note.noteStart;
 		noteStop = playTimeScale * note.noteStop;
-		if(noteStop <= noteStart) continue;
 		//to do: negative frequency? negative volume? (check if web audio supports phase inversion)
 
 		osc1 = audioCtx.createOscillator();
@@ -108,14 +83,60 @@ function play() {
 		//osc1.start(t0 + noteStart, 0, t0 + noteStop);
 		osc1.start(t0 + noteStart);
 		osc1.stop(t0 + noteStop);
-		songDuration = Math.max(songDuration, t0 + noteStop);
 	}
-	audioCtx.resume();
+}
+
+function audioTUpdate() {
+	if(audioCtx) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
+}
+const audioTimerInterval = 0.1 * 1000;
+function audioTimer() {
+	if(!playing || !audioCtx) return;
+	audioTUpdate();
+	if(audioCtx.state !== 'closed') {
+		window.setTimeout(audioTimer, audioTimerInterval);
+		enqueueNotes(audioCtx.currentTime - t0 + 2 * audioTimerInterval);
+	}
+}
+
+//play() assumes that a flattened representation already exists in ctlFlatScript.innerText.
+function play() {
+	if(playing) return;
+	//to do: allow dynamic change of those parameters (except for playTimeDelta and perhaps playTimeScale)
+	playFreqScale = nullToDefault(parseNumber(elems.txtPlayFreqScale.value), defaultBlockNode.freqRatio);
+	if(playFreqScale <= 0) return;
+	playVolScale = nullToDefault(parseNumber(elems.txtPlayVolScale.value), defaultBlockNode.volRatio);
+	if(playVolScale < 0) return;
+	playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	//to do: allow reverse playback?
+	if(playTimeScale <= 0) return;
+	let playTimeDelta = nullToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
+	flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
+
+	//estimate total clip duration
+	let songDuration = 0;
+	let len = flatStruct.length;
+	for(let i = 0, note; i < len; i++) {
+		note = flatStruct[i];
+		//in the flattened structure, all notes must have frequency.
+		if(!note.freq) continue;
+		if(note.noteStop <= note.noteStart) continue;
+		songDuration = Math.max(songDuration, playTimeScale * note.noteStop);
+	}
 	outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
+	
+	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
+	//to do: use Promise here to defer the rest of the procedure?
+	audioCtx.suspend();
+	playing = true;
+	t0 = audioCtx.currentTime + playTimeDelta;
 	audioTimer();
+	audioCtx.resume();
+	elems.btnPause.innerHTML = "<u>P</u>ause";
+	elems.btnPause.disabled = false;
 }
 function stop() {
-	if(audioCtx) {elems.outAudioT.innerText = audioCtx.currentTime.toFixed(timeDisplPrecision);}
+	audioTUpdate();
 	for(const osc of oscs) {
 		osc.stop();
 		osc.disconnect();
@@ -132,7 +153,7 @@ function stop() {
 }
 function pauseToggle() {
 	if(!playing || !audioCtx) return;
-	elems.outAudioT.innerText = audioCtx.currentTime.toFixed(timeDisplPrecision);
+	audioTUpdate();
 	if(audioCtx.state === 'closed') return;
 	if(audioCtx.state === 'running') {
 		audioCtx.suspend();

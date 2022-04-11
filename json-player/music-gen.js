@@ -113,7 +113,7 @@ function makeRhythm() {
 }
 
 //variability per prime factor (2, 3, 5, 7, ...)
-const maxPitches = null;
+var maxPitches = null;
 
 //recursive call
 function melodyVoice(_struct, index, timeScale, voiceDepth) {
@@ -148,7 +148,7 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	return newStruct;
 }
 
-//to do: allow more arbitrary rhythms
+//to do: allow more arbitrary rhythms, e.g. 2*2*3
 function makeMelody() {
 	let patCount = parseFloat(elems.txtPatterns.value);
 	if(patCount <= 0) return;
@@ -165,14 +165,15 @@ function makeMelody() {
 		volRatio: "1/" + voiceCount.toString(),
 		timeScale: nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale)
 	};
-	//rebuild table of variance per prime factor
-	//to do: too simple?
+	//build table of variance per prime factor
+	//to do: too simple? should it depend on primeCount?
 	if(maxPitches === null) {
 		maxPitches = new Array(primes.length);
 		for(let i in primes) {
 			maxPitches[i] = 3 / Math.log2(primes[i]);
 		}
 	}
+
 	//make various patterns of notes
 	for(let x = 0; x < /*repeatCount **/ patCount; x++) {
 		//randomize an initial note
