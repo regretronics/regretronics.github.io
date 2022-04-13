@@ -21,9 +21,10 @@ function defOnEnded() {
 }
 
 let flatStruct, playTimeScale;
+//to do: repeat mode?
 function enqueueNotes(maxT) {
 	//progressively enter notes
-	//  to do: sort array by notestart (leave for later?)
+	//  to do: sort array by notestart
 	//let iStart = 0, iStop = 0;
 	maxT /= playTimeScale; //to do: move this outside this procedure (to facilitate variable time scale)?
 	let note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3;
@@ -102,23 +103,23 @@ function audioTimer(noEnqueue) {
 	}
 }
 
-//play() assumes that a flattened representation already exists in ctlFlatScript.innerText.
+//play() presumes that a flattened representation already exists in ctlFlatScript.innerText.
 function play() {
 	if(playing) return;
-	//to do: allow dynamic change of those parameters (except for playTimeDelta and perhaps playTimeScale)
-	//playFreqScale = nullToDefault(parseNumber(elems.txtPlayFreqScale.value), defaultBlockNode.freqRatio);
 	if(playFreqScale <= 0) return;
-	//playVolScale = nullToDefault(parseNumber(elems.txtPlayVolScale.value), defaultBlockNode.volRatio);
-	if(playVolScale < 0) return;
+	//if(playVolScale < 0) return;
+
+	//to do: allow dynamic change of playTimeScale?
 	playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//to do: allow reverse playback?
 	if(playTimeScale <= 0) return;
 	let playTimeDelta = nullToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
-	flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
 
+	flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
 	//estimate total clip duration
 	let songDuration = 0;
 	let len = flatStruct.length;
+	if(len <= 0) return;
 	for(let i = 0, note; i < len; i++) {
 		note = flatStruct[i];
 		//in the flattened structure, all notes must have frequency.
@@ -126,7 +127,7 @@ function play() {
 		if(note.noteStop <= note.noteStart) continue;
 		songDuration = Math.max(songDuration, playTimeScale * note.noteStop);
 	}
-	outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
+	elems.outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
 	
 	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
 	//to do: use Promise here to defer the rest of the procedure?

@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>JSON music player</title>
+	<title>JSON music format</title>
 	<style type="text/css">
 	/*<![CDATA[*/
 	body {
@@ -71,20 +71,25 @@
 	<script type="text/javascript">
 	//<![CDATA[
 	"use strict";
-	//to do: use addEventListener() instead of legacy events.
+	//to do: use addEventListener() instead of legacy events
+	//to do: ?line numbers in left side in code editors
+	//to do: ?caret position (row, column, char index) status label
 
 	//HTML elements
-	var elemNames = ["txtFreq", "txtTimeScale", "txtPrimeCount",
-	 "txtVoices", "txtPatterns", "txtRepPeriod", "txtRepCount",
-	 "btnParseScript", "chkAutoFlatten",
-	 "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta",
-	 "ctlFlatScript", "ctlStructuredScript", "btnPause", "outPrimeList", "outAudioT", "outAudioDur", "outOscCount"];
+	var elemNames = ["txtFreq", "txtTimeScale", "txtPrimeCount", //generator parameters
+		"txtRhythmScale", "txtRhythmFactors", //rhythm
+		"txtVoices", "txtPatterns", "txtRepPeriod", "txtRepCount", //generator additional parameters
+		"btnFlattenStruct", "chkAutoFlatten", //flatten controls
+		"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall controls
+		"ctlFlatScript", "ctlStructuredScript", "btnPause", //code editors and pause toggle
+		"outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outOscCount" //output fields
+	];
 	var expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 	var elems = {};
 	var autoFlatten = true;
 	const timeDisplPrecision = 2;
 	
-	//look-up table for the opposite of a decreasing (?) exponential
+	//look-up table to be used in an aspect of the volume envelope
 	var releaseCurve;
 	const releaseCurveSize = 512;
 	
@@ -97,13 +102,14 @@
 		elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
 		elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
 		primeCountChanged();
+		rhythmFactorsChanged();
 
 		let evt = new Event("input");
 		for(let s of expSpinners) {
 			elems[s].dispatchEvent(evt);
 		}
 		
-		//initialize look-up table, to be used in the volume envelope
+		//initialize look-up table
 		releaseCurve = new Float32Array(releaseCurveSize);
 		for(let i = 0; i < releaseCurveSize; i++) {
 			//opposite of growing exponential
@@ -132,11 +138,14 @@
 	function primeCountChanged() {
 		primeCount = parseInt(elems.txtPrimeCount.value);
 		if(primeCount < 2) primeCount = 2;
-		elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).toString() + ")";
+		elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
 	}
 
+	//to do: force-allow arbitrary strings for "parseNumber" inputs. there must be an event for validation.
 	function expSpinnerChanged() {
-		let elem = event.target, val = elem.valueAsNumber;
+		let elem = event.target;
+		//let val = elem.valueAsNumber;
+		let val = nullToDefault(parseNumber(elem.value), 1);
 		let magnitude = Math.round(Math.log2(val)), step = (elem.step = 0.25 * 2 ** magnitude);
 		//if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
 		elem.min = val - 2 * step;
@@ -153,13 +162,113 @@
 	var playFreqScale, playVolScale;
 	function playFreqScaleChanged() {
 		let ctl = elems.txtPlayFreqScale;
-		if(ctl.valueAsNumber <= 0) ctl.stepUp();
-		playFreqScale = nullToDefault(parseNumber(ctl.valueAsNumber), defaultBlockNode.freqRatio);
+		//if(ctl.valueAsNumber <= 0) ctl.stepUp();
+		playFreqScale = nullToDefault(parseNumber(ctl.value), defaultBlockNode.freqRatio);
 	}
 	function playVolScaleChanged() {
 		let ctl = elems.txtPlayVolScale;
-		if(ctl.valueAsNumber < 0) ctl.stepUp();
-		playVolScale = nullToDefault(parseNumber(ctl.valueAsNumber), defaultBlockNode.volRatio);
+		//if(ctl.valueAsNumber < 0) ctl.stepUp();
+		playVolScale = nullToDefault(parseNumber(ctl.value), defaultBlockNode.volRatio);
+	}
+
+	//rhythm structure data (hierarchy of factors)
+	var rhythmFactors = [], rhythmFactorsAccum = []; //to do: is accum really necessary?
+	function rhythmFactorsChanged() {
+		let factors = elems.txtRhythmFactors.value.toString();
+		rhythmFactors = factors.split("*").map(x => parseFloat(x));
+		rhythmAccumUpdate();
+	}
+	function rhythmAccumUpdate() {
+		let factors = rhythmFactors.slice(); //array clone
+		let product = 1;
+		rhythmFactorsAccum = [];
+		while(factors.length > 0) {
+			product *= factors.pop();
+			rhythmFactorsAccum.unshift(product);
+		}
+		elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
+	}
+	function makeRhythmFactors() {
+		rhythmFactors = [];
+		let scale = nullToDefault(parseNumber(elems.txtRhythmScale.value), 4);
+		//let product = 1;
+		//builds a (random) product of prime factors
+		//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
+		for(let i = primeCount - 1, factor, y; i >= 0; i--) {
+			factor = primes[i];
+			if(factor > scale) continue; //ignore primes that are too large
+			let maxExp = Math.log(scale) / Math.log(factor);
+			//y = Math.floor(- 2 * Math.log(Math.random()) / factor);
+			y = Math.floor((maxExp + 0.5) * Math.random());
+			//if(y >= 1) rhythmFactors.unshift(Math.pow(factor, y));
+			for(let j = 0; j < y; j++) {
+				rhythmFactors.unshift(factor);
+				scale /= factor;
+				//product *= factor;
+			}
+		}
+		//the number of beats might be still small
+		if(rhythmFactors.length < 1) {
+			if(scale >= 2) {
+				let x;
+				do {
+					x = Math.random();
+					x = primes[Math.floor(primeCount * x * x)];
+				} while(x > scale);
+				rhythmFactors.push(x);
+			} else {
+				rhythmFactors.push(1); //at least factor one
+			}
+		}
+
+		elems.txtRhythmFactors.value = rhythmFactors.join("*");
+		rhythmAccumUpdate();
+	}
+
+	function editorKeyDown() {
+		if(event.key == "Tab") {
+			//console.log(event);
+			event.stopPropagation();
+			event.preventDefault();
+
+			//tried to dispatch input or beforeinput events. didn't work.
+			//event.target.dispatchEvent(new InputEvent("beforeinput", {data: "\t", inputType: "insertText"}));
+
+			event.target.focus(); //unnecessary?
+			if(event.shiftKey) {
+				//outdent line (actually, the nearest tab before caret)
+				let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
+				let pos = rng.endOffset;
+				let node = rng.endContainer;
+				let txt = node.textContent;
+				let txtBefore = txt.slice(0, pos);
+				let i = txtBefore.lastIndexOf("\t");
+				while(!(i >= 0)) {
+					node = node.previousSibling;
+					if(!node) break;
+					txt = node.textContent;
+					txtBefore = txt;
+					pos = txt.length;
+					i = txtBefore.lastIndexOf("\t");
+				}
+				if(i >= 0) {
+					//tried to preserve caret position, but the result is buggy
+					/*txtBefore = txtBefore.slice(0, i) + txtBefore.slice(i + 1);
+					node.textContent = txtBefore + txt.slice(pos);*/
+					/*rng.setStart(node, pos - 1);
+					rng.setEnd(node, pos - 1);*/
+
+					rng.setStart(node, i);
+					rng.setEnd(node, i + 1);
+					//rng.deleteContents();
+					document.execCommand("delete", false, null);
+					rng.setStart(node, pos - 1); //also buggy
+					rng.setEnd(node, pos - 1);
+				}
+			} else {
+				document.execCommand("insertText", false, "\t");
+			}
+		}
 	}
 	//]]>
 	</script>
@@ -169,7 +278,7 @@
 	<script type="text/javascript" src="music-gen.js"></script>
 </head>
 <body onload="docLoaded()">
-	<h1>HTML5/JSON music&nbsp;format and&nbsp;player</h1>
+	<h1>JSON music&nbsp;format and&nbsp;player</h1>
 	<p><strong>Text&nbsp;size:</strong> 
 		<button id="btnTextShrink" onclick="rescaleText(0.8)">Shrink</button>
 		<button id="btnTextEnlarge" onclick="rescaleText(1.25)">Enlarge</button>
@@ -190,14 +299,22 @@
 			<option value="466" />
 		</datalist>
 		<span class="cell"><label for="txtFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-		<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" class="exp" list="tunings" /></span> <wbr />
+			<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" class="exp" list="tunings" /></span> <wbr />
 		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-		<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" /></span> <wbr />
-		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factor&nbsp;count</label>
-		<input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" /></span>
+			<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
+			<input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" /></span>
 		<output id="outPrimeList"></output>
 	</p>
-	<p><!--<strong>Gen.&nbsp;parameters,&nbsp;additional:</strong> -->
+	<p><strong>Rhythm:</strong> 
+		<span class="cell"><label for="txtRhythmScale">approx. scale</label>
+			<input type="number" id="txtRhythmScale" value="8" step="1" min="1" /></span>
+		<button id="btnRhythmFactorsGen" onclick="makeRhythmFactors()">Generate</button>
+		<span class="cell"><label for="txtRhythmFactors">structure</label>
+			<input type="text" id="txtRhythmFactors" oninput="rhythmFactorsChanged()" value="2*2*2" style="text-align: right; width: 7em;" /></span>
+		<output id="outRhythmScales"></output>
+	</p>
+	<p><strong>Additional&nbsp;params.:</strong> 
 		<span class="cell"><label for="txtVoices">voices</label>
 		<input type="number" id="txtVoices" value="3" min="1" step="1" /></span> <wbr />
 		<span class="cell"><label for="txtPatterns">patterns</label>
@@ -214,8 +331,7 @@
 		<button id="btnMelodyGen" onclick="makeMelody()" accesskey="m">Make <u>m</u>elody</button>
 	</p>
 	<!--<textarea style="width: 100%;"></textarea>-->
-	<!--to do: detect tab key press and insert a tab character-->
-	<pre id="ctlStructuredScript" contenteditable="true" oninput="scriptChanged()" class="codeEditor" spellcheck="false">
+	<pre id="ctlStructuredScript" contenteditable="true" oninput="scriptChanged()" onkeydown="editorKeyDown()" class="codeEditor" spellcheck="false">
 {
 	"freqRatio": 440,
 	"volRatio": 0.5,
@@ -232,24 +348,24 @@
 	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre>
 	<p><strong>Flattened:</strong> 
-		<button id="btnParseScript" onclick="parseScript()">Flatten</button>
+		<button id="btnFlattenStruct" onclick="flattenStruct()">Flatten</button>
 		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlFlatScript)">Toggle overflow</button> <wbr />
 		<span class="cell"><input type="checkbox" id="chkAutoFlatten" onclick="setAutoFlatten(elems.chkAutoFlatten.checked)" />
-		<label for="chkAutoFlatten">Automatically&nbsp;flatten</label></span>
+			<label for="chkAutoFlatten">Automatically&nbsp;flatten</label></span>
 	</p>
-	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false">
+	<pre id="ctlFlatScript" contenteditable="true" onkeydown="editorKeyDown()" class="codeEditor" spellcheck="false">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
  {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
  	<p><strong>Overall&nbsp;controls:</strong> 
 		<!--to do: switch input elems to type="range"?-->
 		<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
-		<input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged();playFreqScaleChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
+			<input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged();playFreqScaleChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPlayVolScale">volume</label>
-		<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged();playVolScaleChanged()" value="2" step="0.25" class="exp" /></span> <wbr />
+			<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged();playVolScaleChanged()" value="2" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-		<input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
+			<input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in)</label>
-		<input type="number" id="txtPlayTimeDelta" value="0.25" min="0" step="0.25" /></span>
+			<input type="number" id="txtPlayTimeDelta" value="0.25" min="0" step="0.25" /></span>
 	</p>
 	<p><strong>Player:</strong> 
 		<button id="btnPlay" onclick="play()" accesskey="l"><u>L</u>oad and play</button>
@@ -260,7 +376,7 @@
 	</p>
 	<!--to do: some kind of visualization, not necessarily a wave analyzer-->
 	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one (non-recursive), used when playing. But you don't have to worry with the flattened one until the last moment. This page encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a>.</p>
-	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Usage of alphabetic characters is case-sensitive and names are strict. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>. As it is a text format, it becomes easy to perfectly (and manually) save and load content.</p><!--to do: speak about numeric indices-->
+	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Usage of alphabetic characters is case-sensitive and names are strict. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>. As it is a text format, it becomes easy to perfectly (and manually) save and load content. We suggest using a code editor for more productivity.</p><!--to do: speak about numeric indices-->
 	<p>Block (inheritable) properties are:</p>
 	<ul>
 		<li><strong>freqRatio</strong> (default 1)</li>

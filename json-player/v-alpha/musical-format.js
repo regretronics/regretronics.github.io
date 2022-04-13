@@ -59,10 +59,10 @@ function parseObj(flatStruct, node, blockContext) {
 }
 
 var hasScriptChanged = false;
-function parseScript() {
+function flattenStruct() {
 	try {
 		struct = JSON.parse(elems.ctlStructuredScript.innerText);
-		let flatStruct = []; //out with the old regardless of success
+		let flatStruct = [];
 		if(Array.isArray(struct)) {
 			for(let x of struct) {
 				parseObj(flatStruct, x, defaultBlockNode);
@@ -87,28 +87,28 @@ function parseScript() {
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
-	elems.btnParseScript.innerText = "Flattened";
+	elems.btnFlattenStruct.innerText = "Flattened";
 }
 
 var flattenTimeoutID;
 const flattenInterval = 1.5;
 function scriptChanged() {
 	hasScriptChanged = true;
-	elems.btnParseScript.innerText = "Flatten";
+	elems.btnFlattenStruct.innerText = "Flatten";
 	
 	if(flattenTimeoutID) {
 		window.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
 	if(autoFlatten) {
-		flattenTimeoutID = window.setTimeout(parseScript, flattenInterval * 1000);
+		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	}
 }
 
 function setAutoFlatten(value) {
 	autoFlatten = value;
 	if(autoFlatten) {
-		if(hasScriptChanged && !flattenTimeoutID) {flattenTimeoutID = window.setTimeout(parseScript, flattenInterval * 1000);}
+		if(hasScriptChanged && !flattenTimeoutID) {flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);}
 	} else {
 		if(flattenTimeoutID) {
 			window.clearTimeout(flattenTimeoutID);

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>JSON music player</title>
+	<style type="text/css">
+	/*<![CDATA[*/
+	body {
+		background-color: hsl(120, 37.5%, 25%);
+		color: hsl(120, 25%, 87.5%);
+	}
+	strong {
+		color: white;
+	}
+
+	button, input {
+		font-size: 0.85em;
+		/*border-radius: 0.25em;*/
+	}
+	input[type=number] {
+		background-color: hsl(120, 50%, 12.5%);
+		color: hsl(120, 50%, 87.5%);
+		text-align: right;
+		border-radius: 0.25em;
+		width: 4.5em;
+	}
+	input.exp {
+		width: 5em;
+	}
+	.cell {
+		display: inline-block;
+	}
+
+	.codeEditor {
+		background-color: hsl(120, 12.5%, 75%);
+		color: hsl(120, 25%, 0%);
+		height: 12em;
+		font-size: 85%;
+		width: 100%;
+		/*resize: both;*/
+		overflow-y: scroll;
+		min-height: 8em;
+		/*white-space: pre;*/
+		/*white-space: pre-wrap;*/
+	}
+	#ctlStructuredScript {
+		tab-size: 4;
+	}
+	
+	a:link {
+		color: hsl(120, 75%, 62.5%);
+	}
+	a:visited {
+		color: hsl(30, 75%, 62.5%);
+	}
+	a:active {
+		color: hsl(120, 100%, 87.5%);
+	}
+	/*]]>*/
+	</style>
+	<!--<script type="text/javascript">
+	//<![CDATA[
+	//to do: check performance difference of strict mode?
+	"use strict";
+	//to do: use defer="true" or async in any script tag?
+	//  idea: have a "reload script" button?
+	//]]>
+	</script>-->
+	<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+	//to do: use addEventListener() instead of legacy events.
+
+	//HTML elements
+	var elemNames = ["txtFreq", "txtTimeScale", "txtPrimeCount",
+	 "txtVoices", "txtPatterns", "txtRepPeriod", "txtRepCount",
+	 "btnParseScript", "chkAutoFlatten",
+	 "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta",
+	 "ctlFlatScript", "ctlStructuredScript", "btnPause", "outPrimeList", "outAudioT", "outAudioDur", "outOscCount"];
+	var expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
+	var elems = {};
+	var autoFlatten = true;
+	const timeDisplPrecision = 2;
+	
+	//look-up table for the opposite of a decreasing (?) exponential
+	var releaseCurve;
+	const releaseCurveSize = 512;
+	
+	function docLoaded() {
+		//load HTML element references
+		for(let s of elemNames) {
+			elems[s] = document.getElementById(s);
+		}
+		elems.chkAutoFlatten.checked = autoFlatten;
+		elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+		elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+		primeCountChanged();
+
+		let evt = new Event("input");
+		for(let s of expSpinners) {
+			elems[s].dispatchEvent(evt);
+		}
+		
+		//initialize look-up table, to be used in the volume envelope
+		releaseCurve = new Float32Array(releaseCurveSize);
+		for(let i = 0; i < releaseCurveSize; i++) {
+			//opposite of growing exponential
+			//releaseCurve[i] = 1 - Math.pow(2, 4 * (i / releaseCurveSize - 1));
+
+			//parabolic
+			releaseCurve[i] = 1 - (i / releaseCurveSize) ** 2;
+		}
+	}
+	
+	let textSize = 1;
+	function rescaleText(f) {
+		textSize *= f;
+		document.body.style.fontSize = textSize + "em";
+	}
+	function overflowToggle(control) {
+		if(control.style.height == "auto") {
+			control.style.height = "12em";
+		} else {
+			control.style.height = "auto";
+		}
+	}
+
+	//of course there are infinite primes, but these are more than enough.
+	var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47], primeCount;
+	function primeCountChanged() {
+		primeCount = parseInt(elems.txtPrimeCount.value);
+		if(primeCount < 2) primeCount = 2;
+		elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).toString() + ")";
+	}
+
+	function expSpinnerChanged() {
+		let elem = event.target, val = elem.valueAsNumber;
+		let magnitude = Math.round(Math.log2(val)), step = (elem.step = 0.25 * 2 ** magnitude);
+		//if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
+		elem.min = val - 2 * step;
+	}
+
+	const defaultBlockNode = {
+		freqRatio: 1,
+		volRatio: 1,
+		timeDelta: 0,
+		timeScale: 1,
+		decayFactor: 256,
+		attack: 0.125
+	};
+	var playFreqScale, playVolScale;
+	function playFreqScaleChanged() {
+		let ctl = elems.txtPlayFreqScale;
+		if(ctl.valueAsNumber <= 0) ctl.stepUp();
+		playFreqScale = nullToDefault(parseNumber(ctl.valueAsNumber), defaultBlockNode.freqRatio);
+	}
+	function playVolScaleChanged() {
+		let ctl = elems.txtPlayVolScale;
+		if(ctl.valueAsNumber < 0) ctl.stepUp();
+		playVolScale = nullToDefault(parseNumber(ctl.valueAsNumber), defaultBlockNode.volRatio);
+	}
+	//]]>
+	</script>
+	<script type="text/javascript" src="general.js"></script>
+	<script type="text/javascript" src="player.js"></script>
+	<script type="text/javascript" src="musical-format.js"></script>
+	<script type="text/javascript" src="music-gen.js"></script>
+</head>
+<body onload="docLoaded()">
+	<h1>HTML5/JSON music&nbsp;format and&nbsp;player</h1>
+	<p><strong>Text&nbsp;size:</strong> 
+		<button id="btnTextShrink" onclick="rescaleText(0.8)">Shrink</button>
+		<button id="btnTextEnlarge" onclick="rescaleText(1.25)">Enlarge</button>
+	</p>
+	<p><strong>Generator&nbsp;parameters<!--,&nbsp;basic-->:</strong> 
+		<!--to do: for input type=number, use size attribute instead of width css property?-->
+		<datalist id="tunings">
+			<option value="256" />
+			<option value="258.65" />
+			<option value="415" />
+			<option value="427" />
+			<option value="430" />
+			<option value="432" />
+			<option value="435" />
+			<option value="440" />
+			<option value="442" />
+			<option value="443" />
+			<option value="466" />
+		</datalist>
+		<span class="cell"><label for="txtFreq">base&nbsp;freq.&nbsp;(Hz)</label>
+		<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" class="exp" list="tunings" /></span> <wbr />
+		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
+		<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factor&nbsp;count</label>
+		<input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" /></span>
+		<output id="outPrimeList"></output>
+	</p>
+	<p><!--<strong>Gen.&nbsp;parameters,&nbsp;additional:</strong> -->
+		<span class="cell"><label for="txtVoices">voices</label>
+		<input type="number" id="txtVoices" value="3" min="1" step="1" /></span> <wbr />
+		<span class="cell"><label for="txtPatterns">patterns</label>
+		<input type="number" id="txtPatterns" value="4" step="1" min="1" /></span> <wbr />
+		<span class="cell"><label for="txtRepPeriod">rept.&nbsp;period&nbsp;(melody)</label>
+		<input type="number" id="txtRepPeriod" value="2" step="1" min="1" /></span> <wbr />
+		<span class="cell"><label for="txtRepCount">rept.&nbsp;count&nbsp;(melody)</label>
+		<input type="number" id="txtRepCount" value="2" step="1" min="1" /></span>
+	</p>
+	<p><strong>Structured&nbsp;music:</strong> 
+		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlStructuredScript)">Toggle overflow</button> <wbr />
+		<button id="btnChordGen" onclick="makeChord()" accesskey="c">Make <u>c</u>hord</button>
+		<button id="btnRhythmGen" onclick="makeRhythm()" accesskey="r">Make <u>r</u>hythm</button>
+		<button id="btnMelodyGen" onclick="makeMelody()" accesskey="m">Make <u>m</u>elody</button>
+	</p>
+	<!--<textarea style="width: 100%;"></textarea>-->
+	<!--to do: detect tab key press and insert a tab character-->
+	<pre id="ctlStructuredScript" contenteditable="true" oninput="scriptChanged()" class="codeEditor" spellcheck="false">
+{
+	"freqRatio": 440,
+	"volRatio": 0.5,
+	"timeDelta": 0,
+	"timeScale": 0.5,
+	"decayFactor": 128,
+	"pat1": [
+		{"noteStart": 0, "duration": 1, "freq": 1},
+		{"noteStart": 1, "duration": 1, "freq": "5/4"},
+		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},
+		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
+	],
+	"0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
+	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
+}</pre>
+	<p><strong>Flattened:</strong> 
+		<button id="btnParseScript" onclick="parseScript()">Flatten</button>
+		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlFlatScript)">Toggle overflow</button> <wbr />
+		<span class="cell"><input type="checkbox" id="chkAutoFlatten" onclick="setAutoFlatten(elems.chkAutoFlatten.checked)" />
+		<label for="chkAutoFlatten">Automatically&nbsp;flatten</label></span>
+	</p>
+	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false">
+[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
+ {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
+ 	<p><strong>Overall&nbsp;controls:</strong> 
+		<!--to do: switch input elems to type="range"?-->
+		<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
+		<input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged();playFreqScaleChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPlayVolScale">volume</label>
+		<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged();playVolScaleChanged()" value="2" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
+		<input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
+		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in)</label>
+		<input type="number" id="txtPlayTimeDelta" value="0.25" min="0" step="0.25" /></span>
+	</p>
+	<p><strong>Player:</strong> 
+		<button id="btnPlay" onclick="play()" accesskey="l"><u>L</u>oad and play</button>
+		<button id="btnPause" onclick="pauseToggle()" accesskey="p"><u>P</u>ause</button>
+		<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top and unload</button> <wbr />
+		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT"></output>&nbsp;s/<output id="outAudioDur"></output>&nbsp;s.</span>
+		<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
+	</p>
+	<!--to do: some kind of visualization, not necessarily a wave analyzer-->
+	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one (non-recursive), used when playing. But you don't have to worry with the flattened one until the last moment. This page encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a>.</p>
+	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Usage of alphabetic characters is case-sensitive and names are strict. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>. As it is a text format, it becomes easy to perfectly (and manually) save and load content.</p><!--to do: speak about numeric indices-->
+	<p>Block (inheritable) properties are:</p>
+	<ul>
+		<li><strong>freqRatio</strong> (default 1)</li>
+		<li><strong>volRatio</strong> (default 1)</li>
+		<li><strong>timeDelta</strong> (default 0)</li>
+		<li><strong>timeScale</strong> (default 1)</li>
+		<li><strong>decayFactor</strong> (default 256)</li>
+		<li><strong>attack</strong> (default 0.125)</li>
+	</ul>
+	<p>Note properties are (influenced by block properties, and most of them relative factors):</p>
+	<dl>
+		<dt><strong>noteStart</strong> (default 0)</dt>
+		<dd>The moment in time the note is played.</dd>
+		<dd>Influenced by timeDelta and timeScale.</dd>
+
+		<dt><strong>noteStop</strong> (default noteStart + duration)</dt>
+		<dd>The moment in time the note is silenced.</dd>
+		<dd>Influenced by timeDelta and timeScale.</dd>
+
+		<dt><strong>duration</strong> (default 1)</dt>
+		<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
+		<dd>Influenced by timeScale.</dd>
+
+		<dt><strong>freq</strong> (default 1)</dt>
+		<dd>Frequency.</dd>
+		<dd>Influenced by freqRatio.</dd>
+
+		<dt><strong>vol</strong> (default 1)</dt>
+		<dd>Amplitude.</dd>
+		<dd>Influenced by volRatio.</dd>
+
+		<dt><strong>decayFactor</strong> (default 256)</dt>
+		<dd>How slowly the note amplitude is dampened while still playing.</dd>
+		<dd>Absolute override when present.</dd>
+
+		<dt><strong>attack</strong> (default 0.125)</dt>
+		<dd>How slowly the note amplitude comes.</dd>
+		<dd>Absolute override when present.</dd>
+	</dl>
+	<p>Block and note properties support several number formats. Examples:</p>
+	<ul>
+		<li>1.25 = 1.25 (literal number)</li>
+		<li>"1.25" = 1.25 (text to number)</li>
+		<li>"5*0.5*0.5" = 5/4 = 1.25 (for expressions with operators, quote as text)</li>
+		<li>"5/2/2" = (5/2)/2 = 5/4 = 1.25</li>
+		<li>"5/2^2" = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
+		<li>[-2, 0, 1] = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+		<li>{"2": -2, "5": 1} = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors)</li>
+		<li>Addition and subtraction are not supported, only sign change.</li>
+	</ul>
+	<p>By regretronics; licensed under the <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
+</body>
+</html>
