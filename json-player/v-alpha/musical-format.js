@@ -90,6 +90,13 @@ function flattenStruct() {
 	elems.btnFlattenStruct.innerText = "Flattened";
 }
 
+function setStructuredText(s) {
+	hasScriptChanged = true;
+	elems.btnFlattenStruct.innerText = "Flatten";
+	elems.ctlStructuredScript.innerText = s;
+	if(autoFlatten) flattenStruct();
+}
+
 var flattenTimeoutID;
 const flattenInterval = 1.5;
 function scriptChanged() {

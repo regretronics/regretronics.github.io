@@ -35,28 +35,29 @@ function parseNumber(n) {
 		
 		//multiplication: "3*4*5" -> 3*(4*5)
 		//"*x" = "x*" = 1*x
-		let f = n.indexOf("*");
-		if(f >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, f)), 1)
-				* nullToDefault(parseNumber(n.slice(f + 1)), 1);
+		let pos = n.indexOf("*");
+		if(pos >= 0) {
+			return nullToDefault(parseNumber(n.slice(0, pos)), 1)
+				* nullToDefault(parseNumber(n.slice(pos + 1)), 1);
 		}
 
 		//division: "3/4/5" -> (3/4)/5
+		//"5/2*3" = (5/2)*3, not 5/(2*3)
 		//"/x" = 1/x
 		//"x/" = x/1
-		f = n.lastIndexOf("/");
-		if(f >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, f)), 1)
-				/ nullToDefault(parseNumber(n.slice(f + 1)), 1);
+		pos = n.lastIndexOf("/");
+		if(pos >= 0) {
+			return nullToDefault(parseNumber(n.slice(0, pos)), 1)
+				/ nullToDefault(parseNumber(n.slice(pos + 1)), 1);
 		}
 
 		//exponentiation: "x^y^z" = x^(y^z)
 		//"x^" = x^1
 		//"^x" = 2^x (?)
-		f = n.indexOf("^");
-		if(f >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, f)), 2)
-				** nullToDefault(parseNumber(n.slice(f + 1)), 1);
+		pos = n.indexOf("^");
+		if(pos >= 0) {
+			return nullToDefault(parseNumber(n.slice(0, pos)), 2)
+				** nullToDefault(parseNumber(n.slice(pos + 1)), 1);
 		}
 
 		//to do: maybe support parentheses

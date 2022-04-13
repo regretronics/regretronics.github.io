@@ -89,6 +89,7 @@ function enqueueNotes(maxT) {
 }
 
 function audioTUpdate() {
+	//to do: trunc instead of round for time?
 	if(audioCtx) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
 	elems.outOscCount.innerText = oscs.length.toString();
 }

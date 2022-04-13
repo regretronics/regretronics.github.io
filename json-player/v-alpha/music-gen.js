@@ -11,31 +11,48 @@ function addInterval(refFreq, targetFreq) {
 	//to do: round()? floor()?
 	if(iPrime >= 1) {targetFreq[2] -= sign * Math.round(Math.log2(primes[iPrime]));}
 }
-
-function makeChord() {
-	let voiceCount = parseInt(elems.txtVoiceCount.value);
-	let struct = {
-		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
-		timeScale: nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale),
-		volRatio: 0.5,
+function newChord(voiceCount, polyphony) {
+	let chordStruct = {
 		0: {freq: {}}
 	};
 	//initialize prime factors (first note is always neutral)
 	for(let i = 0; i < primeCount; i++) {
-		struct[0].freq[primes[i]] = 0;
+		chordStruct[0].freq[primes[i]] = 0;
 	}
 	for(let i = 1; i < voiceCount; i++) {
 		//each note is based on a random previous note
-		struct[i] = {freq: {}};
-		addInterval(struct[Math.floor(i * Math.random())].freq, struct[i].freq);
+		chordStruct[i] = {freq: {}};
+		addInterval(chordStruct[Math.floor(i * Math.random())].freq, chordStruct[i].freq);
 	}
-	//will be played melodically, with two-note superposition (which is why volRatio: 0.5)
+	//will be played melodically (if played harmonically, note order would be lost)
 	for(let i = 0; i < voiceCount; i++) {
-		struct[i].noteStart = i;
-		struct[i].duration = 2;
+		chordStruct[i].noteStart = i;
+		chordStruct[i].duration = polyphony;
+	}
+	return chordStruct;
+}
+function makeChords() {
+	let patCount = parseFloat(elems.txtPatternCount.value);
+	if(patCount <= 0) return;
+
+	let voiceCount = parseInt(elems.txtVoiceCount.value);
+	if(voiceCount < 2) return;
+	
+	let polyphony = 2; //two-note superposition
+	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	let rootStruct = {
+		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
+		timeScale: _timeScale,
+		volRatio: 1 / polyphony,
+		decayFactor: defaultBlockNode.decayFactor * _timeScale * polyphony
+	};
+
+	for(let i = 0; i < patCount; i++) {
+		rootStruct[i] = newChord(voiceCount, polyphony);
+		rootStruct[i].timeDelta = voiceCount * i;
 	}
 
-	let s = JSON.stringify(struct, null, "\t");
+	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
 	let regex = new RegExp(/\{\n\t{3,}/, "g"); //too much indentation will collapse to space
 	s = s.replace(regex, "{");
@@ -43,12 +60,14 @@ function makeChord() {
 	s = s.replace(regex, " ");
 	regex = new RegExp(/\n\t{2,}\}/, "g");
 	s = s.replace(regex, "}");
-	elems.ctlStructuredScript.innerText = s;
-	flattenStruct();
+	setStructuredText(s);
 }
 
 //this procedure presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 function makeRhythm() {
+	let repeatCount = parseInt(elems.txtReptCount.value);
+	if(repeatCount <= 0) return;
+
 	//to do: use the rhythm hierarchy
 	//number of notes: 25% to 99.99...% of bar length (beat count)
 	let noteCount = Math.floor((0.25 + 0.75 * Math.random()) * rhythmFactorsAccum[0]);
@@ -70,20 +89,19 @@ function makeRhythm() {
 		y += pattern[x + 1].duration;
 	}
 	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
-	let struct = {
+	let rootStruct = {
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
 		volRatio: 0.5,
 		timeScale: _timeScale,
 		decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0], //lengthier bars = more sustain
 		pat: pattern
 	};
-	let barCount = parseFloat(elems.txtReptCount.value);
-	for(let x = 0; x < barCount; x++) {
-		struct[x] = {timeDelta: x * rhythmFactorsAccum[0]};
-		struct[x][0] = "pat";
+	for(let x = 0; x < repeatCount; x++) {
+		rootStruct[x] = {timeDelta: x * rhythmFactorsAccum[0]};
+		rootStruct[x][0] = "pat";
 	}
 	
-	let s = JSON.stringify(struct, null, "\t");
+	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
 	/*let regex = new RegExp(/\{\n\t{3,}/, "g"); //too much indentation will collapse to space
 	s = s.replace(regex, "{");
@@ -99,8 +117,7 @@ function makeRhythm() {
 	} while(true);
 	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
 	s = s.replace(regex, "\{$1\}");
-	elems.ctlStructuredScript.innerText = s;
-	flattenStruct();
+	setStructuredText(s);
 }
 
 //variability per prime factor (2, 3, 5, 7, ...)
@@ -114,41 +131,41 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	//let p = Math.min(1 + Math.floor(- 2 * Math.log2(Math.random())), primeCount - 1);
 	let p;
 	if(index === 0) {
-		//conservative choice for strong (index #0) beats
-		//to do: consider other calculations?
+		//conservative choice for strong (#0) beats
+		//to do: consider other calculations? allow factor 2 here?
 		p = Math.floor((0.5 * primeCount) ** Math.random());
 	} else {
 		p = Math.floor(primeCount ** Math.random());
 	}
 	let sign = Math.random() >= 0.5 ? 1 : -1; //to do: should they only go downwards? (because the root factors only went upwards)
 
-	let newStruct = {
+	let subNode = {
 		freq: Object.assign({}, _struct.freq),
 		timeDelta: timeScale * index,
 		noteStart: 0,
 		duration: timeScale
 	};
-	let newExp = newStruct.freq[primes[p]] + sign;
+	let newExp = subNode.freq[primes[p]] + sign;
 	//bounds (tonality) check
 	//to do: + 1 should be + 0.5?
 	if((newExp < 0) || (newExp > maxPitches[p] + 1)) {sign *= -1;}
-	newStruct.freq[primes[p]] += sign;
+	subNode.freq[primes[p]] += sign;
 	//pitch normalization into factor 2, i.e. octave normalization
 	if(p >= 1) {
 		//octave comparison for overall normalization
-		let diff = Math.round(Math.log2(parseNumber(_struct.freq))) - Math.round(Math.log2(parseNumber(newStruct.freq)));
-		newStruct.freq[2] += diff;
+		let diff = Math.round(Math.log2(parseNumber(_struct.freq))) - Math.round(Math.log2(parseNumber(subNode.freq)));
+		subNode.freq[2] += diff;
 	}
 	//index 0 -> new voice level -> one octave up
-	if(index === 0) {newStruct.freq[2] += 1;}
+	if(index === 0) {subNode.freq[2] += 1;}
 	
 	if(voiceDepth > 1) {
 		//upper voice in double speed
 		//the first beat is a reference for the pitch of others.
-		newStruct[0] = melodyVoice(newStruct, 0, timeScale * 0.5, voiceDepth - 1);
-		newStruct[1] = melodyVoice(newStruct[0], 1, timeScale * 0.5, voiceDepth - 1);
+		subNode[0] = melodyVoice(subNode, 0, timeScale * 0.5, voiceDepth - 1);
+		subNode[1] = melodyVoice(subNode[0], 1, timeScale * 0.5, voiceDepth - 1);
 	}
-	return newStruct;
+	return subNode;
 }
 
 //to do: allow more arbitrary rhythms, e.g. 2*2*3
@@ -165,7 +182,7 @@ function makeMelody() {
 	//top-level node
 	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let barDuration = 2 ** (voiceCount - 1);
-	let struct = {
+	let rootStruct = {
 		//lots of voices? let's start a few octaves down
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq) * 0.5 ** Math.floor(voiceCount * 0.5),
 		volRatio: "1/" + voiceCount.toString(), //inverse of maximum polyphony to avoid clipping
@@ -206,8 +223,8 @@ function makeMelody() {
 			pattern[1] = melodyVoice(pattern[0], 1, 0.5 * barDuration, voiceCount - 1);
 		}
 		
-		//struct[x] = pattern;
-		struct["pat" + x.toString()] = pattern;
+		//rootStruct[x] = pattern;
+		rootStruct["pat" + x.toString()] = pattern;
 	}
 	//make pattern instances referring to existing patterns
 	for(let x = 0, iPat, barPos; x < Math.ceil(patCount / reptPeriod); x++) {
@@ -215,17 +232,17 @@ function makeMelody() {
 		for(let y = 0; y < repeatCount; y++) {
 			for(let z = 0; (z < reptPeriod) && ((iPat = x * reptPeriod + z) < patCount); z++) {
 				barPos = (x * repeatCount + y) * reptPeriod + z;
-				struct[barPos] = {
+				rootStruct[barPos] = {
 					0: "pat" + iPat.toString(),
 					timeDelta: barDuration * barPos
 				};
-				//struct[x][0] = "pat" + x.toString();
-				//struct[x].timeDelta = barDuration * x;
+				//rootStruct[x][0] = "pat" + x.toString();
+				//rootStruct[x].timeDelta = barDuration * x;
 			}
 		}
 	}
 
-	let s = JSON.stringify(struct, null, "\t");
+	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
 	regex = new RegExp(/(\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
 	do {
@@ -235,6 +252,5 @@ function makeMelody() {
 	} while(true);
 	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
 	s = s.replace(regex, "\{$1\}");
-	elems.ctlStructuredScript.innerText = s;
-	flattenStruct();
+	setStructuredText(s);
 }
