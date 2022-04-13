@@ -13,7 +13,7 @@ function addInterval(refFreq, targetFreq) {
 }
 
 function makeChord() {
-	let voiceCount = parseInt(elems.txtVoices.value);
+	let voiceCount = parseInt(elems.txtVoiceCount.value);
 	let struct = {
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
 		timeScale: nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale),
@@ -77,7 +77,7 @@ function makeRhythm() {
 		decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0], //lengthier bars = more sustain
 		pat: pattern
 	};
-	let barCount = parseFloat(elems.txtPatterns.value);
+	let barCount = parseFloat(elems.txtReptCount.value);
 	for(let x = 0; x < barCount; x++) {
 		struct[x] = {timeDelta: x * rhythmFactorsAccum[0]};
 		struct[x][0] = "pat";
@@ -153,13 +153,13 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 
 //to do: allow more arbitrary rhythms, e.g. 2*2*3
 function makeMelody() {
-	let patCount = parseFloat(elems.txtPatterns.value);
+	let patCount = parseFloat(elems.txtPatternCount.value);
 	if(patCount <= 0) return;
-	let voiceCount = parseInt(elems.txtVoices.value);
+	let voiceCount = parseInt(elems.txtVoiceCount.value);
 	if(voiceCount < 1) return;
-	let repPeriod = parseInt(elems.txtRepPeriod.value);
-	if(repPeriod <= 0) return;
-	let repeatCount = parseInt(elems.txtRepCount.value);
+	let reptPeriod = parseInt(elems.txtReptPeriod.value);
+	if(reptPeriod <= 0) return;
+	let repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return;
 
 	//top-level node
@@ -173,7 +173,7 @@ function makeMelody() {
 		decayFactor: defaultBlockNode.decayFactor * _timeScale * barDuration //lengthier bars = more sustain
 	};
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
-	//to do: too simple? should it depend on primeCount? should it have an extra parameter?
+	//to do: too simple? should it depend on primeCount? should it have an extra parameter of overall variance?
 	if(maxPitches === null) {
 		maxPitches = new Array(primes.length);
 		for(let i in primes) {
@@ -210,11 +210,11 @@ function makeMelody() {
 		struct["pat" + x.toString()] = pattern;
 	}
 	//make pattern instances referring to existing patterns
-	for(let x = 0, iPat, barPos; x < Math.ceil(patCount / repPeriod); x++) {
+	for(let x = 0, iPat, barPos; x < Math.ceil(patCount / reptPeriod); x++) {
 	//for(let x = 0; x < patCount; x++) {
 		for(let y = 0; y < repeatCount; y++) {
-			for(let z = 0; (z < repPeriod) && ((iPat = x * repPeriod + z) < patCount); z++) {
-				barPos = (x * repeatCount + y) * repPeriod + z;
+			for(let z = 0; (z < reptPeriod) && ((iPat = x * reptPeriod + z) < patCount); z++) {
+				barPos = (x * repeatCount + y) * reptPeriod + z;
 				struct[barPos] = {
 					0: "pat" + iPat.toString(),
 					timeDelta: barDuration * barPos

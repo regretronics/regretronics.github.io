@@ -22,9 +22,9 @@ function defOnEnded() {
 
 let flatStruct, playTimeScale;
 //to do: repeat mode?
+//to do: which one to prefer? noteStop (current choice) or duration?
 function enqueueNotes(maxT) {
 	//progressively enter notes
-	//  to do: sort array by notestart
 	//let iStart = 0, iStop = 0;
 	maxT /= playTimeScale; //to do: move this outside this procedure (to facilitate variable time scale)?
 	let note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3;
@@ -83,7 +83,6 @@ function enqueueNotes(maxT) {
 			gain2.connect(audioCtx.destination);
 		}
 		
-		//osc1.start(t0 + noteStart, 0, t0 + noteStop);
 		osc1.start(t0 + noteStart);
 		osc1.stop(t0 + noteStop);
 	}
@@ -115,11 +114,15 @@ function play() {
 	if(playTimeScale <= 0) return;
 	let playTimeDelta = nullToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
 
-	flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
+	flatStruct = JSON.parse(elems.ctlFlatScript.innerText); //this may raise an exception on failure
+	flatStruct.sort(function(a, b) {
+		let diff = a.noteStart - b.noteStart;
+		if(diff === 0) diff = a.noteStop - b.noteStop;
+		return diff;
+	});
 	//estimate total clip duration
 	let songDuration = 0;
 	let len = flatStruct.length;
-	if(len <= 0) return;
 	for(let i = 0, note; i < len; i++) {
 		note = flatStruct[i];
 		//in the flattened structure, all notes must have frequency.
@@ -128,6 +131,10 @@ function play() {
 		songDuration = Math.max(songDuration, playTimeScale * note.noteStop);
 	}
 	elems.outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
+	if(len <= 0) {
+		elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+		return;
+	}
 	
 	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
 	//to do: use Promise here to defer the rest of the procedure?

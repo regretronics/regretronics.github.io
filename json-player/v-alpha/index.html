@@ -78,7 +78,7 @@
 	//HTML elements
 	var elemNames = ["txtFreq", "txtTimeScale", "txtPrimeCount", //generator parameters
 		"txtRhythmScale", "txtRhythmFactors", //rhythm
-		"txtVoices", "txtPatterns", "txtRepPeriod", "txtRepCount", //generator additional parameters
+		"txtVoiceCount", "txtPatternCount", "txtReptPeriod", "txtReptCount", //generator additional parameters
 		"btnFlattenStruct", "chkAutoFlatten", //flatten controls
 		"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall controls
 		"ctlFlatScript", "ctlStructuredScript", "btnPause", //code editors and pause toggle
@@ -225,6 +225,41 @@
 		rhythmAccumUpdate();
 	}
 
+	function deletePrevTab() {
+		//outdent line (actually, the nearest tab before caret)
+		let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
+		let pos = rng.endOffset;
+		let node = rng.endContainer; //to do: store original node?
+		let txt = node.textContent;
+		let i;
+
+		while(true) {
+			i = txt.lastIndexOf("\t", pos - 1);
+			if(txt.slice(i, pos).indexOf("\n") >= 0) return; //line breaks interrupt the search
+			if(i >= 0) break; //tab character found?
+
+			node = node.previousSibling;
+			if(!node) return; //end of line?
+			if(node.nodeName.toUpperCase() == "BR") return; //line break attacks again
+			
+			txt = node.textContent;
+			pos = txt.length;
+		}
+		if(!(i >= 0)) return;
+
+		//tried to preserve caret position, but the result is buggy
+		/*txtBefore = txtBefore.slice(0, i) + txtBefore.slice(i + 1);
+		node.textContent = txtBefore + txt.slice(pos);*/
+		/*rng.setStart(node, pos - 1);
+		rng.setEnd(node, pos - 1);*/
+
+		rng.setStart(node, i);
+		rng.setEnd(node, i + 1);
+		//rng.deleteContents();
+		document.execCommand("delete", false, null);
+		rng.setStart(node, pos - 1); //also buggy
+		rng.setEnd(node, pos - 1);
+	}
 	function editorKeyDown() {
 		if(event.key == "Tab") {
 			//console.log(event);
@@ -236,35 +271,7 @@
 
 			event.target.focus(); //unnecessary?
 			if(event.shiftKey) {
-				//outdent line (actually, the nearest tab before caret)
-				let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
-				let pos = rng.endOffset;
-				let node = rng.endContainer;
-				let txt = node.textContent;
-				let txtBefore = txt.slice(0, pos);
-				let i = txtBefore.lastIndexOf("\t");
-				while(!(i >= 0)) {
-					node = node.previousSibling;
-					if(!node) break;
-					txt = node.textContent;
-					txtBefore = txt;
-					pos = txt.length;
-					i = txtBefore.lastIndexOf("\t");
-				}
-				if(i >= 0) {
-					//tried to preserve caret position, but the result is buggy
-					/*txtBefore = txtBefore.slice(0, i) + txtBefore.slice(i + 1);
-					node.textContent = txtBefore + txt.slice(pos);*/
-					/*rng.setStart(node, pos - 1);
-					rng.setEnd(node, pos - 1);*/
-
-					rng.setStart(node, i);
-					rng.setEnd(node, i + 1);
-					//rng.deleteContents();
-					document.execCommand("delete", false, null);
-					rng.setStart(node, pos - 1); //also buggy
-					rng.setEnd(node, pos - 1);
-				}
+				deletePrevTab();
 			} else {
 				document.execCommand("insertText", false, "\t");
 			}
@@ -278,7 +285,7 @@
 	<script type="text/javascript" src="music-gen.js"></script>
 </head>
 <body onload="docLoaded()">
-	<h1>JSON music&nbsp;format and&nbsp;player</h1>
+	<h1>JSON music&nbsp;format, player and&nbsp;generator</h1>
 	<p><strong>Text&nbsp;size:</strong> 
 		<button id="btnTextShrink" onclick="rescaleText(0.8)">Shrink</button>
 		<button id="btnTextEnlarge" onclick="rescaleText(1.25)">Enlarge</button>
@@ -304,7 +311,9 @@
 			<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
 			<input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" /></span>
-		<output id="outPrimeList"></output>
+		<output id="outPrimeList"></output> <wbr />
+		<span class="cell"><label for="txtReptCount">rept.&nbsp;count</label>
+			<input type="number" id="txtReptCount" value="2" step="1" min="1" /></span>
 	</p>
 	<p><strong>Rhythm:</strong> 
 		<span class="cell"><label for="txtRhythmScale">approx. scale</label>
@@ -315,14 +324,13 @@
 		<output id="outRhythmScales"></output>
 	</p>
 	<p><strong>Additional&nbsp;params.:</strong> 
-		<span class="cell"><label for="txtVoices">voices</label>
-		<input type="number" id="txtVoices" value="3" min="1" step="1" /></span> <wbr />
-		<span class="cell"><label for="txtPatterns">patterns</label>
-		<input type="number" id="txtPatterns" value="4" step="1" min="1" /></span> <wbr />
-		<span class="cell"><label for="txtRepPeriod">rept.&nbsp;period&nbsp;(melody)</label>
-		<input type="number" id="txtRepPeriod" value="2" step="1" min="1" /></span> <wbr />
-		<span class="cell"><label for="txtRepCount">rept.&nbsp;count&nbsp;(melody)</label>
-		<input type="number" id="txtRepCount" value="2" step="1" min="1" /></span>
+		<!--to do: is voice count really needed?-->
+		<span class="cell"><label for="txtVoiceCount">voices</label>
+			<input type="number" id="txtVoiceCount" value="3" min="1" step="1" /></span> <wbr />
+		<span class="cell"><label for="txtPatternCount">patterns</label>
+			<input type="number" id="txtPatternCount" value="4" step="1" min="1" /></span> <wbr />
+		<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period&nbsp;(melody)</label>
+			<input type="number" id="txtReptPeriod" value="2" step="1" min="1" /></span>
 	</p>
 	<p><strong>Structured&nbsp;music:</strong> 
 		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlStructuredScript)">Toggle overflow</button> <wbr />
@@ -361,7 +369,7 @@
 		<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
 			<input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged();playFreqScaleChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPlayVolScale">volume</label>
-			<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged();playVolScaleChanged()" value="2" step="0.25" class="exp" /></span> <wbr />
+			<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged();playVolScaleChanged()" value="1.5" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
 			<input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in)</label>
@@ -371,20 +379,20 @@
 		<button id="btnPlay" onclick="play()" accesskey="l"><u>L</u>oad and play</button>
 		<button id="btnPause" onclick="pauseToggle()" accesskey="p"><u>P</u>ause</button>
 		<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top and unload</button> <wbr />
-		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT"></output>&nbsp;s/<output id="outAudioDur"></output>&nbsp;s.</span>
+		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT">0</output>&nbsp;s/<output id="outAudioDur">0</output>&nbsp;s.</span>
 		<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
 	</p>
 	<!--to do: some kind of visualization, not necessarily a wave analyzer-->
 	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one (non-recursive), used when playing. But you don't have to worry with the flattened one until the last moment. This page encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a>.</p>
-	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Usage of alphabetic characters is case-sensitive and names are strict. Another one is <code>[value1, value2, ...]</code>, when the values are indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>. As it is a text format, it becomes easy to perfectly (and manually) save and load content. We suggest using a code editor for more productivity.</p><!--to do: speak about numeric indices-->
+	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for an object is: <code>{"property1": value1, "property2": value2, ...}</code>. Usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>. Anyway, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). As it is a text format, it becomes easy to perfectly (and manually) save and load content. We suggest using a code editor for increased productivity.</p>
 	<p>Block (inheritable) properties are:</p>
 	<ul>
-		<li><strong>freqRatio</strong> (default 1)</li>
-		<li><strong>volRatio</strong> (default 1)</li>
-		<li><strong>timeDelta</strong> (default 0)</li>
-		<li><strong>timeScale</strong> (default 1)</li>
-		<li><strong>decayFactor</strong> (default 256)</li>
-		<li><strong>attack</strong> (default 0.125)</li>
+		<li><strong>freqRatio</strong> (multiplicative, default 1)</li>
+		<li><strong>volRatio</strong> (multiplicative, default 1)</li>
+		<li><strong>timeDelta</strong> (additive, default 0)</li>
+		<li><strong>timeScale</strong> (multiplicative, default 1)</li>
+		<li><strong>decayFactor</strong> (substitutive, default 256)</li>
+		<li><strong>attack</strong> (substitutive, default 0.125)</li>
 	</ul>
 	<p>Note properties are (influenced by block properties, and most of them relative factors):</p>
 	<dl>
@@ -409,7 +417,7 @@
 		<dd>Influenced by volRatio.</dd>
 
 		<dt><strong>decayFactor</strong> (default 256)</dt>
-		<dd>How slowly the note amplitude is dampened while still playing.</dd>
+		<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing).</dd>
 		<dd>Absolute override when present.</dd>
 
 		<dt><strong>attack</strong> (default 0.125)</dt>
@@ -420,7 +428,7 @@
 	<ul>
 		<li>1.25 = 1.25 (literal number)</li>
 		<li>"1.25" = 1.25 (text to number)</li>
-		<li>"5*0.5*0.5" = 5/4 = 1.25 (for expressions with operators, quote as text)</li>
+		<li>"5*0.5*0.5" = 5/4 = 1.25 (for expressions with operators, quote them as text)</li>
 		<li>"5/2/2" = (5/2)/2 = 5/4 = 1.25</li>
 		<li>"5/2^2" = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
 		<li>[-2, 0, 1] = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
