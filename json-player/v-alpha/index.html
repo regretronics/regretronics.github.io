@@ -26,8 +26,16 @@
 		border-radius: 0.25em;
 		width: 4.5em;
 	}
+	input[type=number]::inner-spin-button, 
+	input[type=number]::outer-spin-button { 
+		appearance: auto;
+		/*appearance: button;*/
+		opacity: 1;
+	}
 	input[type=number]::-webkit-inner-spin-button, 
-	input[type=number]::-webkit-outer-spin-button { 
+	input[type=number]::-webkit-outer-spin-button {
+		appearance: auto;
+		/*appearance: button;*/
 		opacity: 1;
 	}
 	input.exp {
