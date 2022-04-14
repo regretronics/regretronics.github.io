@@ -32,9 +32,9 @@ function newChord(voiceCount, polyphony) {
 	return chordStruct;
 }
 function makeChords() {
+	if(primeCount < 2) return;
 	let patCount = parseFloat(elems.txtPatternCount.value);
 	if(patCount <= 0) return;
-
 	let voiceCount = parseInt(elems.txtVoiceCount.value);
 	if(voiceCount < 2) return;
 	
@@ -48,8 +48,9 @@ function makeChords() {
 	};
 
 	for(let i = 0; i < patCount; i++) {
-		rootStruct[i] = newChord(voiceCount, polyphony);
-		rootStruct[i].timeDelta = voiceCount * i;
+		rootStruct[i] = newChord(voiceCount, polyphony); //to do: note comparison to avoid duplicates
+		//rootStruct[i].timeDelta = voiceCount * i;
+		rootStruct[i].timeDelta = (voiceCount - 1 + polyphony) * i;
 	}
 
 	let s = JSON.stringify(rootStruct, null, "\t");
@@ -63,6 +64,45 @@ function makeChords() {
 	setStructuredText(s);
 }
 
+//rhythm structure generator
+function makeRhythmFactors() {
+	if(primeCount < 1) return;
+	rhythmFactors = [];
+	let scale = nullToDefault(parseNumber(elems.txtRhythmScale.value), 4);
+	//let product = 1;
+	//builds a (random) product of prime factors
+	//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
+	for(let i = primeCount - 1, factor, y; i >= 0; i--) {
+		factor = primes[i];
+		if(factor > scale) continue; //ignore primes that are too large
+		let maxExp = Math.log(scale) / Math.log(factor);
+		//y = Math.floor(- 2 * Math.log(Math.random()) / factor);
+		y = Math.floor((maxExp + 0.5) * Math.random());
+		//if(y >= 1) rhythmFactors.unshift(Math.pow(factor, y));
+		for(let j = 0; j < y; j++) {
+			rhythmFactors.unshift(factor);
+			scale /= factor;
+			//product *= factor;
+		}
+	}
+	//the number of beats might be still small
+	if(rhythmFactors.length < 1) {
+		if(scale >= 2) {
+			let x;
+			do {
+				x = Math.random();
+				x = primes[Math.floor(primeCount * x * x)];
+			} while(x > scale);
+			rhythmFactors.push(x);
+		} else {
+			rhythmFactors.push(1); //at least factor one
+		}
+	}
+
+	elems.txtRhythmFactors.value = rhythmFactors.join("*");
+	rhythmAccumUpdate();
+}
+
 //the rhythm generator presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive call
 function rhythmSubNodes(struct, level) {
@@ -70,7 +110,7 @@ function rhythmSubNodes(struct, level) {
 	let beats = rhythmFactors[level - 1];
 	let scale = rhythmFactorsAccum[level];
 	let subNodePattern = {
-		timeDelta: 0, //make it appear early in json, defer filling
+		timeDelta: 0, //make it appear early in JSON, defer filling
 		freqRatio: beats,
 		volRatio: "1/" + beats,
 
@@ -94,7 +134,6 @@ function makeRhythm() {
 	let repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return;
 
-	//to do: use the rhythm hierarchy
 	//number of notes: 25% to 99.99...% of bar length (beat count)
 	let noteCount = Math.floor((0.25 + 0.75 * Math.random()) * rhythmFactorsAccum[0]);
 	if((rhythmFactorsAccum[0] >= 3) && (noteCount < 2)) {noteCount = 2;}
@@ -111,17 +150,23 @@ function makeRhythm() {
 	for(let x = 0; x < noteCount; x++) { //first let's meet the number of notes
 		pattern.push({noteStart: 0, duration: 1, vol: 0.25});
 	}
-	for(let x = rhythmFactorsAccum[0] - noteCount; x > 0; x--) {
-		//increment the duration of some random notes until total length is met
-		pattern[Math.floor(Math.random() * noteCount) + 1].duration++;
+	if(noteCount >= 1) {
+		let x;
+		for(x = rhythmFactorsAccum[0] - noteCount; x >= 1; x--) {
+			//increment the duration of some random notes until total length is met
+			pattern[Math.floor(Math.random() * noteCount) + 1].duration++;
+		}
+		//fraction of a beat?
+		if(x !== 0) pattern[Math.floor(Math.random() * noteCount) + 1].duration += x;
 	}
-	let y = 0;
+
 	//now that the durations are known, adjust note start sequentially
-	for(let x = 0; x < noteCount; x++) {
+	for(let x = 0, y = 0; x < noteCount; x++) {
 		//remember note #0 is the regular block
 		pattern[x + 1].noteStart = y;
 		y += pattern[x + 1].duration;
 	}
+
 	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let rootStruct = {
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
@@ -205,6 +250,7 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 
 //to do: allow more arbitrary rhythms, e.g. 2*2*3
 function makeMelody() {
+	if(primeCount < 2) return;
 	let patCount = parseFloat(elems.txtPatternCount.value);
 	if(patCount <= 0) return;
 	let voiceCount = parseInt(elems.txtVoiceCount.value);

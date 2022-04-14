@@ -75,6 +75,7 @@ function flattenStruct() {
 		
 		//finally, yield the flattened version
 		let s = JSON.stringify(flatStruct, null, "\t");
+		struct = null; //frees memory
 		//final adjustments on indentation
 		let regex = new RegExp(/\{\n\t{2,}/, "g");
 		s = s.replace(regex, "{");

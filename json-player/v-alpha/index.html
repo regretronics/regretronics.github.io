@@ -98,12 +98,12 @@
 	//to do: ?caret position (row, column, char index) status label
 
 	//HTML elements
-	var elemNames = ["txtFreq", "txtTimeScale", "txtPrimeCount", "txtReptCount", //generator parameters, common
+	var elemNames = ["txtFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", //generator parameters, common
 		"txtRhythmScale", "txtRhythmFactors", //rhythm
-		"txtVoiceCount", "txtPatternCount", "txtReptPeriod", //generator parameters, additional
-		"btnFlattenStruct", "chkAutoFlatten", //flatten controls
-		"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall controls
-		"ctlFlatScript", "ctlStructuredScript", "btnPause", //code editors and pause toggle
+		"txtVoiceCount", "txtReptCount", "txtReptPeriod", //generator parameters, additional
+		"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
+		"ctlFlatScript", "ctlStructuredScript", //code editors
+		"btnFlattenStruct", "chkAutoFlatten", "btnPause", //other controls
 		"outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outOscCount" //output fields
 	];
 	var expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
@@ -172,12 +172,10 @@
 		elem.step = step;
 		//if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
 		elem.min = val - 2 * step;
-		//elem.setCustomValidity(null);
-		//elem.checkValidity();
 		elem.setCustomValidity("");
-		//document.title = Math.random();
 	}
 	/*function textInvalid() {
+		elem.setCustomValidity("");
 		//event.stopImmediatePropagation();
 		//event.stopPropagation();
 		event.preventDefault();
@@ -205,19 +203,7 @@
 	}
 
 	//rhythm structure data (hierarchy of factors)
-	var rhythmFactors = [], rhythmFactorsAccum = []; //to do: is accum really necessary?
-	function rhythmFactorsChanged() {
-		let s = elems.txtRhythmFactors.value.toString(); //text
-		rhythmFactors = s.split("*").map(x => parseFloat(x)); //array of numbers
-		if(rhythmFactors.some(x => isNaN(x))) {
-			rhythmFactors = [2, 2, 2]; //not a number? default/fallback
-			//to do: choose a different default?
-			elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
-		} else {
-			elems.txtRhythmFactors.setCustomValidity("");
-		}
-		rhythmAccumUpdate();
-	}
+	var rhythmFactors = [], rhythmFactorsAccum = [];
 	function rhythmAccumUpdate() {
 		let factors = rhythmFactors.slice(); //array clone
 		let product = 1;
@@ -231,40 +217,16 @@
 		rhythmFactors.push(1);
 		rhythmFactorsAccum.push(1);
 	}
-	function makeRhythmFactors() {
-		rhythmFactors = [];
-		let scale = nullToDefault(parseNumber(elems.txtRhythmScale.value), 4);
-		//let product = 1;
-		//builds a (random) product of prime factors
-		//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
-		for(let i = primeCount - 1, factor, y; i >= 0; i--) {
-			factor = primes[i];
-			if(factor > scale) continue; //ignore primes that are too large
-			let maxExp = Math.log(scale) / Math.log(factor);
-			//y = Math.floor(- 2 * Math.log(Math.random()) / factor);
-			y = Math.floor((maxExp + 0.5) * Math.random());
-			//if(y >= 1) rhythmFactors.unshift(Math.pow(factor, y));
-			for(let j = 0; j < y; j++) {
-				rhythmFactors.unshift(factor);
-				scale /= factor;
-				//product *= factor;
-			}
+	function rhythmFactorsChanged() {
+		let s = elems.txtRhythmFactors.value.toString(); //text
+		rhythmFactors = s.split("*").map(x => parseFloat(x)); //array of numbers
+		if(rhythmFactors.some(x => isNaN(x))) {
+			rhythmFactors = [2, 2, 2]; //not a number? default/fallback
+			//to do: choose a different default?
+			elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
+		} else {
+			elems.txtRhythmFactors.setCustomValidity("");
 		}
-		//the number of beats might be still small
-		if(rhythmFactors.length < 1) {
-			if(scale >= 2) {
-				let x;
-				do {
-					x = Math.random();
-					x = primes[Math.floor(primeCount * x * x)];
-				} while(x > scale);
-				rhythmFactors.push(x);
-			} else {
-				rhythmFactors.push(1); //at least factor one
-			}
-		}
-
-		elems.txtRhythmFactors.value = rhythmFactors.join("*");
 		rhythmAccumUpdate();
 	}
 
@@ -350,37 +312,37 @@
 			<option value="466" />
 		</datalist>
 		<span class="cell"><label for="txtFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-			<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" pattern=".*" class="exp" list="tunings" /></span> <wbr />
+			<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" pattern=".*" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions." /></span> <wbr />
 		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-			<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" /></span> <wbr />
+			<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" title="Inverse speed. Used by chord, rhythm and melody generators." /></span> <wbr />
+		<span class="cell"><label for="txtPatternCount">patterns</label>
+			<input type="number" id="txtPatternCount" value="4" step="1" min="1" title="Used by chord, rhythm and melody generators." /></span> <wbr />
 		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
-			<input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" /></span>
-		<output id="outPrimeList"></output> <wbr />
-		<span class="cell"><label for="txtReptCount">rept.&nbsp;count</label>
-			<input type="number" id="txtReptCount" value="2" step="1" min="1" /></span>
+			<input type="number" id="txtPrimeCount" oninput="primeCountChanged()" value="3" min="2" step="1" max="15" title="Used by rhythm structure, chord and melody generators." /></span>
+		<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output>
 	</p>
 	<p><strong>Rhythm:</strong> 
 		<span class="cell"><label for="txtRhythmScale">approx. scale</label>
-			<input type="number" id="txtRhythmScale" value="8" step="1" min="1" /></span>
-		<button id="btnRhythmFactorsGen" onclick="makeRhythmFactors()">Generate</button>
+			<input type="number" id="txtRhythmScale" value="8" step="1" min="1" title="Used by rhythm structure generator." /></span>
+		<button id="btnRhythmFactorsGen" onclick="makeRhythmFactors()" title="Rhythm structure generator">Generate</button>
 		<span class="cell"><label for="txtRhythmFactors">structure</label>
-			<input type="text" id="txtRhythmFactors" oninput="rhythmFactorsChanged()" value="2*2*2" style="text-align: right; width: 12ch;" /></span>
-		<output id="outRhythmScales"></output>
+			<input type="text" id="txtRhythmFactors" oninput="rhythmFactorsChanged()" value="2*2*2" style="text-align: right; width: 12ch;" title="Used by rhythm generator. Supports non-integers." /></span>
+		<output id="outRhythmScales" title="Cascade of rhythmic scales"></output>
 	</p>
 	<p><strong>Additional&nbsp;gen.&nbsp;params.:</strong> 
 		<!--to do: is voice count really needed? (chord generator uses it, but what about melody generator?)-->
 		<span class="cell"><label for="txtVoiceCount">voices</label>
-			<input type="number" id="txtVoiceCount" value="3" min="1" step="1" /></span> <wbr />
-		<span class="cell"><label for="txtPatternCount">patterns</label>
-			<input type="number" id="txtPatternCount" value="4" step="1" min="1" /></span> <wbr />
+			<input type="number" id="txtVoiceCount" value="3" min="1" step="1" title="Used by chord and melody generators." /></span> <wbr />
+		<span class="cell"><label for="txtReptCount">rept.&nbsp;count</label>
+			<input type="number" id="txtReptCount" value="2" step="1" min="1" title="Used by rhythm and melody generators." /></span> <wbr />
 		<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period</label>
-			<input type="number" id="txtReptPeriod" value="4" step="1" min="1" /></span>
+			<input type="number" id="txtReptPeriod" value="4" step="1" min="1" title="Used by melody generator." /></span>
 	</p>
 	<p><strong>Structured&nbsp;music:</strong> 
-		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlStructuredScript)">Toggle overflow</button> <wbr />
-		<button id="btnChordGen" onclick="makeChords()" accesskey="c">Make <u>c</u>hords</button>
-		<button id="btnRhythmGen" onclick="makeRhythm()" accesskey="r">Make <u>r</u>hythm</button>
-		<button id="btnMelodyGen" onclick="makeMelody()" accesskey="m">Make <u>m</u>elody</button>
+		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlStructuredScript)" title="Expand or contract the editor below.">Toggle overflow</button> <wbr />
+		<button id="btnChordGen" onclick="makeChords()" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
+		<button id="btnRhythmGen" onclick="makeRhythm()" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
+		<button id="btnMelodyGen" onclick="makeMelody()" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
 	</p>
 	<!--<textarea style="width: 100%;"></textarea>-->
 	<pre id="ctlStructuredScript" contenteditable="true" oninput="scriptChanged()" onkeydown="editorKeyDown()" class="codeEditor" spellcheck="false">
@@ -400,8 +362,8 @@
 	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre>
 	<p><strong>Flattened note list:</strong> 
-		<button id="btnFlattenStruct" onclick="flattenStruct()">Flatten</button>
-		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlFlatScript)">Toggle overflow</button> <wbr />
+		<button id="btnFlattenStruct" onclick="flattenStruct()" title="Convert the node structure into a simple list of notes only.">Flatten</button>
+		<button id="btnOverflowToggle" onclick="overflowToggle(elems.ctlFlatScript)" title="Expand or contract the editor below.">Toggle overflow</button> <wbr />
 		<span class="cell"><input type="checkbox" id="chkAutoFlatten" onclick="setAutoFlatten(elems.chkAutoFlatten.checked)" />
 			<label for="chkAutoFlatten">Automatically&nbsp;flatten</label></span>
 	</p>
@@ -411,24 +373,26 @@
  	<p><strong>Overall&nbsp;controls:</strong> 
 		<!--to do: switch input elems to type="range"?-->
 		<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
-			<input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged();playFreqScaleChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
+			<input type="number" id="txtPlayFreqScale" oninput="expSpinnerChanged();playFreqScaleChanged()" value="1" min="0" step="0.25" class="exp" title="Multiplicative factor" /></span> <wbr />
 		<span class="cell"><label for="txtPlayVolScale">volume</label>
-			<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged();playVolScaleChanged()" value="1.5" step="0.25" class="exp" /></span> <wbr />
+			<input type="number" id="txtPlayVolScale" oninput="expSpinnerChanged();playVolScaleChanged()" value="1.5" step="0.25" class="exp" title="Multiplicative factor" /></span> <wbr />
 		<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-			<input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" /></span> <wbr />
-		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in)</label>
-			<input type="number" id="txtPlayTimeDelta" value="0.25" min="0" step="0.25" /></span>
+			<input type="number" id="txtPlayTimeScale" oninput="expSpinnerChanged()" value="1" min="0" step="0.25" class="exp" title="Multiplicative factor" /></span> <wbr />
+		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in) (s)</label>
+			<input type="number" id="txtPlayTimeDelta" value="0.25" min="0" step="0.25" title="Additive amount" /></span>
 	</p>
 	<p><strong>Player:</strong> 
-		<button id="btnPlay" onclick="play()" accesskey="l"><u>L</u>oad and play</button>
-		<button id="btnPause" onclick="pauseToggle()" accesskey="p"><u>P</u>ause</button>
-		<button id="btnStop" onclick="stop()" accesskey="s"><u>S</u>top and unload</button> <wbr />
-		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT">0</output>&nbsp;s/<output id="outAudioDur">0</output>&nbsp;s.</span>
+		<button id="btnPlay" onclick="play()" accesskey="l" title="Will convert the flattened representation into sound on-the-fly, outputting the sound through HTML5 Web Audio API."><u>L</u>oad and play</button>
+		<button id="btnPause" onclick="pauseToggle()" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
+		<button id="btnStop" onclick="stop()" accesskey="s" title="Interrupts and closes synthesis and playback, and frees memory resources."><u>S</u>top and unload</button> <wbr />
+		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 		<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
 	</p>
 	<!--to do: some kind of visualization, not necessarily a wave analyzer-->
-	<p>This page uses two formats: a structured one (first), which allows hierarchies of parameters (frequency, volume, time scale, time displacement, decay factor, attack time), and a flattened one (non-recursive list), used when playing. But you don't have to worry with the flattened one until the last moment. This page encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a>.</p>
-	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an object). Like many computer languages, usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays). That would be the same as <code>{"0": value1, "1": value2, ...}</code>. Anyway, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). As it is a text format, it becomes easy to perfectly (and manually) save and load content. You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity.</p>
+	<p>This tool presumes understanding about musical theory, mathematics, acoustics and basic computer usage. Some exposure to programming and data structures will also help. This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for rhythmic structure and harmony.</p>
+	<p>This page uses two formats: a structured one (first), which allows deep hierarchies of parameters (see the properties below), and a "flattened" one (non-recursive list of notes), used when playing, supporting only note properties. But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). As it is a text format, it becomes easy to perfectly (manually) save and load content. You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity.</p>
+	<p>The formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an object). As with many computer languages, usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
+	<p>Anyway, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). Use natural numbers starting at 0 and don't skip numbers.</p>
 	<p>Block (inheritable) properties are:</p>
 	<dl>
 		<dt><strong>freqRatio</strong> (multiplicative, default 1)</dt>
@@ -448,23 +412,23 @@
 	<dl>
 		<dt><strong>noteStart</strong> (default noteStop of previous note or 0)</dt>
 		<dd>The moment in time the note is played.</dd>
-		<dd>Influenced by timeDelta and timeScale.</dd>
+		<dd>Affected by timeDelta and timeScale.</dd>
 
 		<dt><strong>noteStop</strong> (default noteStart + duration)</dt>
 		<dd>The moment in time the note is silenced.</dd>
-		<dd>Influenced by timeDelta and timeScale.</dd>
+		<dd>Affected by timeDelta and timeScale.</dd>
 
 		<dt><strong>duration</strong> (default 1)</dt>
 		<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
-		<dd>Influenced by timeScale.</dd>
+		<dd>Affected by timeScale.</dd>
 
 		<dt><strong>freq</strong> (default 1/always required in flattened list)</dt>
 		<dd>Frequency, which represents pitch.</dd>
-		<dd>Influenced by freqRatio.</dd>
+		<dd>Affected by freqRatio.</dd>
 
 		<dt><strong>vol</strong> (default 1)</dt>
 		<dd>Amplitude, which represents volume.</dd>
-		<dd>Influenced by volRatio.</dd>
+		<dd>Affected by volRatio.</dd>
 
 		<dt><strong>decayFactor</strong> (default 256)</dt>
 		<dd>Absolute override when present.</dd>
@@ -483,6 +447,7 @@
 		<li><code>{"2": -2, "5": 1}</code> = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors)</li>
 		<li>Addition and subtraction are currently not supported, only sign change.</li>
 	</ul>
+	<p>Currently, there are no features about custom synthesis or noise (only sine waves are played), modulation, filters, effects, custom mixing pipeline or spatialization.</p>
 	<p>By regretronics; licensed under the <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
 </body>
 </html>

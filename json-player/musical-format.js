@@ -1,7 +1,7 @@
 let struct;
 
 //recursive call
-function parseObj(flatStruct, node, blockContext) {
+function parseNode(flatStruct, node, blockContext) {
 	//alter context.
 	let newContext = {};
 	Object.assign(newContext, blockContext);
@@ -18,6 +18,7 @@ function parseObj(flatStruct, node, blockContext) {
 	newContext.attack = nullToDefault(parseNumber(node.attack), newContext.attack);
 
 	//to do: allow noteStart to be inferred from previous noteStop?
+	//to do: use a logical disjunction (OR port) to allow multiple properties to define a note?
 	if(node.hasOwnProperty("noteStart")) {
 		//register a note.
 		node.noteStart = nullToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
@@ -46,33 +47,35 @@ function parseObj(flatStruct, node, blockContext) {
 			//pattern invocation, local
 			//to do: local first really?
 			if(node.hasOwnProperty(t)) {
-				parseObj(flatStruct, node[t], newContext);
+				parseNode(flatStruct, node[t], newContext);
 			} else {
 				//pattern invocation, global
-				if(struct.hasOwnProperty(t)) {parseObj(flatStruct, struct[t], newContext);}
+				if(struct.hasOwnProperty(t)) {parseNode(flatStruct, struct[t], newContext);}
 			}
 		} else {
 			//primary recursion point.
-			parseObj(flatStruct, t, newContext);
+			parseNode(flatStruct, t, newContext);
 		}
 	}
 }
 
-var hasScriptChanged = false;
-function parseScript() {
+var hasScriptChanged = true;
+function flattenStruct() {
+	if(!hasScriptChanged) return;
 	try {
 		struct = JSON.parse(elems.ctlStructuredScript.innerText);
-		let flatStruct = []; //out with the old regardless of success
+		let flatStruct = [];
 		if(Array.isArray(struct)) {
 			for(let x of struct) {
-				parseObj(flatStruct, x, defaultBlockNode);
+				parseNode(flatStruct, x, defaultBlockNode);
 			}
 		} else {
-			parseObj(flatStruct, struct, defaultBlockNode);
+			parseNode(flatStruct, struct, defaultBlockNode);
 		}
 		
 		//finally, yield the flattened version
 		let s = JSON.stringify(flatStruct, null, "\t");
+		struct = null; //frees memory
 		//final adjustments on indentation
 		let regex = new RegExp(/\{\n\t{2,}/, "g");
 		s = s.replace(regex, "{");
@@ -87,28 +90,35 @@ function parseScript() {
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
-	elems.btnParseScript.innerText = "Flattened";
+	elems.btnFlattenStruct.innerText = "Flattened";
+}
+
+function setStructuredText(s) {
+	hasScriptChanged = true;
+	elems.btnFlattenStruct.innerText = "Flatten";
+	elems.ctlStructuredScript.innerText = s;
+	if(autoFlatten) flattenStruct();
 }
 
 var flattenTimeoutID;
 const flattenInterval = 1.5;
 function scriptChanged() {
 	hasScriptChanged = true;
-	elems.btnParseScript.innerText = "Flatten";
+	elems.btnFlattenStruct.innerText = "Flatten";
 	
 	if(flattenTimeoutID) {
 		window.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
 	if(autoFlatten) {
-		flattenTimeoutID = window.setTimeout(parseScript, flattenInterval * 1000);
+		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	}
 }
 
 function setAutoFlatten(value) {
 	autoFlatten = value;
 	if(autoFlatten) {
-		if(hasScriptChanged && !flattenTimeoutID) {flattenTimeoutID = window.setTimeout(parseScript, flattenInterval * 1000);}
+		if(hasScriptChanged && !flattenTimeoutID) {flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);}
 	} else {
 		if(flattenTimeoutID) {
 			window.clearTimeout(flattenTimeoutID);

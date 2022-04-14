@@ -13,6 +13,7 @@ function nullToDefault(x, def) {
 }
 //recursive call
 function parseNumber(n) {
+	//remember: continuation after return => else
 	if(arguments.length < 1) return null;
 	if(n === undefined) return null;
 	let t = typeof(n);
@@ -34,37 +35,38 @@ function parseNumber(n) {
 		
 		//multiplication: "3*4*5" -> 3*(4*5)
 		//"*x" = "x*" = 1*x
-		let f = n.indexOf("*");
-		if(f >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, f)), 1)
-				* nullToDefault(parseNumber(n.slice(f + 1)), 1);
-		} else {
-			//division: "3/4/5" -> (3/4)/5
-			//"/x" = 1/x
-			//"x/" = x/1
-			f = n.lastIndexOf("/");
-			if(f >= 0) {
-				return nullToDefault(parseNumber(n.slice(0, f)), 1)
-					/ nullToDefault(parseNumber(n.slice(f + 1)), 1);
-			} else {
-				//exponentiation: "x^y^z" = x^(y^z)
-				//"x^" = x^1
-				//"^x" = 2^x?
-				f = n.indexOf("^");
-				if(f >= 0) {
-					return nullToDefault(parseNumber(n.slice(0, f)), 2)
-						** nullToDefault(parseNumber(n.slice(f + 1)), 1);
-				} else {
-					//to do: maybe support parentheses
-					//	for that, use regular expressions, like ((\(.*\))|.*)/([^/]*|\(.*\)) for division? probably inadequate, as they are not recursive.
-					return null;
-				}
-			}
+		let pos = n.indexOf("*");
+		if(pos >= 0) {
+			return nullToDefault(parseNumber(n.slice(0, pos)), 1)
+				* nullToDefault(parseNumber(n.slice(pos + 1)), 1);
 		}
+
+		//division: "3/4/5" -> (3/4)/5
+		//"5/2*3" = (5/2)*3, not 5/(2*3)
+		//"/x" = 1/x
+		//"x/" = x/1
+		pos = n.lastIndexOf("/");
+		if(pos >= 0) {
+			return nullToDefault(parseNumber(n.slice(0, pos)), 1)
+				/ nullToDefault(parseNumber(n.slice(pos + 1)), 1);
+		}
+
+		//exponentiation: "x^y^z" = x^(y^z)
+		//"x^" = x^1
+		//"^x" = 2^x (?)
+		pos = n.indexOf("^");
+		if(pos >= 0) {
+			return nullToDefault(parseNumber(n.slice(0, pos)), 2)
+				** nullToDefault(parseNumber(n.slice(pos + 1)), 1);
+		}
+
+		//to do: maybe support parentheses
+		//	for that, use regular expressions, like ((\(.*\))|.*)/([^/]*|\(.*\)) for division? probably inadequate, as they are not recursive.
+		return null;
 	}
 
-	//prime factor-based
 	let r = 1, i;
+	//prime factor-based
 	if(Array.isArray(n)) {
 		for(i in n) {
 			r *= Math.pow(primes[i], nullToDefault(parseNumber(n[i]), 1));
@@ -74,6 +76,7 @@ function parseNumber(n) {
 
 	//objects with explicit factors
 	for(i in n) {
+		//even the factors can actually be complex things
 		//1 as default base neutralizes unrecognized bases
 		let iNum = nullToDefault(parseNumber(i), 1);
 		if(isNaN(iNum)) continue;

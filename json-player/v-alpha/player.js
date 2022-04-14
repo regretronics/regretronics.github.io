@@ -152,6 +152,8 @@ function play() {
 	elems.btnPause.innerHTML = "<u>P</u>ause";
 	elems.btnPause.disabled = false;
 }
+
+//non-reversible operation, frees resources
 function stop() {
 	for(const osc of oscs) {
 		osc.stop();
@@ -166,8 +168,10 @@ function stop() {
 	playing = false;
 	if(audioCtx) audioCtx.close();
 	audioCtx = null;
+	flatStruct = null;
 	elems.btnPause.innerHTML = "<u>P</u>ause";
 }
+//reversible operation
 function pauseToggle() {
 	if(!playing || !audioCtx) return;
 	//audioTUpdate();

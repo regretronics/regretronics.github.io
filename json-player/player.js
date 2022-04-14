@@ -21,12 +21,14 @@ function defOnEnded() {
 }
 
 let flatStruct, playTimeScale;
+//to do: repeat mode?
+//to do: which one to prefer? noteStop (current choice) or duration?
 function enqueueNotes(maxT) {
 	//progressively enter notes
-	//  to do: sort array by notestart (leave for later?)
 	//let iStart = 0, iStop = 0;
 	maxT /= playTimeScale; //to do: move this outside this procedure (to facilitate variable time scale)?
 	let note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3;
+	//this procedure presumes a sorted array of notes
 	while((flatStruct.length > 0) && (flatStruct[0].noteStart <= maxT)) {
 		note = flatStruct.shift();
 		//in the flattened structure, all notes must have frequency.
@@ -51,7 +53,7 @@ function enqueueNotes(maxT) {
 		let decayFactor = note.decayFactor;
 		if(!decayFactor) decayFactor = defaultNoteNode.decayFactor;
 		//to do: should decay factor be subject to playTimeScale?
-		gain1.gain.setTargetAtTime(0, t0 + noteStart, decayFactor / noteFreq);
+		gain1.gain.setTargetAtTime(0, t0 + noteStart, playTimeScale * decayFactor * Math.LOG2E / noteFreq);
 		osc1.connect(gain1);
 		osc1.assocGain1 = gain1;
 		
@@ -63,7 +65,7 @@ function enqueueNotes(maxT) {
 		if(!attack) attack = defaultNoteNode.attack;
 		//to do: should attack time be subject to noteFreq?
 		//to do: should attack time be subject to playTimeScale?
-		gain2.gain.setTargetAtTime(1, t0 + noteStart, playTimeScale * attack);
+		gain2.gain.setTargetAtTime(1, t0 + noteStart, playTimeScale * attack * Math.LOG2E);
 		gain1.connect(gain2);
 		osc1.assocGain2 = gain2;
 		
@@ -82,13 +84,13 @@ function enqueueNotes(maxT) {
 			gain2.connect(audioCtx.destination);
 		}
 		
-		//osc1.start(t0 + noteStart, 0, t0 + noteStop);
 		osc1.start(t0 + noteStart);
 		osc1.stop(t0 + noteStop);
 	}
 }
 
 function audioTUpdate() {
+	//to do: trunc instead of round for time?
 	if(audioCtx) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
 	elems.outOscCount.innerText = oscs.length.toString();
 }
@@ -102,31 +104,43 @@ function audioTimer(noEnqueue) {
 	}
 }
 
-//play() assumes that a flattened representation already exists in ctlFlatScript.innerText.
+//play() presumes that a flattened representation already exists in ctlFlatScript.innerText.
 function play() {
 	if(playing) return;
-	//to do: allow dynamic change of those parameters (except for playTimeDelta and perhaps playTimeScale)
-	//playFreqScale = nullToDefault(parseNumber(elems.txtPlayFreqScale.value), defaultBlockNode.freqRatio);
 	if(playFreqScale <= 0) return;
-	//playVolScale = nullToDefault(parseNumber(elems.txtPlayVolScale.value), defaultBlockNode.volRatio);
-	if(playVolScale < 0) return;
+	//if(playVolScale < 0) return;
+
+	//to do: allow dynamic change of playTimeScale?
 	playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//to do: allow reverse playback?
 	if(playTimeScale <= 0) return;
 	let playTimeDelta = nullToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
-	flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
 
+	flatStruct = JSON.parse(elems.ctlFlatScript.innerText); //this may raise an exception on failure
 	//estimate total clip duration
 	let songDuration = 0;
 	let len = flatStruct.length;
+	let lastNoteStop = 0;
 	for(let i = 0, note; i < len; i++) {
 		note = flatStruct[i];
 		//in the flattened structure, all notes must have frequency.
 		if(!note.freq) continue;
-		if(note.noteStop <= note.noteStart) continue;
+		if(note.noteStart === undefined) note.noteStart = lastNoteStop;
+		if(note.noteStop === undefined) note.noteStop = note.noteStart + 1;
+		lastNoteStop = note.noteStop;
+		if(note.noteStop <= note.noteStart) continue; //to do: should trailing zero-length notes influence clip total duration? (currently no.)
 		songDuration = Math.max(songDuration, playTimeScale * note.noteStop);
 	}
-	outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
+	elems.outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
+	if(len <= 0) {
+		elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+		return;
+	}
+	flatStruct.sort(function(a, b) {
+		let diff = a.noteStart - b.noteStart;
+		if(diff === 0) diff = a.noteStop - b.noteStop;
+		return diff;
+	});
 	
 	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
 	//to do: use Promise here to defer the rest of the procedure?
@@ -138,6 +152,8 @@ function play() {
 	elems.btnPause.innerHTML = "<u>P</u>ause";
 	elems.btnPause.disabled = false;
 }
+
+//non-reversible operation, frees resources
 function stop() {
 	for(const osc of oscs) {
 		osc.stop();
@@ -152,8 +168,10 @@ function stop() {
 	playing = false;
 	if(audioCtx) audioCtx.close();
 	audioCtx = null;
+	flatStruct = null;
 	elems.btnPause.innerHTML = "<u>P</u>ause";
 }
+//reversible operation
 function pauseToggle() {
 	if(!playing || !audioCtx) return;
 	//audioTUpdate();
