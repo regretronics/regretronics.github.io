@@ -45,9 +45,9 @@
 		appearance: inner-spin-button;
 		opacity: 1;
 	}
-	/*input:invalid {
+	#txtRhythmFactors:invalid {
 		background-color: hsl(0, 100%, 12.5%);
-	}*/
+	}
 	/*input.exp {
 		width: 8ch;
 	}*/
@@ -207,10 +207,15 @@
 	//rhythm structure data (hierarchy of factors)
 	var rhythmFactors = [], rhythmFactorsAccum = []; //to do: is accum really necessary?
 	function rhythmFactorsChanged() {
-		let factors = elems.txtRhythmFactors.value.toString();
-		rhythmFactors = factors.split("*").map(x => parseFloat(x));
-		if(rhythmFactors.some(x => isNaN(x))) rhythmFactors = [2, 2, 2]; //default/fallback
-		//to do: highlight validation?
+		let s = elems.txtRhythmFactors.value.toString(); //text
+		rhythmFactors = s.split("*").map(x => parseFloat(x)); //array of numbers
+		if(rhythmFactors.some(x => isNaN(x))) {
+			rhythmFactors = [2, 2, 2]; //not a number? default/fallback
+			//to do: choose a different default?
+			elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
+		} else {
+			elems.txtRhythmFactors.setCustomValidity("");
+		}
 		rhythmAccumUpdate();
 	}
 	function rhythmAccumUpdate() {
@@ -222,6 +227,9 @@
 			rhythmFactorsAccum.unshift(product);
 		}
 		elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
+		//elems.outRhythmScales.innerText = rhythmFactorsAccum.slice(0, -1).join("/");
+		rhythmFactors.push(1);
+		rhythmFactorsAccum.push(1);
 	}
 	function makeRhythmFactors() {
 		rhythmFactors = [];

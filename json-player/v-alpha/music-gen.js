@@ -65,22 +65,30 @@ function makeChords() {
 
 //the rhythm generator presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive call
-function rhythmNode(level) {
-	//to do!
+function rhythmSubNodes(struct, level) {
 	if(level >= rhythmFactors.length) return;
-	let beats = rhythmFactors[level];
-	let subNode = {
-		freqRatio: (level === 0) ? ("1/" + rhythmFactorsAccum[0].toString()) : rhythmFactors[level - 1],
+	let beats = rhythmFactors[level - 1];
+	let scale = rhythmFactorsAccum[level];
+	let subNodePattern = {
+		timeDelta: 0, //make it appear early in json, defer filling
+		freqRatio: beats,
+		volRatio: "1/" + beats,
+
 		noteStart: 0, //to do: remove this? (currently required for notes)
-		duration: rhythmFactorsAccum[level]
+		duration: 0
 	};
-	if(level < rhythmFactors.length - 1) {
-		for(let i = 0; i < beats; i++) {
-			subNode[i] = rhythmNode(level + 1);
-			subNode[i].timeDelta = i * rhythmFactorsAccum[level + 1];
-		}
+	//when using non-integer measures, sub-bars may become non-uniform in number of beats
+	let beats2 = struct.duration / scale;
+	for(let i = 0; i < beats2; i++) {
+		let newNode = {};
+		struct[i] = newNode;
+		Object.assign(newNode, subNodePattern);
+		newNode.timeDelta = i * scale;
+		let crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
+		newNode.duration = scale * crumb;
+		if(crumb !== 1) newNode.freq = "1/" + crumb.toString();
+		rhythmSubNodes(newNode, level + 1);
 	}
-	return subNode;
 }
 function makeRhythm() {
 	let repeatCount = parseInt(elems.txtReptCount.value);
@@ -91,10 +99,17 @@ function makeRhythm() {
 	let noteCount = Math.floor((0.25 + 0.75 * Math.random()) * rhythmFactorsAccum[0]);
 	if((rhythmFactorsAccum[0] >= 3) && (noteCount < 2)) {noteCount = 2;}
 
-	//let pattern = [{freq: 0.5, noteStart: 0, duration: rhythmFactorsAccum[0]}]; //bass note for bar scale
-	let pattern = [rhythmNode(0)]; //pattern structure bass notes
+	let pattern = [{ //rhythm formula root block and note
+		freqRatio: "1/" + rhythmFactorsAccum[0].toString(),
+		//volRatio: 1,
+
+		noteStart: 0, //to do: remove this? (currently required for notes)
+		duration: rhythmFactorsAccum[0]
+	}];
+	rhythmSubNodes(pattern[0], 1);
+
 	for(let x = 0; x < noteCount; x++) { //first let's meet the number of notes
-		pattern.push({noteStart: 0, duration: 1});
+		pattern.push({noteStart: 0, duration: 1, vol: 0.25});
 	}
 	for(let x = rhythmFactorsAccum[0] - noteCount; x > 0; x--) {
 		//increment the duration of some random notes until total length is met
@@ -103,16 +118,17 @@ function makeRhythm() {
 	let y = 0;
 	//now that the durations are known, adjust note start sequentially
 	for(let x = 0; x < noteCount; x++) {
-		//remember note #0 is the bass one
+		//remember note #0 is the regular block
 		pattern[x + 1].noteStart = y;
 		y += pattern[x + 1].duration;
 	}
 	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let rootStruct = {
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
-		volRatio: 0.5,
+		volRatio: 0.25, //to do: calculate maximum volume
 		timeScale: _timeScale,
 		decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0], //lengthier bars = more sustain
+
 		pat: pattern
 	};
 	for(let x = 0; x < repeatCount; x++) {
@@ -158,10 +174,11 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	let sign = Math.random() >= 0.5 ? 1 : -1; //to do: should they only go downwards? (because the root factors only went upwards)
 
 	let subNode = {
-		freq: Object.assign({}, _struct.freq),
 		timeDelta: timeScale * index,
+
 		noteStart: 0, //to do: remove this? (currently required for notes)
-		duration: timeScale
+		duration: timeScale,
+		freq: Object.assign({}, _struct.freq)
 	};
 	let newExp = subNode.freq[primes[p]] + sign;
 	//bounds (tonality) check
@@ -211,7 +228,7 @@ function makeMelody() {
 	//to do: too simple? should it depend on primeCount? should it have an extra parameter of overall variance scale?
 	if(maxPitches === null) {
 		maxPitches = new Array(primes.length);
-		for(let i in primes) {
+		for(const i in primes) {
 			maxPitches[i] = 3 / Math.log2(primes[i]);
 		}
 	}
@@ -220,9 +237,9 @@ function makeMelody() {
 	for(let x = 0; x < patCount; x++) {
 		//randomize an initial note
 		let pattern = {
-			freq: {},
 			noteStart: 0, //to do: remove this? (currently required for notes)
-			duration: barDuration
+			duration: barDuration,
+			freq: {}
 		};
 		let product = 1;
 		for(let p = 1; p < primeCount; p++) {
