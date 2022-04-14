@@ -19,17 +19,21 @@
 		font-size: 0.85em;
 		/*border-radius: 0.25em;*/
 	}
-	input[type=number] {
+	input[type=number], input[type=text] {
 		background-color: hsl(120, 50%, 12.5%);
 		color: hsl(120, 50%, 87.5%);
-		text-align: right;
 		border-radius: 0.25em;
-		width: 4.5em;
 	}
+	input[type=number] {
+		text-align: right;
+		width: 8ch;
+	}
+	/*try to show spin buttons on numerical fields*/
 	input[type=number]::inner-spin-button, 
 	input[type=number]::outer-spin-button { 
 		/*appearance: auto;*/
 		/*appearance: button;*/
+		-webkit-appearance: inner-spin-button;
 		appearance: inner-spin-button;
 		opacity: 1;
 	}
@@ -37,12 +41,16 @@
 	input[type=number]::-webkit-outer-spin-button {
 		/*appearance: auto;*/
 		/*appearance: button;*/
+		-webkit-appearance: inner-spin-button;
 		appearance: inner-spin-button;
 		opacity: 1;
 	}
-	input.exp {
-		width: 5em;
-	}
+	/*input:invalid {
+		background-color: hsl(0, 100%, 12.5%);
+	}*/
+	/*input.exp {
+		width: 8ch;
+	}*/
 	.cell {
 		display: inline-block;
 	}
@@ -90,9 +98,9 @@
 	//to do: ?caret position (row, column, char index) status label
 
 	//HTML elements
-	var elemNames = ["txtFreq", "txtTimeScale", "txtPrimeCount", //generator parameters
+	var elemNames = ["txtFreq", "txtTimeScale", "txtPrimeCount", "txtReptCount", //generator parameters, common
 		"txtRhythmScale", "txtRhythmFactors", //rhythm
-		"txtVoiceCount", "txtPatternCount", "txtReptPeriod", "txtReptCount", //generator additional parameters
+		"txtVoiceCount", "txtPatternCount", "txtReptPeriod", //generator parameters, additional
 		"btnFlattenStruct", "chkAutoFlatten", //flatten controls
 		"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall controls
 		"ctlFlatScript", "ctlStructuredScript", "btnPause", //code editors and pause toggle
@@ -160,17 +168,28 @@
 		let elem = event.target;
 		//let val = elem.valueAsNumber;
 		let val = nullToDefault(parseNumber(elem.value), 1);
-		let magnitude = Math.round(Math.log2(val)), step = (elem.step = 0.25 * 2 ** magnitude);
+		let magnitude = Math.round(Math.log2(val)), step = 0.25 * 2 ** magnitude;
+		elem.step = step;
 		//if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
 		elem.min = val - 2 * step;
+		//elem.setCustomValidity(null);
+		//elem.checkValidity();
+		elem.setCustomValidity("");
+		//document.title = Math.random();
 	}
+	/*function textInvalid() {
+		//event.stopImmediatePropagation();
+		//event.stopPropagation();
+		event.preventDefault();
+		return true;
+	}*/
 
 	const defaultBlockNode = {
 		freqRatio: 1,
 		volRatio: 1,
 		timeDelta: 0,
 		timeScale: 1,
-		decayFactor: 256,
+		decayFactor: 256, //to do: rename this to sustain(Factor)?
 		attack: 0.125
 	};
 	var playFreqScale, playVolScale;
@@ -190,6 +209,8 @@
 	function rhythmFactorsChanged() {
 		let factors = elems.txtRhythmFactors.value.toString();
 		rhythmFactors = factors.split("*").map(x => parseFloat(x));
+		if(rhythmFactors.some(x => isNaN(x))) rhythmFactors = [2, 2, 2]; //default/fallback
+		//to do: highlight validation?
 		rhythmAccumUpdate();
 	}
 	function rhythmAccumUpdate() {
@@ -321,7 +342,7 @@
 			<option value="466" />
 		</datalist>
 		<span class="cell"><label for="txtFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-			<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" class="exp" list="tunings" /></span> <wbr />
+			<input type="number" id="txtFreq" oninput="expSpinnerChanged()" value="440" min="1" pattern=".*" class="exp" list="tunings" /></span> <wbr />
 		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
 			<input type="number" id="txtTimeScale" oninput="expSpinnerChanged()" value="0.5" min="0" step="0.25" class="exp" /></span> <wbr />
 		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
@@ -335,11 +356,11 @@
 			<input type="number" id="txtRhythmScale" value="8" step="1" min="1" /></span>
 		<button id="btnRhythmFactorsGen" onclick="makeRhythmFactors()">Generate</button>
 		<span class="cell"><label for="txtRhythmFactors">structure</label>
-			<input type="text" id="txtRhythmFactors" oninput="rhythmFactorsChanged()" value="2*2*2" style="text-align: right; width: 7em;" /></span>
+			<input type="text" id="txtRhythmFactors" oninput="rhythmFactorsChanged()" value="2*2*2" style="text-align: right; width: 12ch;" /></span>
 		<output id="outRhythmScales"></output>
 	</p>
-	<p><strong>Melody&nbsp;gen.&nbsp;params.:</strong> 
-		<!--to do: is voice count really needed?-->
+	<p><strong>Additional&nbsp;gen.&nbsp;params.:</strong> 
+		<!--to do: is voice count really needed? (chord generator uses it, but what about melody generator?)-->
 		<span class="cell"><label for="txtVoiceCount">voices</label>
 			<input type="number" id="txtVoiceCount" value="3" min="1" step="1" /></span> <wbr />
 		<span class="cell"><label for="txtPatternCount">patterns</label>
@@ -407,17 +428,17 @@
 		<dt><strong>volRatio</strong> (multiplicative, default 1)</dt>
 		<dd>Can be used to compensate for polyphony (like the generators do).</dd>
 		<dt><strong>timeDelta</strong> (additive, default 0, relative to timeScale)</dt>
-		<dd>Time position or delay.</dd>
+		<dd>Relative time position or delay.</dd>
 		<dt><strong>timeScale</strong> (multiplicative, default 1)</dt>
 		<dd>Inverse of tempo/speed.</dd>
 		<dt><strong>decayFactor</strong> (substitutive, default 256)</dt>
-		<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing).</dd>
+		<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
 		<dt><strong>attack</strong> (substitutive, default 0.125)</dt>
-		<dd>How slowly the note amplitude comes at its beginning.</dd>
+		<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
 	</dl>
 	<p>Note properties are (influenced by block properties, and most of them relative factors):</p>
 	<dl>
-		<dt><strong>noteStart</strong> (default 0)</dt>
+		<dt><strong>noteStart</strong> (default noteStop of previous note or 0)</dt>
 		<dd>The moment in time the note is played.</dd>
 		<dd>Influenced by timeDelta and timeScale.</dd>
 
@@ -429,7 +450,7 @@
 		<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
 		<dd>Influenced by timeScale.</dd>
 
-		<dt><strong>freq</strong> (default 1)</dt>
+		<dt><strong>freq</strong> (default 1/always required in flattened list)</dt>
 		<dd>Frequency, which represents pitch.</dd>
 		<dd>Influenced by freqRatio.</dd>
 
@@ -445,13 +466,13 @@
 	</dl>
 	<p>Block and note properties support several number formats. Examples:</p>
 	<ul>
-		<li>1.25 = 1.25 (literal number)</li>
-		<li>"1.25" = 1.25 (text to number)</li>
-		<li>"5*0.5*0.5" = 5/4 = 1.25 (for expressions with operators, quote them as text)</li>
-		<li>"5/2/2" = (5/2)/2 = 5/4 = 1.25</li>
-		<li>"5/2^2" = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
-		<li>[-2, 0, 1] = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
-		<li>{"2": -2, "5": 1} = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors)</li>
+		<li><code>1.25</code> = 1.25 (literal number)</li>
+		<li><code>"1.25"</code> = 1.25 (text to number)</li>
+		<li><code>"5*0.5*0.5"</code> = 5/4 = 1.25 (for expressions with operators, quote them as text)</li>
+		<li><code>"5/2/2"</code> = (5/2)/2 = 5/4 = 1.25</li>
+		<li><code>"5/2^2"</code> = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
+		<li><code>[-2, 0, 1]</code> = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+		<li><code>{"2": -2, "5": 1}</code> = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors)</li>
 		<li>Addition and subtraction are currently not supported, only sign change.</li>
 	</ul>
 	<p>By regretronics; licensed under the <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>

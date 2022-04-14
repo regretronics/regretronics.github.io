@@ -63,7 +63,25 @@ function makeChords() {
 	setStructuredText(s);
 }
 
-//this procedure presumes that rhythmFactors and rhythmFactorsAccum are properly filled
+//the rhythm generator presumes that rhythmFactors and rhythmFactorsAccum are properly filled
+//recursive call
+function rhythmNode(level) {
+	//to do!
+	if(level >= rhythmFactors.length) return;
+	let beats = rhythmFactors[level];
+	let subNode = {
+		freq: 1,
+		noteStart: 0, //to do: remove this? (currently required for notes)
+		duration: 1
+	};
+	if(level < rhythmFactors.length - 1) {
+		for(let i = 0; i < beats; i++) {
+			//
+			rhythmNode(level + 1);
+		}
+	}
+	return subNode;
+}
 function makeRhythm() {
 	let repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return;
@@ -97,8 +115,7 @@ function makeRhythm() {
 		pat: pattern
 	};
 	for(let x = 0; x < repeatCount; x++) {
-		rootStruct[x] = {timeDelta: x * rhythmFactorsAccum[0]};
-		rootStruct[x][0] = "pat";
+		rootStruct[x] = {timeDelta: x * rhythmFactorsAccum[0], 0: "pat"};
 	}
 	
 	let s = JSON.stringify(rootStruct, null, "\t");
@@ -142,7 +159,7 @@ function melodyVoice(_struct, index, timeScale, voiceDepth) {
 	let subNode = {
 		freq: Object.assign({}, _struct.freq),
 		timeDelta: timeScale * index,
-		noteStart: 0,
+		noteStart: 0, //to do: remove this? (currently required for notes)
 		duration: timeScale
 	};
 	let newExp = subNode.freq[primes[p]] + sign;
@@ -190,7 +207,7 @@ function makeMelody() {
 		decayFactor: defaultBlockNode.decayFactor * _timeScale * barDuration //lengthier bars = more sustain
 	};
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
-	//to do: too simple? should it depend on primeCount? should it have an extra parameter of overall variance?
+	//to do: too simple? should it depend on primeCount? should it have an extra parameter of overall variance scale?
 	if(maxPitches === null) {
 		maxPitches = new Array(primes.length);
 		for(let i in primes) {
@@ -199,11 +216,11 @@ function makeMelody() {
 	}
 
 	//make various patterns of notes
-	for(let x = 0; x < /*repeatCount **/ patCount; x++) {
+	for(let x = 0; x < patCount; x++) {
 		//randomize an initial note
 		let pattern = {
 			freq: {},
-			noteStart: 0,
+			noteStart: 0, //to do: remove this? (currently required for notes)
 			duration: barDuration
 		};
 		let product = 1;

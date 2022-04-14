@@ -28,6 +28,7 @@ function enqueueNotes(maxT) {
 	//let iStart = 0, iStop = 0;
 	maxT /= playTimeScale; //to do: move this outside this procedure (to facilitate variable time scale)?
 	let note, noteFreq, noteStart, noteStop, osc1, gain1, gain2, gain3;
+	//this procedure presumes a sorted array of notes
 	while((flatStruct.length > 0) && (flatStruct[0].noteStart <= maxT)) {
 		note = flatStruct.shift();
 		//in the flattened structure, all notes must have frequency.
@@ -52,7 +53,7 @@ function enqueueNotes(maxT) {
 		let decayFactor = note.decayFactor;
 		if(!decayFactor) decayFactor = defaultNoteNode.decayFactor;
 		//to do: should decay factor be subject to playTimeScale?
-		gain1.gain.setTargetAtTime(0, t0 + noteStart, decayFactor / noteFreq);
+		gain1.gain.setTargetAtTime(0, t0 + noteStart, playTimeScale * decayFactor * Math.LOG2E / noteFreq);
 		osc1.connect(gain1);
 		osc1.assocGain1 = gain1;
 		
@@ -64,7 +65,7 @@ function enqueueNotes(maxT) {
 		if(!attack) attack = defaultNoteNode.attack;
 		//to do: should attack time be subject to noteFreq?
 		//to do: should attack time be subject to playTimeScale?
-		gain2.gain.setTargetAtTime(1, t0 + noteStart, playTimeScale * attack);
+		gain2.gain.setTargetAtTime(1, t0 + noteStart, playTimeScale * attack * Math.LOG2E);
 		gain1.connect(gain2);
 		osc1.assocGain2 = gain2;
 		
@@ -116,19 +117,18 @@ function play() {
 	let playTimeDelta = nullToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
 
 	flatStruct = JSON.parse(elems.ctlFlatScript.innerText); //this may raise an exception on failure
-	flatStruct.sort(function(a, b) {
-		let diff = a.noteStart - b.noteStart;
-		if(diff === 0) diff = a.noteStop - b.noteStop;
-		return diff;
-	});
 	//estimate total clip duration
 	let songDuration = 0;
 	let len = flatStruct.length;
+	let lastNoteStop = 0;
 	for(let i = 0, note; i < len; i++) {
 		note = flatStruct[i];
 		//in the flattened structure, all notes must have frequency.
 		if(!note.freq) continue;
-		if(note.noteStop <= note.noteStart) continue;
+		if(note.noteStart === undefined) note.noteStart = lastNoteStop;
+		if(note.noteStop === undefined) note.noteStop = note.noteStart + 1;
+		lastNoteStop = note.noteStop;
+		if(note.noteStop <= note.noteStart) continue; //to do: should trailing zero-length notes influence clip total duration? (currently no.)
 		songDuration = Math.max(songDuration, playTimeScale * note.noteStop);
 	}
 	elems.outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
@@ -136,6 +136,11 @@ function play() {
 		elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
 		return;
 	}
+	flatStruct.sort(function(a, b) {
+		let diff = a.noteStart - b.noteStart;
+		if(diff === 0) diff = a.noteStop - b.noteStop;
+		return diff;
+	});
 	
 	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
 	//to do: use Promise here to defer the rest of the procedure?
