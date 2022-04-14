@@ -70,14 +70,14 @@ function rhythmNode(level) {
 	if(level >= rhythmFactors.length) return;
 	let beats = rhythmFactors[level];
 	let subNode = {
-		freq: 1,
+		freqRatio: (level === 0) ? ("1/" + rhythmFactorsAccum[0].toString()) : rhythmFactors[level - 1],
 		noteStart: 0, //to do: remove this? (currently required for notes)
-		duration: 1
+		duration: rhythmFactorsAccum[level]
 	};
 	if(level < rhythmFactors.length - 1) {
 		for(let i = 0; i < beats; i++) {
-			//
-			rhythmNode(level + 1);
+			subNode[i] = rhythmNode(level + 1);
+			subNode[i].timeDelta = i * rhythmFactorsAccum[level + 1];
 		}
 	}
 	return subNode;
@@ -91,7 +91,8 @@ function makeRhythm() {
 	let noteCount = Math.floor((0.25 + 0.75 * Math.random()) * rhythmFactorsAccum[0]);
 	if((rhythmFactorsAccum[0] >= 3) && (noteCount < 2)) {noteCount = 2;}
 
-	let pattern = [{freq: 0.5, noteStart: 0, duration: rhythmFactorsAccum[0]}]; //bass note for bar scale
+	//let pattern = [{freq: 0.5, noteStart: 0, duration: rhythmFactorsAccum[0]}]; //bass note for bar scale
+	let pattern = [rhythmNode(0)]; //pattern structure bass notes
 	for(let x = 0; x < noteCount; x++) { //first let's meet the number of notes
 		pattern.push({noteStart: 0, duration: 1});
 	}
