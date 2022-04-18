@@ -43,7 +43,7 @@ function parseNode(flatStruct, node, blockContext) {
 		flatStruct.push(newNote);
 	}
 
-	for(let iNote = 0, t; t = node[iNote]; iNote++) { //indexed sub-nodes
+	for(let iNote = 0, t; (t = node[iNote]); iNote++) { //indexed sub-nodes
 		if(typeof(t) === "string") { //reference by name
 			//pattern invocation, local
 			//question: local first really?

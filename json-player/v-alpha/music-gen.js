@@ -198,7 +198,7 @@ function makeRhythm() {
 
 	//hierarchy of beats
 	let sumVol = 0;
-	for (const scale of rhythmFactorsAccum) {
+	for(const scale of rhythmFactorsAccum) {
 		//sumVol += 1 / scale;
 		sumVol += rhythmFactorsAccum[0] / scale;
 	}
@@ -366,7 +366,7 @@ function makeMelody() {
 	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let barDuration = rhythmFactorsAccum[0];
 	let sumVol = 0;
-	for (const scale of rhythmFactorsAccum) {
+	for(const scale of rhythmFactorsAccum) {
 		//sumVol += 1 / scale;
 		sumVol += barDuration / scale;
 	}

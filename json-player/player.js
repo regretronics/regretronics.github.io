@@ -14,17 +14,19 @@ function removeFrom(arr, item) {
 
 let playing = false;
 function defOnEnded() {
-	this.modGainDecay.disconnect();
-	this.modGainAttack.disconnect();
-	this.modGainRelease.disconnect();
-	this.disconnect();
-
-	//remove modules from list.
-	//console.debug("Note release: " + audioCtx.currentTime);
-	removeFrom(oscs, this);
-	removeFrom(modGains, this.modGainDecay);
-	removeFrom(modGains, this.modGainAttack);
-	removeFrom(modGains, this.modGainRelease);
+	if(this) {
+		//console.debug("Note release: " + audioCtx.currentTime);
+		if(this.modGainDecay) this.modGainDecay.disconnect();
+		if(this.modGainAttack) this.modGainAttack.disconnect();
+		if(this.modGainRelease) this.modGainRelease.disconnect();
+		this.disconnect();
+	
+		//remove modules from list.
+		removeFrom(oscs, this);
+		removeFrom(modGains, this.modGainDecay);
+		removeFrom(modGains, this.modGainAttack);
+		removeFrom(modGains, this.modGainRelease);	
+	}
 	if(oscs.length == 0) {
 		stop();
 		if(elems.chkAutoReload.checked) play();
@@ -33,18 +35,21 @@ function defOnEnded() {
 
 let flatStruct, playTimeScale;
 //question: which one to prefer? noteStop (current choice) or duration?
-function enqueueNotes(maxT) {
+function enqueueNotes(tNow, tMargin) {
+	tNow /= playTimeScale; //to do: move the divisions outside this procedure (to facilitate variable time scale)?
+	tMargin /= playTimeScale;
+	let tMax = tNow + tMargin;
+	let note, noteFreq, noteStart, noteStop, duration, osc1;
 	//progressively enter notes
-	maxT /= playTimeScale; //to do: move this outside this procedure (to facilitate variable time scale)?
-	let note, noteFreq, noteStart, noteStop, duration, osc1, gainDecay, gainAttack, gainRelease;
 	//this procedure presumes a time-sorted array of notes
-	while((flatStruct.length > 0) && (flatStruct[0].noteStart <= maxT)) {
+	while((flatStruct.length > 0) && (flatStruct[0].noteStart <= tMax)) { //to do: review time condition when allowing reverse playback
 		note = flatStruct.shift();
 		//in the flattened structure, all notes must have (non-zero) frequency
 		if(!note.freq) continue;
 		//if(note.noteStop <= note.noteStart) continue;
 		if(note.noteStop === note.noteStart) continue;
 		if(note.vol === 0) continue; //negative amplitude is allowed, but zero amplitude not played
+		if(note.noteStop < tNow) continue;
 		try {
 			noteFreq = playFreqScale * note.freq;
 			noteStart = playTimeScale * note.noteStart;
@@ -56,53 +61,68 @@ function enqueueNotes(maxT) {
 				noteStop = temp;
 			}
 			//to do: negative frequency? (check if this causes phase inversion in web audio)
-	
+			
 			osc1 = audioCtx.createOscillator();
-			oscs.push(osc1);
 			osc1.type = "sine";
 			osc1.frequency.value = noteFreq;
 			//osc1.detune.value = 0;
 			osc1.onended = defOnEnded;
-	
-			//volume scale and decay (from vol to 0)
-			gainDecay = audioCtx.createGain();
-			modGains.push(gainDecay);
-			gainDecay.gain.value = playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol);
-			let decayFactor = note.decayFactor;
-			if(!decayFactor) decayFactor = defaultNoteNode.decayFactor;
-			//question: should decay factor be subject to playTimeScale?
-			gainDecay.gain.setTargetAtTime(0, t0 + noteStart, playTimeScale * decayFactor * Math.LOG2E / noteFreq);
-			osc1.connect(gainDecay);
-			osc1.modGainDecay = gainDecay;
+			//osc1.connect(audioCtx.destination);
+			oscs.push(osc1);
+			let minStart = Math.max(t0 + noteStart, audioCtx.currentTime);
+			let terminalNode = osc1;
 			
-			//volume attack (from 0 to 1)
-			gainAttack = audioCtx.createGain();
-			modGains.push(gainAttack);
-			gainAttack.gain.value = 0;
-			let attack = note.attack;
-			if(!attack) attack = defaultNoteNode.attack;
-			//question: should attack time be subject to noteFreq?
-			//question: should attack time be subject to playTimeScale?
-			gainAttack.gain.setTargetAtTime(1, t0 + noteStart, playTimeScale * attack * Math.LOG2E);
-			gainDecay.connect(gainAttack);
-			osc1.modGainAttack = gainAttack;
-			
-			if(releaseCurve) {
-				//volume decay within note time
-				gainRelease = audioCtx.createGain();
-				modGains.push(gainRelease);
-				gainRelease.gain.setValueCurveAtTime(releaseCurve, t0 + noteStart, Math.abs(duration));
-				gainAttack.connect(gainRelease);
-				osc1.modGainRelease = gainRelease;
+			try {
+				let gainDecay, gainAttack, gainRelease;
+				//volume scale and decay (from vol to 0)
+				gainDecay = audioCtx.createGain();
+				gainDecay.gain.value = playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol);
+				let decayFactor = note.decayFactor;
+				if(!decayFactor) decayFactor = defaultNoteNode.decayFactor;
+				//question: should decay factor be subject to playTimeScale?
+				gainDecay.gain.setTargetAtTime(0, minStart, playTimeScale * decayFactor * Math.LOG2E / noteFreq);
+				//osc1.disconnect(audioCtx.destination);
+				osc1.connect(gainDecay);
+				terminalNode = gainDecay;
+				osc1.modGainDecay = gainDecay;
+				//gainDecay.connect(audioCtx.destination);
+				modGains.push(gainDecay);
 				
-				gainRelease.connect(audioCtx.destination);
-			} else {
-				osc1.modGainRelease = null;
-				gainAttack.connect(audioCtx.destination);
+				//volume attack (from 0 to 1)
+				gainAttack = audioCtx.createGain();
+				gainAttack.gain.value = 0;
+				let attack = note.attack;
+				if(!attack) attack = defaultNoteNode.attack;
+				//question: should attack time be subject to noteFreq?
+				//question: should attack time be subject to playTimeScale?
+				gainAttack.gain.setTargetAtTime(1, minStart, playTimeScale * attack * Math.LOG2E);
+				//gainDecay.disconnect(audioCtx.destination);
+				gainDecay.connect(gainAttack);
+				terminalNode = gainAttack;
+				osc1.modGainAttack = gainAttack;
+				//gainAttack.connect(audioCtx.destination);
+				modGains.push(gainAttack);
+				
+				if(releaseCurve) {
+					//volume decay within note time
+					gainRelease = audioCtx.createGain();
+					gainRelease.gain.setValueCurveAtTime(releaseCurve, minStart, Math.abs(duration));
+					//gainAttack.disconnect(audioCtx.destination);
+					gainAttack.connect(gainRelease);
+					terminalNode = gainRelease;
+					osc1.modGainRelease = gainRelease;
+					
+					//gainRelease.connect(audioCtx.destination);
+					modGains.push(gainRelease);
+				} else {
+					osc1.modGainRelease = null;
+					//gainAttack.connect(audioCtx.destination);
+				}
+			} finally {
+				terminalNode.connect(audioCtx.destination);
+				osc1.start(minStart);
+				osc1.stop(Math.max(t0 + noteStop, audioCtx.currentTime));
 			}
-			
-			osc1.start(t0 + noteStart); //to do: finally-clause
-			osc1.stop(t0 + noteStop);
 		} catch(error) {
 			console.error(error);
 		}
@@ -117,6 +137,7 @@ function audioTUpdate() {
 const audioTimerInterval = 0.1; //to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
 function audioTimer(noEnqueue) {
 	if(!playing || !audioCtx || !flatStruct) return;
+	//playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	audioTUpdate();
 	//if((flatStruct.length < 1) && (audioCtx.currentTime - t0 > songDuration)) {
 	if((audioCtx.state !== 'suspended') && (audioCtx.currentTime - t0 > 0) && (oscs.length < 1)) {
@@ -125,7 +146,8 @@ function audioTimer(noEnqueue) {
 	}
 	if(audioCtx.state !== 'closed') {
 		window.setTimeout(audioTimer, audioTimerInterval * 1000);
-		if(!noEnqueue) enqueueNotes(audioCtx.currentTime - t0 + 2 * audioTimerInterval);
+		if(noEnqueue === undefined) noEnqueue = false;
+		if(!noEnqueue) enqueueNotes(audioCtx.currentTime - t0, 2 * audioTimerInterval);
 		//to do: allow skipping/fast forward/rewind?
 	}
 }
@@ -188,7 +210,7 @@ function play() {
 		return diff;
 	});
 	
-	if(!audioCtx || (audioCtx.state === 'closed')) {audioCtx = new AudioContext();}
+	if(!audioCtx || (audioCtx.state === 'closed')) audioCtx = new AudioContext();
 	//to do: use Promise here to defer the rest of the procedure?
 	audioCtx.suspend();
 	playing = true;
