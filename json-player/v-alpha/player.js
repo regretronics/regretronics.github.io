@@ -131,7 +131,9 @@ function audioTUpdate() {
 	if(audioCtx) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
 	elems.outOscCount.innerText = oscs.length.toString();
 }
-const audioTimerInterval = 0.1; //to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
+//const audioTimerInterval = 0.1;
+const audioTimerInterval = 9 / 256;
+//to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
 function audioTimer(noEnqueue) {
 	let firstChild; //visualizer: clear
 	firstChild = elems.imgVisualizer.firstElementChild;
@@ -164,7 +166,7 @@ function audioTimer(noEnqueue) {
 			if(osc.modGainDecay) vol *= osc.modGainDecay.gain.value;
 			if(osc.modGainAttack) vol *= osc.modGainAttack.gain.value;
 			if(osc.modGainRelease) vol *= osc.modGainRelease.gain.value;
-			noteShape.setAttributeNS(null, "opacity", vol.toString());
+			noteShape.setAttributeNS(null, "opacity", Math.sqrt(Math.abs(vol)).toString());
 			
 			elems.imgVisualizer.appendChild(noteShape);
 			//elems.imgVisualizer.append(noteShape);
