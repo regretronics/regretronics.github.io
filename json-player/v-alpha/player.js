@@ -27,10 +27,7 @@ function defOnEnded() {
 		removeFrom(modGains, this.modGainAttack);
 		removeFrom(modGains, this.modGainRelease);	
 	}
-	if(oscs.length == 0) {
-		stop();
-		if(elems.chkAutoReload.checked) play();
-	}
+	if(oscs.length == 0) stop();
 }
 
 let flatStruct, playTimeScale;
@@ -136,6 +133,10 @@ function audioTUpdate() {
 }
 const audioTimerInterval = 0.1; //to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
 function audioTimer(noEnqueue) {
+	let firstChild; //visualizer: clear
+	firstChild = elems.imgVisualizer.firstElementChild;
+	while(firstChild.nextElementSibling) firstChild.nextElementSibling.remove();
+
 	if(!playing || !audioCtx || !flatStruct) return;
 	//playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	audioTUpdate();
@@ -145,6 +146,30 @@ function audioTimer(noEnqueue) {
 		return;
 	}
 	if(audioCtx.state !== 'closed') {
+		//visualization
+		const svgns = "http://www.w3.org/2000/svg";
+		const noteVisWidth = 1 / 32, freqMin = 20, freqMax = 20000, freqBase = 1 / Math.log2(freqMax / freqMin);
+		for (const osc of oscs) {
+			let noteShape = document.createElementNS(svgns, "rect");
+			noteShape.setAttributeNS(null, "width", `${100 * noteVisWidth}%`);
+			//noteShape.setAttributeNS(null, "height", "100%");
+			noteShape.setAttributeNS(null, "x", `${100 * (Math.log2(osc.frequency.value / freqMin) * freqBase - 0.5 * noteVisWidth)}%`);
+			//noteShape.setAttributeNS(null, "y", "0");
+			/*noteShape.x.baseVal.value = 50;
+			noteShape.y.baseVal.value = 50;
+			noteShape.width.baseVal.value = 50;
+			noteShape.height.baseVal.value = 50;*/
+
+			let vol = 1;
+			if(osc.modGainDecay) vol *= osc.modGainDecay.gain.value;
+			if(osc.modGainAttack) vol *= osc.modGainAttack.gain.value;
+			if(osc.modGainRelease) vol *= osc.modGainRelease.gain.value;
+			noteShape.setAttributeNS(null, "opacity", vol.toString());
+			
+			elems.imgVisualizer.appendChild(noteShape);
+			//elems.imgVisualizer.append(noteShape);
+		}
+
 		window.setTimeout(audioTimer, audioTimerInterval * 1000);
 		if(noEnqueue === undefined) noEnqueue = false;
 		if(!noEnqueue) enqueueNotes(audioCtx.currentTime - t0, 2 * audioTimerInterval);
@@ -184,7 +209,7 @@ function play() {
 		//in the flattened structure, all notes must have (non-zero) frequency.
 		if(!note.freq) continue;
 		if(note.noteStart === undefined) note.noteStart = lastNoteStop;
-		if(note.noteStop === undefined) note.noteStop = note.noteStart + 1;
+		if(note.noteStop === undefined) note.noteStop = note.noteStart + defaultNoteNode.duration;
 		lastNoteStop = note.noteStop;
 
 		//if(note.noteStop <= note.noteStart) continue;
@@ -257,6 +282,7 @@ function stop() {
 	}
 
 	elems.btnPause.innerHTML = "<u>P</u>ause";
+	if(elems.chkAutoReload.checked) play();
 }
 //reversible operation
 function pauseToggle() {
