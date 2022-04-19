@@ -42,65 +42,71 @@ function parseNumber(n) {
 		if(!isNaN(ret)) return ret;
 	}
 
-	//can be an expression
 	if(t === "string") {
 		if(n.length == 0) return null;
+		
+		try {
+			//can be an object
+			n = JSON.parse(n);
+		} catch (error) {
+			//can be an expression
+			//operators, starting from low precedence
+			//addition: "3+4+5" -> 3+(4+5) (right-associative)
+			//question: why not make it almost all left-associative?
+			//"+x" = "x+" = 0+x
+			let pos = n.indexOf("+");
+			if(pos >= 0) {
+				return nullToDefault(parseNumber(n.slice(0, pos)), 0)
+					+ nullToDefault(parseNumber(n.slice(pos + 1)), 0);
+			}
 
-		//operators, starting from low precedence
-		//addition: "3+4+5" -> 3+(4+5) (right-associative)
-		//question: why not make it almost all left-associative?
-		//"+x" = "x+" = 0+x
-		let pos = n.indexOf("+");
-		if(pos >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, pos)), 0)
-				+ nullToDefault(parseNumber(n.slice(pos + 1)), 0);
+			//subtraction: "3-4-5" -> (3-4)-5, not 3-(4-5) (left-associative)
+			//"5-2+3" = (5-2)+3, not 5-(2+3)
+			//"-x" = 0-x
+			//"x-" = x-0
+			pos = n.lastIndexOf("-");
+			if(pos >= 0) {
+				return nullToDefault(parseNumber(n.slice(0, pos)), 0)
+					- nullToDefault(parseNumber(n.slice(pos + 1)), 0);
+			}
+
+			//multiplication: "3*4*5" -> 3*(4*5) (right-associative)
+			//"*x" = "x*" = 1*x
+			pos = n.indexOf("*");
+			if(pos >= 0) {
+				return nullToDefault(parseNumber(n.slice(0, pos)), 1)
+					* nullToDefault(parseNumber(n.slice(pos + 1)), 1);
+			}
+
+			//division: "3/4/5" -> (3/4)/5, not 3/(4/5) (left-associative)
+			//"5/2*3" = (5/2)*3, not 5/(2*3)
+			//"/x" = 1/x
+			//"x/" = x/1
+			pos = n.lastIndexOf("/");
+			if(pos >= 0) {
+				return nullToDefault(parseNumber(n.slice(0, pos)), 1)
+					/ nullToDefault(parseNumber(n.slice(pos + 1)), 1);
+			}
+
+			//exponentiation: "x^y^z" = x^(y^z) (right-associative)
+			//"x^" = x^1
+			//"^x" = 2^x (?)
+			pos = n.indexOf("^");
+			if(pos >= 0) {
+				return nullToDefault(parseNumber(n.slice(0, pos)), 2)
+					** nullToDefault(parseNumber(n.slice(pos + 1)), 1);
+			}
+
+			//to do: maybe support parentheses
+			//	for that, use regular expressions, like ((\(.*\))|.*)/([^/]*|\(.*\)) for division? probably inadequate, as they are not recursive.
+			return null;
 		}
-
-		//subtraction: "3-4-5" -> (3-4)-5, not 3-(4-5) (left-associative)
-		//"5-2+3" = (5-2)+3, not 5-(2+3)
-		//"-x" = 0-x
-		//"x-" = x-0
-		pos = n.lastIndexOf("-");
-		if(pos >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, pos)), 0)
-				- nullToDefault(parseNumber(n.slice(pos + 1)), 0);
-		}
-
-		//multiplication: "3*4*5" -> 3*(4*5) (right-associative)
-		//"*x" = "x*" = 1*x
-		pos = n.indexOf("*");
-		if(pos >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, pos)), 1)
-				* nullToDefault(parseNumber(n.slice(pos + 1)), 1);
-		}
-
-		//division: "3/4/5" -> (3/4)/5, not 3/(4/5) (left-associative)
-		//"5/2*3" = (5/2)*3, not 5/(2*3)
-		//"/x" = 1/x
-		//"x/" = x/1
-		pos = n.lastIndexOf("/");
-		if(pos >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, pos)), 1)
-				/ nullToDefault(parseNumber(n.slice(pos + 1)), 1);
-		}
-
-		//exponentiation: "x^y^z" = x^(y^z) (right-associative)
-		//"x^" = x^1
-		//"^x" = 2^x (?)
-		pos = n.indexOf("^");
-		if(pos >= 0) {
-			return nullToDefault(parseNumber(n.slice(0, pos)), 2)
-				** nullToDefault(parseNumber(n.slice(pos + 1)), 1);
-		}
-
-		//to do: maybe support parentheses
-		//	for that, use regular expressions, like ((\(.*\))|.*)/([^/]*|\(.*\)) for division? probably inadequate, as they are not recursive.
-		return null;
 	}
 
 	//a product
 	let r = 1, i;
 	//prime factor-based
+	//to do: lisp-like (polish notation) array interpretation as s-expressions? (e.g. ["+", 12, 34, 56] -> 12 + 34 + 56)
 	if(Array.isArray(n)) {
 		for(i in n) {
 			r *= Math.pow(primes[i], nullToDefault(parseNumber(n[i]), 0));
@@ -119,7 +125,6 @@ function parseNumber(n) {
 	return r;
 }
 
-//to do: use addEventListener() instead of legacy events
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
 
@@ -129,7 +134,7 @@ var elemNames = ["txtFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", 
 	"txtVoiceCount", "txtReptCount", "txtReptPeriod", //generator parameters, additional
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
 	"ctlFlatScript", "ctlStructuredScript", //code editors
-	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", //other controls
+	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "imgVisualizer", //other controls
 	"outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outOscCount" //output fields
 ];
 var expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
@@ -149,13 +154,7 @@ function docLoaded() {
 	elems.chkAutoFlatten.checked = autoFlatten;
 	elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
 	elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
-	primeCountChanged();
-	rhythmFactorsChanged();
-
-	let evt = new Event("input");
-	for(let s of expSpinners) {
-		elems[s].dispatchEvent(evt);
-	}
+	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
 	//initialize look-up table
 	releaseCurve = new Float32Array(releaseCurveSize);
@@ -188,7 +187,7 @@ function primeCountChanged() {
 }
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs. there must be an event for validation.
-function expSpinnerChanged() {
+function expSpinnerChanged(event) {
 	let elem = event.target;
 	//let val = elem.valueAsNumber;
 	let val = nullToDefault(parseNumber(elem.value), 1);
@@ -198,7 +197,7 @@ function expSpinnerChanged() {
 	elem.min = val - 2 * step;
 	elem.setCustomValidity("");
 }
-/*function textInvalid() {
+/*function textInvalid(event) {
 	event.target.setCustomValidity("");
 	//event.stopImmediatePropagation();
 	//event.stopPropagation();
@@ -284,7 +283,7 @@ function deletePrevTab() {
 	rng.setStart(node, pos - 1); //also buggy
 	rng.setEnd(node, pos - 1);
 }
-function editorKeyDown() {
+function editorKeyDown(event) {
 	if(event.key == "Tab") {
 		//console.log(event);
 		event.stopPropagation();
@@ -301,6 +300,6 @@ function editorKeyDown() {
 		}
 	}
 }
-function editorInput() {
+function editorInput(event) {
 	event.target.style.backgroundColor = "";
 }
