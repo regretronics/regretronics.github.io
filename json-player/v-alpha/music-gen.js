@@ -3,7 +3,7 @@
 const defaultFreq = 440;
 
 function renormalizeOctave(refFreq, targetFreq) {
-	//octave comparison for overall normalization
+	//octave comparison for overall normalization, beyond octave rounding
 	let diff = Math.round(Math.log2(parseNumber(refFreq))) - Math.round(Math.log2(parseNumber(targetFreq)));
 	targetFreq[2] += diff;
 }
@@ -164,6 +164,7 @@ function rhythmSubNodes(struct, level, tuning) {
 	limitFreq(tuning, freqDummy);
 	let subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling
+		
 		freqRatio: beats,
 		volRatio: "1/" + beats,
 
@@ -185,7 +186,7 @@ function rhythmSubNodes(struct, level, tuning) {
 		let crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
 		newNode.duration = scale * crumb;
 		//if(crumb !== 1) newNode.freq = "1/" + crumb.toString();
-		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString();
+		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString(); //to do: include this in tuning calculation
 		
 		rhythmSubNodes(newNode, level + 1, tuning);
 	}
@@ -209,8 +210,9 @@ function makeRhythm() {
 		freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(),
 		//volRatio: 1,
 		volRatio: rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
-
-		duration: rhythmFactorsAccum[0]
+		
+		duration: rhythmFactorsAccum[0],
+		timbre: "noise"
 	}];
 	rhythmSubNodes(pattern[0], 1, 2 ** freqDummy[2] * tuning);
 

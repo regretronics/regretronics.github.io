@@ -14,6 +14,11 @@
 	strong {
 		color: white;
 	}
+	p {
+		/*line-height: 125%;*/
+		/*line-height: 1.5;*/
+		/*line-height: 1.25em;*/
+	}
 
 	a:link {
 		color: hsl(120, 100%, 75%);
@@ -28,6 +33,7 @@
 	button, input {
 		font-size: 0.85em;
 		/*border-radius: 0.25em;*/
+		margin: 0.125em 0;
 	}
 	input[type=number], input[type=text] {
 		background-color: hsl(120, 50%, 12.5%);
@@ -37,6 +43,8 @@
 	input[type=number] {
 		text-align: right;
 		width: 8ch;
+		padding-left: 0;
+		padding-right: 0;
 	}
 	/*try to show spin buttons on numerical fields*/
 	input[type=number]::inner-spin-button, 
@@ -55,7 +63,11 @@
 		appearance: inner-spin-button;
 		opacity: 1;
 	}
-	#txtRhythmFactors:invalid {
+	input[type=checkbox] {
+		margin: 0.125em;
+	}
+	#txtRhythmFactors:invalid
+	/*input:invalid*/ {
 		background-color: hsl(0, 100%, 12.5%);
 	}
 	/*input.exp {
@@ -77,15 +89,23 @@
 		overflow-y: auto;
 		min-height: 8em;
 		/*white-space: pre;*/
-		/*white-space: pre-wrap;*/
 	}
 	#ctlStructuredScript {
 		tab-size: 4;
 	}
+	.codeEditor.invalid {
+		background-color: hsl(0, 100%, 75%);
+	}
+	.codeEditor.expanded {
+		height: auto;
+	}
+	.codeEditor.lineWrapping {
+		white-space: pre-wrap;
+	}
 	
 	#imgVisualizer {
 		width: 100%;
-		height: 7em;
+		height: 4em;
 		background-color: hsla(0, 0%, 0%, 0.25);
 	}
 	svg rect {
@@ -112,11 +132,13 @@
 		document.getElementById("btnTextShrink").addEventListener("click", (ev) => rescaleText(0.8));
 		document.getElementById("btnTextEnlarge").addEventListener("click", (ev) => rescaleText(1.25));
 		document.getElementById("txtFreq").addEventListener("input", expSpinnerChanged);
+		//document.getElementById("txtFreq").addEventListener("invalid", textInvalid);
 		document.getElementById("txtTimeScale").addEventListener("input", expSpinnerChanged);
 		document.getElementById("txtPrimeCount").addEventListener("input", primeCountChanged);
 		document.getElementById("btnRhythmFactorsGen").addEventListener("click", makeRhythmFactors);
 		document.getElementById("txtRhythmFactors").addEventListener("input", rhythmFactorsChanged);
 		document.getElementById("btnOverflowToggle1").addEventListener("click", (ev) => overflowToggle(elems.ctlStructuredScript));
+		document.getElementById("btnLineWrapToggle1").addEventListener("click", (ev) => lineWrapToggle(elems.ctlStructuredScript));
 		document.getElementById("btnChordGen").addEventListener("click", makeChords);
 		document.getElementById("btnRhythmGen").addEventListener("click", makeRhythm);
 		document.getElementById("btnMelodyGen").addEventListener("click", makeMelody);
@@ -124,6 +146,7 @@
 		document.getElementById("ctlStructuredScript").addEventListener("keydown", editorKeyDown);
 		document.getElementById("btnFlattenStruct").addEventListener("click", flattenStruct);
 		document.getElementById("btnOverflowToggle2").addEventListener("click", (ev) => overflowToggle(elems.ctlFlatScript));
+		document.getElementById("btnLineWrapToggle2").addEventListener("click", (ev) => lineWrapToggle(elems.ctlFlatScript));
 		document.getElementById("chkAutoFlatten").addEventListener("click", (ev) => setAutoFlatten(elems.chkAutoFlatten.checked));
 		document.getElementById("ctlFlatScript").addEventListener("input", editorInput);
 		document.getElementById("ctlFlatScript").addEventListener("keydown", editorKeyDown);
@@ -157,6 +180,7 @@
 		<button id="btnTextEnlarge">Enlarge</button>
 	</p>
 	<!--to do: for input type=number, use size attribute instead of width css property?-->
+	<!--to do: make my own spin buttons, around text inputs-->
 	<p><strong>Generator&nbsp;params.:</strong> 
 		<datalist id="tunings">
 			<option value="256" />
@@ -172,7 +196,7 @@
 			<option value="466" />
 		</datalist>
 		<span class="cell"><label for="txtFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-			<input type="number" id="txtFreq" value="440" min="1" pattern=".*" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions." /></span><wbr />
+			<input type="number" id="txtFreq" value="440" min="1" pattern="[^]*" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions." /></span><wbr />
 		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
 			<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp" title="Inverse speed. Used by chord, rhythm and melody generators." /></span><wbr />
 		<span class="cell"><label for="txtPatternCount">patterns</label>
@@ -198,10 +222,11 @@
 			<input type="number" id="txtReptPeriod" value="4" step="1" min="1" title="Used by melody generator." /></span>
 	</p>
 	<p><strong>Structured&nbsp;music:</strong> 
-		<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button> <wbr />
 		<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
 		<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
-		<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
+		<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button> <wbr />
+		<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
+		<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
 	</p>
 	<!--<textarea style="width: 100%;"></textarea>-->
 	<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false">
@@ -222,9 +247,10 @@
 }</pre>
 	<p><strong>Flattened note list:</strong> 
 		<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-		<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button><wbr />
+		<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
+		<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button><wbr />
 		<span class="cell"><input type="checkbox" id="chkAutoFlatten" />
-			<label for="chkAutoFlatten">Automatically&nbsp;flatten</label></span>
+			<label for="chkAutoFlatten">Automatically flatten</label></span>
 		<!--to do: new parameter for repeating the whole structure?-->
 	</p>
 	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false">
@@ -244,8 +270,9 @@
 	<p><strong>Player:</strong> 
 		<button id="btnPlay" accesskey="l" title="Will convert the flattened representation into sound on-the-fly, outputting the sound through HTML5 Web Audio API."><u>L</u>oad and play</button>
 		<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
-		<button id="btnStop" accesskey="s" title="Interrupts and closes synthesis and playback, and frees memory resources."><u>S</u>top and unload</button><wbr />
-		<span class="cell"><input type="checkbox" id="chkAutoReload" /><label for="chkAutoReload">Auto-reload</label></span>
+		<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
+		<span class="cell"><input type="checkbox" id="chkAutoReload" />
+			<label for="chkAutoReload">Auto-reload</label></span>
 		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 		<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
 		<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
@@ -283,6 +310,7 @@
 		<dd>Relative time position or delay.</dd>
 		<dt><strong>timeScale</strong> (multiplicative, default 1)</dt>
 		<dd>Inverse of tempo/speed.</dd>
+		<dt><strong>timbre</strong> (substitutive, default "sine")</dt>
 		<dt><strong>decayFactor</strong> (substitutive, default 256)</dt>
 		<dt><strong>attack</strong> (substitutive, default 1/64)</dt>
 	</dl>
@@ -296,7 +324,7 @@
 		<dd>The moment in time the note is silenced.</dd>
 		<dd>Affected by timeDelta, timeScale, overall time delta and overall time scale.</dd>
 
-		<dt><strong>duration</strong> (default 1/not available in flattened structure)</dt>
+		<dt><strong>duration</strong> (default 1)</dt>
 		<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
 		<dd>Affected by timeScale (and overall time scale).</dd>
 
@@ -307,6 +335,10 @@
 		<dt><strong>vol</strong> (default 1)</dt>
 		<dd>Amplitude, which represents volume.</dd>
 		<dd>Affected by volRatio and overall volume scale.</dd>
+
+		<dt><strong>timbre</strong> (default "sine")</dt>
+		<dd>Waveform used in synthesis (comparable to a musical instrument). Can be "sine" (narrow-band) or "noise" (wide-band).</dd>
+		<dd>Absolute override when present.</dd>
 
 		<dt><strong>decayFactor</strong> (default 256)</dt>
 		<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
@@ -326,9 +358,9 @@
 		<li><code>"5/2^2"</code> = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
 		<li><code>[-2, 0, 1]</code> = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
 		<li><code>{"2": -2, "5": 1}</code> = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors)</li>
-		<li>To emulate twelve-tone equal temperament, use powers of 2 with a number of semitones divided by 12 as exponent. E.g. <code>["7/12"]</code> = 2<sup>7/12</sup> would represent a fifth interval (7 semitones).</li>
+		<li>To emulate twelve-tone equal temperament, use powers of 2 (octave) with a number of semitones divided by 12 (fraction of an octave) as exponent. E.g. <code>["7/12"]</code> = 2<sup>7/12</sup> would represent a fifth interval (7 semitones).</li>
 	</ul>
-	<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis or noise (only sine waves are played), modulation, filters, effects, custom mixing pipeline, spatialization or visualization.</p>
+	<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), modulation or dynamic pitch, custom filtering, custom effects, custom mixing pipeline or spatialization.</p>
 	<p>By regretronics; licensed under the <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
 </body>
 </html>

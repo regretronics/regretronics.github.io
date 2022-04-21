@@ -16,6 +16,7 @@ function parseNode(flatStruct, node, blockContext) {
 	newContext.freqRatio *= nullToDefault(parseNumber(node.freqRatio), 1);
 
 	//absolute
+	if(node.timbre) newContext.timbre = node.timbre;
 	newContext.decayFactor = nullToDefault(parseNumber(node.decayFactor), newContext.decayFactor);
 	newContext.attack = nullToDefault(parseNumber(node.attack), newContext.attack);
 
@@ -38,6 +39,7 @@ function parseNode(flatStruct, node, blockContext) {
 		};
 		let noteVol = newContext.volRatio * nullToDefault(parseNumber(node.vol), defaultNoteNode.vol);
 		if(noteVol != defaultNoteNode.vol) {newNote.vol = noteVol;}
+		if(newContext.timbre != defaultNoteNode.timbre) {newNote.timbre = newContext.timbre;}
 		if(newContext.decayFactor != defaultNoteNode.decayFactor) {newNote.decayFactor = newContext.decayFactor;}
 		if(newContext.attack != defaultNoteNode.attack) {newNote.attack = newContext.attack;}
 		flatStruct.push(newNote);
@@ -65,6 +67,7 @@ function flattenStruct() {
 	if(!hasScriptChanged) return;
 	try {
 		struct = JSON.parse(elems.ctlStructuredScript.innerText);
+		elems.ctlStructuredScript.classList.remove("invalid");
 		let flatStruct = [];
 		if(Array.isArray(struct)) {
 			for(let x of struct) {
@@ -88,6 +91,7 @@ function flattenStruct() {
 	} catch(error) {
 		//elems.ctlFlatScript.innerText = error.name + ": " + error.message;
 		elems.ctlFlatScript.innerText = error.toString();
+		elems.ctlStructuredScript.classList.add("invalid");
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
