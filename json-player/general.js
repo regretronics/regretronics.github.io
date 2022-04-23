@@ -1,20 +1,29 @@
 //to do: check performance difference of strict mode?
 "use strict";
 
+//to do: consider worker threads, and learn something about worklets (just in case)
+
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
-	freqRatio: 1, //question: these names are probably lousy and inconsistent. right now i'm not sure of how to improve.
-	volRatio: 1,
+	//question: these names are probably lousy and inconsistent. right now i'm not sure of how to improve.
 	timeDelta: 0,
 	timeScale: 1,
+
+	freqRatio: 1,
+	volRatio: 1,
+
+	timbre: "sine",
 	decayFactor: 256, //question: rename this to sustain(Factor)?
 	attack: 1 / 64
 };
 const defaultNoteNode = {
 	noteStart: 0,
 	duration: 1,
+
 	freq: defaultBlockNode.freqRatio,
 	vol: defaultBlockNode.volRatio, //negative volumes are supported in the player, and apparently result in phase inversion.
+
+	timbre: defaultBlockNode.timbre,
 	decayFactor: defaultBlockNode.decayFactor,
 	attack: defaultBlockNode.attack
 };
@@ -37,6 +46,7 @@ function parseNumber(n) {
 
 	//try conversion to number
 	//JavaScript converts Number("") and Number([]) to 0. let's prevent this.
+	//to do: consider changing test order (arrays first?).
 	if(!Array.isArray(n) && ((t !== "string") || (n.length != 0))) {
 		let ret = Number(n);
 		if(!isNaN(ret)) return ret;
@@ -98,7 +108,7 @@ function parseNumber(n) {
 			}
 
 			//to do: maybe support parentheses
-			//	for that, use regular expressions, like ((\(.*\))|.*)/([^/]*|\(.*\)) for division? probably inadequate, as they are not recursive.
+			//	idea: use regular expressions matching last-level parenthesized text (without additional parentheses inside), and replace iteratively by values.
 			return null;
 		}
 	}
@@ -151,9 +161,9 @@ function docLoaded() {
 	for(let s of elemNames) {
 		elems[s] = document.getElementById(s);
 	}
-	elems.chkAutoFlatten.checked = autoFlatten;
-	elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
-	elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(elems.chkAutoFlatten) elems.chkAutoFlatten.checked = autoFlatten;
+	if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+	if(elems.outAudioDur) elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
 	//initialize look-up table
@@ -173,17 +183,21 @@ function rescaleText(f) {
 	document.body.style.fontSize = textSize + "em";
 }
 function overflowToggle(control) {
-	if(control.style.height == "auto") {
+	/*if(control.style.height == "auto") {
 		control.style.height = "12em";
 	} else {
 		control.style.height = "auto";
-	}
+	}*/
+	control.classList.toggle("expanded");
+}
+function lineWrapToggle(control) {
+	control.classList.toggle("lineWrapping");
 }
 
 function primeCountChanged() {
 	primeCount = parseInt(elems.txtPrimeCount.value);
 	if(primeCount < 2) primeCount = 2;
-	elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
+	if(elems.outPrimeList) elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
 }
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs. there must be an event for validation.
@@ -197,11 +211,11 @@ function expSpinnerChanged(event) {
 	elem.min = val - 2 * step;
 	elem.setCustomValidity("");
 }
-/*function textInvalid(event) {
+/*function textInvalid(event) { //not working
 	event.target.setCustomValidity("");
-	//event.stopImmediatePropagation();
-	//event.stopPropagation();
 	event.preventDefault();
+	event.stopImmediatePropagation();
+	//event.stopPropagation();
 	return true;
 }*/
 
@@ -227,7 +241,7 @@ function rhythmAccumUpdate() {
 		product *= factors.pop();
 		rhythmFactorsAccum.unshift(product);
 	}
-	elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
+	if(elems.outRhythmScales) elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	//elems.outRhythmScales.innerText = rhythmFactorsAccum.slice(0, -1).join("/");
 	rhythmFactors.push(1);
 	rhythmFactorsAccum.push(1);
@@ -241,9 +255,9 @@ function rhythmFactorsChanged() {
 	if(rhythmFactors.some(x => isNaN(x))) {
 		rhythmFactors = [2, 2, 2]; //not a number? default/fallback
 		//question: choose a different default?
-		elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
+		if(elems.txtRhythmFactors) elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
 	} else {
-		elems.txtRhythmFactors.setCustomValidity("");
+		if(elems.txtRhythmFactors) elems.txtRhythmFactors.setCustomValidity("");
 	}
 	rhythmAccumUpdate();
 }

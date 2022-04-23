@@ -241,7 +241,7 @@ function audioTimer(noEnqueue) {
 		window.setTimeout(audioTimer, audioTimerInterval * 1000);
 		if(noEnqueue === undefined) noEnqueue = false;
 		let currT = audioCtx.currentTime;
-		if(!noEnqueue) enqueueNotes(currT - t0, Math.max(2 * audioTimerInterval, currT - lastT));
+		if(!noEnqueue) enqueueNotes(currT - t0, Math.max(2 * audioTimerInterval, 2 * (currT - lastT)));
 		lastT = currT;
 		//to do: allow skipping/fast forward/rewind?
 	}

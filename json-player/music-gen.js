@@ -3,7 +3,7 @@
 const defaultFreq = 440;
 
 function renormalizeOctave(refFreq, targetFreq) {
-	//octave comparison for overall normalization
+	//octave comparison for overall normalization, beyond octave rounding
 	let diff = Math.round(Math.log2(parseNumber(refFreq))) - Math.round(Math.log2(parseNumber(targetFreq)));
 	targetFreq[2] += diff;
 }
@@ -58,21 +58,20 @@ function makeChords() {
 	let voiceCount = parseInt(elems.txtVoiceCount.value);
 	if(voiceCount < 2) return;
 	
-	//let polyphony = 2; //two-note superposition
 	let polyphony = voiceCount - 1; //partial superposition
 	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
 		volRatio: 1 / polyphony,
-		decayFactor: defaultBlockNode.decayFactor * _timeScale * polyphony
+		decayFactor: defaultBlockNode.decayFactor.toString() + "*" + _timeScale.toString() + "*" + polyphony.toString()
 	};
 
 	for(let i = 0; i < patCount; i++) {
 		rootStruct[i] = newChord(voiceCount, polyphony);
 		//to do: chord comparison to avoid duplicates?
-		//rootStruct[i].timeDelta = voiceCount * i;
-		rootStruct[i].timeDelta = (voiceCount - 1 + polyphony) * i;
+		//rootStruct[i].timeDelta = i * voiceCount;
+		rootStruct[i].timeDelta = i.toString() + "*" + (voiceCount - 1 + polyphony).toString(); //in this case, the last note extra time = polyphony
 	}
 
 	let s = JSON.stringify(rootStruct, null, "\t");
@@ -129,7 +128,7 @@ function makeRhythmFactors() {
 		}
 	}
 
-	elems.txtRhythmFactors.value = rhythmFactors.join("*");
+	if(elems.txtRhythmFactors) elems.txtRhythmFactors.value = rhythmFactors.join("*");
 	rhythmAccumUpdate();
 }
 
@@ -164,6 +163,7 @@ function rhythmSubNodes(struct, level, tuning) {
 	limitFreq(tuning, freqDummy);
 	let subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling
+		
 		freqRatio: beats,
 		volRatio: "1/" + beats,
 
@@ -180,12 +180,13 @@ function rhythmSubNodes(struct, level, tuning) {
 		let newNode = {};
 		struct[i] = newNode;
 		Object.assign(newNode, subNodePattern);
-		newNode.timeDelta = i * scale;
+		newNode.timeDelta = i.toString() + "*" + scale.toString();
+		if(i === 0) newNode.vol = 0; //omit strong beats, but not all their descendants
 
 		let crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
 		newNode.duration = scale * crumb;
 		//if(crumb !== 1) newNode.freq = "1/" + crumb.toString();
-		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString();
+		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString(); //to do: include this in tuning calculation
 		
 		rhythmSubNodes(newNode, level + 1, tuning);
 	}
@@ -205,12 +206,15 @@ function makeRhythm() {
 	let freqDummy = {2: 0};
 	let tuning = rootFreq / rhythmFactorsAccum[0];
 	limitFreq(tuning, freqDummy); //not THAT low
+	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let pattern = [{ //rhythm formula root block and note
-		freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(),
+		freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
 		//volRatio: 1,
 		volRatio: rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
-
-		duration: rhythmFactorsAccum[0]
+		
+		duration: rhythmFactorsAccum[0],
+		timbre: "noise",
+		decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
 	}];
 	rhythmSubNodes(pattern[0], 1, 2 ** freqDummy[2] * tuning);
 
@@ -234,23 +238,27 @@ function makeRhythm() {
 	}
 
 	//now that the durations are known, adjust note start sequentially
-	for(let x = 0, y = 0; x < noteCount; x++) {
+	for(let x = 0, t = 0, lastDuration = 0; x < noteCount; x++) {
 		//remember note #0 is the regular block
-		pattern[x + 1].noteStart = y;
-		y += pattern[x + 1].duration;
+		if(x > 0) {
+			pattern[x + 1].noteStart = t.toString() + "+" + lastDuration.toString();
+			t += lastDuration;
+		} else {
+			pattern[x + 1].noteStart = 0;
+		}
+		lastDuration = pattern[x + 1].duration;
 	}
 
-	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: rootFreq,
 		volRatio: "2/3",
-		decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0], //lengthier bars = more sustain
+		//decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0], //lengthier bars = more sustain
 
 		pat: pattern
 	};
 	for(let x = 0; x < repeatCount; x++) {
-		rootStruct[x] = {timeDelta: x * rhythmFactorsAccum[0], 0: "pat"};
+		rootStruct[x] = {timeDelta: x.toString() + "*" + rhythmFactorsAccum[0].toString(), 0: "pat"};
 	}
 	
 	let s = JSON.stringify(rootStruct, null, "\t");
@@ -271,6 +279,7 @@ let maxPitches = null, expVariance = 2;
 
 //the melody generator also presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive call
+//to do: idea: omit strong beats except for the root one?
 function melodySubNodes(struct, level, tuning) {
 	if(level >= rhythmFactors.length) return;
 	let beats = rhythmFactors[level - 1];
@@ -291,7 +300,7 @@ function melodySubNodes(struct, level, tuning) {
 		let newNode = {};
 		struct[i] = newNode;
 		Object.assign(newNode, subNodePattern);
-		newNode.timeDelta = i * scale;
+		newNode.timeDelta = i.toString() + "*" + scale.toString();
 
 		let crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
 		newNode.duration = scale * crumb;
@@ -303,6 +312,7 @@ function melodySubNodes(struct, level, tuning) {
 		let previous, iPrime, rnd = Math.random();
 		//let iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
 		if(i === 0) { //strong (#0) beat
+			//newNode.vol = 0;
 			previous = struct;
 			//question: what formula or algorithm will be the best random prime chooser? (quite hard)
 			//conservative choice
@@ -371,15 +381,16 @@ function makeMelody() {
 		sumVol += barDuration / scale;
 	}
 	let rootFreq = nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq);
+	let partialScaleCompensation = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2);
 	let rootStruct = {
 		timeScale: _timeScale,
 		//freqRatio: rootFreq.toString() + "/" + barDuration.toString(),
 		//big range (lots of beats)? let's start a few octaves down
 		//freqRatio: rootFreq * 0.5 ** Math.floor(Math.log2(barDuration) * 1 / 2),
-		freqRatio: rootFreq.toString() + "/" + (2 ** Math.floor(Math.log2(barDuration) * 1 / 2)).toString(),
+		freqRatio: rootFreq.toString() + "/" + partialScaleCompensation.toString(),
 		//volRatio: 1 / sumVol,
 		volRatio: barDuration.toString() + "/" + sumVol.toString(),
-		decayFactor: defaultBlockNode.decayFactor * _timeScale * barDuration //lengthier bars = more sustain
+		decayFactor: (defaultBlockNode.decayFactor * 2).toString() + "*" + _timeScale.toString() + "*" + partialScaleCompensation.toString() //lengthier bars = more sustain
 	};
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 	//question: too simple? should it depend on primeCount? should it have an extra parameter of overall variance scale?
@@ -424,10 +435,10 @@ function makeMelody() {
 				barPos = (x * repeatCount + y) * reptPeriod + z;
 				rootStruct[barPos] = {
 					0: "pat" + iPat.toString(),
-					timeDelta: barDuration * barPos
+					timeDelta: barPos.toString() + "*" + barDuration.toString()
 				};
 				//rootStruct[x][0] = "pat" + x.toString();
-				//rootStruct[x].timeDelta = barDuration * x;
+				//rootStruct[x].timeDelta = x * barDuration;
 			}
 		}
 	}
