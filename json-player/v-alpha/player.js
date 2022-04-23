@@ -1,7 +1,9 @@
 "use strict";
 
-//variables for web audio
 //to do: output to file (e.g. .opus) (try AudioContext.createMediaStreamDestination)
+//to do: iterative self-filtering for subtractive synthesis?
+
+//variables for web audio
 var audioCtx = null, noiseBuffer = null;
 var oscs = [], auxNodes = [];
 var t0 = 0, songDuration = 0;
@@ -57,7 +59,7 @@ function defOnEnded() {
 	if((oscs.length == 0) && (audioCtx.currentTime - t0 > songDuration) && (!flatStruct || (flatStruct.length == 0))) stop();
 }
 
-let flatStruct, playTimeScale;
+let flatStruct, playTimeScale;//, lastFreq;
 //question: which one to prefer? noteStop (current choice) or duration?
 function enqueueNotes(tNow, tMargin) {
 	if(!audioCtx) return;
@@ -89,6 +91,7 @@ function enqueueNotes(tNow, tMargin) {
 			noteTimbre = note.timbre;
 			if(!noteTimbre) noteTimbre = defaultNoteNode.timbre;
 			let isNoise = noteTimbre.toLowerCase() === "noise";
+			let minStart = Math.max(t0 + noteStart, audioCtx.currentTime);
 
 			if(isNoise) {
 				osc1 = new AudioBufferSourceNode(audioCtx);
@@ -96,10 +99,14 @@ function enqueueNotes(tNow, tMargin) {
 				osc1.loop = true;
 			} else {
 				osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: noteFreq});
+				/*let attack = note.attack;
+				if(!attack) attack = defaultNoteNode.attack;
+				//osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: 2 * noteFreq});
+				osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: lastFreq});
+				osc1.frequency.setTargetAtTime(noteFreq, minStart, playTimeScale * attack * Math.LOG2E); //portamento*/
 			}
 			osc1.onended = defOnEnded;
 			oscs.push(osc1);
-			let minStart = Math.max(t0 + noteStart, audioCtx.currentTime);
 			let terminalNode = osc1;
 			
 			try {
@@ -152,6 +159,7 @@ function enqueueNotes(tNow, tMargin) {
 					osc1.start(minStart, Math.random() * noiseBuffer.duration); //for noise
 				} else {
 					osc1.start(minStart);
+					//lastFreq = noteFreq;
 				}
 				osc1.stop(Math.max(t0 + noteStop, audioCtx.currentTime));
 			}
@@ -163,18 +171,20 @@ function enqueueNotes(tNow, tMargin) {
 
 function audioTUpdate() {
 	//question: trunc instead of round for time?
-	if(audioCtx) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
-	elems.outOscCount.innerText = oscs.length.toString();
+	if(audioCtx && elems.outAudioT) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
+	if(elems.outOscCount) elems.outOscCount.innerText = oscs.length.toString();
 }
 const audioTimerInterval = 86400 * 0.5 ** 21;
 //to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
 function audioTimer(noEnqueue) {
-	let firstChild; //visualizer: clear
-	firstChild = elems.imgVisualizer.firstElementChild; //avoid deleting the <defs> element
-	while(firstChild.nextElementSibling) firstChild.nextElementSibling.remove();
+	if(elems.imgVisualizer) {
+		let firstChild; //visualizer: clear
+		firstChild = elems.imgVisualizer.firstElementChild; //avoid deleting the <defs> element
+		while(firstChild.nextElementSibling) firstChild.nextElementSibling.remove();
+	}
 
 	if(!playing || !audioCtx || !flatStruct) return;
-	//playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	//playTimeScale = nullToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
 	audioTUpdate();
 	//if((flatStruct.length < 1) && (audioCtx.currentTime - t0 > songDuration)) {
 	if((audioCtx.state !== 'suspended') && (audioCtx.currentTime - t0 > 0) && (oscs.length < 1)) {
@@ -182,7 +192,7 @@ function audioTimer(noEnqueue) {
 		stop();
 		return;
 	}
-	if((audioCtx.state !== 'closed') && playing) {
+	if((audioCtx.state !== 'closed') && playing && elems.imgVisualizer) {
 		//visualization
 		const svgns = "http://www.w3.org/2000/svg";
 		const noteVisWidth = 1 / 128, freqMin = 20, freqMax = 20000, freqBase = 1 / Math.log2(freqMax / freqMin);
@@ -248,18 +258,22 @@ function play() {
 	try {
 		flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
 	} catch(error) {
-		elems.ctlFlatScript.classList.add("invalid");
-		elems.ctlFlatScript.title = error.message;
+		if(elems.ctlFlatScript) {
+			elems.ctlFlatScript.classList.add("invalid");
+			elems.ctlFlatScript.title = error.message;
+		}
 		console.error(error);
 		return;
 	}
-	elems.ctlFlatScript.classList.remove("invalid");
-	elems.ctlFlatScript.title = "";
+	if(elems.ctlFlatScript) {
+		elems.ctlFlatScript.classList.remove("invalid");
+		elems.ctlFlatScript.title = "";
+	}
 
 	//estimate total clip duration and fills order-dependent implied noteStart
 	songDuration = 0;
 	let len = flatStruct.length;
-	elems.outNoteCount.innerText = len.toString();
+	if(elems.outNoteCount) elems.outNoteCount.innerText = len.toString();
 	let lastNoteStop = 0;
 	for(let i = 0, note; i < len; i++) {
 		note = flatStruct[i];
@@ -284,11 +298,13 @@ function play() {
 			if(note.noteStop == note.noteStart) continue; //(currently no.)
 		songDuration = Math.max(songDuration, playTimeScale * note.noteStop);
 	}
-	elems.outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
+	if(elems.outAudioDur) elems.outAudioDur.innerText = songDuration.toFixed(timeDisplPrecision);
 	if(len <= 0) {
-		elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here (currently yes)
+		if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 		return;
-	}
+	} /*else {
+		lastFreq = flatStruct[0].freq;
+	}*/
 	flatStruct.sort(function(a, b) {
 		let diff = a.noteStart - b.noteStart; //earlier start
 		if(diff === 0) diff = a.attack - b.attack; //quicker attack
@@ -306,12 +322,14 @@ function play() {
 	t0 = audioCtx.currentTime + playTimeDelta;
 	audioTimer();
 	audioCtx.resume();
-	elems.btnPause.innerHTML = "<u>P</u>ause";
-	elems.btnPause.disabled = false;
+	if(elems.btnPause) {
+		elems.btnPause.innerHTML = "<u>P</u>ause";
+		elems.btnPause.disabled = false;
+	}
 }
 
 //nonreversible operation, frees resources
-function stop() {
+function stop(event) {
 	console.log("Stopping...");
 	for(const osc of oscs) {
 		try {
@@ -346,8 +364,9 @@ function stop() {
 		flatStruct = null;
 	}
 
-	elems.btnPause.innerHTML = "<u>P</u>ause";
-	if(elems.chkAutoReload.checked) play();
+	if(elems.btnPause) elems.btnPause.innerHTML = "<u>P</u>ause";
+	if(event === undefined)
+		if(elems.chkAutoReload && elems.chkAutoReload.checked) play();
 }
 //reversible operation
 function pauseToggle() {
@@ -356,10 +375,10 @@ function pauseToggle() {
 	if(audioCtx.state === 'closed') return;
 	if(audioCtx.state === 'running') {
 		audioCtx.suspend();
-		elems.btnPause.innerHTML = "Un<u>p</u>ause";
+		if(elems.btnPause) elems.btnPause.innerHTML = "Un<u>p</u>ause";
 	} else {
 		audioCtx.resume();
-		elems.btnPause.innerHTML = "<u>P</u>ause";
+		if(elems.btnPause) elems.btnPause.innerHTML = "<u>P</u>ause";
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000);
 	}
 	audioTimer(audioCtx.state !== 'running');

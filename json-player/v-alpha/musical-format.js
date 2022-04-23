@@ -100,16 +100,16 @@ function flattenStruct() {
 
 function setStructuredText(s) {
 	hasScriptChanged = true;
-	elems.btnFlattenStruct.innerText = "Flatten";
-	elems.ctlStructuredScript.innerText = s;
+	if(elems.btnFlattenStruct) elems.btnFlattenStruct.innerText = "Flatten";
+	if(elems.ctlStructuredScript) elems.ctlStructuredScript.innerText = s;
 	if(autoFlatten) flattenStruct();
 }
 
 var flattenTimeoutID;
-const flattenInterval = 1.5;
+const flattenInterval = 1.5; //seconds
 function scriptChanged() {
 	hasScriptChanged = true;
-	elems.btnFlattenStruct.innerText = "Flatten";
+	if(elems.btnFlattenStruct) elems.btnFlattenStruct.innerText = "Flatten";
 	
 	if(flattenTimeoutID) {
 		window.clearTimeout(flattenTimeoutID);

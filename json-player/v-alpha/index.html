@@ -8,7 +8,7 @@
 	<style type="text/css">
 	/*<![CDATA[*/
 	body {
-		background-color: hsl(120, 37.5%, 25%);
+		background-color: hsl(120, 37.5%, 25%); /*we live in an HDR/deep color era, so 24-bit hex codes are a thing of the past*/
 		color: hsl(120, 25%, 87.5%);
 	}
 	strong {
@@ -39,6 +39,7 @@
 		background-color: hsl(120, 50%, 12.5%);
 		color: hsl(120, 50%, 87.5%);
 		border-radius: 0.25em;
+		/*to do: fine-tune border? (width, opacity, color)*/
 	}
 	input[type=number] {
 		text-align: right;
@@ -101,6 +102,14 @@
 	}
 	.codeEditor.lineWrapping {
 		white-space: pre-wrap;
+	}
+	.floatR {
+		float: right;
+	}
+	#outAudioT {
+		display: inline-block;
+		min-width: 6ch;
+		text-align: right;
 	}
 	
 	#imgVisualizer {
@@ -181,6 +190,7 @@
 	</p>
 	<!--to do: for input type=number, use size attribute instead of width css property?-->
 	<!--to do: make my own spin buttons, around text inputs-->
+	<!--to do: param: factor depth-->
 	<p><strong>Generator&nbsp;params.:</strong> 
 		<datalist id="tunings">
 			<option value="256" />
@@ -225,8 +235,9 @@
 		<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
 		<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
 		<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button> <wbr />
-		<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
-		<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+		<span class="floatR">
+			<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
+			<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button></span>
 	</p>
 	<!--<textarea style="width: 100%;"></textarea>-->
 	<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false">
@@ -246,17 +257,19 @@
 	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre>
 	<p><strong>Flattened note list:</strong> 
+		<!--to do: ? (lost to-do item)-->
 		<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-		<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
-		<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button><wbr />
 		<span class="cell"><input type="checkbox" id="chkAutoFlatten" />
 			<label for="chkAutoFlatten">Automatically flatten</label></span>
+		<span class="floatR">
+			<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
+			<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button></span>
 		<!--to do: new parameter for repeating the whole structure?-->
 	</p>
 	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
  {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
- 	<p><strong>Overall&nbsp;controls:</strong> 
+	<p><strong>Overall&nbsp;controls:</strong> 
 		<!--question: switch input elems to type="range"?-->
 		<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
 			<input type="number" id="txtPlayFreqScale" value="1" min="0" step="0.25" class="exp" title="Multiplicative factor" /></span> <wbr />
@@ -274,10 +287,11 @@
 		<span class="cell"><input type="checkbox" id="chkAutoReload" />
 			<label for="chkAutoReload">Auto-reload</label></span>
 		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
-		<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
-		<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
+		<span class="cell floatR">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
+		<span class="cell floatR">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
 	</p>
 
+	<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
 	<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" version="1.1">
 		<defs>
 			<linearGradient id="noteFill1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -349,6 +363,7 @@
 		<dd>Absolute override when present, but always affected by overall time scale.</dd>
 	</dl>
 	<p>In the structured representation, block and note properties support several number formats. Examples:</p>
+	<!--to do: more good numerical examples (power, division, subtraction to show the associativity order)-->
 	<ul>
 		<li><code>1.25</code> = 1.25 (literal number)</li>
 		<li><code>"1.25"</code> = 1.25 (text to number)</li>

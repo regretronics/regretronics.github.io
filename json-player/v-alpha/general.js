@@ -1,6 +1,8 @@
 //to do: check performance difference of strict mode?
 "use strict";
 
+//to do: consider worker threads, and learn something about worklets (just in case)
+
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
 	//question: these names are probably lousy and inconsistent. right now i'm not sure of how to improve.
@@ -159,9 +161,9 @@ function docLoaded() {
 	for(let s of elemNames) {
 		elems[s] = document.getElementById(s);
 	}
-	elems.chkAutoFlatten.checked = autoFlatten;
-	elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
-	elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(elems.chkAutoFlatten) elems.chkAutoFlatten.checked = autoFlatten;
+	if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+	if(elems.outAudioDur) elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
 	//initialize look-up table
@@ -195,7 +197,7 @@ function lineWrapToggle(control) {
 function primeCountChanged() {
 	primeCount = parseInt(elems.txtPrimeCount.value);
 	if(primeCount < 2) primeCount = 2;
-	elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
+	if(elems.outPrimeList) elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
 }
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs. there must be an event for validation.
@@ -239,7 +241,7 @@ function rhythmAccumUpdate() {
 		product *= factors.pop();
 		rhythmFactorsAccum.unshift(product);
 	}
-	elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
+	if(elems.outRhythmScales) elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	//elems.outRhythmScales.innerText = rhythmFactorsAccum.slice(0, -1).join("/");
 	rhythmFactors.push(1);
 	rhythmFactorsAccum.push(1);
@@ -253,9 +255,9 @@ function rhythmFactorsChanged() {
 	if(rhythmFactors.some(x => isNaN(x))) {
 		rhythmFactors = [2, 2, 2]; //not a number? default/fallback
 		//question: choose a different default?
-		elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
+		if(elems.txtRhythmFactors) elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
 	} else {
-		elems.txtRhythmFactors.setCustomValidity("");
+		if(elems.txtRhythmFactors) elems.txtRhythmFactors.setCustomValidity("");
 	}
 	rhythmAccumUpdate();
 }
