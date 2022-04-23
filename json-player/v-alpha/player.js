@@ -59,7 +59,7 @@ function defOnEnded() {
 	if((oscs.length == 0) && (audioCtx.currentTime - t0 > songDuration) && (!flatStruct || (flatStruct.length == 0))) stop();
 }
 
-let flatStruct, playTimeScale;//, lastFreq;
+let flatStruct, playTimeScale = 1;//, lastFreq;
 //question: which one to prefer? noteStop (current choice) or duration?
 function enqueueNotes(tNow, tMargin) {
 	if(!audioCtx) return;
@@ -169,6 +169,7 @@ function enqueueNotes(tNow, tMargin) {
 	}
 }
 
+let lastT = 0;
 function audioTUpdate() {
 	//question: trunc instead of round for time?
 	if(audioCtx && elems.outAudioT) {elems.outAudioT.innerText = (audioCtx.currentTime - t0).toFixed(timeDisplPrecision);}
@@ -239,7 +240,9 @@ function audioTimer(noEnqueue) {
 
 		window.setTimeout(audioTimer, audioTimerInterval * 1000);
 		if(noEnqueue === undefined) noEnqueue = false;
-		if(!noEnqueue) enqueueNotes(audioCtx.currentTime - t0, 2 * audioTimerInterval);
+		let currT = audioCtx.currentTime;
+		if(!noEnqueue) enqueueNotes(currT - t0, Math.max(2 * audioTimerInterval, currT - lastT));
+		lastT = currT;
 		//to do: allow skipping/fast forward/rewind?
 	}
 }
@@ -319,7 +322,8 @@ function play() {
 	playing = true;
 	if(!noiseBuffer) noiseBuffer = createNoiseBuffer();
 	//to do: currently, audio clips are expected to start at time 0. i could do a leading silence trimming if relevant.
-	t0 = audioCtx.currentTime + playTimeDelta;
+	lastT = audioCtx.currentTime;
+	t0 = lastT + playTimeDelta;
 	audioTimer();
 	audioCtx.resume();
 	if(elems.btnPause) {
@@ -365,7 +369,7 @@ function stop(event) {
 	}
 
 	if(elems.btnPause) elems.btnPause.innerHTML = "<u>P</u>ause";
-	if(event === undefined)
+	if((arguments.length < 1) || !event)
 		if(elems.chkAutoReload && elems.chkAutoReload.checked) play();
 }
 //reversible operation
@@ -381,5 +385,6 @@ function pauseToggle() {
 		if(elems.btnPause) elems.btnPause.innerHTML = "<u>P</u>ause";
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000);
 	}
+	lastT = audioCtx.currentTime;
 	audioTimer(audioCtx.state !== 'running');
 }
