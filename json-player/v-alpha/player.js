@@ -4,9 +4,7 @@
 //to do: iterative self-filtering for subtractive synthesis?
 
 //variables for web audio
-var audioCtx = null, noiseBuffer = null;
-var oscs = [], auxNodes = [];
-var t0 = 0, songDuration = 0;
+let audioCtx = null, noiseBuffer = null;
 
 const noiseBufferTime = 86400 / 4096; //seconds
 function createNoiseBuffer() {
@@ -16,8 +14,11 @@ function createNoiseBuffer() {
 	let arr = buffer.getChannelData(0);
 	
 	for (let i = 0; i < sampleCount; i++) {
-		//to do: why not gaussian noise?
-		arr[i] = 2 * Math.random() - 1;
+		//noise
+		//arr[i] = 2 * Math.random() - 1; //non-gaussian
+		//gaussian noise
+		//arr[i] = 0.5 * (Math.random() + Math.random() + Math.random() + Math.random()) - 1;
+		arr[i] = 1 * (Math.random() + Math.random() + Math.random() + Math.random()) - 2; //can result in overdrive/clipping, but in practice seems ok
 
 		//test: sine wave that fades in and then out
 		//arr[i] = (1 - Math.abs((i - 0.5 * sampleCount) / (0.5 * sampleCount))) * Math.sin(2 * Math.PI * 440 * i / audioCtx.sampleRate);
@@ -34,7 +35,10 @@ function removeFrom(arr, item) {
 	if(i >= 0) arr.splice(i, 1);
 }
 
-let playing = false;
+let oscs = [], auxNodes = [];
+let t0 = 0, songDuration = 0;
+
+//event handler for generator audio nodes
 function defOnEnded() {
 	if(this) {
 		//console.debug("Note release: " + audioCtx.currentTime);
@@ -51,24 +55,121 @@ function defOnEnded() {
 		removeFrom(auxNodes, this.modGainAttack);
 		removeFrom(auxNodes, this.modGainRelease);
 	}
-	if(!audioCtx) {
+	if(!audioCtx || (oscs.length == 0) && (audioCtx.currentTime - t0 > songDuration) && (!flatStruct || (flatStruct.length == 0))) {
 		console.log("defOnEnded: will stop playback.");
 		stop();
-		return;
+		//return;
 	}
-	if((oscs.length == 0) && (audioCtx.currentTime - t0 > songDuration) && (!flatStruct || (flatStruct.length == 0))) stop();
 }
 
 let flatStruct, playTimeScale = 1;//, lastFreq;
 //question: which one to prefer? noteStop (current choice) or duration?
+function renderNote(note) {
+	//this procedure would be technically unnecessary, but exists for the sake of readability and too avoid deep levels of statement nesting
+	let noteFreq, noteStart, noteStop, duration, noteTimbre, isNoise, minStart, osc1;
+	noteFreq = playFreqScale * note.freq;
+	noteStart = playTimeScale * note.noteStart;
+	noteStop = playTimeScale * note.noteStop;
+	duration = noteStop - noteStart;
+	if(duration < 0) { //question: ignore negative-length notes? (currently no)
+		let temp = noteStart;
+		noteStart = noteStop;
+		noteStop = temp;
+	}
+	//to do: negative frequency? (check if this causes phase inversion in web audio)
+	noteTimbre = note.timbre;
+	if(!noteTimbre) noteTimbre = defaultNoteNode.timbre;
+	isNoise = noteTimbre.toLowerCase() === "noise";
+	minStart = Math.max(t0 + noteStart, audioCtx.currentTime);
+
+	if(isNoise) {
+		osc1 = new AudioBufferSourceNode(audioCtx); //to do: properties into second parameter of constructor?
+		osc1.buffer = noiseBuffer;
+		osc1.loop = true;
+	} else {
+		osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: noteFreq});
+		//to do: portamento: properties freq0 (default lastFreq), portamento (default 0)
+		/*let attack = note.attack;
+		if(!attack) attack = defaultNoteNode.attack;
+		//to do: consider using detune (exponential) for portamento
+		//osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: 2 * noteFreq});
+		osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: lastFreq});
+		osc1.frequency.setTargetAtTime(noteFreq, minStart, Math.abs(playTimeScale) * attack * Math.LOG2E); //portamento*/
+
+		//to do: vibrato? (using detune)
+	}
+	osc1.onended = defOnEnded;
+	oscs.push(osc1);
+	let terminalNode = osc1;
+	
+	try {
+		if(isNoise) {
+			let fltBandPass = new BiquadFilterNode(audioCtx, {type: "bandpass", frequency: Math.abs(noteFreq)});
+			terminalNode.connect(fltBandPass);
+			terminalNode = fltBandPass;
+			osc1.fltBandPass = fltBandPass;
+			auxNodes.push(fltBandPass);
+		}
+
+		let gainDecay, gainAttack, gainRelease;
+		//volume scale and decay (from vol to 0)
+		gainDecay = new GainNode(audioCtx, {gain: playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol)});
+		let decayFactor = note.decayFactor;
+		if(!decayFactor) decayFactor = defaultNoteNode.decayFactor;
+		//question: should decay factor be subject to playTimeScale? (currently yes)
+		gainDecay.gain.setTargetAtTime(0, minStart, Math.abs(playTimeScale) * decayFactor * Math.LOG2E / Math.abs(noteFreq)); //negative time constants currently don't work
+		terminalNode.connect(gainDecay);
+		terminalNode = gainDecay;
+		osc1.modGainDecay = gainDecay;
+		auxNodes.push(gainDecay);
+		
+		//volume attack (from 0 to 1)
+		let attack = note.attack;
+		if(!attack) attack = defaultNoteNode.attack;
+		if(attack == 0) {
+			osc1.modGainAttack = null;
+		} else {
+			gainAttack = new GainNode(audioCtx, {gain: 0});
+			//question: should attack time be subject to noteFreq? (currently no)
+			//question: should attack time be subject to playTimeScale? (currently yes)
+			gainAttack.gain.setTargetAtTime(1, minStart, Math.abs(playTimeScale) * attack * Math.LOG2E);
+			terminalNode.connect(gainAttack);
+			terminalNode = gainAttack;
+			osc1.modGainAttack = gainAttack;
+			auxNodes.push(gainAttack);
+		}
+		
+		if(releaseCurve) {
+			//volume decay within note time
+			gainRelease = new GainNode(audioCtx);
+			gainRelease.gain.setValueCurveAtTime(releaseCurve, minStart, Math.abs(duration));
+			terminalNode.connect(gainRelease);
+			terminalNode = gainRelease;
+			osc1.modGainRelease = gainRelease;
+			auxNodes.push(gainRelease);
+		} else {
+			osc1.modGainRelease = null;
+		}
+	} finally {
+		terminalNode.connect(audioCtx.destination);
+		if(isNoise) {
+			osc1.start(minStart, Math.random() * noiseBuffer.duration); //random start point
+		} else {
+			osc1.start(minStart);
+			//lastFreq = noteFreq;
+		}
+		osc1.stop(Math.max(t0 + noteStop, audioCtx.currentTime));
+	}
+}
 function enqueueNotes(tNow, tMargin) {
 	if(!audioCtx) return;
 	tNow /= playTimeScale; //to do: move the divisions outside this procedure (to facilitate variable time scale)?
 	tMargin /= playTimeScale;
 	let tMax = tNow + tMargin;
-	let note, noteFreq, noteStart, noteStop, duration, noteTimbre, osc1;
+	let note;
 	//progressively enter notes
 	//this procedure presumes a time-sorted array of notes
+	//to do: nondestructive list traversal
 	while((flatStruct.length > 0) && (flatStruct[0].noteStart <= tMax)) { //to do: review time condition when allowing reverse playback
 		note = flatStruct.shift();
 		//in the flattened structure, all notes must have (non-zero) frequency
@@ -78,97 +179,14 @@ function enqueueNotes(tNow, tMargin) {
 		if(note.vol === 0) continue; //negative amplitude is allowed, but zero amplitude not played
 		if(note.noteStop < tNow) continue;
 		try {
-			noteFreq = playFreqScale * note.freq;
-			noteStart = playTimeScale * note.noteStart;
-			noteStop = playTimeScale * note.noteStop;
-			duration = noteStop - noteStart;
-			if(duration < 0) { //question: ignore negative-length notes?
-				let temp = noteStart;
-				noteStart = noteStop;
-				noteStop = temp;
-			}
-			//to do: negative frequency? (check if this causes phase inversion in web audio)
-			noteTimbre = note.timbre;
-			if(!noteTimbre) noteTimbre = defaultNoteNode.timbre;
-			let isNoise = noteTimbre.toLowerCase() === "noise";
-			let minStart = Math.max(t0 + noteStart, audioCtx.currentTime);
-
-			if(isNoise) {
-				osc1 = new AudioBufferSourceNode(audioCtx);
-				osc1.buffer = noiseBuffer;
-				osc1.loop = true;
-			} else {
-				osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: noteFreq});
-				/*let attack = note.attack;
-				if(!attack) attack = defaultNoteNode.attack;
-				//osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: 2 * noteFreq});
-				osc1 = new OscillatorNode(audioCtx, {type: "sine", frequency: lastFreq});
-				osc1.frequency.setTargetAtTime(noteFreq, minStart, playTimeScale * attack * Math.LOG2E); //portamento*/
-			}
-			osc1.onended = defOnEnded;
-			oscs.push(osc1);
-			let terminalNode = osc1;
-			
-			try {
-				if(isNoise) {
-					let fltBandPass = new BiquadFilterNode(audioCtx, {type: "bandpass", frequency: noteFreq});
-					terminalNode.connect(fltBandPass);
-					terminalNode = fltBandPass;
-					osc1.fltBandPass = fltBandPass;
-					auxNodes.push(fltBandPass);
-				}
-
-				let gainDecay, gainAttack, gainRelease;
-				//volume scale and decay (from vol to 0)
-				gainDecay = new GainNode(audioCtx, {gain: playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol)});
-				let decayFactor = note.decayFactor;
-				if(!decayFactor) decayFactor = defaultNoteNode.decayFactor;
-				//question: should decay factor be subject to playTimeScale? (currently yes)
-				gainDecay.gain.setTargetAtTime(0, minStart, playTimeScale * decayFactor * Math.LOG2E / noteFreq);
-				terminalNode.connect(gainDecay);
-				terminalNode = gainDecay;
-				osc1.modGainDecay = gainDecay;
-				auxNodes.push(gainDecay);
-				
-				//volume attack (from 0 to 1)
-				gainAttack = new GainNode(audioCtx, {gain: 0});
-				let attack = note.attack;
-				if(!attack) attack = defaultNoteNode.attack;
-				//question: should attack time be subject to noteFreq? (currently no)
-				//question: should attack time be subject to playTimeScale? (currently yes)
-				gainAttack.gain.setTargetAtTime(1, minStart, playTimeScale * attack * Math.LOG2E);
-				terminalNode.connect(gainAttack);
-				terminalNode = gainAttack;
-				osc1.modGainAttack = gainAttack;
-				auxNodes.push(gainAttack);
-				
-				if(releaseCurve) {
-					//volume decay within note time
-					gainRelease = new GainNode(audioCtx);
-					gainRelease.gain.setValueCurveAtTime(releaseCurve, minStart, Math.abs(duration));
-					terminalNode.connect(gainRelease);
-					terminalNode = gainRelease;
-					osc1.modGainRelease = gainRelease;
-					auxNodes.push(gainRelease);
-				} else {
-					osc1.modGainRelease = null;
-				}
-			} finally {
-				terminalNode.connect(audioCtx.destination);
-				if(isNoise) {
-					osc1.start(minStart, Math.random() * noiseBuffer.duration); //for noise
-				} else {
-					osc1.start(minStart);
-					//lastFreq = noteFreq;
-				}
-				osc1.stop(Math.max(t0 + noteStop, audioCtx.currentTime));
-			}
+			renderNote(note);
 		} catch(error) {
 			console.error(error);
 		}
 	}
 }
 
+let playing = false;
 let lastT = 0;
 function audioTUpdate() {
 	//question: trunc instead of round for time?
@@ -210,14 +228,11 @@ function audioTimer(noEnqueue) {
 					}
 				}
 				if(!freq) continue;
-				let noteShape = document.createElementNS(svgns, "rect");
-				if (isNoise) {
-					noteShape.setAttributeNS(null, "width", `${100 * 16 * noteVisWidth}%`);
-					noteShape.setAttributeNS(null, "x", `${100 * (Math.log2(freq / freqMin) * freqBase - 0.5 * 16 * noteVisWidth)}%`);
-				} else {
-					noteShape.setAttributeNS(null, "width", `${100 * noteVisWidth}%`);
-					noteShape.setAttributeNS(null, "x", `${100 * (Math.log2(freq / freqMin) * freqBase - 0.5 * noteVisWidth)}%`);
-				}
+
+				let noteShape = document.createElementNS(svgns, "rect"), wid = noteVisWidth;
+				if (isNoise) wid *= 16; //arbitrary factor
+				noteShape.setAttributeNS(null, "width", `${100 * wid}%`);
+				noteShape.setAttributeNS(null, "x", `${100 * (Math.log2(Math.abs(freq) / freqMin) * freqBase - 0.5 * wid)}%`);
 				//noteShape.setAttributeNS(null, "height", "100%");
 				//noteShape.setAttributeNS(null, "y", "0");
 				/*noteShape.x.baseVal.value = 50;
@@ -345,9 +360,7 @@ function stop(event) {
 	}
 	oscs = [];
 
-	for(const node of auxNodes) {
-		node.disconnect();
-	}
+	for(const node of auxNodes) node.disconnect();
 	auxNodes = [];
 
 	if(playing) audioTUpdate();

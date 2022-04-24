@@ -1,7 +1,9 @@
 //to do: check performance difference of strict mode?
 "use strict";
 
-//to do: consider worker threads, and learn something about worklets (just in case)
+//to do: consider worker threads
+//to do: ?line numbers in left side in code editors
+//to do: ?caret position (row, column, char index) status label
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -29,10 +31,10 @@ const defaultNoteNode = {
 };
 
 //of course there are infinite primes, but these are more than enough.
-var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47], primeCount;
+var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47], primeCount = 2, expVariance = 2;
 
 function nullToDefault(x, def) {
-	return x === null ? def : x;
+	return ((x === undefined) || (x === null)) ? def : x;
 }
 //recursive call
 function parseNumber(n) {
@@ -42,12 +44,23 @@ function parseNumber(n) {
 	let t = typeof(n);
 
 	//simpler attempts first.
-	if(t === "number") return n;
+	if((t === "number") || (t === "bigint")) return n;
+	if(t === "function") return(parseNumber(n())); //?
+
+	if(Array.isArray(n)) {
+		//a product, prime factor-based
+		let r = 1, i;
+		//to do: lisp-like (polish notation) array interpretation as s-expressions? (e.g. ["+", 12, 34, 56] -> 12 + 34 + 56)
+		for(i in n) {
+			r *= Math.pow(primes[i], nullToDefault(parseNumber(n[i]), 0));
+		}
+		return r;
+	}
 
 	//try conversion to number
-	//JavaScript converts Number("") and Number([]) to 0. let's prevent this.
-	//to do: consider changing test order (arrays first?).
-	if(!Array.isArray(n) && ((t !== "string") || (n.length != 0))) {
+	//JavaScript converts Number([]) to 0; that's why array detection comes earlier
+	//JavaScript converts Number("") to 0; let's try to prevent this
+	if((t !== "string") || (n.length != 0)) {
 		let ret = Number(n);
 		if(!isNaN(ret)) return ret;
 	}
@@ -60,6 +73,17 @@ function parseNumber(n) {
 			n = JSON.parse(n);
 		} catch (error) {
 			//can be an expression
+
+			//try to evaluate parenthesized subexpressions
+			//use regular expressions matching last-level parenthesized text (without additional parentheses inside), and replace iteratively by values
+			//warning: this is a string-to-string operation, where numbers become decimal-to-binary-to-decimal coded
+			let re = new RegExp(/\(([^\(\)]*)\)/, "g");
+			do {
+				let s = n.replace(re, (match, p1, offset, string) => parseNumber(p1).toString());
+				if(s == n) break;
+				n = s;
+			} while(true);
+
 			//operators, starting from low precedence
 			//addition: "3+4+5" -> 3+(4+5) (right-associative)
 			//question: why not make it almost all left-associative?
@@ -107,39 +131,30 @@ function parseNumber(n) {
 					** nullToDefault(parseNumber(n.slice(pos + 1)), 1);
 			}
 
-			//to do: maybe support parentheses
-			//	idea: use regular expressions matching last-level parenthesized text (without additional parentheses inside), and replace iteratively by values.
+			//no operation? try Number() again.
+			let ret = Number(n);
+			if(!isNaN(ret)) return ret;
 			return null;
 		}
 	}
 
-	//a product
-	let r = 1, i;
-	//prime factor-based
-	//to do: lisp-like (polish notation) array interpretation as s-expressions? (e.g. ["+", 12, 34, 56] -> 12 + 34 + 56)
-	if(Array.isArray(n)) {
+	//a product (object with explicit factors)
+	if(t === "object") {
+		let r = 1, i;
 		for(i in n) {
-			r *= Math.pow(primes[i], nullToDefault(parseNumber(n[i]), 0));
+			//1 as default base neutralizes unrecognized bases
+			let iNum = nullToDefault(parseNumber(i), 1); //even the factors can actually be complex things
+			if(isNaN(iNum)) continue;
+			r *= Math.pow(iNum, nullToDefault(parseNumber(n[i]), 0));
 		}
 		return r;
 	}
 
-	//objects with explicit factors
-	for(i in n) {
-		//even the factors can actually be complex things
-		//1 as default base neutralizes unrecognized bases
-		let iNum = nullToDefault(parseNumber(i), 1);
-		if(isNaN(iNum)) continue;
-		r *= Math.pow(iNum, nullToDefault(parseNumber(n[i]), 0));
-	}
-	return r;
+	return null;
 }
 
-//to do: ?line numbers in left side in code editors
-//to do: ?caret position (row, column, char index) status label
-
 //HTML elements
-var elemNames = ["txtFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", //generator parameters, common
+const elemNames = ["txtFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", "txtExpVariance", //generator parameters, common
 	"txtRhythmScale", "txtRhythmFactors", //rhythm
 	"txtVoiceCount", "txtReptCount", "txtReptPeriod", //generator parameters, additional
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
@@ -147,7 +162,7 @@ var elemNames = ["txtFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", 
 	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "imgVisualizer", //other controls
 	"outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outOscCount" //output fields
 ];
-var expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
+const expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 var elems = {};
 var autoFlatten = true;
 const timeDisplPrecision = 2;
@@ -155,6 +170,9 @@ const timeDisplPrecision = 2;
 //look-up table to be used in an aspect of the volume envelope
 var releaseCurve;
 const releaseCurveSize = 512;
+
+//variability per prime factor (2, 3, 5, 7, ...)
+let maxPitches = null;
 
 function docLoaded() {
 	//load HTML element references
@@ -166,6 +184,12 @@ function docLoaded() {
 	if(elems.outAudioDur) elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
+	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
+	//question: too simple? should it depend on primeCount? should it have an extra parameter of overall variance scale?
+	maxPitches = new Array(primes.length);
+	for(const i in primes)
+		maxPitches[i] = 1 / Math.log2(primes[i]);
+
 	//initialize look-up table
 	releaseCurve = new Float32Array(releaseCurveSize);
 	for(let i = 0; i < releaseCurveSize; i++) {
@@ -195,23 +219,23 @@ function lineWrapToggle(control) {
 }
 
 function primeCountChanged() {
-	primeCount = parseInt(elems.txtPrimeCount.value);
+	primeCount = nullToDefault(parseNumber(elems.txtPrimeCount.value), 2);
 	if(primeCount < 2) primeCount = 2;
 	if(elems.outPrimeList) elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
 }
 
-//to do: force-allow arbitrary strings for "parseNumber" inputs. there must be an event for validation.
+//to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
 function expSpinnerChanged(event) {
 	let elem = event.target;
 	//let val = elem.valueAsNumber;
 	let val = nullToDefault(parseNumber(elem.value), 1);
-	let magnitude = Math.round(Math.log2(val)), step = 0.25 * 2 ** magnitude;
+	let magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
 	elem.step = step;
 	//if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
-	elem.min = val - 2 * step;
+	elem.min = val - 2 * Math.sign(val) * step;
 	elem.setCustomValidity("");
 }
-/*function textInvalid(event) { //not working
+/*function textInvalid(event) { //not working for input type="number"
 	event.target.setCustomValidity("");
 	event.preventDefault();
 	event.stopImmediatePropagation();
@@ -238,8 +262,8 @@ function rhythmAccumUpdate() {
 	let product = 1;
 	rhythmFactorsAccum = [];
 	while(factors.length > 0) {
-		product *= factors.pop();
-		rhythmFactorsAccum.unshift(product);
+		product *= factors.pop(); //reverse traversal
+		rhythmFactorsAccum.unshift(product); //add as first
 	}
 	if(elems.outRhythmScales) elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	//elems.outRhythmScales.innerText = rhythmFactorsAccum.slice(0, -1).join("/");
@@ -250,6 +274,7 @@ function rhythmFactorsChanged() {
 	//to do: support sums (e.g. 3 beats + 4 beats -> 1001000)?
 	//to do: support fractions (e.g. 5/2 beats)?
 	//to do: support parentheses?
+	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 3*2? like (2 + 2 + 2) + ((1 + 1) + (1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1) + (1 + 1))?
 	let s = elems.txtRhythmFactors.value.toString(); //text
 	rhythmFactors = s.split("*").map(x => parseFloat(x)); //array of numbers
 	if(rhythmFactors.some(x => isNaN(x))) {
@@ -263,7 +288,7 @@ function rhythmFactorsChanged() {
 }
 
 function deletePrevTab() {
-	//outdent line (actually, the nearest tab before caret)
+	//outdent line (actually, erase the nearest tab before caret)
 	let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
 	let pos = rng.endOffset;
 	let node = rng.endContainer; //to do: store original node?
@@ -276,7 +301,7 @@ function deletePrevTab() {
 		if(i >= 0) break; //tab character found?
 
 		node = node.previousSibling;
-		if(!node) return; //end of line?
+		if(!node) return; //"end" of text?
 		if(node.nodeName.toUpperCase() == "BR") return; //line break attacks again
 		
 		txt = node.textContent;
@@ -293,7 +318,7 @@ function deletePrevTab() {
 	rng.setStart(node, i);
 	rng.setEnd(node, i + 1);
 	//rng.deleteContents();
-	document.execCommand("delete", false, null);
+	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently i haven't found any proper replacement for this command.
 	rng.setStart(node, pos - 1); //also buggy
 	rng.setEnd(node, pos - 1);
 }
@@ -316,4 +341,39 @@ function editorKeyDown(event) {
 }
 function editorInput(event) {
 	event.target.style.backgroundColor = "";
+}
+function recalcEditorCursorPos(event) { //not working, at least in Ffx
+	let elem = event.target;
+	elem.normalize();
+	
+	let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
+	let pos = rng.endOffset;
+	let node = rng.endContainer;
+	let txt = node.textContent;
+	
+	let i, count = 1;
+	//let iArr = [];
+	while(true) {
+		if(!txt || !(txt.length >= 1) || !(pos > 0))
+			i = -1;
+		else
+			i = txt.lastIndexOf("\n", pos - 1);
+		if(i >= 0) {
+			count++; //character found
+			//iArr.push(i);
+			pos = i;
+		} else {
+			node = node.previousSibling;
+			if(!node || !elem.contains(node)) break; //"end" of text?
+			if(node.nodeName.toUpperCase() == "BR") count++; //line break attacks again
+			//if(node.tagName.toUpperCase() == "BR") count++; //line break attacks again
+			//iArr.push(node.nodeName);
+
+			txt = node.textContent;
+			pos = txt.length;
+			//iArr.push(pos);
+		}
+	}
+	document.title = count.toString();
+	//document.title = iArr.toString();
 }

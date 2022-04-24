@@ -1,8 +1,10 @@
 "use strict";
 
-let struct;
+//shared variables
+var struct;
 
 //recursive call
+//to do: consider negative note scales
 function parseNode(flatStruct, node, blockContext) {
 	//alter context.
 	let newContext = {};
@@ -49,20 +51,18 @@ function parseNode(flatStruct, node, blockContext) {
 		if(typeof(t) === "string") { //reference by name
 			//pattern invocation, local
 			//question: local first really?
-			if(node.hasOwnProperty(t)) {
+			if(node.hasOwnProperty(t))
 				parseNode(flatStruct, node[t], newContext);
-			} else {
+			else
 				//pattern invocation, global
 				if(struct.hasOwnProperty(t)) {parseNode(flatStruct, struct[t], newContext);}
-			}
-		} else {
+		} else
 			//primary recursion point.
 			parseNode(flatStruct, t, newContext);
-		}
 	}
 }
 
-var hasScriptChanged = true;
+let hasScriptChanged = true;
 function flattenStruct() {
 	if(!hasScriptChanged) return;
 	try {
@@ -70,12 +70,10 @@ function flattenStruct() {
 		elems.ctlStructuredScript.classList.remove("invalid");
 		let flatStruct = [];
 		if(Array.isArray(struct)) {
-			for(let x of struct) {
-				parseNode(flatStruct, x, defaultBlockNode);
-			}
-		} else {
+			for(let elem of struct)
+				parseNode(flatStruct, elem, defaultBlockNode);
+		} else
 			parseNode(flatStruct, struct, defaultBlockNode);
-		}
 		
 		//finally, yield the flattened version
 		let s = JSON.stringify(flatStruct, null, "\t");
@@ -105,7 +103,7 @@ function setStructuredText(s) {
 	if(autoFlatten) flattenStruct();
 }
 
-var flattenTimeoutID;
+let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
 function scriptChanged() {
 	hasScriptChanged = true;
@@ -115,9 +113,8 @@ function scriptChanged() {
 		window.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
-	if(autoFlatten) {
+	if(autoFlatten)
 		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
-	}
 }
 
 function setAutoFlatten(value) {
