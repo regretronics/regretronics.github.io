@@ -217,11 +217,13 @@
 		}
 		for(let elem of document.querySelectorAll("input.exp"))
 			elem.addEventListener("input", expSpinnerChanged);
-		for(let elem of document.querySelectorAll("*[title]"))
+		for(let elem of document.querySelectorAll("*[title]")) {
 			if(["INPUT", "BUTTON"].includes(elem.tagName.toUpperCase()))
 				elem.addEventListener("focus", setToolTip);
 			else
 				elem.addEventListener("click", setToolTip);
+			elem.addEventListener("pointerdown", setToolTip);
+		}
 
 		primeCountChanged();
 		rhythmFactorsChanged();
@@ -313,8 +315,6 @@
 	"0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
 	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre>
-	<!--to do: idea: put the help text in an overlaid "status bar"-->
-	<!--<p id="outToolTip">A description of the selected control will appear here.</p>-->
 	<p><strong>Flattened note list:</strong> 
 		<!--to do: ? (lost to-do item)-->
 		<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
