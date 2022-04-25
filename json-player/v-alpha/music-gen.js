@@ -215,6 +215,7 @@ function makeRhythm() {
 	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let pattern = [{ //rhythm formula root block and note
 		freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
+		//to do: what is the best register (frequency range) for percussion?
 		//volRatio: 1,
 		volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
 		

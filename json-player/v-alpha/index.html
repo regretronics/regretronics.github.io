@@ -125,6 +125,9 @@
 		min-width: 6ch;
 		text-align: right;
 	}
+	#outToolTip {
+		font-style: italic;
+	}
 
 	.codeEditor {
 		background-color: hsla(120, 12.5%, 100%, 0.625);
@@ -179,6 +182,7 @@
 		document.getElementById("txtPrimeCount").addEventListener("input", primeCountChanged);
 		document.getElementById("btnRhythmFactorsGen").addEventListener("click", makeRhythmFactors);
 		document.getElementById("txtRhythmFactors").addEventListener("input", rhythmFactorsChanged);
+		document.getElementById("btnStructDownload").addEventListener("click", structDownload);
 		document.getElementById("btnOverflowToggle1").addEventListener("click", (ev) => overflowToggle(elems.ctlStructuredScript));
 		document.getElementById("btnLineWrapToggle1").addEventListener("click", (ev) => lineWrapToggle(elems.ctlStructuredScript));
 		document.getElementById("btnChordGen").addEventListener("click", makeChords);
@@ -203,14 +207,18 @@
 		}
 		for(let elem of document.querySelectorAll("input.exp"))
 			elem.addEventListener("input", expSpinnerChanged);
+		for(let elem of document.querySelectorAll("*[title]"))
+			if(["INPUT", "BUTTON"].includes(elem.tagName.toUpperCase()))
+				elem.addEventListener("focus", setToolTip);
+			else
+				elem.addEventListener("click", setToolTip);
 
 		primeCountChanged();
 		rhythmFactorsChanged();
 
 		let evt = new Event("input");
-		for(let s of expSpinners) {
+		for(let s of expSpinners)
 			elems[s].dispatchEvent(evt);
-		}
 	}
 
 	window.addEventListener("load", loaded);
@@ -225,7 +233,6 @@
 	</p>
 	<!--for input type=number, use size attribute instead of width css property? opera gave me weird unacceptable results-->
 	<!--to do: make my own spin buttons, around text inputs-->
-	<!--to do: param: factor depth-->
 	<p><strong>Generator&nbsp;params.:</strong> 
 		<datalist id="tunings">
 			<option value="256" />
@@ -249,7 +256,7 @@
 			<input type="number" id="txtPatternCount" value="4" step="1" min="1" title="Amount of content to make. Used by chord and melody generators." /></span><wbr />
 		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
 			<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" title="Used by rhythm structure, chord and melody generators." /></span>
-		<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output>
+		<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output><wbr />
 		<span class="cell"><label for="txtExpVariance">tone&nbsp;variance</label>
 			<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." /></span>
 	</p>
@@ -274,6 +281,8 @@
 		<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
 		<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button> <wbr />
 		<span class="floatR">
+			<a id="aStructDownload" href="" style="display: none;"">Save file</a>
+			<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
 			<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
 			<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button></span>
 	</p>
@@ -294,6 +303,7 @@
 	"0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
 	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre>
+	<p id="outToolTip">A description of the selected control will appear here.</p>
 	<p><strong>Flattened note list:</strong> 
 		<!--to do: ? (lost to-do item)-->
 		<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
