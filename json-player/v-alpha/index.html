@@ -5,178 +5,9 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>JSON music format</title>
-	<style type="text/css">/*<![CDATA[*/
-	/*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
-	body {
-		background-color: hsl(120, 37.5%, 25%);
-		color: hsla(120, 0%, 100%, 0.875); /*question: alpha makes the page ready for custom backgrounds, but consumes more GPU*/
-	}
-	strong {
-		color: white;
-	}
-	p {
-		/*line-height: 125%;*/
-		/*line-height: 1.5;*/
-		/*line-height: 1.25em;*/
-	}
-
-	a:link {
-		color: hsl(120, 100%, 75%);
-	}
-	a:visited {
-		color: hsl(30, 75%, 62.5%);
-	}
-	a:active {
-		color: hsl(120, 100%, 87.5%);
-	}
-
-	/*to do: check vertical alignment of controls*/
-	button, input {
-		font-size: 0.85em;
-		/*border-radius: 0.25em;*/
-		margin: 0.125em 0;
-	}
-	button {
-		font-weight: bold;
-
-		/*background-color: hsl(120, 0%, 75%);
-		color: hsl(120, 0%, 25%);*/
-		background-color: hsl(120, 25%, 12.5%);
-		color: hsl(120, 50%, 75%);
-
-		padding: 0.125em 0.375em;
-
-		border-top-color: hsla(120, 12.5%, 75%, 0.75);
-		border-right-color: hsla(120, 12.5%, 50%, 0.5);
-		border-left-color: hsla(120, 12.5%, 50%, 0.5);
-		border-bottom-color: hsla(120, 12.5%, 25%, 0.75);
-		border-radius: 0.25em;
-		border-width: calc(5em/32);
-	}
-	input[type=number], input[type=text] {
-		background-color: hsl(120, 50%, 12.5%);
-		color: hsl(120, 50%, 87.5%);
-
-		/*border-radius: 0.25em;*/
-		/*border-width: 0.125em;*/
-		border-width: calc(5em/32);
-		border-top-color: hsla(120, 25%, 25%, 0.75);
-		border-right-color: hsla(120, 25%, 50%, 0.5);
-		border-left-color: hsla(120, 25%, 50%, 0.5);
-		border-bottom-color: hsla(120, 25%, 75%, 0.75);
-
-		/*border-image-source: linear-gradient(to bottom, hsla(120, 25%, 25%, 0.75), hsla(120, 25%, 50%, 0.5), hsla(120, 25%, 75%, 0.75));
-		border-image-repeat: stretch;
-		border-image-slice: 15%;*/
-	}
-	input[type=number] {
-		text-align: right;
-		
-		padding-left: 0;
-		padding-right: 0;
-		border-radius: 0.25em 0.125em 0.125em 0.25em; /*rounder at the left side*/
-	}
-	input[type=number]:not([size]) {
-		width: 8ch;
-	}
-	/*try to show spin buttons on numerical fields*/
-	input[type=number]::inner-spin-button, 
-	input[type=number]::outer-spin-button {
-		/*appearance: auto;*/
-		/*appearance: button;*/
-		-webkit-appearance: inner-spin-button;
-		appearance: inner-spin-button;
-		opacity: 1;
-	}
-	input[type=number]::-webkit-inner-spin-button, 
-	input[type=number]::-webkit-outer-spin-button {
-		/*appearance: auto;*/
-		/*appearance: button;*/
-		-webkit-appearance: inner-spin-button;
-		appearance: inner-spin-button;
-		opacity: 1;
-	}
-	input[type=checkbox] {
-		margin: 0.125em;
-	}
-	#txtRhythmFactors {
-		text-align: right;
-		width: 12ch;
-
-		border-radius: 0.25em 0.125em 0.125em 0.25em; /*rounder at the left side*/
-	}
-	#txtRhythmFactors:invalid
-	/*input:invalid*/ {
-		background-color: hsl(0, 100%, 12.5%);
-	}
-	/*input.exp {
-		width: 8ch;
-	}*/
-
-	.cell {
-		display: inline-block;
-		margin-left: 0.375ch;
-		margin-right: 0.375ch;
-	}
-	.floatR {
-		/*to do: use flexbox*/
-		float: right;
-		/*position: absolute;*/
-		margin-top: 0.125em;
-		margin-bottom: 0.125em;
-	}
-	#outAudioT {
-		display: inline-block;
-		min-width: 6ch;
-		text-align: right;
-	}
-	#outToolTip {
-		font-style: italic;
-		/*position: sticky;*/
-		clear: both;
-		bottom: 0;
-		background-color: hsla(120, 25%, 12.5%, 87.5%);
-		padding: 1em;
-	}
-
-	.codeEditor {
-		background-color: hsla(120, 12.5%, 100%, 0.625);
-		color: hsl(120, 25%, 0%);
-		height: 12em;
-		font-size: 90%;
-		width: 100%;
-		/*resize: both;*/
-		overflow-y: auto;
-		min-height: 8em;
-		/*white-space: pre;*/
-	}
-	#ctlStructuredScript {
-		tab-size: 4;
-	}
-	.codeEditor.invalid {
-		background-color: hsl(0, 100%, 75%);
-	}
-	.codeEditor.expanded {
-		height: auto;
-	}
-	.codeEditor.lineWrapping {
-		white-space: pre-wrap;
-	}
-	
-	#imgVisualizer {
-		width: 100%;
-		height: 4em;
-		background-color: hsla(0, 0%, 0%, 0.25);
-	}
-	svg rect {
-		y: 0;
-		height: 100%;
-		fill: url(#noteFill1);
-	}
-	linearGradient#noteFill1 stop {
-		stop-color: hsl(270, 75%, 75%);
-	}
-	/*]]>*/</style>
+	<link rel="stylesheet" type="text/css" href="general.css" />
+	<!--<style type="text/css">/*<![CDATA[*/
+	/*]]>*/</style>-->
 	<script type="text/javascript" src="general.js"></script>
 	<script type="text/javascript" src="player.js"></script>
 	<script type="text/javascript" src="musical-format.js"></script>
@@ -245,6 +76,7 @@
 	</p>
 	<!--for input type=number, use size attribute instead of width css property? opera gave me weird unacceptable results-->
 	<!--to do: make my own spin buttons, around text inputs-->
+	<!--to do: review all tool tips for compatibility with the status bar, e.g. "the editor below"-->
 	<p><strong>Generator&nbsp;params.:</strong> 
 		<datalist id="tunings">
 			<option value="256" />
@@ -269,7 +101,7 @@
 		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
 			<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" title="Used by rhythm structure, chord and melody generators." /></span>
 		<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output><wbr />
-		<span class="cell"><label for="txtExpVariance">tone&nbsp;variance</label>
+		<span class="cell"><label for="txtExpVariance">tone&nbsp;depth</label>
 			<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." /></span>
 	</p>
 	<p><strong>Rhythm:</strong> 
@@ -288,15 +120,18 @@
 		<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period</label>
 			<input type="number" id="txtReptPeriod" value="4" step="1" min="1" title="Used by melody generator." /></span>
 	</p>
-	<p><strong>Structured&nbsp;music:</strong> 
-		<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
-		<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
-		<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button> <wbr />
-		<span class="floatR">
-			<a id="aStructDownload" href="" style="display: none;"">Save file</a>
+	<p class="flex-row">
+		<span><strong>Structured&nbsp;music:</strong> 
+			<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
+			<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
+			<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
+		</span> <wbr />
+		<span class="right">
+			<a id="aStructDownload" href="" style="display: none;">Save file</a>
 			<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
 			<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
-			<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button></span>
+			<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+		</span>
 	</p>
 	<!--<textarea style="width: 100%;"></textarea>-->
 	<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false">
@@ -315,14 +150,17 @@
 	"0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
 	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre>
-	<p><strong>Flattened note list:</strong> 
-		<!--to do: ? (lost to-do item)-->
-		<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-		<span class="cell"><input type="checkbox" id="chkAutoFlatten" />
-			<label for="chkAutoFlatten">Automatically flatten</label></span>
-		<span class="floatR">
+	<p class="flex-row">
+		<span><strong>Flattened note list:</strong> 
+			<!--to do: ? (lost to-do item)-->
+			<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
+			<span class="cell"><input type="checkbox" id="chkAutoFlatten" />
+				<label for="chkAutoFlatten">Automatically flatten</label></span>
+		</span>
+		<span class="right">
 			<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
-			<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button></span>
+			<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+		</span>
 		<!--to do: new parameter for repeating the whole structure?-->
 	</p>
 	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false">
@@ -339,15 +177,20 @@
 		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in) (s)</label>
 			<input type="number" id="txtPlayTimeDelta" value="0.25" step="0.25" title="Additive amount" /></span>
 	</p>
-	<p><strong>Player:</strong> 
-		<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
-		<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
-		<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
-		<span class="cell"><input type="checkbox" id="chkAutoReload" />
-			<label for="chkAutoReload">Auto-reload</label></span>
-		<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
-		<span class="cell floatR">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
-		<span class="cell floatR">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
+	<!--<p style="float: left;"><strong>Player:</strong> -->
+	<p class="flex-row">
+		<span><strong>Player:</strong> 
+			<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
+			<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
+			<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
+			<span class="cell"><input type="checkbox" id="chkAutoReload" />
+				<label for="chkAutoReload">Auto-reload</label></span>
+			<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
+		</span>
+		<span class="right">
+			<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
+			<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
+		</span>
 	</p>
 	<p id="outToolTip">A description of the selected control will appear here.</p>
 
@@ -374,6 +217,7 @@
 	<p>Though the page is novel, the formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an object). As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
 	<p>Anyway, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). Use natural numbers starting at 0 and don't skip numbers. Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
 	<!--to do: explain more about structured vs. flattened rules-->
+	<!--to do: quick start/cheatsheet for just intonation and intervals?-->
 	<p>Block (inheritable) properties are:</p>
 	<dl>
 		<dt><strong>freqRatio</strong> (multiplicative, default 1)</dt>

@@ -4,6 +4,7 @@
 //to do: consider worker threads
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
+//to do: (structured) music file upload to page
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -159,8 +160,8 @@ const elemNames = ["txtFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount"
 	"txtVoiceCount", "txtReptCount", "txtReptPeriod", //generator parameters, additional
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
 	"ctlFlatScript", "ctlStructuredScript", //code editors
-	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "imgVisualizer", //other controls
-	"outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outOscCount" //output fields
+	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", //other controls
+	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outOscCount" //output fields
 ];
 const expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 var elems = {};
@@ -376,4 +377,47 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	}
 	document.title = count.toString();
 	//document.title = iArr.toString();
+}
+
+function setToolTip(event) {
+	let description = event.target.title;
+	if((typeof(description) === "string") && (description.length > 0)) {
+		elems.outToolTip.innerText = description;
+		elems.outToolTip.style.position = "sticky";
+	}
+}
+
+var lastObjURL = null;
+function prepareDownload() {
+	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
+	let file;
+	let data = [elems.ctlStructuredScript.innerText];
+	let properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
+
+	//date for file name
+	let now = new Date();
+	let dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes()];
+	let dPadding = [4, 2, 2, 2, 2, 2, 3];
+	for(let i in dArr)
+		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0");
+	let fileName = dArr.join("-") + ".mus.json";
+
+	try {
+		//specify the filename using the File constructor, but...
+		file = new File(data, fileName, properties);
+	} catch(error) {
+		//...fall back to the Blob constructor if that isn't supported.
+		file = new Blob(data, properties);
+	}
+	if(lastObjURL) URL.revokeObjectURL(lastObjURL);
+	lastObjURL = URL.createObjectURL(file);
+	elems.aStructDownload.setAttribute('href', lastObjURL);
+	elems.aStructDownload.setAttribute('download', fileName);
+}
+function structDownload(event) {
+	prepareDownload();
+
+	/*let newEvent = new MouseEvent('click');
+	elems.aStructDownload.dispatchEvent(newEvent);*/
+	elems.aStructDownload.click();
 }

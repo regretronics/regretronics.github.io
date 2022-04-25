@@ -1,0 +1,181 @@
+/*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
+body {
+	background-color: hsl(120, 37.5%, 25%);
+	color: hsla(120, 0%, 100%, 0.875); /*question: alpha makes the page ready for custom backgrounds, but consumes more GPU*/
+}
+strong {
+	color: white;
+}
+p {
+	/*line-height: 125%;*/
+	/*line-height: 1.5;*/
+	/*line-height: 1.25em;*/
+}
+hr {
+	border-color: hsla(120, 25%, 50%, 0.75);
+}
+
+a:link {
+	color: hsl(120, 100%, 75%);
+}
+a:visited {
+	color: hsl(30, 75%, 62.5%);
+}
+a:active {
+	color: hsl(120, 100%, 87.5%);
+}
+
+/*to do: check vertical alignment of controls*/
+button, input {
+	font-size: 0.85em;
+	/*border-radius: 0.25em;*/
+	margin: 0.125em 0;
+}
+button {
+	font-weight: bold;
+
+	/*background-color: hsl(120, 0%, 75%);
+	color: hsl(120, 0%, 25%);*/
+	background-color: hsl(120, 25%, 12.5%);
+	color: hsl(120, 50%, 75%);
+
+	padding: 0.125em 0.375em;
+
+	border-top-color: hsla(120, 12.5%, 75%, 0.75);
+	border-right-color: hsla(120, 12.5%, 50%, 0.5);
+	border-left-color: hsla(120, 12.5%, 50%, 0.5);
+	border-bottom-color: hsla(120, 12.5%, 25%, 0.75);
+	border-radius: 0.25em;
+	border-width: calc(5em/32);
+}
+input[type=number], input[type=text] {
+	background-color: hsl(120, 50%, 12.5%);
+	color: hsl(120, 50%, 87.5%);
+
+	/*border-radius: 0.25em;*/
+	/*border-width: 0.125em;*/
+	border-width: calc(5em/32);
+	border-top-color: hsla(120, 25%, 25%, 0.75);
+	border-right-color: hsla(120, 25%, 50%, 0.5);
+	border-left-color: hsla(120, 25%, 50%, 0.5);
+	border-bottom-color: hsla(120, 25%, 75%, 0.75);
+
+	/*border-image-source: linear-gradient(to bottom, hsla(120, 25%, 25%, 0.75), hsla(120, 25%, 50%, 0.5), hsla(120, 25%, 75%, 0.75));
+	border-image-repeat: stretch;
+	border-image-slice: 15%;*/
+}
+input[type=number] {
+	text-align: right;
+	
+	padding-left: 0;
+	padding-right: 0;
+	border-radius: 0.25em 0.125em 0.125em 0.25em; /*rounder at the left side*/
+}
+input[type=number]:not([size]) {
+	width: 8ch;
+}
+/*try to show spin buttons on numerical fields*/
+input[type=number]::inner-spin-button, 
+input[type=number]::outer-spin-button {
+	/*appearance: auto;*/
+	/*appearance: button;*/
+	-webkit-appearance: inner-spin-button;
+	appearance: inner-spin-button;
+	opacity: 1;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {
+	/*appearance: auto;*/
+	/*appearance: button;*/
+	-webkit-appearance: inner-spin-button;
+	appearance: inner-spin-button;
+	opacity: 1;
+}
+input[type=checkbox] {
+	margin: 0.125em;
+}
+#txtRhythmFactors {
+	text-align: right;
+	width: 12ch;
+
+	border-radius: 0.25em 0.125em 0.125em 0.25em; /*rounder at the left side*/
+}
+#txtRhythmFactors:invalid
+/*input:invalid*/ {
+	background-color: hsl(0, 100%, 12.5%);
+}
+/*input.exp {
+	width: 8ch;
+}*/
+
+.flex-row {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+.cell {
+	display: inline-block;
+	margin-left: 0.375ch;
+	margin-right: 0.375ch;
+}
+.right {
+	text-align: right;
+}
+/*.floatR {
+	float: right;
+	margin-top: 0.125em;
+	margin-bottom: 0.125em;
+}*/
+#outAudioT {
+	display: inline-block;
+	min-width: 6ch;
+	text-align: right;
+}
+#outToolTip {
+	font-style: italic;
+	/*position: sticky;*/
+	clear: both;
+	bottom: 0;
+	background-color: hsla(120, 25%, 12.5%, 87.5%);
+	padding: 1em;
+}
+
+.codeEditor {
+	background-color: hsla(120, 12.5%, 100%, 0.625);
+	color: hsl(120, 25%, 0%);
+	height: 12em;
+	font-size: 90%;
+	width: 100%;
+	/*resize: both;*/
+	overflow-y: auto;
+	min-height: 8em;
+	/*white-space: pre;*/
+}
+#ctlStructuredScript {
+	tab-size: 4;
+}
+.codeEditor.invalid {
+	background-color: hsl(0, 100%, 75%);
+}
+.codeEditor.expanded {
+	height: auto;
+}
+.codeEditor.lineWrapping {
+	white-space: pre-wrap;
+}
+
+#imgVisualizer {
+	width: 100%;
+	height: 4em;
+	background-color: hsla(0, 0%, 0%, 0.25);
+}
+svg rect {
+	y: 0;
+	height: 100%;
+	fill: url(#noteFill1);
+}
+linearGradient#noteFill1 stop {
+	stop-color: hsl(270, 75%, 75%);
+}

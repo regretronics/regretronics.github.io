@@ -4,7 +4,6 @@
 //to do: consider worker threads
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
-//to do: (structured) music file download from page
 //to do: (structured) music file upload to page
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
