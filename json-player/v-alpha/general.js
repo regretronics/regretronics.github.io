@@ -382,8 +382,10 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 
 function setToolTip(event) {
 	let description = event.target.title;
-	if((typeof(description) === "string") && (description.length > 0))
+	if((typeof(description) === "string") && (description.length > 0)) {
 		elems.outToolTip.innerText = description;
+		elems.outToolTip.style.position = "sticky";
+	}
 }
 
 var lastObjURL = null;
@@ -395,7 +397,7 @@ function prepareDownload() {
 
 	//date for file name
 	let now = new Date();
-	let dArr = [now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes()];
+	let dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes()];
 	let dPadding = [4, 2, 2, 2, 2, 2, 3];
 	for(let i in dArr)
 		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0");

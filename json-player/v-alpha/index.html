@@ -30,6 +30,7 @@
 		color: hsl(120, 100%, 87.5%);
 	}
 
+	/*to do: check vertical alignment of controls*/
 	button, input {
 		font-size: 0.85em;
 		/*border-radius: 0.25em;*/
@@ -127,6 +128,10 @@
 	}
 	#outToolTip {
 		font-style: italic;
+		/*position: sticky;*/
+		bottom: 0;
+		background-color: hsla(120, 25%, 25%, 87.5%);
+		padding: 1em;
 	}
 
 	.codeEditor {
@@ -303,7 +308,8 @@
 	"0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
 	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
 }</pre>
-	<p id="outToolTip">A description of the selected control will appear here.</p>
+	<!--to do: idea: put the help text in an overlaid "status bar"-->
+	<!--<p id="outToolTip">A description of the selected control will appear here.</p>-->
 	<p><strong>Flattened note list:</strong> 
 		<!--to do: ? (lost to-do item)-->
 		<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
@@ -338,6 +344,7 @@
 		<span class="cell floatR">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
 		<span class="cell floatR">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
 	</p>
+	<p id="outToolTip">A description of the selected control will appear here.</p>
 
 	<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
 	<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" version="1.1">
