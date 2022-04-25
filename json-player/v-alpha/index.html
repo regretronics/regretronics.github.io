@@ -119,7 +119,11 @@
 		margin-right: 0.375ch;
 	}
 	.floatR {
+		/*to do: use flexbox*/
 		float: right;
+		/*position: absolute;*/
+		margin-top: 0.125em;
+		margin-bottom: 0.125em;
 	}
 	#outAudioT {
 		display: inline-block;
@@ -129,8 +133,9 @@
 	#outToolTip {
 		font-style: italic;
 		/*position: sticky;*/
+		clear: both;
 		bottom: 0;
-		background-color: hsla(120, 25%, 25%, 87.5%);
+		background-color: hsla(120, 25%, 12.5%, 87.5%);
 		padding: 1em;
 	}
 
