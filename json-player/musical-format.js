@@ -3,49 +3,79 @@
 //shared variables
 var struct;
 
-//recursive call
-//to do: consider negative note scales
+//recursive function
+//to do: consider negative time scales
+//question: propagation of arbitrary/unrecognized properties? (probably a bad idea, because of patterns)
+//question: require a special format for pattern names? (to prevent collision with future properties)
 function parseNode(flatStruct, node, blockContext) {
 	//alter context.
-	let newContext = {};
-	Object.assign(newContext, blockContext);
-	//to do: bounds check and node elimination? (e.g. when freqRatio <= 0)
-	newContext.timeDelta += newContext.timeScale * nullToDefault(parseNumber(node.timeDelta), 0); //additive
+	let newContext = Object.assign({}, blockContext);
+	//to do: bounds check and node elimination? (e.g. when freqRatio or freq or volRatio or vol or timeScale = 0)
+	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), 0); //additive
 	
 	//multiplicative
-	newContext.timeScale *= nullToDefault(parseNumber(node.timeScale), 1);
-	newContext.volRatio *= nullToDefault(parseNumber(node.volRatio), 1);
-	newContext.freqRatio *= nullToDefault(parseNumber(node.freqRatio), 1);
+	newContext.timeScale *= NaNToDefault(parseNumber(node.timeScale), 1);
+	newContext.volRatio *= NaNToDefault(parseNumber(node.volRatio), 1);
+	newContext.freqRatio *= NaNToDefault(parseNumber(node.freqRatio), 1);
 
-	//absolute
+	//absolute/substitutive
+	/*for(const prop in node) { //and others
+		if(!relativeBlockProps.includes(prop) //exclude "blend" block properties
+			&& isNaN(Number(prop))) { //numerical indices are reserved for notes
+			let val = node[prop];
+			if(!["boolean", "number", "bigint"].includes(typeof(val))) { //things that are not numbers...
+				let numVal = parseNumber(val);
+				if(!isNaN(numVal)) val = numVal; //...but could become numbers, should become numbers
+			}
+			if(["boolean", "number", "bigint", "string"].includes(typeof(val))) //property content must be ultimately simple
+				newContext[prop] = val;
+		}
+	}*/
 	if(node.timbre) newContext.timbre = node.timbre;
-	newContext.decayFactor = nullToDefault(parseNumber(node.decayFactor), newContext.decayFactor);
-	newContext.attack = nullToDefault(parseNumber(node.attack), newContext.attack);
+	newContext.decayFactor = NaNToDefault(parseNumber(node.decayFactor), newContext.decayFactor);
+	newContext.attack = NaNToDefault(parseNumber(node.attack), newContext.attack);
+	newContext.portamento = NaNToDefault(parseNumber(node.portamento), newContext.portamento);
+	newContext.vibratoFreq = NaNToDefault(parseNumber(node.vibratoFreq), newContext.vibratoFreq);
+	newContext.vibratoDepth = NaNToDefault(parseNumber(node.vibratoDepth), newContext.vibratoDepth);
+	newContext.vibratoAttack = NaNToDefault(parseNumber(node.vibratoAttack), newContext.vibratoAttack);
 
 	//to do: allow noteStart to be inferred from previous noteStop? or inferred by its node index?
-	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") || node.hasOwnProperty("freq") || node.hasOwnProperty("vol")) {
-		//register a note.
-		node.noteStart = nullToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
-		//if a node doesn't have the duration property, don't add it; adding it might override noteStop.
-		if(node.hasOwnProperty("duration")) {
-			node.duration = nullToDefault(parseNumber(node.duration), defaultNoteNode.duration);
-			node.noteStop = node.noteStart + node.duration;
-		} else {
-			node.noteStop = nullToDefault(parseNumber(node.noteStop), node.noteStart + defaultNoteNode.duration);
+	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") || node.hasOwnProperty("freq") || node.hasOwnProperty("vol"))
+		try {
+			//register a note.
+			node.noteStart = NaNToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
+			//if a node doesn't have the duration property, don't add it; adding it might override noteStop.
+			if(node.hasOwnProperty("duration")) {
+				node.duration = NaNToDefault(parseNumber(node.duration), defaultNoteNode.duration);
+				node.noteStop = node.noteStart + node.duration;
+			} else
+				node.noteStop = NaNToDefault(parseNumber(node.noteStop), node.noteStart + defaultNoteNode.duration);
+			
+			let newNote = { //preferred order...
+				noteStart: newContext.timeDelta + newContext.timeScale * node.noteStart,
+				noteStop: newContext.timeDelta + newContext.timeScale * node.noteStop
+			};
+			let noteVol = newContext.volRatio * NaNToDefault(parseNumber(node.vol), defaultNoteNode.vol);
+			if(noteVol != defaultNoteNode.vol) newNote.vol = noteVol;
+
+			if(newContext.timbre != defaultNoteNode.timbre) newNote.timbre = newContext.timbre;
+			if(node.freq0) newNote.freq0 = newContext.freqRatio * node.freq0;
+			//to do: calculate proper freq0 while notes are still in hierarchy
+			newNote.freq = newContext.freqRatio * NaNToDefault(parseNumber(node.freq), defaultNoteNode.freq); //unconditional, but later than timbre and freq0
+			for(const prop in newContext) { //copy other properties
+				if(!relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
+					&& !incrementalNoteProps.includes(prop) //exclude "blended" note properties
+					&& ((newNote.timbre != "noise") || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
+						let val = newContext[prop];
+						if((val !== undefined) && (!defaultNoteNode.hasOwnProperty(prop) || (val != defaultNoteNode[prop])))
+							newNote[prop] = val;
+					}
+			}
+
+			flatStruct.push(newNote);
+		} catch (error) {
+			console.error(error);
 		}
-		
-		let newNote = {
-			noteStart: newContext.timeDelta + newContext.timeScale * node.noteStart,
-			noteStop: newContext.timeDelta + newContext.timeScale * node.noteStop,
-			freq: newContext.freqRatio * nullToDefault(parseNumber(node.freq), defaultNoteNode.freq)
-		};
-		let noteVol = newContext.volRatio * nullToDefault(parseNumber(node.vol), defaultNoteNode.vol);
-		if(noteVol != defaultNoteNode.vol) {newNote.vol = noteVol;}
-		if(newContext.timbre != defaultNoteNode.timbre) {newNote.timbre = newContext.timbre;}
-		if(newContext.decayFactor != defaultNoteNode.decayFactor) {newNote.decayFactor = newContext.decayFactor;}
-		if(newContext.attack != defaultNoteNode.attack) {newNote.attack = newContext.attack;}
-		flatStruct.push(newNote);
-	}
 
 	for(let iNote = 0, t; (t = node[iNote]); iNote++) { //indexed sub-nodes
 		if(typeof(t) === "string") { //reference by name
@@ -55,7 +85,7 @@ function parseNode(flatStruct, node, blockContext) {
 				parseNode(flatStruct, node[t], newContext);
 			else
 				//pattern invocation, global
-				if(struct.hasOwnProperty(t)) {parseNode(flatStruct, struct[t], newContext);}
+				if(struct.hasOwnProperty(t)) parseNode(flatStruct, struct[t], newContext);
 		} else
 			//primary recursion point.
 			parseNode(flatStruct, t, newContext);
@@ -64,10 +94,11 @@ function parseNode(flatStruct, node, blockContext) {
 
 let hasScriptChanged = true;
 function flattenStruct() {
-	if(!hasScriptChanged) return;
+	if(!hasScriptChanged) return false;
 	try {
 		struct = JSON.parse(elems.ctlStructuredScript.innerText);
 		elems.ctlStructuredScript.classList.remove("invalid");
+		//elems.ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 		let flatStruct = [];
 		if(Array.isArray(struct)) {
 			for(let elem of struct)
@@ -81,15 +112,17 @@ function flattenStruct() {
 		//final adjustments on indentation
 		let regex = new RegExp(/\{\n\t{2,}/, "g");
 		s = s.replace(regex, "{");
-		regex = new RegExp(/\n\t{2,}/, "g");
+		regex = new RegExp(/\n\t{2,}/, "g"); //to do: review this one closely, against hypothetical effects like " }"
 		s = s.replace(regex, " ");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		s = s.replace(regex, "}");
 		elems.ctlFlatScript.innerText = s;
+		elems.ctlFlatScript.classList.remove("invalid");
 	} catch(error) {
 		//elems.ctlFlatScript.innerText = error.name + ": " + error.message;
 		elems.ctlFlatScript.innerText = error.toString();
 		elems.ctlStructuredScript.classList.add("invalid");
+		//elems.ctlStructuredScript.setCustomValidity(error.toString());
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
