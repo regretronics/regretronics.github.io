@@ -1,14 +1,12 @@
 "use strict";
 
-const defaultFreq = 440;
-
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
 	let diff = Math.round(Math.log2(parseNumber(refFreq))) - Math.round(Math.log2(parseNumber(targetFreq)));
 	targetFreq[2] += diff;
 }
 //makes a simple interval by introducing a random prime factor up or down one unit
-//to do: reuse this in melodySubNodes?
+//to do: reuse this in melodySubNodes? (probably not)
 function addInterval(refFreq, targetFreq) {
 	//question: weighted random on factor selection? (currently yes)
 	//let iPrime = Math.floor(primeCount * Math.random());
@@ -19,20 +17,24 @@ function addInterval(refFreq, targetFreq) {
 	let newExp = targetFreq[primes[iPrime]] + sign;
 	//bounds (tonality) check
 	//question: should + 1 be + 0.5?
+	//for chords with a fixed first note, the exponents should vary in a bilateral way
 	let maxExp = expVariance * maxPitches[iPrime] + 1;
-	let deviation = newExp - 0.5 * maxExp;
-	if((Math.abs(deviation) > 0.5 * maxExp) && (sign === Math.sign(deviation))) sign *= -1;
+	if((Math.abs(newExp) > 1 * maxExp) && (sign === Math.sign(newExp))) sign *= -1;
 	targetFreq[primes[iPrime]] += sign;
 
 	//pitch normalization into factor 2, i.e. octave normalization, except when changing the very octave on purpose
+	//to do: occasional use of higher primes for normalization
+	if((iPrime > 1) && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) targetFreq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 	if(iPrime >= 1) renormalizeOctave(refFreq, targetFreq);
+
+	//to do: limitFreq?
 }
 function newChord(voiceCount, polyphony) {
 	let chordStruct = {
 		0: {freq: {}}
 	};
 	//initialize prime factors (first note is always neutral)
-	//question: variable first note?
+	//question: variable first note? (currently no)
 	for(let i = 0; i < primeCount; i++)
 		chordStruct[0].freq[primes[i]] = 0;
 	let pitches = [parseNumber(chordStruct[0].freq)];
@@ -59,19 +61,20 @@ function newChord(voiceCount, polyphony) {
 	return chordStruct;
 }
 function makeChords() {
-	if(primeCount < 2) return;
+	if(primeCount < 2) return false;
 	let patCount = parseInt(elems.txtPatternCount.value);
-	if(patCount <= 0) return;
+	if(patCount <= 0) return false;
 	let voiceCount = parseInt(elems.txtVoiceCount.value);
-	if(voiceCount < 2) return;
-	expVariance = nullToDefault(parseNumber(elems.txtExpVariance.value), 2);
-	if(expVariance <= 0) return;
+	if(voiceCount < 2) return false;
+	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
+	if(expVariance <= 0) return false;
+	if(rootFreq === 0) return false;
 	
 	let polyphony = voiceCount - 1; //partial superposition
-	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let rootStruct = {
 		timeScale: _timeScale,
-		freqRatio: nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq),
+		freqRatio: rootFreq,
 		volRatio: 1 / polyphony,
 		decayFactor: defaultBlockNode.decayFactor.toString() + "*" + _timeScale.toString() + "*" + polyphony.toString()
 	};
@@ -85,18 +88,6 @@ function makeChords() {
 
 	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
-	/*let regex = new RegExp(/\{\n\t{4,}/, "g"); //too much indentation will collapse to space
-	s = s.replace(regex, "{");
-	regex = new RegExp(/\n\t{4,}/, "g");
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\n\t{3,}\}/, "g");
-	s = s.replace(regex, "}");*/
-	/*let regex = new RegExp(/(\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	do {
-		let t = s.replace(regex, "$1 ");
-		if(t == s) break;
-		s = t;
-	} while(true);*/
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
 	s = s.replace(regex, " ");
 	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
@@ -106,9 +97,9 @@ function makeChords() {
 
 //rhythm structure generator
 function makeRhythmFactors() {
-	if(primeCount < 1) return;
+	if(primeCount < 1) return false;
 	rhythmFactors = [];
-	let scale = Math.abs(nullToDefault(parseNumber(elems.txtRhythmScale.value), 4));
+	let scale = Math.abs(NaNToDefault(parseNumber(elems.txtRhythmScale.value), 4));
 	//builds a (random) product of prime factors
 	//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
 	for(let i = primeCount - 1, factor, y; i >= 0; i--) {
@@ -141,8 +132,10 @@ function makeRhythmFactors() {
 }
 
 function limitFreq(tuning, freq) {
-	if(typeof(tuning) !== "number") tuning = nullToDefault(parseNumber(tuning), defaultBlockNode.freqRatio);
+	if(!freq) return false;
+	if(typeof(tuning) !== "number") tuning = NaNToDefault(parseNumber(tuning), defaultBlockNode.freqRatio);
 	let freqAbs = Math.abs(tuning) * parseNumber(freq);
+	if(!freq[2]) freq[2] = 0;
 	while(true) {
 		//i know the human ear is supposed to hear more than this, but it's already outside the ordinary. i can barely hear these extremes.
 		if(freqAbs > 13000) {
@@ -158,9 +151,9 @@ function limitFreq(tuning, freq) {
 }
 
 //the rhythm generator presumes that rhythmFactors and rhythmFactorsAccum are properly filled
-//recursive call
+//recursive function
 function rhythmSubNodes(struct, level, tuning) {
-	if(level >= rhythmFactors.length) return;
+	if(level >= rhythmFactors.length) return false;
 	let beats = rhythmFactors[level - 1];
 	let scale = rhythmFactorsAccum[level];
 
@@ -176,6 +169,7 @@ function rhythmSubNodes(struct, level, tuning) {
 		duration: 0
 	};
 	if(freqDummy[2] !== 0) {
+		//to do: explicitly represent exponentiation?
 		subNodePattern.freqRatio = (2 ** freqDummy[2]).toString() + "*" + subNodePattern.freqRatio.toString();
 		tuning *= 2 ** freqDummy[2];
 	}
@@ -183,9 +177,8 @@ function rhythmSubNodes(struct, level, tuning) {
 	//when using non-integer measures, sub-bars may become non-uniform in number of beats
 	let beats2 = struct.duration / scale;
 	for(let i = 0; i < beats2; i++) {
-		let newNode = {};
+		let newNode = Object.assign({}, subNodePattern);
 		struct[i] = newNode;
-		Object.assign(newNode, subNodePattern);
 		newNode.timeDelta = i.toString() + "*" + scale.toString();
 		if(i === 0) newNode.vol = 0; //omit strong beats, but not all their descendants
 
@@ -199,9 +192,8 @@ function rhythmSubNodes(struct, level, tuning) {
 }
 function makeRhythm() {
 	let repeatCount = parseInt(elems.txtReptCount.value);
-	if(repeatCount <= 0) return;
-	let rootFreq = nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq);
-	if(rootFreq === 0) return;
+	if(repeatCount <= 0) return false;
+	if(rootFreq === 0) return false;
 
 	//hierarchy of beats
 	let sumVol = 0;
@@ -212,7 +204,7 @@ function makeRhythm() {
 	let freqDummy = {2: 0};
 	let tuning = rootFreq / rhythmFactorsAccum[0];
 	limitFreq(tuning, freqDummy); //not THAT low
-	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let pattern = [{ //rhythm formula root block and note
 		freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
 		//to do: what is the best register (frequency range) for percussion?
@@ -273,12 +265,6 @@ function makeRhythm() {
 	
 	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
-	/*let regex = new RegExp(/(\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	do {
-		let t = s.replace(regex, "$1 ");
-		if(t == s) break;
-		s = t;
-	} while(true);*/
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
 	s = s.replace(regex, " ");
 	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
@@ -287,9 +273,9 @@ function makeRhythm() {
 }
 
 //the melody generator also presumes that rhythmFactors and rhythmFactorsAccum are properly filled
-//recursive call
+//recursive function
 function melodySubNodes(struct, level, tuning) {
-	if(level >= rhythmFactors.length) return;
+	if(level >= rhythmFactors.length) return false;
 	let beats = rhythmFactors[level - 1];
 	let scale = rhythmFactorsAccum[level];
 	let subNodePattern = {
@@ -306,9 +292,8 @@ function melodySubNodes(struct, level, tuning) {
 	let altLevel = Math.log2(rhythmFactorsAccum[0] / scale);
 	let beatStrengthInv = Math.random() < 0.25;
 	for(let i = 0; i < beats2; i++) {
-		let newNode = {};
+		let newNode = Object.assign({}, subNodePattern);
 		struct[i] = newNode;
-		Object.assign(newNode, subNodePattern);
 		newNode.timeDelta = i.toString() + "*" + scale.toString();
 
 		let crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
@@ -316,7 +301,6 @@ function melodySubNodes(struct, level, tuning) {
 		//to do: newTuning?
 		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString();
 
-		newNode.freq = {}; //must be a fresh, independent instance
 		//factor selection
 		let previous, iPrime, rnd = Math.random();
 		//let iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
@@ -348,11 +332,11 @@ function melodySubNodes(struct, level, tuning) {
 			//let factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[primeCount - 1]); //1 - rnd is to avoid division by zero
 			//for(iPrime = 0; primes[iPrime + 1] <= factor; iPrime++) {}
 		}
-		Object.assign(newNode.freq, previous.freq);
+		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
 
 		//exponent variation (a unit upwards or downwards)
 		//question: should they only go downwards? (because the root factors only went upwards)
-		//let sign = (iPrime === 0) ? 0 : ((Math.random() >= 0.5) ? 1 : -1); //neutral for factor 2
+		//let sign = (iPrime <= 0) ? 0 : ((Math.random() >= 0.5) ? 1 : -1); //neutral for factor 2
 		let sign = (Math.random() >= 0.5) ? 1 : -1;
 
 		let newExp = newNode.freq[primes[iPrime]] + sign;
@@ -376,26 +360,26 @@ function melodySubNodes(struct, level, tuning) {
 }
 //to do: pattern variations
 function makeMelody() {
-	if(primeCount < 2) return;
+	if(primeCount < 2) return false;
 	let patCount = parseInt(elems.txtPatternCount.value);
-	if(patCount <= 0) return;
+	if(patCount <= 0) return false;
 	let reptPeriod = parseNumber(elems.txtReptPeriod.value);
-	if(reptPeriod <= 0) return;
+	if(reptPeriod <= 0) return false;
 	let repeatCount = parseInt(elems.txtReptCount.value);
-	if(repeatCount <= 0) return;
-	expVariance = nullToDefault(parseNumber(elems.txtExpVariance.value), 2);
-	if(expVariance <= 0) return;
+	if(repeatCount <= 0) return false;
+	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
+	if(expVariance <= 0) return false;
+	if(rootFreq === 0) return false;
 
 	//top-level node
-	let _timeScale = nullToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let barDuration = rhythmFactorsAccum[0];
 	let sumVol = 0;
 	for(const scale of rhythmFactorsAccum) {
 		//sumVol += 1 / scale;
 		sumVol += barDuration / scale;
 	}
-	let rootFreq = nullToDefault(parseNumber(elems.txtFreq.value), defaultFreq);
-	let partialScaleOffset = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2);
+	let partialScaleOffset = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2); //to do: explicitly represent exponentiation?
 	let rootStruct = {
 		timeScale: _timeScale,
 		//freqRatio: rootFreq.toString() + "/" + barDuration.toString(),
@@ -451,12 +435,6 @@ function makeMelody() {
 
 	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
-	/*let regex = new RegExp(/(\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	do {
-		let t = s.replace(regex, "$1 ");
-		if(t == s) break;
-		s = t;
-	} while(true);*/
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
 	s = s.replace(regex, " ");
 	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects

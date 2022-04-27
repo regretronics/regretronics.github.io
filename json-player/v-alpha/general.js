@@ -5,6 +5,7 @@
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
 //to do: (structured) music file upload to page
+//to do: return true more often? (in this case, start by searching for "return false")
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -17,49 +18,76 @@ const defaultBlockNode = {
 
 	timbre: "sine",
 	decayFactor: 256, //question: rename this to sustain(Factor)?
-	attack: 1 / 64
-};
-const defaultNoteNode = {
-	noteStart: 0,
-	duration: 1,
+	attack: 1 / 64,
 
-	freq: defaultBlockNode.freqRatio,
+	//portamento: 1 / 64,
+	portamento: 0,
+	vibratoFreq: 2 ** 18 / 86400,
+	//vibratoDepth: 1 / 8,
+	vibratoDepth: 0,
+	vibratoAttack: 3
+}, relativeBlockProps = ["timeDelta", "timeScale", "freqRatio", "volRatio"],
+ substitutiveProps = ["timbre", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
+const defaultNoteNode = {
+	noteStart: 0, //seconds
+	duration: 1, //seconds
+
+	freq: defaultBlockNode.freqRatio, //Hertz
 	vol: defaultBlockNode.volRatio, //negative volumes are supported in the player, and apparently result in phase inversion.
 
 	timbre: defaultBlockNode.timbre,
-	decayFactor: defaultBlockNode.decayFactor,
-	attack: defaultBlockNode.attack
-};
+	decayFactor: defaultBlockNode.decayFactor, //seconds
+	attack: defaultBlockNode.attack, //seconds
+
+	portamento: defaultBlockNode.portamento, //seconds
+	vibratoFreq: defaultBlockNode.vibratoFreq, //Hertz
+	vibratoDepth: defaultBlockNode.vibratoDepth, //octaves or bits
+	vibratoAttack: defaultBlockNode.vibratoAttack //seconds
+}, incrementalNoteProps = ["noteStart", "duration", "noteStop", "freq0", "freq", "vol"],
+tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
 
 //of course there are infinite primes, but these are more than enough.
 var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47], primeCount = 2, expVariance = 2;
 
-function nullToDefault(x, def) {
-	return ((x === undefined) || (x === null)) ? def : x;
+function NaNToDefault(x, def) {
+	return isNaN(x) ? def : x;
 }
-//recursive call
+//try to evaluate parenthesized subexpressions
+function exprEliminateParens(str) {
+	//use regular expressions matching last-level parenthesized text (without additional parentheses inside), and replace iteratively by values
+	//warning: this is a string-to-string operation, where numbers become decimal-to-binary-to-decimal coded
+	let re = new RegExp(/\(([^\(\)]*)\)/, "g");
+	do {
+		let s = str.replace(re, (match, p1, offset, string) => parseNumber(p1).toString());
+		if(s == str) break;
+		str = s;
+	} while(true);
+	return str;
+}
+//recursive function
 function parseNumber(n) {
 	//remember: continuation after return => else
-	if(arguments.length < 1) return null;
-	if(n === undefined) return null;
+	if(arguments.length < 1) return undefined; //unspecific
+	if(n === undefined) return undefined;
+	if(n === null) return NaN; //more specific
 	let t = typeof(n);
 
 	//simpler attempts first.
 	if((t === "number") || (t === "bigint")) return n;
-	if(t === "function") return(parseNumber(n())); //?
+	if(t === "function") return parseNumber(n()); //?
 
 	if(Array.isArray(n)) {
 		//a product, prime factor-based
 		let r = 1, i;
 		//to do: lisp-like (polish notation) array interpretation as s-expressions? (e.g. ["+", 12, 34, 56] -> 12 + 34 + 56)
 		for(i in n) {
-			r *= Math.pow(primes[i], nullToDefault(parseNumber(n[i]), 0));
+			r *= Math.pow(primes[i], NaNToDefault(parseNumber(n[i]), 0));
 		}
 		return r;
 	}
 
 	//try conversion to number
-	//JavaScript converts Number([]) to 0; that's why array detection comes earlier
+	//note: JavaScript converts Number([]) to 0; that's why array detection comes earlier
 	//JavaScript converts Number("") to 0; let's try to prevent this
 	if((t !== "string") || (n.length != 0)) {
 		let ret = Number(n);
@@ -67,7 +95,7 @@ function parseNumber(n) {
 	}
 
 	if(t === "string") {
-		if(n.length == 0) return null;
+		if(n.length == 0) return NaN;
 		
 		try {
 			//can be an object
@@ -75,67 +103,52 @@ function parseNumber(n) {
 		} catch (error) {
 			//can be an expression
 
-			//try to evaluate parenthesized subexpressions
-			//use regular expressions matching last-level parenthesized text (without additional parentheses inside), and replace iteratively by values
-			//warning: this is a string-to-string operation, where numbers become decimal-to-binary-to-decimal coded
-			let re = new RegExp(/\(([^\(\)]*)\)/, "g");
-			do {
-				let s = n.replace(re, (match, p1, offset, string) => parseNumber(p1).toString());
-				if(s == n) break;
-				n = s;
-			} while(true);
+			n = exprEliminateParens(n);
 
 			//operators, starting from low precedence
 			//addition: "3+4+5" -> 3+(4+5) (right-associative)
 			//question: why not make it almost all left-associative?
 			//"+x" = "x+" = 0+x
 			let pos = n.indexOf("+");
-			if(pos >= 0) {
-				return nullToDefault(parseNumber(n.slice(0, pos)), 0)
-					+ nullToDefault(parseNumber(n.slice(pos + 1)), 0);
-			}
+			if(pos >= 0)
+				return NaNToDefault(parseNumber(n.slice(0, pos)), 0)
+					+ NaNToDefault(parseNumber(n.slice(pos + 1)), 0);
 
 			//subtraction: "3-4-5" -> (3-4)-5, not 3-(4-5) (left-associative)
 			//"5-2+3" = (5-2)+3, not 5-(2+3)
 			//"-x" = 0-x
 			//"x-" = x-0
 			pos = n.lastIndexOf("-");
-			if(pos >= 0) {
-				return nullToDefault(parseNumber(n.slice(0, pos)), 0)
-					- nullToDefault(parseNumber(n.slice(pos + 1)), 0);
-			}
+			if(pos >= 0)
+				return NaNToDefault(parseNumber(n.slice(0, pos)), 0)
+					- NaNToDefault(parseNumber(n.slice(pos + 1)), 0);
 
 			//multiplication: "3*4*5" -> 3*(4*5) (right-associative)
 			//"*x" = "x*" = 1*x
 			pos = n.indexOf("*");
-			if(pos >= 0) {
-				return nullToDefault(parseNumber(n.slice(0, pos)), 1)
-					* nullToDefault(parseNumber(n.slice(pos + 1)), 1);
-			}
+			if(pos >= 0)
+				return NaNToDefault(parseNumber(n.slice(0, pos)), 1)
+					* NaNToDefault(parseNumber(n.slice(pos + 1)), 1);
 
 			//division: "3/4/5" -> (3/4)/5, not 3/(4/5) (left-associative)
 			//"5/2*3" = (5/2)*3, not 5/(2*3)
 			//"/x" = 1/x
 			//"x/" = x/1
 			pos = n.lastIndexOf("/");
-			if(pos >= 0) {
-				return nullToDefault(parseNumber(n.slice(0, pos)), 1)
-					/ nullToDefault(parseNumber(n.slice(pos + 1)), 1);
-			}
+			if(pos >= 0)
+				return NaNToDefault(parseNumber(n.slice(0, pos)), 1)
+					/ NaNToDefault(parseNumber(n.slice(pos + 1)), 1);
 
 			//exponentiation: "x^y^z" = x^(y^z) (right-associative)
 			//"x^" = x^1
 			//"^x" = 2^x (?)
 			pos = n.indexOf("^");
-			if(pos >= 0) {
-				return nullToDefault(parseNumber(n.slice(0, pos)), 2)
-					** nullToDefault(parseNumber(n.slice(pos + 1)), 1);
-			}
+			if(pos >= 0)
+				return NaNToDefault(parseNumber(n.slice(0, pos)), 2)
+					** NaNToDefault(parseNumber(n.slice(pos + 1)), 1);
 
-			//no operation? try Number() again.
-			let ret = Number(n);
-			if(!isNaN(ret)) return ret;
-			return null;
+			//no operation? try Number() again (may yield NaN).
+			return Number(n);
 		}
 	}
 
@@ -144,26 +157,27 @@ function parseNumber(n) {
 		let r = 1, i;
 		for(i in n) {
 			//1 as default base neutralizes unrecognized bases
-			let iNum = nullToDefault(parseNumber(i), 1); //even the factors can actually be complex things
+			//to do: probably there are objects that shouldn't be boiled down straight into numbers. names that can't become numbers may be a sign of that.
+			let iNum = NaNToDefault(parseNumber(i), 1); //even the factors can actually be complex things
 			if(isNaN(iNum)) continue;
-			r *= Math.pow(iNum, nullToDefault(parseNumber(n[i]), 0));
+			r *= Math.pow(iNum, NaNToDefault(parseNumber(n[i]), 0));
 		}
 		return r;
 	}
 
-	return null;
+	return NaN;
 }
 
 //HTML elements
-const elemNames = ["txtFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", "txtExpVariance", //generator parameters, common
+const elemNames = ["txtBaseFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", "txtExpVariance", //generator parameters, common
 	"txtRhythmScale", "txtRhythmFactors", //rhythm
 	"txtVoiceCount", "txtReptCount", "txtReptPeriod", //generator parameters, additional
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
 	"ctlFlatScript", "ctlStructuredScript", //code editors
 	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", //other controls
-	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outOscCount" //output fields
+	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outGenCount" //output fields
 ];
-const expSpinners = ["txtFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
+const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 var elems = {};
 var autoFlatten = true;
 const timeDisplPrecision = 2;
@@ -204,10 +218,12 @@ function docLoaded() {
 
 let textSize = 1;
 function rescaleText(f) {
+	if(!document || !document.body || !document.body.style) return false;
 	textSize *= f;
 	document.body.style.fontSize = textSize + "em";
 }
 function overflowToggle(control) {
+	if(!control) return false;
 	/*if(control.style.height == "auto") {
 		control.style.height = "12em";
 	} else {
@@ -216,11 +232,13 @@ function overflowToggle(control) {
 	control.classList.toggle("expanded");
 }
 function lineWrapToggle(control) {
+	if(!control) return false;
 	control.classList.toggle("lineWrapping");
 }
 
 function primeCountChanged() {
-	primeCount = nullToDefault(parseNumber(elems.txtPrimeCount.value), 2);
+	if(!elems.txtPrimeCount) return false;
+	primeCount = NaNToDefault(parseNumber(elems.txtPrimeCount.value), 2);
 	if(primeCount < 2) primeCount = 2;
 	if(elems.outPrimeList) elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
 }
@@ -228,13 +246,22 @@ function primeCountChanged() {
 //to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
 function expSpinnerChanged(event) {
 	let elem = event.target;
+	if(!elem) return false;
 	//let val = elem.valueAsNumber;
-	let val = nullToDefault(parseNumber(elem.value), 1);
+	let val = parseNumber(elem.value);
+	if(isNaN(val)) {
+		val = 1;
+		elem.classList.add("invalid");
+		elem.setCustomValidity("Input not recognized as a real number.");
+	} else {
+		elem.classList.remove("invalid");
+		elem.setCustomValidity("");
+	}
 	let magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
 	elem.step = step;
-	//if(elem == elems.txtFreq) {elem.min = val - 2 * step;}
+	//if(elem == elems.txtBaseFreq) {elem.min = val - 2 * step;}
 	elem.min = val - 2 * Math.sign(val) * step;
-	elem.setCustomValidity("");
+	//elem.reportValidity();
 }
 /*function textInvalid(event) { //not working for input type="number"
 	event.target.setCustomValidity("");
@@ -244,21 +271,38 @@ function expSpinnerChanged(event) {
 	return true;
 }*/
 
-var playFreqScale, playVolScale;
+var rootFreq, playFreqScale, playVolScale;
+const defaultRootFreq = 440;
+function baseFreqChanged() {
+	let ctl = elems.txtBaseFreq;
+	if(!ctl) return false;
+	rootFreq = parseNumber(ctl.value);
+	if(!rootFreq) {
+		ctl.classList.add("invalid");
+		ctl.setCustomValidity("Base frequency shouldn't be 0.");
+		rootFreq = defaultRootFreq;
+	} else {
+		ctl.classList.remove("invalid");
+		ctl.setCustomValidity("");
+	}
+}
 function playFreqScaleChanged() {
 	let ctl = elems.txtPlayFreqScale;
+	if(!ctl) return false;
 	//if(ctl.valueAsNumber <= 0) ctl.stepUp();
-	playFreqScale = nullToDefault(parseNumber(ctl.value), defaultBlockNode.freqRatio);
+	playFreqScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.freqRatio);
 }
 function playVolScaleChanged() {
 	let ctl = elems.txtPlayVolScale;
+	if(!ctl) return false;
 	//if(ctl.valueAsNumber < 0) ctl.stepUp();
-	playVolScale = nullToDefault(parseNumber(ctl.value), defaultBlockNode.volRatio);
+	playVolScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.volRatio);
 }
 
 //rhythm structure data (hierarchy of factors)
 var rhythmFactors = [], rhythmFactorsAccum = [];
 function rhythmAccumUpdate() {
+	if(!rhythmFactors) rhythmFactors = [];
 	let factors = rhythmFactors.slice(); //array clone
 	let product = 1;
 	rhythmFactorsAccum = [];
@@ -272,18 +316,34 @@ function rhythmAccumUpdate() {
 	rhythmFactorsAccum.push(1);
 }
 function rhythmFactorsChanged() {
-	//to do: support sums (e.g. 3 beats + 4 beats -> 1001000)?
+	//to do: support sums (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
 	//to do: support fractions (e.g. 5/2 beats)?
-	//to do: support parentheses?
-	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 3*2? like (2 + 2 + 2) + ((1 + 1) + (1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1) + (1 + 1))?
+	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 3*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1) + (1 + 1))?
+	if(!elems.txtRhythmFactors) return false;
 	let s = elems.txtRhythmFactors.value.toString(); //text
-	rhythmFactors = s.split("*").map(x => parseFloat(x)); //array of numbers
-	if(rhythmFactors.some(x => isNaN(x))) {
-		rhythmFactors = [2, 2, 2]; //not a number? default/fallback
-		//question: choose a different default?
-		if(elems.txtRhythmFactors) elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
+	s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
+	//rhythmFactors = s.map(x => parseFloat(x)); //array of numbers
+	rhythmFactors = []; //will become an array of numbers
+	for (const n of s) {
+		//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
+		let pos = n.indexOf("^");
+		if(pos >= 0) {
+			let base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
+			for (let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
+				rhythmFactors.push(base);
+			//question: non-integer exponents? (if(exp > 0) ...)
+		} else
+			rhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
+	}
+	//to do: invalidate factors below 1? and negative factors?
+	if((rhythmFactors.length < 1) || rhythmFactors.some(x => isNaN(x)) || rhythmFactors.some(x => !x)) { //empty? has zeroes? unparsed expressions?
+		//default/fallback
+		rhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
+		elems.txtRhythmFactors.classList.add("invalid");
+		elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
 	} else {
-		if(elems.txtRhythmFactors) elems.txtRhythmFactors.setCustomValidity("");
+		elems.txtRhythmFactors.classList.remove("invalid");
+		elems.txtRhythmFactors.setCustomValidity("");
 	}
 	rhythmAccumUpdate();
 }
@@ -298,17 +358,17 @@ function deletePrevTab() {
 
 	while(true) {
 		i = txt.lastIndexOf("\t", pos - 1);
-		if(txt.slice(i, pos).indexOf("\n") >= 0) return; //line breaks interrupt the search
+		if(txt.slice(i, pos).indexOf("\n") >= 0) return false; //line breaks interrupt the search
 		if(i >= 0) break; //tab character found?
 
 		node = node.previousSibling;
-		if(!node) return; //"end" of text?
-		if(node.nodeName.toUpperCase() == "BR") return; //line break attacks again
+		if(!node) return false; //"end" of text?
+		if(node.nodeName.toUpperCase() == "BR") return false; //line break attacks again
 		
 		txt = node.textContent;
 		pos = txt.length;
 	}
-	if(!(i >= 0)) return;
+	if(!(i >= 0)) return false;
 
 	//tried to preserve caret position, but the result is buggy
 	/*txtBefore = txtBefore.slice(0, i) + txtBefore.slice(i + 1);
@@ -341,13 +401,16 @@ function editorKeyDown(event) {
 	}
 }
 function editorInput(event) {
-	event.target.style.backgroundColor = "";
+	if(!event || !event.target || !event.target.classList) return false;
+	event.target.classList.remove("invalid");
 }
 function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	let elem = event.target;
+	if(!elem) return false;
 	elem.normalize();
 	
 	let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
+	if(!rng) return false;
 	let pos = rng.endOffset;
 	let node = rng.endContainer;
 	let txt = node.textContent;
@@ -379,19 +442,40 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	//document.title = iArr.toString();
 }
 
+const focusableElemTypes = ["INPUT", "BUTTON"];
 function setToolTip(event) {
-	let description = event.target.title;
+	if(!elems.outToolTip) return false;
+	let elem = event.target;
+	if(!elem) return false;
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && (document.activeElement != elem)) return false;
+	/*let description = elem.title;
 	if((typeof(description) === "string") && (description.length > 0)) {
 		elems.outToolTip.innerText = description;
+		elems.outToolTip.style.position = "sticky";
+	}*/
+
+	let sentences = [];
+	let description = elem.title;
+	if((typeof(description) === "string") && (description.length > 0))
+		sentences.push(description);
+
+	description = elem.validationMessage;
+	if((typeof(description) === "string") && (description.length > 0))
+		sentences.push(description);
+
+	if(sentences.length > 0) {
+		//elems.outToolTip.innerText = sentences.join(" ");
+		elems.outToolTip.innerHTML = sentences.join("<br />");
 		elems.outToolTip.style.position = "sticky";
 	}
 }
 
 var lastObjURL = null;
 function prepareDownload() {
+	if(!elems.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-	let file;
 	let data = [elems.ctlStructuredScript.innerText];
+	let file;
 	let properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 
 	//date for file name
@@ -411,11 +495,14 @@ function prepareDownload() {
 	}
 	if(lastObjURL) URL.revokeObjectURL(lastObjURL);
 	lastObjURL = URL.createObjectURL(file);
+
+	if(!elems.aStructDownload) return false;
 	elems.aStructDownload.setAttribute('href', lastObjURL);
 	elems.aStructDownload.setAttribute('download', fileName);
+	return true;
 }
 function structDownload(event) {
-	prepareDownload();
+	if(!prepareDownload()) return false;
 
 	/*let newEvent = new MouseEvent('click');
 	elems.aStructDownload.dispatchEvent(newEvent);*/

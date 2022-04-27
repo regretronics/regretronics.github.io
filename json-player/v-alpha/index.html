@@ -18,8 +18,11 @@
 
 	function loaded() {
 		docLoaded();
+		for(const elem of document.querySelectorAll("input.exp"))
+			elem.addEventListener("input", expSpinnerChanged);
 		document.getElementById("btnTextShrink").addEventListener("click", (ev) => rescaleText(0.8));
 		document.getElementById("btnTextEnlarge").addEventListener("click", (ev) => rescaleText(1.25));
+		document.getElementById("txtBaseFreq").addEventListener("input", baseFreqChanged);
 		document.getElementById("txtPrimeCount").addEventListener("input", primeCountChanged);
 		document.getElementById("btnRhythmFactorsGen").addEventListener("click", makeRhythmFactors);
 		document.getElementById("txtRhythmFactors").addEventListener("input", rhythmFactorsChanged);
@@ -34,24 +37,25 @@
 		document.getElementById("btnOverflowToggle2").addEventListener("click", (ev) => overflowToggle(elems.ctlFlatScript));
 		document.getElementById("btnLineWrapToggle2").addEventListener("click", (ev) => lineWrapToggle(elems.ctlFlatScript));
 		document.getElementById("chkAutoFlatten").addEventListener("click", (ev) => setAutoFlatten(elems.chkAutoFlatten.checked));
-		document.getElementById("ctlFlatScript").addEventListener("input", editorInput); //question: also for ctlStructuredScript?
+		document.getElementById("ctlFlatScript").addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
 		document.getElementById("txtPlayFreqScale").addEventListener("input", playFreqScaleChanged);
 		document.getElementById("txtPlayVolScale").addEventListener("input", playVolScaleChanged);
-		document.getElementById("btnPlay").addEventListener("click", play);
+		document.getElementById("btnPlay").addEventListener("click", loadAndPlay);
 		document.getElementById("btnPause").addEventListener("click", pauseToggle);
 		document.getElementById("btnStop").addEventListener("click", stop);
 
-		for(let elem of document.getElementsByClassName("codeEditor")) {
+		for(const elem of document.getElementsByClassName("codeEditor")) {
 			elem.addEventListener("keydown", editorKeyDown);
 			//elem.addEventListener("keyup", recalcEditorCursorPos);
 			//elem.addEventListener("click", recalcEditorCursorPos);
 		}
-		for(let elem of document.querySelectorAll("input.exp"))
-			elem.addEventListener("input", expSpinnerChanged);
-		for(let elem of document.querySelectorAll("*[title]")) {
-			if(["INPUT", "BUTTON"].includes(elem.tagName.toUpperCase()))
+		for(const elem of document.querySelectorAll("*[title]")) {
+			//if(["INPUT", "BUTTON"].includes(elem.tagName.toUpperCase()))
+			let tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
+			if(tagIndex >= 0) {
 				elem.addEventListener("focus", setToolTip);
-			else
+				if(tagIndex === 0) elem.addEventListener("input", setToolTip);
+			} else
 				elem.addEventListener("click", setToolTip);
 			elem.addEventListener("pointerdown", setToolTip);
 		}
@@ -91,8 +95,8 @@
 			<option value="443" />
 			<option value="466" />
 		</datalist>
-		<span class="cell"><label for="txtFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-			<input type="number" id="txtFreq" value="440" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions." /></span><wbr />
+		<span class="cell"><label for="txtBaseFreq">base&nbsp;freq.&nbsp;(Hz)</label>
+			<input type="number" id="txtBaseFreq" value="440" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." /></span><wbr />
 		<!--to do: consider negative time scale values-->
 		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
 			<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp" title="Inverse speed. Used by chord, rhythm and melody generators." /></span><wbr />
@@ -141,14 +145,16 @@
 	"timeDelta": 0,
 	"timeScale": 0.5,
 	"decayFactor": 128,
+	"attack": "1/64",
 	"pat1": [
+		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},
 		{"noteStart": 0, "duration": 1, "freq": 1},
 		{"noteStart": 1, "duration": 1, "freq": "5/4"},
 		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},
 		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
 	],
-	"0": {"freqRatio": 1, "timeDelta": 0, "0": "pat1"},
-	"1": {"freqRatio": 2, "timeDelta": 4, "0": "pat1"}
+	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},
+	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}
 }</pre>
 	<p class="flex-row">
 		<span><strong>Flattened note list:</strong> 
@@ -161,9 +167,9 @@
 			<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
 			<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
 		</span>
-		<!--to do: new parameter for repeating the whole structure?-->
+		<!--to do: new parameter for repeating the whole structure? (probably made unnecessary by auto-reload)-->
 	</p>
-	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false">
+	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" title="">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
  {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
 	<p><strong>Overall&nbsp;controls:</strong> 
@@ -177,19 +183,18 @@
 		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(lead-in) (s)</label>
 			<input type="number" id="txtPlayTimeDelta" value="0.25" step="0.25" title="Additive amount" /></span>
 	</p>
-	<!--<p style="float: left;"><strong>Player:</strong> -->
 	<p class="flex-row">
 		<span><strong>Player:</strong> 
 			<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
 			<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
 			<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
-			<span class="cell"><input type="checkbox" id="chkAutoReload" />
+			<span class="cell"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code when playback ends. Can be used as a 'repeat' feature." />
 				<label for="chkAutoReload">Auto-reload</label></span>
 			<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 		</span>
 		<span class="right">
 			<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
-			<span class="cell">Loaded&nbsp;oscillators: <wbr /><output id="outOscCount">0</output>.</span>
+			<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount">0</output>.</span>
 		</span>
 	</p>
 	<p id="outToolTip">A description of the selected control will appear here.</p>
@@ -212,91 +217,121 @@
 		</defs>
 	</svg>
 
-	<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some musical theory. Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for rhythmic structure and harmony.</p>
-	<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive list of notes), used when playing, supporting only note properties. But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). As it is a text format, it becomes easy to perfectly (manually) save and load content. You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity.</p>
-	<p>Though the page is novel, the formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an object). As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
-	<p>Anyway, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). Use natural numbers starting at 0 and don't skip numbers. Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
-	<!--to do: explain more about structured vs. flattened rules-->
-	<!--to do: quick start/cheatsheet for just intonation and intervals?-->
-	<p>Block (inheritable) properties are:</p>
-	<dl>
-		<dt><strong>freqRatio</strong> (multiplicative, default 1)</dt>
-		<dd>Can be used both for pitch tuning and interval accumulation.</dd>
-		<dt><strong>volRatio</strong> (multiplicative, default 1)</dt>
-		<dd>Can be used to compensate for polyphony (like the generators do).</dd>
-		<dt><strong>timeDelta</strong> (additive, default 0, relative to timeScale)</dt>
-		<dd>Relative time position or delay.</dd>
-		<dt><strong>timeScale</strong> (multiplicative, default 1)</dt>
-		<dd>Inverse of tempo/speed.</dd>
-		<dt><strong>timbre</strong> (substitutive, default "sine")</dt>
-		<dt><strong>decayFactor</strong> (substitutive, default 256)</dt>
-		<dt><strong>attack</strong> (substitutive, default 1/64)</dt>
-	</dl>
-	<p>Note properties are (influenced by block properties, and most of them relative factors):</p>
-	<dl>
-		<dt><strong>noteStart</strong> (default noteStop of previous note or 0)</dt>
-		<dd>The moment in time the note is played.</dd>
-		<dd>Affected by timeDelta, timeScale, overall time delta and overall time scale.</dd>
+	<article>
+		<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some musical theory. Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for rhythmic structure and harmony.</p>
+		<!--to do: quick start/cheatsheet for just intonation and intervals?-->
+		<hr />
+		<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive list of notes), used when playing, supporting only note properties. But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>
+		<p>Though the page is novel, the formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an object). As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
+		<p>The <em>structured representation</em> is made to be readable and editable, while also understandable by a computer. In this format, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). Use natural numbers starting at 0 and don't skip numbers. Their order can be arbitrary; the indices don't tell anything about note time. You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
+		<p>Eventually, the structured representation is converted (by the page) into the <em>flattened representation</em>, which is easier for the computer to play. In it, blocks, recursion, named patterns, numerical structures and arithmetics are not available. For human interaction (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is to play the music.</p>
+		<hr />
+		<p>Block (inheritable) properties are:</p>
+		<dl>
+			<dt><strong><code>freqRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
+			<dd>Can be used both for pitch tuning and interval accumulation.</dd>
+			<dt><strong><code>volRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
+			<dd>Can be used to compensate for polyphony (like the generators do).</dd>
+			<dt><strong><code>timeDelta</code></strong> (additive, default <code>0</code>, relative to timeScale)</dt>
+			<dd>Relative time position or delay.</dd>
+			<dt><strong><code>timeScale</code></strong> (multiplicative, default <code>1</code>)</dt>
+			<dd>Inverse of tempo/speed.</dd>
+			<dt><strong><code>timbre</code></strong> (substitutive, default <code>"sine"</code>)</dt>
+			<dt><strong><code>decayFactor</code></strong> (substitutive, default <code>256</code>)</dt>
+			<dt><strong><code>attack</code></strong> (substitutive, default <code>"1/64"</code>)</dt>
+			<dt><strong><code>portamento</code></strong> (substitutive, default <code>0</code>)</dt>
+			<dt><strong><code>vibratoFreq</code></strong> (substitutive, default <code>"2^18 / 86400"</code> = ~<code>3.034</code>)</dt>
+			<dt><strong><code>vibratoDepth</code></strong> (substitutive, default <code>0</code>)</dt>
+			<dt><strong><code>vibratoAttack</code></strong> (substitutive, default <code>3</code>)</dt>
+		</dl>
+		<p>Note properties are (influenced by block properties, and most of them relative factors):</p>
+		<!--to do: idea: split this for structured vs. flattened formats-->
+		<dl>
+			<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
+			<dd>The moment in time the note is played.</dd>
+			<dd>Affected by timeDelta, timeScale, overall time delta and overall time scale.</dd>
 
-		<dt><strong>noteStop</strong> (default noteStart + duration)</dt>
-		<dd>The moment in time the note is silenced.</dd>
-		<dd>Affected by timeDelta, timeScale, overall time delta and overall time scale.</dd>
+			<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
+			<dd>The moment in time the note is silenced.</dd>
+			<dd>Affected by timeDelta, timeScale, overall time delta and overall time scale.</dd>
 
-		<dt><strong>duration</strong> (default 1)</dt>
-		<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
-		<dd>Affected by timeScale (and overall time scale).</dd>
+			<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
+			<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
+			<dd>Affected by timeScale (and overall time scale).</dd>
 
-		<dt><strong>freq</strong> (default 1/always required in flattened list)</dt>
-		<dd>Frequency, which represents pitch.</dd>
-		<dd>Affected by freqRatio and overall frequency scale.</dd>
+			<dt><strong><code>freq</code></strong> (default <code>1</code>/always required in flattened list)</dt>
+			<dd>Frequency, which represents pitch.</dd>
+			<dd>Affected by freqRatio and overall frequency scale.</dd>
 
-		<dt><strong>vol</strong> (default 1)</dt>
-		<dd>Amplitude, which represents volume.</dd>
-		<dd>Affected by volRatio and overall volume scale.</dd>
+			<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
+			<dd>Amplitude, which represents volume.</dd>
+			<dd>Affected by volRatio and overall volume scale.</dd>
 
-		<dt><strong>timbre</strong> (default "sine")</dt>
-		<dd>Waveform used in synthesis (comparable to a musical instrument). Can be "sine" (narrow-band) or "noise" (wide-band).</dd>
-		<dd>Absolute override when present.</dd>
+			<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
+			<dd>Waveform used in synthesis (comparable to a musical instrument). Can be <code>"sine"</code> (narrow-band) or <code>"noise"</code> (wide-band).</dd>
+			<dd>Absolute override when present.</dd>
 
-		<dt><strong>decayFactor</strong> (default 256)</dt>
-		<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
-		<dd>Absolute override when present, but always affected by overall time scale.</dd>
+			<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
+			<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
+			<dd>Absolute override when present, but always affected by overall time scale.</dd>
 
-		<dt><strong>attack</strong> (default 1/64)</dt>
-		<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
-		<dd>Absolute override when present, but always affected by overall time scale.</dd>
-	</dl>
-	<p>In the structured representation, block and note properties support several number formats. Examples:</p>
-	<ul>
-		<li><code>1.25</code> = 1.25 (literal number)</li>
-		<li><code>"1.25"</code> = 1.25 (text to number)</li>
+			<dt><strong><code>attack</code></strong> (default <code>"1/64"</code>)</dt>
+			<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
+			<dd>Absolute override when present, but always affected by overall time scale.</dd>
+			
+			<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
+			<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). When zero, portamento is disabled and pitches are abrupt.</dd>
+			<dd>Absolute override when present, but always affected by overall time scale.</dd>
+
+			<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
+			<dd>If portamento is enabled, this is the initial frequency. A <code>0</code> value disables portamento.</dd>
+			<dd>Note-only property, not retained by blocks.</dd>
+			
+			<dt><strong><code>vibratoFreq</code></strong> (default <code>"2^18 / 86400"</code> = ~<code>3.034</code>)</dt>
+			<dd>Frequency for pitch modulation.</dd>
+			<dd>Absolute override when present.</dd>
+			
+			<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
+			<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
+			<dd>Absolute override when present.</dd>
+			
+			<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
+			<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+			<dd>Absolute override when present, but always affected by overall time scale.</dd>
+		</dl>
+		<hr />
+		<p>In the structured representation, block and note properties support several <strong>number formats</strong>. Examples:</p>
 		<ul>
-			<li><code>"5*0.5*0.5"</code> = 5/4 = 1.25</li>
-			<li><code>"5/2/2"</code> = (5/2)/2 = 5/4 = 1.25</li>
-			<li><code>"5/2^2"</code> = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
+			<li><code>1.25</code> = 1.25 (literal number)</li>
+			<li><code>"1.25"</code> = 1.25 (text to number)</li>
+			<ul>
+				<li><code>"5*0.5*0.5"</code> = 5/4 = 1.25</li>
+				<li><code>"5/2/2"</code> = (5/2)/2 = 5/4 = 1.25</li>
+				<li><code>"5/2^2"</code> = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
+			</ul>
+			<li><code>[-2, 0, 1]</code> = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+			<ul>
+				<li>String expressions are supported in object values: <code>["-1-1", 0, 1]</code> = <code>[-2, 0, 1]</code></li>
+			</ul>
+			<li><code>{"2": -2, "5": 1}</code> = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors, but also supports other factors)</li>
+			<ul>
+				<li>Even factors can be string expressions: <code>{"2": -2, "2 + 3": 1}</code> = <code>{"2": -2, "5": 1}</code></li>
+			</ul>
+			<li>To emulate twelve-tone equal temperament, use powers of 2 (octave) with a number of semitones divided by 12 (fraction of an octave) as exponent. E.g. <code>["7/12"]</code> = 2<sup>7/12</sup> would represent a fifth interval (7 semitones).</li>
 		</ul>
-		<li><code>[-2, 0, 1]</code> = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+		<p>Rules for strings:</p>
 		<ul>
-			<li>String expressions are supported in object values: <code>["-1-1", 0, 1]</code> = <code>[-2, 0, 1]</code></li>
+			<li>For expressions with operators, quote them as text.</li>
+			<li>Subexpressions inside parenthesis are evaluated first.</li>
+			<li>As in many computer languages, the text symbols for multiplication, division and exponentiation are (respectively) <code>*</code>, <code>/</code>, <code>^</code>.</li>
+			<li>Operator precedence: <code>^</code> (first), <code>/</code>, <code>*</code>, <code>-</code>, <code>+</code> (last)</li>
+			<li>Addition, multiplication and exponentiation are right-associative: e.g. <code>4^3^2</code> = <code>4^(3^2)</code>, not <code>(4^3)^2</code></li>
+			<li>Subtraction and division are left-associative: e.g. <code>4 - 3 - 2</code> = <code>(4 - 3) - 2</code>, not <code>4 - (3 - 2)</code></li>
 		</ul>
-		<li><code>{"2": -2, "5": 1}</code> = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors, but also supports other factors)</li>
-		<ul>
-			<li>Even factors can be string expressions: <code>{"2": -2, "2 + 3": 1}</code> = <code>{"2": -2, "5": 1}</code></li>
-		</ul>
-		<li>To emulate twelve-tone equal temperament, use powers of 2 (octave) with a number of semitones divided by 12 (fraction of an octave) as exponent. E.g. <code>["7/12"]</code> = 2<sup>7/12</sup> would represent a fifth interval (7 semitones).</li>
-	</ul>
-	<p>Rules for strings:</p>
-	<ul>
-		<li>For expressions with operators, quote them as text.</li>
-		<li>Subexpressions inside parenthesis are evaluated first.</li>
-		<li>As in many computer languages, the text symbols for multiplication, division and exponentiation are (respectively) <code>*</code>, <code>/</code>, <code>^</code>.</li>
-		<li>Operator precedence: <code>^</code> (first), <code>/</code>, <code>*</code>, <code>-</code>, <code>+</code> (last)</li>
-		<li>Addition, multiplication and exponentiation are right-associative: e.g. <code>4^3^2</code> = <code>4^(3^2)</code>, not <code>(4^3)^2</code></li>
-		<li>Subtraction and division are left-associative: e.g. <code>4 - 3 - 2</code> = <code>(4 - 3) - 2</code>, not <code>4 - (3 - 2)</code></li>
-	</ul>
-	<hr />
+	</article>
 	<footer>
-		<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), modulation or dynamic pitch, custom filtering, custom effects, custom mixing pipeline or spatialization.</p>
+		<hr />
+		<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), custom filtering, custom effects, custom mixing pipeline or spatialization.</p>
 		<p>By regretronics; licensed under the <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
 	</footer>
 </body>
