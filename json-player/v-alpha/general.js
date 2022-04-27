@@ -311,39 +311,56 @@ function rhythmAccumUpdate() {
 		rhythmFactorsAccum.unshift(product); //add as first
 	}
 	if(elems.outRhythmScales) elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
-	//elems.outRhythmScales.innerText = rhythmFactorsAccum.slice(0, -1).join("/");
 	rhythmFactors.push(1);
 	rhythmFactorsAccum.push(1);
 }
 function rhythmFactorsChanged() {
 	//to do: support sums (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
-	//to do: support fractions (e.g. 5/2 beats)?
 	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 3*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1) + (1 + 1))?
+	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
 	if(!elems.txtRhythmFactors) return false;
 	let s = elems.txtRhythmFactors.value.toString(); //text
-	s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
-	//rhythmFactors = s.map(x => parseFloat(x)); //array of numbers
 	rhythmFactors = []; //will become an array of numbers
-	for (const n of s) {
-		//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
-		let pos = n.indexOf("^");
-		if(pos >= 0) {
-			let base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
-			for (let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
-				rhythmFactors.push(base);
-			//question: non-integer exponents? (if(exp > 0) ...)
-		} else
-			rhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
+	if(s.length >= 1) {
+		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
+		//rhythmFactors = s.map(x => parseFloat(x)); //array of numbers
+		for (const n of s) {
+			//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
+			let pos = n.indexOf("^");
+			if(pos >= 0) {
+				let base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
+				for (let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
+					rhythmFactors.push(base);
+				//question: non-integer exponents? (if(exp > 0) ...)
+			} else
+				rhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
+		}
 	}
 	//to do: invalidate factors below 1? and negative factors?
-	if((rhythmFactors.length < 1) || rhythmFactors.some(x => isNaN(x)) || rhythmFactors.some(x => !x)) { //empty? has zeroes? unparsed expressions?
+	//note: empty structures now allowed
+	//let rhythmValid = true;
+	try {
+		if(rhythmFactors.some(x => x == 0)) { //has zeroes?
+			//rhythmValid = false;
+			//elems.txtRhythmFactors.setCustomValidity();
+			//return false;
+			throw "Rhythm factors can't include zero.";
+		}
+		
+		if(rhythmFactors.some(x => isNaN(x))) { //unparsed expressions?
+			//rhythmValid = false;
+			//elems.txtRhythmFactors.setCustomValidity("");
+			//return false;
+			throw "Unrecognized numerical expression in rhythm formula.";
+		}
+
+		elems.txtRhythmFactors.classList.remove("invalid");
+		elems.txtRhythmFactors.setCustomValidity("");
+	} catch(error) {
 		//default/fallback
 		rhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
 		elems.txtRhythmFactors.classList.add("invalid");
-		elems.txtRhythmFactors.setCustomValidity("Invalid rhythm formula.");
-	} else {
-		elems.txtRhythmFactors.classList.remove("invalid");
-		elems.txtRhythmFactors.setCustomValidity("");
+		elems.txtRhythmFactors.setCustomValidity(error.toString());
 	}
 	rhythmAccumUpdate();
 }

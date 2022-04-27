@@ -10,7 +10,8 @@ body {
 h1, h2, h3, p {
 	width: 100%;
 }
-::selection {
+/*::selection {*/
+:not(code):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
 	background-color: hsla(120, 100%, 87.5%, 0.625);
 	color: hsla(120, 100%, 12.5%, 0.875);
 }
@@ -42,7 +43,7 @@ hr {
 code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }
-.codeEditor::selection, code::selection {
+.codeEditor::selection, .codeEditor *::selection, code::selection {
 	background-color: hsla(300, 50%, 12.5%, 0.75);
 	color: hsla(300, 100%, 87.5%, 0.875);
 }

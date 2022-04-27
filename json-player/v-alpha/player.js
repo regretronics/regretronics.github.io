@@ -3,6 +3,8 @@
 //to do: output to file (e.g. .opus) (try AudioContext.createMediaStreamDestination)
 //to do: iterative self-filtering for subtractive synthesis?
 
+//note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting
+
 //variables for web audio
 let audioCtx = null, noiseBuffer = null;
 
@@ -41,8 +43,6 @@ let t0 = 0, songDuration = 0;
 //event handler for generator audio nodes
 function defOnEnded() {
 	if(this) {
-		/*if(this instanceof OscillatorNode)
-			lastFreq = this.frequency.value * 2 ** (this.detune.value / 1200);*/
 		//console.debug("Note release: " + audioCtx.currentTime);
 		if(this.fltBandPass) this.fltBandPass.disconnect();
 		if(this.modGainDecay) this.modGainDecay.disconnect();
@@ -67,10 +67,42 @@ function defOnEnded() {
 	}
 }
 
-let flatStruct, playTimeScale = 1, lastFreq;
+let flatStruct, playTimeScale = 1;
+let lastFreq, lastFreq0, lastNoteStart, lastPortamento;
+function newToneNode(noteFreq, minStart, portamento, freq0) {
+	//note: negative frequency causes phase inversion (at least in Ffx 100)
+	let sourceNode = new OscillatorNode(audioCtx, {type: "sine", frequency: noteFreq});
+	try {
+		if(portamento <= 0) return;
+		//portamento (using detune for an exponential frequency variation)
+		//fixed start frequency?
+		//question: should an explicit freq0 of 0 also disable portamento? (currently yes)
+		if (isNaN(freq0)) {
+			if(!lastFreq) return;
+
+			freq0 = lastFreq;
+			if(lastFreq0 && (lastPortamento > 0)) {
+				//portamento of previous note may have been incomplete
+				let lastNoteT = (audioCtx.currentTime - lastNoteStart) / (Math.abs(playTimeScale) * lastPortamento);
+				freq0 *= (lastFreq0 / lastFreq) ** (0.5 ** lastNoteT);
+			}
+		}
+		if(!freq0) return;
+
+		sourceNode.detune.value = 1200 * Math.log2(freq0 / noteFreq);
+		sourceNode.detune.setTargetAtTime(0, minStart, Math.abs(playTimeScale) * portamento * Math.LOG2E);
+	} catch (error) {
+		console.error(error);
+	} finally {
+		lastFreq = noteFreq; //set last note portamento parameters
+		lastNoteStart = minStart;
+		lastFreq0 = freq0;
+		lastPortamento = portamento;
+		return sourceNode;
+	}
+}
 //question: which one to prefer? noteStop (current choice) or duration?
 function renderNote(note) {
-	//this procedure would be technically unnecessary, but exists for the sake of readability and to avoid deep levels of statement nesting
 	//idea: Object.assign() from defaultNoteNode and note into a new note object
 	let noteFreq = playFreqScale * note.freq;
 	let noteStart = playTimeScale * note.noteStart;
@@ -86,23 +118,11 @@ function renderNote(note) {
 	let isNoise = noteTimbre.toLowerCase() === "noise";
 	let minStart = Math.max(t0 + noteStart, audioCtx.currentTime);
 	
-	let sourceNode, oscVibrato;
+	let sourceNode, oscVibrato = null;
 	if(isNoise)
 		sourceNode = new AudioBufferSourceNode(audioCtx, {buffer: noiseBuffer, loop: true});
-	else {
-		//note: negative frequency causes phase inversion (at least in Ffx 100)
-		sourceNode = new OscillatorNode(audioCtx, {type: "sine", frequency: noteFreq});
-		//portamento (using detune for an exponential frequency variation)
-		let portamento = NaNToDefault(note.portamento, defaultNoteNode.portamento);
-		let freq0 = NaNToDefault(note.freq0, lastFreq);
-		if(portamento && freq0) {
-			sourceNode.detune.value = 1200 * Math.log2(freq0 / noteFreq);
-			sourceNode.detune.setTargetAtTime(0, minStart, Math.abs(playTimeScale) * portamento * Math.LOG2E);
-			//to do: register last freq0 and last portamento, and use them on incomplete portamento for the following note
-		} else {
-			//to do: register absence of portamento from this last note
-		}
-	}
+	else
+		sourceNode = newToneNode(noteFreq, minStart, NaNToDefault(note.portamento, defaultNoteNode.portamento), note.freq0);
 	sourceNode.onended = defOnEnded;
 	generators.push(sourceNode);
 	let terminalNode = sourceNode;
@@ -184,7 +204,6 @@ function renderNote(note) {
 			sourceNode.start(minStart, Math.random() * noiseBuffer.duration); //random start point
 		} else {
 			sourceNode.start(minStart);
-			lastFreq = noteFreq; //not counting portamento
 		}
 		sourceNode.stop(Math.max(t0 + noteStop, audioCtx.currentTime));
 		if(oscVibrato) {
@@ -226,7 +245,6 @@ function audioTUpdate() {
 	if(elems.outGenCount) elems.outGenCount.innerText = generators.length.toString();
 }
 function drawNote(sourceNode) {
-	//this procedure would be technically unnecessary, but exists for the sake of readability and to avoid deep levels of statement nesting
 	const svgns = "http://www.w3.org/2000/svg";
 	const noteVisWidth = 1 / 128; //arbitrary size
 	const freqMin = 20, freqMax = 20000, octaveScale = 1 / Math.log2(freqMax / freqMin);
@@ -355,6 +373,9 @@ function loadAndPlay() {
 	}
 	//lastFreq = flatStruct[0].freq; //the first note may be actually noise...
 	lastFreq = 0;
+	lastFreq0 = 0;
+	lastNoteStart = 0;
+	lastPortamento = 0;
 	flatStruct.sort(function(a, b) {
 		let diff = a.noteStart - b.noteStart; //earlier start
 		if(diff === 0) diff = a.attack - b.attack; //quicker attack
