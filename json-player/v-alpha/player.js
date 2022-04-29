@@ -261,6 +261,8 @@ function drawNote(sourceNode) {
 		}
 	if(!freq) return false;
 
+	//to do: <g> element for grouping notes (and deleting them at once)
+	//to do: alternative blend modes such as lighten or hue?
 	let noteShape = document.createElementNS(svgns, "rect"), wid = noteVisWidth;
 	if (isNoise)
 		wid *= 16; //arbitrary factor
@@ -269,8 +271,10 @@ function drawNote(sourceNode) {
 			wid = Math.max(wid, 4 * sourceNode.modGainVibrato.gain.value / 1200 * octaveScale);
 	noteShape.setAttributeNS(null, "width", `${100 * wid}%`);
 	noteShape.setAttributeNS(null, "x", `${100 * (Math.log2(Math.abs(freq) / freqMin) * octaveScale - 0.5 * wid)}%`);
-	//noteShape.setAttributeNS(null, "height", "100%");
-	//noteShape.setAttributeNS(null, "y", "0");
+	//the attributes below are constant, so I could have replaced them with CSS;
+	//however, visualization would become impossible in the unlikely case that style sheets are disabled
+	noteShape.setAttributeNS(null, "height", "100%");
+	noteShape.setAttributeNS(null, "y", "0");
 
 	let vol = 1;
 	if(sourceNode.modGainDecay) vol *= sourceNode.modGainDecay.gain.value;
