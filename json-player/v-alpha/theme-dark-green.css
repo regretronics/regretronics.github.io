@@ -14,7 +14,8 @@ strong {
 	color: white;
 }
 h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
-	color: hsla(120, 100%, 12.5%, 1);
+	background-color: hsla(120, 100%, 87.5%, 0.75) !important;
+	color: hsla(120, 100%, 12.5%, 1) !important;
 }
 
 hr {
@@ -46,22 +47,30 @@ input::selection {
 button {
 	/*background-color: hsl(120, 0%, 75%);
 	color: hsl(120, 0%, 25%);*/
-	background-color: hsl(120, 25%, 12.5%);
+	background-color: hsl(120, 37.5%, 18.75%);
 	color: hsl(120, 50%, 75%);
 
-	border-top-color: hsla(120, 12.5%, 75%, 0.75);
-	border-right-color: hsla(120, 12.5%, 50%, 0.5);
-	border-left-color: hsla(120, 12.5%, 50%, 0.5);
-	border-bottom-color: hsla(120, 12.5%, 25%, 0.75);
+	border-style: solid;
+	border-top-color: hsla(120, 25%, 75%, 0.75);
+	border-right-color: hsla(120, 25%, 37.5%, 0.5);
+	border-left-color: hsla(120, 25%, 37.5%, 0.5);
+	border-bottom-color: hsla(120, 25%, 12.5%, 0.75);
+
+	transition: border-color 0.07s ease-out;
+}
+button:active {
+	border-top-color: hsla(120, 25%, 12.5%, 0.25);
+	border-bottom-color: hsla(120, 25%, 75%, 0.25);
 }
 input[type=number], input[type=text] {
 	background-color: hsl(120, 50%, 12.5%);
 	color: hsl(120, 50%, 87.5%);
 
-	border-top-color: hsla(120, 25%, 25%, 0.75);
+	border-style: solid;
+	border-top-color: hsla(120, 25%, 12.5%, 0.625);
 	border-right-color: hsla(120, 25%, 50%, 0.5);
 	border-left-color: hsla(120, 25%, 50%, 0.5);
-	border-bottom-color: hsla(120, 25%, 75%, 0.75);
+	border-bottom-color: hsla(120, 25%, 87.5%, 0.625);
 
 	/*border-image-source: linear-gradient(to bottom,
 		hsla(120, 25%, 25%, 0.75),
@@ -91,5 +100,5 @@ input.invalid {
 	background-color: hsla(0, 0%, 0%, 0.25);
 }
 linearGradient#noteFill1 stop {
-	stop-color: hsl(270, 75%, 75%);
+	stop-color: hsla(270, 75%, 75%, 0.875);
 }

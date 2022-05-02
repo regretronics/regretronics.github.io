@@ -6,6 +6,9 @@
 /*h1, h2, h3, p {
 	width: 100%;
 }*/
+details {
+	margin-bottom: 1.5em;
+}
 
 article, footer {
 	/*max-width: 120ch;*/
@@ -25,12 +28,12 @@ code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }
 
-#aStructDownload {
+#aStructDownload, #aAudioDownload {
 	display: none;
 }
 
 /*to do: fix check box vertical alignment*/
-button, input {
+button, input:not([type=checkbox]):not([type=radio]) {
 	font-size: 0.85em;
 	margin: 0.125em 0;
 }
@@ -95,11 +98,14 @@ input[type=checkbox] {
 .flex-row span {
 	flex-grow: 1;
 }
+.flex-row span.right {
+	flex-shrink: 1;
+}
 @media screen and (min-width: 96ch) {
 	.flex-row {
 		flex-wrap: nowrap;
 	}
-	.flex-row span {
+	.flex-row span:not(.right) {
 		flex-shrink: 0.5;
 	}
 }
@@ -146,10 +152,10 @@ input[type=checkbox] {
 
 #imgVisualizer {
 	width: 100%;
-	height: 4em;
-	/*margin: 0.5em auto;*/
+	height: 6em;
 }
-svg rect {
+/*svg rect {*/
+svg g {
 	/*y: 0;
 	height: 100%;*/
 	fill: url(#noteFill1);
@@ -164,11 +170,3 @@ svg rect {
 	vertical-align: text-bottom;
 	/*vertical-align: middle;*/
 }
-
-/*to do:
-@media (prefers-color-scheme: dark) {}
-@media (prefers-color-scheme: light) {}
-@media (prefers-contrast: more) {}
-@media (prefers-contrast: less) {}
-@media (prefers-contrast: no-preference) {}
-*/

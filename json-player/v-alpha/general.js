@@ -5,7 +5,8 @@
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
 //to do: (structured) music file upload to page
-//to do: return true more often? (in this case, start by searching for "return false")
+//to do: return true more often? (in this case, start by finding "return false" occurrences)
+//to do: consider radically changing flattened format: events (more like midi), supporting named notes
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -174,8 +175,8 @@ const elemNames = ["txtBaseFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCo
 	"txtVoiceCount", "txtReptCount", "txtReptPeriod", //generator parameters, additional
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
 	"ctlFlatScript", "ctlStructuredScript", //code editors
-	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", //other controls
-	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outGenCount" //output fields
+	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", "aAudioDownload", //other controls
+	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outGenCount", "outExportDuration", "outExportProgress" //output fields
 ];
 const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 var elems = {};
@@ -184,7 +185,7 @@ const timeDisplPrecision = 2;
 
 //look-up table to be used in an aspect of the volume envelope
 var releaseCurve;
-const releaseCurveSize = 512;
+const releaseCurveSize = 2048;
 
 //variability per prime factor (2, 3, 5, 7, ...)
 let maxPitches = null;
@@ -220,15 +221,11 @@ let textSize = 1;
 function rescaleText(f) {
 	if(!document || !document.body || !document.body.style) return false;
 	textSize *= f;
-	document.body.style.fontSize = textSize + "em";
+	//document.body.style.fontSize = textSize + "em";
+	document.children[0].style.fontSize = textSize + "em";
 }
 function overflowToggle(control) {
 	if(!control) return false;
-	/*if(control.style.height == "auto") {
-		control.style.height = "12em";
-	} else {
-		control.style.height = "auto";
-	}*/
 	control.classList.toggle("expanded");
 }
 function lineWrapToggle(control) {
@@ -271,8 +268,8 @@ function expSpinnerChanged(event) {
 	return true;
 }*/
 
-var rootFreq, playFreqScale, playVolScale;
 const defaultRootFreq = 440;
+var rootFreq = defaultRootFreq, playFreqScale = 1, playVolScale = 1;
 function baseFreqChanged() {
 	let ctl = elems.txtBaseFreq;
 	if(!ctl) return false;
@@ -291,12 +288,14 @@ function playFreqScaleChanged() {
 	if(!ctl) return false;
 	//if(ctl.valueAsNumber <= 0) ctl.stepUp();
 	playFreqScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.freqRatio);
+	if(playerClip) playerClip.playFreqScale = playFreqScale;
 }
 function playVolScaleChanged() {
 	let ctl = elems.txtPlayVolScale;
 	if(!ctl) return false;
 	//if(ctl.valueAsNumber < 0) ctl.stepUp();
 	playVolScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.volRatio);
+	if(playerClip) playerClip.playVolScale = playVolScale;
 }
 
 //rhythm structure data (hierarchy of factors)
@@ -305,14 +304,14 @@ function rhythmAccumUpdate() {
 	if(!rhythmFactors) rhythmFactors = [];
 	let factors = rhythmFactors.slice(); //array clone
 	let product = 1;
-	rhythmFactorsAccum = [];
+	rhythmFactorsAccum = [1];
 	while(factors.length > 0) {
 		product *= factors.pop(); //reverse traversal
 		rhythmFactorsAccum.unshift(product); //add as first
 	}
+	//rhythmFactorsAccum.push(1);
 	if(elems.outRhythmScales) elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	rhythmFactors.push(1);
-	rhythmFactorsAccum.push(1);
 }
 function rhythmFactorsChanged() {
 	//to do: support sums (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
@@ -340,19 +339,11 @@ function rhythmFactorsChanged() {
 	//note: empty structures now allowed
 	//let rhythmValid = true;
 	try {
-		if(rhythmFactors.some(x => x == 0)) { //has zeroes?
-			//rhythmValid = false;
-			//elems.txtRhythmFactors.setCustomValidity();
-			//return false;
+		if(rhythmFactors.some(x => x == 0)) //has zeroes?
 			throw "Rhythm factors can't include zero.";
-		}
 		
-		if(rhythmFactors.some(x => isNaN(x))) { //unparsed expressions?
-			//rhythmValid = false;
-			//elems.txtRhythmFactors.setCustomValidity("");
-			//return false;
+		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
 			throw "Unrecognized numerical expression in rhythm formula.";
-		}
 
 		elems.txtRhythmFactors.classList.remove("invalid");
 		elems.txtRhythmFactors.setCustomValidity("");
@@ -487,8 +478,18 @@ function setToolTip(event) {
 	}
 }
 
-var lastObjURL = null;
-function prepareDownload() {
+let lastCodeObjURL = null;
+function getDateTimeCode(size) {
+	if(size < 1) return "";
+	let now = new Date();
+	let dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()];
+	if(size < 7) dArr.length = size;
+	let dPadding = [4, 2, 2, 2, 2, 2, 3];
+	for(let i in dArr)
+		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0");
+	return dArr.join("-");
+}
+function prepareStructDownload() {
 	if(!elems.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 	let data = [elems.ctlStructuredScript.innerText];
@@ -496,12 +497,7 @@ function prepareDownload() {
 	let properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 
 	//date for file name
-	let now = new Date();
-	let dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes()];
-	let dPadding = [4, 2, 2, 2, 2, 2, 3];
-	for(let i in dArr)
-		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0");
-	let fileName = dArr.join("-") + ".mus.json";
+	let fileName = getDateTimeCode(5) + ".mus.json";
 
 	try {
 		//specify the filename using the File constructor, but...
@@ -510,16 +506,16 @@ function prepareDownload() {
 		//...fall back to the Blob constructor if that isn't supported.
 		file = new Blob(data, properties);
 	}
-	if(lastObjURL) URL.revokeObjectURL(lastObjURL);
-	lastObjURL = URL.createObjectURL(file);
+	if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
+	lastCodeObjURL = URL.createObjectURL(file);
 
 	if(!elems.aStructDownload) return false;
-	elems.aStructDownload.setAttribute('href', lastObjURL);
+	elems.aStructDownload.setAttribute('href', lastCodeObjURL);
 	elems.aStructDownload.setAttribute('download', fileName);
 	return true;
 }
 function structDownload(event) {
-	if(!prepareDownload()) return false;
+	if(!prepareStructDownload()) return false;
 
 	/*let newEvent = new MouseEvent('click');
 	elems.aStructDownload.dispatchEvent(newEvent);*/

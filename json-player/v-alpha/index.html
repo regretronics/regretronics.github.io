@@ -7,11 +7,12 @@
 	<title>JSON music format</title>
 
 	<link rel="stylesheet" type="text/css" href="general.css" />
-	<link rel="stylesheet" type="text/css" href="theme-dark-green.css" title="Dark, green" />
+	<link rel="stylesheet" type="text/css" href="theme-auto-green.css" media="screen" title="Automatic/green" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-null.css" title="Null (vanilla)" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-dark-green.css" title="Dark, green" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-light-green.css" title="Light, green" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-dark-hicon.css" title="Dark, high contrast" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-light-hicon.css" title="Light, high contrast" />
-	<!--to do: light theme-->
 	<!--<style type="text/css">/*<![CDATA[*/
 	/*]]>*/</style>-->
 
@@ -57,7 +58,9 @@
 		document.getElementById("txtPlayVolScale").addEventListener("input", playVolScaleChanged);
 		document.getElementById("btnPlay").addEventListener("click", loadAndPlay);
 		document.getElementById("btnPause").addEventListener("click", pauseToggle);
-		document.getElementById("btnStop").addEventListener("click", stop);
+		document.getElementById("btnStop").addEventListener("click", playerStop);
+		document.getElementById("btnAudioExport").addEventListener("click", audioExport);
+		document.getElementById("btnAudioExportCancel").addEventListener("click", audioExportCancel);
 
 		for(const elem of document.getElementsByClassName("codeEditor")) {
 			elem.addEventListener("keydown", editorKeyDown);
@@ -72,7 +75,7 @@
 				if(tagIndex === 0) elem.addEventListener("input", setToolTip);
 			} else
 				elem.addEventListener("click", setToolTip);
-			elem.addEventListener("pointerdown", setToolTip); //didn't work as I expected in Chrome mobile
+			elem.addEventListener("pointerdown", setToolTip); //didn't work as I expected in Chrome mobile; to do: try mousedown, touchstart
 		}
 
 		primeCountChanged();
@@ -152,14 +155,14 @@
 			<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
 		</span> <wbr />
 		<span class="right">
-			<a id="aStructDownload" href=""></a>
+			<a id="aStructDownload" href="" hidden=""></a>
 			<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
 			<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
 			<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
 		</span>
 	</p>
 	<!--<textarea style="width: 100%;"></textarea>-->
-	<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false">
+	<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off">
 {
 	"freqRatio": 440,
 	"volRatio": 0.5,
@@ -190,7 +193,7 @@
 		</span>
 		<!--to do: new parameter for repeating the whole structure? (probably made unnecessary by auto-reload)-->
 	</p>
-	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" title="">
+	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" title="">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
  {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
 	<p><strong>Overall&nbsp;controls:</strong> 
@@ -218,25 +221,41 @@
 			<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount">0</output>.</span>
 		</span>
 	</p>
-	<p id="outToolTip">A description of the selected control will appear here.</p>
 
-	<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
-	<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%">
-		<defs>
-			<linearGradient id="noteFill1" x1="0%" y1="0%" x2="100%" y2="0%">
-				<!--opacities based on binomial distribution: 1, 8, 28, 56, 70, 56, 28, 8, 1-->
-				<stop offset="0%" style="stop-opacity: 0.014285714" />
-				<stop offset="12.5%" style="stop-opacity: 0.114285714" />
-				<stop offset="25%" style="stop-opacity: 0.4" />
-				<stop offset="37.5%" style="stop-opacity: 0.8" />
-				<stop offset="50%" style="stop-opacity: 1" />
-				<stop offset="62.5%" style="stop-opacity: 0.8" />
-				<stop offset="75%" style="stop-opacity: 0.4" />
-				<stop offset="87.5%" style="stop-opacity: 0.114285714" />
-				<stop offset="100%" style="stop-opacity: 0.014285714" />
-			</linearGradient>
-		</defs>
-	</svg>
+	<p>
+		<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
+		<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
+			<defs>
+				<linearGradient id="noteFill1" x1="0%" y1="0%" x2="100%" y2="0%">
+					<!--opacities based on binomial distribution: 1, 8, 28, 56, 70, 56, 28, 8, 1-->
+					<stop offset="0%" style="stop-opacity: 0.014285714" />
+					<stop offset="12.5%" style="stop-opacity: 0.114285714" />
+					<stop offset="25%" style="stop-opacity: 0.4" />
+					<stop offset="37.5%" style="stop-opacity: 0.8" />
+					<stop offset="50%" style="stop-opacity: 1" />
+					<stop offset="62.5%" style="stop-opacity: 0.8" />
+					<stop offset="75%" style="stop-opacity: 0.4" />
+					<stop offset="87.5%" style="stop-opacity: 0.114285714" />
+					<stop offset="100%" style="stop-opacity: 0.014285714" />
+				</linearGradient>
+			</defs>
+		</svg>
+	</p>
+
+	<details>
+		<summary><strong>Audio export to file:</strong></summary>
+		<!--to do: format selector, sample rate-->
+		<!--to do: ...use WebCodecs-->
+		<p>
+			<a id="aAudioDownload" href="" hidden=""></a>
+			<button id="btnAudioExport">Export</button>
+			<button id="btnAudioExportCancel">Cancel</button>
+			<span class="cell">Clip duration: <wbr /><output id="outExportDuration">0</output> s.</span>
+			<span class="cell">Progress: <wbr /><output id="outExportProgress">0%</output>.</span>
+		</p>
+	</details>
+
+	<p id="outToolTip">A description of the selected control will appear here.</p>
 
 	<article>
 		<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some musical theory. Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for rhythmic structure and harmony.</p>
