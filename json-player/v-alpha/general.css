@@ -167,6 +167,6 @@ svg g {
 #title-icon img {
 	height: 1em;
 	width: auto;
-	vertical-align: text-bottom;
-	/*vertical-align: middle;*/
+	/*vertical-align: text-bottom;*/
+	vertical-align: middle;
 }

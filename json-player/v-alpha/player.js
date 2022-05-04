@@ -546,18 +546,27 @@ function pauseToggle() {
 	audioTimer();
 }
 
-let lastAudioObjURL = null;
+let lastAudioObjURL = null, exportType = "";
 function audioDownload(data) {
 	if(!data) return false;
-	let file;
-	let fileName = getDateTimeCode(5) + ".opus.ogg";
-	let properties = {type: 'audio/ogg; codecs=opus'}; //constructor parameters: container's MIME-type, and encoding.
+	let file, fileName = getDateTimeCode(5);
+	if(exportType.includes("codecs=opus")) fileName += ".opus";
+	if(exportType.startsWith("audio/ogg"))
+		fileName += ".ogg";
+	else
+		if(exportType.startsWith("audio/webm"))
+			fileName += ".webm";
+	//let properties = {type: 'audio/webm; codecs=opus'}; //constructor parameters: container's MIME-type, and encoding.
+	//let properties = {type: 'audio/webm'}; //constructor parameters: container's MIME-type.
+	//let properties = {};
 	try {
 		//specify the filename using the File constructor, but...
-		file = new File(data, fileName, properties);
+		//file = new File(data, fileName, properties);
+		file = new File(data, fileName);
 	} catch(error) {
 		//...fall back to the Blob constructor if that isn't supported.
-		file = new Blob(data, properties);
+		///file = new Blob(data, properties);
+		file = new Blob(data);
 	}
 	if(lastAudioObjURL) URL.revokeObjectURL(lastAudioObjURL);
 	lastAudioObjURL = URL.createObjectURL(file);
@@ -570,6 +579,7 @@ function audioDownload(data) {
 	let sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
 	if(elems.outExportProgress)
 		elems.outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
+	exportType = "";
 }
 let mediaRecorder, chunks = [], exportClip = null;
 function exportClipEnd() {
@@ -586,12 +596,12 @@ function exportClipEnd() {
 }
 function exportAudioTimer() {
 	if(!exportClip) return false;
-	if(!exportClip.playing || !exportClip.audioCtx || !exportClip.flatStruct) return false;
+	if(!exportClip.playing || !exportClip.audioCtx) return false;
 	//question: trunc instead of round for time?
 	if(elems.outExportProgress)
 		elems.outExportProgress.innerText = (100 * (exportClip.audioCtx.currentTime) / (exportClip.duration + exportClip.t0)).toFixed(2) + "%";
 	//if((exportClip.flatStruct.length < 1) && (exportClip.audioCtx.currentTime - exportClip.t0 > exportClip.duration)) {
-	if((exportClip.audioCtx.state !== 'suspended') && (exportClip.audioCtx.currentTime - exportClip.t0 > 0) && (exportClip.generators.length < 1) && (!exportClip.flatStruct || (exportClip.flatStruct.length < 1))) {
+	if((exportClip.audioCtx.state !== 'suspended') && (exportClip.audioCtx.currentTime - exportClip.t0 > 0) && (exportClip.generators.length < 1)) {
 		console.log("exportAudioTimer: will stop exporting.");
 		exportClipEnd();
 		return;
@@ -603,6 +613,7 @@ function audioExport() {
 	if(exportClip && exportClip.playing) return false;
 	exportClip = new loadNewClip();
 	exportClip.onEnd = exportClipEnd;
+	if(elems.outExportProgress) elems.outExportProgress.innerText = "Note list loaded";
 	if(elems.outExportDuration) elems.outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
 	//to do: stop AudioContext playback? (probably unnecessary)
 	const sampleRate = 48000; //will become a variable later
@@ -620,8 +631,14 @@ function audioExport() {
 	let dest = exportClip.audioCtx.createMediaStreamDestination();
 	//let dest = new MediaStreamAudioDestinationNode(exportClip.audioCtx, {channelCount: 1});
 	exportClip.destNode = dest;
-	//to do: MediaRecorder.isTypeSupported()
-	mediaRecorder = new MediaRecorder(dest.stream, {mimeType: 'audio/ogg; codecs=opus'});
+
+	//audio/ogg, audio/webm, audio/mp4, audio/3gp2, audio/mpeg
+	//codecs={vorbis, opus, mp4a.40.1 (AAC main), mp4a.40.34 (MP3)}
+	exportType = 'audio/webm; codecs=opus'; //fallback: this is apparently the only thing that Opera supports
+	let _exportType = 'audio/ogg; codecs=opus';
+	if(MediaRecorder.isTypeSupported(_exportType)) exportType = _exportType;
+	mediaRecorder = new MediaRecorder(dest.stream, {mimeType: exportType});
+	if(elems.outExportFormat) elems.outExportFormat.innerText = exportType;
 	mediaRecorder.ondataavailable = function(event) {
 		//push each chunk (blobs) in an array
 		console.log("MediaRecorder.ondataavailable event");
@@ -634,9 +651,9 @@ function audioExport() {
 
 	enqueueNotes(exportClip, lastT, Infinity);
 	//console.log("audioExport(): enqueueNotes done.");
+	if(elems.outExportProgress) elems.outExportProgress.innerText = "Starting";
 	mediaRecorder.start();
-	exportClip.audioCtx.resume();
-	exportAudioTimer();
+	exportClip.audioCtx.resume().then(exportAudioTimer);
 	/*mediaRecorder.requestData();
 	mediaRecorder.stop();*/
 

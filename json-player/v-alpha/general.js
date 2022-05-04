@@ -176,7 +176,7 @@ const elemNames = ["txtBaseFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCo
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
 	"ctlFlatScript", "ctlStructuredScript", //code editors
 	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", "aAudioDownload", //other controls
-	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outGenCount", "outExportDuration", "outExportProgress" //output fields
+	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outGenCount", "outExportFormat", "outExportDuration", "outExportProgress" //output fields
 ];
 const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 var elems = {};
