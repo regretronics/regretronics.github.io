@@ -314,7 +314,7 @@ function rhythmAccumUpdate() {
 	rhythmFactors.push(1);
 }
 function rhythmFactorsChanged() {
-	//to do: support sums (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
+	//to do: support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
 	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 3*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1) + (1 + 1))?
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
 	if(!elems.txtRhythmFactors) return false;
@@ -337,7 +337,6 @@ function rhythmFactorsChanged() {
 	}
 	//to do: invalidate factors below 1? and negative factors?
 	//note: empty structures now allowed
-	//let rhythmValid = true;
 	try {
 		if(rhythmFactors.some(x => x == 0)) //has zeroes?
 			throw "Rhythm factors can't include zero.";
@@ -407,6 +406,7 @@ function editorKeyDown(event) {
 			document.execCommand("insertText", false, "\t");
 		}
 	}
+	//to do: home key goes past initial indentation?
 }
 function editorInput(event) {
 	if(!event || !event.target || !event.target.classList) return false;
@@ -455,12 +455,7 @@ function setToolTip(event) {
 	if(!elems.outToolTip) return false;
 	let elem = event.target;
 	if(!elem) return false;
-	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && (document.activeElement != elem)) return false;
-	/*let description = elem.title;
-	if((typeof(description) === "string") && (description.length > 0)) {
-		elems.outToolTip.innerText = description;
-		elems.outToolTip.style.position = "sticky";
-	}*/
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && (document.activeElement != elem)) return false; //could have focus -> should have focus
 
 	let sentences = [];
 	let description = elem.title;
@@ -489,16 +484,16 @@ function getDateTimeCode(size) {
 		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0");
 	return dArr.join("-");
 }
-function prepareStructDownload() {
+function structDownload(event) {
 	if(!elems.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 	let data = [elems.ctlStructuredScript.innerText];
 	let file;
 	let properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
-
+	
 	//date for file name
 	let fileName = getDateTimeCode(5) + ".mus.json";
-
+	
 	try {
 		//specify the filename using the File constructor, but...
 		file = new File(data, fileName, properties);
@@ -508,16 +503,13 @@ function prepareStructDownload() {
 	}
 	if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 	lastCodeObjURL = URL.createObjectURL(file);
-
+	
 	if(!elems.aStructDownload) return false;
 	elems.aStructDownload.setAttribute('href', lastCodeObjURL);
 	elems.aStructDownload.setAttribute('download', fileName);
-	return true;
-}
-function structDownload(event) {
-	if(!prepareStructDownload()) return false;
-
+	
 	/*let newEvent = new MouseEvent('click');
 	elems.aStructDownload.dispatchEvent(newEvent);*/
 	elems.aStructDownload.click();
+	return true;
 }

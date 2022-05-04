@@ -123,8 +123,8 @@ function makeRhythmFactors() {
 				factor = primes[Math.floor(primeCount * rnd * rnd)];
 			} while(factor > scale);
 			rhythmFactors.push(factor);
-		} else
-			rhythmFactors.push(1); //at least factor one
+		} //else
+		//	rhythmFactors.push(1); //at least factor one
 	}
 
 	if(elems.txtRhythmFactors) elems.txtRhythmFactors.value = rhythmFactors.join("*");
@@ -159,7 +159,7 @@ function rhythmSubNodes(struct, level, tuning) {
 
 	let freqDummy = {2: 0};
 	tuning *= beats;
-	limitFreq(tuning, freqDummy);
+	limitFreq(tuning, freqDummy); //not THAT high
 	let subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling
 		
@@ -280,7 +280,7 @@ function melodySubNodes(struct, level, tuning) {
 	let scale = rhythmFactorsAccum[level];
 	let subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling
-		freqRatio: beats,
+		freqRatio: beats, //faster scales are higher-pitched
 		volRatio: "1/" + beats,
 
 		duration: 0,
@@ -353,7 +353,7 @@ function melodySubNodes(struct, level, tuning) {
 		if((iPrime > 1) && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) newNode.freq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 		if(iPrime >= 1) renormalizeOctave(previous.freq, newNode.freq);
 		//if(i === 0) newNode.freq[2]++; //first beat -> new voice level -> one octave up
-		limitFreq(tuning, newNode.freq);
+		limitFreq(tuning, newNode.freq); //not THAT high
 
 		melodySubNodes(newNode, level + 1, tuning);
 	}

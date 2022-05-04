@@ -1,6 +1,5 @@
 "use strict";
 
-//to do: output to file (e.g. .opus) (try AudioContext.createMediaStreamDestination)
 //to do: iterative self-filtering for subtractive synthesis?
 //to do: array variable or boolean-indexed object for pause button caption per playback state
 
@@ -9,17 +8,19 @@
 let playerClip = null;
 
 //constructor
-function SoundClip(flatStruct, songDuration, playTimeScale, playTimeDelta, playVolScale, playFreqScale) {
+function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale) {
 	Object.assign(this, {
-		audioCtx: null, noiseBuffer: null, destNode: null, playing: false, onEnd: null,
-		generators: [], auxNodes: [], flatStruct: null, t0: 0, songDuration: 0,
-		playTimeScale: 1, playTimeDelta: 0, playVolScale: 1, playFreqScale: 1,
-		lastFreq: 0, lastFreq0: 0, lastNoteStart: 0, lastPortamento: 0
+		audioCtx: null, noiseBuffer: null, destNode: null, //variables for Web Audio
+		playing: false, t0: 0, duration: 0, //miscellaneous clip properties
+		onEnd: null, //events for custom behavior
+		generators: [], auxNodes: [], flatStruct: null, //node and note lists
+		playTimeScale: 1, playTimeDelta: 0, playVolScale: 1, playFreqScale: 1, //overall controls
+		lastFreq: 0, lastFreq0: 0, lastNoteStart: 0, lastPortamento: 0 //portamento variables
 	});
 	if(arguments.length < 1) return;
 	this.flatStruct = flatStruct;
 	if(arguments.length < 2) return;
-	this.songDuration = songDuration;
+	this.duration = duration;
 	if(arguments.length < 3) return;
 	this.playTimeScale = playTimeScale;
 	if(arguments.length < 4) return;
@@ -29,9 +30,6 @@ function SoundClip(flatStruct, songDuration, playTimeScale, playTimeDelta, playV
 	if(arguments.length < 6) return;
 	this.playFreqScale = playFreqScale;
 }
-
-//variables for web audio
-//let audioCtx = null, noiseBuffer = null;
 
 const noiseBufferTime = 86400 / 4096; //seconds
 function createNoiseBuffer(audioCtx) {
@@ -62,9 +60,6 @@ function removeFrom(arr, item) {
 	if(i >= 0) arr.splice(i, 1);
 }
 
-//let generators = [], auxNodes = [];
-//let t0 = 0, songDuration = 0;
-
 //event handler for generator audio nodes
 function defOnEnded() {
 	if(!this) return;
@@ -90,15 +85,13 @@ function defOnEnded() {
 	removeFrom(auxNodes, this.modGainRelease);
 	removeFrom(auxNodes, this.modGainVibrato);
 
-	if(!clip.audioCtx || (clip.generators.length < 1) && (clip.audioCtx.currentTime - clip.t0 > clip.songDuration) && (!clip.flatStruct || (clip.flatStruct.length < 1))) {
+	if(!clip.audioCtx || (clip.generators.length < 1) && (clip.audioCtx.currentTime - clip.t0 > clip.duration) && (!clip.flatStruct || (clip.flatStruct.length < 1))) {
 		console.log("defOnEnded: will stop playback.");
 		if(clip.onEnd) clip.onEnd();
 		//return;
 	}
 }
 
-//let flatStruct, playTimeScale = 1;
-//let lastFreq, lastFreq0, lastNoteStart, lastPortamento;
 function newToneNode(clip, noteFreq, minStart, portamento, freq0) {
 	//note: negative frequency causes phase inversion (at least in Ffx 100)
 	let sourceNode = new OscillatorNode(clip.audioCtx, {type: "sine", frequency: noteFreq});
@@ -245,7 +238,6 @@ function renderNote(clip, note) {
 }
 function enqueueNotes(clip, tNow, tMargin) {
 	if(!clip) return false;
-	//to do: clip. ...
 	if(!clip.audioCtx) return false;
 	tNow /= clip.playTimeScale; //to do: move the divisions outside this procedure (to facilitate variable time scale)?
 	tMargin /= clip.playTimeScale;
@@ -259,7 +251,7 @@ function enqueueNotes(clip, tNow, tMargin) {
 		//in the flattened structure, all notes must have (non-zero) frequency
 		if(!note.freq) continue; //note: negative frequency is allowed
 		//if(note.noteStop <= note.noteStart) continue;
-		if(note.noteStop === note.noteStart) continue;
+		if(note.noteStop === note.noteStart) continue; //note: negative length is not rejected
 		if(note.vol === 0) continue; //negative amplitude is allowed, but zero amplitude not played
 		if(note.noteStop < tNow) continue;
 		try {
@@ -270,7 +262,6 @@ function enqueueNotes(clip, tNow, tMargin) {
 	}
 }
 
-//let playing = false;
 function audioTUpdate() {
 	if(!playerClip) return false;
 	//question: trunc instead of round for time?
@@ -278,7 +269,6 @@ function audioTUpdate() {
 		elems.outAudioT.innerText = (playerClip.audioCtx.currentTime - playerClip.t0).toFixed(timeDisplPrecision);
 	if(elems.outGenCount) elems.outGenCount.innerText = playerClip.generators.length.toString();
 }
-//to do: idea: scrolling like piano roll
 const visSliceCount = 16;
 const svgNS = "http://www.w3.org/2000/svg";
 function drawNote(group, sourceNode) {
@@ -287,7 +277,6 @@ function drawNote(group, sourceNode) {
 
 	let freq, isNoise;
 	if(sourceNode.frequency) {
-		//freq = sourceNode.frequency.value;
 		freq = sourceNode.frequency.value * 2 ** (sourceNode.detune.value / 1200);
 		isNoise = false;
 	} else
@@ -297,24 +286,17 @@ function drawNote(group, sourceNode) {
 		}
 	if(!freq) return false;
 
-	//to do: <g> element for grouping notes (and deleting them at once)
 	//to do: alternative blend modes such as lighten or hue?
 	let noteShape = document.createElementNS(svgNS, "rect"), wid = noteVisWidth;
-	//group.appendChild(noteShape);
 	if(isNoise)
 		wid *= 16; //arbitrary factor
 	else
 		if(sourceNode.modGainVibrato)
 			wid = Math.max(wid, 4 * sourceNode.modGainVibrato.gain.value / 1200 * octaveScale);
-	/*noteShape.setAttributeNS(null, "width", `${100 * wid}%`);
-	noteShape.setAttributeNS(null, "x", `${100 * (Math.log2(Math.abs(freq) / freqMin) * octaveScale - 0.5 * wid)}%`);*/
 	noteShape.setAttributeNS(null, "width", wid.toString());
 	noteShape.setAttributeNS(null, "x", (Math.log2(Math.abs(freq) / freqMin) * octaveScale - 0.5 * wid).toString());
 	//the attributes below are constant, so I could have replaced them with CSS;
 	//however, visualization would become impossible in the unlikely case that style sheets are disabled
-	//noteShape.setAttributeNS(null, "height", "100%");
-	/*noteShape.setAttributeNS(null, "height", `${100 / visSliceCount}%`);
-	noteShape.setAttributeNS(null, "y", "0%");*/
 	noteShape.setAttributeNS(null, "height", (1 / visSliceCount).toString());
 	noteShape.setAttributeNS(null, "y", "0");
 
@@ -324,9 +306,8 @@ function drawNote(group, sourceNode) {
 	if(sourceNode.modGainRelease) vol *= sourceNode.modGainRelease.gain.value;
 	noteShape.setAttributeNS(null, "opacity", Math.sqrt(Math.abs(vol)).toString());
 	
-	//elems.imgVisualizer.appendChild(noteShape);
 	group.appendChild(noteShape);
-	//elems.imgVisualizer.append(noteShape);
+	//group.append(noteShape);
 }
 const audioTimerInterval = 86400 * 0.5 ** 21;
 //to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
@@ -337,7 +318,7 @@ function audioTimer() {
 	if(!playerClip.playing || !playerClip.audioCtx || !playerClip.flatStruct) return false;
 	//playerClip.playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
 	audioTUpdate();
-	//if((playerClip.flatStruct.length < 1) && (playerClip.audioCtx.currentTime - playerClip.t0 > playerClip.songDuration)) {
+	//if((playerClip.flatStruct.length < 1) && (playerClip.audioCtx.currentTime - playerClip.t0 > playerClip.duration)) {
 	if((playerClip.audioCtx.state !== 'suspended') && (playerClip.audioCtx.currentTime - playerClip.t0 > 0) && (playerClip.generators.length < 1) && (!playerClip.flatStruct || (playerClip.flatStruct.length < 1))) {
 		console.log("audioTimer: will stop playback.");
 		playerStop();
@@ -354,25 +335,17 @@ function audioTimer() {
 	
 	//if(playerClip.audioCtx.state === 'suspended') return;
 	if(elems.imgVisualizer) {
-		/*let firstChild; //visualizer: clear
-		firstChild = elems.imgVisualizer.firstElementChild; //avoid deleting the <defs> element
-		while(firstChild.nextElementSibling) firstChild.nextElementSibling.remove();*/
 		//scroll
 		let slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
-		/*let slice = slices.firstElementChild;
-		while((slices.length > 0) && slice) {
-			slice = slice.nextElementSibling;
-		}*/
 		for(let i = slices.length - 1; i >= 0; i--) {
 			const slice = slices[i];
 			let t = parseFloat(slice.getAttribute("data-t"));
 			let newY = t + visSliceCount - visT;
 			if(newY <= -1) {
-				slice.remove();
+				slice.remove(); //it's easier to delete when we use groups
 				continue;
 			}
 			newY /= visSliceCount;
-			//slice.setAttributeNS(null, "y", `${newY}%`);
 			slice.setAttributeNS(null, "transform", `translate(0 ${newY})`);
 		}
 	}
@@ -383,9 +356,7 @@ function audioTimer() {
 		let slice = document.createElementNS(svgNS, "g");
 		slice.setAttributeNS(null, "class", "vis-slice");
 		slice.setAttributeNS(null, "data-t", visT.toString());
-		//slice.setAttributeNS(null, "transform", `translate(0 ${100 * (visSliceCount - 1) / visSliceCount})`);
 		slice.setAttributeNS(null, "transform", `translate(0 ${(visSliceCount - 1) / visSliceCount})`);
-		//slice.setAttributeNS(null, "transform", `translate(0 ${-100 * visT / visSliceCount})`);
 		elems.imgVisualizer.appendChild(slice);
 		for(const node of playerClip.generators)
 			try {
@@ -425,7 +396,7 @@ function loadNewClip() {
 	if(!flatStruct) return false;
 
 	//estimate total clip duration and fills order-dependent implied noteStart's
-	let songDuration = 0;
+	let duration = 0;
 	let len = flatStruct.length;
 	let lastNoteStop = 0;
 	for(let i = 0, note; i < len; i++) {
@@ -446,7 +417,7 @@ function loadNewClip() {
 		} else
 			//question: should trailing zero-length notes influence clip total duration?
 			if(note.noteStop == note.noteStart) continue; //(currently no.)
-		songDuration = Math.max(songDuration, playTimeScale * note.noteStop);
+		duration = Math.max(duration, playTimeScale * note.noteStop);
 	}
 	if(len <= 0) return false;
 	//lastFreq = flatStruct[0].freq; //the first note may be actually noise...
@@ -457,7 +428,7 @@ function loadNewClip() {
 		return diff;
 	});
 	
-	let clip = new SoundClip(flatStruct, songDuration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
+	let clip = new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
 	return clip;
 }
 function loadAndPlay() {
@@ -475,7 +446,7 @@ function loadAndPlay() {
 	playerClip.onEnd = playerStop;
 
 	if(elems.outNoteCount) elems.outNoteCount.innerText = playerClip.flatStruct.length.toString();
-	if(elems.outAudioDur) elems.outAudioDur.innerText = playerClip.songDuration.toFixed(timeDisplPrecision);
+	if(elems.outAudioDur) elems.outAudioDur.innerText = playerClip.duration.toFixed(timeDisplPrecision);
 	if(playerClip.flatStruct.length <= 0)
 		if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 
@@ -496,9 +467,8 @@ function loadAndPlay() {
 	visT = 0;
 	if(elems.imgVisualizer) {
 		let slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
-		for(let i = slices.length - 1; i >= 0; i--) {
+		for(let i = slices.length - 1; i >= 0; i--)
 			slices[i].remove();
-		}
 	}
 	audioTimer();
 	enqueueNotes(playerClip, -playerClip.playTimeDelta, 2 * audioTimerInterval);
@@ -524,14 +494,12 @@ function stopClip(clip) {
 		}
 		node.disconnect();
 	}
-	//clip.generators = [];
 	clip.generators.length = 0;
 
 	for(const node of clip.auxNodes) node.disconnect();
-	//clip.auxNodes = [];
 	clip.auxNodes.length = 0;
 
-	clip.songDuration = 0;
+	clip.duration = 0;
 	clip.playing = false;
 
 	/*try {
@@ -582,8 +550,8 @@ let lastAudioObjURL = null;
 function audioDownload(data) {
 	if(!data) return false;
 	let file;
-	let fileName = getDateTimeCode(5) + ".opus";
-	let properties = {type: 'audio/ogg; codecs=opus'}; //constructor parameters: file's MIME-type.
+	let fileName = getDateTimeCode(5) + ".opus.ogg";
+	let properties = {type: 'audio/ogg; codecs=opus'}; //constructor parameters: container's MIME-type, and encoding.
 	try {
 		//specify the filename using the File constructor, but...
 		file = new File(data, fileName, properties);
@@ -611,6 +579,7 @@ function exportClipEnd() {
 	if(mediaRecorder) {
 		mediaRecorder.requestData();
 		mediaRecorder.stop();
+		mediaRecorder = null;
 	}
 	exportClip.audioCtx.close();
 	exportClip = null;
@@ -618,27 +587,26 @@ function exportClipEnd() {
 function exportAudioTimer() {
 	if(!exportClip) return false;
 	if(!exportClip.playing || !exportClip.audioCtx || !exportClip.flatStruct) return false;
-	//exportClip.playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
 	//question: trunc instead of round for time?
 	if(elems.outExportProgress)
-		elems.outExportProgress.innerText = (100 * (exportClip.audioCtx.currentTime) / (exportClip.songDuration + exportClip.t0)).toFixed(2) + "%";
-	//if((exportClip.flatStruct.length < 1) && (exportClip.audioCtx.currentTime - exportClip.t0 > exportClip.songDuration)) {
+		elems.outExportProgress.innerText = (100 * (exportClip.audioCtx.currentTime) / (exportClip.duration + exportClip.t0)).toFixed(2) + "%";
+	//if((exportClip.flatStruct.length < 1) && (exportClip.audioCtx.currentTime - exportClip.t0 > exportClip.duration)) {
 	if((exportClip.audioCtx.state !== 'suspended') && (exportClip.audioCtx.currentTime - exportClip.t0 > 0) && (exportClip.generators.length < 1) && (!exportClip.flatStruct || (exportClip.flatStruct.length < 1))) {
-		console.log("exportAudioTimer: will stop playback.");
+		console.log("exportAudioTimer: will stop exporting.");
 		exportClipEnd();
 		return;
 	}
 	if(exportClip.audioCtx.state === 'closed') return;
-	window.setTimeout(exportAudioTimer, audioTimerInterval * 1000);
+	window.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000);
 }
 function audioExport() {
 	if(exportClip && exportClip.playing) return false;
 	exportClip = new loadNewClip();
 	exportClip.onEnd = exportClipEnd;
-	if(elems.outExportDuration) elems.outExportDuration.innerText = (exportClip.songDuration).toFixed(timeDisplPrecision);
+	if(elems.outExportDuration) elems.outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
 	//to do: stop AudioContext playback? (probably unnecessary)
 	const sampleRate = 48000; //will become a variable later
-	//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.songDuration, sampleRate);
+	//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.duration, sampleRate);
 	exportClip.audioCtx = new AudioContext({latencyHint: "playback", sampleRate: sampleRate});
 	exportClip.audioCtx.suspend();
 	//exportClip.destNode = exportClip.audioCtx.destination;
@@ -653,8 +621,7 @@ function audioExport() {
 	//let dest = new MediaStreamAudioDestinationNode(exportClip.audioCtx, {channelCount: 1});
 	exportClip.destNode = dest;
 	//to do: MediaRecorder.isTypeSupported()
-	//let mediaRecorder = new MediaRecorder(dest.stream);
-	mediaRecorder = new MediaRecorder(dest.stream);
+	mediaRecorder = new MediaRecorder(dest.stream, {mimeType: 'audio/ogg; codecs=opus'});
 	mediaRecorder.ondataavailable = function(event) {
 		//push each chunk (blobs) in an array
 		console.log("MediaRecorder.ondataavailable event");
@@ -684,7 +651,7 @@ function audioExport() {
 		console.log("audioCtx startRendering promise then end");
 	}).catch(function(err) {
 		console.log('Rendering failed: ' + err);
-		// Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
+		//Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
 	});*/
 }
 function audioExportCancel() {
@@ -694,6 +661,7 @@ function audioExportCancel() {
 	if(mediaRecorder) {
 		//mediaRecorder.onstop = null; //question: allow partial download? (currently yes)
 		mediaRecorder.stop();
+		mediaRecorder = null;
 	}
 	exportClip.audioCtx.close();
 	exportClip = null;
