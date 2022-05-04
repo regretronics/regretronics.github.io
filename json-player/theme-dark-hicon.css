@@ -56,6 +56,12 @@ button {
 	border-right-color: hsla(120, 0%, 25%, 0.25);
 	border-left-color: hsla(120, 0%, 25%, 0.25);
 	border-bottom-color: hsla(120, 0%, 0%, 1);
+
+	transition: border-color 0.07s ease-out;
+}
+button:active {
+	border-top-color: hsla(120, 0%, 0%, 0.5);
+	border-bottom-color: hsla(120, 0%, 100%, 0.25);
 }
 input[type=number], input[type=text] {
 	background-color: hsl(120, 12.5%, 6.25%);
