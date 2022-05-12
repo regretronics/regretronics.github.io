@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Speech pages</title>
+
+	<style type="text/css">/*<![CDATA[*/
+	.codeEditor {
+		height: 16em;
+		font-size: 90%;
+		width: 100%;
+		overflow-y: auto;
+		min-height: 8em;
+		white-space: pre;
+		tab-size: 4;
+	}
+	/*]]>*/</style>
+
+	<script type="text/javascript">/*<![CDATA[*/
+	//to do: use defer="true" or async in any script tag?
+	"use strict";
+
+	function btnSpeakClick(event) {
+		var u = new SpeechSynthesisUtterance();
+		u.text = ctlInputCode.innerText;
+		//u.text = ctlInputCode.innerHTML;
+		//u.lang = 'en-US';
+		//u.rate = 1.2;
+		u.onend = function(event) {
+			console.log('Finished in ' + event.elapsedTime + ' seconds.');
+		};
+		speechSynthesis.speak(u);
+	}
+
+	function loaded() {
+		document.getElementById("btnSpeak").addEventListener("click", btnSpeakClick);
+	}
+
+	window.addEventListener("load", loaded);
+	/*]]>*/</script>
+</head>
+<body>
+	<h1>Speech page</h1>
+	<noscript style="color: hsl(0, 100%, 25%);">It seems you have disabled scripting in your user agent. This page can't do things without JavaScript enabled.</noscript>
+	<p>Web Speech API tests.</p>
+	<ul>
+		<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API">Web Speech API - Web APIs | MDN</a></li>
+		<li><a href="https://www.w3.org/TR/speech-synthesis11/">Speech Synthesis Markup Language (SSML) Version 1.1</a></li>
+		<!--<li><a href=""></a></li>-->
+	</ul>
+	<!--<textarea style="width: 100%;"></textarea>-->
+	<pre id="ctlInputCode" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off">
+&lt;?xml version="1.0"?&gt;
+&lt;speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.w3.org/2001/10/synthesis
+			http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
+xml:lang="en-US"&gt;
+	The 
+	&lt;phoneme alphabet="ipa"
+	ph="&#x2C8;l&#x251; &#x2C8;vi&#x2D0;&#x27E;&#x259; &#x2C8;&#x294;e&#x26A; &#x2C8;b&#x25B;l&#x259;"&gt; 
+	ella &lt;/phoneme&gt;
+	&lt;!-- The IPA pronunciation is ˈlɑ ˈviːɾə ˈʔeɪ ˈbɛlə --&gt;
+	&lt;phoneme alphabet="ipa"
+	ph="&#x279;&#x259;&#x2C8;b&#x25B;&#x2D0;&#x279;&#x27E;o&#x28A; b&#x25B;&#x2C8;ni&#x2D0;nji"&gt; 
+		ober &lt;/phoneme&gt;
+	&lt;!-- The IPA pronunciation is ɹəˈbɛːɹɾoʊ bɛˈniːnji --&gt;
+&lt;/speak&gt;
+</pre>
+	<p>
+		<button id="btnSpeak">Speak</button>
+	</p>
+</body>
+</html>

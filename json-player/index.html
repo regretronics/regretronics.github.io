@@ -13,8 +13,6 @@
 	<link rel="alternate stylesheet" type="text/css" href="theme-light-green.css" title="Light, green" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-dark-hicon.css" title="Dark, high contrast" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-light-hicon.css" title="Light, high contrast" />
-	<!--<style type="text/css">/*<![CDATA[*/
-	/*]]>*/</style>-->
 
 	<link rel="icon" href="icon/Musical-science-simple-white-16.png" type="image/png" sizes="16x16" />
 	<link rel="icon" href="icon/Musical-science-simple-white-64.png" type="image/png" sizes="64x64" />
@@ -36,23 +34,23 @@
 		docLoaded();
 		for(const elem of document.querySelectorAll("input.exp"))
 			elem.addEventListener("input", expSpinnerChanged);
-		document.getElementById("btnTextShrink").addEventListener("click", (ev) => rescaleText(0.8));
-		document.getElementById("btnTextEnlarge").addEventListener("click", (ev) => rescaleText(1.25));
+		document.getElementById("btnTextShrink").addEventListener("click", ev => rescaleText(0.8));
+		document.getElementById("btnTextEnlarge").addEventListener("click", ev => rescaleText(1.25));
 		document.getElementById("txtBaseFreq").addEventListener("input", baseFreqChanged);
 		document.getElementById("txtPrimeCount").addEventListener("input", primeCountChanged);
 		document.getElementById("btnRhythmFactorsGen").addEventListener("click", makeRhythmFactors);
 		document.getElementById("txtRhythmFactors").addEventListener("input", rhythmFactorsChanged);
 		document.getElementById("btnStructDownload").addEventListener("click", structDownload);
-		document.getElementById("btnOverflowToggle1").addEventListener("click", (ev) => overflowToggle(elems.ctlStructuredScript));
-		document.getElementById("btnLineWrapToggle1").addEventListener("click", (ev) => lineWrapToggle(elems.ctlStructuredScript));
+		document.getElementById("btnOverflowToggle1").addEventListener("click", ev => overflowToggle(elems.ctlStructuredScript));
+		document.getElementById("btnLineWrapToggle1").addEventListener("click", ev => lineWrapToggle(elems.ctlStructuredScript));
 		document.getElementById("btnChordGen").addEventListener("click", makeChords);
 		document.getElementById("btnRhythmGen").addEventListener("click", makeRhythm);
 		document.getElementById("btnMelodyGen").addEventListener("click", makeMelody);
 		document.getElementById("ctlStructuredScript").addEventListener("input", scriptChanged);
 		document.getElementById("btnFlattenStruct").addEventListener("click", flattenStruct);
-		document.getElementById("btnOverflowToggle2").addEventListener("click", (ev) => overflowToggle(elems.ctlFlatScript));
-		document.getElementById("btnLineWrapToggle2").addEventListener("click", (ev) => lineWrapToggle(elems.ctlFlatScript));
-		document.getElementById("chkAutoFlatten").addEventListener("click", (ev) => setAutoFlatten(elems.chkAutoFlatten.checked));
+		document.getElementById("btnOverflowToggle2").addEventListener("click", ev => overflowToggle(elems.ctlFlatScript));
+		document.getElementById("btnLineWrapToggle2").addEventListener("click", ev => lineWrapToggle(elems.ctlFlatScript));
+		document.getElementById("chkAutoFlatten").addEventListener("click", ev => setAutoFlatten(elems.chkAutoFlatten.checked));
 		document.getElementById("ctlFlatScript").addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
 		document.getElementById("txtPlayFreqScale").addEventListener("input", playFreqScaleChanged);
 		document.getElementById("txtPlayVolScale").addEventListener("input", playVolScaleChanged);
@@ -267,8 +265,7 @@
 		<hr />
 		<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive list of notes), used when playing, supporting only note properties. But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>
 		<p>Though the page is novel, the formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an object). As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
-		<p>The <em>structured representation</em> is made to be readable and editable, while also understandable by a computer. In this format, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). Use natural numbers starting at 0 and don't skip numbers. Their order can be arbitrary; the indices don't tell anything about note time. You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
-		<p>Eventually, the structured representation is converted (by the page) into the <em>flattened representation</em>, which is easier for the computer to play. In it, blocks, recursion, named patterns, numerical structures and arithmetics are not available. For human interaction (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is to play the music.</p>
+		<p>The <em>structured representation</em> is made to be readable and editable, while also understandable by a computer. In this format, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). Use natural numbers starting at 0 and don't skip numbers. Their order can be arbitrary; the indices don't tell anything about note time. Not all blocks are notes, but all notes can also work as blocks; the presence of <code>noteStart</code>, <code>duration</code>, <code>freq</code> and/or <code>vol</code> marks a note. You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
 		<hr />
 		<p>Block (inheritable) properties are:</p>
 		<dl>
@@ -280,36 +277,35 @@
 			<dd>Relative time position or delay.</dd>
 			<dt><strong><code>timeScale</code></strong> (multiplicative, default <code>1</code>)</dt>
 			<dd>Inverse of tempo/speed.</dd>
-			<dt><strong><code>timbre</code></strong> (substitutive, default <code>"sine"</code>)</dt>
-			<dt><strong><code>decayFactor</code></strong> (substitutive, default <code>256</code>)</dt>
-			<dt><strong><code>attack</code></strong> (substitutive, default <code>"1/64"</code>)</dt>
-			<dt><strong><code>portamento</code></strong> (substitutive, default <code>0</code>)</dt>
-			<dt><strong><code>vibratoFreq</code></strong> (substitutive, default <code>"2^18 / 86400"</code> = ~<code>3.034</code>)</dt>
-			<dt><strong><code>vibratoDepth</code></strong> (substitutive, default <code>0</code>)</dt>
-			<dt><strong><code>vibratoAttack</code></strong> (substitutive, default <code>3</code>)</dt>
+			<dt><strong><code>timbre</code></strong> (substitutive)</dt>
+			<dt><strong><code>decayFactor</code></strong> (substitutive)</dt>
+			<dt><strong><code>attack</code></strong> (substitutive)</dt>
+			<dt><strong><code>portamento</code></strong> (substitutive)</dt>
+			<dt><strong><code>vibratoFreq</code></strong> (substitutive)</dt>
+			<dt><strong><code>vibratoDepth</code></strong> (substitutive)</dt>
+			<dt><strong><code>vibratoAttack</code></strong> (substitutive)</dt>
 		</dl>
-		<p>Note properties are (influenced by block properties):</p>
-		<!--to do: idea: split this for structured vs. flattened formats-->
+		<p>In the structured format, note properties are (influenced by block properties):</p>
 		<dl>
 			<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
 			<dd>The moment in time the note is played.</dd>
-			<dd>Affected by timeDelta, timeScale, overall time delta and overall time scale.</dd>
+			<dd>Affected by timeDelta and timeScale.</dd>
 
 			<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
 			<dd>The moment in time the note is silenced.</dd>
-			<dd>Affected by timeDelta, timeScale, overall time delta and overall time scale.</dd>
+			<dd>Affected by timeDelta and timeScale.</dd>
 
 			<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
 			<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
-			<dd>Affected by timeScale (and overall time scale).</dd>
+			<dd>Affected by timeScale.</dd>
 
-			<dt><strong><code>freq</code></strong> (default <code>1</code>/always required in flattened list)</dt>
+			<dt><strong><code>freq</code></strong> (default <code>1</code>)</dt>
 			<dd>Frequency, which represents pitch.</dd>
-			<dd>Affected by freqRatio and overall frequency scale.</dd>
+			<dd>Affected by freqRatio.</dd>
 
 			<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
 			<dd>Amplitude, which represents volume.</dd>
-			<dd>Affected by volRatio and overall volume scale.</dd>
+			<dd>Affected by volRatio.</dd>
 
 			<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
 			<dd>Waveform used in synthesis (comparable to a musical instrument). Can be <code>"sine"</code> (narrow-band) or <code>"noise"</code> (wide-band).</dd>
@@ -317,15 +313,15 @@
 
 			<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
 			<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
-			<dd>Absolute override when present, but always affected by overall time scale.</dd>
+			<dd>Absolute override when present.</dd>
 
 			<dt><strong><code>attack</code></strong> (default <code>"1/64"</code>)</dt>
 			<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
-			<dd>Absolute override when present, but always affected by overall time scale.</dd>
+			<dd>Absolute override when present.</dd>
 			
 			<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
 			<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). When zero, portamento is disabled and pitches are abrupt.</dd>
-			<dd>Absolute override when present, but always affected by overall time scale.</dd>
+			<dd>Absolute override when present.</dd>
 
 			<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
 			<dd>If portamento is enabled, this is the initial frequency. A <code>0</code> value disables portamento.</dd>
@@ -341,7 +337,7 @@
 			
 			<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
 			<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
-			<dd>Absolute override when present, but always affected by overall time scale.</dd>
+			<dd>Absolute override when present.</dd>
 		</dl>
 		<hr />
 		<p>In the structured representation, block and note properties support several <strong>number formats</strong>. Examples:</p>
@@ -372,10 +368,64 @@
 			<li>Addition, multiplication and exponentiation are right-associative: e.g. <code>4^3^2</code> = <code>4^(3^2)</code>, not <code>(4^3)^2</code></li>
 			<li>Subtraction and division are left-associative: e.g. <code>4 - 3 - 2</code> = <code>(4 - 3) - 2</code>, not <code>4 - (3 - 2)</code></li>
 		</ul>
+		<hr />
+		<p>Eventually, the structured representation is converted (by the page) into the <em>flattened representation</em>, which is easier for the computer to play. In it, blocks, recursion, named patterns, numerical structures and arithmetics are not available. For human interaction (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is to play the music.</p>
+		<p>In the flattened format, note properties are:</p>
+		<dl>
+			<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
+			<dd>The moment in time the note is played.</dd>
+			<dd>Affected by overall time delta and overall time scale.</dd>
+
+			<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
+			<dd>The moment in time the note is silenced.</dd>
+			<dd>Affected by overall time delta and overall time scale.</dd>
+
+			<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
+			<dd>The amount of time the note plays. (You don't need both noteStop and duration&mdash;they are redundant.)</dd>
+			<dd>Affected by overall time scale.</dd>
+
+			<dt><strong><code>freq</code></strong> (default <code>1</code>, must be non-zero in flattened list)</dt>
+			<dd>Frequency, which represents pitch.</dd>
+			<dd>Affected by overall frequency scale.</dd>
+
+			<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
+			<dd>Amplitude, which represents volume.</dd>
+			<dd>Affected by overall volume scale.</dd>
+
+			<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
+			<dd>Waveform used in synthesis (comparable to a musical instrument). Can be <code>"sine"</code> (narrow-band) or <code>"noise"</code> (wide-band).</dd>
+
+			<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
+			<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
+			<dd>Affected by overall time scale.</dd>
+
+			<dt><strong><code>attack</code></strong> (default <code>"1/64"</code>)</dt>
+			<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
+			<dd>Affected by overall time scale.</dd>
+			
+			<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
+			<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). When zero, portamento is disabled and pitches are abrupt.</dd>
+			<dd>Affected by overall time scale.</dd>
+
+			<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
+			<dd>If portamento is enabled, this is the initial frequency. A <code>0</code> value disables portamento.</dd>
+			<dd>Note-only property, not inherited by blocks.</dd>
+			
+			<dt><strong><code>vibratoFreq</code></strong> (default <code>"2^18 / 86400"</code> = ~<code>3.034</code>)</dt>
+			<dd>Frequency for pitch modulation.</dd>
+			<dd>Affected by overall time scale.</dd>
+			
+			<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
+			<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
+			
+			<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
+			<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+			<dd>Affected by overall time scale.</dd>
+		</dl>
 	</article>
 	<footer>
 		<hr />
-		<p>Project page: <a href="https://bitbucket.org/technicore/json-player/">https://bitbucket.org/technicore/json-player/</a></p>
+		<p>Project page: <a href="https://bitbucket.org/technicore/json-player/">https://bitbucket.org/technicore/json-player/</a> (including source code)</p>
 		<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), custom filtering, custom effects, multiple tracks/custom mixing pipeline or multiple channels/spatialization.</p>
 		<p>By regretronics; licensed under the <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
 		<p>I'm still waiting for your feedback! Thanks.</p>

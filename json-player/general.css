@@ -156,8 +156,6 @@ input[type=checkbox] {
 }
 /*svg rect {*/
 svg g {
-	/*y: 0;
-	height: 100%;*/
 	fill: url(#noteFill1);
 }
 #title-icon {
@@ -167,6 +165,6 @@ svg g {
 #title-icon img {
 	height: 1em;
 	width: auto;
-	/*vertical-align: text-bottom;*/
-	vertical-align: middle;
+	vertical-align: text-bottom;
+	/*vertical-align: middle;*/
 }

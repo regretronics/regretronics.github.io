@@ -38,7 +38,7 @@ function createNoiseBuffer(audioCtx) {
 	let buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
 	let arr = buffer.getChannelData(0);
 	
-	for (let i = 0; i < sampleCount; i++) {
+	for(let i = 0; i < sampleCount; i++) {
 		//noise
 		//arr[i] = 2 * Math.random() - 1; //non-gaussian
 		//gaussian noise
@@ -55,7 +55,7 @@ function createNoiseBuffer(audioCtx) {
 //finds item in arr and remove from it.
 //currently an in-place operation, not functional.
 function removeFrom(arr, item) {
-	if(!item) return false;
+	if(!item || !arr) return false;
 	let i = arr.indexOf(item);
 	if(i >= 0) arr.splice(i, 1);
 }
@@ -170,7 +170,7 @@ function renderNote(clip, note) {
 			let vibratoDepth = NaNToDefault(note.vibratoDepth, defaultNoteNode.vibratoDepth);
 			let vibratoFreq = NaNToDefault(note.vibratoFreq, defaultNoteNode.vibratoFreq);
 			if(vibratoFreq && vibratoDepth) {
-				oscVibrato = new OscillatorNode(clip.audioCtx, {type: "sine", frequency: vibratoFreq});
+				oscVibrato = new OscillatorNode(clip.audioCtx, {type: "sine", frequency: Math.abs(clip.playTimeScale) * vibratoFreq});
 				sourceNode.oscVibrato = oscVibrato;
 				oscVibrato.sndClip = clip;
 				oscVibrato.onended = defOnEnded;
@@ -654,8 +654,6 @@ function audioExport() {
 	if(elems.outExportProgress) elems.outExportProgress.innerText = "Starting";
 	mediaRecorder.start();
 	exportClip.audioCtx.resume().then(exportAudioTimer);
-	/*mediaRecorder.requestData();
-	mediaRecorder.stop();*/
 
 	/*//audioCtxOff.oncomplete = ;
 	exportClip.audioCtx.startRendering().then(function(renderedBuffer) {

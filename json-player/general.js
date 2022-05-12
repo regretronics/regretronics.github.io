@@ -176,7 +176,9 @@ const elemNames = ["txtBaseFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCo
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
 	"ctlFlatScript", "ctlStructuredScript", //code editors
 	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", "aAudioDownload", //other controls
-	"outToolTip", "outPrimeList", "outRhythmScales", "outAudioT", "outAudioDur", "outNoteCount", "outGenCount", "outExportFormat", "outExportDuration", "outExportProgress" //output fields
+	"outToolTip", "outPrimeList", "outRhythmScales", //output fields, misc.
+	"outAudioT", "outAudioDur", "outNoteCount", "outGenCount", //output fields, player
+	"outExportFormat", "outExportDuration", "outExportProgress" //output fields, audio exporter
 ];
 const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 var elems = {};
@@ -201,7 +203,7 @@ function docLoaded() {
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
-	//question: too simple? should it depend on primeCount? should it have an extra parameter of overall variance scale?
+	//question: too simple? should it depend on primeCount?
 	maxPitches = new Array(primes.length);
 	for(const i in primes)
 		maxPitches[i] = 1 / Math.log2(primes[i]);
@@ -299,7 +301,7 @@ function playVolScaleChanged() {
 }
 
 //rhythm structure data (hierarchy of factors)
-var rhythmFactors = [], rhythmFactorsAccum = [];
+var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmAccumUpdate() {
 	if(!rhythmFactors) rhythmFactors = [];
 	let factors = rhythmFactors.slice(); //array clone
@@ -315,20 +317,19 @@ function rhythmAccumUpdate() {
 }
 function rhythmFactorsChanged() {
 	//to do: support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
-	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 3*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1) + (1 + 1))?
+	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
 	if(!elems.txtRhythmFactors) return false;
 	let s = elems.txtRhythmFactors.value.toString(); //text
 	rhythmFactors = []; //will become an array of numbers
 	if(s.length >= 1) {
 		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
-		//rhythmFactors = s.map(x => parseFloat(x)); //array of numbers
-		for (const n of s) {
+		for(const n of s) {
 			//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
 			let pos = n.indexOf("^");
 			if(pos >= 0) {
 				let base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
-				for (let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
+				for(let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
 					rhythmFactors.push(base);
 				//question: non-integer exponents? (if(exp > 0) ...)
 			} else
