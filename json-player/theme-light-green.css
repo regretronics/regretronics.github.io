@@ -21,6 +21,9 @@ h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
 hr {
 	border-color: hsla(120, 25%, 50%, 0.75);
 }
+table, caption, td {
+	background-color: hsla(0, 0%, 100%, 0.25);
+}
 
 .codeEditor::selection, .codeEditor *::selection, code::selection {
 	background-color: hsla(300, 50%, 87.5%, 0.75);
@@ -31,10 +34,10 @@ strong code::selection {
 }
 
 a:link {
-	color: hsl(120, 100%, 25%);
+	color: hsl(120, 100%, 12.5%);
 }
 a:visited {
-	color: hsl(30, 75%, 37.5%);
+	color: hsl(30, 75%, 25%);
 }
 a:active {
 	color: hsl(120, 100%, 12.5%);

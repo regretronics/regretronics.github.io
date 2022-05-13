@@ -22,6 +22,12 @@ h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
 hr {
 	border-color: hsla(120, 0%, 50%, 0.9375);
 }
+table, caption {
+	background-color: hsla(0, 0%, 50%, 0.25);
+}
+td {
+	background-color: hsla(0, 0%, 100%, 0.5);
+}
 
 .codeEditor::selection, .codeEditor *::selection, code::selection {
 	background-color: hsla(300, 100%, 87.5%, 1);

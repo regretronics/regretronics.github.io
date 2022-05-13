@@ -257,11 +257,216 @@
 	<p id="outToolTip">A description of the selected control will appear here.</p>
 
 	<article>
-		<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some musical theory. Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for rhythmic structure and harmony.</p>
-		<!--<details>
+		<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some musical theory. Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
+		<p>One of the fundamental dimensions in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval">intervals</a>) are actually frequency ratios (proportions). Chords are made of intervals, and both inspire interpretations for listeners. The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. This can be mathematically represented by using rational numbers, and in more consonant intervals these numbers correspond to fractions made out of small integers, such as 3/2. As the irreducible form is the most important for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can be used. More consonant intervals usually sound basic, tuned, neutral, static or familiar, and is often conventioned to represent peace or positive emotions in soundtracks. More dissonant (less consonant) intervals may sound pulsating, complicated, strange, advanced, cacophonous or imperfect, and is symbolically conventioned for negative things.</p>
+		<details open="">
 			<summary><strong>Harmony cheatsheet</strong></summary>
-			<p>to do: quick start/cheatsheet for just intonation and intervals</p>
-		</details>-->
+			<table id="tblFractionIntervals">
+				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a></caption>
+				<thead>
+					<tr>
+						<th>Fraction</th>
+						<th>Prime factoring</th>
+						<th><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semitones (12-TET)</a></th>
+						<th>Traditional name (approx.)</th>
+						<th>Notes</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--for interval names, https://www.huygens-fokker.org/docs/intervals.html seems to be a great source-->
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Unison">1/1</a></td>
+						<td>2<sup>0</sup></td>
+						<td>0.000</td>
+						<td>(Perfect) unison</td>
+						<td>Most consonant, but not always considered an interval.</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Octave">2/1</a></td>
+						<td>2<sup>1</sup></td>
+						<td>12.000</td>
+						<td>(Perfect) octave</td>
+						<td>So consonant it can be hard to tell the notes apart, depending on the instrument.</td>
+					</tr>
+					<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fifth">3/2</a></td>
+						<td>2<sup>-1</sup> 3<sup>1</sup></td>
+						<td>7.020</td>
+						<td>(Perfect) fifth</td>
+						<td rowspan="2">Still sounds very basic.</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4/3</a></td>
+						<td>2<sup>2</sup> 3<sup>-1</sup></td>
+						<td>4.980</td>
+						<td>(Perfect) fourth</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Major_tone">9/8</a></td>
+						<td>2<sup>-3</sup> 3<sup>2</sup></td>
+						<td>2.039</td>
+						<td>Major second</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16/9</a></td>
+						<td>2<sup>4</sup> 3<sup>-2</sup></td>
+						<td>9.961</td>
+						<td>Minor seventh</td>
+					</tr>
+					<tr><th colspan="5">5-limit (Ptolemaic) harmony</th></tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_major_third">5/4</a></td>
+						<td>2<sup>-2</sup> 3<sup>0</sup> 5<sup>1</sup></td>
+						<td>3.863</td>
+						<td>Major third</td>
+						<td rowspan="2">Often used in "good-mood" musical phrases.</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8/5</a></td>
+						<td>2<sup>3</sup> 3<sup>0</sup> 5<sup>-1</sup></td>
+						<td>8.137</td>
+						<td>Minor sixth</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5/3</a></td>
+						<td>2<sup>0</sup> 3<sup>-1</sup> 5<sup>1</sup></td>
+						<td>8.844</td>
+						<td>Major sixth</td>
+						<td rowspan="2">Used as a "sad" replacement for 5/4 and 8/5.</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_minor_third">6/5</a></td>
+						<td>2<sup>1</sup> 3<sup>1</sup> 5<sup>-1</sup></td>
+						<td>3.156</td>
+						<td>Minor third</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_major_seventh">15/8</a></td>
+						<td>2<sup>-3</sup> 3<sup>1</sup> 5<sup>1</sup></td>
+						<td>10.883</td>
+						<td>Major seventh</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16/15</a></td>
+						<td>2<sup>4</sup> 3<sup>-1</sup> 5<sup>-1</sup></td>
+						<td>1.117</td>
+						<td>Semitone or half-step</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25/16</a></td>
+						<td>2<sup>-4</sup> 3<sup>0</sup> 5<sup>2</sup></td>
+						<td>7.726</td>
+						<td>Augmented fifth</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Diminished_fourth">32/25</a></td>
+						<!--to do: check later if https://en.wikipedia.org/wiki/Just_diminished_fourth is created-->
+						<td>2<sup>5</sup> 3<sup>0</sup> 5<sup>-2</sup></td>
+						<td>4.274</td>
+						<td>Diminished fourth</td>
+					</tr>
+					<tr><th colspan="5">7-limit (septimal) harmony</th></tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Harmonic_seventh">7/4</a></td>
+						<td>2<sup>-2</sup> 3<sup>0</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td>9.688</td>
+						<td>Minor seventh</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8/7</a></td>
+						<td>2<sup>3</sup> 3<sup>0</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td>2.312</td>
+						<td>Major second</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_third">7/6</a></td>
+						<td>2<sup>-1</sup> 3<sup>-1</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td>2.669</td>
+						<td></td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12/7</a></td>
+						<td>2<sup>2</sup> 3<sup>1</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td>9.331</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_narrow_fourth">21/16</a></td>
+						<td>2<sup>-4</sup> 3<sup>1</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td>4.708</td>
+						<td>(Perfect) fourth</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32/21</a></td>
+						<!--alternative name: wide fifth-->
+						<td>2<sup>5</sup> 3<sup>-1</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td>7.292</td>
+						<td>(Perfect) fifth</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_sixth">14/9</a></td>
+						<td>2<sup>1</sup> 3<sup>-2</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td>7.649</td>
+						<td></td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9/7</a></td>
+						<td>2<sup>0</sup> 3<sup>2</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td>4.351</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Huygens%27_tritone">7/5</a></td>
+						<td>2<sup>0</sup> 3<sup>0</sup> 5<sup>-1</sup> 7<sup>1</sup></td>
+						<td>5.825</td>
+						<td>Tritone</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10/7</a></td>
+						<td>2<sup>1</sup> 3<sup>0</sup> 5<sup>1</sup> 7<sup>-1</sup></td>
+						<td>6.175</td>
+						<td>Tritone</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_chromatic_semitone">21/20</a></td>
+						<td>2<sup>-2</sup> 3<sup>1</sup> 5<sup>-1</sup> 7<sup>1</sup></td>
+						<td>0.845</td>
+						<td>Semitone</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave">40/21</a></td>
+						<!--alternative name: acute major seventh-->
+						<td>2<sup>3</sup> 3<sup>-1</sup> 5<sup>1</sup> 7<sup>-1</sup></td>
+						<td>11.155</td>
+						<td>Major seventh</td>
+					</tr>
+					<tr>
+						<td>28/15</td>
+						<!--alternative name: grave major seventh (means a different interval in Wikipedia)-->
+						<td>2<sup>2</sup> 3<sup>-1</sup> 5<sup>-1</sup> 7<sup>1</sup></td>
+						<td>10.806</td>
+						<td>Major seventh</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15/14</a></td>
+						<td>2<sup>-1</sup> 3<sup>1</sup> 5<sup>1</sup> 7<sup>-1</sup></td>
+						<td>1.194</td>
+						<td>Semitone</td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
 		<hr />
 		<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive list of notes), used when playing, supporting only note properties. But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>
 		<p>Though the page is novel, the formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an object). As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
