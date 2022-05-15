@@ -196,26 +196,32 @@ function makeRhythm() {
 	if(rootFreq === 0) return false;
 
 	//hierarchy of beats
-	let sumVol = 0;
-	for(const scale of rhythmFactorsAccum) {
-		//sumVol += 1 / scale;
-		sumVol += rhythmFactorsAccum[0] / scale;
-	}
-	let freqDummy = {2: 0};
-	let tuning = rootFreq / rhythmFactorsAccum[0];
-	limitFreq(tuning, freqDummy); //not THAT low
+	let percussion = elems.chkPercussivePattern.checked;
+	let pattern = [];
 	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
-	let pattern = [{ //rhythm formula root block and note
-		freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
-		//to do: what is the best register (frequency range) for percussion?
-		//volRatio: 1,
-		volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
-		
-		duration: rhythmFactorsAccum[0],
-		timbre: "noise",
-		decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
-	}];
-	rhythmSubNodes(pattern[0], 1, 2 ** freqDummy[2] * tuning);
+	let rhythmStart = 0;
+	if(percussion) {
+		let sumVol = 0; //theoretical combined/maximum amplitude
+		for(const scale of rhythmFactorsAccum) {
+			//sumVol += 1 / scale;
+			sumVol += rhythmFactorsAccum[0] / scale;
+		}
+		let freqDummy = {2: 0};
+		let tuning = rootFreq / rhythmFactorsAccum[0];
+		limitFreq(tuning, freqDummy); //not THAT low
+		pattern.push({ //rhythm formula root block and note
+			freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
+			//to do: what is the best register (frequency range) for percussion?
+			//volRatio: 1,
+			volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
+			
+			duration: rhythmFactorsAccum[0],
+			timbre: "noise",
+			decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
+		});
+		rhythmStart++;
+		rhythmSubNodes(pattern[0], 1, 2 ** freqDummy[2] * tuning);
+	}
 
 	//bar fill
 	//let noteCount = Math.floor((0.25 + 0.75 * Math.random()) * rhythmFactorsAccum[0]);
@@ -224,41 +230,40 @@ function makeRhythm() {
 	if((rhythmFactorsAccum[0] >= 3) && (noteCount < 2)) {noteCount = 2;}
 
 	for(let i = 0; i < noteCount; i++) { //first let's meet the number of notes
-		pattern.push({
+		const note = {
 			noteStart: 0, //make it appear early in JSON, defer filling
-			duration: 1,
-			vol: 0.5});
+			duration: 1};
+		if(percussion) note.vol = 0.5;
+		pattern.push(note);
 	}
 	if(noteCount >= 1) {
 		let i;
 		for(i = rhythmFactorsAccum[0] - noteCount; i >= 1; i--) {
 			//increment the duration of some random notes until total length is met
-			pattern[Math.floor(Math.random() * noteCount) + 1].duration++;
+			pattern[Math.floor(Math.random() * noteCount) + rhythmStart].duration++;
 		}
 		//fraction of a beat?
-		if(i !== 0) pattern[Math.floor(Math.random() * noteCount) + 1].duration += i;
+		if(i !== 0) pattern[Math.floor(Math.random() * noteCount) + rhythmStart].duration += i;
 	}
 
-	//now that the durations are known, adjust note start sequentially
+	//now that the durations are known, adjust note start sequentially (let no superposition)
 	for(let i = 0, t = 0, lastDuration = 0; i < noteCount; i++) {
-		//remember note #0 is the regular block
 		if(i > 0) {
-			pattern[i + 1].noteStart = t.toString() + "+" + lastDuration.toString();
+			pattern[i + rhythmStart].noteStart = t.toString() + "+" + lastDuration.toString();
 			t += lastDuration;
 		} else {
-			pattern[i + 1].noteStart = 0;
+			pattern[i + rhythmStart].noteStart = 0;
 		}
-		lastDuration = pattern[i + 1].duration;
+		lastDuration = pattern[i + rhythmStart].duration;
 	}
 
 	let rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: rootFreq,
-		volRatio: "2/3",
-		//decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0], //lengthier bars = more sustain
-
-		pat: pattern
+		//decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0] //lengthier bars = more sustain
 	};
+	if(percussion) rootStruct.volRatio = "2/3";
+	rootStruct.pat = pattern; //make it appear later in JSON
 	for(let i = 0; i < repeatCount; i++) {
 		rootStruct[i] = {timeDelta: i.toString() + "*" + rhythmFactorsAccum[0].toString(), 0: "pat"};
 	}
@@ -382,6 +387,7 @@ function makeMelody() {
 	}
 	let partialScaleOffset = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2); //to do: explicitly represent exponentiation?
 	let rootStruct = {
+		//to do: should some of these properties be exclusive for melodic notes?
 		timeScale: _timeScale,
 		//freqRatio: rootFreq.toString() + "/" + barDuration.toString(),
 		//big range (lots of beats)? let's start a few octaves down
@@ -392,12 +398,41 @@ function makeMelody() {
 		decayFactor: defaultBlockNode.decayFactor.toString() + "*" + _timeScale.toString() + "*" + (barDuration / partialScaleOffset).toString() //lengthier bars = more sustain
 	};
 
+	//hierarchy of beats
+	let percussion = elems.chkPercussivePattern.checked;
+	let percussivePattern = null;
+	if(percussion) {
+		let sumVol = 0; //theoretical combined/maximum amplitude
+		for(const scale of rhythmFactorsAccum) {
+			//sumVol += 1 / scale;
+			sumVol += rhythmFactorsAccum[0] / scale;
+		}
+		let freqDummy = {2: 0};
+		let tuning = rootFreq / rhythmFactorsAccum[0];
+		limitFreq(tuning, freqDummy); //not THAT low
+		percussivePattern = { //rhythm formula root block and note
+			//to do: readjust these parameters below
+			//freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
+			freqRatio: (2 ** freqDummy[2]).toString() + "/" +  (barDuration / partialScaleOffset).toString(), //lengthier bars -> lower pitch -> more sustain also
+			//to do: what is the best register (frequency range) for percussion?
+			//volRatio: 1,
+			volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
+			
+			duration: rhythmFactorsAccum[0],
+			timbre: "noise",
+			decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
+		};
+		rhythmSubNodes(percussivePattern, 1, 2 ** freqDummy[2] * tuning);
+		rootStruct["percussion"] = percussivePattern;
+	}
+	
 	//make various patterns of notes
 	for(let i = 0; i < patCount; i++) {
 		let pattern = {
 			duration: barDuration,
 			freq: {}
 		};
+		if(percussivePattern) pattern.vol = 0.5;
 
 		//randomize an initial note
 		let product = 1;
@@ -424,10 +459,12 @@ function makeMelody() {
 		for(let y = 0; y < repeatCount; y++) {
 			for(let z = 0; (z < reptPeriod) && ((iPat = x * reptPeriod + z) < patCount); z++) {
 				barPos = (x * repeatCount + y) * reptPeriod + z;
-				rootStruct[barPos] = {
-					0: "pat" + iPat.toString(),
-					timeDelta: barPos.toString() + "*" + barDuration.toString()
-				};
+				const bar = {timeDelta: barPos.toString() + "*" + barDuration.toString()};
+				let i = 0;
+				if(percussivePattern)
+					bar[i++] = "percussion";
+				bar[i] = "pat" + iPat.toString();
+				rootStruct[barPos] = bar;
 				//rootStruct[x][0] = "pat" + x.toString();
 				//rootStruct[x].timeDelta = x * barDuration;
 			}

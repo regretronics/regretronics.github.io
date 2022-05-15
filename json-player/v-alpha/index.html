@@ -145,6 +145,8 @@
 			<input type="number" id="txtReptCount" value="2" step="1" min="1" title="Used by rhythm and melody generators." size="4" /></span><wbr />
 		<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period</label>
 			<input type="number" id="txtReptPeriod" value="4" step="1" min="1" title="Used by melody generator." size="4" /></span>
+		<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." />
+			<label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
 	</p>
 	<p class="flex-row">
 		<span><strong>Structured&nbsp;music:</strong> 
@@ -210,7 +212,7 @@
 			<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
 			<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
 			<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
-			<span class="cell"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code when playback ends. Can be used as a 'repeat' feature." />
+			<span class="cell"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." />
 				<label for="chkAutoReload">Auto-reload</label></span>
 			<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 		</span>
@@ -260,13 +262,13 @@
 		<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some musical theory. Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
 		<p>One of the fundamental dimensions in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval">intervals</a>) are actually frequency ratios (proportions). Chords are made of intervals, and both inspire interpretations for listeners. The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. This can be mathematically represented by using rational numbers, and in more consonant intervals these numbers correspond to fractions made out of small integers, such as 3/2. As the irreducible form is the most important for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can be used. More consonant intervals usually sound basic, tuned, neutral, static or familiar, and is often conventioned to represent peace or positive emotions in soundtracks. More dissonant (less consonant) intervals may sound pulsating, complicated, strange, advanced, cacophonous or imperfect, and is symbolically conventioned for negative things.</p>
 		<details open="">
-			<summary><strong>Harmony cheatsheet</strong></summary>
+			<summary><strong>Interval consonance cheatsheet</strong></summary>
 			<table id="tblFractionIntervals">
-				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a></caption>
+				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, grouped by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a></caption>
 				<thead>
 					<tr>
 						<th>Fraction</th>
-						<th>Prime factoring</th>
+						<th>Prime factorization</th>
 						<th><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semitones (12-TET)</a></th>
 						<th>Traditional name (approx.)</th>
 						<th>Notes</th>
@@ -353,7 +355,20 @@
 						<td><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16/15</a></td>
 						<td>2<sup>4</sup> 3<sup>-1</sup> 5<sup>-1</sup></td>
 						<td>1.117</td>
-						<td>Semitone or half-step</td>
+						<td>Semitone</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Minor_tone">10/9</a></td>
+						<td>2<sup>1</sup> 3<sup>-2</sup> 5<sup>1</sup></td>
+						<td>1.824</td>
+						<td>Major second</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9/5</a></td>
+						<td>2<sup>0</sup> 3<sup>2</sup> 5<sup>-1</sup></td>
+						<td>10.176</td>
+						<td>Minor seventh</td>
 					</tr>
 					<tr>
 						<td><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25/16</a></td>
@@ -466,6 +481,8 @@
 					</tr>
 				</tbody>
 			</table>
+			<p>Note: "Semitone" is a British English term, corresponding to "half step" in American English. Several other intervals have alternative names: for example the tritone can also be called augmented fourth and diminished fifth, and the major second is also known as a whole tone.</p>
+			<p>Note about octave normalization: The table above displays the multidimensionality of consonance, with little regard to other interval properties such as <a href="https://en.wikipedia.org/wiki/Interval_(music)#Size">size</a>. As the octave is felt as the most neutral interval, it is almost always used as a basic "block" for adjusting interval sizes, which has negligible effect on consonance. So the powers of 2 are used as a counterweight.</p>
 		</details>
 		<hr />
 		<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive list of notes), used when playing, supporting only note properties. But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>

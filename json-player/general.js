@@ -172,7 +172,7 @@ function parseNumber(n) {
 //HTML elements
 const elemNames = ["txtBaseFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", "txtExpVariance", //generator parameters, common
 	"txtRhythmScale", "txtRhythmFactors", //rhythm
-	"txtVoiceCount", "txtReptCount", "txtReptPeriod", //generator parameters, additional
+	"txtVoiceCount", "txtReptCount", "txtReptPeriod", "chkPercussivePattern", //generator parameters, additional
 	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
 	"ctlFlatScript", "ctlStructuredScript", //code editors
 	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", "aAudioDownload", //other controls
