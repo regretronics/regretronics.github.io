@@ -1,0 +1,111 @@
+/*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
+/*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
+body {
+	background-color: hsl(var(--hue-accent, 120), 37.5%, 75%);
+	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
+}
+/*::selection {*/
+:not(code):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
+	background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
+	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);
+}
+
+strong {
+	color: black;
+}
+h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
+	background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
+	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 1) !important;
+}
+
+noscript {
+	color: hsl(0, 100%, 12.5%);
+}
+hr {
+	border-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.75);
+}
+table, caption, td {
+	background-color: hsla(0, 0%, 100%, 0.25);
+}
+
+.codeEditor::selection, .codeEditor *::selection, code::selection {
+	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75);
+	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875);
+}
+strong code::selection {
+	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 1);
+}
+
+a:link {
+	color: hsl(var(--hue-accent, 120), 100%, 12.5%);
+}
+a:visited {
+	color: hsl(30, 75%, 25%);
+}
+a:active {
+	color: hsl(var(--hue-accent, 120), 100%, 12.5%);
+}
+
+input {
+	accent-color: hsl(var(--hue-accent, 120), 50%, 25%);
+}
+input::selection {
+	background-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.75);
+	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);
+}
+button {
+	/*background-color: hsl(var(--hue-accent, 120), 0%, 25%);
+	color: hsl(var(--hue-accent, 120), 0%, 75%);*/
+	background-color: hsl(var(--hue-accent, 120), 37.5%, 81.25%);
+	color: hsl(var(--hue-accent, 120), 50%, 25%);
+
+	border-style: solid;
+	border-top-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.75);
+	border-right-color: hsla(var(--hue-accent, 120), 25%, 62.5%, 0.5);
+	border-left-color: hsla(var(--hue-accent, 120), 25%, 62.5%, 0.5);
+	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.75);
+}
+button:active {
+	border-top-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.25);
+	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.25);
+}
+input[type=number], input[type=text] {
+	background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
+	color: hsl(var(--hue-accent, 120), 50%, 12.5%);
+
+	border-style: solid;
+	border-top-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.625);
+	border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
+	border-left-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
+	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.625);
+
+	/*border-image-source: linear-gradient(to bottom,
+		hsla(var(--hue-accent, 120), 25%, 25%, 0.75),
+		hsla(var(--hue-accent, 120), 25%, 50%, 0.5),
+		hsla(var(--hue-accent, 120), 25%, 75%, 0.75));
+	border-image-repeat: stretch;
+	border-image-slice: 15%;*/
+}
+/*input:invalid {*/
+input.invalid {
+	background-color: hsl(0, 100%, 87.5%) !important;
+}
+
+#outToolTip {
+	background-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);
+}
+
+.codeEditor {
+	background-color: hsla(var(--hue-accent, 120), 12.5%, 0%, 0.625);
+	color: hsl(var(--hue-accent, 120), 25%, 100%);
+}
+.codeEditor.invalid {
+	background-color: hsla(0, 100%, 25%, 0.75);
+}
+
+#imgVisualizer {
+	background-color: hsla(0, 0%, 100%, 0.25);
+}
+linearGradient#noteFill1 stop {
+	stop-color: hsla(var(--hue-accent2, 300), 75%, 25%, 0.875);
+}
