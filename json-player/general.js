@@ -226,6 +226,24 @@ function rescaleText(f) {
 	//document.body.style.fontSize = textSize + "em";
 	document.children[0].style.fontSize = textSize + "em";
 }
+function btnHueClick(event) {
+	const elem = event.target;
+	if(!elem) return false;
+	const delta = elem.dataset["delta"];
+
+	const root = document.children[0];
+	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
+
+	//if(hue == undefined) return;
+	if(typeof(hue) === "string") hue = parseFloat(hue);
+	if(isNaN(hue) || !isFinite(hue)) hue = 120;
+
+	hue += 60 * delta;
+	hue %= 360;
+	if(hue < 0) hue += 360;
+
+	root.style.setProperty("--hue-accent", hue);
+}
 function overflowToggle(control) {
 	if(!control) return false;
 	control.classList.toggle("expanded");

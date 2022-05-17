@@ -1,26 +1,29 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
 body {
-	background-color: hsl(120, 0%, 96.875%);
-	color: hsla(120, 0%, 0%, 0.9375);
+	background-color: hsl(var(--hue-accent, 120), 0%, 96.875%);
+	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
 	font-weight: 500;
 }
 /*::selection {*/
 :not(code):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
-	background-color: hsla(120, 0%, 0%, 0.9375);
-	color: hsla(120, 0%, 100%, 0.875);
+	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
+	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 }
 
 strong {
 	color: black;
 }
 h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
-	background-color: hsla(120, 0%, 0%, 1) !important;
-	color: hsla(120, 0%, 100%, 1) !important;
+	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 1) !important;
+	color: hsla(var(--hue-accent, 120), 0%, 100%, 1) !important;
 }
 
+noscript {
+	color: hsl(0, 100%, 12.5%);
+}
 hr {
-	border-color: hsla(120, 0%, 50%, 0.9375);
+	border-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
 }
 table, caption {
 	background-color: hsla(0, 0%, 50%, 0.25);
@@ -30,59 +33,60 @@ td {
 }
 
 .codeEditor::selection, .codeEditor *::selection, code::selection {
-	background-color: hsla(300, 100%, 87.5%, 1);
-	color: hsla(300, 100%, 12.5%, 0.9375);
+	background-color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 1);
+	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.9375);
 }
 strong code::selection {
-	color: hsla(300, 100%, 6.25%, 1);
+	color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1);
 }
 
 a:link {
-	color: hsl(120, 25%, 25%);
+	color: hsl(var(--hue-accent, 120), 25%, 25%);
 }
 a:visited {
 	color: hsl(30, 25%, 37.5%);
 }
 a:active {
-	color: hsl(120, 50%, 12.5%);
+	color: hsl(var(--hue-accent, 120), 50%, 12.5%);
 }
 
+input, button, textarea {
+	accent-color: hsl(var(--hue-accent, 120), 25%, 25%);
+}
 input::selection {
-	background-color: hsla(120, 0%, 0%, 0.75);
-	color: hsla(120, 0%, 100%, 0.875);
+	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.75);
+	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 }
 button {
-	/*background-color: hsl(120, 0%, 25%);
-	color: hsl(120, 0%, 75%);*/
-	background-color: hsl(120, 12.5%, 93.75%);
-	color: hsl(120, 25%, 6.25%);
+	/*background-color: hsl(var(--hue-accent, 120), 0%, 25%);
+	color: hsl(var(--hue-accent, 120), 0%, 75%);*/
+	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
+	color: hsl(var(--hue-accent, 120), 25%, 6.25%);
 	
 	border-style: solid;
-	border-top-color: hsla(120, 0%, 100%, 1);
-	border-right-color: hsla(120, 0%, 50%, 0.25);
-	border-left-color: hsla(120, 0%, 50%, 0.25);
-	border-bottom-color: hsla(120, 0%, 0%, 0.625);
-
-	transition: border-color 0.07s ease-out;
+	border-top-color: hsla(var(--hue-accent, 120), 0%, 100%, 1);
+	border-right-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
+	border-left-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
+	border-bottom-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.625);
 }
 button:active {
-	border-top-color: hsla(120, 0%, 0%, 0.25);
-	border-bottom-color: hsla(120, 0%, 100%, 0.5);
+	border-top-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.25);
+	border-bottom-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.5);
 }
 input[type=number], input[type=text] {
-	background-color: hsl(120, 12.5%, 93.75%);
-	color: hsl(120, 12.5%, 6.25%);
+	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
+	color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 
 	border-style: solid;
-	border-top-color: hsla(120, 0%, 0%, 0.625);
-	border-right-color: hsla(120, 0%, 50%, 0.25);
-	border-left-color: hsla(120, 0%, 50%, 0.25);
-	border-bottom-color: hsla(120, 0%, 100%, 1);
+	border-top-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.625);
+	border-right-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
+	border-left-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
+	border-bottom-color: hsla(var(--hue-accent, 120), 0%, 100%, 1);
 
 	/*border-image-source: linear-gradient(to bottom,
-		hsla(120, 0%, 25%, 0.75),
-		hsla(120, 0%, 50%, 0.5),
-		hsla(120, 0%, 75%, 0.75));
+		hsla(var(--hue-accent, 120), 0%, 25%, 0.75),
+		hsla(var(--hue-accent, 120), 0%, 50%, 0.5),
+		hsla(var(--hue-accent, 120), 0%, 75%, 0.75));
 	border-image-repeat: stretch;
 	border-image-slice: 15%;*/
 }
@@ -92,12 +96,12 @@ input.invalid {
 }
 
 #outToolTip {
-	background-color: hsla(120, 0%, 100%, 0.875);
+	background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 }
 
 .codeEditor {
-	background-color: hsla(120, 0%, 87.5%, 0.625);
-	color: hsla(120, 25%, 0%, 0.9375);
+	background-color: hsla(var(--hue-accent, 120), 0%, 87.5%, 0.625);
+	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
 }
 .codeEditor.invalid {
 	background-color: hsla(0, 100%, 87.5%, 0.875);
@@ -107,5 +111,5 @@ input.invalid {
 	background-color: hsla(0, 0%, 100%, 0.5);
 }
 linearGradient#noteFill1 stop {
-	stop-color: hsla(270, 0%, 0%, 0.75);
+	stop-color: hsla(var(--hue-accent2, 300), 0%, 0%, 0.875);
 }

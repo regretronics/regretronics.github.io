@@ -7,14 +7,15 @@
 	<title>JSON music format</title>
 
 	<link rel="stylesheet" type="text/css" href="general.css" />
-	<link rel="stylesheet" type="text/css" href="theme-auto-green.css" media="screen" title="Automatic/green" />
+	<link rel="stylesheet" type="text/css" href="general2.css" />
+	<link rel="stylesheet" type="text/css" href="theme-auto.css" media="screen" title="Automatic" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-null.css" title="Null (vanilla)" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-dark-green.css" title="Dark, green" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-light-green.css" title="Light, green" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-dark-color.css" title="Dark, colored" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-light-color.css" title="Light, colored" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-dark-hicon.css" title="Dark, high contrast" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-light-hicon.css" title="Light, high contrast" />
 
-	<link rel="icon" href="icon/Musical-science-simple-white-16.png" type="image/png" sizes="16x16" />
+	<!--<link rel="icon" href="icon/Musical-science-simple-white-16.png" type="image/png" sizes="16x16" />-->
 	<link rel="icon" href="icon/Musical-science-simple-white-64.png" type="image/png" sizes="64x64" />
 	<link rel="icon" href="icon/Musical-science-white-256.png" type="image/png" sizes="256x256" />
 	<link rel="icon" href="icon/Musical-science-white-1024.png" type="image/png" sizes="1024x1024" />
@@ -34,29 +35,40 @@
 		docLoaded();
 		for(const elem of document.querySelectorAll("input.exp"))
 			elem.addEventListener("input", expSpinnerChanged);
+
 		document.getElementById("btnTextShrink").addEventListener("click", ev => rescaleText(0.8));
 		document.getElementById("btnTextEnlarge").addEventListener("click", ev => rescaleText(1.25));
+		document.getElementById("btnHueFine1").addEventListener("click", btnHueClick);
+		document.getElementById("btnHueFine2").addEventListener("click", btnHueClick);
+
 		document.getElementById("txtBaseFreq").addEventListener("input", baseFreqChanged);
 		document.getElementById("txtPrimeCount").addEventListener("input", primeCountChanged);
+
 		document.getElementById("btnRhythmFactorsGen").addEventListener("click", makeRhythmFactors);
 		document.getElementById("txtRhythmFactors").addEventListener("input", rhythmFactorsChanged);
-		document.getElementById("btnStructDownload").addEventListener("click", structDownload);
-		document.getElementById("btnOverflowToggle1").addEventListener("click", ev => overflowToggle(elems.ctlStructuredScript));
-		document.getElementById("btnLineWrapToggle1").addEventListener("click", ev => lineWrapToggle(elems.ctlStructuredScript));
+
 		document.getElementById("btnChordGen").addEventListener("click", makeChords);
 		document.getElementById("btnRhythmGen").addEventListener("click", makeRhythm);
 		document.getElementById("btnMelodyGen").addEventListener("click", makeMelody);
+
+		document.getElementById("btnStructDownload").addEventListener("click", structDownload);
+		document.getElementById("btnOverflowToggle1").addEventListener("click", ev => overflowToggle(elems.ctlStructuredScript));
+		document.getElementById("btnLineWrapToggle1").addEventListener("click", ev => lineWrapToggle(elems.ctlStructuredScript));
 		document.getElementById("ctlStructuredScript").addEventListener("input", scriptChanged);
+
 		document.getElementById("btnFlattenStruct").addEventListener("click", flattenStruct);
+		document.getElementById("chkAutoFlatten").addEventListener("click", ev => setAutoFlatten(elems.chkAutoFlatten.checked));
 		document.getElementById("btnOverflowToggle2").addEventListener("click", ev => overflowToggle(elems.ctlFlatScript));
 		document.getElementById("btnLineWrapToggle2").addEventListener("click", ev => lineWrapToggle(elems.ctlFlatScript));
-		document.getElementById("chkAutoFlatten").addEventListener("click", ev => setAutoFlatten(elems.chkAutoFlatten.checked));
 		document.getElementById("ctlFlatScript").addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
+
 		document.getElementById("txtPlayFreqScale").addEventListener("input", playFreqScaleChanged);
 		document.getElementById("txtPlayVolScale").addEventListener("input", playVolScaleChanged);
+
 		document.getElementById("btnPlay").addEventListener("click", loadAndPlay);
 		document.getElementById("btnPause").addEventListener("click", pauseToggle);
 		document.getElementById("btnStop").addEventListener("click", playerStop);
+
 		document.getElementById("btnAudioExport").addEventListener("click", audioExport);
 		document.getElementById("btnAudioExportCancel").addEventListener("click", audioExportCancel);
 
@@ -66,7 +78,6 @@
 			//elem.addEventListener("click", recalcEditorCursorPos);
 		}
 		for(const elem of document.querySelectorAll("*[title]")) {
-			//if(["INPUT", "BUTTON"].includes(elem.tagName.toUpperCase()))
 			let tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
 			if(tagIndex >= 0) {
 				elem.addEventListener("focus", setToolTip);
@@ -88,19 +99,25 @@
 	/*]]>*/</script>
 </head>
 <body>
-	<h1>
-		<picture id="title-icon">
-			<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
-			<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
-			<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
-			<img src="icon/Musical-science-simple-white-64.png" type="image/png" alt="&quot;Musical science&quot; icon" width="64" height="64" />
-		</picture>
-		JSON music&nbsp;format, player and&nbsp;generator</h1>
-	<noscript style="color: hsl(0, 100%, 75%);">It seems you have disabled scripting in your user agent. This page can't do things without JavaScript enabled.</noscript>
-	<p><strong>Text&nbsp;size:</strong> 
-		<button id="btnTextShrink">Shrink</button>
-		<button id="btnTextEnlarge">Enlarge</button>
-	</p>
+	<div class="flex-row">
+		<h1>
+			<picture id="title-icon">
+				<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
+				<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
+				<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
+				<img src="icon/Musical-science-simple-white-64.png" type="image/png" alt="&quot;Musical science&quot; icon" width="64" height="64" />
+			</picture>
+			JSON music&nbsp;format, player and&nbsp;generator</h1>
+		<span class="right">
+			<span class="cell"><strong>Text&nbsp;size:</strong> 
+				<button id="btnTextShrink" data-factor="0.8">Shrink</button>
+				<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
+			<span class="cell"><strong>Hue:</strong> 
+				<button id="btnHueFine1" data-delta="-1">MBCGYR</button>
+				<button id="btnHueFine2" data-delta="1">RYGCBM</button></span>
+		</span>
+	</div>
+	<noscript>It seems you have disabled scripting in your user agent. This page can't do things without JavaScript enabled.</noscript>
 	<!--to do: make my own spin buttons, around text inputs-->
 	<!--to do: review all tool tips for compatibility with the status bar, e.g. "the editor below"-->
 	<p><strong>Generator&nbsp;params.:</strong> 
@@ -245,7 +262,7 @@
 	<details>
 		<summary><strong>Audio export to file:</strong></summary>
 		<!--to do: format selector, sample rate-->
-		<!--to do: ...use WebCodecs-->
+		<!--to do: ...use WebCodecs (not yet supported in Firefox)-->
 		<p>
 			<a id="aAudioDownload" href="" hidden=""></a>
 			<button id="btnAudioExport">Export</button>
@@ -264,7 +281,7 @@
 		<details open="">
 			<summary><strong>Interval consonance cheatsheet</strong></summary>
 			<table id="tblFractionIntervals">
-				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, grouped by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a></caption>
+				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a></caption>
 				<thead>
 					<tr>
 						<th>Fraction</th>
@@ -378,11 +395,36 @@
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Diminished_fourth">32/25</a></td>
-						<!--to do: check later if https://en.wikipedia.org/wiki/Just_diminished_fourth is created-->
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32/25</a></td>
 						<td>2<sup>5</sup> 3<sup>0</sup> 5<sup>-2</sup></td>
 						<td>4.274</td>
 						<td>Diminished fourth</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Just_chromatic_semitone">25/24</a></td>
+						<td>2<sup>-3</sup> 3<sup>-1</sup> 5<sup>2</sup></td>
+						<td>0.707</td>
+						<td>Semitone</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/wiki/Diminished_octave">48/25</a></td>
+						<td>2<sup>4</sup> 3<sup>1</sup> 5<sup>-2</sup></td>
+						<td>11.293</td>
+						<td>Major seventh</td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+augmented+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">25/18</a></td>
+						<td>2<sup>-1</sup> 3<sup>-2</sup> 5<sup>2</sup></td>
+						<td>5.687</td>
+						<td>Tritone</td>
+						<td rowspan="2"></td>
+					</tr>
+					<tr>
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36/25</a></td>
+						<td>2<sup>2</sup> 3<sup>2</sup> 5<sup>-2</sup></td>
+						<td>6.313</td>
+						<td>Tritone</td>
 					</tr>
 					<tr><th colspan="5">7-limit (septimal) harmony</th></tr>
 					<tr>
@@ -466,7 +508,7 @@
 						<td>Major seventh</td>
 					</tr>
 					<tr>
-						<td>28/15</td>
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%2228%2F15%22+music+interval&title=Special:Search&profile=advanced&fulltext=1&ns0=1">28/15</a></td>
 						<!--alternative name: grave major seventh (means a different interval in Wikipedia)-->
 						<td>2<sup>2</sup> 3<sup>-1</sup> 5<sup>-1</sup> 7<sup>1</sup></td>
 						<td>10.806</td>

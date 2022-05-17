@@ -1,0 +1,82 @@
+/*general cosmetic styles*/
+:root {
+	--hue-accent: 120;
+	--hue-accent2: calc(var(--hue-accent) + 180);
+}
+* {
+	transition-property: var(--hue-accent), var(--hue-accent2);
+	transition-duration: 0.5s, 0.5s;
+}
+
+article, footer {
+	/*max-width: 120ch;*/
+	margin: auto max(0ch, calc(50% - 0.5*120ch));
+}
+
+code:not(.long) { /*class "long" reserved for future use*/
+	user-select: all;
+}
+
+/*to do: fix check box vertical alignment*/
+button, input:not([type=checkbox]):not([type=radio]) {
+	font-size: 0.85em;
+	margin: 0.125em 0;
+}
+button {
+	font-weight: bold;
+
+	padding: 0.125em 0.375em;
+	border-radius: 0.25em;
+	border-width: calc(5em/32);
+
+	transition: inherit, border-color 0.07s ease-out;
+	/*transition-property: var(--hue-accent), var(--hue-accent2), border-color;
+	transition-duration: 0.5s, 0.5s, 0.07s;
+	transition-timing-function: unset, unset, ease-out;*/
+}
+input[type=number], input[type=text] {
+	border-width: calc(5em/32);
+}
+input[type=number] {
+	padding-left: 0;
+	padding-right: 0;
+	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
+}
+input[type=checkbox] {
+	margin: 0.125em;
+}
+#txtRhythmFactors {
+	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
+}
+
+.cell {
+	margin-left: 0.375ch;
+	margin-right: 0.375ch;
+}
+#outAudioT {
+	display: inline-block;
+	min-width: 6ch;
+	text-align: right;
+}
+#outToolTip {
+	font-style: italic;
+
+	/*position: sticky;*/
+	bottom: 0;
+	/*padding: 1em;*/
+	padding: 1em max(2ch, calc(50% - 0.5*120ch));
+	width: calc(100% - 2*2ch);
+	max-width: 120ch;
+}
+.codeEditor {
+	font-size: 90%;
+}
+
+/*svg rect {*/
+svg g {
+	fill: url(#noteFill1);
+}
+
+td {
+	padding: 0.25em;
+}
