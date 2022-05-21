@@ -200,6 +200,7 @@ function docLoaded() {
 	if(elems.chkAutoFlatten) elems.chkAutoFlatten.checked = autoFlatten;
 	if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
 	if(elems.outAudioDur) elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(elems.txtPrimeCount) elems.txtPrimeCount.max = primes.length.toString();
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)

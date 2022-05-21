@@ -3,6 +3,7 @@
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 75%);
 	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
+	accent-color: hsl(var(--hue-accent, 120), 50%, 37.5%);
 }
 /*::selection {*/
 :not(code):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
@@ -15,7 +16,7 @@ strong {
 }
 h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
 	background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
-	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 1) !important;
+	color: hsl(var(--hue-accent, 120), 100%, 87.5%) !important;
 }
 
 noscript {
@@ -33,7 +34,7 @@ table, caption, td {
 	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875);
 }
 strong code::selection {
-	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 1);
+	color: hsl(var(--hue-accent2, 300), 100%, 12.5%);
 }
 
 a:link {
@@ -46,9 +47,6 @@ a:active {
 	color: hsl(var(--hue-accent, 120), 100%, 12.5%);
 }
 
-input, button, textarea {
-	accent-color: hsl(var(--hue-accent, 120), 50%, 25%);
-}
 input::selection {
 	background-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.75);
 	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);
@@ -61,8 +59,8 @@ button {
 
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.75);
-	border-right-color: hsla(var(--hue-accent, 120), 25%, 62.5%, 0.5);
-	border-left-color: hsla(var(--hue-accent, 120), 25%, 62.5%, 0.5);
+	border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
+	border-left-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
 	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.75);
 }
 button:active {
@@ -72,12 +70,13 @@ button:active {
 input[type=number], input[type=text] {
 	background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
 	color: hsl(var(--hue-accent, 120), 50%, 12.5%);
-
+}
+input[type=number], input[type=text], textarea {
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.625);
 	border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
 	border-left-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
-	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.625);
+	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.625);
 
 	/*border-image-source: linear-gradient(to bottom,
 		hsla(var(--hue-accent, 120), 25%, 25%, 0.75),

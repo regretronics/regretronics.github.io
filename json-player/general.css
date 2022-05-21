@@ -4,9 +4,17 @@
 	flex-direction: column;
 	align-items: center;
 }*/
-h1 {
+/*h1 {
 	margin-block-start: 0.33em;
 	margin-block-end: 0.33em;
+}*/
+div>h1 {
+	margin-block-start: 0em;
+	margin-block-end: 0em;
+}
+div.flex-row {
+	margin-block-start: 1em;
+	margin-block-end: 1em;
 }
 details {
 	margin-bottom: 1.5em;
@@ -78,7 +86,7 @@ input[type=number]::-webkit-outer-spin-button {
 		flex-wrap: nowrap;
 	}
 }
-.cell {
+.cell, .chunk {
 	display: inline-block;
 }
 .right {
@@ -89,13 +97,14 @@ input[type=number]::-webkit-outer-spin-button {
 	height: 12em;
 	width: 100%;
 	/*resize: both;*/
+	resize: none;
 	overflow-y: auto;
 	min-height: 8em;
 	white-space: pre;
 	tab-size: 4;
 }
 .codeEditor.expanded {
-	height: auto;
+	height: unset;
 }
 .codeEditor.lineWrapping {
 	white-space: pre-wrap;
