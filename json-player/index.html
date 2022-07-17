@@ -31,7 +31,7 @@
 	//to do: use defer="true" or async in any script tag?
 	"use strict";
 
-	function loaded() {
+	function pageLoaded() {
 		docLoaded();
 		for(const elem of document.querySelectorAll("input.exp"))
 			elem.addEventListener("input", expSpinnerChanged);
@@ -95,7 +95,7 @@
 			elems[s].dispatchEvent(evt);
 	}
 
-	window.addEventListener("load", loaded);
+	window.addEventListener("load", pageLoaded);
 	/*]]>*/</script>
 </head>
 <body>
@@ -280,7 +280,7 @@
 		<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval">intervals</a>) are actually frequency ratios (proportions). Chords are made of intervals, and both inspire interpretations for listeners. The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. This can be mathematically represented by using rational numbers, and in more consonant intervals these numbers correspond to fractions made out of small integers, such as 3/2. As the irreducible form is the most important for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can help, as used below. More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and is often conventioned to represent a peaceful mood or positive emotions in soundtracks. More dissonant (less consonant) intervals may sound pulsating, complicated, strange, advanced, cacophonous or imperfect, and is symbolically conventioned for negative things.</p>
 		<details open="">
 			<summary><strong>Interval consonance cheatsheet</strong></summary>
-			<table id="tblFractionIntervals">
+			<p><table id="tblFractionIntervals">
 				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a> (approximately descending order of consonance)</caption>
 				<thead>
 					<tr>
@@ -522,7 +522,7 @@
 						<td>Semitone</td>
 					</tr>
 				</tbody>
-			</table>
+			</table></p>
 			<p>Note: "Semitone" is a British English term, corresponding to "half step" in American English. Several other intervals have alternative names: for example the tritone can also be called augmented fourth and diminished fifth, and the major second is also known as a whole tone.</p>
 			<p>Note about octave normalization: The table above displays the multidimensionality of consonance, with little regard to other interval properties such as <a href="https://en.wikipedia.org/wiki/Interval_(music)#Size">size</a>. As the octave is felt as the most neutral interval, it is almost always used as a basic "block" for adjusting interval sizes, which has negligible effect on consonance. So the powers of 2 are used as a counterweight.</p>
 		</details>

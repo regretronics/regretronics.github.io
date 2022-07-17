@@ -239,7 +239,7 @@ function btnHueClick(event) {
 	if(typeof(hue) === "string") hue = parseFloat(hue);
 	if(isNaN(hue) || !isFinite(hue)) hue = 120;
 
-	hue += 60 * delta;
+	hue += 30 * delta;
 	hue %= 360;
 	if(hue < 0) hue += 360;
 
