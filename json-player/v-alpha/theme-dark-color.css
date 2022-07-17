@@ -3,6 +3,7 @@
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 25%);
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
+	accent-color: hsl(var(--hue-accent, 120), 50%, 62.5%);
 }
 /*::selection {*/
 :not(code):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
@@ -13,9 +14,9 @@ body {
 strong {
 	color: white;
 }
-h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
+h1::selection, h1 *::selection, h2::selection, h2 *::selection, h3::selection, h3 *::selection, strong::selection, strong *::selection, em::selection, em *::selection {
 	background-color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.75) !important;
-	color: hsla(var(--hue-accent, 120), 100%, 12.5%, 1) !important;
+	color: hsl(var(--hue-accent, 120), 100%, 12.5%) !important;
 }
 
 noscript {
@@ -28,12 +29,12 @@ table, caption, td {
 	background-color: hsla(0, 0%, 0%, 0.25);
 }
 
-.codeEditor::selection, .codeEditor *::selection, code::selection {
+.codeEditor::selection, .codeEditor *::selection, code::selection, code *::selection {
 	background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.75);
 	color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 0.875);
 }
 strong code::selection {
-	color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 1);
+	color: hsl(var(--hue-accent2, 300), 100%, 87.5%);
 }
 
 a:link {
@@ -46,9 +47,8 @@ a:active {
 	color: hsl(var(--hue-accent, 120), 100%, 87.5%);
 }
 
-input {
-	accent-color: hsl(var(--hue-accent, 120), 50%, 75%);
-}
+/*input, button, textarea, *[contenteditable] {
+}*/
 input::selection {
 	background-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.75);
 	color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);
@@ -72,7 +72,8 @@ button:active {
 input[type=number], input[type=text] {
 	background-color: hsl(var(--hue-accent, 120), 50%, 12.5%);
 	color: hsl(var(--hue-accent, 120), 50%, 87.5%);
-
+}
+input[type=number], input[type=text], textarea {
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.625);
 	border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);

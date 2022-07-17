@@ -160,7 +160,7 @@ function renderNote(clip, note) {
 				//Q: 0.25
 				Q: 1
 				//Q: 4
-			});
+			}); //to do: exponentially increasing Q? (but how?)
 			terminalNode.connect(fltBandPass);
 			terminalNode = fltBandPass;
 			sourceNode.fltBandPass = fltBandPass;
@@ -289,7 +289,7 @@ function drawNote(group, sourceNode) {
 	//to do: alternative blend modes such as lighten or hue?
 	let noteShape = document.createElementNS(svgNS, "rect"), wid = noteVisWidth;
 	if(isNoise)
-		wid *= 16; //arbitrary factor
+		wid *= 16 / sourceNode.fltBandPass.Q.value; //arbitrary factor
 	else
 		if(sourceNode.modGainVibrato)
 			wid = Math.max(wid, 4 * sourceNode.modGainVibrato.gain.value / 1200 * octaveScale);

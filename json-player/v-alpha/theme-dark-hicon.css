@@ -3,6 +3,7 @@
 body {
 	background-color: hsl(var(--hue-accent, 120), 0%, 3.125%);
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
+	accent-color: hsl(var(--hue-accent, 120), 25%, 75%);
 	font-weight: 500;
 }
 /*::selection {*/
@@ -15,8 +16,8 @@ strong {
 	color: white;
 }
 h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
-	background-color: hsla(var(--hue-accent, 120), 0%, 100%, 1) !important;
-	color: hsla(var(--hue-accent, 120), 0%, 0%, 1) !important;
+	background-color: hsl(var(--hue-accent, 120), 0%, 100%) !important;
+	color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
 }
 
 noscript {
@@ -37,7 +38,7 @@ td {
 	color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375);
 }
 strong code::selection {
-	color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 1);
+	color: hsl(var(--hue-accent2, 300), 100%, 93.75%);
 }
 
 a:link {
@@ -50,9 +51,6 @@ a:active {
 	color: hsl(var(--hue-accent, 120), 50%, 87.5%);
 }
 
-input {
-	accent-color: hsl(var(--hue-accent, 120), 25%, 75%);
-}
 input::selection {
 	background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.75);
 	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
@@ -76,7 +74,8 @@ button:active {
 input[type=number], input[type=text] {
 	background-color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 	color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
-
+}
+input[type=number], input[type=text], textarea {
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 0%, 0%, 1);
 	border-right-color: hsla(var(--hue-accent, 120), 0%, 25%, 0.25);
