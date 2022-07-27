@@ -114,7 +114,7 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) {
 
 		sourceNode.detune.value = 1200 * Math.log2(freq0 / noteFreq);
 		sourceNode.detune.setTargetAtTime(0, minStart, Math.abs(clip.playTimeScale) * portamento * Math.LOG2E);
-	} catch (error) {
+	} catch(error) {
 		console.error(error);
 	} finally {
 		clip.lastFreq = noteFreq; //set last note portamento parameters
@@ -351,7 +351,7 @@ function audioTimer() {
 	}
 	//visualization
 	if(elems.imgVisualizer) {
-		//to do: consider svg animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
+		//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
 		//to do: consider a node-based polyline
 		let slice = document.createElementNS(svgNS, "g");
 		slice.setAttributeNS(null, "class", "vis-slice");
@@ -361,7 +361,7 @@ function audioTimer() {
 		for(const node of playerClip.generators)
 			try {
 				drawNote(slice, node);
-			} catch (error) {
+			} catch(error) {
 				console.error(error);
 			}
 		visT++;

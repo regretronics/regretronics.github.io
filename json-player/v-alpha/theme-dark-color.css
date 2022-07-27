@@ -1,9 +1,13 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
+:root {
+	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 12.5%, 0.875);
+}
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 25%);
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 	accent-color: hsl(var(--hue-accent, 120), 50%, 62.5%);
+	color-scheme: dark;
 }
 /*::selection {*/
 :not(code):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
@@ -103,6 +107,12 @@ input.invalid {
 .codeEditor.invalid {
 	background-color: hsla(0, 100%, 75%, 0.75);
 }
+
+/*#title-icon img {*/
+	/*filter: invert(100%) hue-rotate(calc(180deg + 0deg));*/
+	/*filter: hue-rotate(calc(var(--hue-accentdeg, 120deg) - 120deg));*/
+	/*filter: hue-rotate(0deg);*/
+/*}*/
 
 #imgVisualizer {
 	background-color: hsla(0, 0%, 0%, 0.25);

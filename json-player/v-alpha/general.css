@@ -24,7 +24,7 @@ noscript {
 }
 
 /*article p:first-child {
-	margin-top: 0;
+	margin-top: 0em;
 }*/
 /*p {*/
 	/*line-height: 125%;*/
@@ -93,6 +93,7 @@ input[type=number]::-webkit-outer-spin-button {
 	text-align: right;
 }
 
+/*to do: expand and enable word wrapping on print media*/
 .codeEditor {
 	height: 12em;
 	width: 100%;

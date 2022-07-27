@@ -5,7 +5,7 @@
 }
 *, *::selection {
 	/*transition-property: var(--hue-accent), var(--hue-accent2);*/
-	transition-property: background-color, color, accent-color, border-color, border-image-source, stop-color;
+	transition-property: background-color, color, theme-color, accent-color, /*border-color,*/ scrollbar-color, border-image-source, stop-color;
 	transition-duration: 0.25s;
 }
 
@@ -13,15 +13,18 @@ article, footer {
 	/*max-width: 120ch;*/
 	margin: auto max(0ch, calc(50% - 0.5*120ch));
 }
+details summary {
+	cursor: pointer;
+}
 
 code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }
 
-/*to do: fix check box vertical alignment*/
+/*to do: fix check box vertical alignment (if possible)*/
 button, input:not([type=checkbox]):not([type=radio]) {
 	font-size: 0.85em;
-	margin: 0.125em 0;
+	margin: 0.125em 0em;
 }
 button {
 	font-weight: bold;
@@ -30,7 +33,7 @@ button {
 	border-radius: 0.25em;
 	border-width: calc(5em/32);
 
-	transition: inherit, border-color 0.07s ease-out;
+	transition: inherit, border-color 0.1s ease-out;
 	/*transition-property: var(--hue-accent), var(--hue-accent2), border-color;
 	transition-duration: 0.5s, 0.5s, 0.07s;
 	transition-timing-function: unset, unset, ease-out;*/
@@ -39,8 +42,8 @@ input[type=number], input[type=text], textarea {
 	border-width: calc(5em/32);
 }
 input[type=number] {
-	padding-left: 0;
-	padding-right: 0;
+	padding-left: 0em;
+	padding-right: 0em;
 }
 input[type=text], textarea {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
@@ -65,7 +68,7 @@ input[type=number], #txtRhythmFactors {
 	font-style: italic;
 
 	/*position: sticky;*/
-	bottom: 0;
+	bottom: 0em;
 	/*padding: 1em;*/
 	padding: 1em max(2ch, calc(50% - 0.5*120ch));
 	width: calc(100% - 2*2ch);

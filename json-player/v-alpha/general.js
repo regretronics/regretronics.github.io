@@ -101,7 +101,7 @@ function parseNumber(n) {
 		try {
 			//can be an object
 			n = JSON.parse(n);
-		} catch (error) {
+		} catch(error) {
 			//can be an expression
 
 			n = exprEliminateParens(n);
@@ -227,10 +227,20 @@ function rescaleText(f) {
 	//document.body.style.fontSize = textSize + "em";
 	document.children[0].style.fontSize = textSize + "em";
 }
-function btnHueClick(event) {
-	const elem = event.target;
+function themeChanged(event) {
+	if(!document) return false;
+	let elem = event.target;
 	if(!elem) return false;
-	const delta = elem.dataset["delta"];
+	const styleTitle = elem.value.toString();
+	for(const sheet of document.styleSheets) {
+		sheet.disabled = typeof(sheet.title) === "string" && sheet.title !== styleTitle;
+	}
+}
+function btnHueClick(event) {
+	if(!document) return false;
+	let elem = event.target;
+	if(!elem) return false;
+	let delta = Number(elem.dataset["delta"]);
 
 	const root = document.children[0];
 	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
@@ -239,11 +249,23 @@ function btnHueClick(event) {
 	if(typeof(hue) === "string") hue = parseFloat(hue);
 	if(isNaN(hue) || !isFinite(hue)) hue = 120;
 
-	hue += 30 * delta;
+	delta *= 30;
+	hue += delta;
 	hue %= 360;
 	if(hue < 0) hue += 360;
 
 	root.style.setProperty("--hue-accent", hue);
+	elem = document.querySelector("#title-icon");
+	if(!elem) return;
+	elem.animate([
+		//{filter: "hue-rotate(0deg)"}, 
+		/*{filter: "hue-rotate(calc(" + (hue - delta).toString() + "deg - 120deg))"}, 
+		{filter: "hue-rotate(calc(" + hue.toString() + "deg - 120deg))"}*/
+		{filter: "hue-rotate(" + (hue - delta - 120).toString() + "deg)"}, 
+		{filter: "hue-rotate(" + (hue - 120).toString() + "deg)"}
+		//{filter: "hue-rotate(" + delta.toString() + "deg)"}
+	], 
+		{duration: 0.25 * 1000, fill: "forwards"/*, composite: "add"*//*, iterationComposite: "accumulate"*/});
 }
 function overflowToggle(control) {
 	if(!control) return false;

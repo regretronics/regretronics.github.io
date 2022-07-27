@@ -1,9 +1,13 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
+:root {
+	scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 25%, 87.5%);
+}
 body {
 	background-color: hsl(var(--hue-accent, 120), 0%, 3.125%);
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
 	accent-color: hsl(var(--hue-accent, 120), 25%, 75%);
+	color-scheme: dark;
 	font-weight: 500;
 }
 /*::selection {*/
@@ -42,13 +46,13 @@ strong code::selection {
 }
 
 a:link {
-	color: hsl(var(--hue-accent, 120), 25%, 75%);
+	color: hsl(var(--hue-accent, 120), 50%, 87.5%);
 }
 a:visited {
-	color: hsl(30, 25%, 62.5%);
+	color: hsl(30, 50%, 75%);
 }
 a:active {
-	color: hsl(var(--hue-accent, 120), 50%, 87.5%);
+	color: hsl(var(--hue-accent, 120), 100%, 87.5%);
 }
 
 input::selection {
@@ -58,8 +62,8 @@ input::selection {
 button {
 	/*background-color: hsl(var(--hue-accent, 120), 0%, 75%);
 	color: hsl(var(--hue-accent, 120), 0%, 25%);*/
-	background-color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
-	color: hsl(var(--hue-accent, 120), 25%, 93.75%);
+	background-color: hsl(var(--hue-accent, 120), 25%, 6.25%);
+	color: hsl(var(--hue-accent, 120), 50%, 93.75%);
 	
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.75);
@@ -104,6 +108,10 @@ input.invalid {
 }
 .codeEditor.invalid {
 	background-color: hsla(0, 100%, 12.5%, 0.875);
+}
+
+#title-icon img {
+	filter: invert(100%) hue-rotate(180deg);
 }
 
 #imgVisualizer {

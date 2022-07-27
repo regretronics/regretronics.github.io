@@ -73,7 +73,7 @@ function parseNode(flatStruct, node, blockContext) {
 			}
 
 			flatStruct.push(newNote);
-		} catch (error) {
+		} catch(error) {
 			console.error(error);
 		}
 

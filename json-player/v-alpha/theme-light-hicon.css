@@ -1,9 +1,13 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
+:root {
+	scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 87.5%) hsl(var(--hue-accent2, 300), 25%, 12.5%);
+}
 body {
 	background-color: hsl(var(--hue-accent, 120), 0%, 96.875%);
 	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
 	accent-color: hsl(var(--hue-accent, 120), 25%, 25%);
+	color-scheme: light;
 	font-weight: 500;
 }
 /*::selection {*/
@@ -42,13 +46,13 @@ strong code::selection {
 }
 
 a:link {
-	color: hsl(var(--hue-accent, 120), 25%, 25%);
+	color: hsl(var(--hue-accent, 120), 50%, 12.5%);
 }
 a:visited {
-	color: hsl(30, 25%, 37.5%);
+	color: hsl(30, 50%, 25%);
 }
 a:active {
-	color: hsl(var(--hue-accent, 120), 50%, 12.5%);
+	color: hsl(var(--hue-accent, 120), 100%, 12.5%);
 }
 
 input::selection {
