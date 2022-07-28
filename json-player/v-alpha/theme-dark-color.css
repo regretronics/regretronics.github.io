@@ -34,8 +34,8 @@ table, caption, td {
 }
 
 :is(.codeEditor, .codeEditor *, code, code *)::selection {
-	background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.75);
-	color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 0.875);
+	background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.75) !important;
+	color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 0.875) !important;
 }
 strong code::selection {
 	color: hsl(var(--hue-accent2, 300), 100%, 87.5%);

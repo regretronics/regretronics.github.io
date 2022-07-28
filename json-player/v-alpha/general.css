@@ -31,6 +31,9 @@ noscript {
 	/*line-height: 1.5;*/
 	/*line-height: 1.25em;*/
 /*}*/
+p, p * {
+	hyphens: auto;
+}
 
 a[hidden] {
 	display: none;
@@ -130,6 +133,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 #tblFractionIntervals td:nth-child(2) {
 	text-align: center;
+	/*white-space: break-spaces;*/
 }
 #tblFractionIntervals td:nth-child(3) {
 	text-align: right;

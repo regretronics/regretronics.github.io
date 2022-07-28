@@ -282,7 +282,7 @@
 			<a id="aAudioDownload" href="" hidden=""></a>
 			<button id="btnAudioExport">Export</button>
 			<button id="btnAudioExportCancel">Cancel</button>
-			<span class="cell">Format choosen: <wbr /><output id="outExportFormat"></output>.</span>
+			<span class="cell">Format choosen: <wbr /><code><output id="outExportFormat"></output></code>.</span>
 			<span class="cell">Clip duration: <wbr /><output id="outExportDuration">0</output> s.</span>
 			<span class="cell">Progress: <wbr /><output id="outExportProgress">0%</output>.</span>
 		</p>
@@ -310,14 +310,14 @@
 				<tbody>
 					<!--for interval names, https://www.huygens-fokker.org/docs/intervals.html seems to be a great source-->
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Unison">1/1</a></td>
+						<td><a href="https://en.wikipedia.org/wiki/Unison">1<wbr />/1</a></td>
 						<td>2<sup>0</sup></td>
 						<td>0.000</td>
 						<td>(Perfect) unison</td>
 						<td>Most consonant, but not always considered an interval.</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Octave">2/1</a></td>
+						<td><a href="https://en.wikipedia.org/wiki/Octave">2<wbr />/1</a></td>
 						<td>2<sup>1</sup></td>
 						<td>12.000</td>
 						<td>(Perfect) octave</td>
@@ -325,215 +325,215 @@
 					</tr>
 					<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fifth">3/2</a></td>
-						<td>2<sup>-1</sup> 3<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fifth">3<wbr />/2</a></td>
+						<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup></td>
 						<td>7.020</td>
 						<td>(Perfect) fifth</td>
 						<td rowspan="2">Still sounds very basic.</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4/3</a></td>
-						<td>2<sup>2</sup> 3<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4<wbr />/3</a></td>
+						<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup></td>
 						<td>4.980</td>
 						<td>(Perfect) fourth</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Major_tone">9/8</a></td>
-						<td>2<sup>-3</sup> 3<sup>2</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Major_tone">9<wbr />/8</a></td>
+						<td>2<sup>&minus;3</sup> <wbr />3<sup>2</sup></td>
 						<td>2.039</td>
 						<td>Major second</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16/9</a></td>
-						<td>2<sup>4</sup> 3<sup>-2</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16<wbr />/9</a></td>
+						<td>2<sup>4</sup> <wbr />3<sup>&minus;2</sup></td>
 						<td>9.961</td>
 						<td>Minor seventh</td>
 					</tr>
 					<tr><th colspan="5">5-limit (Ptolemaic) harmony</th></tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_major_third">5/4</a></td>
-						<td>2<sup>-2</sup> 3<sup>0</sup> 5<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_major_third">5<wbr />/4</a></td>
+						<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
 						<td>3.863</td>
 						<td>Major third</td>
 						<td rowspan="2">Often used in "good-mood" musical phrases.</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8/5</a></td>
-						<td>2<sup>3</sup> 3<sup>0</sup> 5<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
+						<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
 						<td>8.137</td>
 						<td>Minor sixth</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5/3</a></td>
-						<td>2<sup>0</sup> 3<sup>-1</sup> 5<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
+						<td>2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
 						<td>8.844</td>
 						<td>Major sixth</td>
 						<td rowspan="2">Used as a "sad" replacement for 5/4 and 8/5.</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_minor_third">6/5</a></td>
-						<td>2<sup>1</sup> 3<sup>1</sup> 5<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>
+						<td>2<sup>1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup></td>
 						<td>3.156</td>
 						<td>Minor third</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_major_seventh">15/8</a></td>
-						<td>2<sup>-3</sup> 3<sup>1</sup> 5<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_major_seventh">15<wbr />/8</a></td>
+						<td>2<sup>&minus;3</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup></td>
 						<td>10.883</td>
 						<td>Major seventh</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16/15</a></td>
-						<td>2<sup>4</sup> 3<sup>-1</sup> 5<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16<wbr />/15</a></td>
+						<td>2<sup>4</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup></td>
 						<td>1.117</td>
 						<td>Semitone</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Minor_tone">10/9</a></td>
-						<td>2<sup>1</sup> 3<sup>-2</sup> 5<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Minor_tone">10<wbr />/9</a></td>
+						<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>1</sup></td>
 						<td>1.824</td>
 						<td>Major second</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9/5</a></td>
-						<td>2<sup>0</sup> 3<sup>2</sup> 5<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9<wbr />/5</a></td>
+						<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;1</sup></td>
 						<td>10.176</td>
 						<td>Minor seventh</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25/16</a></td>
-						<td>2<sup>-4</sup> 3<sup>0</sup> 5<sup>2</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25<wbr />/16</a></td>
+						<td>2<sup>&minus;4</sup> <wbr />3<sup>0</sup> <wbr />5<sup>2</sup></td>
 						<td>7.726</td>
 						<td>Minor sixth</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32/25</a></td>
-						<td>2<sup>5</sup> 3<sup>0</sup> 5<sup>-2</sup></td>
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32<wbr />/25</a></td>
+						<td>2<sup>5</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;2</sup></td>
 						<td>4.274</td>
 						<td>Major third</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_chromatic_semitone">25/24</a></td>
-						<td>2<sup>-3</sup> 3<sup>-1</sup> 5<sup>2</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Just_chromatic_semitone">25<wbr />/24</a></td>
+						<td>2<sup>&minus;3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>2</sup></td>
 						<td>0.707</td>
 						<td>Semitone</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Diminished_octave">48/25</a></td>
-						<td>2<sup>4</sup> 3<sup>1</sup> 5<sup>-2</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Diminished_octave">48<wbr />/25</a></td>
+						<td>2<sup>4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;2</sup></td>
 						<td>11.293</td>
 						<td>Major seventh</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+augmented+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">25/18</a></td>
-						<td>2<sup>-1</sup> 3<sup>-2</sup> 5<sup>2</sup></td>
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+augmented+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">25<wbr />/18</a></td>
+						<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>2</sup></td>
 						<td>5.687</td>
 						<td>Tritone</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36/25</a></td>
-						<td>2<sup>2</sup> 3<sup>2</sup> 5<sup>-2</sup></td>
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36<wbr />/25</a></td>
+						<td>2<sup>2</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;2</sup></td>
 						<td>6.313</td>
 						<td>Tritone</td>
 					</tr>
 					<tr><th colspan="5">7-limit (septimal) harmony</th></tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Harmonic_seventh">7/4</a></td>
-						<td>2<sup>-2</sup> 3<sup>0</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Harmonic_seventh">7<wbr />/4</a></td>
+						<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 						<td>9.688</td>
 						<td>Minor seventh</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8/7</a></td>
-						<td>2<sup>3</sup> 3<sup>0</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8<wbr />/7</a></td>
+						<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
 						<td>2.312</td>
 						<td>Major second</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_third">7/6</a></td>
-						<td>2<sup>-1</sup> 3<sup>-1</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_third">7<wbr />/6</a></td>
+						<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 						<td>2.669</td>
 						<td></td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12/7</a></td>
-						<td>2<sup>2</sup> 3<sup>1</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12<wbr />/7</a></td>
+						<td>2<sup>2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
 						<td>9.331</td>
 						<td></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_narrow_fourth">21/16</a></td>
-						<td>2<sup>-4</sup> 3<sup>1</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_narrow_fourth">21<wbr />/16</a></td>
+						<td>2<sup>&minus;4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 						<td>4.708</td>
 						<td>(Perfect) fourth</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32/21</a></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32<wbr />/21</a></td>
 						<!--alternative name: wide fifth-->
-						<td>2<sup>5</sup> 3<sup>-1</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td>2<sup>5</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
 						<td>7.292</td>
 						<td>(Perfect) fifth</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_sixth">14/9</a></td>
-						<td>2<sup>1</sup> 3<sup>-2</sup> 5<sup>0</sup> 7<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_sixth">14<wbr />/9</a></td>
+						<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 						<td>7.649</td>
 						<td></td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9/7</a></td>
-						<td>2<sup>0</sup> 3<sup>2</sup> 5<sup>0</sup> 7<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9<wbr />/7</a></td>
+						<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
 						<td>4.351</td>
 						<td></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Huygens%27_tritone">7/5</a></td>
-						<td>2<sup>0</sup> 3<sup>0</sup> 5<sup>-1</sup> 7<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Huygens%27_tritone">7<wbr />/5</a></td>
+						<td>2<sup>0</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 						<td>5.825</td>
 						<td>Tritone</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10/7</a></td>
-						<td>2<sup>1</sup> 3<sup>0</sup> 5<sup>1</sup> 7<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10<wbr />/7</a></td>
+						<td>2<sup>1</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
 						<td>6.175</td>
 						<td>Tritone</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_chromatic_semitone">21/20</a></td>
-						<td>2<sup>-2</sup> 3<sup>1</sup> 5<sup>-1</sup> 7<sup>1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_chromatic_semitone">21<wbr />/20</a></td>
+						<td>2<sup>&minus;2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 						<td>0.845</td>
 						<td>Semitone</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave">40/21</a></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave">40<wbr />/21</a></td>
 						<!--alternative name: acute major seventh-->
-						<td>2<sup>3</sup> 3<sup>-1</sup> 5<sup>1</sup> 7<sup>-1</sup></td>
+						<td>2<sup>3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
 						<td>11.155</td>
 						<td>Major seventh</td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%2228%2F15%22+music+interval&title=Special:Search&profile=advanced&fulltext=1&ns0=1">28/15</a></td>
+						<td><a href="https://en.wikipedia.org/w/index.php?search=%2228%2F15%22+music+interval&title=Special:Search&profile=advanced&fulltext=1&ns0=1">28<wbr />/15</a></td>
 						<!--alternative name: grave major seventh (means a different interval in Wikipedia)-->
-						<td>2<sup>2</sup> 3<sup>-1</sup> 5<sup>-1</sup> 7<sup>1</sup></td>
+						<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 						<td>10.806</td>
 						<td>Major seventh</td>
 						<td rowspan="2"></td>
 					</tr>
 					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15/14</a></td>
-						<td>2<sup>-1</sup> 3<sup>1</sup> 5<sup>1</sup> 7<sup>-1</sup></td>
+						<td><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15<wbr />/14</a></td>
+						<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
 						<td>1.194</td>
 						<td>Semitone</td>
 					</tr>
@@ -629,11 +629,11 @@
 				<li><code>"5/2/2"</code> = (5/2)/2 = 5/4 = 1.25</li>
 				<li><code>"5/2^2"</code> = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
 			</ul>
-			<li><code>[-2, 0, 1]</code> = 2<sup>-2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+			<li><code>[-2, 0, 1]</code> = 2<sup>&minus;2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
 			<ul>
 				<li>String expressions are supported in object values: <code>["-1-1", 0, 1]</code> = <code>[-2, 0, 1]</code></li>
 			</ul>
-			<li><code>{"2": -2, "5": 1}</code> = 2<sup>-2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors, but also supports other factors)</li>
+			<li><code>{"2": -2, "5": 1}</code> = 2<sup>&minus;2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors, but also supports other factors)</li>
 			<ul>
 				<li>Even factors can be string expressions: <code>{"2": -2, "2 + 3": 1}</code> = <code>{"2": -2, "5": 1}</code></li>
 			</ul>
