@@ -232,22 +232,6 @@ function themeChanged(event) {
 	const elem = event.target;
 	if(!elem) return false;
 	const styleTitle = elem.value.toString();
-	//let insertionPlace = document.querySelector("head link[rel~=stylesheet][title]");
-	/*for(const sheet of document.styleSheets) {
-		if(typeof(sheet.title) !== "string") continue;
-		sheet.disabled = sheet.title !== styleTitle;
-		//if((!sheet.ownerNode) || (!sheet.ownerNode.relList)) continue;
-		if((!sheet.ownerNode) || (!sheet.ownerNode.relList)) continue;
-		if(sheet.disabled) //intended for non-Firefox (no effect on G. Chrome).
-			//sheet.ownerNode.relList.add("alternate");
-			sheet.ownerNode.rel = "alternate stylesheet";
-		else {
-			//sheet.ownerNode.relList.remove("alternate");
-			sheet.ownerNode.rel = "stylesheet";
-			//insertionPlace.insertAdjacentElement("beforebegin", sheet.ownerNode); //reordering didn't work in Chrome.
-			//console.log("*");
-		}
-	}*/
 	const sheets = document.querySelectorAll("head link[rel~=stylesheet][title]");
 	for(const sheet of sheets) {
 		if(!sheet.hasAttribute("title")) continue;
@@ -277,6 +261,18 @@ function btnHueClick(event) {
 	if(hue < 0) hue += 360;
 
 	root.style.setProperty("--hue-accent", hue);
+
+	const metaElems = document.querySelectorAll("head meta[name=theme-color]");
+	for(const elem2 of metaElems) {
+		if(elem2.hasAttribute("media")) { //test (to do!)
+			if(elem2.getAttribute("media").toLowerCase() == "(prefers-color-scheme: dark)")
+				elem2.setAttribute("content", "darkred");
+			else
+				elem2.setAttribute("content", "chartreuse");
+		} else
+			elem2.setAttribute("content", "red");
+	}
+
 	elem = document.querySelector("#title-icon");
 	if(!elem) return;
 	elem.animate([

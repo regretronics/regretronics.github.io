@@ -445,7 +445,7 @@ function beforePlay() {
 
 	//to do: currently, audio clips are expected to start at time 0. I could do a leading silence trimming if relevant.
 	lastT = playerClip.audioCtx.currentTime;
-	playerClip.t0 = lastT + playerClip.playTimeDelta;
+	playerClip.t0 = lastT - playerClip.playTimeDelta;
 
 	visT = 0;
 	if(elems.imgVisualizer) {
@@ -455,7 +455,7 @@ function beforePlay() {
 	}
 	//audioTimer();
 	audioTUpdate();
-	enqueueNotes(playerClip, -playerClip.playTimeDelta, 2 * audioTimerInterval);
+	enqueueNotes(playerClip, playerClip.playTimeDelta, 2 * audioTimerInterval);
 	//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000));
 	playerClip.audioCtx.resume().then(audioTimer);
 	if(elems.btnPause) {
@@ -633,7 +633,7 @@ function audioExport() {
 	exportClip.noiseBuffer = createNoiseBuffer(exportClip.audioCtx);
 	//to do: currently, audio clips are expected to start at time 0. I could do a leading silence trimming if relevant.
 	lastT = exportClip.audioCtx.currentTime;
-	exportClip.t0 = lastT + exportClip.playTimeDelta;
+	exportClip.t0 = lastT - exportClip.playTimeDelta;
 
 	//based on code from https://github.com/mdn/webaudio-examples/blob/master/create-media-stream-destination/index.html
 	let dest = exportClip.audioCtx.createMediaStreamDestination();

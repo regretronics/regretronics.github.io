@@ -3,10 +3,22 @@
 	--hue-accent: 120; /*question: include deg unit for hues? (currently never)*/
 	--hue-accent2: calc(var(--hue-accent) + 180);
 }
-body, *::selection {
-	/*transition-property: var(--hue-accent), var(--hue-accent2);*/
-	transition-property: background-color, color, theme-color, accent-color, /*border-color,*/ scrollbar-color, border-image-source, stop-color;
-	transition-duration: 0.25s;
+@media screen and (not(prefers-reduced-motion)) {
+	:root {
+		transition-property: /*theme-color,*/ scrollbar-color;
+		transition-duration: 0.25s;
+	}
+	body, *::selection {
+		/*transition-property: var(--hue-accent), var(--hue-accent2);*/
+		transition-property: background-color, color, theme-color, accent-color, /*border-color,*/ scrollbar-color, border-image-source, stop-color;
+		transition-duration: 0.25s;
+	}
+	button {
+		transition: inherit, border-color 0.1s ease-out;
+		/*transition-property: var(--hue-accent), var(--hue-accent2), border-color;
+		transition-duration: 0.5s, 0.5s, 0.07s;
+		transition-timing-function: unset, unset, ease-out;*/
+	}
 }
 
 article, footer {
@@ -32,11 +44,6 @@ button {
 	padding: 0.125em 0.375em;
 	border-radius: 0.25em;
 	border-width: calc(5em/32);
-
-	transition: inherit, border-color 0.1s ease-out;
-	/*transition-property: var(--hue-accent), var(--hue-accent2), border-color;
-	transition-duration: 0.5s, 0.5s, 0.07s;
-	transition-timing-function: unset, unset, ease-out;*/
 }
 input[type=number], input[type=text], textarea {
 	border-width: calc(5em/32);
@@ -73,6 +80,8 @@ input[type=number], #txtRhythmFactors {
 	padding: 1em max(2ch, calc(50% - 0.5*120ch));
 	width: calc(100% - 2*2ch);
 	max-width: 120ch;
+
+	background-color: canvas;
 }
 .codeEditor {
 	font-size: 90%;
