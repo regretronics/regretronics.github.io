@@ -229,11 +229,33 @@ function rescaleText(f) {
 }
 function themeChanged(event) {
 	if(!document) return false;
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem) return false;
 	const styleTitle = elem.value.toString();
-	for(const sheet of document.styleSheets) {
-		sheet.disabled = typeof(sheet.title) === "string" && sheet.title !== styleTitle;
+	//let insertionPlace = document.querySelector("head link[rel~=stylesheet][title]");
+	/*for(const sheet of document.styleSheets) {
+		if(typeof(sheet.title) !== "string") continue;
+		sheet.disabled = sheet.title !== styleTitle;
+		//if((!sheet.ownerNode) || (!sheet.ownerNode.relList)) continue;
+		if((!sheet.ownerNode) || (!sheet.ownerNode.relList)) continue;
+		if(sheet.disabled) //intended for non-Firefox (no effect on G. Chrome).
+			//sheet.ownerNode.relList.add("alternate");
+			sheet.ownerNode.rel = "alternate stylesheet";
+		else {
+			//sheet.ownerNode.relList.remove("alternate");
+			sheet.ownerNode.rel = "stylesheet";
+			//insertionPlace.insertAdjacentElement("beforebegin", sheet.ownerNode); //reordering didn't work in Chrome.
+			//console.log("*");
+		}
+	}*/
+	const sheets = document.querySelectorAll("head link[rel~=stylesheet][title]");
+	for(const sheet of sheets) {
+		if(!sheet.hasAttribute("title")) continue;
+		sheet.disabled = sheet.title !== styleTitle;
+		if(sheet.disabled)
+			sheet.rel = "alternate stylesheet";
+		else
+			sheet.rel = "stylesheet";
 	}
 }
 function btnHueClick(event) {

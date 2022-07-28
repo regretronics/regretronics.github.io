@@ -315,9 +315,11 @@ let lastT = 0, visT = 0;
 //function audioTimer(noEnqueue) {
 function audioTimer() {
 	if(!playerClip) return false;
+	//console.log("audioTimer() #1.");
 	if(!playerClip.playing || !playerClip.audioCtx || !playerClip.flatStruct) return false;
 	//playerClip.playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
 	audioTUpdate();
+	//console.log("audioTimer() #2.");
 	//if((playerClip.flatStruct.length < 1) && (playerClip.audioCtx.currentTime - playerClip.t0 > playerClip.duration)) {
 	if((playerClip.audioCtx.state !== 'suspended') && (playerClip.audioCtx.currentTime - playerClip.t0 > 0) && (playerClip.generators.length < 1) && (!playerClip.flatStruct || (playerClip.flatStruct.length < 1))) {
 		console.log("audioTimer: will stop playback.");
@@ -325,7 +327,9 @@ function audioTimer() {
 		return;
 	}
 	//if(playerClip.audioCtx.state === 'closed') return;
+	//console.log("audioTimer: playerClip.audioCtx.state: " + playerClip.audioCtx.state.toString());
 	if(playerClip.audioCtx.state !== 'running') return;
+	//console.log("audioTimer() #3.");
 	
 	//if(noEnqueue === undefined) noEnqueue = false;
 	let currT = playerClip.audioCtx.currentTime;
@@ -369,6 +373,7 @@ function audioTimer() {
 	
 	window.setTimeout(audioTimer, audioTimerInterval * 1000);
 	//to do: allow skipping/fast forward/rewind?
+	console.log("audioTimer() end.");
 }
 
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.innerText.
@@ -431,6 +436,34 @@ function loadNewClip() {
 	let clip = new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
 	return clip;
 }
+function beforePlay() {
+	playerClip.destNode = playerClip.audioCtx.destination;
+	playerClip.playing = true;
+
+	//if(!playerClip.noiseBuffer || (noiseSource.context !== playerClip.audioCtx)) playerClip.noiseBuffer = createNoiseBuffer();
+	if(!playerClip.noiseBuffer) playerClip.noiseBuffer = createNoiseBuffer(playerClip.audioCtx);
+
+	//to do: currently, audio clips are expected to start at time 0. I could do a leading silence trimming if relevant.
+	lastT = playerClip.audioCtx.currentTime;
+	playerClip.t0 = lastT + playerClip.playTimeDelta;
+
+	visT = 0;
+	if(elems.imgVisualizer) {
+		let slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
+		for(let i = slices.length - 1; i >= 0; i--)
+			slices[i].remove();
+	}
+	//audioTimer();
+	audioTUpdate();
+	enqueueNotes(playerClip, -playerClip.playTimeDelta, 2 * audioTimerInterval);
+	//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000));
+	playerClip.audioCtx.resume().then(audioTimer);
+	if(elems.btnPause) {
+		elems.btnPause.innerHTML = "<u>P</u>ause";
+		elems.btnPause.disabled = false;
+	}
+	//window.setTimeout(audioTimer, audioTimerInterval * 1000);
+}
 function loadAndPlay() {
 	if(playerClip && playerClip.playing) return false;
 
@@ -452,33 +485,8 @@ function loadAndPlay() {
 
 	if(!playerClip.audioCtx || (playerClip.audioCtx.state === 'closed'))
 		playerClip.audioCtx = new AudioContext({latencyHint: "playback"});
-	playerClip.destNode = playerClip.audioCtx.destination;
 	//to do: use Promise here to defer the rest of the procedure?
-	playerClip.audioCtx.suspend();
-	playerClip.playing = true;
-
-	//if(!playerClip.noiseBuffer || (noiseSource.context !== playerClip.audioCtx)) playerClip.noiseBuffer = createNoiseBuffer();
-	if(!playerClip.noiseBuffer) playerClip.noiseBuffer = createNoiseBuffer(playerClip.audioCtx);
-
-	//to do: currently, audio clips are expected to start at time 0. i could do a leading silence trimming if relevant.
-	lastT = playerClip.audioCtx.currentTime;
-	playerClip.t0 = lastT + playerClip.playTimeDelta;
-
-	visT = 0;
-	if(elems.imgVisualizer) {
-		let slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
-		for(let i = slices.length - 1; i >= 0; i--)
-			slices[i].remove();
-	}
-	audioTimer();
-	enqueueNotes(playerClip, -playerClip.playTimeDelta, 2 * audioTimerInterval);
-	//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000));
-	playerClip.audioCtx.resume().then(audioTimer);
-	if(elems.btnPause) {
-		elems.btnPause.innerHTML = "<u>P</u>ause";
-		elems.btnPause.disabled = false;
-	}
-	//window.setTimeout(audioTimer, audioTimerInterval * 1000);
+	playerClip.audioCtx.suspend().then(beforePlay);
 }
 
 //nonreversible operation, frees resources

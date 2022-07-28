@@ -9,11 +9,11 @@
 	<link rel="stylesheet" type="text/css" href="general.css" />
 	<link rel="stylesheet" type="text/css" href="general2.css" />
 	<link rel="stylesheet" type="text/css" href="theme-auto.css" media="screen" title="Automatic" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-null.css" title="Null (vanilla)" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-dark-color.css" title="Dark, colored" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-light-color.css" title="Light, colored" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-dark-hicon.css" title="Dark, high contrast" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-light-hicon.css" title="Light, high contrast" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-null.css" title="Null (vanilla)" disabled="" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-dark-color.css" title="Dark, colored" disabled="" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-light-color.css" title="Light, colored" disabled="" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-dark-hicon.css" title="Dark, high contrast" disabled="" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-light-hicon.css" title="Light, high contrast" disabled="" />
 
 	<link rel="icon" href="icon/Musical-science-white.svg" type="image/svg+xml" sizes="any" />
 	<link rel="icon" href="icon/Musical-science-simple-white.svg" type="image/svg+xml" sizes="16x16 64x64" />
@@ -38,7 +38,8 @@
 
 		document.getElementById("btnTextShrink").addEventListener("click", ev => rescaleText(0.8));
 		document.getElementById("btnTextEnlarge").addEventListener("click", ev => rescaleText(1.25));
-		document.getElementById("cboPageTheme").addEventListener("click", themeChanged); //click only works via mouse.
+		//document.getElementById("cboPageTheme").addEventListener("click", themeChanged); //click only works via mouse. doesn't work well in G. Chrome.
+		//document.getElementById("cboPageTheme").addEventListener("focus", themeChanged); //doesn't work well in G. Chrome.
 		document.getElementById("cboPageTheme").addEventListener("input", themeChanged); //working: change, input. inappropriate: toggle, select, selectionchange.
 		document.getElementById("btnHueFine1").addEventListener("click", btnHueClick);
 		document.getElementById("btnHueFine2").addEventListener("click", btnHueClick);
@@ -295,10 +296,11 @@
 				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a> (approximately descending order of consonance)</caption>
 				<thead>
 					<tr>
+						<!--hyphenation based on Oxford Advanced Leaner's Dictionary, with http://www.ushuaia.pl/hyphen/?ln=en to fill in the gaps.-->
 						<th>Fraction</th>
-						<th>Prime factorization</th>
-						<th><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semitones (12-TET)</a></th>
-						<th>Traditional name (approx.)</th>
+						<th>Prime fac&shy;tor&shy;iza&shy;tion</th>
+						<th><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semi&shy;tones (12-TET)</a></th>
+						<th>Trad&shy;ition&shy;al name (approx.)</th>
 						<th>Notes</th>
 					</tr>
 				</thead>

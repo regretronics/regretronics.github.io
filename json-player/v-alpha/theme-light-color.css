@@ -18,7 +18,9 @@ body {
 strong {
 	color: black;
 }
-h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
+/*h1::selection, h2::selection, h3::selection, strong::selection, em::selection {*/
+/*h1::selection, h1 *::selection, h2::selection, h2 *::selection, h3::selection, h3 *::selection, strong::selection, strong *::selection, em::selection, em *::selection {*/
+:is(h1, h1 *, h2, h2 *, h3, h3 *, strong, strong *, em, em *)::selection {
 	background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
 	color: hsl(var(--hue-accent, 120), 100%, 87.5%) !important;
 }
@@ -33,7 +35,9 @@ table, caption, td {
 	background-color: hsla(0, 0%, 100%, 0.25);
 }
 
-.codeEditor::selection, .codeEditor *::selection, code::selection {
+/*.codeEditor::selection, .codeEditor *::selection, code::selection {*/
+/*.codeEditor::selection, .codeEditor *::selection, code::selection, code *::selection {*/
+:is(.codeEditor, .codeEditor *, code, code *)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75);
 	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875);
 }

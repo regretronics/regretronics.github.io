@@ -1,9 +1,9 @@
 /*general cosmetic styles*/
 :root {
-	--hue-accent: 120;
+	--hue-accent: 120; /*question: include deg unit for hues? (currently never)*/
 	--hue-accent2: calc(var(--hue-accent) + 180);
 }
-*, *::selection {
+body, *::selection {
 	/*transition-property: var(--hue-accent), var(--hue-accent2);*/
 	transition-property: background-color, color, theme-color, accent-color, /*border-color,*/ scrollbar-color, border-image-source, stop-color;
 	transition-duration: 0.25s;
