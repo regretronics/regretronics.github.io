@@ -1,7 +1,8 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
 :root {
-	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 12.5%, 0.875);
+	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 12.5%, 0.875);*/
+	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875) hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 }
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 25%);
@@ -108,11 +109,12 @@ input.invalid {
 	background-color: hsla(0, 100%, 75%, 0.75);
 }
 
-/*#title-icon img {*/
+#title-icon img { /*to do: extend this to all images?*/
 	/*filter: invert(100%) hue-rotate(calc(180deg + 0deg));*/
 	/*filter: hue-rotate(calc(var(--hue-accentdeg, 120deg) - 120deg));*/
 	/*filter: hue-rotate(0deg);*/
-/*}*/
+	filter: contrast(87.5%);
+}
 
 #imgVisualizer {
 	background-color: hsla(0, 0%, 0%, 0.25);

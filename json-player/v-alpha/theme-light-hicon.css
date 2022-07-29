@@ -1,11 +1,12 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
 :root {
-	scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 87.5%) hsl(var(--hue-accent2, 300), 25%, 12.5%);
+	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 87.5%) hsl(var(--hue-accent2, 300), 25%, 12.5%);*/
+	scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 12.5%, 93.75%);
 }
 body {
-	background-color: hsl(var(--hue-accent, 120), 0%, 96.875%);
-	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
+	background-color: hsl(var(--hue-accent, 120), 25%, 96.875%);
+	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
 	accent-color: hsl(var(--hue-accent, 120), 25%, 25%);
 	color-scheme: light;
 	font-weight: 500;
@@ -40,8 +41,8 @@ td {
 
 /*.codeEditor::selection, .codeEditor *::selection, code::selection {*/
 :is(.codeEditor, .codeEditor *, code, code *)::selection {
-	background-color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 1);
-	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.9375);
+	background-color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 1) !important;
+	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.9375) !important;
 }
 strong code::selection {
 	color: hsl(var(--hue-accent2, 300), 100%, 6.25%);

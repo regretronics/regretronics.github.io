@@ -1,11 +1,12 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
 :root {
-	scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 25%, 87.5%);
+	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 25%, 87.5%);*/
+	scrollbar-color: hsl(var(--hue-accent, 120), 12.5%, 87.5%) hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 }
 body {
-	background-color: hsl(var(--hue-accent, 120), 0%, 3.125%);
-	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
+	background-color: hsl(var(--hue-accent, 120), 25%, 3.125%);
+	color: hsla(var(--hue-accent, 120), 25%, 100%, 0.9375);
 	accent-color: hsl(var(--hue-accent, 120), 25%, 75%);
 	color-scheme: dark;
 	font-weight: 500;
@@ -40,8 +41,8 @@ td {
 
 /*.codeEditor::selection, .codeEditor *::selection, code::selection {*/
 :is(.codeEditor, .codeEditor *, code, code *)::selection {
-	background-color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1);
-	color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375);
+	background-color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1) !important;
+	color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375) !important;
 }
 strong code::selection {
 	color: hsl(var(--hue-accent2, 300), 100%, 93.75%);
@@ -112,7 +113,7 @@ input.invalid {
 	background-color: hsla(0, 100%, 12.5%, 0.875);
 }
 
-#title-icon img {
+#title-icon img { /*to do: extend this to all images?*/
 	filter: invert(100%) hue-rotate(180deg);
 }
 

@@ -7,10 +7,11 @@
 //to do: (structured) music file upload to page
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
 //to do: consider radically changing flattened format: events (more like midi), supporting named notes
+//to do: multitrack architecture for mixing and effect pipelines, with named tracks
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
-	//question: these names are probably lousy and inconsistent. right now i'm not sure of how to improve.
+	//question: these names are probably lousy and inconsistent. right now I'm not sure of how to improve.
 	timeDelta: 0,
 	timeScale: 1,
 
@@ -221,11 +222,15 @@ function docLoaded() {
 }
 
 let textSize = 1;
-function rescaleText(f) {
+/*function rescaleText(f) {*/
+function rescaleText(event) {
 	if(!document || !document.body || !document.body.style) return false;
+	const elem = event.target;
+	if(!elem) return false;
+	const f = Number(elem.dataset["factor"]);
 	textSize *= f;
 	//document.body.style.fontSize = textSize + "em";
-	document.children[0].style.fontSize = textSize + "em";
+	document.children[0].style.fontSize = textSize + "em"; //html element
 }
 function themeChanged(event) {
 	if(!document) return false;
@@ -262,7 +267,7 @@ function btnHueClick(event) {
 
 	root.style.setProperty("--hue-accent", hue);
 
-	const metaElems = document.querySelectorAll("head meta[name=theme-color]");
+	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
 	for(const elem2 of metaElems) {
 		if(elem2.hasAttribute("media")) { //test (to do!)
 			if(elem2.getAttribute("media").toLowerCase() == "(prefers-color-scheme: dark)")
@@ -271,9 +276,9 @@ function btnHueClick(event) {
 				elem2.setAttribute("content", "chartreuse");
 		} else
 			elem2.setAttribute("content", "red");
-	}
+	}*/
 
-	elem = document.querySelector("#title-icon");
+	elem = document.querySelector("#title-icon"); //to do: extend this to all images?
 	if(!elem) return;
 	elem.animate([
 		//{filter: "hue-rotate(0deg)"}, 
@@ -446,13 +451,13 @@ function deletePrevTab() {
 	rng.setStart(node, i);
 	rng.setEnd(node, i + 1);
 	//rng.deleteContents();
-	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently i haven't found any proper replacement for this command.
+	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently I haven't found any proper replacement for this command.
 	rng.setStart(node, pos - 1); //also buggy
 	rng.setEnd(node, pos - 1);
 }
 function editorKeyDown(event) {
 	if(event.key == "Tab") {
-		//console.log(event);
+		//console.debug(event);
 		event.stopPropagation();
 		event.preventDefault();
 
@@ -548,6 +553,7 @@ function structDownload(event) {
 	if(!elems.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 	let data = [elems.ctlStructuredScript.innerText];
+	//let data = [elems.ctlStructuredScript.value];
 	let file;
 	let properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 	

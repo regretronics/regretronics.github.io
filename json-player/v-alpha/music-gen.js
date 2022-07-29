@@ -137,7 +137,7 @@ function limitFreq(tuning, freq) {
 	let freqAbs = Math.abs(tuning) * parseNumber(freq);
 	if(!freq[2]) freq[2] = 0;
 	while(true) {
-		//i know the human ear is supposed to hear more than this, but it's already outside the ordinary. i can barely hear these extremes.
+		//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
 		if(freqAbs > 13000) {
 			freq[2]--;
 			freqAbs *= 0.5;

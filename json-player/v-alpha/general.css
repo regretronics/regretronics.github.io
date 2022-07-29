@@ -46,26 +46,22 @@ input[type=number] {
 /*input[type=number]:not([size]) {
 	width: 8ch;
 }*/
-/*try to show spin buttons on numerical fields*/
-input[type=number]::inner-spin-button, 
-input[type=number]::outer-spin-button {
-	/*appearance: auto;*/
-	/*appearance: button;*/
-	-webkit-appearance: inner-spin-button;
-	appearance: inner-spin-button;
-	opacity: 1;
-}
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button {
-	/*appearance: auto;*/
-	/*appearance: button;*/
-	-webkit-appearance: inner-spin-button;
-	appearance: inner-spin-button;
-	opacity: 1;
-}
 /*input.exp:not([size]) {
 	width: 8ch;
 }*/
+/*try to show spin buttons on numerical fields*/
+/*input[type=number]::inner-spin-button, 
+input[type=number]::outer-spin-button {*/
+	/*appearance: auto;*/
+	/*appearance: button;*/
+/*	-webkit-appearance: inner-spin-button;
+	appearance: inner-spin-button;
+	opacity: 1;
+}*/
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {
+	opacity: 1;
+}
 #txtRhythmFactors {
 	text-align: right;
 	width: 12ch;

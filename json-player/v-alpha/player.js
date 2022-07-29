@@ -192,7 +192,7 @@ function renderNote(clip, note) {
 		let gainDecay, gainAttack, gainRelease;
 		//volume scale and decay (from vol to 0)
 		//note: negative gain causes phase inversion (at least in Ffx 100)
-		gainDecay = new GainNode(clip.audioCtx, {gain: clip.playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol)});
+		gainDecay = new GainNode(clip.audioCtx, {gain: clip.playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol)}); //to do: consider the optional chaining operator here
 		let decayFactor = NaNToDefault(note.decayFactor, defaultNoteNode.decayFactor);
 		//question: should decay factor be subject to playTimeScale? (currently yes)
 		gainDecay.gain.setTargetAtTime(0, minStart, Math.abs(clip.playTimeScale) * decayFactor * Math.LOG2E / Math.abs(noteFreq)); //negative time constants currently don't work
@@ -269,11 +269,12 @@ function audioTUpdate() {
 		elems.outAudioT.innerText = (playerClip.audioCtx.currentTime - playerClip.t0).toFixed(timeDisplPrecision);
 	if(elems.outGenCount) elems.outGenCount.innerText = playerClip.generators.length.toString();
 }
-const visSliceCount = 16;
+const visSliceCount = 32;
 const svgNS = "http://www.w3.org/2000/svg";
 function drawNote(group, sourceNode) {
 	const noteVisWidth = 1 / 128; //arbitrary size
-	const freqMin = 20, freqMax = 20000, octaveScale = 1 / Math.log2(freqMax / freqMin);
+	const freqMin = 20, freqMax = 14000; //20000;
+	const octaveScale = 1 / Math.log2(freqMax / freqMin);
 
 	let freq, isNoise;
 	if(sourceNode.frequency) {
@@ -315,11 +316,11 @@ let lastT = 0, visT = 0;
 //function audioTimer(noEnqueue) {
 function audioTimer() {
 	if(!playerClip) return false;
-	//console.log("audioTimer() #1.");
+	//console.debug("audioTimer() #1.");
 	if(!playerClip.playing || !playerClip.audioCtx || !playerClip.flatStruct) return false;
 	//playerClip.playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
 	audioTUpdate();
-	//console.log("audioTimer() #2.");
+	//console.debug("audioTimer() #2.");
 	//if((playerClip.flatStruct.length < 1) && (playerClip.audioCtx.currentTime - playerClip.t0 > playerClip.duration)) {
 	if((playerClip.audioCtx.state !== 'suspended') && (playerClip.audioCtx.currentTime - playerClip.t0 > 0) && (playerClip.generators.length < 1) && (!playerClip.flatStruct || (playerClip.flatStruct.length < 1))) {
 		console.log("audioTimer: will stop playback.");
@@ -329,7 +330,7 @@ function audioTimer() {
 	//if(playerClip.audioCtx.state === 'closed') return;
 	//console.log("audioTimer: playerClip.audioCtx.state: " + playerClip.audioCtx.state.toString());
 	if(playerClip.audioCtx.state !== 'running') return;
-	//console.log("audioTimer() #3.");
+	//console.debug("audioTimer() #3.");
 	
 	//if(noEnqueue === undefined) noEnqueue = false;
 	let currT = playerClip.audioCtx.currentTime;
@@ -373,7 +374,7 @@ function audioTimer() {
 	
 	window.setTimeout(audioTimer, audioTimerInterval * 1000);
 	//to do: allow skipping/fast forward/rewind?
-	console.log("audioTimer() end.");
+	//console.debug("audioTimer() end.");
 }
 
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.innerText.
@@ -551,7 +552,7 @@ function pauseToggle() {
 	}
 	lastT = playerClip.audioCtx.currentTime;
 	//audioTimer(playerClip.audioCtx.state !== 'running');
-	audioTimer();
+	audioTimer(); //to do: is this statement necessary?
 }
 
 let lastAudioObjURL = null, exportType = "";
@@ -617,17 +618,7 @@ function exportAudioTimer() {
 	if(exportClip.audioCtx.state === 'closed') return;
 	window.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000);
 }
-function audioExport() {
-	if(exportClip && exportClip.playing) return false;
-	exportClip = new loadNewClip();
-	exportClip.onEnd = exportClipEnd;
-	if(elems.outExportProgress) elems.outExportProgress.innerText = "Note list loaded";
-	if(elems.outExportDuration) elems.outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
-	//to do: stop AudioContext playback? (probably unnecessary)
-	const sampleRate = 48000; //will become a variable later
-	//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.duration, sampleRate);
-	exportClip.audioCtx = new AudioContext({latencyHint: "playback", sampleRate: sampleRate});
-	exportClip.audioCtx.suspend();
+function beforeRecord() {
 	//exportClip.destNode = exportClip.audioCtx.destination;
 	exportClip.playing = true;
 	exportClip.noiseBuffer = createNoiseBuffer(exportClip.audioCtx);
@@ -649,11 +640,11 @@ function audioExport() {
 	if(elems.outExportFormat) elems.outExportFormat.innerText = exportType;
 	mediaRecorder.ondataavailable = function(event) {
 		//push each chunk (blobs) in an array
-		console.log("MediaRecorder.ondataavailable event");
+		console.debug("MediaRecorder.ondataavailable event");
 		chunks.push(event.data);
 	};
 	mediaRecorder.onstop = function(event) {
-		//console.log("MediaRecorder.onstop event");
+		//console.debug("MediaRecorder.onstop event");
 		audioDownload(chunks);
 	};
 
@@ -666,16 +657,28 @@ function audioExport() {
 	/*//audioCtxOff.oncomplete = ;
 	exportClip.audioCtx.startRendering().then(function(renderedBuffer) {
 		console.log('Rendering completed successfully');
-		console.log(renderedBuffer);
+		console.debug(renderedBuffer);
 
 		//let chunks = [renderedBuffer.getChannelData(0)];
 		let chunks = renderedBuffer.getChannelData(0);
 		audioDownload(chunks);
-		console.log("audioCtx startRendering promise then end");
+		console.debug("audioCtx startRendering promise then end");
 	}).catch(function(err) {
-		console.log('Rendering failed: ' + err);
+		console.error('Rendering failed: ' + err);
 		//Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
 	});*/
+}
+function audioExport() {
+	if(exportClip && exportClip.playing) return false;
+	exportClip = new loadNewClip();
+	exportClip.onEnd = exportClipEnd;
+	if(elems.outExportProgress) elems.outExportProgress.innerText = "Note list loaded";
+	if(elems.outExportDuration) elems.outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
+	//to do: stop AudioContext playback? (probably unnecessary)
+	const sampleRate = 48000; //will become a variable later
+	//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.duration, sampleRate);
+	exportClip.audioCtx = new AudioContext({latencyHint: "playback", sampleRate: sampleRate});
+	exportClip.audioCtx.suspend().then(beforeRecord);
 }
 function audioExportCancel() {
 	if(!exportClip) return false;
