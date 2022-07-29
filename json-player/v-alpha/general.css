@@ -94,16 +94,18 @@ input[type=number]::-webkit-outer-spin-button {
 
 /*to do: expand and enable word wrapping on print media*/
 .codeEditor {
+	box-sizing: border-box;
 	height: 12em;
 	width: 100%;
 	/*resize: both;*/
+	resize: none;
 	overflow-y: auto;
 	min-height: 8em;
 	white-space: pre;
 	tab-size: 4;
 }
 .codeEditor.expanded {
-	height: auto;
+	height: unset;
 }
 .codeEditor.lineWrapping {
 	white-space: pre-wrap;

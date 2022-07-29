@@ -113,7 +113,7 @@ input.invalid {
 	background-color: hsla(0, 100%, 12.5%, 0.875);
 }
 
-#title-icon img { /*to do: extend this to all images?*/
+#title-icon /*img*/ { /*to do: extend this to all images?*/
 	filter: invert(100%) hue-rotate(180deg);
 }
 

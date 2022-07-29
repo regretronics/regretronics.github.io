@@ -278,7 +278,7 @@ function btnHueClick(event) {
 			elem2.setAttribute("content", "red");
 	}*/
 
-	elem = document.querySelector("#title-icon"); //to do: extend this to all images?
+	elem = document.querySelector("#title-icon img"); //to do: extend this to all images?
 	if(!elem) return;
 	elem.animate([
 		//{filter: "hue-rotate(0deg)"}, 
@@ -465,11 +465,10 @@ function editorKeyDown(event) {
 		//event.target.dispatchEvent(new InputEvent("beforeinput", {data: "\t", inputType: "insertText"}));
 
 		event.target.focus(); //unnecessary?
-		if(event.shiftKey) {
+		if(event.shiftKey)
 			deletePrevTab();
-		} else {
+		else
 			document.execCommand("insertText", false, "\t");
-		}
 	}
 	//to do: home key goes past initial indentation?
 }
@@ -511,7 +510,7 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 			//iArr.push(pos);
 		}
 	}
-	document.title = count.toString();
+	//document.title = count.toString();
 	//document.title = iArr.toString();
 }
 
@@ -520,7 +519,8 @@ function setToolTip(event) {
 	if(!elems.outToolTip) return false;
 	let elem = event.target;
 	if(!elem) return false;
-	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && (document.activeElement != elem)) return false; //could have focus -> should have focus
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && (document.activeElement != elem))
+		return false; //could have focus -> should have focus
 
 	let sentences = [];
 	let description = elem.title;
