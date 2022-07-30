@@ -261,11 +261,15 @@ function btnHueClick(event) {
 	if(isNaN(hue) || !isFinite(hue)) hue = 120;
 
 	delta *= 30;
+	if(event.shiftKey) delta *= 4;
 	hue += delta;
-	hue %= 360;
-	if(hue < 0) hue += 360;
+	/*hue %= 360; //this wrapping bugs filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
+	if(hue < 0) hue += 360;*/
 
 	root.style.setProperty("--hue-accent", hue);
+	//root.style.setProperty("--img-hue-shift", (hue - 120).toString() + "deg");
+	//root.style.setProperty("--img-hue-shift", hue - 120);
+	//root.style.setProperty("--img-filter", "var(--img-filter1, brightness(1)) hue-rotate(" + (hue - 120).toString() + "deg)");
 
 	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
 	for(const elem2 of metaElems) {
@@ -278,6 +282,7 @@ function btnHueClick(event) {
 			elem2.setAttribute("content", "red");
 	}*/
 
+	return;
 	elem = document.querySelector("#title-icon img"); //to do: extend this to all images?
 	if(!elem) return;
 	elem.animate([

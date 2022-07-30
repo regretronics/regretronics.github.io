@@ -2,22 +2,31 @@
 :root {
 	--hue-accent: 120; /*question: include deg unit for hues? (currently never)*/
 	--hue-accent2: calc(var(--hue-accent) + 180);
+	/*--img-filter1: ;*/
+	/*--img-filter1: brightness(1);*/ /*placebo*/
+	/*--img-hue-shift: 0deg;*/
+	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
+	/*--img-filter: var(--img-filter1, none);*/
 }
-@media screen and (not(prefers-reduced-motion)) {
+@media screen and (prefers-reduced-motion: no-preference) {
 	:root {
-		transition-property: /*theme-color,*/ scrollbar-color;
+		transition-property: /*background-color,*/ color, scrollbar-color, filter;
 		transition-duration: 0.25s;
 	}
-	body, *::selection {
-		/*transition-property: var(--hue-accent), var(--hue-accent2);*/
-		transition-property: background-color, color, theme-color, accent-color, /*border-color,*/ scrollbar-color, border-image-source, stop-color;
+	body, input, img, a:link, a:active {
+		/*transition-property: var(--hue-accent), var(--hue-accent2);*/ /*doesn't work as of 2022*/
+		transition-property: background-color, color, accent-color, border-color, scrollbar-color, border-image-source, stop-color, filter;
 		transition-duration: 0.25s;
 	}
-	button {
-		transition: inherit, border-color 0.1s ease-out;
-		/*transition-property: var(--hue-accent), var(--hue-accent2), border-color;
-		transition-duration: 0.5s, 0.5s, 0.07s;
-		transition-timing-function: unset, unset, ease-out;*/
+	:root::selection, *::selection { /*not really working*/
+		transition-property: background-color, color !important;
+		transition-duration: 0.25s !important;
+	}
+	button { /*to do: try pseudo-classes for border animation when clicked and released*/
+		/*transition: inherit, border-color 0.1s ease-out;*/
+		transition-property: background-color, color, accent-color, border-color;
+		transition-duration: 0.25s, 0.25s, 0.25s, 0.1s;
+		transition-timing-function: initial, initial, initial, ease-out;
 	}
 }
 
@@ -91,6 +100,13 @@ input[type=number], #txtRhythmFactors {
 }
 .codeEditor {
 	font-size: 90%;
+}
+
+img:not(.trueColors) { /*class "trueColors" reserved for future use*/
+	/*filter: var(--img-filter, none);*/
+	/*filter: hue-rotate(var(--img-hue-shift, 0deg));*/
+	filter: var(--img-filter1, ) hue-rotate(var(--img-hue-shift, 0deg));
+	/*filter: var(--img-filter1) hue-rotate(calc(var(--hue-accent, 120)*1deg - 120deg));*/
 }
 
 /*svg rect {*/
