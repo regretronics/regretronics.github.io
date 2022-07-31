@@ -1,4 +1,4 @@
-@import url("theme-dark-color.css") screen;
-@import url("theme-light-color.css") screen and (prefers-color-scheme: light);
-@import url("theme-dark-hicon.css") screen and (prefers-contrast: more);
+@import url("theme-dark-color.css") screen and (not (prefers-color-scheme: light)) and (not (prefers-contrast: more));
+@import url("theme-light-color.css") screen and (prefers-color-scheme: light) and (not (prefers-contrast: more));
+@import url("theme-dark-hicon.css") screen and (not (prefers-color-scheme: light)) and (prefers-contrast: more);
 @import url("theme-light-hicon.css") screen and (prefers-color-scheme: light) and (prefers-contrast: more);

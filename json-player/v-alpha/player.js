@@ -667,15 +667,15 @@ function exportClipEnd() {
 	if(!clip) return false;
 
 	emptyClip(clip, false);
-	//if(clip.audioCtx) clip.audioCtx.suspend?.()?.then?.(() => {
-	if(clip.audioCtx) clip.audioCtx.close?.()?.then?.(() => {
+	if(clip.audioCtx) clip.audioCtx.suspend?.()?.then?.(() => {
+	//if(clip.audioCtx) clip.audioCtx.close?.()?.then?.(() => {
 		if(elems.outExportProgress) elems.outExportProgress.innerText = "Rendered";
 		if(mediaRecorder) {
 			mediaRecorder.requestData();
 			mediaRecorder.stop(); //to do: move this into mediaRecorder.ondataavailable? (probably not)
 			mediaRecorder = null;
 		}
-		//clip.audioCtx.close(); //to do: use this place of suspend()?
+		clip.audioCtx.close(); //to do: use this place of suspend()?
 		if(exportClip === clip) exportClip = null;
 	});
 }

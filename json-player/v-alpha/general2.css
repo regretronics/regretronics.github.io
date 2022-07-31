@@ -9,19 +9,19 @@
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
 	/*--img-filter: var(--img-filter1, none);*/
 }
-@media screen and (prefers-reduced-motion: no-preference) {
+@media screen and not (prefers-reduced-motion: reduce) {
 	:root {
 		transition-property: /*background-color,*/ color, scrollbar-color, filter;
 		transition-duration: 0.25s;
 	}
+	/*:root::selection, *::selection {
+		transition-property: background-color, color !important;
+		transition-duration: 0.25s !important;
+	}*/ /*introduces selection color bug in null theme in desktop browsers*/
 	body, input, img, a:link, a:active {
 		/*transition-property: var(--hue-accent), var(--hue-accent2);*/ /*doesn't work as of 2022*/
 		transition-property: background-color, color, accent-color, border-color, scrollbar-color, border-image-source, stop-color, filter;
 		transition-duration: 0.25s;
-	}
-	:root::selection, *::selection { /*not really working*/
-		transition-property: background-color, color !important;
-		transition-duration: 0.25s !important;
 	}
 	button { /*to do: try pseudo-classes for border animation when clicked and released*/
 		/*transition: inherit, border-color 0.1s ease-out;*/
@@ -31,6 +31,13 @@
 	}
 }
 
+/*@media screen and not (prefers-color-scheme: light) {
+	body {
+		color-scheme: dark;
+		background-color: canvas;
+		color: canvastext;
+	}
+}*/
 article, footer {
 	/*max-width: 120ch;*/
 	/*margin: auto max(0ch, calc(50% - 0.5*120ch));*/
