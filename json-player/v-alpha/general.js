@@ -75,7 +75,7 @@ function parseNumber(n) {
 	let t = typeof(n);
 
 	//simpler attempts first.
-	if((t === "number") || (t === "bigint")) return n;
+	if(t === "number" || t === "bigint") return n;
 	if(t === "function") return parseNumber(n()); //?
 
 	if(Array.isArray(n)) {
@@ -91,7 +91,7 @@ function parseNumber(n) {
 	//try conversion to number
 	//note: JavaScript converts Number([]) to 0; that's why array detection comes earlier
 	//JavaScript converts Number("") to 0; let's try to prevent this
-	if((t !== "string") || (n.length != 0)) {
+	if(t !== "string" || n.length != 0) {
 		let ret = Number(n);
 		if(!isNaN(ret)) return ret;
 	}
@@ -425,6 +425,12 @@ function rhythmFactorsChanged() {
 	rhythmAccumUpdate();
 }
 
+function btnStopClick(event) {
+	if(!playerClip) return;
+	if(playerClip.onClipEnd) playerClip.onClipEnd(); else emptyClip(playerClip);
+	playerClip.audioCtx?.suspend?.();
+}
+
 function deletePrevTab() {
 	//outdent line (actually, erase the nearest tab before caret)
 	let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
@@ -524,16 +530,16 @@ function setToolTip(event) {
 	if(!elems.outToolTip) return false;
 	let elem = event.target;
 	if(!elem) return false;
-	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && (document.activeElement != elem))
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && document.activeElement != elem)
 		return false; //could have focus -> should have focus
 
 	let sentences = [];
 	let description = elem.title;
-	if((typeof(description) === "string") && (description.length > 0))
+	if(typeof(description) === "string" && description.length > 0)
 		sentences.push(description);
 
 	description = elem.validationMessage;
-	if((typeof(description) === "string") && (description.length > 0))
+	if(typeof(description) === "string" && description.length > 0)
 		sentences.push(description);
 
 	if(sentences.length > 0) {

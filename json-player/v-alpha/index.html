@@ -78,7 +78,7 @@
 
 		document.getElementById("btnPlay").addEventListener("click", loadAndPlay);
 		document.getElementById("btnPause").addEventListener("click", pauseToggle);
-		document.getElementById("btnStop").addEventListener("click", playerStop);
+		document.getElementById("btnStop").addEventListener("click", btnStopClick);
 
 		document.getElementById("btnAudioExport").addEventListener("click", audioExport);
 		document.getElementById("btnAudioExportCancel").addEventListener("click", audioExportCancel);
@@ -95,7 +95,16 @@
 				if(tagIndex === 0) elem.addEventListener("input", setToolTip);
 			} else
 				elem.addEventListener("click", setToolTip);
-			elem.addEventListener("pointerdown", setToolTip); //pointerdown and touchstart didn't work as I expected in Chrome for Android; touchstart and mousedown didn't work in Ffx for Android.
+			//mouse-down and touch detection (to fix!)
+			//pointerdown and touchstart didn't work as I expected in Chrome for Android; pointerdown, touchstart and mousedown didn't work in Ffx for Android.
+			//elem.addEventListener("pointerdown", setToolTip); //Ffx for Android: didn't work; Chrome for Android: delayed (long touch only)
+			//elem.addEventListener("touchstart", setToolTip);
+			//elem.addEventListener("mousedown", setToolTip);
+			elem.addEventListener("mouseenter", setToolTip); //to do: test this
+			//elem.addEventListener("mouseover", setToolTip); //to do: test this
+			elem.addEventListener("pointerenter", setToolTip); //to do: test this
+			//elem.addEventListener("pointerover", setToolTip); //to do: test this
+			//elem.addEventListener("dragstart", setToolTip); //to do: test this
 		}
 
 		primeCountChanged();

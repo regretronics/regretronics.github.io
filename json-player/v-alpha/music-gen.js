@@ -1,5 +1,7 @@
 "use strict";
 
+let freqMin = 30, freqMax = 13000;
+
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
 	let diff = Math.round(Math.log2(parseNumber(refFreq))) - Math.round(Math.log2(parseNumber(targetFreq)));
@@ -19,12 +21,12 @@ function addInterval(refFreq, targetFreq) {
 	//question: should + 1 be + 0.5?
 	//for chords with a fixed first note, the exponents should vary in a bilateral way
 	let maxExp = expVariance * maxPitches[iPrime] + 1;
-	if((Math.abs(newExp) > 1 * maxExp) && (sign === Math.sign(newExp))) sign *= -1;
+	if((Math.abs(newExp) > 1 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
 	targetFreq[primes[iPrime]] += sign;
 
 	//pitch normalization into factor 2, i.e. octave normalization, except when changing the very octave on purpose
 	//to do: occasional use of higher primes for normalization
-	if((iPrime > 1) && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) targetFreq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
+	if(iPrime > 1 && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) targetFreq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 	if(iPrime >= 1) renormalizeOctave(refFreq, targetFreq);
 
 	//to do: limitFreq?
@@ -138,11 +140,11 @@ function limitFreq(tuning, freq) {
 	if(!freq[2]) freq[2] = 0;
 	while(true) {
 		//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
-		if(freqAbs > 13000) {
+		if(freqAbs > freqMax) {
 			freq[2]--;
 			freqAbs *= 0.5;
 		} else
-			if(freqAbs < 30) {
+			if(freqAbs < freqMin) {
 				freq[2]++;
 				freqAbs *= 2;
 			} else
@@ -227,7 +229,7 @@ function makeRhythm() {
 	//let noteCount = Math.floor((0.25 + 0.75 * Math.random()) * rhythmFactorsAccum[0]);
 	//number of notes: 25% to almost 87.5% of bar length (beat count)
 	let noteCount = Math.floor((0.25 + 0.625 * Math.random()) * rhythmFactorsAccum[0]);
-	if((rhythmFactorsAccum[0] >= 3) && (noteCount < 2)) {noteCount = 2;}
+	if(rhythmFactorsAccum[0] >= 3 && noteCount < 2) {noteCount = 2;}
 
 	for(let i = 0; i < noteCount; i++) { //first let's meet the number of notes
 		const note = {
@@ -311,7 +313,7 @@ function melodySubNodes(struct, level, tuning) {
 		let previous, iPrime, rnd = Math.random();
 		//let iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
 		//if(i === 0) { //strong (#0) beat
-		if((i === 0) ^ beatStrengthInv) { //strong (#0) beat, sometimes inverted (surprisingly the ^^ operator doesn't exist)
+		if(i === 0 ^ beatStrengthInv) { //strong (#0) beat, sometimes inverted (surprisingly the ^^ operator doesn't exist)
 			//newNode.vol = 0; //omit strong beats except for the root one? (probably no.)
 			previous = struct;
 			//question: what formula or algorithm will be the best random prime chooser? (quite hard)
@@ -351,12 +353,12 @@ function melodySubNodes(struct, level, tuning) {
 		//question: should the variance here be less than when choosing pattern root pitch?
 		let maxExp = expVariance * maxPitches[iPrime] + 1;
 		let deviation = newExp - 0.5 * maxExp;
-		if((Math.abs(deviation) > 0.5 * maxExp) && (sign === Math.sign(deviation))) sign *= -1;
+		if((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation)) sign *= -1;
 		newNode.freq[primes[iPrime]] += sign;
 
 		//pitch normalization into factor 2, i.e. octave normalization
 		//to do: occasional use of higher primes for normalization
-		if((iPrime > 1) && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) newNode.freq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
+		if(iPrime > 1 && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) newNode.freq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 		if(iPrime >= 1) renormalizeOctave(previous.freq, newNode.freq);
 		//if(i === 0) newNode.freq[2]++; //first beat -> new voice level -> one octave up
 		limitFreq(tuning, newNode.freq); //not THAT high
@@ -457,7 +459,7 @@ function makeMelody() {
 	for(let x = 0, iPat, barPos; x < Math.ceil(patCount / reptPeriod); x++) {
 	//for(let x = 0; x < patCount; x++) {
 		for(let y = 0; y < repeatCount; y++) {
-			for(let z = 0; (z < reptPeriod) && ((iPat = x * reptPeriod + z) < patCount); z++) {
+			for(let z = 0; z < reptPeriod && (iPat = x * reptPeriod + z) < patCount; z++) {
 				barPos = (x * repeatCount + y) * reptPeriod + z;
 				const bar = {timeDelta: barPos.toString() + "*" + barDuration.toString()};
 				let i = 0;

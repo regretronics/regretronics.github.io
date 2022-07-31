@@ -65,9 +65,9 @@ function parseNode(flatStruct, node, blockContext) {
 			for(const prop in newContext) { //copy other properties
 				if(!relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
 					&& !incrementalNoteProps.includes(prop) //exclude "blended" note properties
-					&& ((newNote.timbre != "noise") || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
+					&& (newNote.timbre != "noise" || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
 						let val = newContext[prop];
-						if((val !== undefined) && (!defaultNoteNode.hasOwnProperty(prop) || (val != defaultNoteNode[prop])))
+						if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
 							newNote[prop] = val;
 					}
 			}
