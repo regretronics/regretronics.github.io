@@ -6,6 +6,7 @@
 //note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting.
 //to do: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout seems to produce seriously deep call stacks, and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
+//to do: review audioTimer(), playerClipEnd(), exportClipEnd().
 
 let playerClip = null;
 //const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
@@ -622,7 +623,7 @@ function pauseToggle() {
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
 	}
 	//audioTimer(playerClip.audioCtx.state !== 'running');
-	//audioTimer(playerClip); //to do: is this statement necessary?
+	//audioTimer(playerClip); //question: is this statement necessary?
 }
 
 //--
