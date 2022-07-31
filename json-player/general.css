@@ -24,15 +24,18 @@ noscript {
 }
 
 /*article p:first-child {
-	margin-top: 0;
+	margin-top: 0em;
 }*/
 /*p {*/
 	/*line-height: 125%;*/
 	/*line-height: 1.5;*/
 	/*line-height: 1.25em;*/
 /*}*/
+p, p * {
+	hyphens: auto;
+}
 
-#aStructDownload, #aAudioDownload {
+a[hidden] {
 	display: none;
 }
 
@@ -43,26 +46,22 @@ input[type=number] {
 /*input[type=number]:not([size]) {
 	width: 8ch;
 }*/
-/*try to show spin buttons on numerical fields*/
-input[type=number]::inner-spin-button, 
-input[type=number]::outer-spin-button {
-	/*appearance: auto;*/
-	/*appearance: button;*/
-	-webkit-appearance: inner-spin-button;
-	appearance: inner-spin-button;
-	opacity: 1;
-}
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button {
-	/*appearance: auto;*/
-	/*appearance: button;*/
-	-webkit-appearance: inner-spin-button;
-	appearance: inner-spin-button;
-	opacity: 1;
-}
 /*input.exp:not([size]) {
 	width: 8ch;
 }*/
+/*try to show spin buttons on numerical fields*/
+/*input[type=number]::inner-spin-button, 
+input[type=number]::outer-spin-button {*/
+	/*appearance: auto;*/
+	/*appearance: button;*/
+/*	-webkit-appearance: inner-spin-button;
+	appearance: inner-spin-button;
+	opacity: 1;
+}*/
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {
+	opacity: 1;
+}
 #txtRhythmFactors {
 	text-align: right;
 	width: 12ch;
@@ -93,7 +92,9 @@ input[type=number]::-webkit-outer-spin-button {
 	text-align: right;
 }
 
+/*to do: expand and enable word wrapping on print media*/
 .codeEditor {
+	box-sizing: border-box;
 	height: 12em;
 	width: 100%;
 	/*resize: both;*/
@@ -112,7 +113,8 @@ input[type=number]::-webkit-outer-spin-button {
 
 #imgVisualizer {
 	width: 100%;
-	height: 6em;
+	/*height: 6em;*/
+	height: 96px;
 }
 #title-icon {
 	height: 1em;
@@ -130,6 +132,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 #tblFractionIntervals td:nth-child(2) {
 	text-align: center;
+	/*white-space: break-spaces;*/
 }
 #tblFractionIntervals td:nth-child(3) {
 	text-align: right;

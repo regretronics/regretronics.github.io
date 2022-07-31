@@ -1,3 +1,4 @@
+/*this rule set is cumulative instead of simply orthogonal, but as of 2022-07 it's the most compatible with both desktop and mobile browsers.*/
 @import url("theme-dark-color.css") screen;
 @import url("theme-light-color.css") screen and (prefers-color-scheme: light);
 @import url("theme-dark-hicon.css") screen and (prefers-contrast: more);

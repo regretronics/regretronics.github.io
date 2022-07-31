@@ -65,15 +65,15 @@ function parseNode(flatStruct, node, blockContext) {
 			for(const prop in newContext) { //copy other properties
 				if(!relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
 					&& !incrementalNoteProps.includes(prop) //exclude "blended" note properties
-					&& ((newNote.timbre != "noise") || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
+					&& (newNote.timbre != "noise" || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
 						let val = newContext[prop];
-						if((val !== undefined) && (!defaultNoteNode.hasOwnProperty(prop) || (val != defaultNoteNode[prop])))
+						if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
 							newNote[prop] = val;
 					}
 			}
 
 			flatStruct.push(newNote);
-		} catch (error) {
+		} catch(error) {
 			console.error(error);
 		}
 
@@ -97,6 +97,7 @@ function flattenStruct() {
 	if(!hasScriptChanged) return false;
 	try {
 		struct = JSON.parse(elems.ctlStructuredScript.innerText);
+		//struct = JSON.parse(elems.ctlStructuredScript.value);
 		elems.ctlStructuredScript.classList.remove("invalid");
 		//elems.ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 		let flatStruct = [];
@@ -133,6 +134,7 @@ function setStructuredText(s) {
 	hasScriptChanged = true;
 	if(elems.btnFlattenStruct) elems.btnFlattenStruct.innerText = "Flatten";
 	if(elems.ctlStructuredScript) elems.ctlStructuredScript.innerText = s;
+	//if(elems.ctlStructuredScript) elems.ctlStructuredScript.value = s;
 	if(autoFlatten) flattenStruct();
 }
 

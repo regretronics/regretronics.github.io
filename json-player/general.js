@@ -7,10 +7,11 @@
 //to do: (structured) music file upload to page
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
 //to do: consider radically changing flattened format: events (more like midi), supporting named notes
+//to do: multitrack architecture for mixing and effect pipelines, with named tracks
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
-	//question: these names are probably lousy and inconsistent. right now i'm not sure of how to improve.
+	//question: these names are probably lousy and inconsistent. right now I'm not sure of how to improve.
 	timeDelta: 0,
 	timeScale: 1,
 
@@ -74,7 +75,7 @@ function parseNumber(n) {
 	let t = typeof(n);
 
 	//simpler attempts first.
-	if((t === "number") || (t === "bigint")) return n;
+	if(t === "number" || t === "bigint") return n;
 	if(t === "function") return parseNumber(n()); //?
 
 	if(Array.isArray(n)) {
@@ -90,7 +91,7 @@ function parseNumber(n) {
 	//try conversion to number
 	//note: JavaScript converts Number([]) to 0; that's why array detection comes earlier
 	//JavaScript converts Number("") to 0; let's try to prevent this
-	if((t !== "string") || (n.length != 0)) {
+	if(t !== "string" || n.length != 0) {
 		let ret = Number(n);
 		if(!isNaN(ret)) return ret;
 	}
@@ -101,7 +102,7 @@ function parseNumber(n) {
 		try {
 			//can be an object
 			n = JSON.parse(n);
-		} catch (error) {
+		} catch(error) {
 			//can be an expression
 
 			n = exprEliminateParens(n);
@@ -221,16 +222,36 @@ function docLoaded() {
 }
 
 let textSize = 1;
-function rescaleText(f) {
+/*function rescaleText(f) {*/
+function rescaleText(event) {
 	if(!document || !document.body || !document.body.style) return false;
-	textSize *= f;
-	//document.body.style.fontSize = textSize + "em";
-	document.children[0].style.fontSize = textSize + "em";
-}
-function btnHueClick(event) {
 	const elem = event.target;
 	if(!elem) return false;
-	const delta = elem.dataset["delta"];
+	const f = Number(elem.dataset["factor"]);
+	textSize *= f;
+	//document.body.style.fontSize = textSize + "em";
+	document.children[0].style.fontSize = textSize + "em"; //html element
+}
+function themeChanged(event) {
+	if(!document) return false;
+	const elem = event.target;
+	if(!elem) return false;
+	const styleTitle = elem.value.toString();
+	const sheets = document.querySelectorAll("head link[rel~=stylesheet][title]");
+	for(const sheet of sheets) {
+		if(!sheet.hasAttribute("title")) continue;
+		sheet.disabled = sheet.title !== styleTitle;
+		if(sheet.disabled)
+			sheet.rel = "alternate stylesheet";
+		else
+			sheet.rel = "stylesheet";
+	}
+}
+function btnHueClick(event) {
+	if(!document) return false;
+	let elem = event.target;
+	if(!elem) return false;
+	let delta = Number(elem.dataset["delta"]);
 
 	const root = document.children[0];
 	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
@@ -239,11 +260,40 @@ function btnHueClick(event) {
 	if(typeof(hue) === "string") hue = parseFloat(hue);
 	if(isNaN(hue) || !isFinite(hue)) hue = 120;
 
-	hue += 30 * delta;
-	hue %= 360;
-	if(hue < 0) hue += 360;
+	delta *= 30;
+	if(event.shiftKey) delta *= 4;
+	hue += delta;
+	/*hue %= 360; //this wrapping bugs filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
+	if(hue < 0) hue += 360;*/
 
 	root.style.setProperty("--hue-accent", hue);
+	//root.style.setProperty("--img-hue-shift", (hue - 120).toString() + "deg");
+	//root.style.setProperty("--img-hue-shift", hue - 120);
+	//root.style.setProperty("--img-filter", "var(--img-filter1, brightness(1)) hue-rotate(" + (hue - 120).toString() + "deg)");
+
+	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
+	for(const elem2 of metaElems) {
+		if(elem2.hasAttribute("media")) { //test (to do!)
+			if(elem2.getAttribute("media").toLowerCase() == "(prefers-color-scheme: dark)")
+				elem2.setAttribute("content", "darkred");
+			else
+				elem2.setAttribute("content", "chartreuse");
+		} else
+			elem2.setAttribute("content", "red");
+	}*/
+
+	return;
+	elem = document.querySelector("#title-icon img"); //to do: extend this to all images?
+	if(!elem) return;
+	elem.animate([
+		//{filter: "hue-rotate(0deg)"}, 
+		/*{filter: "hue-rotate(calc(" + (hue - delta).toString() + "deg - 120deg))"}, 
+		{filter: "hue-rotate(calc(" + hue.toString() + "deg - 120deg))"}*/
+		{filter: "hue-rotate(" + (hue - delta - 120).toString() + "deg)"}, 
+		{filter: "hue-rotate(" + (hue - 120).toString() + "deg)"}
+		//{filter: "hue-rotate(" + delta.toString() + "deg)"}
+	], 
+		{duration: 0.25 * 1000, fill: "forwards"/*, composite: "add"*//*, iterationComposite: "accumulate"*/});
 }
 function overflowToggle(control) {
 	if(!control) return false;
@@ -375,6 +425,12 @@ function rhythmFactorsChanged() {
 	rhythmAccumUpdate();
 }
 
+function btnStopClick(event) {
+	if(!playerClip) return;
+	if(playerClip.onClipEnd) playerClip.onClipEnd(); else emptyClip(playerClip);
+	playerClip.audioCtx?.suspend?.();
+}
+
 function deletePrevTab() {
 	//outdent line (actually, erase the nearest tab before caret)
 	let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
@@ -406,13 +462,13 @@ function deletePrevTab() {
 	rng.setStart(node, i);
 	rng.setEnd(node, i + 1);
 	//rng.deleteContents();
-	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently i haven't found any proper replacement for this command.
+	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently I haven't found any proper replacement for this command.
 	rng.setStart(node, pos - 1); //also buggy
 	rng.setEnd(node, pos - 1);
 }
 function editorKeyDown(event) {
 	if(event.key == "Tab") {
-		//console.log(event);
+		//console.debug(event);
 		event.stopPropagation();
 		event.preventDefault();
 
@@ -420,11 +476,10 @@ function editorKeyDown(event) {
 		//event.target.dispatchEvent(new InputEvent("beforeinput", {data: "\t", inputType: "insertText"}));
 
 		event.target.focus(); //unnecessary?
-		if(event.shiftKey) {
+		if(event.shiftKey)
 			deletePrevTab();
-		} else {
+		else
 			document.execCommand("insertText", false, "\t");
-		}
 	}
 	//to do: home key goes past initial indentation?
 }
@@ -466,7 +521,7 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 			//iArr.push(pos);
 		}
 	}
-	document.title = count.toString();
+	//document.title = count.toString();
 	//document.title = iArr.toString();
 }
 
@@ -475,15 +530,16 @@ function setToolTip(event) {
 	if(!elems.outToolTip) return false;
 	let elem = event.target;
 	if(!elem) return false;
-	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && (document.activeElement != elem)) return false; //could have focus -> should have focus
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && document.activeElement != elem)
+		return false; //could have focus -> should have focus
 
 	let sentences = [];
 	let description = elem.title;
-	if((typeof(description) === "string") && (description.length > 0))
+	if(typeof(description) === "string" && description.length > 0)
 		sentences.push(description);
 
 	description = elem.validationMessage;
-	if((typeof(description) === "string") && (description.length > 0))
+	if(typeof(description) === "string" && description.length > 0)
 		sentences.push(description);
 
 	if(sentences.length > 0) {
@@ -508,6 +564,7 @@ function structDownload(event) {
 	if(!elems.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 	let data = [elems.ctlStructuredScript.innerText];
+	//let data = [elems.ctlStructuredScript.value];
 	let file;
 	let properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 	

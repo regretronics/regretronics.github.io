@@ -1,60 +1,92 @@
 /*general cosmetic styles*/
+/*to do: for very wide viewports, a two-column layout (control panel + documentation)*/
 :root {
-	--hue-accent: 120;
+	--hue-accent: 120; /*question: include deg unit for hues? (currently never)*/
 	--hue-accent2: calc(var(--hue-accent) + 180);
+	/*--img-filter1: ;*/
+	/*--img-filter1: brightness(1);*/ /*placebo*/
+	/*--img-hue-shift: 0deg;*/
+	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
+	/*--img-filter: var(--img-filter1, none);*/
 }
-*, *::selection {
-	/*transition-property: var(--hue-accent), var(--hue-accent2);*/
-	transition-property: background-color, color, accent-color, border-color, border-image-source, stop-color;
-	transition-duration: 0.25s;
+@media screen and not (prefers-reduced-motion: reduce) {
+	:root {
+		transition-property: /*background-color,*/ color, scrollbar-color, filter;
+		transition-duration: 0.25s;
+	}
+	/*:root::selection, *::selection {
+		transition-property: background-color, color !important;
+		transition-duration: 0.25s !important;
+	}*/ /*introduces selection color bug in null theme in desktop browsers*/
+	body, input, img, a:link, a:active {
+		/*transition-property: var(--hue-accent), var(--hue-accent2);*/ /*doesn't work as of 2022*/
+		transition-property: background-color, color, accent-color, border-color, scrollbar-color, border-image-source, stop-color, filter;
+		transition-duration: 0.25s;
+	}
+	button { /*to do: try pseudo-classes for border animation when clicked and released*/
+		/*transition: inherit, border-color 0.1s ease-out;*/
+		transition-property: background-color, color, accent-color, border-color;
+		transition-duration: 0.25s, 0.25s, 0.25s, 0.1s;
+		transition-timing-function: initial, initial, initial, ease-out;
+	}
 }
 
+/*@media screen and not (prefers-color-scheme: light) {
+	body {
+		color-scheme: dark;
+		background-color: canvas;
+		color: canvastext;
+	}
+}*/
 article, footer {
 	/*max-width: 120ch;*/
-	margin: auto max(0ch, calc(50% - 0.5*120ch));
+	/*margin: auto max(0ch, calc(50% - 0.5*120ch));*/
+	margin-inline: max(0ch, calc(50% - 0.5*120ch));
+}
+details summary {
+	cursor: pointer;
 }
 
 code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }
 
-/*to do: fix check box vertical alignment*/
+/*to do: fix check box vertical alignment (if possible)*/
 button, input:not([type=checkbox]):not([type=radio]) {
 	font-size: 0.85em;
-	margin: 0.125em 0;
+	/*margin: 0.125em 0em;*/
+	margin-block: 0.125em;
 }
 button {
 	font-weight: bold;
 
-	padding: 0.125em 0.375em;
+	padding-block: 0.125em;
+	padding-inline: 0.375em;
 	border-radius: 0.25em;
 	border-width: calc(5em/32);
-
-	transition: inherit, border-color 0.07s ease-out;
-	/*transition-property: var(--hue-accent), var(--hue-accent2), border-color;
-	transition-duration: 0.5s, 0.5s, 0.07s;
-	transition-timing-function: unset, unset, ease-out;*/
 }
 input[type=number], input[type=text], textarea {
 	border-width: calc(5em/32);
 }
 input[type=number] {
-	padding-left: 0;
-	padding-right: 0;
+	/*padding-left: 0em;
+	padding-right: 0em;*/
+	padding-inline: 0em;
 }
 input[type=text], textarea {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
-	margin: 0.125em;
+	margin-inline: 0.125em;
 }
 input[type=number], #txtRhythmFactors {
 	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
 }
 
 .cell {
-	margin-left: 0.375ch;
-	margin-right: 0.375ch;
+	/*margin-left: 0.375ch;
+	margin-right: 0.375ch;*/
+	margin-inline: 0.375ch;
 }
 #outAudioT {
 	display: inline-block;
@@ -65,14 +97,24 @@ input[type=number], #txtRhythmFactors {
 	font-style: italic;
 
 	/*position: sticky;*/
-	bottom: 0;
+	bottom: 0em;
 	/*padding: 1em;*/
-	padding: 1em max(2ch, calc(50% - 0.5*120ch));
+	padding-block: 1em;
+	padding-inline: max(2ch, calc(50% - 0.5*120ch));
 	width: calc(100% - 2*2ch);
 	max-width: 120ch;
+
+	background-color: canvas;
 }
 .codeEditor {
 	font-size: 90%;
+}
+
+img:not(.trueColors) { /*class "trueColors" reserved for future use*/
+	/*filter: var(--img-filter, none);*/
+	/*filter: hue-rotate(var(--img-hue-shift, 0deg));*/
+	filter: var(--img-filter1, ) hue-rotate(var(--img-hue-shift, 0deg));
+	/*filter: var(--img-filter1) hue-rotate(calc(var(--hue-accent, 120)*1deg - 120deg));*/
 }
 
 /*svg rect {*/

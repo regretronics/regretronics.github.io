@@ -1,13 +1,24 @@
-/*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past*/
-/*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU*/
+/*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
+/*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
+:root {
+	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 87.5%) hsl(var(--hue-accent2, 300), 25%, 12.5%);*/
+	scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 12.5%, 93.75%);
+}
 body {
-	background-color: hsl(var(--hue-accent, 120), 0%, 96.875%);
-	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
+	background-color: hsl(var(--hue-accent, 120), 25%, 96.875%);
+	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
 	accent-color: hsl(var(--hue-accent, 120), 25%, 25%);
+	color-scheme: light;
 	font-weight: 500;
 }
+@media screen and not (prefers-reduced-motion: reduce) {
+	:root::selection, *::selection { /*not really working*/
+		transition-property: background-color, color !important;
+		transition-duration: 0.25s !important;
+	}
+}
 /*::selection {*/
-:not(code):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
+:not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
 	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 }
@@ -15,7 +26,8 @@ body {
 strong {
 	color: black;
 }
-h1::selection, h2::selection, h3::selection, strong::selection, em::selection {
+/*h1::selection, h2::selection, h3::selection, strong::selection, em::selection {*/
+:is(h1, h1 *, h2, h2 *, h3, h3 *, strong, strong *, em, em *)::selection {
 	background-color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
 	color: hsl(var(--hue-accent, 120), 0%, 100%) !important;
 }
@@ -33,22 +45,23 @@ td {
 	background-color: hsla(0, 0%, 100%, 0.5);
 }
 
-.codeEditor::selection, .codeEditor *::selection, code::selection {
-	background-color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 1);
-	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.9375);
+/*.codeEditor::selection, .codeEditor *::selection, code::selection {*/
+:is(.codeEditor, .codeEditor *, code, code *)::selection {
+	background-color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 1) !important;
+	color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 0.9375) !important;
 }
-strong code::selection {
-	color: hsl(var(--hue-accent2, 300), 100%, 6.25%);
+:is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .codeEditor strong, .codeEditor strong *, .codeEditor em, .codeEditor em *)::selection {
+	color: hsl(var(--hue-accent2, 300), 100%, 6.25%) !important;
 }
 
 a:link {
-	color: hsl(var(--hue-accent, 120), 25%, 25%);
+	color: hsla(var(--hue-accent, 120), 50%, 12.5%, 0.9375);
 }
 a:visited {
-	color: hsl(30, 25%, 37.5%);
+	color: hsla(30, 50%, 25%, 0.9375);
 }
 a:active {
-	color: hsl(var(--hue-accent, 120), 50%, 12.5%);
+	color: hsl(var(--hue-accent, 120), 100%, 12.5%);
 }
 
 input::selection {
@@ -58,9 +71,9 @@ input::selection {
 button {
 	/*background-color: hsl(var(--hue-accent, 120), 0%, 25%);
 	color: hsl(var(--hue-accent, 120), 0%, 75%);*/
-	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
-	color: hsl(var(--hue-accent, 120), 25%, 6.25%);
-	
+	background-color: hsl(var(--hue-accent, 120), 25%, 93.75%);
+	color: hsl(var(--hue-accent, 120), 50%, 6.25%);
+
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 0%, 100%, 1);
 	border-right-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
