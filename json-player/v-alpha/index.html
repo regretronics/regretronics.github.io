@@ -100,10 +100,10 @@
 			//elem.addEventListener("pointerdown", setToolTip); //Ffx for Android: didn't work; Chrome for Android: delayed (long touch only)
 			//elem.addEventListener("touchstart", setToolTip);
 			//elem.addEventListener("mousedown", setToolTip);
-			elem.addEventListener("mouseenter", setToolTip); //to do: test this
-			//elem.addEventListener("mouseover", setToolTip); //to do: test this
-			elem.addEventListener("pointerenter", setToolTip); //to do: test this
-			//elem.addEventListener("pointerover", setToolTip); //to do: test this
+			//elem.addEventListener("mouseenter", setToolTip); //Ffx for Android: didn't work.
+			elem.addEventListener("mouseover", setToolTip); //to do: test this
+			//elem.addEventListener("pointerenter", setToolTip); //Ffx for Android: didn't work.
+			elem.addEventListener("pointerover", setToolTip); //to do: test this
 			//elem.addEventListener("dragstart", setToolTip); //to do: test this
 		}
 

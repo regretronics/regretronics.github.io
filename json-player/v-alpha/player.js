@@ -4,7 +4,8 @@
 //to do: array variable or boolean-indexed object for pause button caption per playback state
 
 //note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting.
-//to do: consider changing setTimeout to setInterval or requestAnimationFrame.
+//to do: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout seems to produce seriously deep call stacks, and might be consuming resources.
+//to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
 
 let playerClip = null;
 //const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
@@ -91,7 +92,7 @@ function defNodeEnded() {
 		console.debug(`defNodeEnded(): clip === playerClip = ${clip === playerClip}`);
 		console.log("defNodeEnded(): clip.audioCtx is empty. Ending.");
 		if(clip.open)
-			if(clip.onClipEnd) clip.onClipEnd(); else emptyClip(clip);
+			if(clip.onClipEnd) clip.onClipEnd(false); else emptyClip(clip, false);
 		if(clip === playerClip && elems.chkAutoReload && elems.chkAutoReload.checked)
 			loadAndPlay();
 		return;
@@ -104,15 +105,15 @@ function defNodeEnded() {
 		//console.debug(`defNodeEnded(): clip.duration: ${clip.duration}; clip.t0: ${clip.t0}.`);
 		if(clip.generators || clip.auxNodes || clip.flatStruct) {
 			//console.log("defNodeEnded(): Will end clip.");
-			if(clip.onClipEnd) clip.onClipEnd(); else emptyClip(clip);
+			if(clip.onClipEnd) clip.onClipEnd(false); else emptyClip(clip, false);
 		}
-		/*if(clip.audioCtx.state === 'running') {
+		if(clip === playerClip && clip.audioCtx.state === 'running') {
 			console.log("defNodeEnded(): Will suspend audioCtx.");
 			clip.audioCtx.suspend().then(() => {
 				if(clip === playerClip && elems.chkAutoReload && elems.chkAutoReload.checked)
 					loadAndPlay();
 			}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
-		}*/
+		}
 		//return;
 	}
 }
@@ -343,8 +344,12 @@ function audioTimer(clip) {
 		console.info("audioTimer(): Parameter clip is empty. Returning.");
 		return false;
 	}
-	if(!clip.open && !clip.audioCtx && !clip.flatStruct) {
-		console.info("audioTimer(): clip.open, clip.audioCtx and clip.flatStruct are empty. Returning.");
+	if(!clip.open) {
+		console.info("audioTimer(): clip is not open. Returning.");
+		return false;
+	}
+	if(!clip.audioCtx && !clip.flatStruct) {
+		console.info("audioTimer(): clip.audioCtx and clip.flatStruct are empty. Returning.");
 		return false;
 	}
 	//clip.playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
@@ -353,16 +358,18 @@ function audioTimer(clip) {
 	if(clip.audioCtx.state !== 'suspended'
 		&& (clip.audioCtx.currentTime - clip.t0 > 0)
 		&& clip.generators.length < 1
-		&& (/*!clip.flatStruct ||*/ clip.flatStruct.length < 1)) {
+		&& (!clip.flatStruct || clip.flatStruct.length < 1)) {
 		if(clip.generators || clip.auxNodes || clip.flatStruct) {
-			console.log("audioTimer(): Will end clip.");
-			if(clip.onClipEnd) clip.onClipEnd(); else emptyClip(clip);
+			console.log("audioTimer(): Will close clip.");
+			if(clip.onClipEnd) clip.onClipEnd(false); else emptyClip(clip, false);
 		}
-		console.log("audioTimer(): Will suspend audioCtx and return.");
-		clip.audioCtx.suspend().then(() => {
-			if(clip === playerClip && elems.chkAutoReload && elems.chkAutoReload.checked)
-				loadAndPlay();
-		}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
+		if(clip === playerClip) {
+			console.log("audioTimer(): Will suspend audioCtx and return.");
+			clip.audioCtx?.suspend?.()?.then?.(() => {
+				if(clip === playerClip && elems.chkAutoReload && elems.chkAutoReload.checked)
+					loadAndPlay();
+			}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
+		}
 		return;
 	}
 	
@@ -485,7 +492,6 @@ function loadNewClip() {
 function beforePlay() {
 	console.log("beforePlay started...");
 	playerClip.destNode = playerClip.audioCtx.destination;
-	playerClip.open = true;
 
 	//if(!playerClip.noiseBuffer || noiseSource.context !== playerClip.audioCtx) playerClip.noiseBuffer = createNoiseBuffer();
 	if(!playerClip.noiseBuffer) playerClip.noiseBuffer = createNoiseBuffer(playerClip.audioCtx);
@@ -521,7 +527,7 @@ function loadAndPlay() {
 	if(playerClip) {
 		audioCtx = playerClip.audioCtx;
 		noiseBuffer = playerClip.noiseBuffer;
-		if(playerClip.onClipEnd) playerClip.onClipEnd(); else emptyClip(playerClip);
+		if(playerClip.onClipEnd) playerClip.onClipEnd(false); else emptyClip(playerClip, false);
 	}
 	playerClip = loadNewClip();
 	if(!playerClip || !playerClip.flatStruct) return false;
@@ -534,11 +540,12 @@ function loadAndPlay() {
 	if(playerClip.flatStruct.length <= 0)
 		if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 
+	playerClip.open = true;
 	if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed')
 		//playerClip.audioCtx = new AudioContext({latencyHint: "playback"});
 		playerClip.audioCtx = new AudioContext({latencyHint: "interactive"});
-	//to do: use Promise here to defer the rest of the procedure?
 	if(playerClip.audioCtx.state === 'running')
+		//using Promise here to defer the rest of the procedure.
 		playerClip.audioCtx.suspend().then(beforePlay);
 	else
 		beforePlay();
@@ -546,7 +553,7 @@ function loadAndPlay() {
 
 //--
 //nonreversible operation, frees resources
-function emptyClip(clip) {
+function emptyClip(clip, suspend) {
 	if(!clip) return false;
 	if(!clip.open) return false;
 	//console.log("emptyClip() started...");
@@ -568,7 +575,6 @@ function emptyClip(clip) {
 	clip.duration = 0;
 	clip.open = false;
 
-	clip.t0 = 0;
 	if(clip.flatStruct) { //empty and release
 		clip.flatStruct.length = 0;
 		clip.flatStruct = null;
@@ -580,9 +586,9 @@ function emptyClip(clip) {
 		console.error(error);
 	}
 	clip.audioCtx = null;*/
-	//if(clip.audioCtx) return clip.audioCtx.suspend(); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
+	if(suspend && clip.audioCtx) return clip.audioCtx.suspend(); //keep audioCtx, to avoid recreating noiseBuffer for future audio contexts.
 }
-function playerClipEnd() {
+function playerClipEnd(suspend) {
 	let clip = this ?? playerClip;
 	if(!clip) {
 		console.info("playerClipEnd(): clip is empty. Returning.");
@@ -593,7 +599,7 @@ function playerClipEnd() {
 		if(clip.open) audioTUpdate();
 		if(elems.btnPause) elems.btnPause.innerHTML = "<u>P</u>ause";
 	}
-	emptyClip(clip);
+	return emptyClip(clip, suspend);
 }
 
 //reversible operation
@@ -660,15 +666,16 @@ function exportClipEnd() {
 	let clip = this ?? exportClip;
 	if(!clip) return false;
 
-	emptyClip(clip);
-	if(clip.audioCtx) clip.audioCtx.suspend()?.then?.(() => {
+	emptyClip(clip, false);
+	if(clip.audioCtx) clip.audioCtx.suspend?.()?.then?.(() => {
+	//if(clip.audioCtx) clip.audioCtx.close?.()?.then?.(() => {
 		if(elems.outExportProgress) elems.outExportProgress.innerText = "Rendered";
 		if(mediaRecorder) {
 			mediaRecorder.requestData();
 			mediaRecorder.stop(); //to do: move this into mediaRecorder.ondataavailable? (probably not)
 			mediaRecorder = null;
 		}
-		clip.audioCtx.close();
+		clip.audioCtx.close(); //to do: use this place of suspend()?
 		if(exportClip === clip) exportClip = null;
 	});
 }
@@ -680,8 +687,9 @@ function exportAudioTimer(clip) {
 		elems.outExportProgress.innerText = (100 * (clip.audioCtx.currentTime) / (clip.duration + clip.t0)).toFixed(2) + "%";
 	//if(clip.flatStruct.length < 1 && (clip.audioCtx.currentTime - clip.t0 > clip.duration)) {
 	if(clip.audioCtx.state !== 'suspended' && (clip.audioCtx.currentTime - clip.t0 > 0) && clip.generators.length < 1) {
-		console.log("exportAudioTimer: will stop exporting.");
-		if(clip.onClipEnd) clip.onClipEnd();
+		console.log("exportAudioTimer(): will stop exporting.");
+		if(clip.onClipEnd) clip.onClipEnd(true); else emptyClip(clip, false);
+		//to do: suspend?
 		return;
 	}
 	if(clip.audioCtx.state === 'closed') return;
@@ -689,7 +697,6 @@ function exportAudioTimer(clip) {
 }
 function beforeRecord() {
 	//exportClip.destNode = exportClip.audioCtx.destination;
-	exportClip.open = true;
 	exportClip.noiseBuffer = createNoiseBuffer(exportClip.audioCtx);
 	//to do: currently, audio clips are expected to start at time 0. I could do a leading silence trimming if relevant.
 	lastT = exportClip.audioCtx.currentTime;
@@ -715,6 +722,7 @@ function beforeRecord() {
 	mediaRecorder.onstop = function(event) {
 		//console.debug("MediaRecorder.onstop event");
 		audioDownload(chunks);
+		chunks.length = 0;
 	};
 
 	enqueueNotes(exportClip, lastT, Infinity);
@@ -744,6 +752,7 @@ function audioExport() {
 	if(elems.outExportProgress) elems.outExportProgress.innerText = "Note list loaded";
 	if(elems.outExportDuration) elems.outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
 	//to do: stop AudioContext playback? (probably unnecessary)
+	exportClip.open = true;
 	const sampleRate = 48000; //will become a variable later
 	//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.duration, sampleRate);
 	exportClip.audioCtx = new AudioContext({latencyHint: "playback", sampleRate: sampleRate});
@@ -751,7 +760,7 @@ function audioExport() {
 }
 function audioExportCancel() {
 	if(!exportClip) return false;
-	emptyClip(exportClip);
+	emptyClip(exportClip, false);
 	if(exportClip.audioCtx) exportClip.audioCtx.suspend()?.then?.(() => {
 		if(elems.outExportProgress) elems.outExportProgress.innerText = "Canceled";
 		if(mediaRecorder) {
