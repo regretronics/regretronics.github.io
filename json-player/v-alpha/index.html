@@ -99,24 +99,21 @@
 			//elem.addEventListener("keyup", recalcEditorCursorPos);
 			//elem.addEventListener("click", recalcEditorCursorPos);
 		}
+
 		//document.body.addEventListener("touchstart", setToolTip);
 		for(const elem of document.querySelectorAll("body *[title]")) {
 			let tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
 			if(tagIndex >= 0) {
 				elem.addEventListener("focus", setToolTip);
 				if(tagIndex === 0) elem.addEventListener("input", setToolTip);
-				//elem.addEventListener("touchstart", setToolTip); //Ffx for Android: didn't work.
-			} //else
+			} else
 				elem.addEventListener("click", setToolTip);
-			//mouse-down and touch detection (to fix!)
-			//pointerdown and touchstart didn't work as I expected in Chrome for Android.
-			elem.addEventListener("pointerdown", setToolTip); //Ffx for Android: didn't work; Chrome for Android: delayed (long touch only)
-			//elem.addEventListener("mousedown", setToolTip); //Ffx for Android: didn't work.
-			//elem.addEventListener("mouseenter", setToolTip); //Ffx for Android: didn't work.
-			//elem.addEventListener("mouseover", setToolTip); //Ffx for Android: didn't work.
-			//elem.addEventListener("pointerenter", setToolTip); //Ffx for Android: didn't work.
-			//elem.addEventListener("pointerover", setToolTip); //Ffx for Android: didn't work.
-			//elem.addEventListener("dragstart", setToolTip); //Ffx for Android: didn't work.
+			//mouse-down and touch detection
+			elem.addEventListener("pointerdown", setToolTip);
+			//elem.addEventListener("mouseenter", setToolTip);
+			//elem.addEventListener("mouseover", setToolTip);
+			//elem.addEventListener("pointerenter", setToolTip);
+			//elem.addEventListener("pointerover", setToolTip);
 		}
 	}
 
@@ -126,100 +123,118 @@
 	/*]]>*/</script>
 </head>
 <body>
-	<div class="flex-row">
-		<h1>
-			<picture id="title-icon">
-				<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
-				<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
-				<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
-				<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
-				<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
-				<!--<img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" />-->
-				<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" />
-			</picture>
-			JSON <span class="chunk">music format</span>, player <span class="chunk">and generator</span></h1>
-		<span class="right print-dp-none">
-			<span class="cell"><strong>Text&nbsp;size:</strong> 
-				<button id="btnTextShrink" data-factor="0.8">Shrink</button>
-				<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
-			<span class="cell"><label for="cboPageTheme"><strong>Color&nbsp;scheme:</strong></label> 
-				<select id="cboPageTheme">
-					<!--to do: on page load, replace this list with one from document.querySelectorAll("head link[rel~=stylesheet][title]").-->
-					<option selected="">Automatic</option>
-					<option>Null (vanilla)</option>
-					<option>Dark, colored</option>
-					<option>Light, colored</option>
-					<option>Dark, high contrast</option>
-					<option>Light, high contrast</option>
-				</select></span>
-			<span class="cell"><strong>Hue shift:</strong> 
-				<button id="btnHueFine1" data-delta="-1">MBCGYR</button>
-				<button id="btnHueFine2" data-delta="1">RYGCBM</button></span>
-		</span>
-	</div>
-	<noscript>It seems you have disabled scripting in your user agent. This page can't do things without JavaScript enabled.</noscript>
-	<!--to do: make my own spin buttons, around text inputs-->
-	<!--to do: review all tool tips for compatibility with the status bar, e.g. "the editor below"-->
-	<p><strong>Generator&nbsp;params.:</strong> 
-		<datalist id="tunings">
-			<option value="256" />
-			<option value="258.65" />
-			<option value="415" />
-			<option value="427" />
-			<option value="430" />
-			<option value="432" />
-			<option value="435" />
-			<option value="440" />
-			<option value="442" />
-			<option value="443" />
-			<option value="466" />
-		</datalist>
-		<span class="cell"><label for="txtBaseFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-			<input type="number" id="txtBaseFreq" value="440" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></span><wbr />
-		<!--to do: consider negative time scale values-->
-		<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-			<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp" title="Inverse speed. Used by chord, rhythm and melody generators." size="7" /></span><wbr />
-		<span class="cell"><label for="txtPatternCount">patterns</label>
-			<input type="number" id="txtPatternCount" value="4" step="1" min="1" title="Amount of content to make. Used by chord and melody generators." size="5" /></span><wbr />
-		<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
-			<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" title="Used by rhythm structure, chord and melody generators." size="3" /></span>
-		<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output><wbr />
-		<span class="cell"><label for="txtExpVariance">tone&nbsp;depth</label>
-			<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="6" /></span>
-	</p>
-	<p><strong>Rhythm:</strong> 
-		<span class="cell"><label for="txtRhythmScale">approx. scale</label>
-			<input type="number" id="txtRhythmScale" value="8" step="1" min="1" title="Used by rhythm structure generator." size="4" /></span>
-		<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
-		<span class="cell"><label for="txtRhythmFactors">structure</label>
-			<input type="text" id="txtRhythmFactors" value="2*2*2" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></span>
-		<output id="outRhythmScales" title="Cascade of rhythmic scales">1</output>
-	</p>
-	<p><strong>Additional&nbsp;gen.&nbsp;params.:</strong> 
-		<span class="cell"><label for="txtVoiceCount">voices</label>
-			<input type="number" id="txtVoiceCount" value="3" min="1" step="1" title="Used by chord generator." size="3" /></span><wbr />
-		<span class="cell"><label for="txtReptCount">rept.&nbsp;count</label>
-			<input type="number" id="txtReptCount" value="2" step="1" min="1" title="Used by rhythm and melody generators." size="4" /></span><wbr />
-		<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period</label>
-			<input type="number" id="txtReptPeriod" value="4" step="1" min="1" title="Used by melody generator." size="4" /></span>
-		<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." />
-			<label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
-	</p>
-	<p class="flex-row">
-		<span><strong>Structured&nbsp;music:</strong> 
-			<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
-			<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
-			<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
-		</span> <wbr />
-		<span class="right">
-			<a id="aStructDownload" href="" hidden=""></a>
-			<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
-			<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
-			<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
-		</span>
-	</p>
-	<!--<textarea style="width: 100%;"></textarea>-->
-	<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off">
+	<main>
+		<div class="flex-row">
+			<h1>
+				<picture id="title-icon">
+					<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
+					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
+					<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
+					<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
+					<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
+					<!--<img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" />-->
+					<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" />
+				</picture>
+				JSON <span class="chunk">music format</span>, player <span class="chunk">and generator</span></h1>
+			<span class="right print-dp-none">
+				<span class="cell"><strong>Text&nbsp;size:</strong> 
+					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
+					<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
+				<span class="cell"><label for="cboPageTheme"><strong>Color&nbsp;scheme:</strong></label> 
+					<select id="cboPageTheme">
+						<!--to do: on page load, replace this list with one from document.querySelectorAll("head link[rel~=stylesheet][title]").-->
+						<option selected="">Automatic</option>
+						<option>Null (vanilla)</option>
+						<option>Dark, colored</option>
+						<option>Light, colored</option>
+						<option>Dark, high contrast</option>
+						<option>Light, high contrast</option>
+					</select></span>
+				<span class="cell"><strong>Hue shift:</strong> 
+					<button id="btnHueFine1" data-delta="-1">MBCGYR</button>
+					<button id="btnHueFine2" data-delta="1">RYGCBM</button></span>
+			</span>
+		</div>
+		<noscript>It seems you have disabled scripting in your user agent. This page can't do things without JavaScript enabled.</noscript>
+		<!--to do: make my own spin buttons, around text inputs-->
+		<!--to do: review all tool tips for compatibility with the status bar, e.g. "the editor below"-->
+		<p><strong>Generator&nbsp;params.:</strong> 
+			<datalist id="tunings">
+				<option value="256" />
+				<option value="258.65" />
+				<option value="415" />
+				<option value="427" />
+				<option value="430" />
+				<option value="432" />
+				<option value="435" />
+				<option value="440" />
+				<option value="442" />
+				<option value="443" />
+				<option value="466" />
+			</datalist>
+			<span class="cell"><label for="txtBaseFreq">base&nbsp;freq.&nbsp;(Hz)</label>
+				<input type="number" id="txtBaseFreq" value="440" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></span><wbr />
+			<!--to do: consider negative time scale values-->
+			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
+				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp" title="Inverse speed. Used by chord, rhythm and melody generators." size="7" /></span><wbr />
+			<span class="cell"><label for="txtPatternCount">patterns</label>
+				<input type="number" id="txtPatternCount" value="4" step="1" min="1" title="Amount of content to make. Used by chord and melody generators." size="5" /></span><wbr />
+			<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
+				<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" title="Used by rhythm structure, chord and melody generators." size="3" /></span>
+			<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output><wbr />
+			<span class="cell"><label for="txtExpVariance">tone&nbsp;depth</label>
+				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="6" /></span>
+		</p>
+		<p><strong>Rhythm:</strong> 
+			<span class="cell"><label for="txtRhythmScale">approx. scale</label>
+				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" title="Used by rhythm structure generator." size="4" /></span>
+			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
+			<span class="cell"><label for="txtRhythmFactors">structure</label>
+				<input type="text" id="txtRhythmFactors" value="2*2*2" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></span>
+			<output id="outRhythmScales" title="Cascade of rhythmic scales">1</output>
+		</p>
+		<p><strong>Additional&nbsp;gen.&nbsp;params.:</strong> 
+			<span class="cell"><label for="txtVoiceCount">voices</label>
+				<input type="number" id="txtVoiceCount" value="3" min="1" step="1" title="Used by chord generator." size="3" /></span><wbr />
+			<span class="cell"><label for="txtReptCount">rept.&nbsp;count</label>
+				<input type="number" id="txtReptCount" value="2" step="1" min="1" title="Used by rhythm and melody generators." size="4" /></span><wbr />
+			<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period</label>
+				<input type="number" id="txtReptPeriod" value="4" step="1" min="1" title="Used by melody generator." size="4" /></span>
+			<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." />
+				<label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
+		</p>
+		<p class="flex-row">
+			<span><strong>Structured&nbsp;music:</strong> 
+				<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
+				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
+				<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
+			</span> <wbr />
+			<span class="right">
+				<a id="aStructDownload" href="" hidden=""></a>
+				<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
+				<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
+				<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+			</span>
+		</p>
+		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="none">
+{
+	"freqRatio": 440,
+	"volRatio": 0.5,
+	"timeDelta": 0,
+	"timeScale": 0.5,
+	"decayFactor": 128,
+	"attack": "1/64",
+	"pat1": [
+		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},
+		{"noteStart": 0, "duration": 1, "freq": 1},
+		{"noteStart": 1, "duration": 1, "freq": "5/4"},
+		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},
+		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
+	],
+	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},
+	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}
+}</textarea></p>-->
+		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off">
 {
 	"freqRatio": 440,
 	"volRatio": 0.5,
@@ -237,537 +252,540 @@
 	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},
 	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}
 }</pre>
-	<p class="flex-row">
-		<span><strong>Flattened note list:</strong> 
-			<!--to do: ? (lost to-do item)-->
-			<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-			<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" />
-				<label for="chkAutoFlatten">Automatically flatten</label></span>
-		</span>
-		<span class="right">
-			<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
-			<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
-		</span>
-	</p>
-	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" title="">
-[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
- {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
-	<p><strong>Overall&nbsp;controls:</strong> 
-		<!--question: switch input elems to type="range"?-->
-		<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
-			<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
-		<span class="cell"><label for="txtPlayVolScale">volume</label>
-			<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
-		<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-			<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
-		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(skip vs. lead-in) (s)</label>
-			<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
-	</p>
-	<p class="flex-row">
-		<span><strong>Player:</strong> 
-			<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
-			<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
-			<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
-			<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." />
-				<label for="chkAutoReload">Auto-reload</label></span>
-			<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
-		</span>
-		<span class="right">
-			<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
-			<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount">0</output>.</span>
-		</span>
-	</p>
-
-	<p class="print-dp-none">
-		<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
-		<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
-			<defs>
-				<linearGradient id="noteFill1" x1="0%" y1="0%" x2="100%" y2="0%">
-					<!--opacities based on binomial distribution: 1, 8, 28, 56, 70, 56, 28, 8, 1-->
-					<stop offset="0%" style="stop-opacity: 0.014285714" />
-					<stop offset="12.5%" style="stop-opacity: 0.114285714" />
-					<stop offset="25%" style="stop-opacity: 0.4" />
-					<stop offset="37.5%" style="stop-opacity: 0.8" />
-					<stop offset="50%" style="stop-opacity: 1" />
-					<stop offset="62.5%" style="stop-opacity: 0.8" />
-					<stop offset="75%" style="stop-opacity: 0.4" />
-					<stop offset="87.5%" style="stop-opacity: 0.114285714" />
-					<stop offset="100%" style="stop-opacity: 0.014285714" />
-				</linearGradient>
-			</defs>
-		</svg>
-	</p>
-
-	<details>
-		<summary><strong>Audio export to file:</strong></summary>
-		<!--to do: format selector, sample rate-->
-		<!--to do: ...use WebCodecs (not yet supported in Firefox)-->
-		<p>
-			<a id="aAudioDownload" href="" hidden=""></a>
-			<button id="btnAudioExport">Export</button>
-			<button id="btnAudioExportCancel">Cancel</button>
-			<span class="cell">Format choosen: <wbr /><code><output id="outExportFormat"></output></code>.</span>
-			<span class="cell">Clip duration: <wbr /><output id="outExportDuration">0</output> s.</span>
-			<span class="cell">Progress: <wbr /><output id="outExportProgress">0%</output>.</span>
+		<p class="flex-row">
+			<span><strong>Flattened note list:</strong> 
+				<!--to do: ? (lost to-do item)-->
+				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
+				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" />
+					<label for="chkAutoFlatten">Automatically flatten</label></span>
+			</span>
+			<span class="right">
+				<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
+				<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+			</span>
 		</p>
-	</details>
+		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" title="">
+[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
+{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
+		<p><strong>Overall&nbsp;controls:</strong> 
+			<!--question: switch input elems to type="range"?-->
+			<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
+				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
+			<span class="cell"><label for="txtPlayVolScale">volume</label>
+				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
+			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
+				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
+			<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(skip vs. lead-in) (s)</label>
+				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
+		</p>
+		<p class="flex-row">
+			<span><strong>Player:</strong> 
+				<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
+				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
+				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
+				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." />
+					<label for="chkAutoReload">Auto-reload</label></span>
+				<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
+			</span>
+			<span class="right">
+				<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
+				<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount">0</output>.</span>
+			</span>
+		</p>
 
-	<p id="outToolTip" class="print-dp-none">A description of the selected control will appear here.</p>
+		<p class="print-dp-none">
+			<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
+			<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
+				<defs>
+					<linearGradient id="noteFill1" x1="0%" y1="0%" x2="100%" y2="0%">
+						<!--opacities based on binomial distribution: 1, 8, 28, 56, 70, 56, 28, 8, 1-->
+						<stop offset="0%" style="stop-opacity: 0.014285714" />
+						<stop offset="12.5%" style="stop-opacity: 0.114285714" />
+						<stop offset="25%" style="stop-opacity: 0.4" />
+						<stop offset="37.5%" style="stop-opacity: 0.8" />
+						<stop offset="50%" style="stop-opacity: 1" />
+						<stop offset="62.5%" style="stop-opacity: 0.8" />
+						<stop offset="75%" style="stop-opacity: 0.4" />
+						<stop offset="87.5%" style="stop-opacity: 0.114285714" />
+						<stop offset="100%" style="stop-opacity: 0.014285714" />
+					</linearGradient>
+				</defs>
+			</svg>
+		</p>
 
-	<article>
-		<hr />
-		<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
-			Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
-			Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
-			This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
-		<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval">intervals</a>) are actually frequency ratios (proportions). 
-			Chords are made of intervals, and both things inspire interpretations for listeners. 
-			The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. 
-			This can be mathematically represented by using rational numbers, and in more consonant intervals these numbers correspond to fractions made out of small integers, such as 3/2. 
-			As the irreducible form is the most important one for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can help, as used below. 
-			More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and is often conventioned to represent a peaceful mood or positive emotions in soundtracks. 
-			More dissonant (less consonant) intervals may sound pulsating, complicated, strange, advanced, cacophonous or imperfect, and is symbolically conventioned for negative things.</p>
-		<details open="">
-			<summary><strong>Interval consonance cheatsheet</strong></summary>
-			<p><table id="tblFractionIntervals">
-				<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a> (approximately descending order of consonance)</caption>
-				<thead>
-					<tr>
-						<!--hyphenation based on Oxford Advanced Leaner's Dictionary, with http://www.ushuaia.pl/hyphen/?ln=en to fill in the gaps.-->
-						<th>Frac&shy;tion</th>
-						<th>Prime fac&shy;tor&shy;iza&shy;tion</th>
-						<th><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semi&shy;tones (12-TET)</a></th>
-						<th>Trad&shy;ition&shy;al name (approx.)</th>
-						<th>Notes</th>
-					</tr>
-				</thead>
-				<tbody>
-					<!--for interval names, https://www.huygens-fokker.org/docs/intervals.html seems to be a great source-->
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Unison">1<wbr />/1</a></td>
-						<td>2<sup>0</sup></td>
-						<td>0.000</td>
-						<td>(Perfect) unison</td>
-						<td>Most consonant, but not always considered an interval.</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Octave">2<wbr />/1</a></td>
-						<td>2<sup>1</sup></td>
-						<td>12.000</td>
-						<td>(Perfect) octave</td>
-						<td>So consonant it can be hard to tell the notes apart, depending on the instrument.</td>
-					</tr>
-					<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fifth">3<wbr />/2</a></td>
-						<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup></td>
-						<td>7.020</td>
-						<td>(Perfect) fifth</td>
-						<td rowspan="2">Still sounds very basic.</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4<wbr />/3</a></td>
-						<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup></td>
-						<td>4.980</td>
-						<td>(Perfect) fourth</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Major_tone">9<wbr />/8</a></td>
-						<td>2<sup>&minus;3</sup> <wbr />3<sup>2</sup></td>
-						<td>2.039</td>
-						<td>Major second</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16<wbr />/9</a></td>
-						<td>2<sup>4</sup> <wbr />3<sup>&minus;2</sup></td>
-						<td>9.961</td>
-						<td>Minor seventh</td>
-					</tr>
-					<tr><th colspan="5">5-limit (Ptolemaic) harmony</th></tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_major_third">5<wbr />/4</a></td>
-						<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
-						<td>3.863</td>
-						<td>Major third</td>
-						<td rowspan="2">Often used in "good-mood" musical phrases.</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
-						<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
-						<td>8.137</td>
-						<td>Minor sixth</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
-						<td>2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
-						<td>8.844</td>
-						<td>Major sixth</td>
-						<td rowspan="2">Used as a "sad" replacement for 5/4 and 8/5.</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>
-						<td>2<sup>1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup></td>
-						<td>3.156</td>
-						<td>Minor third</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_major_seventh">15<wbr />/8</a></td>
-						<td>2<sup>&minus;3</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup></td>
-						<td>10.883</td>
-						<td>Major seventh</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16<wbr />/15</a></td>
-						<td>2<sup>4</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup></td>
-						<td>1.117</td>
-						<td>Semitone</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Minor_tone">10<wbr />/9</a></td>
-						<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>1</sup></td>
-						<td>1.824</td>
-						<td>Major second</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9<wbr />/5</a></td>
-						<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;1</sup></td>
-						<td>10.176</td>
-						<td>Minor seventh</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25<wbr />/16</a></td>
-						<td>2<sup>&minus;4</sup> <wbr />3<sup>0</sup> <wbr />5<sup>2</sup></td>
-						<td>7.726</td>
-						<td>Minor sixth</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32<wbr />/25</a></td>
-						<td>2<sup>5</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;2</sup></td>
-						<td>4.274</td>
-						<td>Major third</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Just_chromatic_semitone">25<wbr />/24</a></td>
-						<td>2<sup>&minus;3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>2</sup></td>
-						<td>0.707</td>
-						<td>Semitone</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Diminished_octave">48<wbr />/25</a></td>
-						<td>2<sup>4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;2</sup></td>
-						<td>11.293</td>
-						<td>Major seventh</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+augmented+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">25<wbr />/18</a></td>
-						<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>2</sup></td>
-						<td>5.687</td>
-						<td>Tritone</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36<wbr />/25</a></td>
-						<td>2<sup>2</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;2</sup></td>
-						<td>6.313</td>
-						<td>Tritone</td>
-					</tr>
-					<tr><th colspan="5">7-limit (septimal) harmony</th></tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Harmonic_seventh">7<wbr />/4</a></td>
-						<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-						<td>9.688</td>
-						<td>Minor seventh</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8<wbr />/7</a></td>
-						<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-						<td>2.312</td>
-						<td>Major second</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_third">7<wbr />/6</a></td>
-						<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-						<td>2.669</td>
-						<td></td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12<wbr />/7</a></td>
-						<td>2<sup>2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-						<td>9.331</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_narrow_fourth">21<wbr />/16</a></td>
-						<td>2<sup>&minus;4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-						<td>4.708</td>
-						<td>(Perfect) fourth</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32<wbr />/21</a></td>
-						<!--alternative name: wide fifth-->
-						<td>2<sup>5</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-						<td>7.292</td>
-						<td>(Perfect) fifth</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_sixth">14<wbr />/9</a></td>
-						<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-						<td>7.649</td>
-						<td></td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9<wbr />/7</a></td>
-						<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-						<td>4.351</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Huygens%27_tritone">7<wbr />/5</a></td>
-						<td>2<sup>0</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
-						<td>5.825</td>
-						<td>Tritone</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10<wbr />/7</a></td>
-						<td>2<sup>1</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
-						<td>6.175</td>
-						<td>Tritone</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_chromatic_semitone">21<wbr />/20</a></td>
-						<td>2<sup>&minus;2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
-						<td>0.845</td>
-						<td>Semitone</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave" title="Alternative name: acute major seventh">40<wbr />/21</a></td>
-						<td>2<sup>3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
-						<td>11.155</td>
-						<td>Major seventh</td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/w/index.php?search=%2228%2F15%22+music+interval&title=Special:Search&profile=advanced&fulltext=1&ns0=1" title="Alternative name: grave major seventh (means a different interval in Wikipedia)">28<wbr />/15</a></td>
-						<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
-						<td>10.806</td>
-						<td>Major seventh</td>
-						<td rowspan="2"></td>
-					</tr>
-					<tr>
-						<td><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15<wbr />/14</a></td>
-						<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
-						<td>1.194</td>
-						<td>Semitone</td>
-					</tr>
-				</tbody>
-			</table></p>
-			<p>Note: "Semitone" is a British English term, corresponding to "half step" in American English. 
-				Several other intervals have alternative names: for example the tritone can also be called augmented fourth and diminished fifth, and the major second is also known as a whole tone.</p>
-			<p>Note about octave normalization: The table above displays the multidimensionality of consonance, with little regard to other interval properties such as <a href="https://en.wikipedia.org/wiki/Interval_(music)#Size">size</a>. 
-				As the octave is felt as the most neutral interval, it is almost always used as a basic "block" for adjusting interval sizes, which has negligible effect on consonance. So powers of 2 are used as a counterweight.</p>
+		<details>
+			<summary><strong>Audio export to file:</strong></summary>
+			<!--to do: format selector, sample rate-->
+			<!--to do: ...use WebCodecs (not yet supported in Firefox)-->
+			<p>
+				<a id="aAudioDownload" href="" hidden=""></a>
+				<button id="btnAudioExport">Export</button>
+				<button id="btnAudioExportCancel">Cancel</button>
+				<span class="cell">Format choosen: <wbr /><code><output id="outExportFormat"></output></code>.</span>
+				<span class="cell">Clip duration: <wbr /><output id="outExportDuration">0</output> s.</span>
+				<span class="cell">Progress: <wbr /><output id="outExportProgress">0%</output>.</span>
+			</p>
 		</details>
-		<hr />
-		<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive <a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">list</a> of notes), used when playing, supporting only note properties. 
-			But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). 
-			As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>
-		<p>Though the page is novel, the formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). 
-			The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an associative array, or in JSON as an object). 
-			As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. 
-			Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). 
-			That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
-		<p>The <em>structured representation</em> is made to be readable and editable, while also understandable by a computer. 
-			In this format, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). 
-			Use <a href="https://en.wikipedia.org/wiki/Natural_number">natural numbers</a> starting at 0 and don't skip numbers. 
-			Their order can be arbitrary; the indices don't tell anything about note time. 
-			Not all blocks are notes, but all notes can also work as blocks; the presence of <code>noteStart</code>, <code>duration</code>, <code>freq</code> and/or <code>vol</code> properties define a note. 
-			You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. 
-			Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
-		<hr />
-		<p>Block (inheritable) properties are:</p>
-		<dl>
-			<dt><strong><code>freqRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
-			<dd>Can be used both for pitch tuning and interval accumulation.</dd>
-			<dt><strong><code>volRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
-			<dd>Can be used to compensate for polyphony (like the generators do).</dd>
-			<dt><strong><code>timeDelta</code></strong> (additive, default <code>0</code>, relative to timeScale)</dt>
-			<dd>Relative time position or delay.</dd>
-			<dt><strong><code>timeScale</code></strong> (multiplicative, default <code>1</code>)</dt>
-			<dd>Inverse of tempo/speed.</dd>
-			<dt><strong><code>timbre</code></strong> (substitutive)</dt>
-			<dt><strong><code>decayFactor</code></strong> (substitutive)</dt>
-			<dt><strong><code>attack</code></strong> (substitutive)</dt>
-			<dt><strong><code>portamento</code></strong> (substitutive)</dt>
-			<dt><strong><code>vibratoFreq</code></strong> (substitutive)</dt>
-			<dt><strong><code>vibratoDepth</code></strong> (substitutive)</dt>
-			<dt><strong><code>vibratoAttack</code></strong> (substitutive)</dt>
-		</dl>
-		<p>In the structured format, note properties are (influenced by block property values):</p>
-		<dl>
-			<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
-			<dd>The moment in time the note is played.</dd>
-			<dd>Affected by timeDelta and timeScale.</dd>
 
-			<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
-			<dd>The moment in time the note is silenced.</dd>
-			<dd>Affected by timeDelta and timeScale.</dd>
+		<p id="outToolTip" class="print-dp-none">A description of the selected control will appear here.</p>
+	</main>
 
-			<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
-			<dd>The amount of time the note plays. 
-				(You don't need both noteStop and duration&mdash;they are redundant.)</dd>
-			<dd>Affected by timeScale.</dd>
+	<hr />
+	<section>
+		<article>
+			<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
+				Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
+				Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
+				This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
+			<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval">intervals</a>) are actually frequency ratios (proportions). 
+				Chords are made of intervals, and both things inspire interpretations for listeners. 
+				The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. 
+				This can be mathematically represented by using rational numbers, and in more consonant intervals these numbers correspond to fractions made out of small integers, such as 3/2. 
+				As the irreducible form is the most important one for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can help, as used below. 
+				More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and is often conventioned to represent a peaceful mood or positive emotions in soundtracks. 
+				More dissonant (less consonant) intervals may sound pulsating, complicated, strange, advanced, cacophonous or imperfect, and is symbolically conventioned for negative things.</p>
+			<details open="">
+				<summary><strong>Interval consonance cheatsheet</strong></summary>
+				<p><table id="tblFractionIntervals">
+					<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a> (approximately descending order of consonance)</caption>
+					<thead>
+						<tr>
+							<!--hyphenation based on Oxford Advanced Leaner's Dictionary, with http://www.ushuaia.pl/hyphen/?ln=en to fill in the gaps.-->
+							<th>Frac&shy;tion</th>
+							<th>Prime fac&shy;tor&shy;iza&shy;tion</th>
+							<th><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semi&shy;tones (12-TET)</a></th>
+							<th>Trad&shy;ition&shy;al name (approx.)</th>
+							<th>Notes</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--for interval names, https://www.huygens-fokker.org/docs/intervals.html seems to be a great source-->
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Unison">1<wbr />/1</a></td>
+							<td>2<sup>0</sup></td>
+							<td>0.000</td>
+							<td>(Perfect) unison</td>
+							<td>Most consonant, but not always considered an interval.</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Octave">2<wbr />/1</a></td>
+							<td>2<sup>1</sup></td>
+							<td>12.000</td>
+							<td>(Perfect) octave</td>
+							<td>So consonant it can be hard to tell the notes apart, depending on the instrument.</td>
+						</tr>
+						<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fifth">3<wbr />/2</a></td>
+							<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup></td>
+							<td>7.020</td>
+							<td>(Perfect) fifth</td>
+							<td rowspan="2">Still sounds very basic.</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4<wbr />/3</a></td>
+							<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup></td>
+							<td>4.980</td>
+							<td>(Perfect) fourth</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Major_tone">9<wbr />/8</a></td>
+							<td>2<sup>&minus;3</sup> <wbr />3<sup>2</sup></td>
+							<td>2.039</td>
+							<td>Major second</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16<wbr />/9</a></td>
+							<td>2<sup>4</sup> <wbr />3<sup>&minus;2</sup></td>
+							<td>9.961</td>
+							<td>Minor seventh</td>
+						</tr>
+						<tr><th colspan="5">5-limit (Ptolemaic) harmony</th></tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_major_third">5<wbr />/4</a></td>
+							<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
+							<td>3.863</td>
+							<td>Major third</td>
+							<td rowspan="2">Often used in "good-mood" musical phrases.</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
+							<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td>8.137</td>
+							<td>Minor sixth</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
+							<td>2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
+							<td>8.844</td>
+							<td>Major sixth</td>
+							<td rowspan="2">Used as a "sad" replacement for 5/4 and 8/5.</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>
+							<td>2<sup>1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td>3.156</td>
+							<td>Minor third</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_major_seventh">15<wbr />/8</a></td>
+							<td>2<sup>&minus;3</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup></td>
+							<td>10.883</td>
+							<td>Major seventh</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16<wbr />/15</a></td>
+							<td>2<sup>4</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td>1.117</td>
+							<td>Semitone</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Minor_tone">10<wbr />/9</a></td>
+							<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>1</sup></td>
+							<td>1.824</td>
+							<td>Major second</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9<wbr />/5</a></td>
+							<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td>10.176</td>
+							<td>Minor seventh</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25<wbr />/16</a></td>
+							<td>2<sup>&minus;4</sup> <wbr />3<sup>0</sup> <wbr />5<sup>2</sup></td>
+							<td>7.726</td>
+							<td>Minor sixth</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32<wbr />/25</a></td>
+							<td>2<sup>5</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;2</sup></td>
+							<td>4.274</td>
+							<td>Major third</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Just_chromatic_semitone">25<wbr />/24</a></td>
+							<td>2<sup>&minus;3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>2</sup></td>
+							<td>0.707</td>
+							<td>Semitone</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Diminished_octave">48<wbr />/25</a></td>
+							<td>2<sup>4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;2</sup></td>
+							<td>11.293</td>
+							<td>Major seventh</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+augmented+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">25<wbr />/18</a></td>
+							<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>2</sup></td>
+							<td>5.687</td>
+							<td>Tritone</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36<wbr />/25</a></td>
+							<td>2<sup>2</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;2</sup></td>
+							<td>6.313</td>
+							<td>Tritone</td>
+						</tr>
+						<tr><th colspan="5">7-limit (septimal) harmony</th></tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Harmonic_seventh">7<wbr />/4</a></td>
+							<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td>9.688</td>
+							<td>Minor seventh</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8<wbr />/7</a></td>
+							<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td>2.312</td>
+							<td>Major second</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_third">7<wbr />/6</a></td>
+							<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td>2.669</td>
+							<td></td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12<wbr />/7</a></td>
+							<td>2<sup>2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td>9.331</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_narrow_fourth">21<wbr />/16</a></td>
+							<td>2<sup>&minus;4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td>4.708</td>
+							<td>(Perfect) fourth</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32<wbr />/21</a></td>
+							<!--alternative name: wide fifth-->
+							<td>2<sup>5</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td>7.292</td>
+							<td>(Perfect) fifth</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_sixth">14<wbr />/9</a></td>
+							<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td>7.649</td>
+							<td></td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9<wbr />/7</a></td>
+							<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td>4.351</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Huygens%27_tritone">7<wbr />/5</a></td>
+							<td>2<sup>0</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
+							<td>5.825</td>
+							<td>Tritone</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10<wbr />/7</a></td>
+							<td>2<sup>1</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td>6.175</td>
+							<td>Tritone</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_chromatic_semitone">21<wbr />/20</a></td>
+							<td>2<sup>&minus;2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
+							<td>0.845</td>
+							<td>Semitone</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave" title="Alternative name: acute major seventh">40<wbr />/21</a></td>
+							<td>2<sup>3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td>11.155</td>
+							<td>Major seventh</td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/w/index.php?search=%2228%2F15%22+music+interval&title=Special:Search&profile=advanced&fulltext=1&ns0=1" title="Alternative name: grave major seventh (means a different interval in Wikipedia)">28<wbr />/15</a></td>
+							<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
+							<td>10.806</td>
+							<td>Major seventh</td>
+							<td rowspan="2"></td>
+						</tr>
+						<tr>
+							<td><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15<wbr />/14</a></td>
+							<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td>1.194</td>
+							<td>Semitone</td>
+						</tr>
+					</tbody>
+				</table></p>
+				<p>Note: "Semitone" is a British English term, corresponding to "half step" in American English. 
+					Several other intervals have alternative names: for example the tritone can also be called augmented fourth and diminished fifth, and the major second is also known as a whole tone.</p>
+				<p>Note about octave normalization: The table above displays the multidimensionality of consonance, with little regard to other interval properties such as <a href="https://en.wikipedia.org/wiki/Interval_(music)#Size">size</a>. 
+					As the octave is felt as the most neutral interval, it is almost always used as a basic "block" for adjusting interval sizes, which has negligible effect on consonance. So powers of 2 are used as a counterweight.</p>
+			</details>
+			<hr />
+			<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive <a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">list</a> of notes), used when playing, supporting only note properties. 
+				But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). 
+				As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>
+			<p>Though the page is novel, the formats are based on an existing one, called <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> (JavaScript Object Notation, a <a href="https://en.wikipedia.org/wiki/Computer_language">computer language</a>). 
+				The basic generic syntax for a structure node is: <code>{"property1": value1, "property2": value2, ...}</code> (known as an associative array, or in JSON as an object). 
+				As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. 
+				Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). 
+				That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
+			<p>The <em>structured representation</em> is made to be readable and editable, while also understandable by a computer. 
+				In this format, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). 
+				Use <a href="https://en.wikipedia.org/wiki/Natural_number">natural numbers</a> starting at 0 and don't skip numbers. 
+				Their order can be arbitrary; the indices don't tell anything about note time. 
+				Not all blocks are notes, but all notes can also work as blocks; the presence of <code>noteStart</code>, <code>duration</code>, <code>freq</code> and/or <code>vol</code> properties define a note. 
+				You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. 
+				Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
+			<hr />
+			<p>Block (inheritable) properties are:</p>
+			<dl>
+				<dt><strong><code>freqRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
+				<dd>Can be used both for pitch tuning and interval accumulation.</dd>
+				<dt><strong><code>volRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
+				<dd>Can be used to compensate for polyphony (like the generators do).</dd>
+				<dt><strong><code>timeDelta</code></strong> (additive, default <code>0</code>, relative to timeScale)</dt>
+				<dd>Relative time position or delay.</dd>
+				<dt><strong><code>timeScale</code></strong> (multiplicative, default <code>1</code>)</dt>
+				<dd>Inverse of tempo/speed.</dd>
+				<dt><strong><code>timbre</code></strong> (substitutive)</dt>
+				<dt><strong><code>decayFactor</code></strong> (substitutive)</dt>
+				<dt><strong><code>attack</code></strong> (substitutive)</dt>
+				<dt><strong><code>portamento</code></strong> (substitutive)</dt>
+				<dt><strong><code>vibratoFreq</code></strong> (substitutive)</dt>
+				<dt><strong><code>vibratoDepth</code></strong> (substitutive)</dt>
+				<dt><strong><code>vibratoAttack</code></strong> (substitutive)</dt>
+			</dl>
+			<p>In the structured format, note properties are (influenced by block property values):</p>
+			<dl>
+				<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
+				<dd>The moment in time the note is played.</dd>
+				<dd>Affected by timeDelta and timeScale.</dd>
 
-			<dt><strong><code>freq</code></strong> (default <code>1</code>)</dt>
-			<dd>Frequency, which represents pitch.</dd>
-			<dd>Affected by freqRatio.</dd>
+				<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
+				<dd>The moment in time the note is silenced.</dd>
+				<dd>Affected by timeDelta and timeScale.</dd>
 
-			<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
-			<dd>Amplitude, which represents volume.</dd>
-			<dd>Affected by volRatio.</dd>
+				<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
+				<dd>The amount of time the note plays. 
+					(You don't need both noteStop and duration&mdash;they are redundant.)</dd>
+				<dd>Affected by timeScale.</dd>
 
-			<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
-			<dd>Waveform used in synthesis (comparable to a musical instrument). 
-				Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
-			<dd>Absolute override when present.</dd>
+				<dt><strong><code>freq</code></strong> (default <code>1</code>)</dt>
+				<dd>Frequency, which represents pitch.</dd>
+				<dd>Affected by freqRatio.</dd>
 
-			<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
-			<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
-			<dd>Absolute override when present.</dd>
+				<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
+				<dd>Amplitude, which represents volume.</dd>
+				<dd>Affected by volRatio.</dd>
 
-			<dt><strong><code>attack</code></strong> (default <code>"1/64"</code>)</dt>
-			<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
-			<dd>Absolute override when present.</dd>
-			
-			<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
-			<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). 
-				When zero, portamento is disabled and pitches are abrupt.</dd>
-			<dd>Absolute override when present.</dd>
+				<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
+				<dd>Waveform used in synthesis (comparable to a musical instrument). 
+					Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
+				<dd>Absolute override when present.</dd>
 
-			<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
-			<dd>If portamento is enabled, this is the initial frequency. 
-				A <code>0</code> value disables portamento. 
-				If freq0 is not present, the default portamento behavior is to start from the (estimated) current pitch of the last note.</dd>
-			<dd>Note-only property, not retained by blocks.</dd>
-			
-			<dt><strong><code>vibratoFreq</code></strong> (default <code>"2^18 / 86400"</code> = ~<code>3.034</code>)</dt>
-			<dd>Frequency for pitch modulation.</dd>
-			<dd>Absolute override when present.</dd>
-			
-			<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
-			<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
-			<dd>Absolute override when present.</dd>
-			
-			<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
-			<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
-			<dd>Absolute override when present.</dd>
-		</dl>
-		<hr />
-		<p>In the structured representation, block and note properties support several <strong>number formats</strong>. Examples:</p>
-		<ul>
-			<li><code>1.25</code> = 1.25 (literal number)</li>
-			<li><code>"1.25"</code> = 1.25 (text to number)</li>
+				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
+				<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
+				<dd>Absolute override when present.</dd>
+
+				<dt><strong><code>attack</code></strong> (default <code>"1/64"</code>)</dt>
+				<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
+				<dd>Absolute override when present.</dd>
+				
+				<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
+				<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). 
+					When zero, portamento is disabled and pitches are abrupt.</dd>
+				<dd>Absolute override when present.</dd>
+
+				<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
+				<dd>If portamento is enabled, this is the initial frequency. 
+					A <code>0</code> value disables portamento. 
+					If freq0 is not present, the default portamento behavior is to start from the (estimated) current pitch of the last note.</dd>
+				<dd>Note-only property, not retained by blocks.</dd>
+				
+				<dt><strong><code>vibratoFreq</code></strong> (default <code>"2^18 / 86400"</code> = ~<code>3.034</code>)</dt>
+				<dd>Frequency for pitch modulation.</dd>
+				<dd>Absolute override when present.</dd>
+				
+				<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
+				<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
+				<dd>Absolute override when present.</dd>
+				
+				<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
+				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+				<dd>Absolute override when present.</dd>
+			</dl>
+			<hr />
+			<p>In the structured representation, block and note properties support several <strong>number formats</strong>. Examples:</p>
 			<ul>
-				<li><code>"5*0.5*0.5"</code> = 5/4 = 1.25</li>
-				<li><code>"5/2/2"</code> = (5/2)/2 = 5/4 = 1.25</li>
-				<li><code>"5/2^2"</code> = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
+				<li><code>1.25</code> = 1.25 (literal number)</li>
+				<li><code>"1.25"</code> = 1.25 (text to number)</li>
+				<ul>
+					<li><code>"5*0.5*0.5"</code> = 5/4 = 1.25</li>
+					<li><code>"5/2/2"</code> = (5/2)/2 = 5/4 = 1.25</li>
+					<li><code>"5/2^2"</code> = 5/(2^2) = 5/4 = 1.25 (^ denotes exponentiation)</li>
+				</ul>
+				<li><code>[-2, 0, 1]</code> = 2<sup>&minus;2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+				<ul>
+					<li>String expressions are supported in object values: <code>["-1-1", 0, 1]</code> = <code>[-2, 0, 1]</code></li>
+				</ul>
+				<li><code>{"2": -2, "5": 1}</code> = 2<sup>&minus;2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors, but also supports other factors)</li>
+				<ul>
+					<li>Even factors can be string expressions: <code>{"2": -2, "2 + 3": 1}</code> = <code>{"2": -2, "5": 1}</code></li>
+				</ul>
+				<li>To emulate twelve-tone equal temperament, use powers of 2 (octave) with a number of semitones divided by 12 (fraction of an octave) as exponent. 
+					E.g. <code>["7/12"]</code> = 2<sup>7/12</sup> would represent a fifth interval (7 semitones).</li>
 			</ul>
-			<li><code>[-2, 0, 1]</code> = 2<sup>&minus;2</sup> &times; 3<sup>0</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (uses prime factors implicitly)</li>
+			<p>Rules for strings:</p>
 			<ul>
-				<li>String expressions are supported in object values: <code>["-1-1", 0, 1]</code> = <code>[-2, 0, 1]</code></li>
+				<li>For expressions with operators, quote them as text.</li>
+				<li>Subexpressions inside parentheses are evaluated first.</li>
+				<li>As in many computer languages, the text symbols for multiplication, division and exponentiation are (respectively) <code>*</code>, <code>/</code>, <code>^</code>.</li>
+				<li>Operator precedence: <code>^</code> (first), <code>/</code>, <code>*</code>, <code>-</code>, <code>+</code> (last)</li>
+				<li>Addition, multiplication and exponentiation are right-associative: e.g. <code>4^3^2</code> = <code>4^(3^2)</code>, not <code>(4^3)^2</code></li>
+				<li>Subtraction and division are left-associative: e.g. <code>4 - 3 - 2</code> = <code>(4 - 3) - 2</code>, not <code>4 - (3 - 2)</code></li>
 			</ul>
-			<li><code>{"2": -2, "5": 1}</code> = 2<sup>&minus;2</sup> &times; 5<sup>1</sup> = 5/4 = 1.25 (great for use with prime factors, but also supports other factors)</li>
-			<ul>
-				<li>Even factors can be string expressions: <code>{"2": -2, "2 + 3": 1}</code> = <code>{"2": -2, "5": 1}</code></li>
-			</ul>
-			<li>To emulate twelve-tone equal temperament, use powers of 2 (octave) with a number of semitones divided by 12 (fraction of an octave) as exponent. 
-				E.g. <code>["7/12"]</code> = 2<sup>7/12</sup> would represent a fifth interval (7 semitones).</li>
-		</ul>
-		<p>Rules for strings:</p>
-		<ul>
-			<li>For expressions with operators, quote them as text.</li>
-			<li>Subexpressions inside parentheses are evaluated first.</li>
-			<li>As in many computer languages, the text symbols for multiplication, division and exponentiation are (respectively) <code>*</code>, <code>/</code>, <code>^</code>.</li>
-			<li>Operator precedence: <code>^</code> (first), <code>/</code>, <code>*</code>, <code>-</code>, <code>+</code> (last)</li>
-			<li>Addition, multiplication and exponentiation are right-associative: e.g. <code>4^3^2</code> = <code>4^(3^2)</code>, not <code>(4^3)^2</code></li>
-			<li>Subtraction and division are left-associative: e.g. <code>4 - 3 - 2</code> = <code>(4 - 3) - 2</code>, not <code>4 - (3 - 2)</code></li>
-		</ul>
-		<hr />
-		<p>Eventually, the structured representation is converted (by the page) into a <em>flattened representation</em>, which is easier for a computer to play. 
-			In it, blocks, recursion, named patterns, numerical structures and arithmetics are not available. 
-			For creative representation (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is to play the music.</p>
-		<p>In the flattened format, note properties are:</p>
-		<dl>
-			<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
-			<dd>The moment in time the note is played.</dd>
-			<dd>Affected by overall time delta and overall time scale.</dd>
+			<hr />
+			<p>Eventually, the structured representation is converted (by the page) into a <em>flattened representation</em>, which is easier for a computer to play. 
+				In it, blocks, recursion, named patterns, numerical structures and arithmetics are not available. 
+				For creative representation (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is to play the music.</p>
+			<p>In the flattened format, note properties are:</p>
+			<dl>
+				<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
+				<dd>The moment in time the note is played.</dd>
+				<dd>Affected by overall time delta and overall time scale.</dd>
 
-			<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
-			<dd>The moment in time the note is silenced.</dd>
-			<dd>Affected by overall time delta and overall time scale.</dd>
+				<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
+				<dd>The moment in time the note is silenced.</dd>
+				<dd>Affected by overall time delta and overall time scale.</dd>
 
-			<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
-			<dd>The amount of time the note plays. 
-				(You don't need both noteStop and duration&mdash;they are redundant.)</dd>
-			<dd>Affected by overall time scale.</dd>
+				<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
+				<dd>The amount of time the note plays. 
+					(You don't need both noteStop and duration&mdash;they are redundant.)</dd>
+				<dd>Affected by overall time scale.</dd>
 
-			<dt><strong><code>freq</code></strong> (default <code>1</code>, must be non-zero in flattened list)</dt>
-			<dd>Frequency, which represents pitch.</dd>
-			<dd>Affected by overall frequency scale.</dd>
+				<dt><strong><code>freq</code></strong> (default <code>1</code>, must be non-zero in flattened list)</dt>
+				<dd>Frequency, which represents pitch.</dd>
+				<dd>Affected by overall frequency scale.</dd>
 
-			<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
-			<dd>Amplitude, which represents volume.</dd>
-			<dd>Affected by overall volume scale.</dd>
+				<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
+				<dd>Amplitude, which represents volume.</dd>
+				<dd>Affected by overall volume scale.</dd>
 
-			<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
-			<dd>Waveform used in synthesis (comparable to a musical instrument). 
-				Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
+				<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
+				<dd>Waveform used in synthesis (comparable to a musical instrument). 
+					Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
 
-			<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
-			<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
-			<dd>Affected by overall time scale.</dd>
+				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
+				<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
+				<dd>Affected by overall time scale.</dd>
 
-			<dt><strong><code>attack</code></strong> (default <em>1/64</em>)</dt>
-			<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
-			<dd>Affected by overall time scale.</dd>
-			
-			<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
-			<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). 
-				When zero, portamento is disabled and pitches are abrupt.</dd>
-			<dd>Affected by overall time scale.</dd>
+				<dt><strong><code>attack</code></strong> (default <em>1/64</em>)</dt>
+				<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
+				<dd>Affected by overall time scale.</dd>
+				
+				<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
+				<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). 
+					When zero, portamento is disabled and pitches are abrupt.</dd>
+				<dd>Affected by overall time scale.</dd>
 
-			<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
-			<dd>If portamento is enabled, this is the initial frequency. 
-				A <code>0</code> value disables portamento. 
-				If freq0 is not present, the default portamento behavior is to start from the (estimated) current pitch of the last note.</dd>
-			<dd>Note-only property, not inherited by blocks.</dd>
-			
-			<dt><strong><code>vibratoFreq</code></strong> (default <em>2^18 / 86400</em> = ~<code>3.034</code>)</dt>
-			<dd>Frequency for pitch modulation.</dd>
-			<dd>Affected by overall time scale.</dd>
-			
-			<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
-			<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
-			
-			<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
-			<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
-			<dd>Affected by overall time scale.</dd>
-		</dl>
-	</article>
-	<footer>
-		<hr />
-		<p>Project page: <a href="https://bitbucket.org/technicore/json-player/">https://bitbucket.org/technicore/json-player/</a> (including source code)</p>
-		<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), custom filtering, custom effects, multiple tracks/custom mixing pipeline or multiple channels/spatialization.</p>
-		<p>By regretronics; licensed under the <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
-		<p>I'm still waiting for your feedback! Thanks.</p>
-	</footer>
+				<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
+				<dd>If portamento is enabled, this is the initial frequency. 
+					A <code>0</code> value disables portamento. 
+					If freq0 is not present, the default portamento behavior is to start from the (estimated) current pitch of the last note.</dd>
+				<dd>Note-only property, not inherited by blocks.</dd>
+				
+				<dt><strong><code>vibratoFreq</code></strong> (default <em>2^18 / 86400</em> = ~<code>3.034</code>)</dt>
+				<dd>Frequency for pitch modulation.</dd>
+				<dd>Affected by overall time scale.</dd>
+				
+				<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
+				<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
+				
+				<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
+				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+				<dd>Affected by overall time scale.</dd>
+			</dl>
+		</article>
+		<footer>
+			<hr />
+			<p>Project page: <a href="https://bitbucket.org/technicore/json-player/">https://bitbucket.org/technicore/json-player/</a> (including source code)</p>
+			<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), custom filtering, custom effects, multiple tracks/custom mixing pipeline or multiple channels/spatialization.</p>
+			<p>By regretronics; licensed under the <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
+			<p>I'm still waiting for your feedback! Thanks.</p>
+		</footer>
+	</section>
 </body>
 </html>
