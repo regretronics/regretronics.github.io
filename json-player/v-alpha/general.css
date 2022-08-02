@@ -12,8 +12,8 @@ div>h1 {
 	margin-block-start: 0em;
 	margin-block-end: 0em;
 }
-div.flex-row {
-	margin-block-start: 1em;
+div.flex-row, p:first-child {
+	margin-block-start: 0em;
 	margin-block-end: 1em;
 }
 details {
