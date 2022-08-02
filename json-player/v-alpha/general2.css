@@ -9,38 +9,9 @@
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
 	/*--img-filter: var(--img-filter1, none);*/
 }
-@media screen and not (prefers-reduced-motion: reduce) {
-	:root {
-		transition-property: /*background-color,*/ color, scrollbar-color, filter;
-		transition-duration: 0.25s;
-	}
-	/*:root::selection, *::selection {
-		transition-property: background-color, color !important;
-		transition-duration: 0.25s !important;
-	}*/ /*introduces selection color bug in null theme in desktop browsers*/
-	body, input, img, a:link, a:active {
-		/*transition-property: var(--hue-accent), var(--hue-accent2);*/ /*doesn't work as of 2022*/
-		transition-property: background-color, color, accent-color, border-color, scrollbar-color, border-image-source, stop-color, filter;
-		transition-duration: 0.25s;
-	}
-	button { /*to do: try pseudo-classes for border animation when clicked and released*/
-		/*transition: inherit, border-color 0.1s ease-out;*/
-		transition-property: background-color, color, accent-color, border-color;
-		transition-duration: 0.25s, 0.25s, 0.25s, 0.1s;
-		transition-timing-function: initial, initial, initial, ease-out;
-	}
-}
 
-/*@media screen and not (prefers-color-scheme: light) {
-	body {
-		color-scheme: dark;
-		background-color: canvas;
-		color: canvastext;
-	}
-}*/
 article, footer {
 	/*max-width: 120ch;*/
-	/*margin: auto max(0ch, calc(50% - 0.5*120ch));*/
 	margin-inline: max(0ch, calc(50% - 0.5*120ch));
 }
 details summary {
@@ -54,7 +25,6 @@ code:not(.long) { /*class "long" reserved for future use*/
 /*to do: fix check box vertical alignment (if possible)*/
 button, input:not([type=checkbox]):not([type=radio]) {
 	font-size: 0.85em;
-	/*margin: 0.125em 0em;*/
 	margin-block: 0.125em;
 }
 button {
@@ -69,8 +39,6 @@ input[type=number], input[type=text], textarea {
 	border-width: calc(5em/32);
 }
 input[type=number] {
-	/*padding-left: 0em;
-	padding-right: 0em;*/
 	padding-inline: 0em;
 }
 input[type=text], textarea {
@@ -84,8 +52,6 @@ input[type=number], #txtRhythmFactors {
 }
 
 .cell {
-	/*margin-left: 0.375ch;
-	margin-right: 0.375ch;*/
 	margin-inline: 0.375ch;
 }
 #outAudioT {
@@ -98,7 +64,6 @@ input[type=number], #txtRhythmFactors {
 
 	/*position: sticky;*/
 	bottom: 0em;
-	/*padding: 1em;*/
 	padding-block: 1em;
 	padding-inline: max(2ch, calc(50% - 0.5*120ch));
 	width: calc(100% - 2*2ch);
@@ -122,7 +87,7 @@ svg g {
 	fill: url(#noteFill1);
 }
 
-@media screen and (min-width: 96ch) {
+@media (min-width: 96ch) {
 	td {
 		padding: 0.25em;
 	}

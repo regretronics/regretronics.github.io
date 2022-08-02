@@ -4,12 +4,12 @@
 //to do: array variable or boolean-indexed object for pause button caption per playback state
 
 //note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting.
-//to do: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout seems to produce seriously deep call stacks, and might be consuming resources.
+//to do: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
 //to do: review audioTimer(), playerClipEnd(), exportClipEnd().
 
 let playerClip = null;
-//const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
+const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
 
 //constructor
 function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale) {
@@ -64,6 +64,22 @@ function removeFrom(arr, item) {
 	if(i >= 0) arr.splice(i, 1);
 }
 
+function printClip(clip, prefix) {
+	prefix = prefix ? prefix.toString() : "";
+	if(!clip) {
+		console.debug(prefix + `clip: ${clip}`);
+		return;
+	}
+	if(clip == playerClip) {
+		console.debug(prefix + "clip == playerClip");
+		return;
+	}
+	if(clip == exportClip) {
+		console.debug(prefix + "clip == exportClip");
+		//return;
+	}
+	//console.log(clip);
+}
 //event handler for generator audio nodes
 function defNodeEnded() {
 	if(!this) return;
@@ -90,7 +106,7 @@ function defNodeEnded() {
 	removeFrom(auxNodes, this.modGainVibrato);
 
 	if(!clip.audioCtx) {
-		console.debug(`defNodeEnded(): clip === playerClip = ${clip === playerClip}`);
+		printClip(clip, "defNodeEnded(): ");
 		console.log("defNodeEnded(): clip.audioCtx is empty. Ending.");
 		if(clip.open)
 			if(clip.onClipEnd) clip.onClipEnd(false); else emptyClip(clip, false);
@@ -101,7 +117,7 @@ function defNodeEnded() {
 	if((!clip.generators || clip.generators.length < 1)
 		&& (clip.audioCtx.currentTime - clip.t0 >= clip.duration)
 		&& (!clip.flatStruct || clip.flatStruct.length < 1)) {
-		console.debug(`defNodeEnded(): clip === playerClip = ${clip === playerClip}`);
+		printClip(clip, "defNodeEnded(): ");
 		//console.debug(`defNodeEnded(): clip.audioCtx.currentTime: ${clip.audioCtx.currentTime}; clip.flatStruct: ${clip.flatStruct}.`);
 		//console.debug(`defNodeEnded(): clip.duration: ${clip.duration}; clip.t0: ${clip.t0}.`);
 		if(clip.generators || clip.auxNodes || clip.flatStruct) {
@@ -377,7 +393,7 @@ function audioTimer(clip) {
 	//if(clip.audioCtx.state === 'closed') return;
 	//console.log("audioTimer: clip.audioCtx.state: " + clip.audioCtx.state.toString());
 	if(clip.audioCtx.state !== 'running') {
-		console.debug(`audioTimer(): clip === playerClip = ${clip === playerClip}`);
+		printClip(clip, "audioTimer(): ");
 		console.info(`audioTimer(): clip.audioCtx.state is ${clip.audioCtx.state}. Returning.`);
 		return;
 	}
@@ -388,6 +404,8 @@ function audioTimer(clip) {
 	//if(!noEnqueue)
 		enqueueNotes(clip, currT - clip.t0, 2 * Math.max(audioTimerInterval, currT - lastT));
 	lastT = currT;
+
+	//to do: catch clause that suspends audioCtx on error?
 	
 	//if(clip.audioCtx.state === 'suspended') return;
 	if(clip === playerClip) {
@@ -425,9 +443,12 @@ function audioTimer(clip) {
 		}
 	}
 	
-	window.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
+	//window.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
+	//if(clip.audioCtx.currentTime - clip.t0 >= clip.duration - 1)
+	//if(clip.audioCtx.currentTime - clip.t0 >= 0.1)
+		//throw "Test."; //call stack test
+	window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
 	//to do: allow skipping/fast forward/rewind?
-	//console.debug("audioTimer() end.");
 }
 
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.innerText.
@@ -515,11 +536,17 @@ function beforePlay() {
 		playerClip.audioCtx.resume().then(() => audioTimer(playerClip));
 	else
 		//audioTimer(playerClip);
-		window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+		window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
 	if(elems.btnPause) {
-		elems.btnPause.innerHTML = "<u>P</u>ause";
+		elems.btnPause.innerHTML = pauseToggleCaptions[true];
 		elems.btnPause.disabled = false;
 	}
+}
+function audioCtxDefStateChanged() {
+	printClip(this, "audioCtxDefStateChanged(): ");
+	if(!this) return;
+	console.log(`audioCtxDefStateChanged(): state: ${this.state}`);
 }
 function loadAndPlay() {
 	if(playerClip && playerClip.open) return false;
@@ -542,9 +569,11 @@ function loadAndPlay() {
 		if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 
 	playerClip.open = true;
-	if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed')
+	if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed') {
 		//playerClip.audioCtx = new AudioContext({latencyHint: "playback"});
 		playerClip.audioCtx = new AudioContext({latencyHint: "interactive"});
+		playerClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
+	}
 	if(playerClip.audioCtx.state === 'running')
 		//using Promise here to defer the rest of the procedure.
 		playerClip.audioCtx.suspend().then(beforePlay);
@@ -558,7 +587,7 @@ function emptyClip(clip, suspend) {
 	if(!clip) return false;
 	if(!clip.open) return false;
 	//console.log("emptyClip() started...");
-	console.debug(`emptyClip(): clip === playerClip = ${clip === playerClip}`);
+	printClip(clip, "emptyClip(): ");
 
 	for(const node of clip.generators) {
 		try {
@@ -591,14 +620,15 @@ function emptyClip(clip, suspend) {
 }
 function playerClipEnd(suspend) {
 	let clip = this ?? playerClip;
+	printClip(clip, "playerClipEnd(): ");
 	if(!clip) {
-		console.info("playerClipEnd(): clip is empty. Returning.");
+		//console.info("playerClipEnd(): clip is empty. Returning.");
 		return false;
 	}
 
 	if(clip === playerClip) {
 		if(clip.open) audioTUpdate();
-		if(elems.btnPause) elems.btnPause.innerHTML = "<u>P</u>ause";
+		if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[true];
 	}
 	return emptyClip(clip, suspend);
 }
@@ -614,13 +644,18 @@ function pauseToggle() {
 		playerClip.audioCtx.suspend().then(() => {
 			audioTUpdate();
 			lastT = playerClip.audioCtx.currentTime;
+			if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[false];
 		});
-		if(elems.btnPause) elems.btnPause.innerHTML = "Un<u>p</u>ause";
 	} else {
 		//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000), playerClip);
-		playerClip.audioCtx.resume().then(() => audioTimer(playerClip));
-		if(elems.btnPause) elems.btnPause.innerHTML = "<u>P</u>ause";
+		//playerClip.audioCtx.resume().then(() => window.requestAnimationFrame((timestamp) => audioTimer(playerClip, timestamp)));
+		;
+		playerClip.audioCtx.resume().then(() => {
+			audioTimer(playerClip);
+			if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[true];
+		});
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+		//window.requestAnimationFrame((timestamp) => audioTimer(playerClip, timestamp));
 	}
 	//audioTimer(playerClip.audioCtx.state !== 'running');
 	//audioTimer(playerClip); //question: is this statement necessary?
@@ -688,13 +723,15 @@ function exportAudioTimer(clip) {
 		elems.outExportProgress.innerText = (100 * (clip.audioCtx.currentTime) / (clip.duration + clip.t0)).toFixed(2) + "%";
 	//if(clip.flatStruct.length < 1 && (clip.audioCtx.currentTime - clip.t0 > clip.duration)) {
 	if(clip.audioCtx.state !== 'suspended' && (clip.audioCtx.currentTime - clip.t0 > 0) && clip.generators.length < 1) {
+		printClip(clip, "exportAudioTimer(): ");
 		console.log("exportAudioTimer(): will stop exporting.");
 		if(clip.onClipEnd) clip.onClipEnd(true); else emptyClip(clip, false);
 		//to do: suspend?
 		return;
 	}
 	if(clip.audioCtx.state === 'closed') return;
-	window.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000, clip);
+	//window.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000, clip);
+	window.requestAnimationFrame((timestamp) => exportAudioTimer(clip, timestamp));
 }
 function beforeRecord() {
 	//exportClip.destNode = exportClip.audioCtx.destination;
@@ -757,6 +794,7 @@ function audioExport() {
 	const sampleRate = 48000; //will become a variable later
 	//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.duration, sampleRate);
 	exportClip.audioCtx = new AudioContext({latencyHint: "playback", sampleRate: sampleRate});
+	exportClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
 	exportClip.audioCtx.suspend().then(beforeRecord);
 }
 function audioExportCancel() {

@@ -49,19 +49,6 @@ input[type=number] {
 /*input.exp:not([size]) {
 	width: 8ch;
 }*/
-/*try to show spin buttons on numerical fields*/
-/*input[type=number]::inner-spin-button, 
-input[type=number]::outer-spin-button {*/
-	/*appearance: auto;*/
-	/*appearance: button;*/
-/*	-webkit-appearance: inner-spin-button;
-	appearance: inner-spin-button;
-	opacity: 1;
-}*/
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button {
-	opacity: 1;
-}
 #txtRhythmFactors {
 	text-align: right;
 	width: 12ch;
@@ -80,7 +67,7 @@ input[type=number]::-webkit-outer-spin-button {
 .flex-row span.right {
 	flex-shrink: 2;
 }
-@media screen and (min-width: 96ch) {
+@media (min-width: 96ch) {
 	.flex-row {
 		flex-wrap: nowrap;
 	}
@@ -92,12 +79,9 @@ input[type=number]::-webkit-outer-spin-button {
 	text-align: right;
 }
 
-/*to do: expand and enable word wrapping on print media*/
 .codeEditor {
 	box-sizing: border-box;
-	height: 12em;
 	width: 100%;
-	/*resize: both;*/
 	resize: none;
 	overflow-y: auto;
 	min-height: 8em;

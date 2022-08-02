@@ -4,11 +4,14 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>JSON music format</title>
+	<title>JSON music (unstable)</title>
 
-	<!--to do: null/minimal/no-theme vs. vanilla/minimal/no-scheme styles-->
+	<!--to do: null/minimal/no-theme vs. vanilla/minimal/no-scheme styles?-->
 	<link rel="stylesheet" type="text/css" href="general.css" />
 	<link rel="stylesheet" type="text/css" href="general2.css" />
+	<link rel="stylesheet" type="text/css" href="media.css" />
+	<link rel="stylesheet" type="text/css" href="theme-light-hicon.css" media="print" />
+
 	<link rel="stylesheet" type="text/css" href="theme-auto.css" media="screen" title="Automatic" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-null.css" title="Null (vanilla)" disabled="" />
 	<link rel="alternate stylesheet" type="text/css" href="theme-dark-color.css" title="Dark, colored" disabled="" />
@@ -94,12 +97,12 @@
 			if(tagIndex >= 0) {
 				elem.addEventListener("focus", setToolTip);
 				if(tagIndex === 0) elem.addEventListener("input", setToolTip);
+				elem.addEventListener("touchstart", setToolTip); //Ffx for Android: didn't work.
 			} //else
 				elem.addEventListener("click", setToolTip);
 			//mouse-down and touch detection (to fix!)
 			//pointerdown and touchstart didn't work as I expected in Chrome for Android.
 			elem.addEventListener("pointerdown", setToolTip); //Ffx for Android: didn't work; Chrome for Android: delayed (long touch only)
-			//elem.addEventListener("touchstart", setToolTip); //Ffx for Android: didn't work.
 			//elem.addEventListener("mousedown", setToolTip); //Ffx for Android: didn't work.
 			//elem.addEventListener("mouseenter", setToolTip); //Ffx for Android: didn't work.
 			//elem.addEventListener("mouseover", setToolTip); //Ffx for Android: didn't work.
@@ -116,7 +119,9 @@
 			elems[s].dispatchEvent(evt);
 	}
 
-	window.addEventListener("load", pageLoaded);
+	//window.addEventListener("load", pageLoaded);
+	window.addEventListener("DOMContentLoaded", pageLoaded);
+	if(location.pathname.split("/").slice(-2)[0] == "json-player") document.title = "JSON music format";
 	/*]]>*/</script>
 </head>
 <body>
@@ -132,7 +137,7 @@
 				<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" />
 			</picture>
 			JSON <span class="chunk">music format</span>, player <span class="chunk">and generator</span></h1>
-		<span class="right">
+		<span class="right print-dp-none">
 			<span class="cell"><strong>Text&nbsp;size:</strong> 
 				<button id="btnTextShrink" data-factor="0.8">Shrink</button>
 				<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
@@ -235,14 +240,13 @@
 		<span><strong>Flattened note list:</strong> 
 			<!--to do: ? (lost to-do item)-->
 			<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-			<span class="cell"><input type="checkbox" id="chkAutoFlatten" />
+			<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" />
 				<label for="chkAutoFlatten">Automatically flatten</label></span>
 		</span>
 		<span class="right">
 			<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
 			<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
 		</span>
-		<!--to do: new parameter for repeating the whole structure? (probably made unnecessary by auto-reload)-->
 	</p>
 	<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" title="">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
@@ -256,14 +260,14 @@
 		<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
 			<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
 		<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(skip vs. lead-in) (s)</label>
-			<input type="number" id="txtPlayTimeDelta" value="-0.25" step="0.25" title="Additive amount" size="7" /></span>
+			<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
 	</p>
 	<p class="flex-row">
 		<span><strong>Player:</strong> 
 			<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
 			<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
 			<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
-			<span class="cell"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." />
+			<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." />
 				<label for="chkAutoReload">Auto-reload</label></span>
 			<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 		</span>
@@ -273,7 +277,7 @@
 		</span>
 	</p>
 
-	<p>
+	<p class="print-dp-none">
 		<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
 		<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
 			<defs>
@@ -307,9 +311,10 @@
 		</p>
 	</details>
 
-	<p id="outToolTip">A description of the selected control will appear here.</p>
+	<p id="outToolTip" class="print-dp-none">A description of the selected control will appear here.</p>
 
 	<article>
+		<hr />
 		<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
 			Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
 			Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
