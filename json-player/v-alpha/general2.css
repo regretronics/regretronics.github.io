@@ -14,7 +14,7 @@ article, footer {
 	/*max-width: 120ch;*/
 	margin-inline: max(0ch, calc(50% - 0.5*120ch));
 }
-details summary {
+details > summary {
 	cursor: pointer;
 }
 

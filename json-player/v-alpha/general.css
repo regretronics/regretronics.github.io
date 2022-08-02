@@ -61,17 +61,19 @@ input[type=number] {
 	justify-content: space-between;
 	align-items: center;
 }
-.flex-row span {
+.flex-row > * {
 	flex-grow: 1;
+	flex-shrink: 1;
 }
-.flex-row span.right {
+.flex-row > .right {
+	flex-basis: 32ch;
 	flex-shrink: 2;
 }
-@media (min-width: 96ch) {
+/*@media (min-width: 96ch) {
 	.flex-row {
 		flex-wrap: nowrap;
 	}
-}
+}*/
 .align-top {
 	align-items: flex-start;
 }

@@ -263,17 +263,14 @@ function btnHueClick(event) {
 	delta *= 30;
 	if(event.shiftKey) delta *= 4;
 	hue += delta;
-	/*hue %= 360; //this wrapping bugs filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
+	/*hue %= 360; //this wrapping screws filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
 	if(hue < 0) hue += 360;*/
 
 	root.style.setProperty("--hue-accent", hue);
-	//root.style.setProperty("--img-hue-shift", (hue - 120).toString() + "deg");
-	//root.style.setProperty("--img-hue-shift", hue - 120);
-	//root.style.setProperty("--img-filter", "var(--img-filter1, brightness(1)) hue-rotate(" + (hue - 120).toString() + "deg)");
 
 	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
 	for(const elem2 of metaElems) {
-		if(elem2.hasAttribute("media")) { //test (to do!)
+		if(elem2.hasAttribute("media")) { //test (to do?)
 			if(elem2.getAttribute("media").toLowerCase() == "(prefers-color-scheme: dark)")
 				elem2.setAttribute("content", "darkred");
 			else
@@ -281,19 +278,6 @@ function btnHueClick(event) {
 		} else
 			elem2.setAttribute("content", "red");
 	}*/
-
-	return;
-	elem = document.querySelector("#title-icon img"); //to do: extend this to all images?
-	if(!elem) return;
-	elem.animate([
-		//{filter: "hue-rotate(0deg)"}, 
-		/*{filter: "hue-rotate(calc(" + (hue - delta).toString() + "deg - 120deg))"}, 
-		{filter: "hue-rotate(calc(" + hue.toString() + "deg - 120deg))"}*/
-		{filter: "hue-rotate(" + (hue - delta - 120).toString() + "deg)"}, 
-		{filter: "hue-rotate(" + (hue - 120).toString() + "deg)"}
-		//{filter: "hue-rotate(" + delta.toString() + "deg)"}
-	], 
-		{duration: 0.25 * 1000, fill: "forwards"/*, composite: "add"*//*, iterationComposite: "accumulate"*/});
 }
 function overflowToggle(control) {
 	if(!control) return false;
@@ -530,7 +514,7 @@ function setToolTip(event) {
 	if(!elems.outToolTip) return false;
 	let elem = event.target;
 	if(!elem) return false;
-	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && document.activeElement != elem)
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem)
 		return false; //could have focus -> should have focus
 
 	let sentences = [];

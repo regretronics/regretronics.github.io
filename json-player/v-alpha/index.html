@@ -125,7 +125,7 @@
 <body>
 	<main>
 		<div class="flex-row align-top">
-			<h1>
+			<h1 style="flex-basis: 24ch;">
 				<picture id="title-icon">
 					<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
 					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
@@ -204,7 +204,7 @@
 				<label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
 		</p>
 		<p class="flex-row">
-			<span><strong>Structured&nbsp;music:</strong> 
+			<span style="flex-basis: 56ch;"><strong>Structured&nbsp;music:</strong> 
 				<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
 				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
 				<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
@@ -253,7 +253,7 @@
 	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}
 }</pre>
 		<p class="flex-row">
-			<span><strong>Flattened note list:</strong> 
+			<span style="flex-basis: 40ch;"><strong>Flattened note list:</strong> 
 				<!--to do: ? (lost to-do item)-->
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" />
@@ -279,7 +279,7 @@
 				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
 		</p>
 		<p class="flex-row">
-			<span><strong>Player:</strong> 
+			<span style="flex-basis: 48ch;"><strong>Player:</strong> 
 				<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
 				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
 				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
@@ -287,7 +287,7 @@
 					<label for="chkAutoReload">Auto-reload</label></span>
 				<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 			</span>
-			<span class="right">
+			<span class="right" style="flex-basis: 24ch;">
 				<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
 				<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount">0</output>.</span>
 			</span>
