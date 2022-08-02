@@ -514,7 +514,7 @@ function setToolTip(event) {
 	if(!elems.outToolTip) return false;
 	let elem = event.target;
 	if(!elem) return false;
-	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && document.activeElement != elem)
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem)
 		return false; //could have focus -> should have focus
 
 	let sentences = [];

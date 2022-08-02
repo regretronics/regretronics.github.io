@@ -15,7 +15,7 @@ const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
 function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale) {
 	Object.assign(this, {
 		audioCtx: null, noiseBuffer: null, destNode: null, //variables for Web Audio
-		open: false, t0: 0, duration: 0, /*timerID: NaN,*/ //miscellaneous clip properties
+		open: false, t0: 0, duration: 0, timerID: NaN, //miscellaneous clip properties
 		onClipEnd: null, //events for custom behavior
 		generators: [], auxNodes: [], flatStruct: null, //node and note lists
 		playTimeScale: 1, playTimeDelta: 0, playVolScale: 1, playFreqScale: 1, //overall controls
@@ -363,10 +363,18 @@ function audioTimer(clip) {
 	}
 	if(!clip.open) {
 		console.info("audioTimer(): clip is not open. Returning.");
+		if(clip?.timerID) {
+			window.clearInterval(clip.timerID);
+			clip.timerID = NaN;
+		}
 		return false;
 	}
 	if(!clip.audioCtx && !clip.flatStruct) {
 		console.info("audioTimer(): clip.audioCtx and clip.flatStruct are empty. Returning.");
+		if(clip?.timerID) {
+			window.clearInterval(clip.timerID);
+			clip.timerID = NaN;
+		}
 		return false;
 	}
 	//clip.playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
@@ -387,6 +395,10 @@ function audioTimer(clip) {
 					loadAndPlay();
 			}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
 		}
+		if(clip?.timerID) {
+			window.clearInterval(clip.timerID);
+			clip.timerID = NaN;
+		}
 		return;
 	}
 	
@@ -395,6 +407,10 @@ function audioTimer(clip) {
 	if(clip.audioCtx.state !== 'running') {
 		printClip(clip, "audioTimer(): ");
 		console.info(`audioTimer(): clip.audioCtx.state is ${clip.audioCtx.state}. Returning.`);
+		if(clip?.timerID) {
+			window.clearInterval(clip.timerID);
+			clip.timerID = NaN;
+		}
 		return;
 	}
 	
@@ -447,7 +463,7 @@ function audioTimer(clip) {
 	//if(clip.audioCtx.currentTime - clip.t0 >= clip.duration - 1)
 	//if(clip.audioCtx.currentTime - clip.t0 >= 0.1)
 		//throw "Test."; //call stack test
-	window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
+	//window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
 	//to do: allow skipping/fast forward/rewind?
 }
 
@@ -533,11 +549,15 @@ function beforePlay() {
 	enqueueNotes(playerClip, playerClip.playTimeDelta, 2 * audioTimerInterval);
 	if(playerClip.audioCtx.state === 'suspended')
 		//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip));
-		playerClip.audioCtx.resume().then(() => audioTimer(playerClip));
+		playerClip.audioCtx.resume().then(() => {
+			audioTimer(playerClip);
+			playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
+		});
 	else
 		//audioTimer(playerClip);
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-		window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
+		//window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
+		playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 	if(elems.btnPause) {
 		elems.btnPause.innerHTML = pauseToggleCaptions[true];
 		elems.btnPause.disabled = false;
@@ -645,7 +665,11 @@ function pauseToggle() {
 			audioTUpdate();
 			lastT = playerClip.audioCtx.currentTime;
 			if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[false];
-		});
+			if(playerClip?.timerID) {
+				window.clearInterval(playerClip.timerID);
+				playerClip.timerID = NaN;
+			}
+			});
 	} else {
 		//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000), playerClip);
 		//playerClip.audioCtx.resume().then(() => window.requestAnimationFrame((timestamp) => audioTimer(playerClip, timestamp)));
@@ -653,6 +677,7 @@ function pauseToggle() {
 		playerClip.audioCtx.resume().then(() => {
 			audioTimer(playerClip);
 			if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[true];
+			playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 		});
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
 		//window.requestAnimationFrame((timestamp) => audioTimer(playerClip, timestamp));
@@ -717,7 +742,13 @@ function exportClipEnd() {
 }
 function exportAudioTimer(clip) {
 	if(!clip) return false;
-	if(!clip.open || !clip.audioCtx) return false;
+	if(!clip.open || !clip.audioCtx) {
+		if(clip?.timerID) {
+			window.clearInterval(clip.timerID);
+			clip.timerID = NaN;
+		}
+		return false;
+	}
 	//question: trunc instead of round for time?
 	if(elems.outExportProgress)
 		elems.outExportProgress.innerText = (100 * (clip.audioCtx.currentTime) / (clip.duration + clip.t0)).toFixed(2) + "%";
@@ -726,12 +757,20 @@ function exportAudioTimer(clip) {
 		printClip(clip, "exportAudioTimer(): ");
 		console.log("exportAudioTimer(): will stop exporting.");
 		if(clip.onClipEnd) clip.onClipEnd(true); else emptyClip(clip, false);
+		if(clip?.timerID) {
+			window.clearInterval(clip.timerID);
+			clip.timerID = NaN;
+		}
 		//to do: suspend?
 		return;
 	}
-	if(clip.audioCtx.state === 'closed') return;
+	if(clip.audioCtx.state === 'closed') //return;
+		if(clip?.timerID) {
+			window.clearInterval(clip.timerID);
+			clip.timerID = NaN;
+		}
 	//window.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000, clip);
-	window.requestAnimationFrame((timestamp) => exportAudioTimer(clip, timestamp));
+	//window.requestAnimationFrame((timestamp) => exportAudioTimer(clip, timestamp));
 }
 function beforeRecord() {
 	//exportClip.destNode = exportClip.audioCtx.destination;
@@ -767,7 +806,10 @@ function beforeRecord() {
 	//console.log("audioExport(): enqueueNotes done.");
 	if(elems.outExportProgress) elems.outExportProgress.innerText = "Starting";
 	mediaRecorder.start();
-	exportClip.audioCtx.resume().then(() => exportAudioTimer(exportClip));
+	exportClip.audioCtx.resume().then(() => {
+		exportAudioTimer(exportClip);
+		exportClip.timerID = window.setInterval(exportAudioTimer, audioTimerInterval * 1000, exportClip);
+	});
 
 	/*//audioCtxOff.oncomplete = ;
 	exportClip.audioCtx.startRendering().then(function(renderedBuffer) {

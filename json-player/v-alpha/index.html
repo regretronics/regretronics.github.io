@@ -87,17 +87,25 @@
 		document.getElementById("btnAudioExport").addEventListener("click", audioExport);
 		document.getElementById("btnAudioExportCancel").addEventListener("click", audioExportCancel);
 
+		primeCountChanged();
+		rhythmFactorsChanged();
+
+		let evt = new Event("input");
+		for(let s of expSpinners)
+			elems[s].dispatchEvent(evt);
+
 		for(const elem of document.getElementsByClassName("codeEditor")) {
 			elem.addEventListener("keydown", editorKeyDown);
 			//elem.addEventListener("keyup", recalcEditorCursorPos);
 			//elem.addEventListener("click", recalcEditorCursorPos);
 		}
+		//document.body.addEventListener("touchstart", setToolTip);
 		for(const elem of document.querySelectorAll("body *[title]")) {
 			let tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
 			if(tagIndex >= 0) {
 				elem.addEventListener("focus", setToolTip);
 				if(tagIndex === 0) elem.addEventListener("input", setToolTip);
-				elem.addEventListener("touchstart", setToolTip); //Ffx for Android: didn't work.
+				//elem.addEventListener("touchstart", setToolTip); //Ffx for Android: didn't work.
 			} //else
 				elem.addEventListener("click", setToolTip);
 			//mouse-down and touch detection (to fix!)
@@ -110,13 +118,6 @@
 			//elem.addEventListener("pointerover", setToolTip); //Ffx for Android: didn't work.
 			//elem.addEventListener("dragstart", setToolTip); //Ffx for Android: didn't work.
 		}
-
-		primeCountChanged();
-		rhythmFactorsChanged();
-
-		let evt = new Event("input");
-		for(let s of expSpinners)
-			elems[s].dispatchEvent(evt);
 	}
 
 	//window.addEventListener("load", pageLoaded);
