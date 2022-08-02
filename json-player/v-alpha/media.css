@@ -3,7 +3,10 @@
 		background-color: revert !important; /*dark reader workaround*/
 	}
 	/*@media (min-width: 160ch) {*/
-	@media (orientation: landscape) and (min-width: 128ch) {
+	@media
+		(orientation: landscape) and (min-width: 160ch),
+		(min-aspect-ratio: 3/2) and (min-width: 128ch),
+		(min-aspect-ratio: 2/1) and (min-width: 80ch) {
 		:root {
 			/*background-color: black;*/
 			/*box-sizing: border-box;*/

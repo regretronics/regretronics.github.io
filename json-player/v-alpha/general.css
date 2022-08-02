@@ -72,6 +72,9 @@ input[type=number] {
 		flex-wrap: nowrap;
 	}
 }
+.align-top {
+	align-items: flex-start;
+}
 .cell, .chunk {
 	display: inline-block;
 }
