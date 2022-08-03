@@ -510,9 +510,32 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 }
 
 const focusableElemTypes = ["INPUT", "BUTTON"];
-function setToolTip(event) {
-	if(!elems.outToolTip) return false;
+function addToolTipHandler(rootSelector, handler) {
+	if(!rootSelector) rootSelector = "body";
+	//document.body.addEventListener("touchstart", handler);
+	//document.querySelector(rootSelector).addEventListener("touchstart", handler);
+	for(const elem of document.querySelectorAll(rootSelector.toString() + " *[title]")) {
+		let tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
+		if(tagIndex >= 0) {
+			elem.addEventListener("focus", handler);
+			if(tagIndex === 0) elem.addEventListener("input", handler);
+		} else
+			elem.addEventListener("click", handler);
+		//mouse-down and touch detection
+		elem.addEventListener("pointerdown", handler);
+		//elem.addEventListener("mouseenter", handler);
+		//elem.addEventListener("mouseover", handler);
+		//elem.addEventListener("pointerenter", handler);
+		//elem.addEventListener("pointerover", handler);
+	}
+
+}
+function setToolTip(event, outToolTip) {
+	if(!outToolTip) outToolTip = elems.outToolTip;
+	if(!outToolTip) return false;
 	let elem = event.target;
+	if(!elem || !elem.title || !elem.title.length)
+		elem = event.currentTarget; //for events fired in descendant elements, e.g. td in tr
 	if(!elem) return false;
 	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem)
 		return false; //could have focus -> should have focus
@@ -527,9 +550,10 @@ function setToolTip(event) {
 		sentences.push(description);
 
 	if(sentences.length > 0) {
-		//elems.outToolTip.innerText = sentences.join(" ");
-		elems.outToolTip.innerHTML = sentences.join("<br />");
-		elems.outToolTip.style.position = "sticky";
+		//outToolTip.innerText = sentences.join(" ");
+		outToolTip.innerText = sentences.join("\n");
+		//outToolTip.innerHTML = sentences.join("<br />");
+		outToolTip.style.position = "sticky";
 	}
 }
 

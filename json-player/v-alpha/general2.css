@@ -1,5 +1,4 @@
 /*general cosmetic styles*/
-/*to do: for very wide viewports, a two-column layout (control panel + documentation)*/
 :root {
 	--hue-accent: 120; /*question: include deg unit for hues? (currently never)*/
 	--hue-accent2: calc(var(--hue-accent) + 180);
@@ -59,7 +58,7 @@ input[type=number], #txtRhythmFactors {
 	min-width: 6ch;
 	text-align: right;
 }
-#outToolTip {
+.tool-tip {
 	font-style: italic;
 
 	/*position: sticky;*/

@@ -109,7 +109,7 @@ input.invalid {
 	background-color: hsl(0, 100%, 12.5%) !important;
 }
 
-#outToolTip {
+.tool-tip {
 	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
 }
 

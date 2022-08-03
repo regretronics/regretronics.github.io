@@ -1,10 +1,9 @@
 "use strict";
 
 //to do: iterative self-filtering for subtractive synthesis?
-//to do: array variable or boolean-indexed object for pause button caption per playback state
 
 //note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting.
-//to do: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
+//done: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
 //to do: review audioTimer(), playerClipEnd(), exportClipEnd().
 
