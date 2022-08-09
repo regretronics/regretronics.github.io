@@ -64,7 +64,7 @@ function removeFrom(arr, item) {
 }
 
 function printClip(clip, prefix) {
-	prefix = prefix ? prefix.toString() : "";
+	prefix = (prefix ? prefix.toString() : "");
 	if(!clip) {
 		console.debug(prefix + `clip: ${clip}`);
 		return;

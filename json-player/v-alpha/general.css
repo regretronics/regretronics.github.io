@@ -61,9 +61,12 @@ input[type=number] {
 	justify-content: space-between;
 	align-items: center;
 }
-.flex-row > * {
+.flex-row > *:not(wbr) {
 	flex-grow: 1;
 	flex-shrink: 1;
+}
+.flex-row > wbr {
+	display: none;
 }
 .flex-row > .right {
 	flex-basis: 32ch;

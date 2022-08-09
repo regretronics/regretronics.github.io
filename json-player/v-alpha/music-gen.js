@@ -13,7 +13,7 @@ function addInterval(refFreq, targetFreq) {
 	//question: weighted random on factor selection? (currently yes)
 	//let iPrime = Math.floor(primeCount * Math.random());
 	let iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
-	let sign = Math.random() >= 0.5 ? 1 : -1;
+	let sign = (Math.random() >= 0.5 ? 1 : -1);
 	Object.assign(targetFreq, refFreq);
 
 	let newExp = targetFreq[primes[iPrime]] + sign;
@@ -69,7 +69,7 @@ function makeChords() {
 	let voiceCount = parseInt(elems.txtVoiceCount.value);
 	if(voiceCount < 2) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
-	if(expVariance <= 0) return false;
+	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq === 0) return false;
 	
 	let polyphony = voiceCount - 1; //partial superposition
@@ -298,7 +298,8 @@ function melodySubNodes(struct, level, tuning) {
 	//when using non-integer measures, sub-bars may become non-uniform in number of beats
 	let beats2 = struct.duration / scale;
 	let altLevel = Math.log2(rhythmFactorsAccum[0] / scale);
-	let beatStrengthInv = Math.random() < 0.25;
+	//let beatStrengthInv = Math.random() < 0.25;
+	let beatStrengthInv = false;
 	for(let i = 0; i < beats2; i++) {
 		let newNode = Object.assign({}, subNodePattern);
 		struct[i] = newNode;
@@ -309,13 +310,21 @@ function melodySubNodes(struct, level, tuning) {
 		//to do: newTuning?
 		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString();
 
+		//question: should the other beats base their frequency on the first one?
+		//let previous = struct; //no
+		let previous = (i < 1 ? struct : struct[0]); //yes
+		//alternative: each note is based on a random previous note in the same level
+		//previous = (i < 1 ? struct : struct[Math.floor(i * Math.random())]); //don't use rnd here
+		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
+
 		//factor selection
-		let previous, iPrime, rnd = Math.random();
-		//let iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
-		//if(i === 0) { //strong (#0) beat
-		if(i === 0 ^ beatStrengthInv) { //strong (#0) beat, sometimes inverted (surprisingly the ^^ operator doesn't exist)
+		//let beatType = i < 1;
+		let beatType = i >= (beats2 - 1);
+		let iPrime, rnd;// = Math.random();
+		//iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
+		//if(beatType) { //strong (#0) beat
+		/*if(beatType ^ beatStrengthInv) { //strong (#0) beat, sometimes inverted (surprisingly the ^^ operator doesn't exist)
 			//newNode.vol = 0; //omit strong beats except for the root one? (probably no.)
-			previous = struct;
 			//question: what formula or algorithm will be the best random prime chooser? (quite hard)
 			//conservative choice
 			//iPrime = Math.floor((2 / 3 * primeCount) ** rnd) - 1;
@@ -324,12 +333,6 @@ function melodySubNodes(struct, level, tuning) {
 			//iPrime = Math.floor(primeCount * rnd ** (level + 1));
 			iPrime = Math.floor(primeCount * rnd ** (0.5 * Math.max(altLevel + 2, 1)));
 		} else {
-			//question: should the other beats base their frequency on the first one?
-			//previous = struct[0]; //yes
-			previous = struct; //no
-			//alternative: each note is based on a random previous note in the same level
-			//previous = struct[Math.floor(i * Math.random())]; //don't use rnd here
-
 			//must be >= 1, to exclude factor 2
 			//iPrime = Math.floor(primeCount ** rnd);
 			//iPrime = Math.floor((primeCount - 1) * rnd * rnd) + 1; //to do: maybe rnd ** (primeCount - 1)
@@ -339,26 +342,48 @@ function melodySubNodes(struct, level, tuning) {
 
 			//let factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[primeCount - 1]); //1 - rnd is to avoid division by zero
 			//for(iPrime = 0; primes[iPrime + 1] <= factor; iPrime++) {}
-		}
-		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
-
+		}*/
+		
 		//exponent variation (a unit upwards or downwards)
 		//question: should they only go downwards? (because the root factors only went upwards)
-		//let sign = (iPrime <= 0) ? 0 : ((Math.random() >= 0.5) ? 1 : -1); //neutral for factor 2
-		let sign = (Math.random() >= 0.5) ? 1 : -1;
+		//let sign = (iPrime <= 0 ? 0 : (Math.random() >= 0.5 ? 1 : -1)); //neutral for factor 2
+		//let sign = (Math.random() >= 0.5 ? 1 : -1);
+		//const sign = 1;
+		//const sign = (i < 1 ? 1 : -1);
+		//const sign = (i >= (beats2 - 1) ? -1 : 1);
+		//const sign = (i < 1 ^ beatStrengthInv ? 1 : -1);
+		let sign;
 
-		let newExp = newNode.freq[primes[iPrime]] + sign;
+		let newExp, maxExp;//, deviation;
+		do {
+			rnd = Math.random();
+			//iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
+			iPrime = Math.floor((primeCount - 0.5) * rnd ** (0.5 * Math.max(altLevel + 1, 1)) + 0.5);
+			//sign = ((beatType ^ (iPrime === 0)) ? 1 : -1);
+			//sign = ((beatType ^ (iPrime === 0) ^ beatStrengthInv) ? -1 : 1);
+			if(iPrime === 0)
+				sign = ((beatType ^ beatStrengthInv) ? 1 : 0);
+			else
+				sign = ((beatType ^ beatStrengthInv) ? -1 : 1);
+			newExp = newNode.freq[primes[iPrime]] + sign;
+			maxExp = expVariance * maxPitches[iPrime] + 1;
+			//deviation = newExp - 0.5 * maxExp;
+		//} while((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation));
+		} while((Math.abs(newExp) > maxExp) && sign === Math.sign(newExp));
+		//} while(newExp < 0 || newExp > maxExp);
+
+		//let newExp = newNode.freq[primes[iPrime]] + sign;
 		//bounds (tonality) check
 		//question: should + 1 be + 0.5?
 		//question: should the variance here be less than when choosing pattern root pitch?
-		let maxExp = expVariance * maxPitches[iPrime] + 1;
-		let deviation = newExp - 0.5 * maxExp;
-		if((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation)) sign *= -1;
+		//let maxExp = expVariance * maxPitches[iPrime] + 1;
+		//let deviation = newExp - 0.5 * maxExp;
+		//if((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation)) sign *= -1;
 		newNode.freq[primes[iPrime]] += sign;
 
 		//pitch normalization into factor 2, i.e. octave normalization
 		//to do: occasional use of higher primes for normalization
-		if(iPrime > 1 && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) newNode.freq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
+		//if(iPrime > 1 && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) newNode.freq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 		if(iPrime >= 1) renormalizeOctave(previous.freq, newNode.freq);
 		//if(i === 0) newNode.freq[2]++; //first beat -> new voice level -> one octave up
 		limitFreq(tuning, newNode.freq); //not THAT high
@@ -376,7 +401,7 @@ function makeMelody() {
 	let repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
-	if(expVariance <= 0) return false;
+	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq === 0) return false;
 
 	//top-level node
@@ -442,7 +467,8 @@ function makeMelody() {
 			//currently the factors can only go upwards
 			//question: signed (bipolar) random is possibly better
 			//	question: in such case, use round() instead of floor() or trunc()?
-			let exp = Math.trunc((expVariance * maxPitches[p] + 1) * Math.random());
+			//let exp = Math.trunc((expVariance * maxPitches[p] + 1) * Math.random());
+			let exp = Math.round((expVariance * maxPitches[p] + 1) * (Math.random() - 0.5));
 			pattern.freq[primes[p]] = exp;
 			product *= primes[p] ** exp;
 		}

@@ -195,12 +195,12 @@
 				<label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
 		</p>
 		<p class="flex-row">
-			<span style="flex-basis: 56ch;"><strong>Structured&nbsp;music:</strong> 
+			<span style="flex-basis: 52ch;"><strong>Structured&nbsp;music:</strong> 
 				<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
 				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
 				<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
 			</span> <wbr />
-			<span class="right">
+			<span class="right" style="flex-basis: 40ch;">
 				<a id="aStructDownload" href="" hidden=""></a>
 				<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
 				<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
@@ -278,7 +278,7 @@
 					<label for="chkAutoReload">Auto-reload</label></span>
 				<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 			</span>
-			<span class="right" style="flex-basis: 24ch;">
+			<span class="right" style="flex-basis: 12ch;">
 				<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
 				<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount">0</output>.</span>
 			</span>
@@ -588,7 +588,7 @@
 					<li><a href="https://www.huygens-fokker.org/docs/intervals.html">Stichting Huygens-Fokker: List of intervals</a></li>
 				</ul>
 				<p>Note about octave normalization: The table above displays the multidimensionality of consonance, with little regard to other interval properties such as <a href="https://en.wikipedia.org/wiki/Interval_(music)#Size">size</a>. 
-					As the octave is felt as the most neutral interval, it is almost always used as a basic "block" for adjusting interval sizes, which has negligible effect on consonance. So powers of 2 are used as a counterweight.</p>
+					As the octave is felt as the most neutral interval (after the unison), it is almost always used as a basic "block" for adjusting interval sizes, which has negligible effect on consonance. So powers of 2 are used like a counterweight.</p>
 			</details>
 			<hr />
 			<p>This page uses two formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive <a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">list</a> of notes), used when playing, supporting only note properties. 

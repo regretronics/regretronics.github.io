@@ -34,13 +34,13 @@ button {
 	border-radius: 0.25em;
 	border-width: calc(5em/32);
 }
-input[type=number], input[type=text], textarea {
+input[type=number], input[type=text], textarea, select {
 	border-width: calc(5em/32);
 }
 input[type=number] {
 	padding-inline: 0em;
 }
-input[type=text], textarea {
+input[type=text], textarea, select {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
