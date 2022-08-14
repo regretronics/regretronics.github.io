@@ -11,20 +11,20 @@
 }
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 25%);
-	background-image: 
+	/*background-image: 
 		repeating-radial-gradient(circle,
 		hsla(var(--hue-accent, 120), 37.5%, 18.75%, 0.875),
 		hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.375),
-		hsla(var(--hue-accent, 120), 37.5%, 18.75%, 0.875))/*,
+		hsla(var(--hue-accent, 120), 37.5%, 18.75%, 0.875))*//*,
 		repeating-conic-gradient(at bottom right,
 		hsl(var(--hue-accent, 120), 50%, 12.5%) 0turn,
 		hsl(var(--hue-accent, 120), 37.5%, 18.75%) 0.03125turn,
-		hsl(var(--hue-accent, 120), 50%, 12.5%) 0.0625turn)*/;
+		hsl(var(--hue-accent, 120), 50%, 12.5%) 0.0625turn)*//*;*/
 		/*repeating-conic-gradient(at bottom right,
 		hsl(var(--hue-accent, 120), 37.5%, 12.5%) 0.0625turn 0.1875turn,
 		hsl(var(--hue-accent, 120), 37.5%, 37.5%) 0.3125turn 0.4375turn,
 		hsl(var(--hue-accent, 120), 37.5%, 12.5%) 0.5625turn);*/
-	background-attachment: local, fixed;
+	/*background-attachment: local, fixed;*/
 	/*background:
 		repeating-conic-gradient(#888 0.0625turn 0.1875turn, #000 0.3125turn 0.4375turn, #888 0.5625turn)
 		top left / 8em 8em repeat;*/

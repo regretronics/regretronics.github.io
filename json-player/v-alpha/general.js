@@ -612,7 +612,7 @@ function scrollUpdate(event) {
 	elem.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
 	let scrollYPages = elem.scrollTop / elem.clientHeight;
 	const setTranslate = (id, dy) => {document.getElementById(id).style.translate = "0% " + (- 100 * dy).toString() + "%";};
-	for(let i = 1; i <= 4; i++) {
+	for(let i = 1; i <= 3; i++) {
 		//let y = scrollYPages / i;
 		//let y = scrollYPages / (5 - i);
 		//let y = 4 * scrollYPages / i;
