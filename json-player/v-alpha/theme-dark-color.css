@@ -1,12 +1,33 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
 :root {
-	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 12.5%, 0.875);*/
-	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875) hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 	--img-filter1: contrast(87.5%);
+}
+* {
+	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 12.5%, 0.875);*/
+	scrollbar-color:
+		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 37.5%, 75%, 0.875)
+		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
 }
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 25%);
+	background-image: 
+		repeating-radial-gradient(circle,
+		hsla(var(--hue-accent, 120), 37.5%, 18.75%, 0.875),
+		hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.375),
+		hsla(var(--hue-accent, 120), 37.5%, 18.75%, 0.875))/*,
+		repeating-conic-gradient(at bottom right,
+		hsl(var(--hue-accent, 120), 50%, 12.5%) 0turn,
+		hsl(var(--hue-accent, 120), 37.5%, 18.75%) 0.03125turn,
+		hsl(var(--hue-accent, 120), 50%, 12.5%) 0.0625turn)*/;
+		/*repeating-conic-gradient(at bottom right,
+		hsl(var(--hue-accent, 120), 37.5%, 12.5%) 0.0625turn 0.1875turn,
+		hsl(var(--hue-accent, 120), 37.5%, 37.5%) 0.3125turn 0.4375turn,
+		hsl(var(--hue-accent, 120), 37.5%, 12.5%) 0.5625turn);*/
+	background-attachment: local, fixed;
+	/*background:
+		repeating-conic-gradient(#888 0.0625turn 0.1875turn, #000 0.3125turn 0.4375turn, #888 0.5625turn)
+		top left / 8em 8em repeat;*/
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 	accent-color: hsl(var(--hue-accent, 120), 50%, 62.5%);
 	color-scheme: dark;
@@ -19,8 +40,10 @@ body {
 }
 /*::selection {*/
 :not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
-	background-color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.625);
-	color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);
+	/*background-color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.625);
+	color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);*/
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.625);
+	color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.875);
 }
 
 strong {
@@ -85,8 +108,7 @@ button:active {
 input[type=number], input[type=text], textarea, select {
 	background-color: hsl(var(--hue-accent, 120), 50%, 12.5%);
 	color: hsl(var(--hue-accent, 120), 50%, 87.5%);
-}
-input[type=number], input[type=text], textarea, select {
+
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.625);
 	border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
@@ -100,11 +122,8 @@ input[type=number], input[type=text], textarea, select {
 	border-image-repeat: stretch;
 	border-image-slice: 15%;*/
 }
-input[type=checkbox] {
-	background-color: blue;
-	color: red;
-	border-color: lime;
-}
+/*input[type=checkbox] {
+}*/ /*question!*/
 /*input:invalid {*/
 input.invalid {
 	background-color: hsl(0, 100%, 12.5%) !important;

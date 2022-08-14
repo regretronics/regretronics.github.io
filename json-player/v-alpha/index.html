@@ -25,7 +25,7 @@
 	<link rel="icon" href="icon/Musical-science-simple-white-64.png" type="image/png" sizes="64x64" />
 	<link rel="icon" href="icon/Musical-science-simple-white-16.png" type="image/png" sizes="16x16" />
 	<link rel="icon" href="icon/Musical-science-white.svg" type="image/svg+xml" sizes="any" />
-	<link rel="icon" href="icon/Musical-science-simple-white.svg" type="image/svg+xml" sizes="16x16 64x64" />
+	<link rel="icon" href="icon/Musical-science-simple-white.svg" type="image/svg+xml" sizes="16x16 64x64" id="favicon" />
 
 	<meta name="theme-color" content="hsl(var(--hue-accent, 120), 37.5%, 50%)" />
 	<meta name="theme-color" media="(prefers-color-scheme: light)" content="hsl(var(--hue-accent, 120), 37.5%, 75%)" />
@@ -90,9 +90,11 @@
 		primeCountChanged();
 		rhythmFactorsChanged();
 
-		let evt = new Event("input");
-		for(let s of expSpinners)
-			elems[s].dispatchEvent(evt);
+		{
+			let evt = new Event("input");
+			for(let s of expSpinners)
+				elems[s].dispatchEvent(evt);
+		}
 
 		for(const elem of document.getElementsByClassName("codeEditor")) {
 			elem.addEventListener("keydown", editorKeyDown);
@@ -105,6 +107,24 @@
 			event => setToolTip(event, document.getElementById("outToolTip2"))];
 		for(const i in toolTipDomains)
 			addToolTipHandler(toolTipDomains[i], toolTipHandlers[i]);
+
+		//just eye candy
+		/*if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches)*/ {
+			let evt = new Event("scroll");
+			document.addEventListener("scroll", scrollUpdate);
+			document.dispatchEvent(evt);
+			for(const elem of document.querySelectorAll("body>:not(hr):not(.bg)")) {
+				elem.addEventListener("scroll", scrollUpdate);
+				elem.dispatchEvent(evt);
+			}
+			window.setInterval(hueAnimation, 100);
+			/*window.setInterval(() => { //spectrum bars
+				const bars = "▁▂▃▄▅▆▇█";
+				let s = "";
+				for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
+				document.title = s + " JSON music";
+			}, 200);*/
+		}
 	}
 
 	//window.addEventListener("load", pageLoaded);
@@ -124,7 +144,7 @@
 					<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
 					<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
 					<!--<img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" />-->
-					<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" />
+					<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" />
 				</picture>
 				JSON <span class="chunk">music format</span>, player <span class="chunk">and generator</span></h1>
 			<span class="right print-dp-none">
@@ -784,6 +804,37 @@
 			<p>By regretronics; licensed under the <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
 			<p>I'm still waiting for your feedback! Thanks.</p>
 		</footer>
+	</section>
+
+	<section class="bg" hidden="" style="position: fixed; margin: 0px; inset: 0px; z-index: -1; /*background-color: darkgreen;*/">
+		<!--<svg id="imgBgLayer1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%" height="100%" style="width: 100%; height: 100%; filter: url(#bg1);">-->
+		<svg id="imgBgLayer1" xmlns="http://www.w3.org/2000/svg" version="1.1" style="width: 100%; height: 100%;">
+			<defs>
+				<filter id="bg1" x="0" y="0" width="100%" height="100%">
+					<!-- <feTurbulence type="fractalNoise" baseFrequency="16" numOctaves="1" stitchTiles="stitch" /> -->
+					<feTurbulence type="turbulence" baseFrequency="0.00390625" numOctaves="1" stitchTiles="stitch" result="noise" />
+					<!-- <feTile in="noise" x="0" y="0" width="100%" height="100%" result="tiled" /> -->
+					<!-- <feOffset id="noiseOffset1" in="noise" dx="0" dy="0" result="offset" /> -->
+				</filter>
+				<filter id="bg2" x="0" y="0" width="100%" height="100%">
+					<feTurbulence type="turbulence" baseFrequency="0.015625" numOctaves="1" stitchTiles="stitch" result="noise" />
+				</filter>
+				<filter id="bg3" x="0" y="0" width="100%" height="100%">
+					<feTurbulence type="turbulence" baseFrequency="0.0625" numOctaves="1" stitchTiles="stitch" result="noise" />
+				</filter>
+				<filter id="bg4" x="0" y="0" width="100%" height="100%">
+					<feTurbulence type="turbulence" baseFrequency="0.25" numOctaves="1" stitchTiles="stitch" result="noise" />
+				</filter>
+			</defs>
+			<rect id="noise4rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg4); translate: 0% 0%;"></rect>
+			<rect id="noise4rect2" x="0" y="100%" width="100%" height="100%" style="filter: url(#bg4); translate: 0% 0%;"></rect>
+			<rect id="noise3rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg3); translate: 0% 0%;"></rect>
+			<rect id="noise3rect2" x="0" y="100%" width="100%" height="100%" style="filter: url(#bg3); translate: 0% 0%;"></rect>
+			<rect id="noise2rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg2); translate: 0% 0%;"></rect>
+			<rect id="noise2rect2" x="0" y="100%" width="100%" height="100%" style="filter: url(#bg2); translate: 0% 0%;"></rect>
+			<rect id="noise1rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg1); translate: 0% 0%;"></rect>
+			<rect id="noise1rect2" x="0" y="100%" width="100%" height="100%" style="filter: url(#bg1); translate: 0% 0%;"></rect>
+		</svg>
 	</section>
 </body>
 </html>

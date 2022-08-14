@@ -274,6 +274,7 @@ function renderNote(clip, note) {
 		sourceNode.stop(Math.max(clip.t0 + noteStop, clip.audioCtx.currentTime));
 		if(oscVibrato) {
 			oscVibrato.start(minStart);
+			oscVibrato.tStart = minStart;
 			oscVibrato.stop(Math.max(clip.t0 + noteStop, clip.audioCtx.currentTime));
 		}
 	}
@@ -333,8 +334,13 @@ function drawNote(group, sourceNode) {
 	if(isNoise)
 		wid *= 16 / sourceNode.fltBandPass.Q.value; //arbitrary factor
 	else
-		if(sourceNode.modGainVibrato) //to do: precisely estimate vibrato oscillation
-			wid = Math.max(wid, 4 * sourceNode.modGainVibrato.gain.value / 1200 * octaveScale);
+		if(sourceNode.modGainVibrato) {
+			let vibratoGain = sourceNode.modGainVibrato.gain.value / 1200;
+			if(sourceNode.oscVibrato) //question: precisely estimate vibrato oscillation? (currently yes)
+				freq *= 2 ** (vibratoGain * Math.sin(2 * Math.PI * (sourceNode.context.currentTime - sourceNode.oscVibrato.tStart) * sourceNode.oscVibrato.frequency.value)); //yes
+			else
+				wid = Math.max(wid, 4 * vibratoGain * octaveScale); //no
+		}
 	noteShape.setAttributeNS(null, "width", wid.toString());
 	noteShape.setAttributeNS(null, "x", (Math.log2(Math.abs(freq) / freqMin) * octaveScale - 0.5 * wid).toString());
 	//the attributes below are constant, so I could have replaced them with CSS;

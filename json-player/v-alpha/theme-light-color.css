@@ -83,11 +83,10 @@ button:active {
 	border-top-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.25);
 	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.25);
 }
-input[type=number], input[type=text] {
+input[type=number], input[type=text], textarea, select {
 	background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
 	color: hsl(var(--hue-accent, 120), 50%, 12.5%);
-}
-input[type=number], input[type=text], textarea {
+
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.625);
 	border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);

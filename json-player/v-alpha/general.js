@@ -253,7 +253,7 @@ function btnHueClick(event) {
 	if(!elem) return false;
 	let delta = Number(elem.dataset["delta"]);
 
-	const root = document.children[0];
+	const root = document.documentElement;
 	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
 
 	//if(hue == undefined) return;
@@ -597,4 +597,37 @@ function structDownload(event) {
 	elems.aStructDownload.dispatchEvent(newEvent);*/
 	elems.aStructDownload.click();
 	return true;
+}
+
+function scrollUpdate(event) {
+	//console.log(event);
+	//let elem = document.scrollingElement;
+	let elem = event.target ?? event.currentTarget;
+	if(elem.documentElement) elem = elem.documentElement;
+	//console.log(elem);
+	if(!elem || !elem.style) return;
+	//const root = document.documentElement;
+	//root.style.setProperty("--hue-accent", (360 * elem.scrollTop / elem.scrollTopMax)); //cool
+	//root.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
+	elem.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
+	let scrollYPages = elem.scrollTop / elem.clientHeight;
+	const setTranslate = (id, dy) => {document.getElementById(id).style.translate = "0% " + (- 100 * dy).toString() + "%";};
+	for(let i = 1; i <= 4; i++) {
+		//let y = scrollYPages / i;
+		//let y = scrollYPages / (5 - i);
+		//let y = 4 * scrollYPages / i;
+		let y = scrollYPages * 0.5 ** i;
+		//let y = scrollYPages * 0.5 ** (5 - i);
+		setTranslate(`noise${i}rect1`, (y + 1) % 2 - 1);
+		setTranslate(`noise${i}rect2`, (y + 0) % 2 - 0);
+	}
+}
+
+let animHue = 0;
+function hueAnimation() {
+	const root = document.documentElement;
+	if(!root || !root.style || !root.style.setProperty) return;
+	animHue = (animHue + 360 / 192) % 360;
+	//root.style.setProperty("--hue-accent2", animHue);
+	root.style.setProperty("--hue-anim", animHue);
 }

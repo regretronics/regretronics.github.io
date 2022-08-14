@@ -38,7 +38,7 @@
 			flex-grow: 0.5;
 			max-width: 144ch;
 		}
-		body > hr {
+		body > hr, body > .bg {
 			display: none;
 		}
 	}
@@ -62,8 +62,8 @@
 
 	/*@media screen and (not (prefers-reduced-motion: reduce)) {*/
 	@media not all and (prefers-reduced-motion: reduce) {
-		:root {
-			transition-property: /*background-color,*/ color, scrollbar-color, filter;
+		* {
+			transition-property: scrollbar-color;
 			transition-duration: 0.25s;
 		}
 		/*:root::selection, *::selection {
@@ -115,5 +115,10 @@
 		height: unset;
 		white-space: pre-wrap;
 		resize: none;
+	}
+}
+@media (min-width: 96ch) {
+	td {
+		padding: 0.25em;
 	}
 }

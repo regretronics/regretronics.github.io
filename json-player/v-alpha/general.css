@@ -5,7 +5,7 @@
 	align-items: center;
 }*/
 /*unhide certain elements (outside of reader view)*/
-main, hr {
+main, hr, .bg {
 	display: revert;
 }
 
