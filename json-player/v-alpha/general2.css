@@ -8,6 +8,97 @@
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
 	/*--img-filter: var(--img-filter1, none);*/
 }
+html {
+	/* position: relative; */
+	/* position: absolute; */
+	/* position: fixed; */
+
+	box-sizing: border-box;
+	margin: 0px;
+	border-width: 0px;
+	padding: 0px;
+
+	width: 100%;
+	height: 100%;
+	/* min-height: 100%; */
+	overflow: hidden;
+	/* transform-style: preserve-3d; */
+}
+body {
+	/* position: relative; */
+	/* position: absolute; */
+	/* position: fixed; */
+
+	box-sizing: border-box;
+	margin: 0px;
+	border-width: 0px;
+	padding: 0px;
+	/* display: flex; */
+
+	width: 100%;
+	height: 100%;
+	/* overflow: scroll; */
+	overflow: hidden;
+	/* transform-style: preserve-3d; */
+	/* perspective: 10px; */
+}
+body > #wrapper {
+	/* position: relative; */
+	/* position: absolute; */
+	/* position: fixed; */
+	
+	box-sizing: border-box;
+	margin: 0px;
+	border-width: 0px;
+	padding: 0px;
+	/* padding: 1em; */
+
+	width: 100%;
+	height: 100%;
+	/* min-height: 100%; */
+	overflow-x: hidden;
+	overflow-y: scroll;
+
+	/* padding: 1em; */
+	/* transform-style: preserve-3d; */
+	perspective: 10px;
+	perspective-origin: bottom;
+	/* perspective-origin: top; */
+}
+#wrapper2 {
+	/* position: relative; */
+	/* position: absolute; */
+	/* position: fixed; */
+
+	box-sizing: border-box;
+	border-width: 0px;
+	margin: 0px;
+
+	inset: 0px;
+	width: 100%;
+	min-height: 100%;
+	/* height: 100%; */
+
+	padding: 1em;
+
+	/* transform-style: preserve-3d; */
+	/* perspective: 10px; */
+}
+svg.bg {
+	position: absolute;
+	inset: 0px;
+
+	margin: 0px;
+
+	width: 100%;
+	/* height: 100%; */
+	/*the denominator should be (1 + 0.5 * ...). don't ask me why (as of 2022-08) this below works better.*/
+	height: calc(1px * var(--scroll-height, 0) / (1 + 0.25 * var(--idx, 0)));
+	/* height: calc(1px * var(--scroll-height, 0)); */
+
+	z-index: calc(-1 * var(--idx, 0) - 1);
+	transform: translateZ(calc(-5px * var(--idx, 0))) scale(calc(1 + 0.5 * var(--idx, 0)));
+}
 
 article, footer {
 	/*max-width: 120ch;*/

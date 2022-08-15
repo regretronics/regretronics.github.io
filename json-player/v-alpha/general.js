@@ -610,7 +610,8 @@ function scrollUpdate(event) {
 	//root.style.setProperty("--hue-accent", (360 * elem.scrollTop / elem.scrollTopMax)); //cool
 	//root.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
 	elem.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
-	let scrollYPages = elem.scrollTop / elem.clientHeight;
+
+	/*let scrollYPages = elem.scrollTop / elem.clientHeight;
 	const setTranslate = (id, dy) => {document.getElementById(id).style.translate = "0% " + (- 100 * dy).toString() + "%";};
 	for(let i = 1; i <= 2; i++) {
 		//let y = scrollYPages / i;
@@ -620,7 +621,13 @@ function scrollUpdate(event) {
 		//let y = scrollYPages * 0.5 ** (5 - i);
 		setTranslate(`noise${i}rect1`, (y + 1) % 2 - 1);
 		setTranslate(`noise${i}rect2`, (y + 0) % 2 - 0);
-	}
+	}*/
+}
+function resizeUpdate(event) {
+	//document.getElementById("imgBgLayer1").style.height = document.body.children[0].scrollHeight;
+	document.documentElement.style.setProperty("--scroll-height", document.getElementById("wrapper2").scrollHeight);
+	//for(let i = 1; i <= 3; i++)
+	//	document.getElementById(`imgBgLayer${i}`).style.height = document.getElementById("wrapper2").scrollHeight.toString() + "px";
 }
 
 let animHue = 0;

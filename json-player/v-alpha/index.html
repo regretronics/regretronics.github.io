@@ -110,11 +110,13 @@
 
 		//just eye candy
 		/*if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches)*/ {
-			let evt = new Event("scroll");
+			let evt = new Event("resize");
 			document.addEventListener("scroll", scrollUpdate);
+			document.addEventListener("resize", resizeUpdate);
 			document.dispatchEvent(evt);
 			for(const elem of document.querySelectorAll("body>:not(hr):not(.bg)")) {
 				elem.addEventListener("scroll", scrollUpdate);
+				elem.addEventListener("resize", resizeUpdate);
 				elem.dispatchEvent(evt);
 			}
 			//window.setInterval(hueAnimation, 100);
@@ -132,7 +134,39 @@
 	if(location.pathname.split("/").slice(-2)[0] != "json-player") document.title = "JSON music (unstable)";
 	/*]]>*/</script>
 </head>
-<body>
+<body><div id="wrapper">
+	<!-- <section style="position: absolute; box-sizing: border-box; margin: 0px; inset: 0px; width: 100%; height: 100%; z-index: -1; transform: translateZ(-8px);"> -->
+	<!-- <section> -->
+		<svg class="bg" hidden="" id="imgBgLayer1" xmlns="http://www.w3.org/2000/svg" version="1.1" style="--idx: 0; opacity: 1;">
+			<defs>
+				<filter id="bg1" x="0" y="0" width="100%" height="100%">
+					<!-- <feTurbulence type="fractalNoise" baseFrequency="16" numOctaves="1" stitchTiles="stitch" /> -->
+					<feTurbulence type="turbulence" baseFrequency="0.00390625" numOctaves="1" result="noise" />
+					<!-- <feTile in="noise" x="0" y="0" width="100%" height="100%" result="tiled" /> -->
+					<!-- <feOffset id="noiseOffset1" in="noise" dx="0" dy="0" result="offset" /> -->
+				</filter>
+			</defs>
+			<rect id="noise1rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg1);"></rect>
+		</svg>
+		<svg class="bg" hidden="" id="imgBgLayer2" xmlns="http://www.w3.org/2000/svg" version="1.1" style="--idx: 1; opacity: 0.5;">
+			<defs>
+				<filter id="bg2" x="0" y="0" width="100%" height="100%">
+					<feTurbulence type="turbulence" baseFrequency="0.015625" numOctaves="1" result="noise" />
+				</filter>
+			</defs>
+			<rect id="noise2rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg2);"></rect>
+		</svg>
+		<svg class="bg" hidden="" id="imgBgLayer3" xmlns="http://www.w3.org/2000/svg" version="1.1" style="--idx: 2; opacity: 0.25;">
+			<defs>
+				<filter id="bg3" x="0" y="0" width="100%" height="100%">
+					<feTurbulence type="turbulence" baseFrequency="0.0625" numOctaves="1" result="noise" />
+				</filter>
+			</defs>
+			<rect id="noise3rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg3);"></rect>
+		</svg>
+	<!-- </section> -->
+
+	<div id="wrapper2">
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
 	<main hidden="">
 		<div class="flex-row align-top">
@@ -805,31 +839,6 @@
 			<p>I'm still waiting for your feedback! Thanks.</p>
 		</footer>
 	</section>
-
-	<section class="bg" hidden="" style="position: fixed; margin: 0px; inset: 0px; z-index: -1; /*background-color: darkgreen;*/">
-		<!--<svg id="imgBgLayer1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%" height="100%" style="width: 100%; height: 100%; filter: url(#bg1);">-->
-		<svg id="imgBgLayer1" xmlns="http://www.w3.org/2000/svg" version="1.1" style="width: 100%; height: 100%;">
-			<defs>
-				<filter id="bg1" x="0" y="0" width="100%" height="100%">
-					<!-- <feTurbulence type="fractalNoise" baseFrequency="16" numOctaves="1" stitchTiles="stitch" /> -->
-					<feTurbulence type="turbulence" baseFrequency="0.00390625" numOctaves="1" stitchTiles="stitch" result="noise" />
-					<!-- <feTile in="noise" x="0" y="0" width="100%" height="100%" result="tiled" /> -->
-					<!-- <feOffset id="noiseOffset1" in="noise" dx="0" dy="0" result="offset" /> -->
-				</filter>
-				<filter id="bg2" x="0" y="0" width="100%" height="100%">
-					<feTurbulence type="turbulence" baseFrequency="0.015625" numOctaves="1" stitchTiles="stitch" result="noise" />
-				</filter>
-				<!-- <filter id="bg3" x="0" y="0" width="100%" height="100%">
-					<feTurbulence type="turbulence" baseFrequency="0.0625" numOctaves="1" stitchTiles="stitch" result="noise" />
-				</filter> -->
-			</defs>
-			<!-- <rect id="noise3rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg3); translate: 0% 0%;"></rect>
-			<rect id="noise3rect2" x="0" y="100%" width="100%" height="100%" style="filter: url(#bg3); translate: 0% 0%;"></rect> -->
-			<rect id="noise2rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg2); translate: 0% 0%;"></rect>
-			<rect id="noise2rect2" x="0" y="100%" width="100%" height="100%" style="filter: url(#bg2); translate: 0% 0%;"></rect>
-			<rect id="noise1rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg1); translate: 0% 0%;"></rect>
-			<rect id="noise1rect2" x="0" y="100%" width="100%" height="100%" style="filter: url(#bg1); translate: 0% 0%;"></rect>
-		</svg>
-	</section>
-</body>
+	</div>
+</div></body>
 </html>
