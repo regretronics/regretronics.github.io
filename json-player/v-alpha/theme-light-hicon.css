@@ -1,8 +1,11 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
-:root {
+* {
 	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 87.5%) hsl(var(--hue-accent2, 300), 25%, 12.5%);*/
-	scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 12.5%, 93.75%);
+	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 12.5%, 93.75%);*/
+	scrollbar-color:
+		hsl(calc(var(--hue-accent2, 300) + var(--hue-scroll, 0)), 12.5%, 12.5%)
+		hsl(calc(var(--hue-accent2, 300) + var(--hue-scroll, 0)), 12.5%, 93.75%);
 }
 body {
 	background-color: hsl(var(--hue-accent, 120), 25%, 96.875%);
@@ -19,8 +22,10 @@ body {
 }
 /*::selection {*/
 :not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
-	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
-	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
+	/*background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
+	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);*/
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 0%, 0.9375);
+	color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 100%, 0.875);
 }
 
 strong {

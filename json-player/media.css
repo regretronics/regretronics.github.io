@@ -2,26 +2,26 @@
 	:root {
 		background-color: revert !important; /*dark reader workaround*/
 	}
+	/*for wide viewports, a two-column layout (control panel + documentation)*/
 	/*@media (min-width: 160ch) {*/
 	@media
 		(orientation: landscape) and (min-width: 160ch),
 		(min-aspect-ratio: 3/2) and (min-width: 128ch),
 		(min-aspect-ratio: 2/1) and (min-width: 80ch) {
 		:root {
-			/*background-color: black;*/
-			/*box-sizing: border-box;*/
 			height: 100%;
-			/*height: 100vh;*/
 		}
 		body {
 			display: flex;
 			flex-direction: row;
+			flex-wrap: nowrap;
 			justify-content: center;
 			align-items: stretch;
 
 			box-sizing: border-box;
 			margin: 0em;
 			height: 100%;
+			/*height: 100vh;*/
 		}
 		body > main, body > section {
 			box-sizing: border-box;
@@ -38,7 +38,7 @@
 			flex-grow: 0.5;
 			max-width: 144ch;
 		}
-		body > hr {
+		body > hr, body > .bg {
 			display: none;
 		}
 	}
@@ -59,6 +59,41 @@
 	input[type=number]::-webkit-outer-spin-button {
 		opacity: 1;
 	}
+
+	/*@media screen and (not (prefers-reduced-motion: reduce)) {*/
+	@media not all and (prefers-reduced-motion: reduce) {
+		* {
+			transition-property: scrollbar-color;
+			transition-duration: 0.25s;
+		}
+		/*:root::selection, *::selection {
+			transition-property: background-color, color !important;
+			transition-duration: 0.25s !important;
+		}*/ /*introduces selection color bug in null theme in desktop browsers*/
+		body, input, button, img, a:link, a:active {
+			/*transition-property: var(--hue-accent), var(--hue-accent2);*/ /*doesn't work as of 2022*/
+			transition-property: background-color, color, accent-color, border-color, scrollbar-color, border-image-source, stop-color, filter;
+			transition-duration: 0.25s;
+		}
+		/*button {*/
+			/*transition: inherit, border-color 0.1s ease-out;*/
+			/*transition-property: background-color, color, accent-color, border-color;
+			transition-duration: 0.25s, 0.25s, 0.25s, 0.1s;
+			transition-timing-function: initial, initial, initial, ease-out;
+		}*/
+		button:active, button:focus, button:hover {
+			transition-property: background-color, color, /*accent-color,*/ border-color;
+			transition-duration: 0.1s;
+			transition-timing-function: ease-out;
+		}
+	}
+	/*@media screen and (not (prefers-color-scheme: light)) {
+		body {
+			color-scheme: dark;
+			background-color: canvas;
+			color: canvastext;
+		}
+	}*/
 }
 @media print {
 	input[type=number] {
@@ -70,6 +105,7 @@
 	input[type=number]::outer-spin-button {
 		-webkit-appearance: none;
 		appearance: none;
+		display: none;
 		opacity: 0;
 	}
 	.print-dp-none, button/*, .cell:has(input[type=checkbox])*/ {
@@ -81,36 +117,8 @@
 		resize: none;
 	}
 }
-/*@media screen and (not (prefers-color-scheme: light)) {
-	body {
-		color-scheme: dark;
-		background-color: canvas;
-		color: canvastext;
-	}
-}*/
-@media screen and (not (prefers-reduced-motion: reduce)) {
-	:root {
-		transition-property: /*background-color,*/ color, scrollbar-color, filter;
-		transition-duration: 0.25s;
-	}
-	/*:root::selection, *::selection {
-		transition-property: background-color, color !important;
-		transition-duration: 0.25s !important;
-	}*/ /*introduces selection color bug in null theme in desktop browsers*/
-	body, input, button, img, a:link, a:active {
-		/*transition-property: var(--hue-accent), var(--hue-accent2);*/ /*doesn't work as of 2022*/
-		transition-property: background-color, color, accent-color, border-color, scrollbar-color, border-image-source, stop-color, filter;
-		transition-duration: 0.25s;
-	}
-	/*button {*/
-		/*transition: inherit, border-color 0.1s ease-out;*/
-		/*transition-property: background-color, color, accent-color, border-color;
-		transition-duration: 0.25s, 0.25s, 0.25s, 0.1s;
-		transition-timing-function: initial, initial, initial, ease-out;
-	}*/
-	button:active, button:focus, button:hover {
-		transition-property: background-color, color, /*accent-color,*/ border-color;
-		transition-duration: 0.1s;
-		transition-timing-function: ease-out;
+@media (min-width: 96ch) {
+	td {
+		padding: 0.25em;
 	}
 }

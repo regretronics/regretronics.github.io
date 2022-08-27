@@ -1,5 +1,4 @@
 /*general cosmetic styles*/
-/*to do: for very wide viewports, a two-column layout (control panel + documentation)*/
 :root {
 	--hue-accent: 120; /*question: include deg unit for hues? (currently never)*/
 	--hue-accent2: calc(var(--hue-accent) + 180);
@@ -9,6 +8,38 @@
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
 	/*--img-filter: var(--img-filter1, none);*/
 }
+/* html {
+	position: relative;
+
+	box-sizing: border-box;
+	margin: 0px;
+	border-width: 0px;
+	
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	padding: 0px;
+} */
+/* body {
+	box-sizing: border-box;
+	margin: 0px;
+	border-width: 0px;
+	
+	width: 100%;
+	height: 100%;
+	padding: 0px;
+} */
+/* body > #wrapper {
+	box-sizing: border-box;
+	margin: 0px;
+	border-width: 0px;
+	
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	padding: 0px;
+} */
 
 article, footer {
 	/*max-width: 120ch;*/
@@ -33,15 +64,17 @@ button {
 	padding-block: 0.125em;
 	padding-inline: 0.375em;
 	border-radius: 0.25em;
+}
+button, input[type=number], input[type=text], textarea, select {
 	border-width: calc(5em/32);
 }
-input[type=number], input[type=text], textarea {
-	border-width: calc(5em/32);
+:is(button, input[type=number], input[type=text], textarea, select):not(:active):not(:focus):not(:hover) {
+	opacity: 0.875;
 }
 input[type=number] {
 	padding-inline: 0em;
 }
-input[type=text], textarea {
+input[type=text], textarea, select {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
@@ -59,7 +92,7 @@ input[type=number], #txtRhythmFactors {
 	min-width: 6ch;
 	text-align: right;
 }
-#outToolTip {
+.tool-tip {
 	font-style: italic;
 
 	/*position: sticky;*/
@@ -85,10 +118,4 @@ img:not(.trueColors) { /*class "trueColors" reserved for future use*/
 /*svg rect {*/
 svg g {
 	fill: url(#noteFill1);
-}
-
-@media (min-width: 96ch) {
-	td {
-		padding: 0.25em;
-	}
 }

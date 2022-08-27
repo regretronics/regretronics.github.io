@@ -1,10 +1,16 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
 :root {
-	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 25%, 87.5%);*/
-	scrollbar-color: hsl(var(--hue-accent, 120), 12.5%, 87.5%) hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 	--img-filter1: invert(100%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg + 180deg - 120deg);
+}
+* {
+	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 25%, 87.5%);*/
+	/*scrollbar-color: hsl(var(--hue-accent, 120), 12.5%, 87.5%) hsl(var(--hue-accent, 120), 12.5%, 6.25%);*/
+	scrollbar-color:
+		hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 87.5%)
+		hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
+
 }
 body {
 	background-color: hsl(var(--hue-accent, 120), 25%, 3.125%);
@@ -21,8 +27,10 @@ body {
 }
 /*::selection {*/
 :not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
-	background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
-	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
+	/*background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
+	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);*/
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 100%, 0.9375);
+	color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 0%, 0.875);
 }
 
 strong {
@@ -86,11 +94,10 @@ button:active {
 	border-top-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.5);
 	border-bottom-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.25);
 }
-input[type=number], input[type=text] {
+input[type=number], input[type=text], textarea, select {
 	background-color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 	color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
-}
-input[type=number], input[type=text], textarea {
+
 	border-style: solid;
 	border-top-color: hsla(var(--hue-accent, 120), 0%, 0%, 1);
 	border-right-color: hsla(var(--hue-accent, 120), 0%, 37.5%, 0.25);
@@ -109,7 +116,7 @@ input.invalid {
 	background-color: hsl(0, 100%, 12.5%) !important;
 }
 
-#outToolTip {
+.tool-tip {
 	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
 }
 

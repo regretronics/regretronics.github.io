@@ -1,14 +1,62 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
+/* @keyframes anim-hue {
+	0% { --hue-accent: 0.0; }
+	16.66667% { --hue-accent: 60.0; }
+	33.33333% { --hue-accent: 120.0; }
+	50% { --hue-accent: 180.0; }
+	66.66667% { --hue-accent: 240.0; }
+	83.33333% { --hue-accent: 300.0; }
+	100% { --hue-accent: 360.0; }
+} */
 :root {
 	--img-filter1: contrast(87.5%);
+/* }
+* { */
+	/* animation-name: anim-hue;
+	animation-duration: 15s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	animation-fill-mode: forwards; */
 }
 * {
 	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 12.5%, 0.875);*/
 	scrollbar-color:
 		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 37.5%, 75%, 0.875)
 		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
+	/* scrollbar-base-color: red;
+	scrollbar-arrow-color: red;
+	scrollbar-face-color: red;
+	scrollbar-highlight-color: red;
+	scrollbar-track-color: red; */
 }
+/* *, *::-webkit-scrollbar, *::selection {
+	transition-property: var(--hue-accent) !important;
+	transition-timing-function: linear !important;
+	transition-duration: 2s !important;
+} */
+*::-webkit-scrollbar {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
+	/* color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%, 0.875); */
+}
+*::-webkit-scrollbar-thumb {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 37.5%, 75%, 0.875);
+}
+*::-webkit-scrollbar-track {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
+}
+/* *::-webkit-scrollbar-track-piece {
+	background-color: black;
+} */
+*::-webkit-scrollbar-corner {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
+}
+/* *::-webkit-resizer {
+	background-color: black;
+	color: red;
+	accent-color: red;
+} */
+
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 25%);
 	/*background-image: 
@@ -31,6 +79,13 @@ body {
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 	accent-color: hsl(var(--hue-accent, 120), 50%, 62.5%);
 	color-scheme: dark;
+/* }
+:root::selection, *::selection { */
+	/* animation-name: anim-hue;
+	animation-duration: 4s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	animation-fill-mode: forwards; */
 }
 @media screen and not (prefers-reduced-motion: reduce) {
 	:root::selection, *::selection { /*not really working*/

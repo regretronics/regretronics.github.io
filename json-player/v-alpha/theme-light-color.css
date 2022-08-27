@@ -1,10 +1,16 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
 :root {
-	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 62.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);*/
-	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 25%, 0.875) hsla(var(--hue-accent, 120), 25%, 75%, 0.875);
 	--img-filter1: invert(87.5%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg + 180deg - 120deg);
+}
+* {
+	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 62.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);*/
+	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 25%, 0.875) hsla(var(--hue-accent, 120), 25%, 75%, 0.875);*/
+	scrollbar-color:
+		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 37.5%, 25%, 0.875)
+		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%, 0.875);
+
 }
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 75%);
@@ -20,8 +26,10 @@ body {
 }
 /*::selection {*/
 :not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
-	background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
-	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);
+	/*background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
+	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);*/
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.625);
+	color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.875);
 }
 
 strong {

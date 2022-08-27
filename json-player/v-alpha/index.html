@@ -109,17 +109,17 @@
 			addToolTipHandler(toolTipDomains[i], toolTipHandlers[i]);
 
 		//just eye candy
-		/*if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches)*/ {
-			let evt = new Event("resize");
+		if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+			let evt = new Event("scroll");
 			document.addEventListener("scroll", scrollUpdate);
-			document.addEventListener("resize", resizeUpdate);
+			//document.addEventListener("resize", resizeUpdate);
 			document.dispatchEvent(evt);
 			for(const elem of document.querySelectorAll("body>:not(hr):not(.bg)")) {
 				elem.addEventListener("scroll", scrollUpdate);
-				elem.addEventListener("resize", resizeUpdate);
+				//elem.addEventListener("resize", resizeUpdate);
 				elem.dispatchEvent(evt);
 			}
-			//window.setInterval(hueAnimation, 100);
+			window.setInterval(hueAnimation, 150);
 			/*window.setInterval(() => { //spectrum bars
 				const bars = "▁▂▃▄▅▆▇█";
 				let s = "";
@@ -134,39 +134,7 @@
 	if(location.pathname.split("/").slice(-2)[0] != "json-player") document.title = "JSON music (unstable)";
 	/*]]>*/</script>
 </head>
-<body><div id="wrapper">
-	<!-- <section style="position: absolute; box-sizing: border-box; margin: 0px; inset: 0px; width: 100%; height: 100%; z-index: -1; transform: translateZ(-8px);"> -->
-	<!-- <section> -->
-		<svg class="bg" hidden="" id="imgBgLayer1" xmlns="http://www.w3.org/2000/svg" version="1.1" style="--idx: 1; opacity: 1;">
-			<defs>
-				<filter id="bg1" x="0" y="0" width="100%" height="100%">
-					<!-- <feTurbulence type="fractalNoise" baseFrequency="16" numOctaves="1" stitchTiles="stitch" /> -->
-					<feTurbulence type="turbulence" baseFrequency="0.00390625" numOctaves="1" result="noise" />
-					<!-- <feTile in="noise" x="0" y="0" width="100%" height="100%" result="tiled" /> -->
-					<!-- <feOffset id="noiseOffset1" in="noise" dx="0" dy="0" result="offset" /> -->
-				</filter>
-			</defs>
-			<rect id="noise1rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg1);"></rect>
-		</svg>
-		<svg class="bg" hidden="" id="imgBgLayer2" xmlns="http://www.w3.org/2000/svg" version="1.1" style="--idx: 2; opacity: 0.5;">
-			<defs>
-				<filter id="bg2" x="0" y="0" width="100%" height="100%">
-					<feTurbulence type="turbulence" baseFrequency="0.015625" numOctaves="1" result="noise" />
-				</filter>
-			</defs>
-			<rect id="noise2rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg2);"></rect>
-		</svg>
-		<!-- <svg class="bg" hidden="" id="imgBgLayer3" xmlns="http://www.w3.org/2000/svg" version="1.1" style="--idx: 2; opacity: 0.25;">
-			<defs>
-				<filter id="bg3" x="0" y="0" width="100%" height="100%">
-					<feTurbulence type="turbulence" baseFrequency="0.0625" numOctaves="1" result="noise" />
-				</filter>
-			</defs>
-			<rect id="noise3rect1" x="0" y="0" width="100%" height="100%" style="filter: url(#bg3);"></rect>
-		</svg> -->
-	<!-- </section> -->
-
-	<div id="wrapper2">
+<body><!--<div id="wrapper">-->
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
 	<main hidden="">
 		<div class="flex-row align-top">
@@ -387,8 +355,8 @@
 				The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. 
 				This can be mathematically represented by using rational numbers, and in more consonant intervals these numbers correspond to fractions made out of small integers, such as 3/2. 
 				As the irreducible form is the most important one for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can help, as used below. 
-				More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and is often conventioned to represent a peaceful mood or positive emotions in soundtracks. 
-				More dissonant (less consonant) intervals may sound pulsating, complicated, strange, advanced, cacophonous or imperfect, and is symbolically conventioned for negative things.</p>
+				More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and are often deemed as representing a peaceful mood or positive emotions in soundtracks. 
+				More dissonant (less consonant) intervals may sound pulsating, complicated, strange, advanced, cacophonous or imperfect, and are symbolically assigned to negative things.</p>
 			<details open="">
 				<summary><strong>Interval consonance cheatsheet</strong></summary>
 				<p><table id="tblFractionIntervals">
@@ -839,6 +807,5 @@
 			<p>I'm still waiting for your feedback! Thanks.</p>
 		</footer>
 	</section>
-	</div>
-</div></body>
+<!--</div>--></body>
 </html>

@@ -13,7 +13,7 @@ function addInterval(refFreq, targetFreq) {
 	//question: weighted random on factor selection? (currently yes)
 	//let iPrime = Math.floor(primeCount * Math.random());
 	let iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
-	let sign = Math.random() >= 0.5 ? 1 : -1;
+	let sign = (Math.random() >= 0.5 ? 1 : -1);
 	Object.assign(targetFreq, refFreq);
 
 	let newExp = targetFreq[primes[iPrime]] + sign;
@@ -69,7 +69,7 @@ function makeChords() {
 	let voiceCount = parseInt(elems.txtVoiceCount.value);
 	if(voiceCount < 2) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
-	if(expVariance <= 0) return false;
+	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq === 0) return false;
 	
 	let polyphony = voiceCount - 1; //partial superposition
@@ -376,7 +376,7 @@ function makeMelody() {
 	let repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
-	if(expVariance <= 0) return false;
+	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq === 0) return false;
 
 	//top-level node

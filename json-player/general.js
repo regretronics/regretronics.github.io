@@ -253,7 +253,7 @@ function btnHueClick(event) {
 	if(!elem) return false;
 	let delta = Number(elem.dataset["delta"]);
 
-	const root = document.children[0];
+	const root = document.documentElement;
 	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
 
 	//if(hue == undefined) return;
@@ -510,9 +510,32 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 }
 
 const focusableElemTypes = ["INPUT", "BUTTON"];
-function setToolTip(event) {
-	if(!elems.outToolTip) return false;
+function addToolTipHandler(rootSelector, handler) {
+	if(!rootSelector) rootSelector = "body";
+	//document.body.addEventListener("touchstart", handler);
+	//document.querySelector(rootSelector).addEventListener("touchstart", handler);
+	for(const elem of document.querySelectorAll(rootSelector.toString() + " *[title]")) {
+		let tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
+		if(tagIndex >= 0) {
+			elem.addEventListener("focus", handler);
+			if(tagIndex === 0) elem.addEventListener("input", handler);
+		} else
+			elem.addEventListener("click", handler);
+		//mouse-down and touch detection
+		elem.addEventListener("pointerdown", handler);
+		//elem.addEventListener("mouseenter", handler);
+		//elem.addEventListener("mouseover", handler);
+		//elem.addEventListener("pointerenter", handler);
+		//elem.addEventListener("pointerover", handler);
+	}
+
+}
+function setToolTip(event, outToolTip) {
+	if(!outToolTip) outToolTip = elems.outToolTip;
+	if(!outToolTip) return false;
 	let elem = event.target;
+	if(!elem || !elem.title || !elem.title.length)
+		elem = event.currentTarget; //for events fired in descendant elements, e.g. td in tr
 	if(!elem) return false;
 	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem)
 		return false; //could have focus -> should have focus
@@ -527,9 +550,10 @@ function setToolTip(event) {
 		sentences.push(description);
 
 	if(sentences.length > 0) {
-		//elems.outToolTip.innerText = sentences.join(" ");
-		elems.outToolTip.innerHTML = sentences.join("<br />");
-		elems.outToolTip.style.position = "sticky";
+		//outToolTip.innerText = sentences.join(" ");
+		outToolTip.innerText = sentences.join("\n");
+		//outToolTip.innerHTML = sentences.join("<br />");
+		outToolTip.style.position = "sticky";
 	}
 }
 
@@ -573,4 +597,44 @@ function structDownload(event) {
 	elems.aStructDownload.dispatchEvent(newEvent);*/
 	elems.aStructDownload.click();
 	return true;
+}
+
+function scrollUpdate(event) {
+	//console.log(event);
+	//let elem = document.scrollingElement;
+	let elem = event.target ?? event.currentTarget;
+	if(elem.documentElement) elem = elem.documentElement;
+	//console.log(elem);
+	if(!elem || !elem.style) return;
+	//const root = document.documentElement;
+	//root.style.setProperty("--hue-accent", (360 * elem.scrollTop / elem.scrollTopMax)); //cool
+	//root.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
+	elem.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
+
+	/*let scrollYPages = elem.scrollTop / elem.clientHeight;
+	const setTranslate = (id, dy) => {document.getElementById(id).style.translate = "0% " + (- 100 * dy).toString() + "%";};
+	for(let i = 1; i <= 2; i++) {
+		//let y = scrollYPages / i;
+		//let y = scrollYPages / (5 - i);
+		//let y = 4 * scrollYPages / i;
+		let y = scrollYPages * 0.5 ** i;
+		//let y = scrollYPages * 0.5 ** (5 - i);
+		setTranslate(`noise${i}rect1`, (y + 1) % 2 - 1);
+		setTranslate(`noise${i}rect2`, (y + 0) % 2 - 0);
+	}*/
+}
+function resizeUpdate(event) {
+	//document.getElementById("imgBgLayer1").style.height = document.body.children[0].scrollHeight;
+	document.documentElement.style.setProperty("--scroll-height", document.getElementById("wrapper2").scrollHeight);
+	//for(let i = 1; i <= 3; i++)
+	//	document.getElementById(`imgBgLayer${i}`).style.height = document.getElementById("wrapper2").scrollHeight.toString() + "px";
+}
+
+let animHue = 0;
+function hueAnimation() {
+	const root = document.documentElement;
+	if(!root || !root.style || !root.style.setProperty) return;
+	animHue = (animHue + 360 / 384) % 360;
+	//root.style.setProperty("--hue-accent2", animHue);
+	root.style.setProperty("--hue-anim", animHue);
 }

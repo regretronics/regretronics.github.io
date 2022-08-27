@@ -634,7 +634,7 @@ let animHue = 0;
 function hueAnimation() {
 	const root = document.documentElement;
 	if(!root || !root.style || !root.style.setProperty) return;
-	animHue = (animHue + 360 / 192) % 360;
+	animHue = (animHue + 360 / 384) % 360;
 	//root.style.setProperty("--hue-accent2", animHue);
 	root.style.setProperty("--hue-anim", animHue);
 }
