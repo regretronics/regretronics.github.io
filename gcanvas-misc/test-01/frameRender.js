@@ -37,7 +37,7 @@ function frameRenderPolar(imgData) {
 	//let color = new Array(3);
 	//Object.preventExtensions(color); //these two break the code.
 	//Object.seal(color);
-	//apparently, let is marginally faster than let
+	//apparently, let is marginally faster than var.
 	//let requires ECMAScript 6/2015.
 	//optimization: precompute things outside the loops.
 	for(let y = 0, x, y2 = 0.5 - 0.5 * bufh, y2sqr, x20 = 0.5 - 0.5 * bufw, x2, r, theta, r2, theta2; y < bufh; y++, y2++) {
