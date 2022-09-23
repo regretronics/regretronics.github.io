@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Image compression, test 01</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		background-color: revert !important; /*dark reader workaround*/
+	}
+	body {
+		/* background-color: hsl(120, 25%, 12.5%); */
+		/* color: hsl(120, 0%, 87.5%); */
+		background-color: canvas;
+		color: canvastext;
+		color-scheme: dark;
+	}
+
+	#imgSource, #cnvOutput {
+		max-width: 100%;
+		max-height: 100vh;
+		object-fit: contain;
+	}
+	input#txtOutputResW, input#txtOutputResH {
+		width: 7ch;
+		text-align: right;
+	}
+	#txtImgURL {
+		width: 90ch;
+		max-width: 90%;
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	//to do: check performance difference of strict mode.
+	"use strict";
+	//this page uses several features known to be unsupported in any version of Internet Explorer. Use MS Edge at least.
+	//to do: use defer="true" or async in any script tag?
+	//  idea: have a "reload script" button?
+
+	var sourceC2d, outputC2d;
+	//detail: I'm putting height before width, because x is subordinate to y.
+	var sh, sw, imgSourceData;
+	var ch, cw, imgData;
+	var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
+	var scalePixels = [];
+	/*]]>*/</script>
+	<script type="text/javascript" src="numerics.js"></script>
+	<script type="text/javascript" src="frameRender.js"></script>
+	<script type="text/javascript" src="canvas.js"></script>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+	//note: as of 2022-09 browsers only support 8 bits per channel in raster/bitmap images; deep color and hdr pixel formats are not yet available for script manipulation.
+
+	function imgSourceLoaded(event) {
+		imageScaleUpdate(cbxSourceScale, imgSource);
+		sh = event.target.naturalHeight;
+		sw = event.target.naturalWidth;
+
+		outSourceRes.textContent = `${sw}x${sh}`;
+		window.setTimeout(compEncode, 100, event.target);
+	}
+	function compEncode(image) {
+		//to do: ...OffscreenCanvas (not supported in Firefox as of 2022-09)
+		//const offscreen = new OffscreenCanvas(sw, sh);
+		if(!cnvSource || !cnvSource.getContext) return;
+		cnvSource.height = sh;
+		cnvSource.width = sw;
+
+		//sourceC2d = cnvSource.getContext('2d');
+		//sourceC2d = cnvSource.getContext('2d', {colorSpace: "display-p3", storageFormat: 'float16'});
+		sourceC2d = cnvSource.getContext('2d', {alpha: false});
+		//sourceC2d.globalAlpha = 1;
+		//sourceC2d.imageSmoothingEnabled = false;
+
+		sourceC2d.drawImage(image, 0, 0);
+		imgSourceData = sourceC2d.getImageData(0, 0, sw, sh);
+
+		scalePixels = [];
+		//scalePixels.push(new Float32Array()); //question: change push() for unshift() (reverses the array order)?
+		const b8ToFloatScale = 1 / 255;
+		scalePixels.push(Float32Array.from(imgSourceData.data, x => x * b8ToFloatScale)); //question: change push() for unshift() (reverses the array order)?
+
+		txtOutputResH.value = sh;
+		txtOutputResW.value = sw;
+		compDecode();
+	}
+	function compDecode() {
+		/*ch = sh;
+		cw = sw;
+		cnvOutput.height = ch;
+		cnvOutput.width = cw;
+		imageScaleUpdate(cbxOutputScale, cnvOutput);*/
+		canvasSizeUpdate();
+
+		//imgData = outputC2d.createImageData(cw, ch);
+		let imgArray = Uint8ClampedArray.from(scalePixels[0], x => x * 255);
+		//var imgArray = new Uint8ClampedArray(4 * ch * cw);
+		imgData = new ImageData(imgArray, cw, ch);
+		outputC2d.putImageData(imgData, 0, 0);
+	}
+
+	function inImageChange(event) {
+		const fileList = this.files;
+		if(fileList.length < 1) return;
+		const file = fileList[0];
+		imgSource.src = URL.createObjectURL(file);
+		imgSource.addEventListener("load", (event) => {
+			URL.revokeObjectURL(this.src);
+		}, {once: true});
+	}
+	function loadURL(event) {
+		imgSource.src = txtImgURL.value;
+	}
+
+	function pageReady() {
+		if(cnvOutput.getContext) {
+			outputC2d = cnvOutput.getContext('2d');
+			//outputC2d = cnvOutput.getContext('2d', {colorSpace: "display-p3", storageFormat: 'float16'});
+			//outputC2d = cnvOutput.getContext('2d', {alpha: false});
+			//outputC2d.globalAlpha = 1;
+			//outputC2d.imageSmoothingEnabled = false;
+
+			ch = cnvOutput.height;
+			cw = cnvOutput.width;
+
+			//imageScaleUpdate(cbxSourceScale, imgSource);
+			imageScaleUpdate(cbxOutputScale, cnvOutput);
+		} else {
+			/* btnViewUpdate.disabled = true;
+			btnStartUpdating.disabled = true; */
+			cbxOutputScale.disabled = true;
+		}
+	}
+	function pageLoad() {
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+
+		cbxOutputScale.innerHTML = cbxSourceScale.innerHTML;
+		inImage.addEventListener("change", inImageChange);
+		btnImgLoad.addEventListener("click", loadURL);
+		imgSource.addEventListener("load", imgSourceLoaded);
+		cbxSourceScale.addEventListener("change", cbxScaleChanged);
+
+		cbxOutputScale.addEventListener("change", cbxScaleChanged);
+
+		/*btnViewUpdate.addEventListener("click", viewUpdate);
+		btnStartUpdating.addEventListener("click", startUpdating);
+		btnStopUpdating.addEventListener("click", stopUpdating);*/
+	}
+
+	window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<p><strong>Input image:</strong> 
+		<input type="file" id="inImage" accept="image/*" /> 
+		<input type="text" id="txtImgURL" list="sampleImgURLs" value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.jpg" /><button id="btnImgLoad">Load</button>
+	</p>
+	<p>Original size: 
+		<output id="outSourceRes">0x0</output>. 
+		<label for="cbxSourceScale">Scale</label> <select id="cbxSourceScale" data-image="imgSource">
+		<option value="16_1">16:1</option>
+		<option value="12_1">12:1</option>
+		<option value="8_1">8:1</option>
+		<option value="6_1">6:1</option>
+		<option value="4_1">4:1</option>
+		<option value="3_1">3:1</option>
+		<option value="2_1">2:1</option>
+		<option value="3_2">3:2</option>
+		<option value="1_1" selected="true">1:1</option>
+		<option value="2_3">2:3</option>
+		<option value="1_2">1:2</option>
+		<option value="1_3">1:3</option>
+		<option value="1_4">1:4</option>
+		<option value="1_6">1:6</option>
+		<option value="1_8">1:8</option>
+		<option value="1_12">1:12</option>
+		<option value="1_16">1:16</option>
+		</select>. 
+		<input type="checkbox" id="chkSourceShrink" checked="true" /><label for="chkSourceShrink">Shrink to fit.</label>
+	</p>
+	<datalist id="sampleImgURLs">
+		<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/a/aa/Marriott%27s_Grand_Chateau.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/2/24/Ambigram_Fun_Nut.png" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/c/c1/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/7/7a/Roc_de_la_Vache_-_juillet_2022.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/2/2b/Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/4/43/St_Philip_Neri_church_in_Vicenza_%283%29.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/d/dd/Gabel_--_2021_--_7220.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/b/bf/Webb%27s_First_Deep_Field.jpg" />
+		<option value="https://upload.wikimedia.org/wikipedia/commons/b/b5/Webb%27s_First_Deep_Field.tif" />
+	</datalist>
+	<p>
+		<img id="imgSource" alt="(Original image placeholder)" crossorigin="anonymous" />
+		<canvas id="cnvSource" hidden="true"></canvas>
+	</p>
+
+	<p>Canvas resolution: 
+		<datalist id="resList">
+			<option value="64" />
+			<option value="80" />
+			<option value="96" />
+
+			<option value="128" />
+			<option value="160" />
+			<option value="192" />
+
+			<option value="256" />
+			<option value="320" />
+			<option value="384" />
+
+			<option value="512" />
+			<option value="640" />
+			<option value="768" />
+
+			<option value="1024" />
+			<option value="1280" />
+			<option value="1536" />
+
+			<option value="2048" />
+			<option value="2560" />
+			<option value="3072" />
+
+			<option value="4096" />
+			<option value="5120" />
+			<option value="6144" />
+
+			<option value="8192" />
+		</datalist>
+		<label for="txtOutputResW">width</label> <input id="txtOutputResW" type="text" value="768" list="resList" />, 
+		<label for="txtOutputResH">height</label> <input id="txtOutputResH" type="text" value="512" list="resList" />.
+		<label for="cbxOutputScale">Scale</label> 
+		<select id="cbxOutputScale" data-image="cnvOutput"></select>. 
+		<input type="checkbox" id="chkOutputShrink" checked="true" /><label for="chkOutputShrink">Shrink to fit.</label>
+	</p>
+	<p><canvas id="cnvOutput" width="768" height="512">
+		If you are reading this through a user agent, it does not support HTML Canvas. This page can't show a decoded image without Canvas.
+	</canvas></p>
+	<!-- <p>
+		<button id="btnViewUpdate">Update view</button>
+		<button id="btnStartUpdating">Start updating</button>
+		<button id="btnStopUpdating">Stop updating</button></p>
+	<p>Frame render time: 
+		<output id="outFrameRenderT">0</output> ms, 
+		avg <output id="outFrameRenderTAvg">0</output> ms. 
+		<output id="outFrameCount">0</output> frame(s) generated.
+	</p> -->
+	<p>This page is an image compression test, requiring HTML Canvas to work. It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer.</p>
+</body>
+</html>
