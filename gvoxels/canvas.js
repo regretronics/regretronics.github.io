@@ -7,9 +7,9 @@ function canvasScaleChanged() {
 	var newCanvasScale = cbxCanvasScale.value.split("_");
 	newCanvasScale = [parseInt(newCanvasScale[0]), parseInt(newCanvasScale[1])];
 	//isNaN and isFinite require ECMAScript 6/2015.
-	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) {return;}
+	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) return;
 	newCanvasScale = newCanvasScale[1] / newCanvasScale[0];
-	if(!isFinite(newCanvasScale) || newCanvasScale == 0) {return;}
+	if(!isFinite(newCanvasScale) || newCanvasScale == 0) return;
 
 	canvasScale = newCanvasScale;
 	//mainCanvas.style.height = canvasScale * ch + "px";
@@ -17,7 +17,7 @@ function canvasScaleChanged() {
 }
 
 function canvasSizeChanged() {
-	if(!c2d) {return;}
+	if(!c2d) return;
 	canvasScaleChanged();
 
 	//to do: use ImageData() constructor instead of CanvasRenderingContext2D.createImageData()?
@@ -25,19 +25,17 @@ function canvasSizeChanged() {
 
 	//pre-fill alpha
 	let data = imgData.data, l = data.length;
-	for(let i = 0; i < l; i += 4) {
-		data[i + 3] = 255;
-	}
+	for(let i = 0; i < l; i += 4) data[i + 3] = 255;
 }
 
 function canvasSizeUpdate() {
-	var newCH = parseInt(txtResH.value);
-	var newCW = parseInt(txtResW.value);
+	let newCH = parseInt(txtResH.value);
+	let newCW = parseInt(txtResW.value);
 	//isNaN requires ECMAScript 6/2015.
-	if(isNaN(newCH) || isNaN(newCW)) {return;}
+	if(isNaN(newCH) || isNaN(newCW)) return;
 	newCH |= 0;
 	newCW |= 0;
-	if(newCH <= 0 || newCW <= 0) {return;}
+	if(newCH <= 0 || newCW <= 0) return;
 
 	if(newCH != ch || newCW != cw) {
 		ch = newCH;
@@ -49,37 +47,53 @@ function canvasSizeUpdate() {
 }
 
 function viewUpdate() {
-	if(!c2d) {return;}
+	if(!c2d) return;
 	canvasSizeUpdate();
-	if(!imgData) {return;}
-	//if(frameCount) {kinematicsRefresh();}
+	if(!imgData) return;
+	//if(frameCount) kinematicsRefresh();
+
+	//frameRenderSimple(imgData);
+	viewRayDirsCompute_Rectilinear(ch, cw);
+	if(rayCrossingPoints == undefined || rayCrossingPoints.length != ch * cw * 4)
+		rayCrossingPoints = new Float32Array(ch * cw * 4);
+	if(rayDead == undefined || rayDead.length != ch * cw)
+		//rayDead = new Array(ch * cw);
+		rayDead = new Int8Array(ch * cw);
+		//rayDead = new Int32Array(ch * cw);
+	if(rowDead == undefined || rowDead.length != ch)
+		//rowDead = new Array(ch);
+		rowDead = new Int8Array(ch);
+		//rowDead = new Int32Array(ch);
+	//if(rayPosColor == undefined || rayPosColor.length != ch * cw * 3 * 2)
+	//	rayPosColor = new Float32Array(ch * cw * 3 * 2); //?
+	if(accumBuffer == undefined || accumBuffer.length != ch * cw * 3 * 2)
+		accumBuffer = new Float32Array(ch * cw * 3 * 2);
+	let timeout = parseFloat(txtFrameTimeout.value);
+	if(isNaN(timeout)) timeout = 1000; //default
 
 	let t = Date.now();
-	//frameRenderSimple(imgData);
-	//frameRenderPolar(imgData);
-	//frameRender(imgData);
-	viewRayDirsCompute_Rectilinear(ch, cw);
-	frameRenderRaycasting(imgData);
+	frameRenderRaycasting(imgData, timeout);
 	let i = Math.floor(3 * Math.random());
-	clientPos[i] = (clientPos[i] + 0.5) % worldRes[i];
+	clientPos[i] = (clientPos[i] + 0.25) % worldRes[i];
 	
 	c2d.putImageData(imgData, 0, 0);
 	t = Date.now() - t;
+	outFrameRenderT.innerText = t.toString();
+	outFrameSegs.innerText = segmentCount.toString();
+
 	frameCount++;
 	renderTimeSum += t;
-	outFrameRenderT.innerText = t.toString();
-	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toFixed(2);
 	outFrameCount.innerText = frameCount.toString();
+	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toFixed(2);
 	
-	//alert("breakpoint");
+	//console.debug("breakpoint");
 	//window.requestAnimationFrame(viewUpdate);
 }
 
 function startUpdating() {
 	firstTimeout = 0;
-	if(!animating) {return;}
-	if(updateCycleId) {return;}
-	if(!(c2d && imgData)) {return;}
+	if(!animating || updateCycleId) return;
+	if(!(c2d && imgData)) return;
 	updateCycleId = setInterval(viewUpdate, 250);
 }
 
@@ -89,7 +103,7 @@ function stopUpdating() {
 		clearTimeout(firstTimeout);
 		firstTimeout = 0;
 	}
-	if(!updateCycleId) {return;}
+	if(!updateCycleId) return;
 	clearInterval(updateCycleId);
 	updateCycleId = 0;
 }
