@@ -9,7 +9,7 @@ function canvasScaleChanged() {
 	//isNaN and isFinite require ECMAScript 6/2015.
 	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) {return;}
 	newCanvasScale = newCanvasScale[1] / newCanvasScale[0];
-	if(!isFinite(newCanvasScale) || (newCanvasScale == 0)) {return;}
+	if(!isFinite(newCanvasScale) || newCanvasScale == 0) {return;}
 
 	canvasScale = newCanvasScale;
 	//mainCanvas.style.height = canvasScale * ch + "px";
@@ -24,8 +24,8 @@ function canvasSizeChanged() {
 	imgData = c2d.createImageData(cw, ch);
 
 	//pre-fill alpha
-	var data = imgData.data, l = data.length;
-	for(var i = 0; i < l; i += 4) {
+	let data = imgData.data, l = data.length;
+	for(let i = 0; i < l; i += 4) {
 		data[i + 3] = 255;
 	}
 }
@@ -37,9 +37,9 @@ function canvasSizeUpdate() {
 	if(isNaN(newCH) || isNaN(newCW)) {return;}
 	newCH |= 0;
 	newCW |= 0;
-	if((newCH <= 0) || (newCW <= 0)) {return;}
+	if(newCH <= 0 || newCW <= 0) {return;}
 
-	if((newCH != ch) || (newCW != cw)) {
+	if(newCH != ch || newCW != cw) {
 		ch = newCH;
 		cw = newCW;
 		mainCanvas.height = ch;
@@ -58,6 +58,7 @@ function viewUpdate() {
 	//frameRenderSimple(imgData);
 	//frameRenderPolar(imgData);
 	//frameRender(imgData);
+	viewRayDirsCompute_Rectilinear(ch, cw);
 	frameRenderRaycasting(imgData);
 	let i = Math.floor(3 * Math.random());
 	clientPos[i] = (clientPos[i] + 0.5) % worldRes[i];
@@ -75,14 +76,19 @@ function viewUpdate() {
 }
 
 function startUpdating() {
+	firstTimeout = 0;
 	if(!animating) {return;}
 	if(updateCycleId) {return;}
 	if(!(c2d && imgData)) {return;}
-	updateCycleId = setInterval(viewUpdate, 1000);
+	updateCycleId = setInterval(viewUpdate, 250);
 }
 
 function stopUpdating() {
 	animating = false;
+	if(firstTimeout) {
+		clearTimeout(firstTimeout);
+		firstTimeout = 0;
+	}
 	if(!updateCycleId) {return;}
 	clearInterval(updateCycleId);
 	updateCycleId = 0;

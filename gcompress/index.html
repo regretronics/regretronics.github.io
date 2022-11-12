@@ -17,10 +17,17 @@
 		color-scheme: dark;
 	}
 
-	#imgSource, #cnvOutput {
+	.imgContainer {
 		max-width: 100%;
 		max-height: 100vh;
+		overflow: auto;
+	}
+	#imgSource, #cnvOutput {
 		object-fit: contain;
+	}
+	#imgSource.shrink, #cnvOutput.shrink {
+		max-width: 100%;
+		max-height: 95vh;
 	}
 	input#txtOutputResW, input#txtOutputResH {
 		width: 7ch;
@@ -44,9 +51,12 @@
 	var ch, cw, imgData;
 	var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
 	var scalePixels = [];
+
+	var sinc_size, sinc_filter1Float = null;
+	const sinc_r = 3;
 	/*]]>*/</script>
-	<script type="text/javascript" src="numerics.js"></script>
-	<script type="text/javascript" src="frameRender.js"></script>
+	<!-- <script type="text/javascript" src="numerics.js"></script> -->
+	<!-- <script type="text/javascript" src="frameRender.js"></script> -->
 	<script type="text/javascript" src="canvas.js"></script>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
@@ -60,6 +70,7 @@
 		outSourceRes.textContent = `${sw}x${sh}`;
 		window.setTimeout(compEncode, 100, event.target);
 	}
+	const factor = 4, factorInv = 1 / factor, factorInv2 = factorInv * factorInv;
 	function compEncode(image) {
 		//to do: ...OffscreenCanvas (not supported in Firefox as of 2022-09)
 		//const offscreen = new OffscreenCanvas(sw, sh);
@@ -79,10 +90,31 @@
 		scalePixels = [];
 		//scalePixels.push(new Float32Array()); //question: change push() for unshift() (reverses the array order)?
 		const b8ToFloatScale = 1 / 255;
-		scalePixels.push(Float32Array.from(imgSourceData.data, x => x * b8ToFloatScale)); //question: change push() for unshift() (reverses the array order)?
+		scalePixels.push({h: sh, w: sw, dataFloat: Float32Array.from(imgSourceData.data, x => x * b8ToFloatScale)}); //question: change push() for unshift() (reverses the array order)?
+		//question: subtract 0.5 from color values? (currently no)
 
 		txtOutputResH.value = sh;
 		txtOutputResW.value = sw;
+
+		//subsampling (first round)
+		let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+		let buf1 = scalePixels[0].dataFloat, buf2 = new Float32Array(4 * h2 * w2);
+		let i = scalePixels.push({h: h2, w: w2, dataFloat: buf2});
+		for(let sy = 0, sy2, y2, sx, sx2, x2; sy < sh; sy++) {
+			sy2 = sw * sy;
+			y2 = w2 * ((sy * factorInv)|0);
+			for(sx = 0; sx < sw; sx++) {
+				x2 = 4 * (y2 + (sx * factorInv)|0);
+				sx2 = 4 * (sy2 + sx);
+				buf2[x2++] += buf1[sx2++];
+				buf2[x2++] += buf1[sx2++];
+				buf2[x2++] += buf1[sx2++];
+				buf2[x2] += buf1[sx2];
+			}
+		}
+		for(let sy = 0; sy < 4 * h2 * w2; sy++)
+			buf2[sy] *= factorInv2;
+
 		compDecode();
 	}
 	function compDecode() {
@@ -93,8 +125,43 @@
 		imageScaleUpdate(cbxOutputScale, cnvOutput);*/
 		canvasSizeUpdate();
 
+		scalePixels[0].dataFloat = new Float32Array(scalePixels[0].dataFloat.length);
+		let buf1 = scalePixels[0].dataFloat, buf2 = scalePixels[1].dataFloat;
+		let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+		/*for(let sy = 0, yRow, y2, sx, x2, sx2; sy < sh; sy++) {
+			yRow = sw * sy;
+			y2 = w2 * ((sy * factorInv)|0);
+			for(sx = 0; sx < sw; sx++) {
+				x2 = 4 * (y2 + (sx * factorInv)|0);
+				sx2 = 4 * (yRow + sx);
+				buf1[sx2] = buf2[x2];
+				buf1[sx2 + 1] = buf2[x2 + 1];
+				buf1[sx2 + 2] = buf2[x2 + 2];
+				buf1[sx2 + 3] = buf2[x2 + 3];
+			}
+		}*/
+		for(let y = 0, yRow, syRow, x, x2, sx2; y < h2; y++) {
+			yRow = w2 * y;
+			syRow = sw * y * factor;
+			for(x = 0; x < w2; x++) {
+				x2 = 4 * (yRow + x);
+				sx2 = 4 * (syRow + x * factor);
+				for(let dy = -sinc_r * factor, fy, dx, fx, sx3; dy < (1 + sinc_r) * factor; dy++) {
+					fy = sinc_filter1Float[dy + sinc_r * factor];
+					for(dx = -sinc_r * factor; dx < (1 + sinc_r) * factor; dx++) {
+						fx = fy * sinc_filter1Float[dx + sinc_r * factor];
+						sx3 = sx2 + 4 * (sw * dy + dx);
+						buf1[sx3] += buf2[x2] * fx;
+						buf1[sx3 + 1] += buf2[x2 + 1] * fx;
+						buf1[sx3 + 2] += buf2[x2 + 2] * fx;
+						buf1[sx3 + 3] += buf2[x2 + 3] * fx;
+					}
+				}
+			}
+		}
+
 		//imgData = outputC2d.createImageData(cw, ch);
-		let imgArray = Uint8ClampedArray.from(scalePixels[0], x => x * 255);
+		let imgArray = Uint8ClampedArray.from(scalePixels[0].dataFloat, x => x * 255);
 		//var imgArray = new Uint8ClampedArray(4 * ch * cw);
 		imgData = new ImageData(imgArray, cw, ch);
 		outputC2d.putImageData(imgData, 0, 0);
@@ -111,6 +178,20 @@
 	}
 	function loadURL(event) {
 		imgSource.src = txtImgURL.value;
+	}
+	function chkShrinkChanged(event) {
+		let elem = event.target;
+		if(!elem || !elem.dataset) return;
+		let id = elem.dataset["image"];
+		if(!id) return;
+		let image = document.getElementById(id);
+		let parent = image.parentElement;
+		if(elem.checked) {
+			image.classList.add("shrink");
+			//parent.style.;
+		} else {
+			image.classList.remove("shrink");
+		}
 	}
 
 	function pageReady() {
@@ -131,22 +212,38 @@
 			btnStartUpdating.disabled = true; */
 			cbxOutputScale.disabled = true;
 		}
+
+		sinc_size = factor * (1 + 2 * sinc_r);
+		let dx = -0.5 * (sinc_size - 1);
+		sinc_filter1Float = new Float32Array(sinc_size);
+		const normalFactor = -(0.25 ** 2);
+		for(let x = 0, x2; x < sinc_size; x++) {
+			x2 = (x + dx) * factorInv * Math.PI;
+			//sinc_filter1Float[x] = Math.sin(x2) / x2; //rectangular window
+			sinc_filter1Float[x] = Math.exp(normalFactor * x2 * x2) * Math.sin(x2) / x2; //gaussian window
+		}
 	}
 	function pageLoad() {
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 
-		cbxOutputScale.innerHTML = cbxSourceScale.innerHTML;
+		cbxOutputScale.innerHTML = cbxSourceScale.innerHTML; //clone list.
 		inImage.addEventListener("change", inImageChange);
 		btnImgLoad.addEventListener("click", loadURL);
 		imgSource.addEventListener("load", imgSourceLoaded);
 		cbxSourceScale.addEventListener("change", cbxScaleChanged);
-
+		chkSourceShrink.addEventListener("change", chkShrinkChanged);
+		
 		cbxOutputScale.addEventListener("change", cbxScaleChanged);
+		chkOutputShrink.addEventListener("change", chkShrinkChanged);
 
 		/*btnViewUpdate.addEventListener("click", viewUpdate);
 		btnStartUpdating.addEventListener("click", startUpdating);
 		btnStopUpdating.addEventListener("click", stopUpdating);*/
+
+		let evt = new Event("change");
+		chkSourceShrink.dispatchEvent(evt);
+		chkOutputShrink.dispatchEvent(evt);
 	}
 
 	window.addEventListener("DOMContentLoaded", pageLoad);
@@ -156,30 +253,30 @@
 <body>
 	<p><strong>Input image:</strong> 
 		<input type="file" id="inImage" accept="image/*" /> 
-		<input type="text" id="txtImgURL" list="sampleImgURLs" value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.jpg" /><button id="btnImgLoad">Load</button>
+		<input type="text" id="txtImgURL" list="sampleImgURLs" value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.png" /><button id="btnImgLoad">Load</button>
 	</p>
 	<p>Original size: 
 		<output id="outSourceRes">0x0</output>. 
 		<label for="cbxSourceScale">Scale</label> <select id="cbxSourceScale" data-image="imgSource">
-		<option value="16_1">16:1</option>
-		<option value="12_1">12:1</option>
-		<option value="8_1">8:1</option>
-		<option value="6_1">6:1</option>
-		<option value="4_1">4:1</option>
-		<option value="3_1">3:1</option>
-		<option value="2_1">2:1</option>
-		<option value="3_2">3:2</option>
-		<option value="1_1" selected="true">1:1</option>
-		<option value="2_3">2:3</option>
-		<option value="1_2">1:2</option>
-		<option value="1_3">1:3</option>
-		<option value="1_4">1:4</option>
-		<option value="1_6">1:6</option>
-		<option value="1_8">1:8</option>
-		<option value="1_12">1:12</option>
-		<option value="1_16">1:16</option>
+			<option value="16_1">16:1</option>
+			<option value="12_1">12:1</option>
+			<option value="8_1">8:1</option>
+			<option value="6_1">6:1</option>
+			<option value="4_1">4:1</option>
+			<option value="3_1">3:1</option>
+			<option value="2_1">2:1</option>
+			<option value="3_2">3:2</option>
+			<option value="1_1" selected="true">1:1</option>
+			<option value="2_3">2:3</option>
+			<option value="1_2">1:2</option>
+			<option value="1_3">1:3</option>
+			<option value="1_4">1:4</option>
+			<option value="1_6">1:6</option>
+			<option value="1_8">1:8</option>
+			<option value="1_12">1:12</option>
+			<option value="1_16">1:16</option>
 		</select>. 
-		<input type="checkbox" id="chkSourceShrink" checked="true" /><label for="chkSourceShrink">Shrink to fit.</label>
+		<input type="checkbox" id="chkSourceShrink" checked="true" data-image="imgSource" /><label for="chkSourceShrink">Shrink to fit.</label>
 	</p>
 	<datalist id="sampleImgURLs">
 		<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.jpg" />
@@ -193,7 +290,7 @@
 		<option value="https://upload.wikimedia.org/wikipedia/commons/b/bf/Webb%27s_First_Deep_Field.jpg" />
 		<option value="https://upload.wikimedia.org/wikipedia/commons/b/b5/Webb%27s_First_Deep_Field.tif" />
 	</datalist>
-	<p>
+	<p class="imgContainer">
 		<img id="imgSource" alt="(Original image placeholder)" crossorigin="anonymous" />
 		<canvas id="cnvSource" hidden="true"></canvas>
 	</p>
@@ -234,10 +331,10 @@
 		<label for="txtOutputResH">height</label> <input id="txtOutputResH" type="text" value="512" list="resList" />.
 		<label for="cbxOutputScale">Scale</label> 
 		<select id="cbxOutputScale" data-image="cnvOutput"></select>. 
-		<input type="checkbox" id="chkOutputShrink" checked="true" /><label for="chkOutputShrink">Shrink to fit.</label>
+		<input type="checkbox" id="chkOutputShrink" checked="true" data-image="cnvOutput" /><label for="chkOutputShrink">Shrink to fit.</label>
 	</p>
-	<p><canvas id="cnvOutput" width="768" height="512">
-		If you are reading this through a user agent, it does not support HTML Canvas. This page can't show a decoded image without Canvas.
+	<p class="imgContainer"><canvas id="cnvOutput" width="768" height="512">
+		If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.
 	</canvas></p>
 	<!-- <p>
 		<button id="btnViewUpdate">Update view</button>
