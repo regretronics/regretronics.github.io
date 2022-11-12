@@ -13,11 +13,11 @@ function frameRenderSimple(imgData) {
 		//data[i + 3] = 128;
 	}
 
-	//let bufh = imgData.height, bufw = imgData.width;
+	//let bufH = imgData.height, bufW = imgData.width;
 	//rectangular fill (opaque)
 	/*for(let y = 0; y < 256; y++) {
 		for(let x = 64; x < 64 + 256; x++) {
-			i = 4 * (bufw * y + x);
+			i = 4 * (bufW * y + x);
 			data[i] = 255;
 			data[i + 1] = 128;
 			data[i + 2] = 0;
@@ -26,12 +26,88 @@ function frameRenderSimple(imgData) {
 	}*/
 }
 
+//exp2 look-up table acceleration.
+const exp2LUTScale = 64, exp2LUTSize = exp2LUTScale;
+var exp2LUT;
+const _2to30 = 1 << 30, _2toNeg30 = 1 / _2to30;
+
+function exp2LUTInit() {
+	for(let i = 0; i < exp2LUTSize; i++)
+		exp2LUT[i] = Math.exp(Math.LN2 * i / exp2LUTScale);
+}
+exp2LUT = new Float32Array(exp2LUTSize);
+exp2LUTInit();
+
+function exp2_LUT_old(x) {
+	if(typeof(x) === "boolean") x = Number(x);
+	if(typeof(x) !== "number") return NaN;
+	if(x < -30) return 0;
+	if(x > 30) return Infinity;
+
+	let xInt = Math.floor(x);
+	let powOf2 = (xInt >= 0 ? (1 << xInt) : (1 / (1 << (-xInt))));
+	return powOf2 * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
+}
+function exp2_LUT_old2(x) {
+	if(typeof(x) === "boolean") x = Number(x);
+	if(typeof(x) !== "number") return NaN;
+	if(x === -Infinity) return 0;
+	if(x === Infinity) return Infinity;
+
+	let powOf2 = 1;
+	if(x > 30)
+		do {
+			powOf2 *= _2to30;
+			x += -30;
+		} while(x > 30);
+	else
+		while(x < -30) {
+			powOf2 *= _2toNeg30;
+			x += 30;
+		}
+
+	let xInt = Math.floor(x);
+	powOf2 *= (xInt >= 0 ? (1 << xInt) : (1 / (1 << (-xInt))));
+	return powOf2 * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
+}
+function exp2_LUT_old3(x) {
+	if(typeof(x) === "boolean") x = Number(x);
+	if(typeof(x) !== "number") return NaN;
+	if(x === -Infinity) return 0;
+	if(x === Infinity) return Infinity;
+	let isNeg = x < 0;
+	x = Math.abs(x);
+
+	let exp = 1;
+	while(x > 30) {
+		exp *= _2to30;
+		x += -30;
+	}
+
+	let xInt = Math.floor(x);
+	exp *= (1 << xInt) * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
+	if(isNeg) exp = 1 / exp;
+	return exp;
+}
+function exp2_LUT(x) {
+	let isNeg = x < 0;
+	x = Math.abs(x);
+
+	let xInt = Math.floor(x);
+	//let exp = (1 << xInt) * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
+	let exp = (1 << xInt) * exp2LUT[((x - xInt) * exp2LUTSize)|0];
+	if(isNeg) exp = 1 / exp;
+	return exp;
+}
+
 //to do: multithreaded rendering
 
 //--
 //virtual vectorial world context
 //to do: review for optimization.
 var worldRes = new Int8Array([16, 16, 16]);
+//var worldRes = new Uint8Array([16, 16, 16]);
+//var worldRes = new Int32Array([16, 16, 16]);
 //to do: expand voxel format to color + alpha, 3 primaries.
 var worldScan = new Float32Array(worldRes[0] * worldRes[1] * worldRes[2] * 3 * 2);
 var emptyVoxel = new Float32Array([0.0, 0.5, 1.0, 0.5, 0.5, 0.5]);
@@ -67,169 +143,154 @@ function clientUpdateSpcTransf() {
 }
 
 function viewRayDirsCompute_Rectilinear(ch, cw) {
+	let chInv = 1 / ch;
 	if(rayDirs == undefined || rayDirs.length != ch * cw * 4)
 		rayDirs = new Float32Array(ch * cw * 4);
-	if(rayDirsSign == undefined || rayDirsSign.length != ch * cw * 3)
+	if(rayDirsSign == undefined || rayDirsSign.length != ch * cw * 4)
 		//rayDirsSign = new Float32Array(ch * cw * 3);
-		rayDirsSign = new Int8Array(ch * cw * 3);
+		rayDirsSign = new Int8Array(ch * cw * 4);
 		//rayDirsSign = new Int32Array(ch * cw * 3);
 	
-	for(let rayDirs0 = new Float32Array(3), y = 0, x, yf, xf, pRayDirs = 0, pRayDirsSign = 0;
+	let rayDirsRow = new Float32Array(cw * 4);
+	let x, xf;
+	for(x = 0; x < cw; x++) {
+		xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
+		rayDirsRow[4 * x] = clientSpcTransf[0] * xf;
+		rayDirsRow[4 * x + 1] = clientSpcTransf[1] * xf;
+		rayDirsRow[4 * x + 2] = clientSpcTransf[2] * xf;
+	}
+	
+	for(let rayDirs0 = new Float32Array(3), y = 0, yf, pRow = 0, pCol, pRayDirs = 0;//, pRayDirsSign = 0;
 	 y < ch;
 	 y++) {
-		yf = clientFoVH * (2.0 * (y + 0.5) / ch - 1.0);
+		yf = clientFoVH * (2.0 * (y + 0.5) * chInv - 1.0);
 		rayDirs0[0] = clientSpcTransf[6] * 1.0 + clientSpcTransf[3] * yf;
 		rayDirs0[1] = clientSpcTransf[7] * 1.0 + clientSpcTransf[4] * yf;
 		rayDirs0[2] = clientSpcTransf[8] * 1.0 + clientSpcTransf[5] * yf;
 		
-		for(x = 0; x < cw; x++) {
-			xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) / ch;
+		for(x = 0, pCol = 0; x < cw; x++) {
+			xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
 
-			rayDirs[pRayDirs] = rayDirs0[0] + clientSpcTransf[0] * xf;
-			rayDirsSign[pRayDirsSign] = Math.sign(rayDirs[pRayDirs]);
-			rayDirs[pRayDirs + 1] = rayDirs0[1] + clientSpcTransf[1] * xf;
-			rayDirsSign[pRayDirsSign + 1] = Math.sign(rayDirs[pRayDirs + 1]);
-			rayDirs[pRayDirs + 2] = rayDirs0[2] + clientSpcTransf[2] * xf;
-			rayDirsSign[pRayDirsSign + 2] = Math.sign(rayDirs[pRayDirs + 2]);
+			pRayDirs = pRow + pCol;
+			rayDirs[pRayDirs] = rayDirs0[0] + rayDirsRow[pCol];
+			rayDirsSign[pRayDirs] = Math.sign(rayDirs[pRayDirs]);
+			rayDirs[pRayDirs + 1] = rayDirs0[1] + rayDirsRow[pCol + 1];
+			rayDirsSign[pRayDirs + 1] = Math.sign(rayDirs[pRayDirs + 1]);
+			rayDirs[pRayDirs + 2] = rayDirs0[2] + rayDirsRow[pCol + 2];
+			rayDirsSign[pRayDirs + 2] = Math.sign(rayDirs[pRayDirs + 2]);
 			rayDirs[pRayDirs + 3] = Math.sqrt(rayDirs[pRayDirs] * rayDirs[pRayDirs] + rayDirs[pRayDirs + 1] * rayDirs[pRayDirs + 1] + rayDirs[pRayDirs + 2] * rayDirs[pRayDirs + 2]);
 			
-			pRayDirs += 4;
-			pRayDirsSign += 3;
+			pCol += 4;
+			//pRayDirsSign += 3;
 		}
+		pRow += 4 * cw;
 	}
 }
 
 var rayCrossingPoints, rayDead, rowDead, /*rayPosColor,*/ accumBuffer;
-var frameMaxLayers = 6;
-const rayTranspThreshold = 0.01;
+var frameMaxLayers = 64;
+const rayTranspThreshold = 1 / 64;
+const initialVoxel = new Float32Array([0, 0, 0, 1, 1, 1]);
+//const opacityFactor = -6 / 65536;
+const opacityFactor = -128 * Math.LOG2E / 256;
 
-function frameRenderRaycasting(imgData) {
-	let data = imgData.data, i;
-	let bufh = imgData.height|0, bufw = imgData.width|0;
+function frameRenderRaycasting(imgData, timeout) {
+	let data = imgData.data;
+	let bufH = imgData.height|0, bufW = imgData.width|0;
+	let timeoutEnabled = (typeof(timeout) === "number"), tLimit;
+	if(timeoutEnabled) tLimit = Date.now() + timeout;
 	
-	if(rayCrossingPoints == undefined || rayCrossingPoints.length != bufh * bufw * 3)
-		rayCrossingPoints = new Float32Array(bufh * bufw * 3);
-	if(rayDead == undefined || rayDead.length != bufh * bufw)
-		rayDead = new Int8Array(bufh * bufw);
-	if(rowDead == undefined || rowDead.length != bufh)
-		rowDead = new Int8Array(bufh);
-	//if(rayPosColor == undefined || rayPosColor.length != bufh * bufw * 3 * 2)
-	//	rayPosColor = new Float32Array(bufh * bufw * 3 * 2); //?
-	if(accumBuffer == undefined || accumBuffer.length != bufh * bufw * 3 * 2)
-		accumBuffer = new Float32Array(bufh * bufw * 3 * 2);
+	//some initialization
+	for(let x = 0; x < bufH * bufW; x++)
+		rayCrossingPoints.set(clientPos, x * 4);
 	
-	//more initialization
-	let pRayCrossingPoints = 0, pAccumBuffer = 0;
-	for(let y = 0, x; y < bufh; y++) {
-		 for(x = 0; x < bufw; x++) {
-			rayCrossingPoints[pRayCrossingPoints] = clientPos[0];
-			rayCrossingPoints[pRayCrossingPoints + 1] = clientPos[1];
-			rayCrossingPoints[pRayCrossingPoints + 2] = clientPos[2];
-			pRayCrossingPoints += 3;
-
-			//color
-			accumBuffer[pAccumBuffer] = 0;
-			accumBuffer[pAccumBuffer + 1] = 0;
-			accumBuffer[pAccumBuffer + 2] = 0;
-
-			//alpha
-			accumBuffer[pAccumBuffer + 3] = 1;
-			accumBuffer[pAccumBuffer + 4] = 1;
-			accumBuffer[pAccumBuffer + 5] = 1;
-			pAccumBuffer += 6;
-			
-			rayDead[y * bufw + x] = false;
-		}
-		rowDead[y] = false;
-	 }
+	for(let x = 0; x < bufH * bufW; x++)
+		accumBuffer.set(initialVoxel, x * 6);
 	
-	let /*pRayPosColor = 0,*/ pRayDirs, pRayDirsSign;
+	for(let x = 0; x < bufH * bufW; x++) rayDead[x] = 0;
+	for(let y = 0; y < bufH; y++) rowDead[y] = 0;
+	
+	//let pRayCrossingPoints = 0, pAccumBuffer = 0;
+	//let /*pRayPosColor = 0,*/ pRayDirs, pRayDirsSign;
 	let firstCrossing, rayCoordCrossing, depth;
-	let alphaNew = new Float32Array(3), discreteCube = new Int8Array(3), pVoxel;
+	let alphaNew = new Float32Array(3), discreteCube = new Int8Array(3);
+	//let alphaNew = new Float32Array(3), discreteCube = new Uint8Array(3);
+	//let alphaNew = new Float32Array(3), discreteCube = new Int32Array(3);
 	//let color = new Float32Array(3); //?
-	for(let z = 0, frameDone, y, x, pixel; z < frameMaxLayers; z++) {
-		frameDone = false;
-		i = 0;
-		for(y = 0, pixel = 0; y < bufh; y++) {
+	segmentCount = 0;
+	for(let z = 0, frameDone, y, x, pPixel; z < frameMaxLayers; z++) {
+		frameDone = true;
+		for(y = 0, pPixel = 0; y < bufH; y++) {
 			if(rowDead[y]) {
-				//pFragmentValue += bufw;
-				pixel += bufw;
+			//if(rowDead[y] !== 0) {
+				//pFragmentValue += bufW;
+				pPixel += bufW;
 				continue;
-			}
-			for(x = 0; x < bufw; x++, pixel++) {
-				if(rayDead[pixel]) {
-					//pFragmentValue++;
+			} else
+				rowDead[y] = 1;
+			for(x = 0; x < bufW; x++, pPixel++) {
+				if(rayDead[pPixel])
+				//if(rayDead[pPixel] !== 0)
 					continue;
-				}
 				
-				pRayCrossingPoints = pixel * 3;
-				pRayDirs = pixel * 4;
-				pRayDirsSign = pixel * 3;
+				/*let pRayCrossingPoints = pPixel * 4;
+				let pRayDirs = pPixel * 4;
+				let pRayDirsSign = pPixel * 4;*/
+				let pPixel4 = pPixel * 4, coordProjection;
 				
 				//find the next crossing with the regular voxel grid in some axis
 				//per axis, finds the t parameter (of the line formula) for the first crossing with a voxel boundary
-				if(rayDirs[pRayDirs] == 0) {
+				if(rayDirs[pPixel4] === 0)
 					firstCrossing = 65536;
-				} else {
+				else {
 					//todo: use abs, or even copysignf?
-					//rayCoordCrossing[0] = (rayDirsSign[pRayDirsSign] * Math.floor(rayDirsSign[pRayDirsSign] * rayCrossingPoints[pRayCrossingPoints] + 1) - rayCrossingPoints[pRayCrossingPoints]) / rayDirs[pRayDirs];
-					let coordProjection = rayDirsSign[pRayDirsSign] * rayCrossingPoints[pRayCrossingPoints] + 1;
-					coordProjection = Math.floor(coordProjection);
-					firstCrossing = (rayDirsSign[pRayDirsSign] * coordProjection - rayCrossingPoints[pRayCrossingPoints]) / rayDirs[pRayDirs];
+					coordProjection = Math.floor(rayDirsSign[pPixel4] * rayCrossingPoints[pPixel4] + 1);
+					firstCrossing = (rayDirsSign[pPixel4] * coordProjection - rayCrossingPoints[pPixel4]) / rayDirs[pPixel4];
 				}
 
-				if(rayDirs[pRayDirs + 1] != 0) {
-					//rayCoordCrossing = (rayDirsSign[pRayDirsSign + 1] * Math.floor(rayDirsSign[pRayDirsSign + 1] * rayCrossingPoints[pRayCrossingPoints + 1] + 1) - rayCrossingPoints[pRayCrossingPoints + 1]) / rayDirs[pRayDirs + 1];
-					let coordProjection = rayDirsSign[pRayDirsSign + 1] * rayCrossingPoints[pRayCrossingPoints + 1] + 1;
-					coordProjection = Math.floor(coordProjection);
-					rayCoordCrossing = (rayDirsSign[pRayDirsSign + 1] * coordProjection - rayCrossingPoints[pRayCrossingPoints + 1]) / rayDirs[pRayDirs + 1];
-					if(rayCoordCrossing < firstCrossing) {
-						firstCrossing = rayCoordCrossing;
-					}
+				if(rayDirs[pPixel4 + 1] !== 0) {
+					coordProjection = Math.floor(rayDirsSign[pPixel4 + 1] * rayCrossingPoints[pPixel4 + 1] + 1);
+					rayCoordCrossing = (rayDirsSign[pPixel4 + 1] * coordProjection - rayCrossingPoints[pPixel4 + 1]) / rayDirs[pPixel4 + 1];
+					if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
 				}
 
-				if(rayDirs[pRayDirs + 2] != 0) {
-					//rayCoordCrossing = (rayDirsSign[pRayDirsSign + 2] * Math.floor(rayDirsSign[pRayDirsSign + 2] * rayCrossingPoints[pRayCrossingPoints + 2] + 1) - rayCrossingPoints[pRayCrossingPoints + 2]) / rayDirs[pRayDirs + 2];
-					let coordProjection = rayDirsSign[pRayDirsSign + 2] * rayCrossingPoints[pRayCrossingPoints + 2] + 1;
-					coordProjection = Math.floor(coordProjection);
-					rayCoordCrossing = (rayDirsSign[pRayDirsSign + 2] * coordProjection - rayCrossingPoints[pRayCrossingPoints + 2]) / rayDirs[pRayDirs + 2];
-					if(rayCoordCrossing < firstCrossing) {
-						firstCrossing = rayCoordCrossing;
-					}
+				if(rayDirs[pPixel4 + 2] !== 0) {
+					coordProjection = Math.floor(rayDirsSign[pPixel4 + 2] * rayCrossingPoints[pPixel4 + 2] + 1);
+					rayCoordCrossing = (rayDirsSign[pPixel4 + 2] * coordProjection - rayCrossingPoints[pPixel4 + 2]) / rayDirs[pPixel4 + 2];
+					if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
 				}
 				
-				discreteCube[0] = Math.floor(rayCrossingPoints[pRayCrossingPoints] + 0.5 * firstCrossing * rayDirs[pRayDirs]);
-				discreteCube[1] = Math.floor(rayCrossingPoints[pRayCrossingPoints + 1] + 0.5 * firstCrossing * rayDirs[pRayDirs + 1]);
-				discreteCube[2] = Math.floor(rayCrossingPoints[pRayCrossingPoints + 2] + 0.5 * firstCrossing * rayDirs[pRayDirs + 2]);
+				discreteCube[0] = Math.floor(rayCrossingPoints[pPixel4] + 0.5 * firstCrossing * rayDirs[pPixel4]);
+				discreteCube[1] = Math.floor(rayCrossingPoints[pPixel4 + 1] + 0.5 * firstCrossing * rayDirs[pPixel4 + 1]);
+				discreteCube[2] = Math.floor(rayCrossingPoints[pPixel4 + 2] + 0.5 * firstCrossing * rayDirs[pPixel4 + 2]);
 
-				rayCrossingPoints[pRayCrossingPoints] += firstCrossing * rayDirs[pRayDirs];
-				rayCrossingPoints[pRayCrossingPoints + 1] += firstCrossing * rayDirs[pRayDirs + 1];
-				rayCrossingPoints[pRayCrossingPoints + 2] += firstCrossing * rayDirs[pRayDirs + 2];
+				rayCrossingPoints[pPixel4] += firstCrossing * rayDirs[pPixel4];
+				rayCrossingPoints[pPixel4 + 1] += firstCrossing * rayDirs[pPixel4 + 1];
+				rayCrossingPoints[pPixel4 + 2] += firstCrossing * rayDirs[pPixel4 + 2];
 
 				//to do: maybe pre-normalize vector length for rectilinear projection as well
-				//const opacityFactor = -6 / 65536;
-				const opacityFactor = 64 / 256;
-				//depth = opacityFactor * firstCrossing * rayDirs[pRayDirs + 3]; //rectilinear projection
-				depth = opacityFactor * firstCrossing; //globular projection has equal-length rays
+				depth = opacityFactor * firstCrossing * rayDirs[pPixel4 + 3]; //rectilinear projection
+				//depth = opacityFactor * firstCrossing; //globular projection has equal-length rays
 
 				let vx;
 				if(discreteCube[0] >= 0 && discreteCube[0] < worldRes[0] &&
 				 discreteCube[1] >= 0 && discreteCube[1] < worldRes[1] &&
 				 discreteCube[2] >= 0 && discreteCube[2] < worldRes[2]) {
-					pVoxel = (discreteCube[0] * worldRes[1] + discreteCube[1]) * worldRes[2] + discreteCube[2];
+					let pVoxel = (discreteCube[0] * worldRes[1] + discreteCube[1]) * worldRes[2] + discreteCube[2];
 					//to do: the order of coordinates was inverted between discreteCube and worldRes. try to remember why.
-					vx = worldScan.slice(6 * pVoxel, 6 * pVoxel + 6);
-				} else {
-					//pVoxel = -1;
-					vx = emptyVoxel;
-				}
+					//vx = worldScan.slice(6 * pVoxel, 6 * pVoxel + 6);
+					vx = worldScan.subarray(pVoxel * 6, (pVoxel + 1) * 6);
+				} else
+					vx = emptyVoxel; //to do: special code that fills the remaining transparency and kills the ray
 
-				//to do: exp2?
-				alphaNew[0] = Math.exp(-depth * vx[3]);
-				alphaNew[1] = Math.exp(-depth * vx[4]);
-				alphaNew[2] = Math.exp(-depth * vx[5]);
+				/*alphaNew[0] = Math.exp(depth * vx[3]);
+				alphaNew[1] = Math.exp(depth * vx[4]);
+				alphaNew[2] = Math.exp(depth * vx[5]);*/
+				alphaNew[0] = exp2_LUT(depth * vx[3]);
+				alphaNew[1] = exp2_LUT(depth * vx[4]);
+				alphaNew[2] = exp2_LUT(depth * vx[5]);
 				
-				pAccumBuffer = 6 * pixel;
+				let pAccumBuffer = pPixel * 6;
 				accumBuffer[pAccumBuffer] += accumBuffer[pAccumBuffer + 3] * (1.0 - alphaNew[0]) * vx[0];
 				accumBuffer[pAccumBuffer + 1] += accumBuffer[pAccumBuffer + 4] * (1.0 - alphaNew[1]) * vx[1];
 				accumBuffer[pAccumBuffer + 2] += accumBuffer[pAccumBuffer + 5] * (1.0 - alphaNew[2]) * vx[2];
@@ -238,37 +299,32 @@ function frameRenderRaycasting(imgData) {
 				accumBuffer[pAccumBuffer + 4] *= alphaNew[1];
 				accumBuffer[pAccumBuffer + 5] *= alphaNew[2];
 				
-				if(accumBuffer[pAccumBuffer + 3] <= rayTranspThreshold && accumBuffer[pAccumBuffer + 4] <= rayTranspThreshold && accumBuffer[pAccumBuffer + 5] <= rayTranspThreshold) {
-					rayDead[pixel] = true;
-				} else {
-					rowDead[y] = false;
-				}
+				segmentCount++;
+				if(accumBuffer[pAccumBuffer + 3] <= rayTranspThreshold &&
+					accumBuffer[pAccumBuffer + 4] <= rayTranspThreshold &&
+					accumBuffer[pAccumBuffer + 5] <= rayTranspThreshold)
+					//rayDead[pPixel] = true;
+					rayDead[pPixel] = 1;
+				else
+					//rowDead[y] = false;
+					rowDead[y] = 0;
 			}
 			if(!rowDead[y]) frameDone = false;
+			//if(rowDead[y] === 0) frameDone = false;
 		}
-		if(frameDone) break;
+		if(frameDone || (timeoutEnabled && Date.now() >= tLimit)) break;
 	}
 
-	pAccumBuffer = 0;
-	i = 0;
-	for(let y = 0, x; y < bufh; y++) {
-		 for(x = 0; x < bufw; x++) {
-			//to do: try Uint8Array, Uint8ClampedArray or ArrayBuffer?
-			//color = [(255 * 1)|0, (255 * 1)|0, (255 * 1)|0];
-			//color = [(255 * 1)|0, (255 * 0.5)|0, (255 * 0)|0];
-			//color = [(255 * accumBuffer[pAccumBuffer])|0, (255 * accumBuffer[pAccumBuffer + 1])|0, (255 * accumBuffer[pAccumBuffer + 2])|0];
-			
-			//color write to pixel
-			//i = 4 * (bufw * y + x);
-			//data[i] = color[0];
-			//data[i + 1] = color[1];
-			//data[i + 2] = color[2];
-			data[i] = 255 * accumBuffer[pAccumBuffer];
-			data[i + 1] = 255 * accumBuffer[pAccumBuffer + 1];
-			data[i + 2] = 255 * accumBuffer[pAccumBuffer + 2];
-			//data[i + 3] = 255;
-			i += 4;
-			pAccumBuffer += 6;
-		}
+	for(let x = 0; x < bufH * bufW; x++) {
+		alphaNew[0] = 1.0 - accumBuffer[6 * x + 3];
+		alphaNew[1] = 1.0 - accumBuffer[6 * x + 4];
+		alphaNew[2] = 1.0 - accumBuffer[6 * x + 5];
+		if(alphaNew[0] <= 0) data[4 * x] = 128; else data[4 * x] = 255 * accumBuffer[6 * x] / alphaNew[0];
+		if(alphaNew[1] <= 0) data[4 * x + 1] = 128; else data[4 * x + 1] = 255 * accumBuffer[6 * x + 1] / alphaNew[1];
+		if(alphaNew[2] <= 0) data[4 * x + 2] = 128; else data[4 * x + 2] = 255 * accumBuffer[6 * x + 2] / alphaNew[2];
+		/*data[4 * x] = 255 * accumBuffer[6 * x];
+		data[4 * x + 1] = 255 * accumBuffer[6 * x + 1];
+		data[4 * x + 2] = 255 * accumBuffer[6 * x + 2];*/
+		//data[i + 3] = 255;
 	}
 }
