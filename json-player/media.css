@@ -1,6 +1,6 @@
 @media screen {
 	:root {
-		background-color: revert !important; /*dark reader workaround*/
+		background-color: revert !important; /*Dark Reader workaround*/
 	}
 	/*for wide viewports, a two-column layout (control panel + documentation)*/
 	/*@media (min-width: 160ch) {*/
