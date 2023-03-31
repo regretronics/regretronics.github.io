@@ -42,6 +42,7 @@
 	#bottomContainer {
 		flex-grow: 0;
 		flex-shrink: 0;
+		padding-inline: min(1em, 2cqi);
 	}
 
 	input[type=number] {
@@ -80,6 +81,9 @@
 		--p1-y: 100;
 		--p1-z: 200;
 	}
+	/* #l2Container * {
+		transform-style: preserve-3d;
+	} */
 	.size0 {
 		--s-x: 80;
 		--s-y: 80;
@@ -101,12 +105,22 @@
 			calc(var(--pos-x) * 1px)
 			calc(var(--pos-y) * 1px)
 			calc(var(--pos-z) * 1px);
+		/* left: 50%;
+		top: 50%;
+		translate:
+			calc((var(--pos-x) - var(--sh-x)) * 1px)
+			calc((var(--pos-y) - var(--sh-y)) * 1px)
+			calc(var(--pos-z) * 1px); */
 	}
 	.posVar::after {
 		content: attr(class);
+		/* content: var(--pos-z); */
 		/* content: attr(data-z); */
 		/* content: calc(attr(data-z number) + 1); */
 		text-align: center;
+	}
+	.blobCss.posVar {
+		opacity: calc(max(0, min(1, 0.005 * (var(--z0) - var(--pos-z)))));
 	}
 	.pv0 {
 		--pos-x: var(--p0-x);
@@ -133,39 +147,34 @@
 		--d-y: calc(var(--pos1-y) - var(--pos0-y));
 		--d-z: calc(var(--pos1-z) - var(--pos0-z));
 
-		/* this is for the lack of abs() function support */
-		--d-x-abs: calc(max(0, var(--d-x)) + max(0, -1 * var(--d-x)) + 1e-3);
-		--d-y-abs: calc(max(0, var(--d-y)) + max(0, -1 * var(--d-y)) + 1e-3);
-		--d-z-abs: calc(max(0, var(--d-z)) + max(0, -1 * var(--d-z)) + 1e-3);
+		/* This is for the lack of abs() function support. */
+		--d-x-abs: calc(max(0, var(--d-x)) - min(0, var(--d-x)) + 1e-3);
+		--d-y-abs: calc(max(0, var(--d-y)) - min(0, var(--d-y)) + 1e-3);
+		--d-z-abs: calc(max(0, var(--d-z)) - min(0, var(--d-z)) + 1e-3);
 		
-		/* this is for the lack of hypot() and sqrt() function support */
-		/* --d-xy-hypot: calc(var(--d-y) / sin(atan2(var(--d-y), var(--d-x)))); */
-		--d-xy-hypot: calc(var(--d-x-abs) / cos(atan2(var(--d-y-abs), var(--d-x-abs))));
-		/* --d-xy-hypot: calc(0.5 * (var(--d-xy-hypot1) + var(--d-xy-hypot2))); */
-		--d-xy-hypot-abs: calc(max(0, var(--d-xy-hypot)) + max(0, -1 * var(--d-xy-hypot)) + 1e-3); /* to do: check necessity */
+		/* This is for the lack of hypot() and sqrt() function support. */
+		/* --d-xy-hypot: calc(var(--d-y) / sin(atan2(var(--d-y), var(--d-x)))); */ /* Yeah, I tested. May yield division by zero. */
+		--xy-ornt: calc(atan2(var(--d-y), var(--d-x)));
+		--d-xy-hypot1: calc(var(--d-x-abs) / cos(atan2(var(--d-y-abs), var(--d-x-abs))));
+		--d-xy-hypot2: calc(var(--d-y-abs) / cos(atan2(var(--d-x-abs), var(--d-y-abs))));
+		--d-xy-hypot: calc(0.5 * (var(--d-xy-hypot1) + var(--d-xy-hypot2)));
+		/* --d-xy-hypot: calc(max(0, var(--d-xy-hypot3)) - min(0, var(--d-xy-hypot3)) + 1e-3); */
 
-		--d-xyz-hypot: calc(var(--d-xy-hypot-abs) / cos(atan2(var(--d-z-abs), var(--d-xy-hypot-abs))));
-		/* --d-xyz-hypot: calc(var(--d-z-abs) / cos(atan2(var(--d-xy-hypot-abs), var(--d-z)))); */
-		--d-xyz-hypot-abs: calc(max(0, var(--d-xyz-hypot)) + max(0, -1 * var(--d-xyz-hypot)) + 1e-3);
+		--z-ornt: calc(-1 * atan2(var(--d-z), var(--d-xy-hypot)));
+		--d-xyz-hypot1: calc(var(--d-xy-hypot) / cos(var(--z-ornt)));
+		--d-xyz-hypot2: calc(var(--d-z-abs) / cos(atan2(var(--d-xy-hypot), var(--d-z-abs))));
+		--d-xyz-hypot: calc(0.5 * (var(--d-xyz-hypot1) + var(--d-xyz-hypot2)));
+		/* --d-xyz-hypot: calc(max(0, var(--d-xyz-hypot3)) - min(0, var(--d-xyz-hypot3)) + 1e-3); */
 
-		--s-x: var(--d-xyz-hypot-abs);
+		--s-x: var(--d-xyz-hypot);
 		/* --s-y: calc(0.125 * var(--d-xyz-hypot-abs)); */
 		--s-y: 30;
+		/* --s-y: calc(30 * (var(--z0) - var(--pos-z)) / var(--z0)); */
 
-		background-color: hsla(210deg, 100%, 50%, 50%);
+		background-color: hsla(var(--xy-ornt), 100%, 50%, 50%);
 		border-radius: calc(min(var(--sh-x), var(--sh-y)) * 1px);
 
-		--d-z-d-xyz: calc(0.707 * var(--d-z) / var(--d-xyz-hypot-abs));
-		--d-xy-d-xyz: calc(var(--d-xy-hypot-abs) / var(--d-xyz-hypot-abs));
-		transform:
-		matrix3d(
-			var(--d-xy-d-xyz), 0, var(--d-z-d-xyz), 0,
-			0, var(--d-xy-d-xyz), var(--d-z-d-xyz), 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1)
-		rotateZ(atan2(var(--d-y), var(--d-x)))
-		/* rotateZ(0.125turn) */
-			;
+		transform: rotateZ(var(--xy-ornt)) rotateY(calc(var(--z-ornt)));
 	}
 	.seg0 {
 		--pos0-x: var(--p0-x);
@@ -179,7 +188,6 @@
 	<script type="text/javascript">/*<![CDATA[*/
 	//to do: check performance difference of strict mode.
 	"use strict";
-	//this page uses several features known to be unsupported in any version of Internet Explorer. Use MS Edge at least.
 	//to do: use defer="true" or async in any script tag?
 	//  idea: have a "reload script" button?
 
