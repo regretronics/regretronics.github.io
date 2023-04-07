@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>CSS dynamic test</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		background-color: revert !important; /*Dark Reader workaround*/
+	}
+	body {
+		background-color: canvas;
+		/* background-color: hsl(calc(atan(1)), calc(100% * (atan(0.5) / (180deg))), 50%); */
+		color: canvastext;
+		color-scheme: dark;
+	}
+	.anim-container {
+		height: 16em;
+		overflow: auto;
+	}
+
+	@keyframes test {
+		0%   {
+			background-color: hsl(0deg, 75%, 37.5%);
+			color: white;
+			content: 'anim-0';
+			--x: 0;
+			--x1: 0em;
+			--x2: counter(test);
+			/* height: calc(20em + 5 * var(--x1)); */
+		}
+		25%  {
+			background-color: hsl(90deg, 75%, 37.5%);
+			color: black;
+			--x: 1;
+			--x1: 1em;
+			--x2: counter(test);
+			/* height: calc(20em + 5 * var(--x1)); */
+		}
+		50%  {
+			background-color: hsl(180deg, 75%, 37.5%);
+			color: white;
+			--x: 2;
+			--x1: 2em;
+			--x2: counter(test);
+			/* height: calc(20em + 5 * var(--x1)); */
+		}
+		100% {
+			background-color: hsl(270deg, 75%, 37.5%);
+			color: black;
+			--x: 3;
+			--x1: 3em;
+			--x2: counter(test);
+			/* height: calc(20em + 5 * var(--x1)); */
+		}
+	}
+	#elem1 {
+		width: 20em;
+		height: calc(5em + 1 * var(--x1));
+		background-color: darkgray;
+		animation-name: test;
+		animation-iteration-count: infinite;
+		/* animation-fill-mode: both; */
+		animation-fill-mode: backwards;
+		/* --x: -1; */
+		/* transition-property: animation-duration; */
+		/* transition-property: height; */
+		/* transition-property: --x, --x1, --x2; */
+		/* transition-property: var(--x), var(--x1), var(--x2); */
+		/* transition-duration: 1s; */
+	}
+	#elem1:not(:hover) {
+		/* animation-play-state: paused; */
+		animation-duration: 12s;
+		--x: -1;
+		--x1: -1em;
+	}
+	#elem1:hover {
+		/* background-color: darkmagenta; */
+		/* animation-play-state: running; */
+		animation-duration: 2s;
+		height: calc(5em - 1 * var(--x1));
+		--x: -1;
+		--x1: -1em;
+	}
+
+	/* @keyframes hues {
+		0% {
+			filter: hue-rotate(0deg);
+		}
+		100% {
+			filter: hue-rotate(360deg);
+		}
+	} */
+	@keyframes hues {
+		0% {
+			rotate: 0deg;
+			border-radius: 0%;
+		}
+		100% {
+			rotate: 360deg;
+			border-radius: 50%;
+		}
+	}
+	/* @keyframes hues {
+		0% {
+			filter: hue-rotate(0deg);
+		}
+		16.667% {
+			filter: hue-rotate(60deg);
+		}
+		33.333% {
+			filter: hue-rotate(120deg);
+		}
+		50% {
+			filter: hue-rotate(180deg);
+		}
+		66.667% {
+			filter: hue-rotate(240deg);
+		}
+		83.333% {
+			filter: hue-rotate(300deg);
+		}
+		100% {
+			filter: hue-rotate(360deg);
+		}
+	} */
+	.bg-color-wheel {
+		/* background-image: conic-gradient(red, orange, yellow, green, blue); */
+		/* background-image: conic-gradient(
+			hsl(360, 100%, 50%),
+			hsl(300, 100%, 50%),
+			hsl(240, 100%, 50%),
+			hsl(180, 100%, 50%),
+			hsl(120, 100%, 50%),
+			hsl( 60, 100%, 50%),
+			hsl(  0, 100%, 50%)
+		); */
+		background-image: conic-gradient(
+			hsl(360, 100%, 50%),
+			hsl(330, 100%, 50%),
+			hsl(300, 100%, 50%),
+			hsl(270, 100%, 50%),
+			hsl(240, 100%, 50%),
+			hsl(210, 100%, 50%),
+			hsl(180, 100%, 50%),
+			hsl(150, 100%, 50%),
+			hsl(120, 100%, 50%),
+			hsl( 90, 100%, 50%),
+			hsl( 60, 100%, 50%),
+			hsl( 30, 100%, 50%),
+			hsl(  0, 100%, 50%)
+		);
+	}
+	#elem2 {
+		width: 15em;
+		height: 15em;
+		/* background-color: red; */
+		animation-name: hues;
+		animation-iteration-count: infinite;
+		/* animation-fill-mode: both; */
+		/* animation-fill-mode: backwards; */
+		animation-duration: 6s;
+		animation-timing-function: linear;
+	}
+	#elem2:not(:hover) {
+		/* animation-play-state: paused; */
+		animation-direction: normal;
+	}
+	#elem2:hover {
+		/* background-color: darkmagenta; */
+		/* animation-play-state: running; */
+		animation-direction: alternate;
+		animation-timing-function: ease;
+		animation-duration: 2s;
+	}
+
+	#elem3 {
+		width: 15em;
+		height: 15em;
+		/* font-size: 8em; */
+		text-align: center;
+		animation-name: hues, hues;
+		animation-iteration-count: infinite, infinite;
+		animation-duration: 6s, 2s;
+		animation-timing-function: linear, linear;
+		animation-direction: normal, reverse;
+		animation-play-state: running, paused;
+		animation-composition: accumulate;
+		transition-property: transform;
+		transition-duration: 0.5s;
+	}
+	#elem3:not(:hover) {
+		transform: rotate(-15deg);
+	}
+	#elem3:hover {
+		animation-play-state: paused, running;
+		transform: rotate(15deg);
+	}
+
+	.blobCss {
+		background-image: radial-gradient(closest-side, hsl(30deg, 100%, 62.5%), transparent);
+	}
+
+	#l2Container {
+		/* background-image: -moz-element("#svgImgBg"); */
+		/* background-image: element("#svgImgBg"); */
+		/* background-color: hsla(0, 0%, 50%, 25%); */
+	}
+	svg#svgImgBg {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+	.layer {
+		translate: 0 0 calc(var(--pos-z) * 1px);
+
+		position: absolute;
+		/* left: 0;
+		top: 0; */
+		/* left: calc(50% * (1 - 1.5 * var(--z-absolute) / var(--z0)));
+		top: calc(50% * (1 - 1.5 * var(--z-absolute) / var(--z0))); */
+		margin: auto;
+		border-width: 0;
+		padding: 0;
+
+		width: 100%;
+		height: 100%;
+		/* width: calc(100% / (1 - 0.375 * var(--persp-scale)));
+		height: calc(100% / (1 - 0.375 * var(--persp-scale))); */
+
+		/* scale: calc(var(--z-absolute) / var(--z0)); */
+		/* scale: calc(var(--z0) / var(--z-absolute)); */
+		/* transform: scale(calc(var(--z0) / var(--z-absolute))); */
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	//to do: check performance difference of strict mode.
+	"use strict";
+	//to do: use defer="true" or async in any script tag?
+	//  idea: have a "reload script" button?
+
+	/* eval(getComputedStyle(document.querySelector(".pv0")).getPropertyValue("--z-scale").replaceAll("calc", "")) */
+
+	function txtPointCoordChanged(event) {
+		let elem = event.target;
+		if(!elem || !elem.dataset) return;
+		
+		/* let pindex = elem.dataset["pindex"];
+		let coord = elem.dataset["coord"];
+		if(!pindex || !coord) return;
+
+		let style = document.getElementById("l2Container").style;
+		style.setProperty("--p" + pindex.toString() + "-" + "xyz"[coord], parseFloat(elem.value)); */
+	}
+
+	function pageReady() {
+	}
+	function pageLoad() {
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+
+		/* let evt = new Event("input");
+		for(let pindex = 0; pindex < 2; pindex++)
+			for (let coord = 0; coord < 3; coord++) {
+				let elem = document.getElementById("txtP" + pindex.toString() + "_" + coord.toString());
+				elem.addEventListener("input", txtPointCoordChanged);
+				elem.dispatchEvent(evt);
+			} */
+	}
+
+	window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<div class="anim-container" id="container1">
+		<div class="anim-elem" id="elem1">test
+		</div>	
+	</div>
+	<div class="anim-container" id="container2">
+		<div class="anim-elem bg-color-wheel" id="elem2">test
+		</div>	
+	</div>
+	<div class="anim-container" id="container3">
+		<div class="anim-elem bg-color-wheel" id="elem3">test
+		</div>	
+	</div>
+</body>
+</html>
