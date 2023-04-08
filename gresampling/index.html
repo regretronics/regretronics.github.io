@@ -307,6 +307,25 @@
 		dBlur = txtDBlur.value;
 		deltaScale = txtDeltaScale.value;
 	}
+	function txtDistortionChanged(event) {
+		let elem = event.target;
+		if(!elem) return false;
+		//let val = elem.valueAsNumber;
+		let val = parseFloat(elem.value);
+		if(isNaN(val)) {
+			val = 1;
+			elem.classList.add("invalid");
+			elem.setCustomValidity("Input not recognized as a real number.");
+		} else {
+			elem.classList.remove("invalid");
+			elem.setCustomValidity("");
+		}
+		let magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
+		elem.step = step;
+		//if(elem == txtDistortion) {elem.min = val - 2 * step;}
+		//elem.min = val - 2 * Math.sign(val) * step;
+		//elem.reportValidity();
+	}
 
 	function pageReady() {
 		let evt = new Event("change");
@@ -347,6 +366,7 @@
 		chkSourceShrink.addEventListener("change", chkShrinkChanged);
 		
 		txtDistortion.addEventListener("input", txtParamsChanged);
+		txtDistortion.addEventListener("input", txtDistortionChanged);
 		txtDBlur.addEventListener("input", txtParamsChanged);
 		txtDeltaScale.addEventListener("input", txtParamsChanged);
 		cbxOutputScale.addEventListener("change", cbxScaleChanged);
@@ -364,7 +384,7 @@
 <body>
 	<p><strong>Input image:</strong> 
 		<input type="file" id="inImage" accept="image/*" /> 
-		<label for="txtImgURL">URL:</label> <input type="text" id="txtImgURL" value="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gabel_--_2021_--_7220.jpg/320px-Gabel_--_2021_--_7220.png" /><button id="btnImgLoad">Load</button>
+		<label for="txtImgURL">URL:</label> <input type="text" id="txtImgURL" value="https://technicore.bitbucket.io/gresampling/images-240px/Gabel_--_2021_--_7220_240_160.png" /><button id="btnImgLoad">Load</button>
 		<!-- <input type="checkbox" id="chkSourceCORS" /><label for="chkSourceCORS">Cross-origin (remote)</label> -->
 		<br /><label for="cbxURLPreset1">Presets (gaussian-downscaled):</label> <select id="cbxURLPreset1" data-remote="false">
 			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Gabel_--_2021_--_7220_240_160.png">images-240px/Gabel_--_2021_--_7220_240_160.png</option>
@@ -429,9 +449,9 @@
 	</p>
 
 	<p>Upscaling parameters:
-		<label for="txtDistortion">distortion exponent</label> <input id="txtDistortion" type="number" value="1.5" step="0.5" />, 
+		<label for="txtDistortion">distortion exponent</label> <input id="txtDistortion" type="number" value="1.5" min="0" step="0.5" />, 
 		<label for="txtDBlur"></label>neigh. diff. influence <input id="txtDBlur" type="number" value="-0.25" step="0.125" />, 
-		<label for="txtDeltaScale"></label>sharpness coef. <input id="txtDeltaScale" type="number" value="0.1875" step="0.0625" />. 
+		<label for="txtDeltaScale"></label>sharpness coef. <input id="txtDeltaScale" type="number" value="0.1875" min="0" step="0.0625" />. 
 		<button id="btnResample">Resample</button>
 	</p>
 	<p>Canvas resolution: 
