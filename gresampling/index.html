@@ -15,7 +15,7 @@
 		color-scheme: dark;
 	}
 
-	.imgContainer {
+	.imageContainer {
 		max-width: 100%;
 		max-height: 100vh;
 		overflow: auto;
@@ -50,8 +50,8 @@
 
 	var sourceC2d, outputC2d;
 	//detail: I'm putting height before width, because x is subordinate to y.
-	var sh, sw, imgSourceData;
-	var ch, cw, imgData;
+	var sh, sw, imageSourceData;
+	var ch, cw, imageData;
 	var frameCount = 0, renderTimeSum = 0;
 	var scalePixels = [];
 
@@ -74,10 +74,10 @@
 		sw = event.target.naturalWidth;
 
 		outSourceRes.textContent = `${sw}x${sh}`;
-		window.setTimeout(compEncode, 100, event.target);
+		window.setTimeout(encodeImage, 100, event.target);
 	}
 	const factor = 2, factorInv = 1 / factor, factorInv2 = factorInv * factorInv;
-	function compEncode(image) {
+	function encodeImage(image) {
 		//to do: ...OffscreenCanvas (not supported in Firefox as of 2022-09)
 		//const offscreen = new OffscreenCanvas(sw, sh);
 		if(!cnvSource || !cnvSource.getContext) return;
@@ -91,20 +91,31 @@
 		//sourceC2d.imageSmoothingEnabled = false;
 
 		sourceC2d.drawImage(image, 0, 0);
-		imgSourceData = sourceC2d.getImageData(0, 0, sw, sh);
+		imageSourceData = sourceC2d.getImageData(0, 0, sw, sh);
 
 		scalePixels = [];
-		//scalePixels.push(new Float32Array()); //question: change push() for unshift() (reverses the array order)?
+		//scalePixels.push(new Float32Array());
+		//question: change push() for unshift() (reverses the array order)?
 		const b8ToFloatScale = 1 / 255;
-		scalePixels.push({h: sh, w: sw, dataFloat: Float32Array.from(imgSourceData.data, x => x * b8ToFloatScale)}); //question: change push() for unshift() (reverses the array order)?
+		scalePixels.push({h: sh, w: sw, dataFloat: Float32Array.from(imageSourceData.data, x => x * b8ToFloatScale)});
 		//question: subtract 0.5 from color values? (currently no)
 
-		txtOutputResH.value = sh;
-		txtOutputResW.value = sw;
+		//Convert to gray
+		let buf = scalePixels[0].dataFloat;
+		for(let sy = 0, sy2, sx, sx2; sy < sh; sy++) {
+			sy2 = sw * sy;
+			for(sx = 0; sx < sw; sx++) {
+				sx2 = 4 * (sy2 + sx);
+				let gray = (buf[sx2] + buf[sx2 + 1] + buf[sx2 + 2]) / 3;
+				buf[sx2++] = gray;
+				buf[sx2++] = gray;
+				buf[sx2] = gray;
+			}
+		}
 
 		//subsampling (first round)
 		//h * w: number of pixels; 4 * h * w: number of color values (real number each value)
-		let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+		/* let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
 		let buf1 = scalePixels[0].dataFloat, buf2 = new Float32Array(4 * h2 * w2);
 		let i = scalePixels.push({h: h2, w: w2, dataFloat: buf2});
 		for(let sy = 0, sy2, y2, sx, sx2, x2; sy < sh; sy++) {
@@ -112,11 +123,11 @@
 			y2 = w2 * ((sy * factorInv)|0);
 			for(sx = 0; sx < sw; sx++) {
 				x2 = 4 * (y2 + (sx * factorInv)|0);
-				sx2 = 4 * (sy2 + sx);
+				sx2 = 4 * (sy2 + sx); */
 				/* buf2[x2++] += buf1[sx2++];
 				buf2[x2++] += buf1[sx2++];
 				buf2[x2++] += buf1[sx2++]; */
-				let gray = (buf1[sx2++] + buf1[sx2++] + buf1[sx2++]) / 3;
+				/* let gray = (buf1[sx2++] + buf1[sx2++] + buf1[sx2++]) / 3;
 				buf2[x2++] += gray;
 				buf2[x2++] += gray;
 				buf2[x2++] += gray;
@@ -124,26 +135,27 @@
 			}
 		}
 		for(let sy = 0; sy < 4 * h2 * w2; sy++)
-			buf2[sy] *= factorInv2;
+			buf2[sy] *= factorInv2; */
 
-		let t = Date.now();
-		compDecode();
-		t = Date.now() - t;
-		//renderTime = t;
-		//outFrameRenderT.innerText = t.toString();
+		//upscaleImage();
 	}
-	function compDecode() {
-		/*ch = sh;
-		cw = sw;
+	function upscaleImage() {
+		ch = factor * sh;
+		cw = factor * sw;
+		txtOutputResH.value = ch;
+		txtOutputResW.value = cw;
 		cnvOutput.height = ch;
 		cnvOutput.width = cw;
-		imageScaleUpdate(cbxOutputScale, cnvOutput);*/
-		canvasSizeUpdate();
-
-		let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+		//imageScaleUpdate(cbxOutputScale, cnvOutput);
+		//canvasSizeUpdate();
+		canvasSizeChanged();
+		
+		let t = Date.now();
+		//let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+		let h2 = sh, w2 = sw;
 		//Anisotropic upscaling (vertically first)
-		let stretchedArr = new Float32Array(4 * w2 * sh);
-		let buf1 = stretchedArr, buf2 = scalePixels[1].dataFloat;
+		let stretchedArr = new Float32Array(4 * w2 * ch);
+		let buf1 = stretchedArr, buf2 = scalePixels[0].dataFloat;
 		for(let y = 0, yRow, syRow, x, x2, sx2; y < h2; y++) {
 			yRow = w2 * y;
 			syRow = w2 * y * factor;
@@ -181,12 +193,15 @@
 			}
 		}
 
-		scalePixels[0].dataFloat = new Float32Array(scalePixels[0].dataFloat.length);
-		buf1 = scalePixels[0].dataFloat; buf2 = stretchedArr;
-		/*for(let sy = 0, yRow, y2, sx, x2, sx2; sy < sh; sy++) { //Loop over the expanded image.
-			yRow = sw * sy;
+		//scalePixels[0].dataFloat = new Float32Array(scalePixels[0].dataFloat.length);
+		//scalePixels[1].dataFloat = new Float32Array(4 * ch * cw);
+		//scalePixels.push({h: ch, w: cw, dataFloat: new Float32Array(4 * ch * cw)});
+		scalePixels[1] = {h: ch, w: cw, dataFloat: new Float32Array(4 * ch * cw)};
+		buf1 = scalePixels[1].dataFloat; buf2 = stretchedArr;
+		/*for(let sy = 0, yRow, y2, sx, x2, sx2; sy < ch; sy++) { //Loop over the expanded image.
+			yRow = cw * sy;
 			y2 = w2 * ((sy * factorInv)|0);
-			for(sx = 0; sx < sw; sx++) {
+			for(sx = 0; sx < cw; sx++) {
 				x2 = 4 * (y2 + (sx * factorInv)|0);
 				sx2 = 4 * (yRow + sx);
 				buf1[sx2] = buf2[x2];
@@ -195,53 +210,50 @@
 				buf1[sx2 + 3] = buf2[x2 + 3];
 			}
 		}*/
-		for(let y = 0, yRow, syRow, x, x2, sx2; y < sh; y++) {
+		for(let y = 0, yRow, syRow, x, x2, sx2; y < ch; y++) {
 			yRow = w2 * y;
-			syRow = sw * y;
+			syRow = cw * y;
 			for(x = 0; x < w2; x++) {
 				x2 = 4 * (yRow + x);
 				sx2 = 4 * (syRow + x * factor);
 
 				//Interpolation
 				//to do: Currently grayscale/monochromatic.
+				let x2a = defV, x2b = defV, x2a2 = defV, x2b2 = defV;
+				if(x > 0) x2a = buf2[x2 - 4];
+				if(x > 1) x2a2 = buf2[x2 - 4 * 2];
+				if(x < w2 - 1) x2b = buf2[x2 + 4];
+				if(x < w2 - 2) x2b2 = buf2[x2 + 4 * 2];
+				//let vdx = 0.125 * (x2b - x2a);
+				//let vdx = 0.25 * ((x2b - x2a) - 0.25 * (x2a - x2a2) - 0.25 * (x2b2 - x2b));
+				let dx = x2b - x2a, dxa = x2a - x2a2, dxb = x2b2 - x2b;
+				dx = Math.abs(dx) ** distInv * Math.sign(dx), dxa = Math.abs(dxa) ** distInv * Math.sign(dxa), dxb = Math.abs(dxb) ** distInv * Math.sign(dxb);
+				dx = dx + dBlur * (dxa + dxb);
+				dx = Math.abs(dx) ** dist * Math.sign(dx);
+				let vdx = deltaScale * dx;
 
-				//for(let dy = 0, dx, sx3; dy < factor; dy++) {
-					//for(dx = 0; dx < factor; dx++) {
-						//sx3 = sx2 + 4 * (sw * dy + dx);
-						let x2a = defV, x2b = defV, x2a2 = defV, x2b2 = defV;
-						if(x > 0) x2a = buf2[x2 - 4];
-						if(x > 1) x2a2 = buf2[x2 - 4 * 2];
-						if(x < w2 - 1) x2b = buf2[x2 + 4];
-						if(x < w2 - 2) x2b2 = buf2[x2 + 4 * 2];
-						//let vdx = 0.125 * (x2b - x2a);
-						//let vdx = 0.25 * ((x2b - x2a) - 0.25 * (x2a - x2a2) - 0.25 * (x2b2 - x2b));
-						const dist = 3, distInv = 1 / dist; //Non-linear distortion
-						let dx = x2b - x2a, dxa = x2a - x2a2, dxb = x2b2 - x2b;
-						dx = Math.abs(dx) ** distInv * Math.sign(dx), dxa = Math.abs(dxa) ** distInv * Math.sign(dxa), dxb = Math.abs(dxb) ** distInv * Math.sign(dxb);
-						dx = dx + dBlur * (dxa + dxb);
-						dx = Math.abs(dx) ** dist * Math.sign(dx);
-						let vdx = deltaScale * dx;
+				//sx3 = sx2 + 4 * cw * dy;
+				buf1[sx2] += buf2[x2] - vdx;
+				buf1[sx2 + 1] += buf2[x2 + 1] - vdx;
+				buf1[sx2 + 2] += buf2[x2 + 2] - vdx;
+				buf1[sx2 + 3] += buf2[x2 + 3] - 0;
 
-						//sx3 = sx2 + 4 * sw * dy;
-						buf1[sx2] += buf2[x2] - vdx;
-						buf1[sx2 + 1] += buf2[x2 + 1] - vdx;
-						buf1[sx2 + 2] += buf2[x2 + 2] - vdx;
-						buf1[sx2 + 3] += buf2[x2 + 3] - 0;
-
-						buf1[sx2 + 4] += buf2[x2] + vdx;
-						buf1[sx2 + 5] += buf2[x2 + 1] + vdx;
-						buf1[sx2 + 6] += buf2[x2 + 2] + vdx;
-						buf1[sx2 + 7] += buf2[x2 + 3] + 0;
-					//}
-				//}
+				buf1[sx2 + 4] += buf2[x2] + vdx;
+				buf1[sx2 + 5] += buf2[x2 + 1] + vdx;
+				buf1[sx2 + 6] += buf2[x2 + 2] + vdx;
+				buf1[sx2 + 7] += buf2[x2 + 3] + 0;
 			}
 		}
 
-		//imgData = outputC2d.createImageData(cw, ch);
-		let imgArray = Uint8ClampedArray.from(scalePixels[0].dataFloat, x => x * 255);
-		//var imgArray = new Uint8ClampedArray(4 * ch * cw);
-		imgData = new ImageData(imgArray, cw, ch);
-		outputC2d.putImageData(imgData, 0, 0);
+		//imageData = outputC2d.createImageData(cw, ch);
+		let imageArray = Uint8ClampedArray.from(scalePixels[1].dataFloat, x => x * 255);
+		t = Date.now() - t;
+		//console.debug(`Upsampling done in ${t.toString()} ms.`);
+		//renderTime = t;
+		outFrameRenderT.innerText = t.toString();
+		//var imageArray = new Uint8ClampedArray(4 * ch * cw);
+		imageData = new ImageData(imageArray, cw, ch);
+		outputC2d.putImageData(imageData, 0, 0);
 	}
 
 	function inImageChange(event) {
@@ -322,9 +334,7 @@
 		cbxOutputScale.addEventListener("change", cbxScaleChanged);
 		chkOutputShrink.addEventListener("change", chkShrinkChanged);
 
-		/*btnViewUpdate.addEventListener("click", viewUpdate);
-		btnStartUpdating.addEventListener("click", startUpdating);
-		btnStopUpdating.addEventListener("click", stopUpdating);*/
+		btnResample.addEventListener("click", upscaleImage);
 	}
 
 	window.addEventListener("DOMContentLoaded", pageLoad);
@@ -334,26 +344,26 @@
 <body>
 	<p ><strong>Input image:</strong> 
 		<input type="file" id="inImage" accept="image/*" /> 
-		<label for="txtImgURL">URL:</label> <input type="text" id="txtImgURL" value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/384px-Blue_Marble_2022.png" /><button id="btnImgLoad">Load</button>
+		<label for="txtImgURL">URL:</label> <input type="text" id="txtImgURL" value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/240px-Blue_Marble_2022.png" /><button id="btnImgLoad">Load</button>
 		<br /><label for="cbxURLPreset">Presets from WM Commons:</label> <select id="cbxURLPreset">
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/384px-Blue_Marble_2022.png">384px-Blue_Marble_2022.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/240px-Blue_Marble_2022.png">240px-Blue_Marble_2022.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.png">768px-Blue_Marble_2022.png</option>
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Marriott%27s_Grand_Chateau.jpg/384px-Marriott%27s_Grand_Chateau.png">384px-Marriott%27s_Grand_Chateau.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons//4/4d/Blue_Marble_2022.jpg">Blue_Marble_2022.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Marriott%27s_Grand_Chateau.jpg/159px-Marriott%27s_Grand_Chateau.png">159px-Marriott%27s_Grand_Chateau.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/a/aa/Marriott%27s_Grand_Chateau.jpg">Marriott%27s_Grand_Chateau.jpg</option>
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Ambigram_Fun_Nut.png/384px-Ambigram_Fun_Nut.png">384px-Ambigram_Fun_Nut.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Ambigram_Fun_Nut.png/320px-Ambigram_Fun_Nut.png">320px-Ambigram_Fun_Nut.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/2/24/Ambigram_Fun_Nut.png">Ambigram_Fun_Nut.png</option>
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg/384px-Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.png">384px-Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg/199px-Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.png">199px-Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/c/c1/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg">Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg</option>
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Roc_de_la_Vache_-_juillet_2022.jpg/384px-Roc_de_la_Vache_-_juillet_2022.png">384px-Roc_de_la_Vache_-_juillet_2022.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Roc_de_la_Vache_-_juillet_2022.jpg/320px-Roc_de_la_Vache_-_juillet_2022.png">320px-Roc_de_la_Vache_-_juillet_2022.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/7/7a/Roc_de_la_Vache_-_juillet_2022.jpg">Roc_de_la_Vache_-_juillet_2022.jpg</option>
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg/384px-Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.png">384px-Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg/320px-Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.png">320px-Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/2/2b/Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg">Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg</option>
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St_Philip_Neri_church_in_Vicenza_%283%29.jpg/384px-St_Philip_Neri_church_in_Vicenza_%283%29.png">384px-St_Philip_Neri_church_in_Vicenza_%283%29.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St_Philip_Neri_church_in_Vicenza_%283%29.jpg/320px-St_Philip_Neri_church_in_Vicenza_%283%29.png">320px-St_Philip_Neri_church_in_Vicenza_%283%29.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/4/43/St_Philip_Neri_church_in_Vicenza_%283%29.jpg">St_Philip_Neri_church_in_Vicenza_%283%29.jpg</option>
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gabel_--_2021_--_7220.jpg/384px-Gabel_--_2021_--_7220.png">384px-Gabel_--_2021_--_7220.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gabel_--_2021_--_7220.jpg/320px-Gabel_--_2021_--_7220.png">320px-Gabel_--_2021_--_7220.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/d/dd/Gabel_--_2021_--_7220.jpg">Gabel_--_2021_--_7220.jpg</option>
-			<!-- <option value="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Webb%27s_First_Deep_Field.jpg/384px-Webb%27s_First_Deep_Field.png">384px-Webb%27s_First_Deep_Field.png</option> -->
-			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Webb%27s_First_Deep_Field.tif/384px-Webb%27s_First_Deep_Field.png">384px-Webb%27s_First_Deep_Field.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Webb%27s_First_Deep_Field.tif/235px-Webb%27s_First_Deep_Field.png">235px-Webb%27s_First_Deep_Field.png</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/b/bf/Webb%27s_First_Deep_Field.jpg">Webb%27s_First_Deep_Field.jpg</option>
 			<option value="https://upload.wikimedia.org/wikipedia/commons/b/b5/Webb%27s_First_Deep_Field.tif">Webb%27s_First_Deep_Field.tif</option>
 		</select>
@@ -379,17 +389,18 @@
 			<option value="1_12">1:12</option>
 			<option value="1_16">1:16</option>
 		</select>. 
-		<input type="checkbox" id="chkSourceShrink" checked="true" data-image="imgSource" /><label for="chkSourceShrink">Shrink to fit.</label>
+		<input type="checkbox" id="chkSourceShrink" data-image="imgSource" /><label for="chkSourceShrink">Shrink to fit.</label>
 	</p>
-	<p class="imgContainer">
+	<p class="imageContainer">
 		<img id="imgSource" alt="(Original image placeholder)" crossorigin="anonymous" />
 		<canvas id="cnvSource" hidden="true"></canvas>
 	</p>
 
 	<p>Upscaling parameters:
-		<label for="txtDistortion">distortion exponent</label> <input id="txtDistortion" type="number" value="1" step="0.5" />, 
-		<label for="txtDBlur"></label>neigh. diff. influence <input id="txtDBlur" type="number" value="-0.25" step="0.125" />, 
-		<label for="txtDeltaScale"></label>sharpness coef. <input id="txtDeltaScale" type="number" value="0.125" step="0.0625" />, 
+		<label for="txtDistortion">distortion exponent</label> <input id="txtDistortion" type="number" value="2" step="0.5" />, 
+		<label for="txtDBlur"></label>neigh. diff. influence <input id="txtDBlur" type="number" value="-0.125" step="0.125" />, 
+		<label for="txtDeltaScale"></label>sharpness coef. <input id="txtDeltaScale" type="number" value="0.25" step="0.0625" />. 
+		<button id="btnResample">Resample</button>
 	</p>
 	<p>Canvas resolution: 
 		<datalist id="resList">
@@ -445,20 +456,13 @@
 			<option value="1_12">1:12</option>
 			<option value="1_16">1:16</option>
 		</select>. 
-		<input type="checkbox" id="chkOutputShrink" checked="true" data-image="cnvOutput" /><label for="chkOutputShrink">Shrink to fit.</label>
+		<input type="checkbox" id="chkOutputShrink" data-image="cnvOutput" /><label for="chkOutputShrink">Shrink to fit.</label>
 	</p>
-	<p class="imgContainer"><canvas id="cnvOutput" width="768" height="512">
+	<p class="imageContainer"><canvas id="cnvOutput" width="768" height="512">
 		If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.
 	</canvas></p>
-	<!-- <p>
-		<button id="btnViewUpdate">Update view</button>
-		<button id="btnStartUpdating">Start updating</button>
-		<button id="btnStopUpdating">Stop updating</button></p>
-	<p>Frame render time: 
-		<output id="outFrameRenderT">0</output> ms, 
-		avg <output id="outFrameRenderTAvg">0</output> ms. 
-		<output id="outFrameCount">0</output> frame(s) generated.
-	</p> -->
+	
+	<p>Upscaling time: <output id="outFrameRenderT">0</output> ms.</p>
 	<p>This page is an image resampling test, requiring HTML Canvas to work. It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer.</p>
 </body>
 </html>

@@ -31,10 +31,10 @@ function canvasSizeChanged() { //delete?
 	imageScaleUpdate(cbxOutputScale, cnvOutput);
 
 	//to do: use ImageData() constructor instead of CanvasRenderingContext2D.createImageData()?
-	/*imgData = outputC2d.createImageData(cw, ch);
+	/*imageData = outputC2d.createImageData(cw, ch);
 
 	//pre-fill alpha
-	const data = imgData.data, l = data.length;
+	const data = imageData.data, l = data.length;
 	for(let i = 3; i < l; i += 4)
 		data[i] = 255;*/
 }
