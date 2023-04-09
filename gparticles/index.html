@@ -29,12 +29,10 @@
 	#mainContainer {
 		width: 100%;
 		/* height: 87.5cqh; */
-		/* flex-basis: 100cqh; */
 		flex-grow: 1;
 		flex-shrink: 1;
 		box-sizing: border-box;
 		background-color: hsla(0, 0%, 100%, 12.5%);
-		/* background-color: rgba(0, 255, 255, 0.5); */
 		overflow: scroll;
 		--z0: 400;
 		perspective: calc(var(--z0) * 1px);
@@ -67,26 +65,7 @@
 		width: 100%;
 		height: 100%;
 		transform-style: preserve-3d;
-
-		/*--p0-x: 400;
-		--p0-y: 500;
-		--p0-z: -100;
-
-		--p1-x: 600;
-		--p1-y: 600;
-		--p1-z: 200;*/
-
-		--p0-x: 0;
-		--p0-y: 0;
-		--p0-z: -100;
-
-		--p1-x: 200;
-		--p1-y: 100;
-		--p1-z: 200;
 	}
-	/* #l2Container * {
-		transform-style: preserve-3d;
-	} */
 	svg#svgImgBg {
 		position: absolute;
 		left: 0;
@@ -106,22 +85,12 @@
 		/* background-size: calc(var(--z0) / var(--z-absolute)); */
 
 		position: absolute;
-		/* left: 0;
-		top: 0; */
-		/* left: calc(50% * (1 - 1.5 * var(--z-absolute) / var(--z0)));
-		top: calc(50% * (1 - 1.5 * var(--z-absolute) / var(--z0))); */
 		margin: auto;
 		border-width: 0;
 		padding: 0;
 
 		width: 100%;
 		height: 100%;
-		/* width: calc(100% / (1 - 0.375 * var(--persp-scale)));
-		height: calc(100% / (1 - 0.375 * var(--persp-scale))); */
-
-		/* scale: calc(var(--z-absolute) / var(--z0)); */
-		/* scale: calc(var(--z0) / var(--z-absolute)); */
-		/* transform: scale(calc(var(--z0) / var(--z-absolute))); */
 	}
 	.size0 {
 		--s-x: 80;
@@ -203,7 +172,7 @@
 
 		--s-x: var(--d-xyz-hypot);
 		/* --s-y: calc(0.125 * var(--d-xyz-hypot-abs)); */
-		--s-y: 30;
+		--s-y: 10;
 		/* --s-y: calc(30 * (var(--z0) - var(--pos-z)) / var(--z0)); */
 
 		/* --sat: calc(100% * (atan(1000) / 100deg)); */
@@ -228,18 +197,15 @@
 
 	/* eval(getComputedStyle(document.querySelector(".pv0")).getPropertyValue("--z-scale").replaceAll("calc", "")) */
 
-	function txtPointCoordChanged(event) {
-		let elem = event.target;
-		if(!elem || !elem.dataset) return;
+	function animFrame() {
+		updateDynamics(lastDT);
+		updatePosCSS();
+		let t = Date.now();
+		lastDT = (t - lastCycleTime) * 0.001;
+		lastCycleTime = t;
 		
-		let pindex = elem.dataset["pindex"];
-		let coord = elem.dataset["coord"];
-		if(!pindex || !coord) return;
-
-		let style = document.getElementById("l2Container").style;
-		style.setProperty("--p" + pindex.toString() + "-" + "xyz"[coord], parseFloat(elem.value));
+		requestAnimationFrame(animFrame);
 	}
-
 	function pageReady() {
 		resetWorld2();
 		recreateWorldElems();
@@ -250,22 +216,17 @@
 		//elem.scrollIntoView(scrollOptions);
 		//elem.scrollIntoView(scrollOptions);
 
-		setInterval(() => {
+		lastCycleTime = Date.now();
+		lastDT = 1 / 60;
+		requestAnimationFrame(animFrame);
+		/*setInterval(() => {
 			updateDynamics(1 / 16);
 			updatePosCSS();
-		}, 1000 / 16);
+		}, 1000 / 16);*/
 	}
 	function pageLoad() {
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
-
-		let evt = new Event("input");
-		for(let pindex = 0; pindex < 2; pindex++)
-			for (let coord = 0; coord < 3; coord++) {
-				let elem = document.getElementById("txtP" + pindex.toString() + "_" + coord.toString());
-				elem.addEventListener("input", txtPointCoordChanged);
-				elem.dispatchEvent(evt);
-			}
 	}
 
 	window.addEventListener("DOMContentLoaded", pageLoad);
@@ -290,31 +251,16 @@
 				<circle id="imgBlob" cx="0" cy="0" r="1" fill="url(#blobFill)" />
 			</svg> -->
 
-			<!-- <div style="--pos-z: -150" class="layer"></div>
-			<div style="--pos-z: -50" class="layer"></div>
-			<div style="--pos-z: 50" class="layer"></div>
-			<div style="--pos-z: 150" class="layer"></div> -->
-
-			<!-- <div class="blobCss size0 sizeVar pv0 posVar"></div>
-			<div class="seg0 sizeVar posVar seg"></div>
-			<div class="blobCss size0 sizeVar pv1 posVar"></div> -->
+			<!-- <div style="--pos-z: 0" class="layer"></div> -->
 
 			<!-- <div class="blobCss size0 posVar" data-x="10" data-y="10" data-z="10"></div>
 			<div class="blobCss size0 posVar" data-x="20" data-y="20" data-z="-10"></div> -->
 		</div>
 	</div>
 	<div id="bottomContainer">
-		<p>
-			<label for="txtP0_0">X(P0)</label> <input id="txtP0_0" type="number" value="0" step="50" data-pindex="0" data-coord="0" />, 
-			<label for="txtP0_1">Y(P0)</label> <input id="txtP0_1" type="number" value="0" step="50" data-pindex="0" data-coord="1" />, 
-			<label for="txtP0_2">Z(P0)</label> <input id="txtP0_2" type="number" value="-100" step="50" data-pindex="0" data-coord="2" />.
-		</p>
-		<p>
-			<label for="txtP1_0">X(P1)</label> <input id="txtP1_0" type="number" value="200" step="50" data-pindex="1" data-coord="0" />, 
-			<label for="txtP1_1">Y(P1)</label> <input id="txtP1_1" type="number" value="100" step="50" data-pindex="1" data-coord="1" />, 
-			<label for="txtP1_2">Z(P1)</label> <input id="txtP1_2" type="number" value="200" step="50" data-pindex="1" data-coord="2" />.
-		</p>
-		<p>This page is a particles test. It requires several advanced CSS3/4 features to work, and therefore a modern (c. 2023) browser.</p>
+		<main>
+			<p>This page is a particles test. It requires several advanced CSS3/4 features to work, and therefore a modern (c. 2023) browser.</p>
+		</main>
 	</div>
 </body>
 </html>
