@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Particles test</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		background-color: revert !important; /*Dark Reader workaround*/
+		height: 100%;
+	}
+	body {
+		background-color: canvas;
+		color: canvastext;
+		color-scheme: dark;
+
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		justify-content: center;
+		align-items: stretch;
+
+		box-sizing: border-box;
+		margin: 0em;
+		height: 100%;
+		/*height: 100vh;*/
+	}
+	#mainContainer {
+		width: 100%;
+		/* height: 87.5cqh; */
+		/* flex-basis: 100cqh; */
+		flex-grow: 1;
+		flex-shrink: 1;
+		box-sizing: border-box;
+		background-color: hsla(0, 0%, 100%, 12.5%);
+		/* background-color: rgba(0, 255, 255, 0.5); */
+		overflow: scroll;
+		--z0: 400;
+		perspective: calc(var(--z0) * 1px);
+	}
+	#bottomContainer {
+		flex-grow: 0;
+		flex-shrink: 0;
+		padding-inline: min(1em, 2cqi);
+	}
+
+	input[type=number] {
+		text-align: right;
+		width: 7ch;
+	}
+	#svgImgBlob, #svgImgBlobCircle {
+		display: none;
+	}
+	.blobCss {
+		background-image: radial-gradient(closest-side, hsl(30deg, 100%, 62.5%), transparent);
+	}
+	/* .blobSvg {
+		background-image: element("#blobFill");
+		background-image: -moz-element(#blobFill);
+	} */
+
+	#l2Container {
+		/* background-image: -moz-element("#svgImgBg"); */
+		/* background-image: element("#svgImgBg"); */
+		background-color: hsla(0, 0%, 50%, 25%);
+		width: 100%;
+		height: 100%;
+		transform-style: preserve-3d;
+
+		/*--p0-x: 400;
+		--p0-y: 500;
+		--p0-z: -100;
+
+		--p1-x: 600;
+		--p1-y: 600;
+		--p1-z: 200;*/
+
+		--p0-x: 0;
+		--p0-y: 0;
+		--p0-z: -100;
+
+		--p1-x: 200;
+		--p1-y: 100;
+		--p1-z: 200;
+	}
+	/* #l2Container * {
+		transform-style: preserve-3d;
+	} */
+	svg#svgImgBg {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+	.layer {
+		/* background-color: gray; */
+		/* opacity: 0.5; */
+		background-image: url("layer.svg");
+		background-repeat: repeat;
+		
+		translate: 0 0 calc(var(--pos-z) * 1px);
+		/* --z-absolute: calc(var(--z0) - var(--pos-z)); */
+		/* --persp-scale: calc(var(--z-absolute) / var(--z0)); */
+		/* background-size: calc(var(--z0) / var(--z-absolute)); */
+
+		position: absolute;
+		/* left: 0;
+		top: 0; */
+		/* left: calc(50% * (1 - 1.5 * var(--z-absolute) / var(--z0)));
+		top: calc(50% * (1 - 1.5 * var(--z-absolute) / var(--z0))); */
+		margin: auto;
+		border-width: 0;
+		padding: 0;
+
+		width: 100%;
+		height: 100%;
+		/* width: calc(100% / (1 - 0.375 * var(--persp-scale)));
+		height: calc(100% / (1 - 0.375 * var(--persp-scale))); */
+
+		/* scale: calc(var(--z-absolute) / var(--z0)); */
+		/* scale: calc(var(--z0) / var(--z-absolute)); */
+		/* transform: scale(calc(var(--z0) / var(--z-absolute))); */
+	}
+	.size0 {
+		--s-x: 80;
+		--s-y: 80;
+	}
+	.sizeVar {
+		width: calc(var(--s-x) * 1px);
+		height: calc(var(--s-y) * 1px);
+		--sh-x: calc(0.5 * var(--s-x));
+		--sh-y: calc(0.5 * var(--s-y));
+	}
+	.posVar {
+		position: absolute;
+		/* --pos-x: calc(attr(data-x number) * 1em);
+		--pos-y: calc(attr(data-y number) * 1em);
+		--pos-z: calc(attr(data-z number) * 1em); */
+		left: calc(50% - var(--sh-x) * 1px);
+		top: calc(50% - var(--sh-y) * 1px);
+		translate:
+			calc(var(--pos-x) * 1px)
+			calc(var(--pos-y) * 1px)
+			calc(var(--pos-z) * 1px);
+		/* left: 50%;
+		top: 50%;
+		translate:
+			calc((var(--pos-x) - var(--sh-x)) * 1px)
+			calc((var(--pos-y) - var(--sh-y)) * 1px)
+			calc(var(--pos-z) * 1px); */
+		/* transition-property: translate;
+		transition-duration: 0.25s; */
+	}
+	.posVar::after {
+		content: attr(class);
+		/* content: var(--pos-z); */
+		/* content: attr(data-z); */
+		/* content: calc(attr(data-z number) + 1); */
+		font-size: 0.5em;
+		text-align: center;
+		position: absolute;
+		/* height: 25%; */
+		/* margin-block: auto; */
+	}
+	.blobCss.posVar {
+		opacity: calc(clamp(0, 0.005 * (var(--z0) - var(--pos-z)), 1));
+	}
+
+	.seg {
+		/* --pos0-s: calc(1 / (var(--z0) - var(--pos0-z))); */ /* apparent size in perspective projection */
+		/* --pos1-s: calc(1 / (var(--z0) - var(--pos1-z))); */
+		/* --d2d-x: calc(var(--pos1-x) * var(--pos1-s) - var(--pos0-x) * var(--pos0-s)); */ /* vector between projected positions */
+		/* --d2d-y: calc(var(--pos1-y) * var(--pos1-s) - var(--pos0-y) * var(--pos0-s)); */
+
+		--pos-x: calc(0.5 * (var(--pos0-x) + var(--pos1-x)));
+		--pos-y: calc(0.5 * (var(--pos0-y) + var(--pos1-y)));
+		--pos-z: calc(0.5 * (var(--pos0-z) + var(--pos1-z)));
+
+		--d-x: calc(var(--pos1-x) - var(--pos0-x));
+		--d-y: calc(var(--pos1-y) - var(--pos0-y));
+		--d-z: calc(var(--pos1-z) - var(--pos0-z));
+
+		/* This is for the lack of abs() function support. */
+		--d-x-abs: calc(max(0, var(--d-x)) - min(0, var(--d-x)) + 1e-3);
+		--d-y-abs: calc(max(0, var(--d-y)) - min(0, var(--d-y)) + 1e-3);
+		--d-z-abs: calc(max(0, var(--d-z)) - min(0, var(--d-z)) + 1e-3);
+		
+		/* This is for the lack of hypot() and sqrt() function support. */
+		/* --d-xy-hypot: calc(var(--d-y) / sin(atan2(var(--d-y), var(--d-x)))); */ /* Yeah, I tested. May yield division by zero. */
+		--xy-ornt: calc(atan2(var(--d-y), var(--d-x)));
+		--d-xy-hypot1: calc(var(--d-x-abs) / cos(atan2(var(--d-y-abs), var(--d-x-abs))));
+		--d-xy-hypot2: calc(var(--d-y-abs) / cos(atan2(var(--d-x-abs), var(--d-y-abs))));
+		--d-xy-hypot: calc(0.5 * (var(--d-xy-hypot1) + var(--d-xy-hypot2)));
+		/* --d-xy-hypot: calc(max(0, var(--d-xy-hypot3)) - min(0, var(--d-xy-hypot3)) + 1e-3); */
+
+		--z-ornt: calc(-1 * atan2(var(--d-z), var(--d-xy-hypot)));
+		--d-xyz-hypot1: calc(var(--d-xy-hypot) / cos(var(--z-ornt)));
+		--d-xyz-hypot2: calc(var(--d-z-abs) / cos(atan2(var(--d-xy-hypot), var(--d-z-abs))));
+		--d-xyz-hypot: calc(0.5 * (var(--d-xyz-hypot1) + var(--d-xyz-hypot2)));
+		/* --d-xyz-hypot: calc(max(0, var(--d-xyz-hypot3)) - min(0, var(--d-xyz-hypot3)) + 1e-3); */
+
+		--s-x: var(--d-xyz-hypot);
+		/* --s-y: calc(0.125 * var(--d-xyz-hypot-abs)); */
+		--s-y: 30;
+		/* --s-y: calc(30 * (var(--z0) - var(--pos-z)) / var(--z0)); */
+
+		/* --sat: calc(100% * (atan(1000) / 100deg)); */
+		/* --sat: calc(atan(var(--d-xy-hypot)) / 300deg + 0.5); */
+		background-color: hsla(var(--xy-ornt), 100%, 50%, 50%);
+		/* background-color: hsla(var(--xy-ornt), calc(atan(100) / 4rad), 50%, 50%); */
+		/* background-color: hsla(var(--xy-ornt), calc(100% * var(--sat)), 50%, 50%); */
+		border-radius: calc(min(var(--sh-x), var(--sh-y)) * 1px);
+		transform: rotateZ(var(--xy-ornt)) rotateY(var(--z-ornt));
+		/* transition-property: transform;
+		transition-duration: 0.25s; */
+	}
+	/*]]>*/</style>
+	<style type="text/css" id="posStyles">/*<![CDATA[*/
+	/*]]>*/</style>
+	<script type="text/javascript" src="particles.js"></script>
+	<script type="text/javascript">/*<![CDATA[*/
+	//to do: check performance difference of strict mode.
+	"use strict";
+	//to do: use defer="true" or async in any script tag?
+	//  idea: have a "reload script" button?
+
+	/* eval(getComputedStyle(document.querySelector(".pv0")).getPropertyValue("--z-scale").replaceAll("calc", "")) */
+
+	function txtPointCoordChanged(event) {
+		let elem = event.target;
+		if(!elem || !elem.dataset) return;
+		
+		let pindex = elem.dataset["pindex"];
+		let coord = elem.dataset["coord"];
+		if(!pindex || !coord) return;
+
+		let style = document.getElementById("l2Container").style;
+		style.setProperty("--p" + pindex.toString() + "-" + "xyz"[coord], parseFloat(elem.value));
+	}
+
+	function pageReady() {
+		resetWorld2();
+		recreateWorldElems();
+
+		/* let elem = document.getElementById("mainContainer");
+		elem.scrollTo(0.25 * elem.scrollWidth, 0.25 * elem.scrollHeight); */
+		//let elem = document.querySelector(".seg0"), scrollOptions = {behavior: "smooth", block: "center", inline: "center"};
+		//elem.scrollIntoView(scrollOptions);
+		//elem.scrollIntoView(scrollOptions);
+
+		setInterval(() => {
+			updateDynamics(1 / 16);
+			updatePosCSS();
+		}, 1000 / 16);
+	}
+	function pageLoad() {
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+
+		let evt = new Event("input");
+		for(let pindex = 0; pindex < 2; pindex++)
+			for (let coord = 0; coord < 3; coord++) {
+				let elem = document.getElementById("txtP" + pindex.toString() + "_" + coord.toString());
+				elem.addEventListener("input", txtPointCoordChanged);
+				elem.dispatchEvent(evt);
+			}
+	}
+
+	window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<div id="mainContainer">
+		<div id="l2Container">
+			<!-- <svg id="svgSharedDefs" xmlns="http://www.w3.org/2000/svg" version="1.1" width="0" height="0">
+				<defs>
+					<radialGradient id="blobFill">
+						<stop offset="0%" stop-color="red" />
+						<stop offset="100%" stop-color="red" stop-opacity="0" />
+					</radialGradient>
+				</defs>
+			</svg> -->
+			<!-- <svg id="svgImgBlob" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" width="200px">
+				<rect id="imgBlob" x="0" y="0" width="1" height="1" fill="url(#blobFill)" />
+			</svg> -->
+			<!-- <svg id="svgImgBlobCircle" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-1 -1 2 2" width="200px">
+				<circle id="imgBlob" cx="0" cy="0" r="1" fill="url(#blobFill)" />
+			</svg> -->
+
+			<!-- <div style="--pos-z: -150" class="layer"></div>
+			<div style="--pos-z: -50" class="layer"></div>
+			<div style="--pos-z: 50" class="layer"></div>
+			<div style="--pos-z: 150" class="layer"></div> -->
+
+			<!-- <div class="blobCss size0 sizeVar pv0 posVar"></div>
+			<div class="seg0 sizeVar posVar seg"></div>
+			<div class="blobCss size0 sizeVar pv1 posVar"></div> -->
+
+			<!-- <div class="blobCss size0 posVar" data-x="10" data-y="10" data-z="10"></div>
+			<div class="blobCss size0 posVar" data-x="20" data-y="20" data-z="-10"></div> -->
+		</div>
+	</div>
+	<div id="bottomContainer">
+		<p>
+			<label for="txtP0_0">X(P0)</label> <input id="txtP0_0" type="number" value="0" step="50" data-pindex="0" data-coord="0" />, 
+			<label for="txtP0_1">Y(P0)</label> <input id="txtP0_1" type="number" value="0" step="50" data-pindex="0" data-coord="1" />, 
+			<label for="txtP0_2">Z(P0)</label> <input id="txtP0_2" type="number" value="-100" step="50" data-pindex="0" data-coord="2" />.
+		</p>
+		<p>
+			<label for="txtP1_0">X(P1)</label> <input id="txtP1_0" type="number" value="200" step="50" data-pindex="1" data-coord="0" />, 
+			<label for="txtP1_1">Y(P1)</label> <input id="txtP1_1" type="number" value="100" step="50" data-pindex="1" data-coord="1" />, 
+			<label for="txtP1_2">Z(P1)</label> <input id="txtP1_2" type="number" value="200" step="50" data-pindex="1" data-coord="2" />.
+		</p>
+		<p>This page is a particles test. It requires several advanced CSS3/4 features to work, and therefore a modern (c. 2023) browser.</p>
+	</div>
+</body>
+</html>

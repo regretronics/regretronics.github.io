@@ -237,44 +237,6 @@
 		/* transform: scale(calc(var(--z0) / var(--z-absolute))); */
 	}
 	/*]]>*/</style>
-	<script type="text/javascript">/*<![CDATA[*/
-	//to do: check performance difference of strict mode.
-	"use strict";
-	//to do: use defer="true" or async in any script tag?
-	//  idea: have a "reload script" button?
-
-	/* eval(getComputedStyle(document.querySelector(".pv0")).getPropertyValue("--z-scale").replaceAll("calc", "")) */
-
-	function txtPointCoordChanged(event) {
-		let elem = event.target;
-		if(!elem || !elem.dataset) return;
-		
-		/* let pindex = elem.dataset["pindex"];
-		let coord = elem.dataset["coord"];
-		if(!pindex || !coord) return;
-
-		let style = document.getElementById("l2Container").style;
-		style.setProperty("--p" + pindex.toString() + "-" + "xyz"[coord], parseFloat(elem.value)); */
-	}
-
-	function pageReady() {
-	}
-	function pageLoad() {
-		for(let s of document.querySelectorAll('[id]'))
-			window[s.id] = s;
-
-		/* let evt = new Event("input");
-		for(let pindex = 0; pindex < 2; pindex++)
-			for (let coord = 0; coord < 3; coord++) {
-				let elem = document.getElementById("txtP" + pindex.toString() + "_" + coord.toString());
-				elem.addEventListener("input", txtPointCoordChanged);
-				elem.dispatchEvent(evt);
-			} */
-	}
-
-	window.addEventListener("DOMContentLoaded", pageLoad);
-	window.addEventListener("load", pageReady);
-	/*]]>*/</script>
 </head>
 <body>
 	<div class="anim-container" id="container1">
