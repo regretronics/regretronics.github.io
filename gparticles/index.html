@@ -52,6 +52,7 @@
 	}
 	.blobCss {
 		background-image: radial-gradient(closest-side, hsl(30deg, 100%, 62.5%), transparent);
+		/* background-image: radial-gradient(closest-side, hsl(var(--pos-z), 100%, 62.5%), transparent); */
 	}
 	/* .blobSvg {
 		background-image: element("#blobFill");
@@ -224,9 +225,20 @@
 			updatePosCSS();
 		}, 1000 / 16);*/
 	}
+
+	function txtPixelScaleChanged(event) {
+		pixelScale = parseFloat(txtPixelScale.value);
+	}
+	function txtPerspZChanged(event) {
+		//getComputedStyle(mainContainer).getPropertyValue("--z0")
+		mainContainer.style.setProperty("--z0", parseFloat(txtPerspZ.value));
+	}
 	function pageLoad() {
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
+
+		txtPixelScale.addEventListener("input", txtPixelScaleChanged);
+		txtPerspZ.addEventListener("input", txtPerspZChanged);
 	}
 
 	window.addEventListener("DOMContentLoaded", pageLoad);
@@ -258,6 +270,10 @@
 		</div>
 	</div>
 	<div id="bottomContainer">
+		<p>
+			<label for="txtPixelScale">Scale (pixels):</label> <input id="txtPixelScale" type="number" value="200" step="25" />, 
+			<label for="txtPerspZ">perspective depth (pixels):</label> <input id="txtPerspZ" type="number" value="400" step="50" />.
+		</p>
 		<main>
 			<p>This page is a particles test. It requires several advanced CSS3/4 features to work, and therefore a modern (c. 2023) browser.</p>
 		</main>

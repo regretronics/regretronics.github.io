@@ -17,6 +17,7 @@ const v3One = [1, 1, 1];
 var lastCycleTime = 0;
 var lastDT = 0;
 var modelSpeed = 1;
+var pixelScale = 200;
 
 function recreateWorldElems() {
     for(let i = l2Container.childNodes.length - 1; i >= 0; i--) {
@@ -208,7 +209,7 @@ function updatePosCSS() {
     let style = document.getElementById("l2Container").style;
     for(let pindex = 0; pindex < particles.length; pindex++) {
         for(let coord = 0; coord < 3; coord++) {
-            style.setProperty("--p" + pindex.toString() + "-" + "xyz"[coord], 200 * particles[pindex].pos0[coord]);
+            style.setProperty("--p" + pindex.toString() + "-" + "xyz"[coord], pixelScale * particles[pindex].pos0[coord]);
         } }
     //console.debug("updateCSS");
 }
