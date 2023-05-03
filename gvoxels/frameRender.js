@@ -270,9 +270,9 @@ function frameRenderRaycasting(imgData, timeout) {
 				rayCrossingPoints[pPixel4 + 1] += firstCrossing * rayDirs[pPixel4 + 1];
 				rayCrossingPoints[pPixel4 + 2] += firstCrossing * rayDirs[pPixel4 + 2];
 
-				//to do: maybe pre-normalize vector length for rectilinear projection as well
-				depth = opacityFactor * firstCrossing * rayDirs[pPixel4 + 3]; //rectilinear projection
-				//depth = opacityFactor * firstCrossing; //globular projection has equal-length rays
+				//to do: ?maybe pre-normalize vector length for rectilinear projection as well
+				depth = firstCrossing * rayDirs[pPixel4 + 3]; //rectilinear projection
+				//depth = /* opacityFactor * */ firstCrossing; //globular projection has equal-length rays
 
 				let vx;
 				if(discreteCube[0] >= 0 && discreteCube[0] < worldRes[0] &&
