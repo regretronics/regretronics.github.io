@@ -1,4 +1,10 @@
 "use strict";
+
+var c2d, ch, cw, imgData;
+var canvasScale;
+var frameCount, renderTimeSum, segmentCount;
+var firstTimeout, updateCycleId, animating;
+
 //const requires ECMAScript 6/2015.
 //const scaleValues = {"1_1": 1; };
 
@@ -81,19 +87,20 @@ function viewUpdate() {
 	outFrameRenderT.innerText = t.toString();
 	//outFrameSegs.innerText = segmentCount.toString();
 	outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
-	outSegTime.innerText = (1000000.0 * t / segmentCount).toPrecision(5);
+	let segTime = 1000000.0 * t / segmentCount;
+	outSegTime.innerText = segTime.toPrecision(5);
 
 	frameCount++;
-	renderTimeSum += t;
+	renderTimeSum += segTime;
 	outFrameCount.innerText = frameCount.toString();
-	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toFixed(2);
+	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toPrecision(5);
 	
 	let i = Math.floor(3 * Math.random());
 	clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
 	
 	//console.debug("breakpoint");
 	//window.requestAnimationFrame(viewUpdate);
-	if(animating) updateCycleId = setTimeout(viewUpdate, timeout);
+	if(animating) updateCycleId = setTimeout(viewUpdate, Math.max(timeout - t, 0));
 }
 
 function startUpdating() {

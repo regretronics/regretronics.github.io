@@ -126,7 +126,7 @@ function worldVoxelsInit() {
 
 //--
 //virtual vectorial client context
-//under construction.
+//basically done.
 //var clientPos = new Float32Array(3), clientRot = new Float32Array(9);
 var clientPos = new Float32Array([0.5 * worldRes[0] + 0.5, 0.5 * worldRes[1] + 0.5, 0.5 * worldRes[2] + 0.5]);
 var clientSpcTransf = new Float32Array([
@@ -222,6 +222,11 @@ function frameRenderRaycasting(imgData, timeout) {
 	segmentCount = 0;
 	for(let z = 0, frameDone, y, x, pPixel; z < frameMaxLayers; z++) {
 		frameDone = true;
+		//let coordProjection = new Array(3);
+		//let coordProjection = new Float32Array(3), coordProjection2 = new Float32Array(3);
+		//let coordProjection = new Float32Array(8);
+		//let dRay = new Float32Array(4);
+		//let vx = new Float32Array(6);
 		for(y = 0, pPixel = 0; y < bufH; y++) {
 			if(rowDead[y]) {
 			//if(rowDead[y] !== 0) {
@@ -279,11 +284,13 @@ function frameRenderRaycasting(imgData, timeout) {
 				 discreteCube[1] >= 0 && discreteCube[1] < worldRes[1] &&
 				 discreteCube[2] >= 0 && discreteCube[2] < worldRes[2]) {
 					let pVoxel = (discreteCube[0] * worldRes[1] + discreteCube[1]) * worldRes[2] + discreteCube[2];
-					//to do: the order of coordinates was inverted between discreteCube and worldRes. try to remember why.
 					//vx = worldScan.slice(6 * pVoxel, 6 * pVoxel + 6);
+					//vx = worldScan.slice(pVoxel * 6, (pVoxel + 1) * 6);
+					//vx.set(worldScan.slice(pVoxel * 6, (pVoxel + 1) * 6), 0);
 					vx = worldScan.subarray(pVoxel * 6, (pVoxel + 1) * 6);
 				} else
 					vx = emptyVoxel; //to do: special code that fills the remaining transparency and kills the ray
+					//vx.set(emptyVoxel, 0);
 
 				/*alphaNew[0] = Math.exp(depth * vx[3]);
 				alphaNew[1] = Math.exp(depth * vx[4]);
@@ -293,7 +300,7 @@ function frameRenderRaycasting(imgData, timeout) {
 				alphaNew[2] = exp2_LUT(depth * vx[5]);
 				
 				let pAccumBuffer = pPixel * 6;
-				accumBuffer[pAccumBuffer] += accumBuffer[pAccumBuffer + 3] * (1.0 - alphaNew[0]) * vx[0];
+				accumBuffer[pAccumBuffer    ] += accumBuffer[pAccumBuffer + 3] * (1.0 - alphaNew[0]) * vx[0];
 				accumBuffer[pAccumBuffer + 1] += accumBuffer[pAccumBuffer + 4] * (1.0 - alphaNew[1]) * vx[1];
 				accumBuffer[pAccumBuffer + 2] += accumBuffer[pAccumBuffer + 5] * (1.0 - alphaNew[2]) * vx[2];
 				
