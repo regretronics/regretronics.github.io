@@ -104,11 +104,9 @@ function exp2_LUT(x) {
 
 //--
 //virtual vectorial world context
-//to do: review for optimization.
-var worldRes = new Int8Array([16, 16, 16]);
+var worldRes = new Int8Array([32, 32, 32]);
 //var worldRes = new Uint8Array([16, 16, 16]);
 //var worldRes = new Int32Array([16, 16, 16]);
-//to do: expand voxel format to color + alpha, 3 primaries.
 var worldScan = new Float32Array(worldRes[0] * worldRes[1] * worldRes[2] * 3 * 2);
 var emptyVoxel = new Float32Array([0.0, 0.5, 1.0, 0.5, 0.5, 0.5]);
 
@@ -128,9 +126,9 @@ function worldVoxelsInit() {
 
 //--
 //virtual vectorial client context
-//under construction, untested.
+//under construction.
 //var clientPos = new Float32Array(3), clientRot = new Float32Array(9);
-var clientPos = new Float32Array([8.5, 8.5, 8.5]);
+var clientPos = new Float32Array([0.5 * worldRes[0] + 0.5, 0.5 * worldRes[1] + 0.5, 0.5 * worldRes[2] + 0.5]);
 var clientSpcTransf = new Float32Array([
  1, 0, 0,
  0, 1, 0,
@@ -141,6 +139,10 @@ var rayDirs, rayDirsSign;
 function clientUpdateSpcTransf() {
 	//to do
 }
+
+//const opacityFactor = -6 / 65536;
+//const opacityFactor = -128 * Math.LOG2E / 256;
+const opacityFactor = -128 / 256;
 
 function viewRayDirsCompute_Rectilinear(ch, cw) {
 	let chInv = 1 / ch;
@@ -169,16 +171,16 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirs0[2] = clientSpcTransf[8] * 1.0 + clientSpcTransf[5] * yf;
 		
 		for(x = 0, pCol = 0; x < cw; x++) {
-			xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
+			//xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
 
 			pRayDirs = pRow + pCol;
-			rayDirs[pRayDirs] = rayDirs0[0] + rayDirsRow[pCol];
-			rayDirsSign[pRayDirs] = Math.sign(rayDirs[pRayDirs]);
+			rayDirs[pRayDirs    ] = rayDirs0[0] + rayDirsRow[pCol    ];
+			rayDirsSign[pRayDirs    ] = Math.sign(rayDirs[pRayDirs    ]);
 			rayDirs[pRayDirs + 1] = rayDirs0[1] + rayDirsRow[pCol + 1];
 			rayDirsSign[pRayDirs + 1] = Math.sign(rayDirs[pRayDirs + 1]);
 			rayDirs[pRayDirs + 2] = rayDirs0[2] + rayDirsRow[pCol + 2];
 			rayDirsSign[pRayDirs + 2] = Math.sign(rayDirs[pRayDirs + 2]);
-			rayDirs[pRayDirs + 3] = Math.sqrt(rayDirs[pRayDirs] * rayDirs[pRayDirs] + rayDirs[pRayDirs + 1] * rayDirs[pRayDirs + 1] + rayDirs[pRayDirs + 2] * rayDirs[pRayDirs + 2]);
+			rayDirs[pRayDirs + 3] = opacityFactor * Math.sqrt(rayDirs[pRayDirs] * rayDirs[pRayDirs] + rayDirs[pRayDirs + 1] * rayDirs[pRayDirs + 1] + rayDirs[pRayDirs + 2] * rayDirs[pRayDirs + 2]);
 			
 			pCol += 4;
 			//pRayDirsSign += 3;
@@ -188,17 +190,17 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 }
 
 var rayCrossingPoints, rayDead, rowDead, /*rayPosColor,*/ accumBuffer;
-var frameMaxLayers = 64;
-const rayTranspThreshold = 1 / 64;
+var frameMaxLayers = 96;
+const rayTranspThreshold = 1 / 96;
 const initialVoxel = new Float32Array([0, 0, 0, 1, 1, 1]);
-//const opacityFactor = -6 / 65536;
-const opacityFactor = -128 * Math.LOG2E / 256;
 
 function frameRenderRaycasting(imgData, timeout) {
 	let data = imgData.data;
 	let bufH = imgData.height|0, bufW = imgData.width|0;
-	let timeoutEnabled = (typeof(timeout) === "number"), tLimit;
-	if(timeoutEnabled) tLimit = Date.now() + timeout;
+	//let timeoutEnabled = (typeof(timeout) === "number"), tLimit;
+	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
+	//if(timeoutEnabled) tLimit = Date.now() + timeout;
+	if(timeoutEnabled) tStart = Date.now();
 	
 	//some initialization
 	for(let x = 0; x < bufH * bufW; x++)
@@ -312,7 +314,8 @@ function frameRenderRaycasting(imgData, timeout) {
 			if(!rowDead[y]) frameDone = false;
 			//if(rowDead[y] === 0) frameDone = false;
 		}
-		if(frameDone || (timeoutEnabled && Date.now() >= tLimit)) break;
+		//if(frameDone || (timeoutEnabled && Date.now() >= tLimit)) break;
+		if(frameDone || (timeoutEnabled && ((Date.now() - tStart) * (z + 2) / (z + 1)) > timeout)) break;
 	}
 
 	for(let x = 0; x < bufH * bufW; x++) {

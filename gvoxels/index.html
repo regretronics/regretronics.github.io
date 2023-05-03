@@ -38,7 +38,7 @@
 	var c2d, ch, cw, imgData;
 	var canvasScale = 1;
 	var frameCount = 0, renderTimeSum = 0, segmentCount = 0;
-	var firstTimeout = 0, updateCycleId = 0, animating = true;
+	var firstTimeout = 0, updateCycleId = 0, animating = false;
 	/*]]>*/</script>
 	<script type="text/javascript" src="frameRender.js"></script>
 	<script type="text/javascript" src="canvas.js"></script>
@@ -48,7 +48,8 @@
 		worldVoxelsInit();
 		//viewRayDirsCompute_Rectilinear(ch, cw);
 		viewUpdate();
-		firstTimeout = setTimeout(startUpdating, 5000);
+		animating = true;
+		firstTimeout = setTimeout(startUpdating, 4500);
 	}
 	function drawInit() {
 		if (mainCanvas.getContext) {
@@ -131,7 +132,7 @@
 	</select>. <label for="txtFrameTimeout">Frame timeout</label> <input id="txtFrameTimeout" type="number" value="500" step="5" />.
 	</p>
 	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
-	<p>Frame: render time <output id="outFrameRenderT">0</output> ms, <output id="outFrameSegs">0</output> segment(s). <output id="outFrameCount">0</output> frame(s) generated, avg <output id="outFrameRenderTAvg">0</output> ms.</p>
-	<p>This page is a graphical test, requiring HTML canvas to work. It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer. This page automatically starts an update cycle 5 seconds after loading, to ease performance testing.</p>
+	<p>Frame: render time <output id="outFrameRenderT">0</output> ms, avg. <output id="outFrameLayers">0</output> layer(s) (avg. <output id="outSegTime">0</output> ns/segment). <output id="outFrameCount">0</output> frame(s) generated, avg <output id="outFrameRenderTAvg">0</output> ms.</p>
+	<p>This page is a graphical test, requiring HTML canvas and modern JavaScript to work, and thus a modern browser. This page automatically starts an update cycle 5 seconds after loading, to ease performance testing.</p>
 </body>
 </html>

@@ -42,9 +42,12 @@ function canvasSizeUpdate() {
 		cw = newCW;
 		mainCanvas.height = ch;
 		mainCanvas.width = cw;
+		viewRayDirsCompute_Rectilinear(ch, cw);
 		canvasSizeChanged();
 	}
 }
+
+var timeout = 1000;
 
 function viewUpdate() {
 	if(!c2d) return;
@@ -53,7 +56,6 @@ function viewUpdate() {
 	//if(frameCount) kinematicsRefresh();
 
 	//frameRenderSimple(imgData);
-	viewRayDirsCompute_Rectilinear(ch, cw);
 	if(rayCrossingPoints == undefined || rayCrossingPoints.length != ch * cw * 4)
 		rayCrossingPoints = new Float32Array(ch * cw * 4);
 	if(rayDead == undefined || rayDead.length != ch * cw)
@@ -68,33 +70,40 @@ function viewUpdate() {
 	//	rayPosColor = new Float32Array(ch * cw * 3 * 2); //?
 	if(accumBuffer == undefined || accumBuffer.length != ch * cw * 3 * 2)
 		accumBuffer = new Float32Array(ch * cw * 3 * 2);
-	let timeout = parseFloat(txtFrameTimeout.value);
+	timeout = parseFloat(txtFrameTimeout.value);
 	if(isNaN(timeout)) timeout = 1000; //default
 
 	let t = Date.now();
 	frameRenderRaycasting(imgData, timeout);
-	let i = Math.floor(3 * Math.random());
-	clientPos[i] = (clientPos[i] + 0.25) % worldRes[i];
-	
 	c2d.putImageData(imgData, 0, 0);
 	t = Date.now() - t;
+
 	outFrameRenderT.innerText = t.toString();
-	outFrameSegs.innerText = segmentCount.toString();
+	//outFrameSegs.innerText = segmentCount.toString();
+	outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
+	outSegTime.innerText = (1000000.0 * t / segmentCount).toPrecision(5);
 
 	frameCount++;
 	renderTimeSum += t;
 	outFrameCount.innerText = frameCount.toString();
 	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toFixed(2);
 	
+	let i = Math.floor(3 * Math.random());
+	clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
+	
 	//console.debug("breakpoint");
 	//window.requestAnimationFrame(viewUpdate);
+	if(animating) updateCycleId = setTimeout(viewUpdate, timeout);
 }
 
 function startUpdating() {
 	firstTimeout = 0;
 	if(!animating || updateCycleId) return;
 	if(!(c2d && imgData)) return;
-	updateCycleId = setInterval(viewUpdate, 250);
+	//updateCycleId = setInterval(viewUpdate, 250);
+	timeout = parseFloat(txtFrameTimeout.value);
+	if(isNaN(timeout)) timeout = 1000; //default
+	updateCycleId = setTimeout(viewUpdate, timeout);
 }
 
 function stopUpdating() {
