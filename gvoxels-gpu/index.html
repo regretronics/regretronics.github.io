@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Canvas, G3d voxels</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		background-color: revert !important; /*dark reader workaround*/
+	}
+	body {
+		/* background-color: hsl(120, 25%, 12.5%); */
+		/* color: hsl(120, 0%, 87.5%); */
+		background-color: canvas;
+		color: canvastext;
+		color-scheme: dark;
+	}
+
+	#mainCanvas {
+		max-width: 100%;
+		max-height: 100vh;
+		object-fit: contain;
+	}
+	input[type="number"] {
+		width: 5em;
+		text-align: right;
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	//to do: check performance difference of strict mode.
+	"use strict";
+	//to do: use defer="true" or async in any script tag?
+	//  idea: have a "reload script" button?
+	//I'm putting height before width, because x (columns) is subordinate to y (rows).
+	var ch, cw, gpu, mainCanvas;
+	var canvasScale = 1;
+	var frameCount = 0, renderTimeSum = 0, segmentCount = 0;
+	var firstTimeout = 0, updateCycleId = 0, animating = false;
+
+	var rayDirs2d, rayDirsSigns;
+	var resetAccumBufferEmission, resetAccumBufferTransp, resetRayAlive, resetRayCrossingPoints;
+	var getDRay, nextCrossingPoints, pVoxel, newAlpha, nextAccumEmission, nextAccumTransp, nextRayAlive, renderAccum;
+	/*]]>*/</script>
+	<script type="text/javascript" src="gpu-browser.min.js"></script>
+	<!-- <script type="text/javascript" src="numerics.js"></script> -->
+	<script type="text/javascript" src="frameRender.js"></script>
+	<script type="text/javascript" src="canvas.js"></script>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	function restartGPU() {
+		let GPUClass = GPU;
+		if(typeof(GPUClass) !== "function") GPUClass = GPUClass.GPU;
+		gpu = new GPUClass();
+	}
+
+	function pageLoad() {
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+
+		cbxCanvasScale.addEventListener("change", canvasScaleChanged);
+
+		btnViewUpdate.addEventListener("click", viewUpdate);
+		btnStartUpdating.addEventListener("click", (evt) => {animating = true; startUpdating();});
+		btnStopUpdating.addEventListener("click", stopUpdating);
+	}
+	function pageReady() {
+		if(!GPU) {
+			btnViewUpdate.disabled = true;
+			btnStartUpdating.disabled = true;
+			cbxCanvasScale.disabled = true;
+			return;
+		}
+
+		worldVoxelsInit();
+		viewUpdate();
+
+		animating = true;
+		firstTimeout = setTimeout(startUpdating, 3000);
+	}
+
+	window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<div id="canvasContainer">
+		<canvas id="mainCanvas" width="384" height="256">
+			If you are reading this through a user agent, it does not support HTML canvas. This page can't work without canvas.
+		</canvas>
+	</div>
+	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" step="16" list="resList" />, 
+	<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" step="16" list="resList" />.
+	<datalist id="resList">
+		<option value="64" />
+		<option value="80" />
+		<option value="96" />
+		<option value="128" />
+		<option value="160" />
+		<option value="192" />
+		<option value="256" />
+		<option value="320" />
+		<option value="384" />
+		<option value="512" />
+		<option value="640" />
+		<option value="768" />
+		<option value="1024" />
+		<option value="1280" />
+		<option value="1536" />
+		<option value="2048" />
+		<option value="2560" />
+		<option value="3072" />
+	</datalist>
+	<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
+		<option value="16_1">16:1</option>
+		<option value="12_1">12:1</option>
+		<option value="8_1">8:1</option>
+		<option value="6_1">6:1</option>
+		<option value="4_1">4:1</option>
+		<option value="3_1">3:1</option>
+		<option value="2_1">2:1</option>
+		<option value="3_2">3:2</option>
+		<option value="1_1">1:1</option>
+		<option value="2_3">2:3</option>
+		<option value="1_2" selected="true">1:2</option>
+		<option value="1_3">1:3</option>
+		<option value="1_4">1:4</option>
+		<option value="1_6">1:6</option>
+		<option value="1_8">1:8</option>
+		<option value="1_12">1:12</option>
+		<option value="1_16">1:16</option>
+	</select>. <label for="txtFrameTimeout">Frame timeout</label> <input id="txtFrameTimeout" type="number" value="250" step="5" />.
+	</p>
+	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
+	<p>Frame: render time <output id="outFrameRenderT">0</output> ms, avg. <output id="outFrameLayers">0</output> layer(s) (avg. <output id="outSegTime">0</output> ns/segment). <output id="outFrameCount">0</output> frame(s) generated, avg. <output id="outSegTAvg">0</output> ns/segment.</p>
+	<p>This page is a graphical test, requiring HTML canvas and modern JavaScript to work, and thus a modern browser. This page automatically starts an update cycle 3 seconds after loading, to ease performance testing.</p>
+</body>
+</html>

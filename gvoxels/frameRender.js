@@ -26,81 +26,15 @@ function frameRenderSimple(imgData) {
 	}*/
 }
 
-//exp2 look-up table acceleration.
-const exp2LUTScale = 64, exp2LUTSize = exp2LUTScale;
+/* const exp2LUTScale = 64, exp2LUTSize = exp2LUTScale;
 var exp2LUT;
-const _2to30 = 1 << 30, _2toNeg30 = 1 / _2to30;
 
 function exp2LUTInit() {
 	for(let i = 0; i < exp2LUTSize; i++)
 		exp2LUT[i] = Math.exp(Math.LN2 * i / exp2LUTScale);
 }
 exp2LUT = new Float32Array(exp2LUTSize);
-exp2LUTInit();
-
-function exp2_LUT_old(x) {
-	if(typeof(x) === "boolean") x = Number(x);
-	if(typeof(x) !== "number") return NaN;
-	if(x < -30) return 0;
-	if(x > 30) return Infinity;
-
-	let xInt = Math.floor(x);
-	let powOf2 = (xInt >= 0 ? (1 << xInt) : (1 / (1 << (-xInt))));
-	return powOf2 * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
-}
-function exp2_LUT_old2(x) {
-	if(typeof(x) === "boolean") x = Number(x);
-	if(typeof(x) !== "number") return NaN;
-	if(x === -Infinity) return 0;
-	if(x === Infinity) return Infinity;
-
-	let powOf2 = 1;
-	if(x > 30)
-		do {
-			powOf2 *= _2to30;
-			x += -30;
-		} while(x > 30);
-	else
-		while(x < -30) {
-			powOf2 *= _2toNeg30;
-			x += 30;
-		}
-
-	let xInt = Math.floor(x);
-	powOf2 *= (xInt >= 0 ? (1 << xInt) : (1 / (1 << (-xInt))));
-	return powOf2 * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
-}
-function exp2_LUT_old3(x) {
-	if(typeof(x) === "boolean") x = Number(x);
-	if(typeof(x) !== "number") return NaN;
-	if(x === -Infinity) return 0;
-	if(x === Infinity) return Infinity;
-	let isNeg = x < 0;
-	x = Math.abs(x);
-
-	let exp = 1;
-	while(x > 30) {
-		exp *= _2to30;
-		x += -30;
-	}
-
-	let xInt = Math.floor(x);
-	exp *= (1 << xInt) * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
-	if(isNeg) exp = 1 / exp;
-	return exp;
-}
-function exp2_LUT(x) {
-	let isNeg = x < 0;
-	x = Math.abs(x);
-
-	let xInt = Math.floor(x);
-	//let exp = (1 << xInt) * exp2LUT[Math.floor((x - xInt) * exp2LUTSize)];
-	let exp = (1 << xInt) * exp2LUT[((x - xInt) * exp2LUTSize)|0];
-	if(isNeg) exp = 1 / exp;
-	return exp;
-}
-
-//to do: multithreaded rendering
+exp2LUTInit(); */
 
 //--
 //virtual vectorial world context
@@ -194,6 +128,7 @@ var frameMaxLayers = 96;
 const rayTranspThreshold = 1 / 96;
 const initialVoxel = new Float32Array([0, 0, 0, 1, 1, 1]);
 
+//to do: multithreaded rendering
 function frameRenderRaycasting(imgData, timeout) {
 	let data = imgData.data;
 	let bufH = imgData.height|0, bufW = imgData.width|0;
@@ -295,9 +230,12 @@ function frameRenderRaycasting(imgData, timeout) {
 				/*alphaNew[0] = Math.exp(depth * vx[3]);
 				alphaNew[1] = Math.exp(depth * vx[4]);
 				alphaNew[2] = Math.exp(depth * vx[5]);*/
-				alphaNew[0] = exp2_LUT(depth * vx[3]);
+				/* alphaNew[0] = exp2_LUT(depth * vx[3]);
 				alphaNew[1] = exp2_LUT(depth * vx[4]);
-				alphaNew[2] = exp2_LUT(depth * vx[5]);
+				alphaNew[2] = exp2_LUT(depth * vx[5]); */
+				alphaNew[0] = exp2_fast(depth * vx[3]);
+				alphaNew[1] = exp2_fast(depth * vx[4]);
+				alphaNew[2] = exp2_fast(depth * vx[5]);
 				
 				let pAccumBuffer = pPixel * 6;
 				accumBuffer[pAccumBuffer    ] += accumBuffer[pAccumBuffer + 3] * (1.0 - alphaNew[0]) * vx[0];

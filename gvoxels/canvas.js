@@ -93,7 +93,7 @@ function viewUpdate() {
 	frameCount++;
 	renderTimeSum += segTime;
 	outFrameCount.innerText = frameCount.toString();
-	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toPrecision(5);
+	outSegTAvg.innerText = (renderTimeSum / frameCount).toPrecision(5);
 	
 	let i = Math.floor(3 * Math.random());
 	clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
