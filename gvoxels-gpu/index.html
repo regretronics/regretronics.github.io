@@ -17,7 +17,7 @@
 		color-scheme: dark;
 	}
 
-	#mainCanvas {
+	#canvasContainer canvas {
 		max-width: 100%;
 		max-height: 100vh;
 		object-fit: contain;
@@ -35,12 +35,8 @@
 	//I'm putting height before width, because x (columns) is subordinate to y (rows).
 	var ch, cw, gpu, mainCanvas;
 	var canvasScale = 1;
-	var frameCount = 0, renderTimeSum = 0, segmentCount = 0;
+	var frameCount = 0, renderTimeSum = 0, /* segmentCount = 0 */layerCount = 0;
 	var firstTimeout = 0, updateCycleId = 0, animating = false;
-
-	var rayDirs2d, rayDirsSigns;
-	var resetAccumBufferEmission, resetAccumBufferTransp, resetRayAlive, resetRayCrossingPoints;
-	var getDRay, nextCrossingPoints, pVoxel, newAlpha, nextAccumEmission, nextAccumTransp, nextRayAlive, renderAccum;
 	/*]]>*/</script>
 	<script type="text/javascript" src="gpu-browser.min.js"></script>
 	<!-- <script type="text/javascript" src="numerics.js"></script> -->
@@ -53,6 +49,9 @@
 		let GPUClass = GPU;
 		if(typeof(GPUClass) !== "function") GPUClass = GPUClass.GPU;
 		gpu = new GPUClass();
+		//Warning: CPU mode doesn't seem to be multithreaded.
+		//Warning: CPU mode doesn't support Texture.delete() and Texture.toArray().
+		//gpu = new GPUClass({ mode: "cpu" });
 	}
 
 	function pageLoad() {

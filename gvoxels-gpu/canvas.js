@@ -37,32 +37,13 @@ function canvasSizeCheck() {
 		gpu.destroy();
 		gpu = undefined;
 	}
-	//mainCanvas.height = ch;
-	//mainCanvas.width = cw;
 	restartGPU();
 	if(gpu) {
 		registerKernels();
+
 		if(canvasContainer.firstElementChild) canvasContainer.firstElementChild.remove();
 		mainCanvas = renderAccum.canvas;
 		canvasContainer.appendChild(mainCanvas);
-
-		let size = [cw, ch];
-		rayDirs2d.setOutput(size);
-		rayDirsSigns.setOutput(size);
-
-		resetAccumBufferEmission.setOutput(size);
-		resetAccumBufferTransp.setOutput(size);
-		resetRayAlive.setOutput(size);
-		resetRayCrossingPoints.setOutput(size);
-
-		getDRay.setOutput(size);
-		nextCrossingPoints.setOutput(size);
-		pVoxel.setOutput(size);
-		newAlpha.setOutput(size);
-		nextAccumEmission.setOutput(size);
-		nextAccumTransp.setOutput(size);
-		nextRayAlive.setOutput(size);
-		renderAccum.setOutput(size);
 
 		viewRayDirsCompute_Rectilinear(ch, cw);
 	}
@@ -86,8 +67,10 @@ function viewUpdate() {
 
 	outFrameRenderT.innerText = t.toFixed(1);
 	//outFrameSegs.innerText = segmentCount.toString();
-	outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
-	let segTime = 1000000.0 * t / segmentCount; //milliseconds to nanoseconds
+	//outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
+	outFrameLayers.innerText = layerCount.toString();
+	//let segTime = 1000000.0 * t / segmentCount; //milliseconds to nanoseconds
+	let segTime = 1000000.0 * t / (layerCount * ch * cw); //milliseconds to nanoseconds
 	outSegTime.innerText = segTime.toPrecision(5);
 
 	frameCount++;
