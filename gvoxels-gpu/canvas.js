@@ -25,11 +25,11 @@ function canvasSizeCheck() {
 	let newCH = parseInt(txtResH.value);
 	let newCW = parseInt(txtResW.value);
 	//isNaN requires ECMAScript 6/2015.
-	if(isNaN(newCH) || isNaN(newCW)) return;
+	if(isNaN(newCH) || isNaN(newCW)) return false;
 	newCH |= 0;
 	newCW |= 0;
-	if(newCH <= 0 || newCW <= 0) return;
-	if(newCH === ch && newCW === cw) return; 
+	if(newCH <= 0 || newCW <= 0) return false;
+	if(newCH === ch && newCW === cw) return false; 
 
 	ch = newCH;
 	cw = newCW;
@@ -40,6 +40,7 @@ function canvasSizeCheck() {
 	restartGPU();
 	if(gpu) {
 		registerKernels();
+		worldVoxelsInit();
 
 		if(canvasContainer.firstElementChild) canvasContainer.firstElementChild.remove();
 		mainCanvas = renderAccum.canvas;
@@ -48,6 +49,7 @@ function canvasSizeCheck() {
 		viewRayDirsCompute_Rectilinear(ch, cw);
 	}
 	canvasScaleChanged();
+	return true;
 }
 
 const defTimeout = 1000;
@@ -81,7 +83,6 @@ function viewUpdate() {
 	let i = Math.floor(3 * Math.random());
 	clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
 	
-	//console.debug("breakpoint");
 	//window.requestAnimationFrame(viewUpdate);
 	if(animating) updateCycleId = setTimeout(viewUpdate, Math.max(timeout - t, 0));
 }
