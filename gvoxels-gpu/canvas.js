@@ -33,20 +33,37 @@ function canvasSizeCheck() {
 
 	ch = newCH;
 	cw = newCW;
-	if(gpu) {
-		gpu.destroy();
-		gpu = undefined;
-	}
+	releaseGPU();
 	restartGPU();
 	if(gpu) {
-		registerKernels();
-		worldVoxelsInit();
+		isBufferSecond = false;
+		generalKernels = registerKernels();
+		//worldVoxelsInit();
+		let mazeMap = generalKernels.createMaze(mazeFillThres);
+		fieldMap = generalKernels.mapField_maze(mazeMap);
+		mazeMap.delete();
 
 		if(canvasContainer.firstElementChild) canvasContainer.firstElementChild.remove();
-		mainCanvas = renderAccum.canvas;
+		//mainCanvas = generalKernels.renderAccum.canvas;
+		//mainCanvas = rcKernels0.rayCaster.canvas;
+		mainCanvas = gpu.canvas;
 		canvasContainer.appendChild(mainCanvas);
 
 		viewRayDirsCompute_Rectilinear(ch, cw);
+		texBuffer0 = {};
+		texBuffer1 = {};
+
+		//force-compile
+		//frameRenderRaycasting(ch, cw, 0);
+		//frameRenderRaycasting(ch, cw, 0);
+		//frameRenderRaycasting_kernelMap(0);
+		//frameRenderRaycasting_kernelMap(0);
+		frameRenderRaycasting_mono();
+		/* frameRenderRaycasting_combinedKernel(0);
+		frameRenderRaycasting_combinedKernel(0); */
+
+		mainCanvas.height = ch;
+		mainCanvas.width = cw;
 	}
 	canvasScaleChanged();
 	return true;
@@ -54,6 +71,7 @@ function canvasSizeCheck() {
 
 const defTimeout = 1000;
 var timeout = defTimeout;
+var clientSpeed = new Float32Array([0.0, 0.0, 0.0, 0.0]);
 
 function viewUpdate() {
 	canvasSizeCheck();
@@ -64,8 +82,12 @@ function viewUpdate() {
 
 	let t = performance.now();
 	//frameRenderRaycasting(mainCanvas, timeout);
-	frameRenderRaycasting(ch, cw, timeout);
+	//frameRenderRaycasting(/* ch, cw, */ timeout);
+	//frameRenderRaycasting_kernelMap(/* ch, cw, */ timeout);
+	//frameRenderRaycasting_combinedKernel(timeout);
+	frameRenderRaycasting_mono();
 	t = performance.now() - t;
+	layerCount = frameMaxLayers;
 
 	outFrameRenderT.innerText = t.toFixed(1);
 	//outFrameSegs.innerText = segmentCount.toString();
@@ -80,8 +102,18 @@ function viewUpdate() {
 	outFrameCount.innerText = frameCount.toString();
 	outSegTAvg.innerText = (renderTimeSum / frameCount).toPrecision(5);
 	
-	let i = Math.floor(3 * Math.random());
-	clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
+	//Update virtual parameters
+	let i = Math.floor(2 * Math.random());
+	/* clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
+	clientPos[2] = (clientPos[2] + 2.0 / 16.0) % worldRes[2]; */
+	clientSpeed[i] += 4.0 / 64.0 * (Math.random() - 0.5);
+	clientSpeed[2] = 4.0 / 16.0;
+	const dt = 1.0 / 4.0;
+	clientPos[0] = (clientPos[0] + dt * clientSpeed[0]) % worldRes[0];
+	clientPos[1] = (clientPos[1] + dt * clientSpeed[1]) % worldRes[1];
+	clientPos[2] = (clientPos[2] + dt * clientSpeed[2]) % worldRes[2];
+
+	//particles.pos[0] += 0.25 / Math.E;
 	
 	//window.requestAnimationFrame(viewUpdate);
 	if(animating) updateCycleId = setTimeout(viewUpdate, Math.max(timeout - t, 0));

@@ -37,6 +37,7 @@
 	var canvasScale = 1;
 	var frameCount = 0, renderTimeSum = 0, /* segmentCount = 0 */layerCount = 0;
 	var firstTimeout = 0, updateCycleId = 0, animating = false;
+	var particles;
 	/*]]>*/</script>
 	<script type="text/javascript" src="gpu-browser.min.js"></script>
 	<!-- <script type="text/javascript" src="numerics.js"></script> -->
@@ -44,6 +45,24 @@
 	<script type="text/javascript" src="canvas.js"></script>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
+	function initParticles() {
+		particles = {
+			count: 2,
+			r: new Float32Array([3.0 / 64.0 *  worldRes[0], 2.0 / 64.0 *  worldRes[0]]),
+			pos: new Float32Array([
+				0.5 * worldRes[0], 0.5 * worldRes[1], 0.5 * worldRes[2], 0.0,
+				0.4375 * worldRes[0], 0.5 * worldRes[1], 0.5 * worldRes[2], 0.0
+			]),
+			emission: new Float32Array([
+				1.0, 1.0, 1.0, 0.0,
+				1.0, 0.5, 0.0, 0.0
+			]),
+			alpha: new Float32Array([ //to do: review name convention (transparency vs. opacity vs. alpha)
+				1.0, 1.0, 1.0, 0.0,
+				2.0, 2.0, 2.0, 0.0
+			])
+		};
+	}
 
 	function restartGPU() {
 		let GPUClass = GPU;
@@ -52,6 +71,43 @@
 		//Warning: CPU mode doesn't seem to be multithreaded.
 		//Warning: CPU mode doesn't support Texture.delete() and Texture.toArray().
 		//gpu = new GPUClass({ mode: "cpu" });
+	}
+	function releaseKernelCollection(obj) {
+		if(!obj) return;
+		for(const prop in obj)
+			if(Object.hasOwnProperty.call(obj, prop)) {
+				if(obj[prop].destroy) obj[prop].destroy();
+				obj[prop] = undefined;
+			}
+	}
+	function releaseTextureCollection(obj) { //to do: use for other textures
+		if(!obj) return;
+		for(const prop in obj)
+			if(Object.hasOwnProperty.call(obj, prop)) {
+				if(obj[prop].delete) obj[prop].delete();
+				obj[prop] = undefined;
+			}
+	}
+	function releaseGPU() {
+		//Some textures and arrays
+		if(typeof(rayDirsCol) !== "undefined") rayDirsCol = null;
+		if(typeof(rayDirsRow) !== "undefined") rayDirsRow = null;
+		if(typeof(texRayDirs) !== "undefined") { texRayDirs?.delete(); texRayDirs = null; }
+		if(typeof(texRayDirsSign) !== "undefined") { texRayDirsSign?.delete(); texRayDirsSign = null; }
+		if(typeof(fieldMap) !== "undefined") releaseTextureCollection(fieldMap);
+		if(typeof(texBuffer0) !== "undefined") releaseTextureCollection(texBuffer0);
+		if(typeof(texBuffer1) !== "undefined") releaseTextureCollection(texBuffer1);
+
+		if(typeof(generalKernels) !== "undefined") releaseKernelCollection(generalKernels);
+		if(typeof(kernel0) !== "undefined") releaseKernelCollection(kernel0);
+		if(typeof(kernel1) !== "undefined") releaseKernelCollection(kernel1);
+
+		/* if(typeof(resetState) !== "undefined") resetState = null; */
+		//if(typeof(rayCastingCycle) !== "undefined") { rayCastingCycle.destroy(); rayCastingCycle = null; }
+
+		if(!gpu) return;
+		gpu.destroy();
+		gpu = undefined;
 	}
 
 	function pageLoad() {
@@ -72,6 +128,7 @@
 			return;
 		}
 
+		//initParticles();
 		//worldVoxelsInit();
 		viewUpdate();
 
@@ -85,12 +142,12 @@
 </head>
 <body>
 	<div id="canvasContainer">
-		<canvas id="mainCanvas" width="384" height="256">
+		<canvas id="mainCanvas">
 			If you are reading this through a user agent, it does not support HTML canvas. This page can't work without canvas.
 		</canvas>
 	</div>
-	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" step="16" list="resList" />, 
-	<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" step="16" list="resList" />.
+	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="768" step="16" list="resList" />, 
+	<label for="txtResH">height</label> <input id="txtResH" type="number" value="512" step="16" list="resList" />.
 	<datalist id="resList">
 		<option value="64" />
 		<option value="80" />
@@ -110,6 +167,10 @@
 		<option value="2048" />
 		<option value="2560" />
 		<option value="3072" />
+		<option value="4096" />
+		<option value="5120" />
+		<option value="6144" />
+		<option value="8192" />
 	</datalist>
 	<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
 		<option value="16_1">16:1</option>
@@ -120,16 +181,16 @@
 		<option value="3_1">3:1</option>
 		<option value="2_1">2:1</option>
 		<option value="3_2">3:2</option>
-		<option value="1_1">1:1</option>
+		<option value="1_1" selected="true">1:1</option>
 		<option value="2_3">2:3</option>
-		<option value="1_2" selected="true">1:2</option>
+		<option value="1_2">1:2</option>
 		<option value="1_3">1:3</option>
 		<option value="1_4">1:4</option>
 		<option value="1_6">1:6</option>
 		<option value="1_8">1:8</option>
 		<option value="1_12">1:12</option>
 		<option value="1_16">1:16</option>
-	</select>. <label for="txtFrameTimeout">Frame timeout</label> <input id="txtFrameTimeout" type="number" value="250" step="5" />.
+	</select>. <label for="txtFrameTimeout">Frame timeout</label> <input id="txtFrameTimeout" type="number" value="100" step="5" />.
 	</p>
 	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
 	<p>Frame: render time <output id="outFrameRenderT">0</output> ms, avg. <output id="outFrameLayers">0</output> layer(s) (avg. <output id="outSegTime">0</output> ns/segment). <output id="outFrameCount">0</output> frame(s) generated, avg. <output id="outSegTAvg">0</output> ns/segment.</p>

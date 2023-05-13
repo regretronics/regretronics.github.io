@@ -1,42 +1,29 @@
 "use strict";
 
-//virtual vectorial world context
-//var worldRes = new Int8Array([32, 32, 32]);
-//var worldRes = new Float32Array([16, 16, 16]);
-//var worldRes = [16, 16, 16];
-var worldRes = new Uint8Array([32, 32, 32]);
-//var worldRes = new Int32Array([16, 16, 16]);
+//virtual matricial field context
+//var worldRes =
+//var worldRes = new Int8Array(
+//var worldRes = new Uint8Array(
+var worldRes = new Int32Array(
+//var worldRes = new Float32Array(
+	//[16, 16, 16]);
+	//[32, 32, 32]);
+	//[64, 64, 64]);
+	//[96, 96, 96]);
+	[128, 128, 128]);
+var fieldMap;
 
-/* var worldScanEmission = new Float32Array(worldRes[0] * worldRes[1] * worldRes[2] * 4);
-var worldScanTransp = new Float32Array(worldRes[0] * worldRes[1] * worldRes[2] * 4); */
-var texWorldScanEmission, texWorldScanTransp;
-
-function worldVoxelsInit() {
-	/* for(let i = 0; i < worldRes[0] * worldRes[1] * worldRes[2] * 4; i++) {
-		worldScanEmission[i] = Math.random();
-		worldScanTransp[i] = Math.random();
-	} */
-	
-	/*for(let z = 0; z < worldRes[0]; z++) {
-		for(let y = 0; y < worldRes[1]; y++) {
-			for(let x = 0; x < worldRes[2]; x++) {
-				//
-			}
-		}
-	}*/
-
-	//texWorldScanEmission = worldScanEmission;
-	//texWorldScanTransp = worldScanTransp;
-
-	texWorldScanEmission = initWorldScanEmission();
-	texWorldScanTransp = initWorldScanTransp();
-}
+const mazeSize = new Int32Array(
+	[16, 16, 16]);
+const mazeFillThres = new Float32Array( //maze voxel fill probability by sum of oddities (odnesses?)
+	[15.0 / 16.0, 11.0 / 16.0, 5.0 / 16.0, 1.0 / 16.0]);
 
 //--
 //virtual vectorial client context
 //basically done.
 //var clientPos = new Float32Array(3), clientRot = new Float32Array(9);
-var clientPos = new Float32Array([0.5 * worldRes[0] + 0.5, 0.5 * worldRes[1] + 0.5, 0.5 * worldRes[2] + 0.5]);
+//var clientPos = new Float32Array([0.5 * worldRes[0] + 0.5, 0.5 * worldRes[1] + 0.5, 0.375 * worldRes[2] + 0.5, 0.0]);
+var clientPos = new Float32Array([0.5 * worldRes[0] + 4.5, 0.5 * worldRes[1] + 4.5, 0.375 * worldRes[2] + 0.5, 0.0]);
 var clientSpcTransf = new Float32Array([
  1, 0, 0,
  0, 1, 0,
@@ -44,7 +31,6 @@ var clientSpcTransf = new Float32Array([
 var clientFoVH = 1;
 var rayDirsCol, rayDirsRow;
 var texRayDirs, texRayDirsSign;
-//var texRayAlive, texCrossingPoints, texAccumBufferEmission, texAccumBufferTransp;
 
 function clientUpdateSpcTransf() {
 	//to do
@@ -53,39 +39,12 @@ function clientUpdateSpcTransf() {
 const opacityFactor = -128 * Math.LN2 / 256;
 //const opacityFactor = -128 / 256;
 
-var initWorldScanEmission, initWorldScanTransp;
-var rayDirs2d, rayDirsSigns;
-var resetAccumBufferEmission, resetAccumBufferTransp, resetRayAlive, resetRayCrossingPoints;
-var renderAccum;
+var generalKernels, rcKernels0, rcKernels1;
 function registerKernels() {
-	initWorldScanEmission = gpu.createKernel(function() {
-		return [Math.random(), Math.random(), Math.random(), 0.0];
-	}, {
-		returnType: 'Array(4)',
-		output: [worldRes[0] * worldRes[1] * worldRes[2]],
-		//output: [worldRes[0] * worldRes[1], worldRes[2]],
-		//output: [worldRes[0], worldRes[1] * worldRes[2]],
-		immutable: true,
-		//dynamicOutput: true,
-		//dynamicArguments: true,
-		pipeline: true,
-		graphical: false
-	});
-	initWorldScanTransp = gpu.createKernel(function() {
-		return [Math.random(), Math.random(), Math.random(), 0.0];
-	}, {
-		returnType: 'Array(4)',
-		output: [worldRes[0] * worldRes[1] * worldRes[2]],
-		//output: [worldRes[0] * worldRes[1], worldRes[2]],
-		//output: [worldRes[0], worldRes[1] * worldRes[2]],
-		immutable: true,
-		//dynamicOutput: true,
-		//dynamicArguments: true,
-		pipeline: true,
-		graphical: false
-	});
+	let newKernels = {};
+	registerFieldKernels(gpu, newKernels);
 
-	rayDirs2d = gpu.createKernel(function(rayDirsCol, rayDirsRow) {
+	newKernels.rayDirs2d = gpu.createKernel(function(rayDirsCol, rayDirsRow) {
 		let ray = [
 			rayDirsCol[4 * this.thread.y + 0] + rayDirsRow[4 * this.thread.x + 0],
 			rayDirsCol[4 * this.thread.y + 1] + rayDirsRow[4 * this.thread.x + 1],
@@ -102,7 +61,7 @@ function registerKernels() {
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	rayDirsSigns = gpu.createKernel(function(rayDirs) {
+	newKernels.rayDirsSigns = gpu.createKernel(function(rayDirs) {
 		let ray = rayDirs[this.thread.y][this.thread.x];
 		return [Math.sign(ray[0]), Math.sign(ray[1]), Math.sign(ray[2]), 0.0];
 	}, {
@@ -114,23 +73,22 @@ function registerKernels() {
 		pipeline: true
 	});
 
-	resetRayAlive = gpu.createKernel(function() {
-		return 1;
-		//return [1.0, 0.0, 0.0, 0.0];
+	/* newKernels.resetRayAlive = gpu.createKernel(function() {
+		//return 1;
+		return [1.0, 0.0, 0.0, 0.0];
 	}, {
-		returnType: 'Integer',
+		//returnType: 'Integer',
 		//returnType: 'Float',
-		//precision: "unsigned",
 		//optimizeFloatMemory: true,
 		output: [cw, ch],
 		immutable: true,
 		//dynamicOutput: true,
 		pipeline: true
 	});
-	resetRayCrossingPoints = gpu.createKernel(function(x, y, z) {
+	newKernels.resetRayCrossingPoints = gpu.createKernel(function(x, y, z) {
 		return [x, y, z, 0.0];
-	/* resetRayCrossingPoints = gpu.createKernel(function(viewerOrigin) {
-		return viewerOrigin; */
+	//resetRayCrossingPoints = gpu.createKernel(function(viewerOrigin) {
+	//	return viewerOrigin;
 	}, {
 		//constants: {},
 		argumentTypes: { x: 'Float', y: 'Float', z: 'Float' },
@@ -142,8 +100,8 @@ function registerKernels() {
 		//dynamicArguments: true,
 		pipeline: true
 		//graphical: true
-	});
-	resetAccumBufferEmission = gpu.createKernel(function() {
+	}); */
+	/* newKernels.resetAccumBufferEmission = gpu.createKernel(function() {
 		return [0.0, 0.0, 0.0, 0.0];
 	}, {
 		returnType: 'Array(4)',
@@ -152,7 +110,7 @@ function registerKernels() {
 		//dynamicOutput: true,
 		pipeline: true
 	});
-	resetAccumBufferTransp = gpu.createKernel(function() {
+	newKernels.resetAccumBufferTransp = gpu.createKernel(function() {
 		return [1.0, 1.0, 1.0, 1.0];
 	}, {
 		returnType: 'Array(4)',
@@ -160,15 +118,20 @@ function registerKernels() {
 		immutable: true,
 		//dynamicOutput: true,
 		pipeline: true
-	});
+	}); */
 
-	registerRayCastingKernels(gpu);
-	//registerRayCastingKernelMap(gpu);
-	renderAccum = gpu.createKernel(function(accumBufferEmission, accumBufferTransp) {
+	/* rcKernels0 = registerRayCastingKernels(gpu, newKernels);
+	rcKernels1 = registerRayCastingKernels(gpu, newKernels); */
+	/* rcKernels0 = registerRayCastingKernelMap(gpu);
+	rcKernels1 = registerRayCastingKernelMap(gpu); */
+	rcKernels0 = registerRayCastingKernelMono(gpu);
+
+	/* newKernels.renderAccum = gpu.createKernel(function(accumBufferEmission, accumBufferTransp) {
 		let accumEmission = accumBufferEmission[this.thread.y][this.thread.x];
 		//let color = accumEmission;
 
-		let color = [0.5, 0.5, 0.5/* , 0.0 */];
+		let color = [0.5, 0.5, 0.5];
+		//let color = [0.5, 0.5, 0.5, 0.0];
 		let accumTransp = accumBufferTransp[this.thread.y][this.thread.x];
 		let alphaNew = [1.0 - accumTransp[0], 1.0 - accumTransp[1], 1.0 - accumTransp[2]];
 		if(alphaNew[0] > 0) color[0] = accumEmission[0] / alphaNew[0];
@@ -184,13 +147,123 @@ function registerKernels() {
 		//dynamicOutput: true,
 		//dynamicArguments: true,
 		graphical: true
+		//to do: precision
+	}); */
+	return newKernels;
+}
+function registerFieldKernels(gpu, newKernels) {
+	newKernels.mapField_particles = gpu.createKernelMap({
+		alpha: function fieldAlpha(vecColor) {
+			return vecColor;
+		}
+	}, function(particleCount, particleR, particlePos, particleEmission, particleAlpha) {
+		let myPos = [this.thread.x, this.thread.y, this.thread.z]; //gpu.js bug: this.thread.x + 0.5 is not a float.
+		myPos = [myPos[0] + 0.5, myPos[1] + 0.5, myPos[2] + 0.5];
+		//let accumColor = [0.0, 0.0, 0.0, 0.0];
+		//let accumAlpha = [0.0, 0.0, 0.0, 0.0];
+		const accumAlpha = [0.0625, 0.0625, 0.0625, 0.0];
+		const accumColor = [accumAlpha[0] * Math.random(), accumAlpha[1] * Math.random(), accumAlpha[2] * Math.random(), 0.0];
+
+		for (let i = 0; i < particleCount; i++) {
+			const r = particleR[i];
+			const i4 = 4 * i;
+			const partPos = [particlePos[i4 + 0], particlePos[i4 + 1], particlePos[i4 + 2]];
+			const dPos = [myPos[0] - partPos[0] + 0.5, myPos[1] - partPos[1] + 0.5, myPos[2] - partPos[2] + 0.5];
+
+			/* if(dPos[0] <= -r || dPos[0] >= r || dPos[1] <= -r || dPos[1] >= r || dPos[2] <= -r || dPos[2] >= r) continue;
+			let dr = r - Math.sqrt(dPos[0] * dPos[0] + dPos[1] * dPos[1] + dPos[2] * dPos[2]);
+			if(dr <= 0.0) continue; */ //gpu.js bug: continue command seems to be interpreted as break.
+			if(dPos[0] > -r && dPos[0] < r && dPos[1] > -r && dPos[1] < r && dPos[2] > -r && dPos[2] < r) {
+				const dr = r - Math.sqrt(dPos[0] * dPos[0] + dPos[1] * dPos[1] + dPos[2] * dPos[2]);
+				if(dr > 0.0) {
+					const fgAlpha = [particleAlpha[i4 + 0], particleAlpha[i4 + 1], particleAlpha[i4 + 2]/* , 0.0 */];
+					const fgColor = [particleEmission[i4 + 0] * fgAlpha[0], particleEmission[i4 + 1] * fgAlpha[1], particleEmission[i4 + 2] * fgAlpha[2]/* , 0.0 */];
+					if(dr >= 1.0) {
+						accumColor[0] += fgColor[0];
+						accumColor[1] += fgColor[1];
+						accumColor[2] += fgColor[2];
+						accumAlpha[0] += fgAlpha[0];
+						accumAlpha[1] += fgAlpha[1];
+						accumAlpha[2] += fgAlpha[2];
+					} else {
+						accumColor[0] += dr * fgColor[0];
+						accumColor[1] += dr * fgColor[1];
+						accumColor[2] += dr * fgColor[2];
+						accumAlpha[0] += dr * fgAlpha[0];
+						accumAlpha[1] += dr * fgAlpha[1];
+						accumAlpha[2] += dr * fgAlpha[2];
+					}
+				}
+			}
+		}
+		let fgColor = [0.0, 0.0, 0.0, 0.0];
+		if(accumAlpha[0] > 0.0) fgColor[0] = accumColor[0] / accumAlpha[0];
+		if(accumAlpha[1] > 0.0) fgColor[1] = accumColor[1] / accumAlpha[1];
+		if(accumAlpha[2] > 0.0) fgColor[2] = accumColor[2] / accumAlpha[2];
+		fieldAlpha(accumAlpha);
+		return fgColor;
+	}, {
+		//constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2] },
+		returnType: 'Array(4)',
+		output: [worldRes[0], worldRes[1], worldRes[2]],
+		//immutable: true,
+		//dynamicOutput: true,
+		//dynamicArguments: true,
+		//loopMaxIterations: 10,
+		pipeline: true,
+		graphical: false
+	});
+	newKernels.createMaze = gpu.createKernel(function(/* mazeSize, */ mazeFillThres) {
+		//let myPos = [this.thread.x, this.thread.y, this.thread.z]; //gpu.js bug: this.thread.x + 0.5 is not a float.
+		let oddity = (this.thread.x % 2) + (this.thread.y % 2) + (this.thread.z % 2);
+		//let oddity = 1;
+
+		return ((Math.random() < mazeFillThres[oddity]) ? 1 : 0);
+	}, {
+		//constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2] },
+		//argumentTypes: { /* mazeSize: "Array(3)", */ mazeFillThres: "Array(4)" },
+		returnType: 'Integer',
+		//returnType: 'Array(4)',
+		//output: mazeSize, //to do: check use of typed array
+		output: [mazeSize[0], mazeSize[1], mazeSize[2]],
+		immutable: true,
+		//dynamicOutput: true,
+		//dynamicArguments: true,
+		//loopMaxIterations: 10,
+		pipeline: true,
+		graphical: false
+	});
+	newKernels.mapField_maze = gpu.createKernelMap({
+		alpha: function fieldAlpha(vecColor) {
+			return vecColor;
+		}
+	}, function(mazeMap) {
+		let myPos = [Math.floor(this.thread.x / 8), Math.floor(this.thread.y / 8), Math.floor(this.thread.z / 8)];
+		let cell = mazeMap[(myPos[2] * this.constants.mapSize1 + myPos[1]) * this.constants.mapSize0 + myPos[0]];
+		const fill = [Math.random(), Math.random(), Math.random(), 0.0];
+		//const fill = [1.0, 1.0, 1.0, 0.0];
+
+		let gain = (cell >= 1 ? 0.9375 : 0.0625);
+		let alpha = (cell >= 1 ? 0.5 : 0.25);
+
+		fieldAlpha([alpha, alpha, alpha, 0.0]);
+		return [gain * fill[0], gain * fill[1], gain * fill[2], 0.0];
+	}, {
+		constants: { mapSize0: mazeSize[0], mapSize1: mazeSize[1], mapSize2: mazeSize[2] },
+		returnType: 'Array(4)',
+		output: [worldRes[0], worldRes[1], worldRes[2]],
+		//immutable: true,
+		//dynamicOutput: true,
+		//dynamicArguments: true,
+		//loopMaxIterations: 10,
+		pipeline: true,
+		graphical: false
 	});
 }
 
-var getDRay, nextCrossingPoints, pVoxel, segTransp, nextAccumEmission, nextAccumTransp, nextRayAlive;
-var resetState, rayCastingLoop;
-function registerRayCastingKernels(gpu) {
-	getDRay = gpu.createKernel(function(rayAlive, rayCrossingPoints, rayDirs, rayDirsSign) {
+function registerRayCastingKernels(gpu, generalKernels) {
+	let newKernels = {};
+	newKernels.getDRay = gpu.createKernel(function(rayAlive, rayCrossingPoints, rayDirs, rayDirsSign) {
 	//getDRay = gpu.createKernel(function(rayAlive, rayCrossingPoints, rayDirsCol, rayDirsRow) {
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return [0.0, 0.0, 0.0, 0.0];
 		
@@ -259,14 +332,13 @@ function registerRayCastingKernels(gpu) {
 		//constants: { opacityFactor: opacityFactor },
 		argumentTypes: { rayAlive: "Integer", rayCrossingPoints: "Array(4)", rayDirs: "Array(4)", rayDirsSign: "Array(4)" },
 		returnType: 'Array(4)',
-		//optimizeFloatMemory: true,
 		output: [cw, ch],
 		immutable: true,
 		//dynamicOutput: true,
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	nextCrossingPoints = gpu.createKernel(function(rayAlive, rayCrossingPoints, dRays) {
+	newKernels.nextCrossingPoints = gpu.createKernel(function(rayAlive, rayCrossingPoints, dRays) {
 		//if(rayAlive[this.thread.y][this.thread.x] < 1) return [-1.0, -1.0, -1.0, -1.0];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return [0.0, 0.0, 0.0, 0.0];
 		
@@ -287,7 +359,7 @@ function registerRayCastingKernels(gpu) {
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	pVoxel = gpu.createKernel(function(rayAlive, rayCrossingPoints, dRays) {
+	newKernels.pVoxel = gpu.createKernel(function(rayAlive, rayCrossingPoints, dRays) {
 		//if(rayAlive[this.thread.y][this.thread.x] < 1) return [-1, -1, -1, -1];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return -1;
 		
@@ -303,8 +375,7 @@ function registerRayCastingKernels(gpu) {
 			discreteCube[1] >= 0 && discreteCube[1] < this.constants.worldRes1 &&
 			discreteCube[2] >= 0 && discreteCube[2] < this.constants.worldRes2)
 			//return discreteCube;
-			//to do: check dimension order
-			return (discreteCube[0] * this.constants.worldRes1 + discreteCube[1]) * this.constants.worldRes2 + discreteCube[2];
+			return (discreteCube[2] * this.constants.worldRes1 + discreteCube[1]) * this.constants.worldRes0 + discreteCube[0];
 		else
 			//return [-1, -1, -1, -1];
 			return -1;
@@ -319,7 +390,7 @@ function registerRayCastingKernels(gpu) {
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	segTransp = gpu.createKernel(function(rayAlive, discreteCube, worldScanTransp, dRays) {
+	newKernels.segTransp = gpu.createKernel(function(rayAlive, discreteCube, worldScanTransp, dRays) {
 		//if(rayAlive < 1) return [0.0, 0.0, 0.0, 0.0];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return [1.0, 1.0, 1.0, 1.0];
 		
@@ -351,7 +422,7 @@ function registerRayCastingKernels(gpu) {
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	nextAccumEmission = gpu.createKernel(function(rayAlive, discreteCube, worldScanEmission, alphaNew, accumBufferEmission, accumBufferTransp) {
+	newKernels.nextAccumEmission = gpu.createKernel(function(rayAlive, discreteCube, worldScanEmission, alphaNew, accumBufferEmission, accumBufferTransp) {
 		let accumEmission = accumBufferEmission[this.thread.y][this.thread.x];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return accumEmission;
 		
@@ -375,7 +446,7 @@ function registerRayCastingKernels(gpu) {
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	nextAccumTransp = gpu.createKernel(function(rayAlive, alphaNew, accumBufferTransp) {
+	newKernels.nextAccumTransp = gpu.createKernel(function(rayAlive, alphaNew, accumBufferTransp) {
 		let accumTransp = accumBufferTransp[this.thread.y][this.thread.x];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return accumTransp;
 		let alpha = alphaNew[this.thread.y][this.thread.x];
@@ -394,7 +465,7 @@ function registerRayCastingKernels(gpu) {
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	nextRayAlive = gpu.createKernel(function(rayAlive, accumBufferTransp) {
+	newKernels.nextRayAlive = gpu.createKernel(function(rayAlive, accumBufferTransp) {
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return 0;
 
 		let accumTransp = accumBufferTransp[this.thread.y][this.thread.x];
@@ -416,117 +487,92 @@ function registerRayCastingKernels(gpu) {
 		pipeline: true
 	});
 	
-	/* resetState = gpu.combineKernels(resetAccumBufferEmission, resetAccumBufferTransp, resetRayAlive, resetRayCrossingPoints,
+	//to do: move resetState to registerKernels?
+	generalKernels.resetState = gpu.combineKernels(generalKernels.resetAccumBufferEmission, generalKernels.resetAccumBufferTransp, generalKernels.resetRayAlive, generalKernels.resetRayCrossingPoints,
 		//function(viewerOrigin) {
 		function(x, y, z) {
 			//return [resetRayAlive(), resetRayCrossingPoints(viewerOrigin), resetAccumBufferEmission(), resetAccumBufferTransp()];
-			return [resetRayAlive(), resetRayCrossingPoints(x, y, z), resetAccumBufferEmission(), resetAccumBufferTransp()];
+			return [generalKernels.resetRayAlive(), generalKernels.resetRayCrossingPoints(x, y, z), generalKernels.resetAccumBufferEmission(), generalKernels.resetAccumBufferTransp()];
 		}
 	);
-	rayCastingLoop = gpu.combineKernels(
-		getDRay, nextCrossingPoints, pVoxel, segTransp, nextAccumEmission, nextAccumTransp, nextRayAlive,
+	newKernels.rayCastingCycle = gpu.combineKernels(
+		newKernels.getDRay, newKernels.nextCrossingPoints, newKernels.pVoxel, newKernels.segTransp, newKernels.nextAccumEmission, newKernels.nextAccumTransp, newKernels.nextRayAlive,
 		//function(texRayAlive, texCrossingPoints, texRayDirs, texRayDirsSign, texWorldScanTransp, texWorldScanEmission, texAccumBufferEmission, texAccumBufferTransp) {
 		function(texState, texRayDirs, texRayDirsSign, texWorldScanTransp, texWorldScanEmission) {
 			let texRayAlive = texState[0];
 			let texCrossingPoints = texState[1];
 			let texAccumBufferEmission = texState[2];
 			let texAccumBufferTransp = texState[3];
-			let texDRays = getDRay(texRayAlive, texCrossingPoints, texRayDirs, texRayDirsSign);
-			//texDRays = getDRay(texRayAlive, texCrossingPoints, rayDirsCol, rayDirsRow);
-			let newCrossingPoints = nextCrossingPoints(texRayAlive, texCrossingPoints, texDRays);
-			let texPVoxels = pVoxel(texRayAlive, texCrossingPoints, texDRays);
-			let texSegTransps = segTransp(texRayAlive, texPVoxels, texWorldScanTransp, texDRays);
-			let newAccumEmission = nextAccumEmission(texRayAlive, texPVoxels, texWorldScanEmission, texSegTransps, texAccumBufferEmission, texAccumBufferTransp);
-			let newAccumTransp = nextAccumTransp(texRayAlive, texSegTransps, texAccumBufferTransp);
-			let newRayAlive = nextRayAlive(texRayAlive, newAccumTransp);
+			let texDRays = newKernels.getDRay(texRayAlive, texCrossingPoints, texRayDirs, texRayDirsSign);
+			//texDRays = newKernels.getDRay(texRayAlive, texCrossingPoints, rayDirsCol, rayDirsRow);
+			let newCrossingPoints = newKernels.nextCrossingPoints(texRayAlive, texCrossingPoints, texDRays);
+			let texPVoxels = newKernels.pVoxel(texRayAlive, texCrossingPoints, texDRays);
+			texCrossingPoints.delete();
+			let texSegTransps = newKernels.segTransp(texRayAlive, texPVoxels, texWorldScanTransp, texDRays);
 			texDRays.delete();
+			let newAccumEmission = newKernels.nextAccumEmission(texRayAlive, texPVoxels, texWorldScanEmission, texSegTransps, texAccumBufferEmission, texAccumBufferTransp);
+			texAccumBufferEmission.delete();
 			texPVoxels.delete();
+			let newAccumTransp = newKernels.nextAccumTransp(texRayAlive, texSegTransps, texAccumBufferTransp);
+			texAccumBufferTransp.delete();
 			texSegTransps.delete();
+			let newRayAlive = newKernels.nextRayAlive(texRayAlive, newAccumTransp);
+			texRayAlive.delete();
 			return [newRayAlive, newCrossingPoints, newAccumEmission, newAccumTransp];
-	}); */
+	});
+	return newKernels;
 }
+function registerRayCastingKernelMono() {
+	let rayCaster = gpu.createKernel(function(viewerOrigin, texRayDirs, texRayDirsSign, texWorldScanEmission, texWorldScanTransp) {
+		//let vecCrossingPoint = viewerOrigin;
+		let vecCrossingPoint = [viewerOrigin[0], viewerOrigin[1], viewerOrigin[2], 0.0];
+		let vecAccumEmission = [0.0, 0.0, 0.0, 0.0];
+		let vecAccumTransp = [1.0, 1.0, 1.0, 1.0];
+		let vecRayDir = texRayDirs[this.thread.y][this.thread.x];
+		let vecRayDirSign = texRayDirsSign[this.thread.y][this.thread.x];
 
-//var rayCastingLoop;
-function registerRayCastingKernelMap(gpu) {
-	rayCastingLoop = gpu.createKernelMap({
-		nextCrossingPointsRes: function nextCrossingPoints(rayAlive, rayCrossingPoints, dRays) {
-			//if(rayAlive < 1) return [-1.0, -1.0, -1.0, -1.0];
-			//if(rayAlive < 1) return [0.0, 0.0, 0.0, 0.0];
-			if(rayAlive < 1) return dRays;
-			return [
-				rayCrossingPoints[0] + dRays[0],
-				rayCrossingPoints[1] + dRays[1],
-				rayCrossingPoints[2] + dRays[2],
-				0.0];
-		},
-		nextAccumEmissionRes: function nextAccumEmission(rayAlive, offset, texWorldScanEmission, segTransp, accumEmission, accumTransp) {
-			if(rayAlive < 1) return accumEmission;
-			
-			let vxEmission = [0.0, 0.5, 1.0, 0.0];
-			if(offset >= 0) vxEmission = texWorldScanEmission[offset];
-			return [
-				accumEmission[0] + accumTransp[0] * (1.0 - segTransp[0]) * vxEmission[0],
-				accumEmission[1] + accumTransp[1] * (1.0 - segTransp[1]) * vxEmission[1],
-				accumEmission[2] + accumTransp[2] * (1.0 - segTransp[2]) * vxEmission[2],
-				0.0];
-		},
-		nextAccumTranspRes: function nextAccumTransp(rayAlive, segTransp, accumTransp) {
-			if(rayAlive < 1) return accumTransp;
-			return [
-				accumTransp[0] * segTransp[0],
-				accumTransp[1] * segTransp[1],
-				accumTransp[2] * segTransp[2],
-				0.0];
-		},
-	}, function(texRayAlive, texCrossingPoints, texAccumBufferEmission, texAccumBufferTransp, 
-		texRayDirs, texRayDirsSign, texWorldScanEmission, texWorldScanTransp) {
-		let rayAlive = texRayAlive[this.thread.y][this.thread.x];
-		let rayAlive2 = rayAlive[0];
-		let accumEmission = texAccumBufferEmission[this.thread.y][this.thread.x];
-		let accumTransp = texAccumBufferTransp[this.thread.y][this.thread.x];
-		let rayDirs = texRayDirs[this.thread.y][this.thread.x];
-		let rayDirsSign = texRayDirsSign[this.thread.y][this.thread.x];
-		let zero = [0.0, 0.0, 0.0, 0.0];
-		
-		if(rayAlive2 < 1.0) {
-			nextCrossingPoints(rayAlive2, zero, zero);
-			nextAccumEmission(rayAlive2, -1, texWorldScanEmission, zero, accumEmission, zero);
-			nextAccumTransp(rayAlive2, zero, accumTransp);
-			return zero;
+		for (let i = 0; i < this.constants.iterations; i++) {
+			let vecDRay = getDRay(vecCrossingPoint, vecRayDir, vecRayDirSign);
+			let newCrossingPoint = nextCrossingPoints(vecCrossingPoint, vecDRay);
+			let pVoxel = pVoxel(vecCrossingPoint, vecDRay);
+			let vecSegTransp = segTransp(pVoxel, texWorldScanTransp, vecDRay);
+			let newAccumEmission = nextAccumEmission(pVoxel, texWorldScanEmission, vecSegTransp, vecAccumEmission, vecAccumTransp);
+			let newAccumTransp = nextAccumTransp(vecSegTransp, vecAccumTransp);
+			vecAccumEmission = newAccumEmission;
+			vecAccumTransp = newAccumTransp;
+
+			//to do: where to break? loop header? loop end?
+			if(newAccumTransp[0] <= this.constants.rayTranspThreshold &&
+				newAccumTransp[1] <= this.constants.rayTranspThreshold &&
+				newAccumTransp[2] <= this.constants.rayTranspThreshold)
+				break;
+			else
+				vecCrossingPoint = newCrossingPoint;
 		}
-		
-		let crossingPoints = texCrossingPoints[this.thread.y][this.thread.x];
-		let dRays = getDRay(crossingPoints, rayDirs, rayDirsSign);
-		nextCrossingPoints(rayAlive2, crossingPoints, dRays);
-		let pVoxels = pVoxel(crossingPoints, dRays);
-		let newAlphas = segTransp(pVoxels, texWorldScanTransp, dRays);
-		nextAccumEmission(rayAlive2, pVoxels, texWorldScanEmission, newAlphas, accumEmission, accumTransp);
-		let newAccumTransp = nextAccumTransp(rayAlive2, newAlphas, accumTransp);
-		if(newAccumTransp[0] <= this.constants.rayTranspThreshold &&
-			newAccumTransp[1] <= this.constants.rayTranspThreshold &&
-			newAccumTransp[2] <= this.constants.rayTranspThreshold)
-			return zero;
-		else
-			return [1.0, 0.0, 0.0, 0.0];
-		//let newRayAlive = nextRayAlive(rayAlive2, newAccumTransp);
-		//return newRayAlive;
-		//return [newRayAlive, 0.0, 0.0, 0.0];
+
+		//let color = vecAccumEmission;
+		let color = [0.5, 0.5, 0.5/* , 0.0 */];
+		let alphaNew = [1.0 - vecAccumTransp[0], 1.0 - vecAccumTransp[1], 1.0 - vecAccumTransp[2]];
+		if(alphaNew[0] > 0.0) color[0] = vecAccumEmission[0] / alphaNew[0];
+		if(alphaNew[1] > 0.0) color[1] = vecAccumEmission[1] / alphaNew[1];
+		if(alphaNew[2] > 0.0) color[2] = vecAccumEmission[2] / alphaNew[2];
+
+		this.color(color[0], color[1], color[2]);
 	}, {
 		constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2],
-			opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold },
-		//argumentTypes: { x: 'Float', y: 'Float', z: 'Float' },
-		//argumentTypes: { viewerOrigin: 'Array2D(4)' },
-		//returnType: 'Array2D',
+			opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold, iterations: frameMaxLayers },
+		//constants: { opacityFactor: opacityFactor },
+		//argumentTypes: { rayCrossingPoints: "Array(4)", rayDirs: "Array(4)", rayDirsSign: "Array(4)" },
 		output: [cw, ch],
-		immutable: true,
+		//immutable: true, //?
 		//dynamicOutput: true,
 		//dynamicArguments: true,
-		pipeline: true
-		//graphical: true
+		//pipeline: true, //?
+		graphical: true
 	});
-	
-	rayCastingLoop.addFunction(function getDRay(crossingPoint, rayDir, rayDirSign) {
-	//rayCastingLoop.addFunction(function getDRay(crossingPoint, rayDirsCol, rayDirsRow) {
+
+	rayCaster.addFunction(function getDRay(crossingPoint, rayDir, rayDirSign) {
+	//rayCaster.addFunction(function getDRay(crossingPoint, rayDirsCol, rayDirsRow) {
 		let coordProjection = [0.0, 0.0, 0.0/* , 0.0 */];
 		/* let rayDir = [
 			rayDirsCol[4 * this.thread.y + 0] + rayDirsRow[4 * this.thread.x + 0],
@@ -590,13 +636,16 @@ function registerRayCastingKernelMap(gpu) {
 		//argumentTypes: { rayAlive: "Integer", rayCrossingPoints: "Array(4)", rayDirs: "Array(4)", rayDirsSign: "Array(4)" },
 		//returnType: 'Array(4)',
 		//optimizeFloatMemory: true,
-		/* output: [cw, ch],
-		immutable: true,
-		//dynamicOutput: true,
-		//dynamicArguments: true,
-		pipeline: true */
 	//});
-	rayCastingLoop.addFunction(function pVoxel(crossingPoint, dRay) {
+	rayCaster.addFunction(function nextCrossingPoints(rayCrossingPoints, dRays) {
+		return [
+			rayCrossingPoints[0] + dRays[0],
+			rayCrossingPoints[1] + dRays[1],
+			rayCrossingPoints[2] + dRays[2],
+			0.0];
+	});//, {});
+
+	rayCaster.addFunction(function pVoxel(crossingPoint, dRay) {
 		let discreteCube = [
 			Math.floor(crossingPoint[0] + 0.5 * dRay[0]),
 			Math.floor(crossingPoint[1] + 0.5 * dRay[1]),
@@ -607,8 +656,7 @@ function registerRayCastingKernelMap(gpu) {
 			discreteCube[1] >= 0 && discreteCube[1] < this.constants.worldRes1 &&
 			discreteCube[2] >= 0 && discreteCube[2] < this.constants.worldRes2)
 			//return discreteCube;
-			//to do: check dimension order
-			return (discreteCube[0] * this.constants.worldRes1 + discreteCube[1]) * this.constants.worldRes2 + discreteCube[2];
+			return (discreteCube[2] * this.constants.worldRes1 + discreteCube[1]) * this.constants.worldRes0 + discreteCube[0];
 		else
 			//return [-1, -1, -1, -1];
 			return -1;
@@ -616,15 +664,11 @@ function registerRayCastingKernelMap(gpu) {
 		//constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2] },
 		argumentTypes: { rayAlive: "Integer", rayCrossingPoints: "Array(4)", dRays: "Array(4)" },
 		returnType: 'Integer', */
-		/* //optimizeFloatMemory: true,
-		output: [cw, ch],
-		immutable: true,
-		//dynamicOutput: true,
-		//dynamicArguments: true,
-		pipeline: true */
 	//});
-	rayCastingLoop.addFunction(function segTransp(offset, texWorldScanTransp, dRay) {
+	rayCaster.addFunction(function segTransp(offset, texWorldScanTransp, dRay) {
 		let vxTransp = [0.5, 0.5, 0.5, 0.0];
+		//let vxTransp = [0.0, 0.0, 0.0, 0.0];
+		//let vxTransp = [1.0, 1.0, 1.0, 0.0];
 		if(offset >= 0) vxTransp = texWorldScanTransp[offset];
 		/* else {
 			//to do: special code that fills the remaining transparency and kills the ray
@@ -636,32 +680,225 @@ function registerRayCastingKernelMap(gpu) {
 			Math.exp(rayLen * vxTransp[1]),
 			Math.exp(rayLen * vxTransp[2]),
 			0.0];
-	});
-	/* , {
-		argumentTypes: { rayAlive: "Integer", discreteCube: "Integer", worldScanTransp: "Array", dRays: "Array(4)" },
-		returnType: 'Array(4)', */
-		/* //optimizeFloatMemory: true,
+	},/*  {
+		argumentTypes: { offset: "Integer", worldScanTransp: "Array", dRay: "Array(4)" },
+		returnType: 'Array(4)'
+	} */);
+
+	rayCaster.addFunction(function nextAccumEmission(offset, texWorldScanEmission, segTransp, accumEmission, accumTransp) {
+		let vxEmission = [0.0, 0.5, 1.0, 0.0];
+		if(offset >= 0) vxEmission = texWorldScanEmission[offset];
+		return [
+			accumEmission[0] + accumTransp[0] * (1.0 - segTransp[0]) * vxEmission[0],
+			accumEmission[1] + accumTransp[1] * (1.0 - segTransp[1]) * vxEmission[1],
+			accumEmission[2] + accumTransp[2] * (1.0 - segTransp[2]) * vxEmission[2],
+			0.0];
+	});//, {});
+	rayCaster.addFunction(function nextAccumTransp(segTransp, accumTransp) {
+		return [
+			accumTransp[0] * segTransp[0],
+			accumTransp[1] * segTransp[1],
+			accumTransp[2] * segTransp[2],
+			0.0];
+	});//, {});
+
+	return { rayCaster: rayCaster };
+}
+function registerRayCastingKernelMap(gpu) {
+	let rayCastingCycle = gpu.createKernelMap({
+		crossingPoints: function nextCrossingPoints(rayAlive, rayCrossingPoints, dRays) {
+			//if(rayAlive < 1) return [0.0, 0.0, 0.0, 0.0];
+			if(rayAlive < 1) return dRays;
+			return [
+				rayCrossingPoints[0] + dRays[0],
+				rayCrossingPoints[1] + dRays[1],
+				rayCrossingPoints[2] + dRays[2],
+				0.0];
+		},
+		accumEmission: function nextAccumEmission(rayAlive, offset, texWorldScanEmission, segTransp, accumEmission, accumTransp) {
+			if(rayAlive < 1) return accumEmission;
+			
+			let vxEmission = [0.0, 0.5, 1.0, 0.0];
+			if(offset >= 0) vxEmission = texWorldScanEmission[offset];
+			return [
+				accumEmission[0] + accumTransp[0] * (1.0 - segTransp[0]) * vxEmission[0],
+				accumEmission[1] + accumTransp[1] * (1.0 - segTransp[1]) * vxEmission[1],
+				accumEmission[2] + accumTransp[2] * (1.0 - segTransp[2]) * vxEmission[2],
+				0.0];
+		},
+		accumTransp: function nextAccumTransp(rayAlive, segTransp, accumTransp) {
+			if(rayAlive < 1) return accumTransp;
+			return [
+				accumTransp[0] * segTransp[0],
+				accumTransp[1] * segTransp[1],
+				accumTransp[2] * segTransp[2],
+				0.0];
+		},
+	}, function(texRayAlive, texCrossingPoints, texAccumBufferEmission, texAccumBufferTransp, 
+		texRayDirs, texRayDirsSign, texWorldScanEmission, texWorldScanTransp) {
+		let vecRayAlive = texRayAlive[this.thread.y][this.thread.x];
+		//let rayAlive2 = vecRayAlive;
+		let rayAlive2 = vecRayAlive[0];
+		let vecAccumEmission = texAccumBufferEmission[this.thread.y][this.thread.x];
+		let vecAccumTransp = texAccumBufferTransp[this.thread.y][this.thread.x];
+		let vecZero = [0.0, 0.0, 0.0, 0.0];
+		
+		if(rayAlive2 < 1.0) {
+			nextCrossingPoints(rayAlive2, vecZero, vecZero);
+			nextAccumEmission(rayAlive2, -1, texWorldScanEmission, vecZero, vecAccumEmission, vecZero);
+			nextAccumTransp(rayAlive2, vecZero, vecAccumTransp);
+			//return 0;
+			return vecZero;
+		}
+		
+		let vecRayDir = texRayDirs[this.thread.y][this.thread.x];
+		let vecRayDirSign = texRayDirsSign[this.thread.y][this.thread.x];
+		let vecCrossingPoint = texCrossingPoints[this.thread.y][this.thread.x];
+		let vecDRay = getDRay(vecCrossingPoint, vecRayDir, vecRayDirSign);
+		nextCrossingPoints(rayAlive2, vecCrossingPoint, vecDRay);
+		let pVoxel = pVoxel(vecCrossingPoint, vecDRay);
+		let vecSegTransp = segTransp(pVoxel, texWorldScanTransp, vecDRay);
+		nextAccumEmission(rayAlive2, pVoxel, texWorldScanEmission, vecSegTransp, vecAccumEmission, vecAccumTransp);
+		let newAccumTransp = nextAccumTransp(rayAlive2, vecSegTransp, vecAccumTransp);
+		if(newAccumTransp[0] <= this.constants.rayTranspThreshold &&
+			newAccumTransp[1] <= this.constants.rayTranspThreshold &&
+			newAccumTransp[2] <= this.constants.rayTranspThreshold)
+			//return 0;
+			return vecZero;
+		else
+			//return 1;
+			return [1.0, 0.0, 0.0, 0.0];
+		//let newRayAlive = nextRayAlive(rayAlive2, newAccumTransp);
+		//return newRayAlive;
+		//return [newRayAlive, 0.0, 0.0, 0.0];
+	}, {
+		constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2],
+			opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold },
+		//argumentTypes: { x: 'Float', y: 'Float', z: 'Float' },
+		//argumentTypes: { viewerOrigin: 'Array(4)' },
+		returnType: 'Array(4)',
+		//optimizeFloatMemory: true,
 		output: [cw, ch],
-		immutable: true,
+		//immutable: true,
 		//dynamicOutput: true,
 		//dynamicArguments: true,
-		pipeline: true */
+		pipeline: true
+		//graphical: true
+	});
+	
+	rayCastingCycle.addFunction(function getDRay(crossingPoint, rayDir, rayDirSign) {
+	//rayCastingCycle.addFunction(function getDRay(crossingPoint, rayDirsCol, rayDirsRow) {
+		let coordProjection = [0.0, 0.0, 0.0/* , 0.0 */];
+		/* let rayDir = [
+			rayDirsCol[4 * this.thread.y + 0] + rayDirsRow[4 * this.thread.x + 0],
+			rayDirsCol[4 * this.thread.y + 1] + rayDirsRow[4 * this.thread.x + 1],
+			rayDirsCol[4 * this.thread.y + 2] + rayDirsRow[4 * this.thread.x + 2],
+			0.0];
+			rayDir[3] = this.constants.opacityFactor * Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * //rayDir[2]);
+		let rayDirSign = [Math.sign(rayDir[0]), Math.sign(rayDir[1]), Math.sign(rayDir[2]), 0.0]; */
+		coordProjection[0] = Math.floor(rayDirSign[0] * crossingPoint[0] + 1.0);
+		coordProjection[1] = Math.floor(rayDirSign[1] * crossingPoint[1] + 1.0);
+		coordProjection[2] = Math.floor(rayDirSign[2] * crossingPoint[2] + 1.0);
+		
+		let crossing = [0.0, 0.0, 0.0/* , 0.0 */];
+		crossing[0] = (rayDirSign[0] * coordProjection[0] - crossingPoint[0]) / rayDir[0];
+		crossing[1] = (rayDirSign[1] * coordProjection[1] - crossingPoint[1]) / rayDir[1];
+		crossing[2] = (rayDirSign[2] * coordProjection[2] - crossingPoint[2]) / rayDir[2];
+
+		let firstCrossing = 65504.0; //IEEE 754 half-precision maximum
+		if(rayDir[0] != 0.0)
+			firstCrossing = crossing[0];
+		if(rayDir[1] != 0.0 && crossing[1] < firstCrossing)
+			firstCrossing = crossing[1];
+		if(rayDir[2] != 0.0 && crossing[2] < firstCrossing)
+			firstCrossing = crossing[2];
+
+		/* let firstCrossing = 65536.0;
+		if(rayDir[0] != 0.0)
+			firstCrossing = (rayDirSign[0] * coordProjection[0] - crossingPoint[0]) / rayDir[0];
+		if(rayDir[1] != 0.0) {
+			let rayCoordCrossing = (rayDirSign[1] * coordProjection[1] - crossingPoint[1]) / rayDir[1];
+			if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
+		}
+		if(rayDir[2] != 0.0) {
+			let rayCoordCrossing = (rayDirSign[2] * coordProjection[2] - crossingPoint[2]) / rayDir[2];
+			if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
+		} */
+
+		/* let firstCrossing = 65504.0; //IEEE 754 half-precision maximum
+		if(rayDir[0] != 0.0) {
+			let coordProjection = Math.floor(rayDirSign[0] * crossingPoint[0] + 1.0);
+			//let coordProjection = Math.floor(rayDirSign[0] * crossingPoint[0]) + 1;
+			firstCrossing = (rayDirSign[0] * coordProjection - crossingPoint[0]) / rayDir[0];
+		}
+		if(rayDir[1] != 0.0) {
+			let coordProjection = Math.floor(rayDirSign[1] * crossingPoint[1] + 1.0);
+			//let coordProjection = Math.floor(rayDirSign[1] * crossingPoint[1]) + 1;
+			let rayCoordCrossing = (rayDirSign[1] * coordProjection - crossingPoint[1]) / rayDir[1];
+			if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
+		}
+		if(rayDir[2] != 0.0) {
+			let coordProjection = Math.floor(rayDirSign[2] * crossingPoint[2] + 1.0);
+			//let coordProjection = Math.floor(rayDirSign[2] * crossingPoint[2]) + 1;
+			let rayCoordCrossing = (rayDirSign[2] * coordProjection - crossingPoint[2]) / rayDir[2];
+			if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
+		} */
+
+		return [firstCrossing * rayDir[0], firstCrossing * rayDir[1], firstCrossing * rayDir[2], firstCrossing * rayDir[3]];
+	});
+	//, {
+		//constants: { opacityFactor: opacityFactor },
+		//argumentTypes: { rayAlive: "Integer", rayCrossingPoints: "Array(4)", rayDirs: "Array(4)", rayDirsSign: "Array(4)" },
+		//returnType: 'Array(4)',
+		//optimizeFloatMemory: true,
 	//});
+	rayCastingCycle.addFunction(function pVoxel(crossingPoint, dRay) {
+		let discreteCube = [
+			Math.floor(crossingPoint[0] + 0.5 * dRay[0]),
+			Math.floor(crossingPoint[1] + 0.5 * dRay[1]),
+			Math.floor(crossingPoint[2] + 0.5 * dRay[2]),
+			0];
+
+		if(discreteCube[0] >= 0 && discreteCube[0] < this.constants.worldRes0 &&
+			discreteCube[1] >= 0 && discreteCube[1] < this.constants.worldRes1 &&
+			discreteCube[2] >= 0 && discreteCube[2] < this.constants.worldRes2)
+			//return discreteCube;
+			return (discreteCube[2] * this.constants.worldRes1 + discreteCube[1]) * this.constants.worldRes0 + discreteCube[0];
+		else
+			//return [-1, -1, -1, -1];
+			return -1;
+	});/* , {
+		//constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2] },
+		argumentTypes: { rayAlive: "Integer", rayCrossingPoints: "Array(4)", dRays: "Array(4)" },
+		returnType: 'Integer', */
+	//});
+	rayCastingCycle.addFunction(function segTransp(offset, texWorldScanTransp, dRay) {
+		let vxTransp = [0.5, 0.5, 0.5, 0.0];
+		//let vxTransp = [0.0, 0.0, 0.0, 0.0];
+		//let vxTransp = [1.0, 1.0, 1.0, 0.0];
+		if(offset >= 0) vxTransp = texWorldScanTransp[offset];
+		/* else {
+			//to do: special code that fills the remaining transparency and kills the ray
+		} */
+
+		let rayLen = dRay[3];
+		return [
+			Math.exp(rayLen * vxTransp[0]),
+			Math.exp(rayLen * vxTransp[1]),
+			Math.exp(rayLen * vxTransp[2]),
+			0.0];
+	}, {
+		argumentTypes: { rayAlive: "Integer", discreteCube: "Integer", worldScanTransp: "Array", dRays: "Array(4)" },
+		returnType: 'Array(4)'
+	});
+	return { rayCastingCycle: rayCastingCycle };
 }
 
 function viewRayDirsCompute_Rectilinear(ch, cw) {
 	let chInv = 1 / ch;
 	
-	rayDirsRow = new Float32Array(cw * 4);
-	let x, xf;
-	for(x = 0; x < cw; x++) {
-		xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
-		rayDirsRow[4 * x    ] = clientSpcTransf[0] * xf;
-		rayDirsRow[4 * x + 1] = clientSpcTransf[1] * xf;
-		rayDirsRow[4 * x + 2] = clientSpcTransf[2] * xf;
-	}
-
 	rayDirsCol = new Float32Array(ch * 4);
+	let x, xf;
 	for(x = 0; x < ch; x++) {
 		xf = clientFoVH * (2.0 * (x + 0.5) * chInv - 1.0);
 		rayDirsCol[4 * x    ] = clientSpcTransf[6] + clientSpcTransf[3] * xf;
@@ -669,105 +906,259 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirsCol[4 * x + 2] = clientSpcTransf[8] + clientSpcTransf[5] * xf;
 	}
 	
-	texRayDirs = rayDirs2d(rayDirsCol, rayDirsRow);
-	texRayDirsSign = rayDirsSigns(texRayDirs);
+	rayDirsRow = new Float32Array(cw * 4);
+	for(x = 0; x < cw; x++) {
+		xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
+		rayDirsRow[4 * x    ] = clientSpcTransf[0] * xf;
+		rayDirsRow[4 * x + 1] = clientSpcTransf[1] * xf;
+		rayDirsRow[4 * x + 2] = clientSpcTransf[2] * xf;
+	}
+
+	texRayDirs = generalKernels.rayDirs2d(rayDirsCol, rayDirsRow);
+	texRayDirsSign = generalKernels.rayDirsSigns(texRayDirs);
 }
 
-//var frameMaxLayers = 96;
-var frameMaxLayers = 24;
+var frameMaxLayers = 96;
+//var frameMaxLayers = 64;
+//var frameMaxLayers = 48;
+//var frameMaxLayers = 32;
+//var frameMaxLayers = 24;
 //var frameMaxLayers = 16;
-const rayTranspThreshold = 1 / 96;
+//const rayTranspThreshold = 1.0 / 96.0;
+const rayTranspThreshold = 1.0 / 128.0;
+
 //var texState;
+//var texRayAlive, texCrossingPoints, texAccumBufferEmission, texAccumBufferTransp;
+//var isBufferSecond = false, texBuffer0, texBuffer1;
 
 //function frameRenderRaycasting(canvas, timeout) {
-function frameRenderRaycasting(bufH, bufW, timeout) {
+function frameRenderRaycasting(/* bufH, bufW, */ timeout) {
 	//let bufH = canvas.height|0, bufW = canvas.width|0;
 	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now();
 	
 	//Some initialization
-	let texRayAlive = resetRayAlive();
-	let texCrossingPoints = resetRayCrossingPoints(clientPos[0], clientPos[1], clientPos[2]);
-	//let texCrossingPoints = resetRayCrossingPoints(new Float32Array(clientPos));
-	let texAccumBufferEmission = resetAccumBufferEmission();
-	let texAccumBufferTransp = resetAccumBufferTransp();
-	//let texState = resetState(new Float32Array(clientPos));
-	//let texState = resetState(clientPos[0], clientPos[1], clientPos[2]);
+	let newBuffer, prevBuffer;
+	prevBuffer = (isBufferSecond ? texBuffer0 : texBuffer1);
+	prevBuffer.rayAlive = generalKernels.resetRayAlive();
+	prevBuffer.crossingPoints = generalKernels.resetRayCrossingPoints(clientPos[0], clientPos[1], clientPos[2]);
+	//let texCrossingPoints = generalKernels.resetRayCrossingPoints(new Float32Array(clientPos));
+	prevBuffer.accumEmission = generalKernels.resetAccumBufferEmission();
+	prevBuffer.accumTransp = generalKernels.resetAccumBufferTransp();
 
-	//texWorldScanEmission = initWorldScanEmission();
-	//texWorldScanTransp = initWorldScanTransp();
+	//fieldMap?.result?.clear();
+	//fieldMap?.alpha?.clear();
+	//fieldMap?.result?.delete();
+	//fieldMap?.alpha?.delete();
+	let fieldMap = generalKernels.mapField(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
 
-	let texDRays, texPVoxels, texSegTransps;
 	//segmentCount = 0;
 	//layerCount = 0;
 	//let z = 0;
 	for(let z = 0; z < frameMaxLayers; z = layerCount) {
+		newBuffer = (isBufferSecond ? texBuffer1 : texBuffer0);
+		prevBuffer = (isBufferSecond ? texBuffer0 : texBuffer1);
+		let newKernel = (isBufferSecond ? rcKernels1 : rcKernels0);
+
 		//to do: try removing ray life control
-		texDRays = getDRay(texRayAlive, texCrossingPoints, texRayDirs, texRayDirsSign);
-		//dRays = getDRay(texRayAlive, texCrossingPoints, rayDirsCol, rayDirsRow);
-		let newCrossingPoints = nextCrossingPoints(texRayAlive, texCrossingPoints, texDRays);
-		texPVoxels = pVoxel(texRayAlive, texCrossingPoints, texDRays);
-		texSegTransps = segTransp(texRayAlive, texPVoxels, texWorldScanTransp, texDRays);
-		let newAccumEmission = nextAccumEmission(texRayAlive, texPVoxels, texWorldScanEmission, texSegTransps, texAccumBufferEmission, texAccumBufferTransp);
-		let newAccumTransp = nextAccumTransp(texRayAlive, texSegTransps, texAccumBufferTransp);
-		let newRayAlive = nextRayAlive(texRayAlive, newAccumTransp);
+		let texDRays, texPVoxels, texSegTransps;
+		texDRays = rcKernels0.getDRay(prevBuffer.rayAlive, prevBuffer.crossingPoints, texRayDirs, texRayDirsSign);
+		//dRays = rcKernels0.getDRay(prevBuffer.rayAlive, prevBuffer.crossingPoints, rayDirsCol, rayDirsRow);
+		newBuffer.crossingPoints = newKernel.nextCrossingPoints(prevBuffer.rayAlive, prevBuffer.crossingPoints, texDRays);
+		texPVoxels = rcKernels0.pVoxel(prevBuffer.rayAlive, prevBuffer.crossingPoints, texDRays);
+		texSegTransps = rcKernels0.segTransp(prevBuffer.rayAlive, texPVoxels, fieldMap.alpha, texDRays);
 		texDRays.delete();
+		newBuffer.accumEmission = newKernel.nextAccumEmission(prevBuffer.rayAlive, texPVoxels, fieldMap.result, texSegTransps, prevBuffer.accumEmission, prevBuffer.accumTransp);
 		texPVoxels.delete();
+		newBuffer.accumTransp = newKernel.nextAccumTransp(prevBuffer.rayAlive, texSegTransps, prevBuffer.accumTransp);
 		texSegTransps.delete();
+		newBuffer.rayAlive = newKernel.nextRayAlive(prevBuffer.rayAlive, newBuffer.accumTransp);
 		/* dRays.clear();
 		pVoxels.clear();
 		newAlphas.clear(); */
 
-		/* let newState = rayCastingLoop(texRayAlive, texCrossingPoints, texAccumBufferEmission, texAccumBufferTransp, 
-			texRayDirs, texRayDirsSign, texWorldScanEmission, texWorldScanTransp); */
+		/* newBuffer?.rayAlive?.clear();
+		newBuffer?.crossingPoints?.clear();
+		newBuffer?.accumEmission?.clear();
+		newBuffer?.accumTransp?.clear(); */
+		/* prevBuffer?.rayAlive?.clear();
+		prevBuffer?.crossingPoints?.clear();
+		prevBuffer?.accumEmission?.clear();
+		prevBuffer?.accumTransp?.clear(); */
+		prevBuffer?.rayAlive?.delete();
+		prevBuffer?.crossingPoints?.delete();
+		prevBuffer?.accumEmission?.delete();
+		prevBuffer?.accumTransp?.delete();
 
-		/* texCrossingPoints.clear();
-		texAccumBufferEmission.clear();
-		texAccumBufferTransp.clear();
-		texRayAlive.clear(); */
-		texRayAlive.delete();
-		texCrossingPoints.delete();
-		texAccumBufferEmission.delete();
-		texAccumBufferTransp.delete();
+		isBufferSecond = !isBufferSecond;
+		layerCount = z + 1;
+		if(timeoutEnabled && (performance.now() - tStart) * (layerCount + 1) / layerCount > timeout) break;
+	}
+	newBuffer.rayAlive.delete();
+	newBuffer.crossingPoints.delete();
 
-		texRayAlive = newRayAlive;
-		texCrossingPoints = newCrossingPoints;
-		texAccumBufferEmission = newAccumEmission;
-		texAccumBufferTransp = newAccumTransp;
-		/* texRayAlive = newState.result;
-		texCrossingPoints = newState.nextCrossingPointsRes;
-		texAccumBufferEmission = newState.nextAccumEmissionRes;
-		texAccumBufferTransp = newState.nextAccumTranspRes; */
+	generalKernels.renderAccum(newBuffer.accumEmission, newBuffer.accumTransp);
+	newBuffer.accumEmission.delete();
+	newBuffer.accumTransp.delete();
+	//releaseKernelCollection(newBuffer);
 
-		/* let newState = rayCastingLoop(texState, texRayDirs, texRayDirsSign, texWorldScanTransp, texWorldScanEmission);
-		texState[0].delete();
+	/* fieldMap.result.clear();
+	fieldMap.alpha.clear(); */
+	fieldMap.result.delete();
+	fieldMap.alpha.delete();
+}
+function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */) {
+	/* let timeoutEnabled = (typeof(timeout) === "number"), tStart;
+	if(timeoutEnabled) tStart = performance.now(); */
+	
+	//prevBuffer.crossingPoints = generalKernels.resetRayCrossingPoints(clientPos[0], clientPos[1], clientPos[2]);
+	//let texCrossingPoints = generalKernels.resetRayCrossingPoints(new Float32Array(clientPos));
+
+	//fieldMap?.result?.clear();
+	//fieldMap?.alpha?.clear();
+	//fieldMap?.result?.delete();
+	//fieldMap?.alpha?.delete();
+	//let fieldMap = generalKernels.mapField(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
+
+	rcKernels0.rayCaster(new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
+
+	/* fieldMap.result.clear();
+	fieldMap.alpha.clear(); */
+	//fieldMap.result.delete();
+	//fieldMap.alpha.delete();
+}
+function frameRenderRaycasting_kernelMap(/* bufH, bufW, */ timeout) {
+	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
+	if(timeoutEnabled) tStart = performance.now();
+	
+	//Some initialization
+	let newBuffer, prevBuffer;
+	prevBuffer = (isBufferSecond ? texBuffer0 : texBuffer1);
+	prevBuffer.rayAlive = generalKernels.resetRayAlive();
+	prevBuffer.crossingPoints = generalKernels.resetRayCrossingPoints(clientPos[0], clientPos[1], clientPos[2]);
+	//let texCrossingPoints = generalKernels.resetRayCrossingPoints(new Float32Array(clientPos));
+	prevBuffer.accumEmission = generalKernels.resetAccumBufferEmission();
+	prevBuffer.accumTransp = generalKernels.resetAccumBufferTransp();
+
+	//fieldMap?.result?.clear();
+	//fieldMap?.alpha?.clear();
+	//fieldMap?.result?.delete();
+	//fieldMap?.alpha?.delete();
+	let fieldMap = generalKernels.mapField(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
+
+	for(let z = 0; z < frameMaxLayers; z = layerCount) {
+		newBuffer = (isBufferSecond ? texBuffer1 : texBuffer0);
+		prevBuffer = (isBufferSecond ? texBuffer0 : texBuffer1);
+		let newKernel = (isBufferSecond ? rcKernels1 : rcKernels0);
+		//let newKernel = rcKernels0;
+
+		//to do: try removing ray life control
+		/* newBuffer?.rayAlive?.clear();
+		newBuffer?.crossingPoints?.clear();
+		newBuffer?.accumEmission?.clear();
+		newBuffer?.accumTransp?.clear(); */
+		if(!prevBuffer) break;
+		let newState = newKernel.rayCastingCycle(prevBuffer.rayAlive, prevBuffer.crossingPoints, prevBuffer.accumEmission, prevBuffer.accumTransp, texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
+		/* prevBuffer?.rayAlive?.clear();
+		prevBuffer?.crossingPoints?.clear();
+		prevBuffer?.accumEmission?.clear();
+		prevBuffer?.accumTransp?.clear(); */
+		/* prevBuffer.rayAlive.texture._refs--;
+		prevBuffer.crossingPoints.texture._refs--;
+		prevBuffer.accumEmission.texture._refs--;
+		prevBuffer.accumTransp.texture._refs--; */
+		/* prevBuffer.rayAlive?.delete();
+		prevBuffer.crossingPoints?.delete();
+		prevBuffer.accumEmission?.delete();
+		prevBuffer.accumTransp?.delete(); */
+		/* gpu.context.deleteTexture(prevBuffer.rayAlive?.texture);
+		gpu.context.deleteTexture(prevBuffer.crossingPoints?.texture);
+		gpu.context.deleteTexture(prevBuffer.accumEmission?.texture);
+		gpu.context.deleteTexture(prevBuffer.accumTransp?.texture); */
+		/* prevBuffer.rayAlive = null;
+		prevBuffer.crossingPoints = null;
+		prevBuffer.accumEmission = null;
+		prevBuffer.accumTransp = null; */
+
+		newBuffer.rayAlive = newState.result;
+		newBuffer.crossingPoints = newState.crossingPoints;
+		newBuffer.accumEmission = newState.accumEmission;
+		newBuffer.accumTransp = newState.accumTransp;
+
+		isBufferSecond = !isBufferSecond;
+		layerCount = z + 1;
+		if(timeoutEnabled && (performance.now() - tStart) * (layerCount + 1) / layerCount > timeout) break;
+	}
+	/* newBuffer.rayAlive.texture._refs--;
+	newBuffer.crossingPoints.texture._refs--; */
+	/* newBuffer.rayAlive.delete();
+	newBuffer.crossingPoints.delete(); */
+	/* gpu.context.deleteTexture(newBuffer.rayAlive?.texture);
+	gpu.context.deleteTexture(newBuffer.crossingPoints?.texture); */
+	
+	generalKernels.renderAccum(newBuffer.accumEmission, newBuffer.accumTransp);
+	/* newBuffer.accumEmission.texture._refs--;
+	newBuffer.accumTransp.texture._refs--; */
+	/* newBuffer.accumEmission.delete();
+	newBuffer.accumTransp.delete(); */
+	/* gpu.context.deleteTexture(newBuffer.accumEmission?.texture);
+	gpu.context.deleteTexture(newBuffer.accumTransp?.texture); */
+	//releaseKernelCollection(newBuffer);
+	/* newBuffer.rayAlive = null;
+	newBuffer.crossingPoints = null;
+	newBuffer.accumEmission = null;
+	newBuffer.accumTransp = null; */
+	
+	/* fieldMap.result.clear();
+	fieldMap.alpha.clear(); */
+	/* fieldMap.result.texture._refs--;
+	fieldMap.alpha.texture._refs--; */
+	fieldMap.result.delete();
+	fieldMap.alpha.delete();
+	/* gpu.context.deleteTexture(fieldMap.result?.texture);
+	gpu.context.deleteTexture(fieldMap.alpha?.texture); */
+	/* fieldMap.result = null;
+	fieldMap.alpha = null; */
+}
+function frameRenderRaycasting_combinedKernel(timeout) {
+	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
+	if(timeoutEnabled) tStart = performance.now();
+	
+	//Some initialization
+	//let texState = generalKernels.resetState(new Float32Array(clientPos));
+	let texState = generalKernels.resetState(clientPos[0], clientPos[1], clientPos[2]);
+
+	//fieldMap.result?.clear();
+	//fieldMap.alpha?.clear();
+	//fieldMap.result?.delete();
+	//fieldMap.alpha?.delete();
+	let fieldMap = generalKernels.mapField(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
+
+	for(let z = 0; z < frameMaxLayers; z = layerCount) {
+		let newKernel = (isBufferSecond ? rcKernels1 : rcKernels0);
+
+		//to do: try removing ray life control
+		//let newState = newKernel.rayCastingCycle(texState, texRayDirs, texRayDirsSign, fieldMap.alpha, fieldMap.result);
+		texState = newKernel.rayCastingCycle(texState, texRayDirs, texRayDirsSign, fieldMap.alpha, fieldMap.result);
+		/* texState[0].delete();
 		texState[1].delete();
 		texState[2].delete();
 		texState[3].delete();
 		texState = newState; */
 
-		//let rayAliveArr = texState[0].toArray(), frameSegCount = 0;
-		/* let rayAliveArr = texRayAlive.toArray(), frameSegCount = 0;
-		for(let y = 0, x; y < bufH; y++) {
-			const row = rayAliveArr[y];
-			for(x = 0; x < bufW; x++)
-				frameSegCount += row[x];
-		}
-		segmentCount += frameSegCount;
-		if(frameSegCount === 0) break; */
+		isBufferSecond = !isBufferSecond;
 		layerCount = z + 1;
 		if(timeoutEnabled && (performance.now() - tStart) * (layerCount + 1) / layerCount > timeout) break;
 	}
-	texCrossingPoints.delete();
-	texRayAlive.delete();
-
-	renderAccum(texAccumBufferEmission, texAccumBufferTransp);
-	texAccumBufferEmission.delete();
-	texAccumBufferTransp.delete();
-
-	/* texState[0].delete();
+	texState[0].delete();
 	texState[1].delete();
-	renderAccum(texState[2], texState[3]);
+	generalKernels.renderAccum(texState[2], texState[3]);
 	texState[2].delete();
-	texState[3].delete(); */
+	texState[3].delete();
+	//releaseKernelCollection(newBuffer);
+
+	/* fieldMap.result.clear();
+	fieldMap.alpha.clear(); */
+	fieldMap.result.delete();
+	fieldMap.alpha.delete();
 }
