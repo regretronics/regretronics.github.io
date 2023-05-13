@@ -36,7 +36,7 @@ function canvasSizeCheck() {
 	releaseGPU();
 	restartGPU();
 	if(gpu) {
-		isBufferSecond = false;
+		//isBufferSecond = false;
 		generalKernels = registerKernels();
 		//worldVoxelsInit();
 		let mazeMap = generalKernels.createMaze(mazeFillThres);
@@ -50,8 +50,8 @@ function canvasSizeCheck() {
 		canvasContainer.appendChild(mainCanvas);
 
 		viewRayDirsCompute_Rectilinear(ch, cw);
-		texBuffer0 = {};
-		texBuffer1 = {};
+		//texBuffer0 = {};
+		//texBuffer1 = {};
 
 		//force-compile
 		//frameRenderRaycasting(ch, cw, 0);
