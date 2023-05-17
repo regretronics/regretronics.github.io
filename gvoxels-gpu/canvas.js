@@ -73,6 +73,11 @@ const defTimeout = 1000;
 var timeout = defTimeout;
 var clientSpeed = new Float32Array([0.0, 0.0, 0.0, 0.0]);
 
+function uRemainder(x, y) { //When x % y is not enough.
+	let rem = x % y;
+	if(rem < 0) rem += Math.abs(y);
+	return rem;
+}
 function viewUpdate() {
 	canvasSizeCheck();
 	//if(frameCount) kinematicsRefresh();
@@ -109,9 +114,9 @@ function viewUpdate() {
 	clientSpeed[i] += 4.0 / 64.0 * (Math.random() - 0.5);
 	clientSpeed[2] = 4.0 / 16.0;
 	const dt = 1.0 / 4.0;
-	clientPos[0] = (clientPos[0] + dt * clientSpeed[0]) % worldRes[0];
-	clientPos[1] = (clientPos[1] + dt * clientSpeed[1]) % worldRes[1];
-	clientPos[2] = (clientPos[2] + dt * clientSpeed[2]) % worldRes[2];
+	clientPos[0] = uRemainder(clientPos[0] + dt * clientSpeed[0], worldRes[0]);
+	clientPos[1] = uRemainder(clientPos[1] + dt * clientSpeed[1], worldRes[1]);
+	clientPos[2] = uRemainder(clientPos[2] + dt * clientSpeed[2], worldRes[2]);
 
 	//particles.pos[0] += 0.25 / Math.E;
 	

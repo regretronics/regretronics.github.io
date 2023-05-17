@@ -243,7 +243,8 @@ function registerFieldKernels(gpu, newKernels) {
 		const fill = [Math.random(), Math.random(), Math.random(), 0.0];
 		//const fill = [1.0, 1.0, 1.0, 0.0];
 
-		let gain = (cell >= 1 ? 0.9375 : 0.0625);
+		//let gain = (cell >= 1 ? 0.9375 : 0.0625);
+		let gain = (cell >= 1 ? 1.0 : 0.125);
 		let alpha = (cell >= 1 ? 0.5 : 0.25);
 
 		fieldAlpha([alpha, alpha, alpha, 0.0]);
@@ -542,9 +543,12 @@ function registerRayCastingKernelMono() {
 			vecAccumTransp = newAccumTransp;
 
 			//to do: where to break? loop header? loop end?
-			if(newAccumTransp[0] <= this.constants.rayTranspThreshold &&
+			/* if(newAccumTransp[0] <= this.constants.rayTranspThreshold &&
 				newAccumTransp[1] <= this.constants.rayTranspThreshold &&
-				newAccumTransp[2] <= this.constants.rayTranspThreshold)
+				newAccumTransp[2] <= this.constants.rayTranspThreshold) */
+			if(newAccumTransp[0] <= vecAccumEmission[0] * this.constants.rayTranspThreshold &&
+				newAccumTransp[1] <= vecAccumEmission[1] * this.constants.rayTranspThreshold &&
+				newAccumTransp[2] <= vecAccumEmission[2] * this.constants.rayTranspThreshold)
 				break;
 			else
 				vecCrossingPoint = newCrossingPoint;

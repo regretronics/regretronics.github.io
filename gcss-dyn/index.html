@@ -196,7 +196,22 @@
 	}
 	#elem3:hover {
 		animation-play-state: paused, running;
+		/* animation-direction: reverse, reverse;
+		animation-duration: 6s, 2s; */
 		transform: rotate(15deg);
+		/* animation-name: none; */
+	}
+	#elem4 {
+		width: 15em;
+		height: 15em;
+		/* font-size: 8em; */
+		text-align: center;
+		transition-property: transform;
+		transition-duration: 12s;
+	}
+	#elem4:hover {
+		transform: rotate(6turn);
+		transition-duration: 2s;
 	}
 
 	.blobCss {
@@ -249,6 +264,10 @@
 	</div>
 	<div class="anim-container" id="container3">
 		<div class="anim-elem bg-color-wheel" id="elem3">test
+		</div>	
+	</div>
+	<div class="anim-container" id="container4">
+		<div class="anim-elem bg-color-wheel" id="elem4">test
 		</div>	
 	</div>
 </body>
