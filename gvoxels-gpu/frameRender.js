@@ -56,7 +56,7 @@ function registerKernels() {
 		constants: { opacityFactor: opacityFactor },
 		returnType: 'Array(4)',
 		output: [cw, ch],
-		immutable: true,
+		//immutable: true,
 		//dynamicOutput: true,
 		//dynamicArguments: true,
 		pipeline: true
@@ -67,7 +67,7 @@ function registerKernels() {
 	}, {
 		returnType: 'Array(4)',
 		output: [cw, ch],
-		immutable: true,
+		//immutable: true,
 		//dynamicOutput: true,
 		//dynamicArguments: true,
 		pipeline: true
@@ -670,7 +670,7 @@ function registerRayCastingKernelMono() {
 		returnType: 'Integer', */
 	//});
 	rayCaster.addFunction(function segTransp(offset, texWorldScanTransp, dRay) {
-		let vxTransp = [0.5, 0.5, 0.5, 0.0];
+		let vxTransp = [0.125, 0.125, 0.125, 0.0];
 		//let vxTransp = [0.0, 0.0, 0.0, 0.0];
 		//let vxTransp = [1.0, 1.0, 1.0, 0.0];
 		if(offset >= 0) vxTransp = texWorldScanTransp[offset];
@@ -690,7 +690,8 @@ function registerRayCastingKernelMono() {
 	} */);
 
 	rayCaster.addFunction(function nextAccumEmission(offset, texWorldScanEmission, segTransp, accumEmission, accumTransp) {
-		let vxEmission = [0.0, 0.5, 1.0, 0.0];
+		//let vxEmission = [0.0, 0.5, 1.0, 0.0];
+		let vxEmission = [0.25, 0.25, 0.25, 0.0];
 		if(offset >= 0) vxEmission = texWorldScanEmission[offset];
 		return [
 			accumEmission[0] + accumTransp[0] * (1.0 - segTransp[0]) * vxEmission[0],
@@ -1022,7 +1023,7 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */) {
 	//fieldMap?.alpha?.clear();
 	//fieldMap?.result?.delete();
 	//fieldMap?.alpha?.delete();
-	//let fieldMap = generalKernels.mapField(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
+	//let fieldMap = generalKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
 
 	rcKernels0.rayCaster(new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
 

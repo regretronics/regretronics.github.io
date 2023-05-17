@@ -28,7 +28,6 @@
 	}
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
-	//to do: check performance difference of strict mode.
 	"use strict";
 	//to do: use defer="true" or async in any script tag?
 	//  idea: have a "reload script" button?
@@ -41,10 +40,39 @@
 	/*]]>*/</script>
 	<script type="text/javascript" src="gpu-browser.min.js"></script>
 	<!-- <script type="text/javascript" src="numerics.js"></script> -->
+	<script type="text/javascript" src="navigationCore.js"></script>
 	<script type="text/javascript" src="frameRender.js"></script>
 	<script type="text/javascript" src="canvas.js"></script>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
+
+	var pos = [0.0, 0.0, 0.0];
+	var dPos = [0.0, 0.0, 0.0];
+	var rot = [0.0, 0.0, 0.0];
+	var dRot = [0.0, 0.0, 0.0];
+	const vars = {pos: pos, dPos: dPos, rot: rot, dRot: dRot};
+	//const outVars = {pos: pos, vel: dPos, rot: rot, dRot: dRot};
+	let dynLastTime;
+	//var clientSpcTransf = Object.create(IdentityMatrix3);
+
+	var inputKeyMap = [
+		{ keyCode: 65, inputMode: "ifPressed", cmdName: "Strafe-left"  , action: "add", object: "dPos", param: [-worldRes[0] / 16.0, 0.0,  0.0] },
+		{ keyCode: 68, inputMode: "ifPressed", cmdName: "Strafe-right" , action: "add", object: "dPos", param: [ worldRes[0] / 16.0, 0.0,  0.0] },
+		{ keyCode: 83, inputMode: "ifPressed", cmdName: "Move-forward" , action: "add", object: "dPos", param: [ 0.0, 0.0, -worldRes[0] / 16.0] },
+		{ keyCode: 87, inputMode: "ifPressed", cmdName: "Move-backward", action: "add", object: "dPos", param: [ 0.0, 0.0,  worldRes[0] / 16.0] },
+		{ keyCode: 37, inputMode: "ifPressed", cmdName: "Yaw-left"  , action: "add", object: "dRot", param: [ 1.0 / 4.0,  0.0, 0.0] },
+		{ keyCode: 39, inputMode: "ifPressed", cmdName: "Yaw-right" , action: "add", object: "dRot", param: [-1.0 / 4.0,  0.0, 0.0] },
+		{ keyCode: 38, inputMode: "ifPressed", cmdName: "Pitch-up"  , action: "add", object: "dRot", param: [ 0.0,  1.0 / 4.0, 0.0] },
+		{ keyCode: 40, inputMode: "ifPressed", cmdName: "Pitch-down", action: "add", object: "dRot", param: [ 0.0, -1.0 / 4.0, 0.0] }
+	];
+	var keysPressed = {};
+	var inputGamepadMap = [
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 0, varName: "Strafe", action: "add", object: "dPos", param: [worldRes[0] / 16.0, 0.0,  0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 1, varName: "Move"  , action: "add", object: "dPos", param: [0.0, 0.0, -worldRes[0] / 16.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 2, varName: "Yaw"  , action: "add", object: "dRot", param: [-1.0 / 4.0,  0.0, 0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 5, varName: "Pitch", action: "add", object: "dRot", param: [ 0.0, -1.0 / 4.0, 0.0] }
+	];
+
 	function initParticles() {
 		particles = {
 			count: 2,
@@ -63,6 +91,31 @@
 			])
 		};
 	}
+	function initParticles_random() {
+		//const particleCount = 4096;
+		//const particleCount = 65536;
+		//const particleCount = 262144;
+		const particleCount = 1048576;
+		particles = {
+			count: particleCount,
+			r: new Float32Array(particleCount),
+			pos: new Float32Array(4 * particleCount),
+			emission: new Float32Array(4 * particleCount),
+			alpha: new Float32Array(4 * particleCount)
+		};
+		for (let i = 0; i < particleCount; i++) {
+			particles.r[i] = 2.0 ** (5.0 * Math.random() - 2.0);
+			particles.pos[4 * i    ] = worldRes[0] * Math.random();
+			particles.pos[4 * i + 1] = worldRes[1] * Math.random();
+			particles.pos[4 * i + 2] = worldRes[2] * Math.random();
+			particles.emission[4 * i    ] = Math.random();
+			particles.emission[4 * i + 1] = Math.random();
+			particles.emission[4 * i + 2] = Math.random();
+			particles.alpha[4 * i    ] = 2.0 ** (6.0 * Math.random() - 4.0);
+			particles.alpha[4 * i + 1] = 2.0 ** (6.0 * Math.random() - 4.0);
+			particles.alpha[4 * i + 2] = 2.0 ** (6.0 * Math.random() - 4.0);
+		}
+	}
 
 	function restartGPU() {
 		let GPUClass = GPU;
@@ -77,7 +130,7 @@
 		for(const prop in obj)
 			if(Object.hasOwnProperty.call(obj, prop)) {
 				if(obj[prop].destroy) obj[prop].destroy();
-				obj[prop] = undefined;
+				delete(obj[prop]);
 			}
 	}
 	function releaseTextureCollection(obj) { //to do: use for other textures
@@ -85,7 +138,7 @@
 		for(const prop in obj)
 			if(Object.hasOwnProperty.call(obj, prop)) {
 				if(obj[prop].delete) obj[prop].delete();
-				obj[prop] = undefined;
+				delete(obj[prop]);
 			}
 	}
 	function releaseGPU() {
@@ -129,8 +182,13 @@
 		}
 
 		//initParticles();
+		//initParticles_random();
 		//worldVoxelsInit();
 		viewUpdate();
+		//pos = clientPos;
+		Object.assign(pos, clientPos);
+		document.addEventListener("keydown", navKeyDown);
+		document.addEventListener("keyup", navKeyUp);
 
 		animating = true;
 		firstTimeout = setTimeout(startUpdating, 3000);
@@ -181,9 +239,9 @@
 		<option value="3_1">3:1</option>
 		<option value="2_1">2:1</option>
 		<option value="3_2">3:2</option>
-		<option value="1_1" selected="true">1:1</option>
+		<option value="1_1">1:1</option>
 		<option value="2_3">2:3</option>
-		<option value="1_2">1:2</option>
+		<option value="1_2" selected="true">1:2</option>
 		<option value="1_3">1:3</option>
 		<option value="1_4">1:4</option>
 		<option value="1_6">1:6</option>
