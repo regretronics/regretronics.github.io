@@ -58,7 +58,7 @@ function canvasSizeCheck() {
 		//frameRenderRaycasting(ch, cw, 0);
 		//frameRenderRaycasting_kernelMap(0);
 		//frameRenderRaycasting_kernelMap(0);
-		frameRenderRaycasting_mono();
+		frameRenderRaycasting_mono(1);
 		/* frameRenderRaycasting_combinedKernel(0);
 		frameRenderRaycasting_combinedKernel(0); */
 
@@ -90,9 +90,10 @@ function viewUpdate() {
 	//frameRenderRaycasting(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_kernelMap(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_combinedKernel(timeout);
-	frameRenderRaycasting_mono();
+	/* let */ layerCount = txtMarchingLayers.valueAsNumber;
+	frameRenderRaycasting_mono(layerCount);
 	let t = performance.now() - tNow;
-	layerCount = frameMaxLayers;
+	//layerCount = frameMaxLayers;
 
 	outFrameRenderT.innerText = t.toFixed(1);
 	//outFrameSegs.innerText = segmentCount.toString();

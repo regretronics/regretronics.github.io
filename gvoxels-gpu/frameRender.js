@@ -15,7 +15,7 @@ var fieldMap;
 
 const mazeSize = new Int32Array(
 	[16, 16, 16]);
-const mazeFillThres = new Float32Array( //maze voxel fill probability by sum of oddities (odnesses?)
+const mazeFillThres = new Float32Array( //maze voxel fill probability by sum of odnesses
 	[15.0 / 16.0, 11.0 / 16.0, 5.0 / 16.0, 1.0 / 16.0]);
 
 //--
@@ -524,7 +524,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 	return newKernels;
 }
 function registerRayCastingKernelMono() {
-	let rayCaster = gpu.createKernel(function(viewerOrigin, texRayDirs, texRayDirsSign, texWorldScanEmission, texWorldScanTransp) {
+	let rayCaster = gpu.createKernel(function(layerCount, viewerOrigin, texRayDirs, texRayDirsSign, texWorldScanEmission, texWorldScanTransp) {
 		//let vecCrossingPoint = viewerOrigin;
 		let vecCrossingPoint = [viewerOrigin[0], viewerOrigin[1], viewerOrigin[2], 0.0];
 		let vecAccumEmission = [0.0, 0.0, 0.0, 0.0];
@@ -532,7 +532,8 @@ function registerRayCastingKernelMono() {
 		let vecRayDir = texRayDirs[this.thread.y][this.thread.x];
 		let vecRayDirSign = texRayDirsSign[this.thread.y][this.thread.x];
 
-		for (let i = 0; i < this.constants.iterations; i++) {
+		//for (let i = 0; i < this.constants.iterations; i++) {
+		for (let i = 0; i < layerCount; i++) {
 			let vecDRay = getDRay(vecCrossingPoint, vecRayDir, vecRayDirSign);
 			let newCrossingPoint = nextCrossingPoints(vecCrossingPoint, vecDRay);
 			let pVoxel = pVoxel(vecCrossingPoint, vecDRay);
@@ -564,7 +565,7 @@ function registerRayCastingKernelMono() {
 		this.color(color[0], color[1], color[2]);
 	}, {
 		constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2],
-			opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold, iterations: frameMaxLayers },
+			opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold/* , iterations: frameMaxLayers */ },
 		//constants: { opacityFactor: opacityFactor },
 		//argumentTypes: { rayCrossingPoints: "Array(4)", rayDirs: "Array(4)", rayDirsSign: "Array(4)" },
 		output: [cw, ch],
@@ -1012,7 +1013,7 @@ function frameRenderRaycasting(/* bufH, bufW, */ timeout) {
 	fieldMap.result.delete();
 	fieldMap.alpha.delete();
 }
-function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */) {
+function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) {
 	/* let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now(); */
 	
@@ -1025,7 +1026,7 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */) {
 	//fieldMap?.alpha?.delete();
 	//let fieldMap = generalKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
 
-	rcKernels0.rayCaster(new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
+	rcKernels0.rayCaster(layerCount, new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
 
 	/* fieldMap.result.clear();
 	fieldMap.alpha.clear(); */

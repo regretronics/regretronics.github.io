@@ -17,6 +17,9 @@
 		color-scheme: dark;
 	}
 
+	#canvasContainer {
+		text-align: center;
+	}
 	#canvasContainer canvas {
 		max-width: 100%;
 		max-height: 100vh;
@@ -55,22 +58,32 @@
 	let dynLastTime;
 	//var clientSpcTransf = Object.create(IdentityMatrix3);
 
+	const deadZoneSlight = x => deadZone(x, 0.0625);
+	const transferPower = (b, y) => Math.abs(b)**y * Math.sign(b);
+	//const transferQuadratic = b => Math.abs(b)**2 * Math.sign(b);
+
+	const symmetricAxis = x => transferPower(deadZoneSlight(x), 2);
+	const invBtnToAxis = x => 0.5 - 0.5 * x;
+
+	var keyTarget;
 	var inputKeyMap = [
-		{ keyCode: 65, inputMode: "ifPressed", cmdName: "Strafe-left"  , action: "add", object: "dPos", param: [-worldRes[0] / 16.0, 0.0,  0.0] },
-		{ keyCode: 68, inputMode: "ifPressed", cmdName: "Strafe-right" , action: "add", object: "dPos", param: [ worldRes[0] / 16.0, 0.0,  0.0] },
-		{ keyCode: 83, inputMode: "ifPressed", cmdName: "Move-forward" , action: "add", object: "dPos", param: [ 0.0, 0.0, -worldRes[0] / 16.0] },
-		{ keyCode: 87, inputMode: "ifPressed", cmdName: "Move-backward", action: "add", object: "dPos", param: [ 0.0, 0.0,  worldRes[0] / 16.0] },
-		{ keyCode: 37, inputMode: "ifPressed", cmdName: "Yaw-left"  , action: "add", object: "dRot", param: [ 1.0 / 4.0,  0.0, 0.0] },
-		{ keyCode: 39, inputMode: "ifPressed", cmdName: "Yaw-right" , action: "add", object: "dRot", param: [-1.0 / 4.0,  0.0, 0.0] },
-		{ keyCode: 38, inputMode: "ifPressed", cmdName: "Pitch-up"  , action: "add", object: "dRot", param: [ 0.0,  1.0 / 4.0, 0.0] },
-		{ keyCode: 40, inputMode: "ifPressed", cmdName: "Pitch-down", action: "add", object: "dRot", param: [ 0.0, -1.0 / 4.0, 0.0] }
+		{ keyCode: "KeyA", inputMode: "ifPressed", cmdName: "Strafe-left"  , action: "add", object: "dPos", param: [-worldRes[0] / 16.0, 0.0,  0.0] },
+		{ keyCode: "KeyD", inputMode: "ifPressed", cmdName: "Strafe-right" , action: "add", object: "dPos", param: [ worldRes[0] / 16.0, 0.0,  0.0] },
+		{ keyCode: "KeyW", inputMode: "ifPressed", cmdName: "Move-forward" , action: "add", object: "dPos", param: [ 0.0, 0.0,  worldRes[0] / 16.0] },
+		{ keyCode: "KeyS", inputMode: "ifPressed", cmdName: "Move-backward", action: "add", object: "dPos", param: [ 0.0, 0.0, -worldRes[0] / 16.0] },
+		{ keyCode: "ArrowLeft" , inputMode: "ifPressed", cmdName: "Yaw-left"  , action: "add", object: "dRot", param: [ 1.0 / 8.0,  0.0, 0.0] },
+		{ keyCode: "ArrowRight", inputMode: "ifPressed", cmdName: "Yaw-right" , action: "add", object: "dRot", param: [-1.0 / 8.0,  0.0, 0.0] },
+		{ keyCode: "ArrowUp"   , inputMode: "ifPressed", cmdName: "Pitch-up"  , action: "add", object: "dRot", param: [ 0.0,  1.0 / 8.0, 0.0] },
+		{ keyCode: "ArrowDown" , inputMode: "ifPressed", cmdName: "Pitch-down", action: "add", object: "dRot", param: [ 0.0, -1.0 / 8.0, 0.0] }
 	];
 	var keysPressed = {};
 	var inputGamepadMap = [
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 0, varName: "Strafe", action: "add", object: "dPos", param: [worldRes[0] / 16.0, 0.0,  0.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 1, varName: "Move"  , action: "add", object: "dPos", param: [0.0, 0.0, -worldRes[0] / 16.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 2, varName: "Yaw"  , action: "add", object: "dRot", param: [-1.0 / 4.0,  0.0, 0.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 5, varName: "Pitch", action: "add", object: "dRot", param: [ 0.0, -1.0 / 4.0, 0.0] }
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 0, varName: "Strafe", action: "add", transfer: symmetricAxis, object: "dPos", param: [worldRes[0] / 16.0, 0.0,  0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 1, varName: "Move"  , action: "add", transfer: symmetricAxis, object: "dPos", param: [0.0, 0.0, -worldRes[0] / 16.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 2, varName: "Yaw"     , action: "add", transfer: symmetricAxis, object: "dRot", param: [-1.0 / 4.0,  0.0, 0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 5, varName: "Pitch"   , action: "add", transfer: symmetricAxis, object: "dRot", param: [ 0.0, -1.0 / 4.0, 0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 3, varName: "Roll-ccw", action: "add", transfer: invBtnToAxis, object: "dRot", param: [ 0.0, 0.0,  1.0 / 4.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 4, varName: "Roll-cw" , action: "add", transfer: invBtnToAxis, object: "dRot", param: [ 0.0, 0.0, -1.0 / 4.0] }
 	];
 
 	function initParticles() {
@@ -167,11 +180,14 @@
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 
+		btnResDiv2.addEventListener("click", event => {txtResW.valueAsNumber *= 0.5; txtResH.valueAsNumber *= 0.5;});
+		btnResMul2.addEventListener("click", event => {txtResW.valueAsNumber *= 2.0; txtResH.valueAsNumber *= 2.0;});
 		cbxCanvasScale.addEventListener("change", canvasScaleChanged);
 
 		btnViewUpdate.addEventListener("click", viewUpdate);
 		btnStartUpdating.addEventListener("click", (evt) => {animating = true; startUpdating();});
 		btnStopUpdating.addEventListener("click", stopUpdating);
+		keyTarget = document.body;
 	}
 	function pageReady() {
 		if(!GPU) {
@@ -205,53 +221,105 @@
 		</canvas>
 	</div>
 	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" step="16" list="resList" />, 
-	<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" step="16" list="resList" />.
-	<datalist id="resList">
-		<option value="64" />
-		<option value="80" />
-		<option value="96" />
-		<option value="128" />
-		<option value="160" />
-		<option value="192" />
-		<option value="256" />
-		<option value="320" />
-		<option value="384" />
-		<option value="512" />
-		<option value="640" />
-		<option value="768" />
-		<option value="1024" />
-		<option value="1280" />
-		<option value="1536" />
-		<option value="2048" />
-		<option value="2560" />
-		<option value="3072" />
-		<option value="4096" />
-		<option value="5120" />
-		<option value="6144" />
-		<option value="8192" />
-	</datalist>
-	<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
-		<option value="16_1">16:1</option>
-		<option value="12_1">12:1</option>
-		<option value="8_1">8:1</option>
-		<option value="6_1">6:1</option>
-		<option value="4_1">4:1</option>
-		<option value="3_1">3:1</option>
-		<option value="2_1">2:1</option>
-		<option value="3_2">3:2</option>
-		<option value="1_1">1:1</option>
-		<option value="2_3">2:3</option>
-		<option value="1_2" selected="true">1:2</option>
-		<option value="1_3">1:3</option>
-		<option value="1_4">1:4</option>
-		<option value="1_6">1:6</option>
-		<option value="1_8">1:8</option>
-		<option value="1_12">1:12</option>
-		<option value="1_16">1:16</option>
-	</select>. <label for="txtFrameTimeout">Frame timeout</label> <input id="txtFrameTimeout" type="number" value="100" step="5" />.
+		<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" step="16" list="resList" />.
+		<datalist id="resList">
+			<option value="64" />
+			<option value="80" />
+			<option value="96" />
+			<option value="128" />
+			<option value="160" />
+			<option value="192" />
+			<option value="256" />
+			<option value="320" />
+			<option value="384" />
+			<option value="512" />
+			<option value="640" />
+			<option value="768" />
+			<option value="1024" />
+			<option value="1280" />
+			<option value="1536" />
+			<option value="2048" />
+			<option value="2560" />
+			<option value="3072" />
+			<option value="4096" />
+			<option value="5120" />
+			<option value="6144" />
+			<option value="8192" />
+		</datalist>
+		<button id="btnResDiv2">Half res.</button> 
+		<button id="btnResMul2">Double res.</button> 
+		<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
+			<option value="16_1">16:1</option>
+			<option value="12_1">12:1</option>
+			<option value="8_1">8:1</option>
+			<option value="6_1">6:1</option>
+			<option value="4_1">4:1</option>
+			<option value="3_1">3:1</option>
+			<option value="2_1">2:1</option>
+			<option value="3_2">3:2</option>
+			<option value="1_1">1:1</option>
+			<option value="2_3">2:3</option>
+			<option value="1_2" selected="true">1:2</option>
+			<option value="1_3">1:3</option>
+			<option value="1_4">1:4</option>
+			<option value="1_6">1:6</option>
+			<option value="1_8">1:8</option>
+			<option value="1_12">1:12</option>
+			<option value="1_16">1:16</option>
+		</select>.
 	</p>
-	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
-	<p>Frame: render time <output id="outFrameRenderT">0</output> ms, avg. <output id="outFrameLayers">0</output> layer(s) (avg. <output id="outSegTime">0</output> ns/segment). <output id="outFrameCount">0</output> frame(s) generated, avg. <output id="outSegTAvg">0</output> ns/segment.</p>
+	<p>
+		<label for="txtMarchingLayers">Marching layers</label> 
+		<input id="txtMarchingLayers" type="number" value="96" step="8" list="layerCountList" />. 
+		<datalist id="layerCountList">
+			<option value="16" />
+			<option value="20" />
+			<option value="24" />
+			<option value="32" />
+			<option value="40" />
+			<option value="48" />
+			<option value="64" />
+			<option value="80" />
+			<option value="96" />
+			<option value="128" />
+			<option value="160" />
+			<option value="192" />
+			<option value="256" />
+		</datalist>
+		<label for="txtFrameTimeout">Frame timeout</label> 
+		<input id="txtFrameTimeout" type="number" value="100" step="5" list="intervalMsList" />.
+		<datalist id="intervalMsList">
+			<option value="5" />
+			<option value="8" />
+			<option value="10" />
+			<option value="11" />
+			<option value="17" />
+			<option value="20" />
+			<option value="33" />
+			<option value="42" />
+			<option value="50" />
+			<option value="67" />
+			<option value="100" />
+			<option value="150" />
+			<option value="200" />
+			<option value="250" />
+			<option value="500" />
+			<option value="1000" />
+		</datalist>
+	</p>
+	<p>
+		<button id="btnViewUpdate">Update once</button>
+		<button id="btnStartUpdating">Start updating</button>
+		<button id="btnStopUpdating">Stop updating</button>
+	</p>
+	<p>
+		Frame: render time 
+		<output id="outFrameRenderT">0</output> ms, 
+		avg. <output id="outFrameLayers">0</output> layer(s) 
+		(avg. <output id="outSegTime">0</output> ns/segment). 
+		<output id="outFrameCount">0</output> frame(s) generated, 
+		avg. <output id="outSegTAvg">0</output> ns/segment.
+	</p>
 	<p>This page is a graphical test, requiring HTML canvas and modern JavaScript to work, and thus a modern browser. This page automatically starts an update cycle 3 seconds after loading, to ease performance testing.</p>
 </body>
 </html>
