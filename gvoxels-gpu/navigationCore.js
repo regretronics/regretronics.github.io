@@ -94,7 +94,7 @@ function updateDynamics(dt) {
 
 	const tau = 2 * Math.PI;
 	//let newTransform = Object.create(IdentityMatrix3);
-	let r0Transform = [ //yaw
+	/* let r0Transform = [ //yaw
 		Math.cos(tau * rot[0]), 0.0, Math.sin(tau * rot[0]),
 		0.0, 1.0, 0.0,
 		-Math.sin(tau * rot[0]), 0.0, Math.cos(tau * rot[0])
@@ -112,15 +112,29 @@ function updateDynamics(dt) {
 	clientSpcTransf = matrixMultiply_3x3(matrixMultiply_3x3(r2Transform, r1Transform), r0Transform);
 	rot[0] += dRot[0] * dt;
 	rot[1] += dRot[1] * dt;
-	rot[2] += dRot[2] * dt;
+	rot[2] += dRot[2] * dt; */
 
-	/* dPos[0] = 0.0;
-	dPos[1] = 0.0;
-	dPos[2] = 0.0;
-	dRot[0] = 0.0;
-	dRot[1] = 0.0;
-	dRot[2] = 0.0; */
-	Object.assign(dPos, [0.0, 0.0, 0.0]);
+	rot[0] = tau * dRot[0] * dt;
+	rot[1] = tau * dRot[1] * dt;
+	rot[2] = tau * dRot[2] * dt;
+	let r0Transform = [ //yaw
+		Math.cos(rot[0]), 0.0, Math.sin(rot[0]),
+		0.0, 1.0, 0.0,
+		-Math.sin(rot[0]), 0.0, Math.cos(rot[0])
+	],
+	r1Transform = [ //pitch
+		1.0, 0.0, 0.0,
+		0.0, Math.cos(rot[1]), -Math.sin(rot[1]),
+		0.0, Math.sin(rot[1]), Math.cos(rot[1])
+	],
+	r2Transform = [ //roll
+		Math.cos(rot[2]), -Math.sin(rot[2]), 0.0,
+		Math.sin(rot[2]), Math.cos(rot[2]), 0.0,
+		0.0, 0.0, 1.0,
+	];
+	clientSpcTransf = matrixMultiply_3x3(matrixMultiply_3x3(matrixMultiply_3x3(r2Transform, r1Transform), r0Transform), clientSpcTransf);
+
+	Object.assign(dPos, [0.0, 0.0, 0.0]); //question: replace with Object constructor?
 	Object.assign(dRot, [0.0, 0.0, 0.0]);
 }
 function inputCycle(newLastTime, dt) {
@@ -150,14 +164,16 @@ function inputCycle(newLastTime, dt) {
 }
 
 function navKeyDown(event) {
-	if(event.srcElement != keyTarget) return; //to do: event.target instead?
+	if(event.target != keyTarget) return; //to do: event.srcElement or event.target?
 	//console.log(event);
 	//const now = performance.now();
 	const now = event.timeStamp;
-
+	
 	for (const inputObj of inputKeyMap)
-		if (inputObj.keyCode == event.code && inputObj.inputMode.startsWith("onKeyDown")) {
-			commandFired(inputObj.action, inputObj.object, inputObj.param);
+		if (inputObj.keyCode == event.code) {
+			event.preventDefault();
+			//event.stopImmediatePropagation();
+			if (inputObj.inputMode.startsWith("onKeyDown")) commandFired(inputObj.action, inputObj.object, inputObj.param);
 		}
 
 	let pressedRec = keysPressed[event.code];

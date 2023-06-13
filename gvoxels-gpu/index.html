@@ -74,7 +74,9 @@
 		{ keyCode: "ArrowLeft" , inputMode: "ifPressed", cmdName: "Yaw-left"  , action: "add", object: "dRot", param: [ 1.0 / 8.0,  0.0, 0.0] },
 		{ keyCode: "ArrowRight", inputMode: "ifPressed", cmdName: "Yaw-right" , action: "add", object: "dRot", param: [-1.0 / 8.0,  0.0, 0.0] },
 		{ keyCode: "ArrowUp"   , inputMode: "ifPressed", cmdName: "Pitch-up"  , action: "add", object: "dRot", param: [ 0.0,  1.0 / 8.0, 0.0] },
-		{ keyCode: "ArrowDown" , inputMode: "ifPressed", cmdName: "Pitch-down", action: "add", object: "dRot", param: [ 0.0, -1.0 / 8.0, 0.0] }
+		{ keyCode: "ArrowDown" , inputMode: "ifPressed", cmdName: "Pitch-down", action: "add", object: "dRot", param: [ 0.0, -1.0 / 8.0, 0.0] },
+		{ keyCode: "KeyQ"      , inputMode: "ifPressed", cmdName: "Roll-ccw"  , action: "add", object: "dRot", param: [ 0.0, 0.0,  1.0 / 8.0] },
+		{ keyCode: "KeyE"      , inputMode: "ifPressed", cmdName: "Roll-cw"   , action: "add", object: "dRot", param: [ 0.0, 0.0, -1.0 / 8.0] }
 	];
 	var keysPressed = {};
 	var inputGamepadMap = [
@@ -270,7 +272,7 @@
 	</p>
 	<p>
 		<label for="txtMarchingLayers">Marching layers</label> 
-		<input id="txtMarchingLayers" type="number" value="96" step="8" list="layerCountList" />. 
+		<input id="txtMarchingLayers" type="number" value="48" step="8" list="layerCountList" />. 
 		<datalist id="layerCountList">
 			<option value="16" />
 			<option value="20" />
