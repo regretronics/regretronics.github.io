@@ -67,10 +67,10 @@
 
 	var keyTarget;
 	var inputKeyMap = [
-		{ keyCode: "KeyA", inputMode: "ifPressed", cmdName: "Strafe-left"  , action: "add", object: "dPos", param: [-worldRes[0] / 16.0, 0.0,  0.0] },
-		{ keyCode: "KeyD", inputMode: "ifPressed", cmdName: "Strafe-right" , action: "add", object: "dPos", param: [ worldRes[0] / 16.0, 0.0,  0.0] },
-		{ keyCode: "KeyW", inputMode: "ifPressed", cmdName: "Move-forward" , action: "add", object: "dPos", param: [ 0.0, 0.0,  worldRes[0] / 16.0] },
-		{ keyCode: "KeyS", inputMode: "ifPressed", cmdName: "Move-backward", action: "add", object: "dPos", param: [ 0.0, 0.0, -worldRes[0] / 16.0] },
+		{ keyCode: "KeyA", inputMode: "ifPressed", cmdName: "Strafe-left"  , action: "add", object: "dPos", param: [-128 / 16.0, 0.0,  0.0] },
+		{ keyCode: "KeyD", inputMode: "ifPressed", cmdName: "Strafe-right" , action: "add", object: "dPos", param: [ 128 / 16.0, 0.0,  0.0] },
+		{ keyCode: "KeyW", inputMode: "ifPressed", cmdName: "Move-forward" , action: "add", object: "dPos", param: [ 0.0, 0.0,  128 / 16.0] },
+		{ keyCode: "KeyS", inputMode: "ifPressed", cmdName: "Move-backward", action: "add", object: "dPos", param: [ 0.0, 0.0, -128 / 16.0] },
 		{ keyCode: "ArrowLeft" , inputMode: "ifPressed", cmdName: "Yaw-left"  , action: "add", object: "dRot", param: [ 1.0 / 8.0,  0.0, 0.0] },
 		{ keyCode: "ArrowRight", inputMode: "ifPressed", cmdName: "Yaw-right" , action: "add", object: "dRot", param: [-1.0 / 8.0,  0.0, 0.0] },
 		{ keyCode: "ArrowUp"   , inputMode: "ifPressed", cmdName: "Pitch-up"  , action: "add", object: "dRot", param: [ 0.0,  1.0 / 8.0, 0.0] },
@@ -80,8 +80,8 @@
 	];
 	var keysPressed = {};
 	var inputGamepadMap = [
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 0, varName: "Strafe", action: "add", transfer: symmetricAxis, object: "dPos", param: [worldRes[0] / 16.0, 0.0,  0.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 1, varName: "Move"  , action: "add", transfer: symmetricAxis, object: "dPos", param: [0.0, 0.0, -worldRes[0] / 16.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 0, varName: "Strafe", action: "add", transfer: symmetricAxis, object: "dPos", param: [128 / 16.0, 0.0,  0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 1, varName: "Move"  , action: "add", transfer: symmetricAxis, object: "dPos", param: [0.0, 0.0, -128 / 16.0] },
 		{ controllerIndex: 0, inputKind: "axes", inputPath: 2, varName: "Yaw"     , action: "add", transfer: symmetricAxis, object: "dRot", param: [-1.0 / 4.0,  0.0, 0.0] },
 		{ controllerIndex: 0, inputKind: "axes", inputPath: 5, varName: "Pitch"   , action: "add", transfer: symmetricAxis, object: "dRot", param: [ 0.0, -1.0 / 4.0, 0.0] },
 		{ controllerIndex: 0, inputKind: "axes", inputPath: 3, varName: "Roll-ccw", action: "add", transfer: invBtnToAxis, object: "dRot", param: [ 0.0, 0.0,  1.0 / 4.0] },
@@ -139,6 +139,22 @@
 		//Warning: CPU mode doesn't seem to be multithreaded.
 		//Warning: CPU mode doesn't support Texture.delete() and Texture.toArray().
 		//gpu = new GPUClass({ mode: "cpu" });
+		if(!gpu) return false;
+
+		//isBufferSecond = false;
+		//registerKernels();
+		fieldKernels = registerFieldKernels(gpu);
+		let mazeMap = fieldKernels.createMaze(mazeFillThres);
+		fieldMap = fieldKernels.mapField_maze(mazeMap);
+		mazeMap.delete();
+		//fieldMap = fieldKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
+
+		if(canvasContainer.firstElementChild) canvasContainer.firstElementChild.remove();
+		//mainCanvas = generalKernels.renderAccum.canvas;
+		//mainCanvas = rcKernels0.rayCaster.canvas;
+		mainCanvas = gpu.canvas;
+		canvasContainer.appendChild(mainCanvas);
+		return true;
 	}
 	function releaseKernelCollection(obj) {
 		if(!obj) return;
@@ -156,19 +172,23 @@
 				delete(obj[prop]);
 			}
 	}
-	function releaseGPU() {
+	function releaseCanvasResources() {
 		//Some textures and arrays
 		if(typeof(rayDirsCol) !== "undefined") rayDirsCol = null;
 		if(typeof(rayDirsRow) !== "undefined") rayDirsRow = null;
 		if(typeof(texRayDirs) !== "undefined") { texRayDirs?.delete(); texRayDirs = null; }
 		if(typeof(texRayDirsSign) !== "undefined") { texRayDirsSign?.delete(); texRayDirsSign = null; }
-		if(typeof(fieldMap) !== "undefined") releaseTextureCollection(fieldMap);
 		if(typeof(texBuffer0) !== "undefined") releaseTextureCollection(texBuffer0);
 		if(typeof(texBuffer1) !== "undefined") releaseTextureCollection(texBuffer1);
 
 		if(typeof(generalKernels) !== "undefined") releaseKernelCollection(generalKernels);
 		if(typeof(kernel0) !== "undefined") releaseKernelCollection(kernel0);
 		if(typeof(kernel1) !== "undefined") releaseKernelCollection(kernel1);
+	}
+	function releaseGPU() {
+		releaseCanvasResources();
+		if(typeof(fieldMap) !== "undefined") releaseTextureCollection(fieldMap);
+		if(typeof(fieldKernels) !== "undefined") releaseKernelCollection(fieldKernels);
 
 		/* if(typeof(resetState) !== "undefined") resetState = null; */
 		//if(typeof(rayCastingCycle) !== "undefined") { rayCastingCycle.destroy(); rayCastingCycle = null; }
@@ -202,6 +222,7 @@
 		//initParticles();
 		//initParticles_random();
 		//worldVoxelsInit();
+		restartGPU();
 		viewUpdate();
 		//pos = clientPos;
 		Object.assign(pos, clientPos);
@@ -222,7 +243,12 @@
 			If you are reading this through a user agent, it does not support HTML canvas. This page can't work without canvas.
 		</canvas>
 	</div>
-	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" step="16" list="resList" />, 
+	<p>
+		<label for="txtWorldSize">Volumetric resolution</label> <input id="txtWorldSize" type="number" value="96" step="16" />, 
+		<output id="outVoxelCount">0</output> voxel(s).
+	</p>
+	<p>
+		Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" step="16" list="resList" />, 
 		<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" step="16" list="resList" />.
 		<datalist id="resList">
 			<option value="64" />

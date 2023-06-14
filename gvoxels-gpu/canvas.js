@@ -21,6 +21,29 @@ function canvasScaleChanged() {
 	mainCanvas.style.width = canvasScale * cw + "px";
 }
 
+function worldResCheck() {
+	let newSize = parseInt(txtWorldSize.value);
+	if(isNaN(newSize)) return false;
+	newSize |= 0;
+	if(newSize <= 0) return false;
+	if(newSize === worldSize) return false; 
+
+	worldResChange(newSize);
+	return true;
+}
+function worldResChange(newSize) {
+	worldSize = newSize;
+	for(let i = 0; i < 3; i++) worldRes[i] = worldSize;
+	//to do: change speeds in inputKeyMap and inputGamepadMap?
+
+	releaseGPU();
+	restartGPU();
+
+	//canvasSizeChange(cw, ch);
+	//canvasScaleChanged();
+	cw = 0;
+	ch = 0;
+}
 function canvasSizeCheck() {
 	let newCH = parseInt(txtResH.value);
 	let newCW = parseInt(txtResW.value);
@@ -31,42 +54,67 @@ function canvasSizeCheck() {
 	if(newCH <= 0 || newCW <= 0) return false;
 	if(newCH === ch && newCW === cw) return false; 
 
-	ch = newCH;
-	cw = newCW;
-	releaseGPU();
-	restartGPU();
-	if(gpu) {
-		//isBufferSecond = false;
-		generalKernels = registerKernels();
-		let mazeMap = generalKernels.createMaze(mazeFillThres);
-		fieldMap = generalKernels.mapField_maze(mazeMap);
-		mazeMap.delete();
-		//fieldMap = generalKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
-
-		if(canvasContainer.firstElementChild) canvasContainer.firstElementChild.remove();
-		//mainCanvas = generalKernels.renderAccum.canvas;
-		//mainCanvas = rcKernels0.rayCaster.canvas;
-		mainCanvas = gpu.canvas;
-		canvasContainer.appendChild(mainCanvas);
-
-		viewRayDirsCompute_Rectilinear(ch, cw);
-		//texBuffer0 = {};
-		//texBuffer1 = {};
-
-		//force-compile
-		//frameRenderRaycasting(ch, cw, 0);
-		//frameRenderRaycasting(ch, cw, 0);
-		//frameRenderRaycasting_kernelMap(0);
-		//frameRenderRaycasting_kernelMap(0);
-		frameRenderRaycasting_mono(1);
-		/* frameRenderRaycasting_combinedKernel(0);
-		frameRenderRaycasting_combinedKernel(0); */
-
-		mainCanvas.height = ch;
-		mainCanvas.width = cw;
-	}
+	canvasSizeChange(newCW, newCH);
 	canvasScaleChanged();
 	return true;
+}
+function canvasSizeChange(newCW, newCH) {
+	ch = newCH;
+	cw = newCW;
+
+	releaseCanvasResources(); //Dispose canvas-related kernels, etc.
+
+	//Recreate kernels, except field-related ones
+	generalKernels = registerGeneralKernels(gpu);
+	/* rcKernels0 = registerRayCastingKernels(gpu, newKernels);
+	rcKernels1 = registerRayCastingKernels(gpu, newKernels); */
+	/* rcKernels0 = registerRayCastingKernelMap(gpu);
+	rcKernels1 = registerRayCastingKernelMap(gpu); */
+	rcKernels0 = registerRayCastingKernelMono(gpu);
+
+	//From registerKernels
+	/* generalKernels.rayDirs2d.setOutput([cw, ch]);
+	generalKernels.rayDirsSigns.setOutput([cw, ch]); */
+	/* generalKernels.resetRayAlive.setOutput([cw, ch]);
+	generalKernels.resetRayCrossingPoints.setOutput([cw, ch]);
+	generalKernels.resetAccumBufferEmission.setOutput([cw, ch]);
+	generalKernels.resetAccumBufferTransp.setOutput([cw, ch]);
+	generalKernels.renderAccum.setOutput([cw, ch]); */
+
+	//rcKernelsSetDimensions(rcKernels0);
+	//rcKernelsSetDimensions(rcKernels1);
+
+	viewRayDirsCompute_Rectilinear(ch, cw);
+	//texBuffer0 = {};
+	//texBuffer1 = {};
+
+	//force-compile
+	//frameRenderRaycasting(ch, cw, 0);
+	//frameRenderRaycasting(ch, cw, 0);
+	//frameRenderRaycasting_kernelMap(0);
+	//frameRenderRaycasting_kernelMap(0);
+	frameRenderRaycasting_mono(1);
+	/* frameRenderRaycasting_combinedKernel(0);
+	frameRenderRaycasting_combinedKernel(0); */
+
+	mainCanvas.height = ch;
+	mainCanvas.width = cw;
+}
+function rcKernelsSetDimensions(rcKernels) {
+	//From registerRayCastingKernels
+	/* rcKernels.getDRay.setOutput([cw, ch]);
+	rcKernels.nextCrossingPoints.setOutput([cw, ch]);
+	rcKernels.pVoxel.setOutput([cw, ch]);
+	rcKernels.segTransp.setOutput([cw, ch]);
+	rcKernels.nextAccumEmission.setOutput([cw, ch]);
+	rcKernels.nextAccumTransp.setOutput([cw, ch]);
+	rcKernels.nextRayAlive.setOutput([cw, ch]); */
+
+	//From registerRayCastingKernelMono
+	rcKernels.rayCaster.setOutput([cw, ch]);
+
+	//From registerRayCastingKernelMap
+	//rcKernels.rayCastingCycle.setOutput([cw, ch]);
 }
 
 const defTimeout = 1000;
@@ -79,7 +127,10 @@ function uRemainder(x, y) { //When x % y is not enough.
 	return rem;
 }
 function viewUpdate() {
+	worldResCheck();
+	//if (!worldResCheck())
 	canvasSizeCheck();
+	outVoxelCount.innerText = (worldSize ** 3).toFixed(0);
 	//if(frameCount) kinematicsRefresh();
 
 	timeout = parseFloat(txtFrameTimeout.value);

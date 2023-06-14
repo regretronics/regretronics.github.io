@@ -5,10 +5,11 @@
 //const worldSize = 32;
 //const worldSize = 64;
 //const worldSize = 96;
-const worldSize = 128;
+//const worldSize = 128;
 //const worldSize = 192;
 //const worldSize = 256;
 //const worldSize = 384;
+var worldSize = 96;
 //var worldRes =
 //var worldRes = new Int8Array(
 //var worldRes = new Uint8Array(
@@ -43,11 +44,18 @@ function clientUpdateSpcTransf() {
 const opacityFactor = -128 * Math.LN2 / 256;
 //const opacityFactor = -128 / 256;
 
-var generalKernels, rcKernels0, rcKernels1;
-function registerKernels() {
+var generalKernels, fieldKernels, rcKernels0, rcKernels1;
+function registerKernels() { //to do: Delete?
+	generalKernels = registerGeneralKernels(gpu);
+	fieldKernels = registerFieldKernels(gpu);
+	/* rcKernels0 = registerRayCastingKernels(gpu, newKernels);
+	rcKernels1 = registerRayCastingKernels(gpu, newKernels); */
+	/* rcKernels0 = registerRayCastingKernelMap(gpu);
+	rcKernels1 = registerRayCastingKernelMap(gpu); */
+	rcKernels0 = registerRayCastingKernelMono(gpu);
+}
+function registerGeneralKernels(gpu) {
 	let newKernels = {};
-	registerFieldKernels(gpu, newKernels);
-
 	newKernels.rayDirs2d = gpu.createKernel(function(rayDirsCol, rayDirsRow) {
 		let ray = [
 			rayDirsCol[4 * this.thread.y + 0] + rayDirsRow[4 * this.thread.x + 0],
@@ -61,8 +69,8 @@ function registerKernels() {
 		returnType: 'Array(4)',
 		output: [cw, ch],
 		//immutable: true,
-		//dynamicOutput: true,
-		//dynamicArguments: true,
+		dynamicOutput: true,
+		dynamicArguments: true,
 		pipeline: true
 	});
 	newKernels.rayDirsSigns = gpu.createKernel(function(rayDirs) {
@@ -72,8 +80,8 @@ function registerKernels() {
 		returnType: 'Array(4)',
 		output: [cw, ch],
 		//immutable: true,
-		//dynamicOutput: true,
-		//dynamicArguments: true,
+		dynamicOutput: true,
+		dynamicArguments: true,
 		pipeline: true
 	});
 
@@ -124,12 +132,6 @@ function registerKernels() {
 		pipeline: true
 	}); */
 
-	/* rcKernels0 = registerRayCastingKernels(gpu, newKernels);
-	rcKernels1 = registerRayCastingKernels(gpu, newKernels); */
-	/* rcKernels0 = registerRayCastingKernelMap(gpu);
-	rcKernels1 = registerRayCastingKernelMap(gpu); */
-	rcKernels0 = registerRayCastingKernelMono(gpu);
-
 	/* newKernels.renderAccum = gpu.createKernel(function(accumBufferEmission, accumBufferTransp) {
 		let accumEmission = accumBufferEmission[this.thread.y][this.thread.x];
 		//let color = accumEmission;
@@ -155,7 +157,8 @@ function registerKernels() {
 	}); */
 	return newKernels;
 }
-function registerFieldKernels(gpu, newKernels) {
+function registerFieldKernels(gpu) {
+	let newKernels = {};
 	newKernels.mapField_particles = gpu.createKernelMap({
 		alpha: function fieldAlpha(vecColor) {
 			return vecColor;
@@ -264,6 +267,7 @@ function registerFieldKernels(gpu, newKernels) {
 		pipeline: true,
 		graphical: false
 	});
+	return newKernels;
 }
 
 function registerRayCastingKernels(gpu, generalKernels) {
@@ -614,7 +618,7 @@ function registerRayCastingKernelMono() {
 		//argumentTypes: { rayCrossingPoints: "Array(4)", rayDirs: "Array(4)", rayDirsSign: "Array(4)" },
 		output: [cw, ch],
 		//immutable: true, //?
-		//dynamicOutput: true,
+		dynamicOutput: true,
 		//dynamicArguments: true,
 		//pipeline: true, //?
 		graphical: true
@@ -922,7 +926,7 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 	texRayDirsSign = generalKernels.rayDirsSigns(texRayDirs);
 }
 
-var frameMaxLayers = 96;
+//var frameMaxLayers = 96;
 //var frameMaxLayers = 64;
 //var frameMaxLayers = 48;
 //var frameMaxLayers = 32;
