@@ -1,16 +1,20 @@
 "use strict";
 
 //virtual matricial field context
+//const worldSize = 16;
+//const worldSize = 32;
+//const worldSize = 64;
+//const worldSize = 96;
+const worldSize = 128;
+//const worldSize = 192;
+//const worldSize = 256;
+//const worldSize = 384;
 //var worldRes =
 //var worldRes = new Int8Array(
 //var worldRes = new Uint8Array(
 var worldRes = new Int32Array(
 //var worldRes = new Float32Array(
-	//[16, 16, 16]);
-	//[32, 32, 32]);
-	//[64, 64, 64]);
-	//[96, 96, 96]);
-	[128, 128, 128]);
+	[worldSize, worldSize, worldSize]);
 var fieldMap;
 
 const mazeSize = new Int32Array(
@@ -531,28 +535,68 @@ function registerRayCastingKernelMono() {
 		let vecAccumTransp = [1.0, 1.0, 1.0, 1.0];
 		let vecRayDir = texRayDirs[this.thread.y][this.thread.x];
 		let vecRayDirSign = texRayDirsSign[this.thread.y][this.thread.x];
+		//let asdf = [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]];
 
 		//for (let i = 0; i < this.constants.iterations; i++) {
 		for (let i = 0; i < layerCount; i++) {
-			let vecDRay = getDRay(vecCrossingPoint, vecRayDir, vecRayDirSign);
-			let newCrossingPoint = nextCrossingPoints(vecCrossingPoint, vecDRay);
-			let pVoxel = pVoxel(vecCrossingPoint, vecDRay);
-			let vecSegTransp = segTransp(pVoxel, texWorldScanTransp, vecDRay);
-			let newAccumEmission = nextAccumEmission(pVoxel, texWorldScanEmission, vecSegTransp, vecAccumEmission, vecAccumTransp);
-			let newAccumTransp = nextAccumTransp(vecSegTransp, vecAccumTransp);
-			vecAccumEmission = newAccumEmission;
-			vecAccumTransp = newAccumTransp;
+			//let vecDRay = getDRay(vecCrossingPoint, vecRayDir, vecRayDirSign);
+			let firstCrossing = getFirstCrossing(vecCrossingPoint, vecRayDir, vecRayDirSign);
+			let vecDRay = [
+				firstCrossing * vecRayDir[0],
+				firstCrossing * vecRayDir[1],
+				firstCrossing * vecRayDir[2],
+				firstCrossing * vecRayDir[3]];
+			let discreteCube = [
+				Math.floor(vecCrossingPoint[0] + 0.5 * vecDRay[0]),
+				Math.floor(vecCrossingPoint[1] + 0.5 * vecDRay[1]),
+				Math.floor(vecCrossingPoint[2] + 0.5 * vecDRay[2]),
+				0];
+
+			let offset = pVoxel(discreteCube);
+			let vxTransp = [0.125, 0.125, 0.125, 0.0];
+			//let vxTransp = [0.0, 0.0, 0.0, 0.0];
+			//let vxTransp = [1.0, 1.0, 1.0, 0.0];
+			//let vxEmission = [0.0, 0.5, 1.0, 0.0];
+			let vxEmission = [0.25, 0.25, 0.25, 0.0];
+			if(offset >= 0) {
+				vxTransp = texWorldScanTransp[offset];
+				vxEmission = texWorldScanEmission[offset];
+			}
+			/* else {
+				//to do: special code that fills the remaining transparency and kills the ray
+			} */
+			let rayLen = vecDRay[3];
+			let vecSegTransp = [
+				Math.exp(rayLen * vxTransp[0]),
+				Math.exp(rayLen * vxTransp[1]),
+				Math.exp(rayLen * vxTransp[2]),
+				0.0];
+	
+			vecAccumEmission = [
+				vecAccumEmission[0] + vecAccumTransp[0] * (1.0 - vecSegTransp[0]) * vxEmission[0],
+				vecAccumEmission[1] + vecAccumTransp[1] * (1.0 - vecSegTransp[1]) * vxEmission[1],
+				vecAccumEmission[2] + vecAccumTransp[2] * (1.0 - vecSegTransp[2]) * vxEmission[2],
+				0.0];
+			vecAccumTransp = [
+				vecAccumTransp[0] * vecSegTransp[0],
+				vecAccumTransp[1] * vecSegTransp[1],
+				vecAccumTransp[2] * vecSegTransp[2],
+				0.0];
 
 			//to do: where to break? loop header? loop end?
 			/* if(newAccumTransp[0] <= this.constants.rayTranspThreshold &&
 				newAccumTransp[1] <= this.constants.rayTranspThreshold &&
 				newAccumTransp[2] <= this.constants.rayTranspThreshold) */
-			if(newAccumTransp[0] <= vecAccumEmission[0] * this.constants.rayTranspThreshold &&
-				newAccumTransp[1] <= vecAccumEmission[1] * this.constants.rayTranspThreshold &&
-				newAccumTransp[2] <= vecAccumEmission[2] * this.constants.rayTranspThreshold)
+			if(vecAccumTransp[0] <= vecAccumEmission[0] * this.constants.rayTranspThreshold &&
+				vecAccumTransp[1] <= vecAccumEmission[1] * this.constants.rayTranspThreshold &&
+				vecAccumTransp[2] <= vecAccumEmission[2] * this.constants.rayTranspThreshold)
 				break;
 			else
-				vecCrossingPoint = newCrossingPoint;
+				vecCrossingPoint = [
+					vecCrossingPoint[0] + vecDRay[0],
+					vecCrossingPoint[1] + vecDRay[1],
+					vecCrossingPoint[2] + vecDRay[2],
+					0.0];
 		}
 
 		//let color = vecAccumEmission;
@@ -576,24 +620,27 @@ function registerRayCastingKernelMono() {
 		graphical: true
 	});
 
-	rayCaster.addFunction(function getDRay(crossingPoint, rayDir, rayDirSign) {
+	//rayCaster.addFunction(function getDRay(crossingPoint, rayDir, rayDirSign) {
+	rayCaster.addFunction(function getFirstCrossing(crossingPoint, rayDir, rayDirSign) {
 	//rayCaster.addFunction(function getDRay(crossingPoint, rayDirsCol, rayDirsRow) {
-		let coordProjection = [0.0, 0.0, 0.0/* , 0.0 */];
 		/* let rayDir = [
 			rayDirsCol[4 * this.thread.y + 0] + rayDirsRow[4 * this.thread.x + 0],
 			rayDirsCol[4 * this.thread.y + 1] + rayDirsRow[4 * this.thread.x + 1],
 			rayDirsCol[4 * this.thread.y + 2] + rayDirsRow[4 * this.thread.x + 2],
 			0.0];
-			rayDir[3] = this.constants.opacityFactor * Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * //rayDir[2]);
+		rayDir[3] = this.constants.opacityFactor * Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * //rayDir[2]);
 		let rayDirSign = [Math.sign(rayDir[0]), Math.sign(rayDir[1]), Math.sign(rayDir[2]), 0.0]; */
-		coordProjection[0] = Math.floor(rayDirSign[0] * crossingPoint[0] + 1.0);
-		coordProjection[1] = Math.floor(rayDirSign[1] * crossingPoint[1] + 1.0);
-		coordProjection[2] = Math.floor(rayDirSign[2] * crossingPoint[2] + 1.0);
+		let coordProjection = [
+			Math.floor(rayDirSign[0] * crossingPoint[0] + 1.0),
+			Math.floor(rayDirSign[1] * crossingPoint[1] + 1.0),
+			Math.floor(rayDirSign[2] * crossingPoint[2] + 1.0)
+			/* , 0.0 */];
 		
-		let crossing = [0.0, 0.0, 0.0/* , 0.0 */];
-		crossing[0] = (rayDirSign[0] * coordProjection[0] - crossingPoint[0]) / rayDir[0];
-		crossing[1] = (rayDirSign[1] * coordProjection[1] - crossingPoint[1]) / rayDir[1];
-		crossing[2] = (rayDirSign[2] * coordProjection[2] - crossingPoint[2]) / rayDir[2];
+		let crossing = [
+			(rayDirSign[0] * coordProjection[0] - crossingPoint[0]) / rayDir[0],
+			(rayDirSign[1] * coordProjection[1] - crossingPoint[1]) / rayDir[1],
+			(rayDirSign[2] * coordProjection[2] - crossingPoint[2]) / rayDir[2]
+			/* , 0.0 */];
 
 		let firstCrossing = 65504.0; //IEEE 754 half-precision maximum
 		if(rayDir[0] != 0.0)
@@ -634,7 +681,8 @@ function registerRayCastingKernelMono() {
 			if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
 		} */
 
-		return [firstCrossing * rayDir[0], firstCrossing * rayDir[1], firstCrossing * rayDir[2], firstCrossing * rayDir[3]];
+		return firstCrossing;
+		//return [firstCrossing * rayDir[0], firstCrossing * rayDir[1], firstCrossing * rayDir[2], firstCrossing * rayDir[3]];
 	});
 	//, {
 		//constants: { opacityFactor: opacityFactor },
@@ -642,21 +690,8 @@ function registerRayCastingKernelMono() {
 		//returnType: 'Array(4)',
 		//optimizeFloatMemory: true,
 	//});
-	rayCaster.addFunction(function nextCrossingPoints(rayCrossingPoints, dRays) {
-		return [
-			rayCrossingPoints[0] + dRays[0],
-			rayCrossingPoints[1] + dRays[1],
-			rayCrossingPoints[2] + dRays[2],
-			0.0];
-	});//, {});
 
-	rayCaster.addFunction(function pVoxel(crossingPoint, dRay) {
-		let discreteCube = [
-			Math.floor(crossingPoint[0] + 0.5 * dRay[0]),
-			Math.floor(crossingPoint[1] + 0.5 * dRay[1]),
-			Math.floor(crossingPoint[2] + 0.5 * dRay[2]),
-			0];
-
+	rayCaster.addFunction(function pVoxel(discreteCube) {
 		if(discreteCube[0] >= 0 && discreteCube[0] < this.constants.worldRes0 &&
 			discreteCube[1] >= 0 && discreteCube[1] < this.constants.worldRes1 &&
 			discreteCube[2] >= 0 && discreteCube[2] < this.constants.worldRes2)
@@ -670,43 +705,6 @@ function registerRayCastingKernelMono() {
 		argumentTypes: { rayAlive: "Integer", rayCrossingPoints: "Array(4)", dRays: "Array(4)" },
 		returnType: 'Integer', */
 	//});
-	rayCaster.addFunction(function segTransp(offset, texWorldScanTransp, dRay) {
-		let vxTransp = [0.125, 0.125, 0.125, 0.0];
-		//let vxTransp = [0.0, 0.0, 0.0, 0.0];
-		//let vxTransp = [1.0, 1.0, 1.0, 0.0];
-		if(offset >= 0) vxTransp = texWorldScanTransp[offset];
-		/* else {
-			//to do: special code that fills the remaining transparency and kills the ray
-		} */
-
-		let rayLen = dRay[3];
-		return [
-			Math.exp(rayLen * vxTransp[0]),
-			Math.exp(rayLen * vxTransp[1]),
-			Math.exp(rayLen * vxTransp[2]),
-			0.0];
-	},/*  {
-		argumentTypes: { offset: "Integer", worldScanTransp: "Array", dRay: "Array(4)" },
-		returnType: 'Array(4)'
-	} */);
-
-	rayCaster.addFunction(function nextAccumEmission(offset, texWorldScanEmission, segTransp, accumEmission, accumTransp) {
-		//let vxEmission = [0.0, 0.5, 1.0, 0.0];
-		let vxEmission = [0.25, 0.25, 0.25, 0.0];
-		if(offset >= 0) vxEmission = texWorldScanEmission[offset];
-		return [
-			accumEmission[0] + accumTransp[0] * (1.0 - segTransp[0]) * vxEmission[0],
-			accumEmission[1] + accumTransp[1] * (1.0 - segTransp[1]) * vxEmission[1],
-			accumEmission[2] + accumTransp[2] * (1.0 - segTransp[2]) * vxEmission[2],
-			0.0];
-	});//, {});
-	rayCaster.addFunction(function nextAccumTransp(segTransp, accumTransp) {
-		return [
-			accumTransp[0] * segTransp[0],
-			accumTransp[1] * segTransp[1],
-			accumTransp[2] * segTransp[2],
-			0.0];
-	});//, {});
 
 	return { rayCaster: rayCaster };
 }

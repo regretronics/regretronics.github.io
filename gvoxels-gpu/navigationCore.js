@@ -152,6 +152,7 @@ function inputCycle(newLastTime, dt) {
 			}
 	}
 
+	if (!navigator.getGamepads) return;
 	const gpList = navigator.getGamepads();
 	for (const inputObj of inputGamepadMap) {
 		if (inputObj.controllerIndex >= gpList.length) continue;

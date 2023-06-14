@@ -289,7 +289,7 @@
 			<option value="256" />
 		</datalist>
 		<label for="txtFrameTimeout">Frame timeout</label> 
-		<input id="txtFrameTimeout" type="number" value="100" step="5" list="intervalMsList" />.
+		<input id="txtFrameTimeout" type="number" value="80" step="5" list="intervalMsList" />.
 		<datalist id="intervalMsList">
 			<option value="5" />
 			<option value="8" />
@@ -313,15 +313,16 @@
 		<button id="btnViewUpdate">Update once</button>
 		<button id="btnStartUpdating">Start updating</button>
 		<button id="btnStopUpdating">Stop updating</button>
+		<input type="checkbox" id="chkNavAuto" /><label for="chkNavAuto">Automatic drift.</label>
 	</p>
 	<p>
 		Frame: render time 
-		<output id="outFrameRenderT">0</output> ms, 
-		avg. <output id="outFrameLayers">0</output> layer(s) 
+		<output id="outFrameRenderT">0</output> ms 
+		<!-- avg. <output id="outFrameLayers">0</output> layer(s)  -->
 		(avg. <output id="outSegTime">0</output> ns/segment). 
 		<output id="outFrameCount">0</output> frame(s) generated, 
 		avg. <output id="outSegTAvg">0</output> ns/segment.
 	</p>
-	<p>This page is a graphical test, requiring HTML canvas and modern JavaScript to work, and thus a modern browser. This page automatically starts an update cycle 3 seconds after loading, to ease performance testing.</p>
+	<p>This page is a graphical test, requiring HTML canvas and modern JavaScript to work, and thus a modern browser. This page automatically starts an update cycle 3 seconds after loading, to facilitate performance testing. You can improve the animation by lowering the frame timeout. If the animation jitters, you can lower the resolution or the number of layers. You will a keyboard, gamepad or joystick to navigate.</p>
 </body>
 </html>

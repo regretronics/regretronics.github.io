@@ -71,7 +71,7 @@ function canvasSizeCheck() {
 
 const defTimeout = 1000;
 var timeout = defTimeout;
-//var clientSpeed = new Float32Array([0.0, 0.0, 0.0, 0.0]);
+var clientSpeed = new Float32Array([0.0, 0.0, 0.0, 0.0]);
 
 function uRemainder(x, y) { //When x % y is not enough.
 	let rem = x % y;
@@ -98,7 +98,7 @@ function viewUpdate() {
 	outFrameRenderT.innerText = t.toFixed(1);
 	//outFrameSegs.innerText = segmentCount.toString();
 	//outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
-	outFrameLayers.innerText = layerCount.toString();
+	//outFrameLayers.innerText = layerCount.toString();
 	//let segTime = 1000000.0 * t / segmentCount; //milliseconds to nanoseconds
 	let segTime = 1000000.0 * t / (layerCount * ch * cw); //milliseconds to nanoseconds
 	outSegTime.innerText = segTime.toPrecision(5);
@@ -108,28 +108,31 @@ function viewUpdate() {
 	outFrameCount.innerText = frameCount.toString();
 	outSegTAvg.innerText = (renderTimeSum / frameCount).toPrecision(5);
 	
-	if(dynLastTime != undefined) {
-		let dt = 0.001 * (tNow - dynLastTime);
-		updateDynamics(dt);
-		inputCycle(tNow, dt);
-		clientPos.set(pos, 0);
-		//clientSpcTransf.set();
-		viewRayDirsCompute_Rectilinear(ch, cw);
+	if(chkNavAuto.checked) {
+		//Update virtual parameters
+		let i = Math.floor(2 * Math.random());
+		/* clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
+		clientPos[2] = (clientPos[2] + 2.0 / 16.0) % worldRes[2]; */
+		clientSpeed[i] += 4.0 / 64.0 * (Math.random() - 0.5);
+		clientSpeed[2] = 4.0 / 16.0;
+		const dt = 1.0 / 4.0;
+		clientPos[0] = uRemainder(clientPos[0] + dt * clientSpeed[0], worldRes[0]);
+		clientPos[1] = uRemainder(clientPos[1] + dt * clientSpeed[1], worldRes[1]);
+		clientPos[2] = uRemainder(clientPos[2] + dt * clientSpeed[2], worldRes[2]);
+		pos = Array.from(clientPos); //seam
+
+		//particles.pos[0] += 0.25 / Math.E;
+	} else {
+		if(dynLastTime != undefined) {
+			let dt = 0.001 * (tNow - dynLastTime);
+			updateDynamics(dt);
+			inputCycle(tNow, dt);
+			clientPos.set(pos, 0); //seam
+			//clientSpcTransf.set();
+			viewRayDirsCompute_Rectilinear(ch, cw);
+		}
 	}
 	dynLastTime = tNow;
-
-	//Update virtual parameters
-	//let i = Math.floor(2 * Math.random());
-	/* clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
-	clientPos[2] = (clientPos[2] + 2.0 / 16.0) % worldRes[2]; */
-	/* clientSpeed[i] += 4.0 / 64.0 * (Math.random() - 0.5);
-	clientSpeed[2] = 4.0 / 16.0;
-	const dt = 1.0 / 4.0;
-	clientPos[0] = uRemainder(clientPos[0] + dt * clientSpeed[0], worldRes[0]);
-	clientPos[1] = uRemainder(clientPos[1] + dt * clientSpeed[1], worldRes[1]);
-	clientPos[2] = uRemainder(clientPos[2] + dt * clientSpeed[2], worldRes[2]); */
-
-	//particles.pos[0] += 0.25 / Math.E;
 	
 	//window.requestAnimationFrame(viewUpdate);
 	if(animating) updateCycleId = setTimeout(viewUpdate, Math.max(timeout - t, 0));
