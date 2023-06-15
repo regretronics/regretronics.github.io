@@ -7,7 +7,7 @@
 	<title>Canvas, G3d voxels</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
-		background-color: revert !important; /*dark reader workaround*/
+		background-color: revert !important; /*Dark Reader workaround*/
 	}
 	body {
 		/* background-color: hsl(120, 25%, 12.5%); */
@@ -15,15 +15,26 @@
 		background-color: canvas;
 		color: canvastext;
 		color-scheme: dark;
+		margin: 0px;
 	}
 
 	#canvasContainer {
 		text-align: center;
 	}
 	#canvasContainer canvas {
+		object-fit: contain;
+	}
+	#canvasContainer canvas:not(:fullscreen) {
+		max-width: 98%;
+		max-height: 98vh;
+	}
+	#canvasContainer canvas:fullscreen, :fullscreen #canvasContainer canvas {
 		max-width: 100%;
 		max-height: 100vh;
-		object-fit: contain;
+	}
+	p {
+		max-width: min(120ch, 100% - 3ch);
+		margin-inline: auto;
 	}
 	input[type="number"] {
 		width: 5em;
@@ -49,11 +60,11 @@
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
 
-	var pos = [0.0, 0.0, 0.0];
+	//var pos = [0.0, 0.0, 0.0];
 	var dPos = [0.0, 0.0, 0.0];
 	var rot = [0.0, 0.0, 0.0];
 	var dRot = [0.0, 0.0, 0.0];
-	const vars = {pos: pos, dPos: dPos, rot: rot, dRot: dRot};
+	const vars = {pos: clientPos, dPos: dPos, rot: rot, dRot: dRot};
 	//const outVars = {pos: pos, vel: dPos, rot: rot, dRot: dRot};
 	let dynLastTime;
 	//var clientSpcTransf = Object.create(IdentityMatrix3);
@@ -225,7 +236,7 @@
 		restartGPU();
 		viewUpdate();
 		//pos = clientPos;
-		Object.assign(pos, clientPos);
+		//Object.assign(pos, clientPos);
 		document.addEventListener("keydown", navKeyDown);
 		document.addEventListener("keyup", navKeyUp);
 
@@ -314,7 +325,7 @@
 			<option value="192" />
 			<option value="256" />
 		</datalist>
-		<label for="txtFrameTimeout">Frame timeout</label> 
+		<label for="txtFrameTimeout">Frame timeout (ms)</label> 
 		<input id="txtFrameTimeout" type="number" value="80" step="5" list="intervalMsList" />.
 		<datalist id="intervalMsList">
 			<option value="5" />

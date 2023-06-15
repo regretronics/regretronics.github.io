@@ -247,18 +247,18 @@ function registerFieldKernels(gpu) {
 	}, function(mazeMap) {
 		let myPos = [Math.floor(this.thread.x / 8), Math.floor(this.thread.y / 8), Math.floor(this.thread.z / 8)];
 		let cell = mazeMap[(myPos[2] * this.constants.mapSize1 + myPos[1]) * this.constants.mapSize0 + myPos[0]];
-		const fill = [Math.random(), Math.random(), Math.random(), 0.0];
+		const fill = [Math.random(), Math.random(), Math.random()/* , 0.0 */];
 		//const fill = [1.0, 1.0, 1.0, 0.0];
 
 		//let gain = (cell >= 1 ? 0.9375 : 0.0625);
 		let gain = (cell >= 1 ? 1.0 : 0.125);
 		let alpha = (cell >= 1 ? 0.5 : 0.25);
 
-		fieldAlpha([alpha, alpha, alpha, 0.0]);
-		return [gain * fill[0], gain * fill[1], gain * fill[2], 0.0];
+		fieldAlpha([alpha, alpha, alpha/* , 0.0 */]);
+		return [gain * fill[0], gain * fill[1], gain * fill[2]/* , 0.0 */];
 	}, {
 		constants: { mapSize0: mazeSize[0], mapSize1: mazeSize[1], mapSize2: mazeSize[2] },
-		returnType: 'Array(4)',
+		returnType: 'Array(3)',
 		output: [worldRes[0], worldRes[1], worldRes[2]],
 		//immutable: true,
 		//dynamicOutput: true,
@@ -534,11 +534,14 @@ function registerRayCastingKernels(gpu, generalKernels) {
 function registerRayCastingKernelMono() {
 	let rayCaster = gpu.createKernel(function(layerCount, viewerOrigin, texRayDirs, texRayDirsSign, texWorldScanEmission, texWorldScanTransp) {
 		//let vecCrossingPoint = viewerOrigin;
-		let vecCrossingPoint = [viewerOrigin[0], viewerOrigin[1], viewerOrigin[2], 0.0];
-		let vecAccumEmission = [0.0, 0.0, 0.0, 0.0];
-		let vecAccumTransp = [1.0, 1.0, 1.0, 1.0];
+		let vecCrossingPoint = [viewerOrigin[0], viewerOrigin[1], viewerOrigin[2]/* , 0.0 */];
+		let vecAccumEmission = [0.0, 0.0, 0.0/* , 0.0 */];
+		let vecAccumTransp = [1.0, 1.0, 1.0/* , 1.0 */];
 		let vecRayDir = texRayDirs[this.thread.y][this.thread.x];
 		let vecRayDirSign = texRayDirsSign[this.thread.y][this.thread.x];
+		//let asdf = [0.0, 0.0, 0.0, 0.0];
+		//let asdf = [[0.0, 0.0], [0.0, 0.0]];
+		//let asdf = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
 		//let asdf = [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]];
 
 		//for (let i = 0; i < this.constants.iterations; i++) {
@@ -553,15 +556,15 @@ function registerRayCastingKernelMono() {
 			let discreteCube = [
 				Math.floor(vecCrossingPoint[0] + 0.5 * vecDRay[0]),
 				Math.floor(vecCrossingPoint[1] + 0.5 * vecDRay[1]),
-				Math.floor(vecCrossingPoint[2] + 0.5 * vecDRay[2]),
-				0];
+				Math.floor(vecCrossingPoint[2] + 0.5 * vecDRay[2])
+				/* 0 */];
 
 			let offset = pVoxel(discreteCube);
-			let vxTransp = [0.125, 0.125, 0.125, 0.0];
+			let vxTransp = [0.125, 0.125, 0.125/* , 0.0 */];
 			//let vxTransp = [0.0, 0.0, 0.0, 0.0];
 			//let vxTransp = [1.0, 1.0, 1.0, 0.0];
 			//let vxEmission = [0.0, 0.5, 1.0, 0.0];
-			let vxEmission = [0.25, 0.25, 0.25, 0.0];
+			let vxEmission = [0.25, 0.25, 0.25/* , 0.0 */];
 			if(offset >= 0) {
 				vxTransp = texWorldScanTransp[offset];
 				vxEmission = texWorldScanEmission[offset];
@@ -573,19 +576,19 @@ function registerRayCastingKernelMono() {
 			let vecSegTransp = [
 				Math.exp(rayLen * vxTransp[0]),
 				Math.exp(rayLen * vxTransp[1]),
-				Math.exp(rayLen * vxTransp[2]),
-				0.0];
+				Math.exp(rayLen * vxTransp[2])
+				/* 0.0 */];
 	
 			vecAccumEmission = [
 				vecAccumEmission[0] + vecAccumTransp[0] * (1.0 - vecSegTransp[0]) * vxEmission[0],
 				vecAccumEmission[1] + vecAccumTransp[1] * (1.0 - vecSegTransp[1]) * vxEmission[1],
-				vecAccumEmission[2] + vecAccumTransp[2] * (1.0 - vecSegTransp[2]) * vxEmission[2],
-				0.0];
+				vecAccumEmission[2] + vecAccumTransp[2] * (1.0 - vecSegTransp[2]) * vxEmission[2]
+				/* 0.0 */];
 			vecAccumTransp = [
 				vecAccumTransp[0] * vecSegTransp[0],
 				vecAccumTransp[1] * vecSegTransp[1],
-				vecAccumTransp[2] * vecSegTransp[2],
-				0.0];
+				vecAccumTransp[2] * vecSegTransp[2]
+				/* 0.0 */];
 
 			//to do: where to break? loop header? loop end?
 			/* if(newAccumTransp[0] <= this.constants.rayTranspThreshold &&
@@ -599,8 +602,8 @@ function registerRayCastingKernelMono() {
 				vecCrossingPoint = [
 					vecCrossingPoint[0] + vecDRay[0],
 					vecCrossingPoint[1] + vecDRay[1],
-					vecCrossingPoint[2] + vecDRay[2],
-					0.0];
+					vecCrossingPoint[2] + vecDRay[2]
+					/* 0.0 */];
 		}
 
 		//let color = vecAccumEmission;
@@ -611,11 +614,13 @@ function registerRayCastingKernelMono() {
 		if(alphaNew[2] > 0.0) color[2] = vecAccumEmission[2] / alphaNew[2];
 
 		this.color(color[0], color[1], color[2]);
+		//return color;
 	}, {
 		constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2],
 			opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold/* , iterations: frameMaxLayers */ },
 		//constants: { opacityFactor: opacityFactor },
 		//argumentTypes: { rayCrossingPoints: "Array(4)", rayDirs: "Array(4)", rayDirsSign: "Array(4)" },
+		//returnType: 'Array(3)',
 		output: [cw, ch],
 		//immutable: true, //?
 		dynamicOutput: true,
@@ -623,6 +628,16 @@ function registerRayCastingKernelMono() {
 		//pipeline: true, //?
 		graphical: true
 	});
+	/* let renderTex = gpu.createKernel(function(tex) {
+		let color = tex[this.thread.y][this.thread.x];
+		this.color(color[0], color[1], color[2]);
+	}, {
+		argumentTypes: { tex: "TextureArray(3)" },
+		output: [cw, ch],
+		dynamicOutput: true,
+		dynamicArguments: true,
+		graphical: true
+	}); */
 
 	//rayCaster.addFunction(function getDRay(crossingPoint, rayDir, rayDirSign) {
 	rayCaster.addFunction(function getFirstCrossing(crossingPoint, rayDir, rayDirSign) {
@@ -710,7 +725,7 @@ function registerRayCastingKernelMono() {
 		returnType: 'Integer', */
 	//});
 
-	return { rayCaster: rayCaster };
+	return { rayCaster: rayCaster/* , renderTex: renderTex */ };
 }
 function registerRayCastingKernelMap(gpu) {
 	let rayCastingCycle = gpu.createKernelMap({
@@ -1029,6 +1044,10 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) 
 	//let fieldMap = generalKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
 
 	rcKernels0.rayCaster(layerCount, new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
+	//return rcKernels0.rayCaster.exec(layerCount, new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
+	/* let texOut = rcKernels0.rayCaster(layerCount, new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
+	rcKernels0.renderTex(texOut);
+	texOut.delete(); */
 
 	/* fieldMap.result.clear();
 	fieldMap.alpha.clear(); */

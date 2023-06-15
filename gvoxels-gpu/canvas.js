@@ -112,6 +112,7 @@ function rcKernelsSetDimensions(rcKernels) {
 
 	//From registerRayCastingKernelMono
 	rcKernels.rayCaster.setOutput([cw, ch]);
+	//rcKernels.renderTex.setOutput([cw, ch]);
 
 	//From registerRayCastingKernelMap
 	//rcKernels.rayCastingCycle.setOutput([cw, ch]);
@@ -135,30 +136,16 @@ function viewUpdate() {
 
 	timeout = parseFloat(txtFrameTimeout.value);
 	if(isNaN(timeout)) timeout = defTimeout;
-
 	let tNow = performance.now();
+	let tFrame = tNow - dynLastTime;
+
 	//frameRenderRaycasting(mainCanvas, timeout);
 	//frameRenderRaycasting(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_kernelMap(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_combinedKernel(timeout);
 	/* let */ layerCount = txtMarchingLayers.valueAsNumber;
 	frameRenderRaycasting_mono(layerCount);
-	let t = performance.now() - tNow;
-	//layerCount = frameMaxLayers;
 
-	outFrameRenderT.innerText = t.toFixed(1);
-	//outFrameSegs.innerText = segmentCount.toString();
-	//outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
-	//outFrameLayers.innerText = layerCount.toString();
-	//let segTime = 1000000.0 * t / segmentCount; //milliseconds to nanoseconds
-	let segTime = 1000000.0 * t / (layerCount * ch * cw); //milliseconds to nanoseconds
-	outSegTime.innerText = segTime.toPrecision(5);
-
-	frameCount++;
-	renderTimeSum += segTime;
-	outFrameCount.innerText = frameCount.toString();
-	outSegTAvg.innerText = (renderTimeSum / frameCount).toPrecision(5);
-	
 	if(chkNavAuto.checked) {
 		//Update virtual parameters
 		let i = Math.floor(2 * Math.random());
@@ -170,23 +157,40 @@ function viewUpdate() {
 		clientPos[0] = uRemainder(clientPos[0] + dt * clientSpeed[0], worldRes[0]);
 		clientPos[1] = uRemainder(clientPos[1] + dt * clientSpeed[1], worldRes[1]);
 		clientPos[2] = uRemainder(clientPos[2] + dt * clientSpeed[2], worldRes[2]);
-		pos = Array.from(clientPos); //seam
+		//pos = Array.from(clientPos); //seam
 
 		//particles.pos[0] += 0.25 / Math.E;
 	} else {
 		if(dynLastTime != undefined) {
-			let dt = 0.001 * (tNow - dynLastTime);
+			let dt = 0.001 * tFrame;
 			updateDynamics(dt);
 			inputCycle(tNow, dt);
-			clientPos.set(pos, 0); //seam
+			//clientPos.set(pos, 0); //seam
 			//clientSpcTransf.set();
 			viewRayDirsCompute_Rectilinear(ch, cw);
 		}
 	}
-	dynLastTime = tNow;
+
+	let tRender = performance.now() - tNow;
+	outFrameRenderT.innerText = tRender.toFixed(1);
 	
+	frameCount++;
+	outFrameCount.innerText = frameCount.toString();
+	
+	//layerCount = frameMaxLayers;
+	//outFrameSegs.innerText = segmentCount.toString();
+	//outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
+	//outFrameLayers.innerText = layerCount.toString();
+	//let segTime = 1000000.0 * t / segmentCount; //milliseconds to nanoseconds
+	let segTime = 1000000.0 * tRender / (layerCount * ch * cw); //milliseconds to nanoseconds
+	outSegTime.innerText = segTime.toPrecision(3);
+
+	renderTimeSum += segTime;
+	outSegTAvg.innerText = (renderTimeSum / frameCount).toPrecision(3);
+	
+	dynLastTime = tNow;
 	//window.requestAnimationFrame(viewUpdate);
-	if(animating) updateCycleId = setTimeout(viewUpdate, Math.max(timeout - t, 0));
+	if(animating) updateCycleId = setTimeout(viewUpdate, Math.max(timeout - tRender, 0));
 }
 
 function startUpdating() {

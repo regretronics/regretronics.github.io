@@ -1,6 +1,6 @@
 "use strict";
 
-var pos, dPos, rot, dRot;
+var clientPos, dPos, rot, dRot;
 //var vars;
 var clientSpcTransf;
 
@@ -85,12 +85,12 @@ function matrixMultiply_3x3(m1, m2) {
 	];
 }
 function updateDynamics(dt) {
-	/* pos[0] += dPos[0] * dt;
-	pos[1] += dPos[1] * dt;
-	pos[2] += dPos[2] * dt; */
-	pos[0] += (dPos[0] * clientSpcTransf[0] + dPos[1] * clientSpcTransf[3] + dPos[2] * clientSpcTransf[6]) * dt;
-	pos[1] += (dPos[0] * clientSpcTransf[1] + dPos[1] * clientSpcTransf[4] + dPos[2] * clientSpcTransf[7]) * dt;
-	pos[2] += (dPos[0] * clientSpcTransf[2] + dPos[1] * clientSpcTransf[5] + dPos[2] * clientSpcTransf[8]) * dt;
+	/* clientPos[0] += dPos[0] * dt;
+	clientPos[1] += dPos[1] * dt;
+	clientPos[2] += dPos[2] * dt; */
+	clientPos[0] += (dPos[0] * clientSpcTransf[0] + dPos[1] * clientSpcTransf[3] + dPos[2] * clientSpcTransf[6]) * dt;
+	clientPos[1] += (dPos[0] * clientSpcTransf[1] + dPos[1] * clientSpcTransf[4] + dPos[2] * clientSpcTransf[7]) * dt;
+	clientPos[2] += (dPos[0] * clientSpcTransf[2] + dPos[1] * clientSpcTransf[5] + dPos[2] * clientSpcTransf[8]) * dt;
 
 	const tau = 2 * Math.PI;
 	//let newTransform = Object.create(IdentityMatrix3);
