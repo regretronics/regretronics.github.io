@@ -37,10 +37,6 @@ var clientFoVH = 1;
 var rayDirsCol, rayDirsRow;
 var texRayDirs, texRayDirsSign;
 
-function clientUpdateSpcTransf() {
-	//to do
-}
-
 const opacityFactor = -128 * Math.LN2 / 256;
 //const opacityFactor = -128 / 256;
 
@@ -915,6 +911,66 @@ function registerRayCastingKernelMap(gpu) {
 		returnType: 'Array(4)'
 	});
 	return { rayCastingCycle: rayCastingCycle };
+}
+
+function canvasSizeChange(newCW, newCH) {
+	ch = newCH;
+	cw = newCW;
+
+	releaseCanvasResources(); //Dispose canvas-related kernels, etc.
+
+	//Recreate kernels, except field-related ones
+	generalKernels = registerGeneralKernels(gpu);
+	/* rcKernels0 = registerRayCastingKernels(gpu, newKernels);
+	rcKernels1 = registerRayCastingKernels(gpu, newKernels); */
+	/* rcKernels0 = registerRayCastingKernelMap(gpu);
+	rcKernels1 = registerRayCastingKernelMap(gpu); */
+	rcKernels0 = registerRayCastingKernelMono(gpu);
+
+	//From registerKernels
+	/* generalKernels.rayDirs2d.setOutput([cw, ch]);
+	generalKernels.rayDirsSigns.setOutput([cw, ch]); */
+	/* generalKernels.resetRayAlive.setOutput([cw, ch]);
+	generalKernels.resetRayCrossingPoints.setOutput([cw, ch]);
+	generalKernels.resetAccumBufferEmission.setOutput([cw, ch]);
+	generalKernels.resetAccumBufferTransp.setOutput([cw, ch]);
+	generalKernels.renderAccum.setOutput([cw, ch]); */
+
+	//rcKernelsSetDimensions(rcKernels0);
+	//rcKernelsSetDimensions(rcKernels1);
+
+	viewRayDirsCompute_Rectilinear(ch, cw);
+	//texBuffer0 = {};
+	//texBuffer1 = {};
+
+	//force-compile
+	//frameRenderRaycasting(ch, cw, 0);
+	//frameRenderRaycasting(ch, cw, 0);
+	//frameRenderRaycasting_kernelMap(0);
+	//frameRenderRaycasting_kernelMap(0);
+	frameRenderRaycasting_mono(1);
+	/* frameRenderRaycasting_combinedKernel(0);
+	frameRenderRaycasting_combinedKernel(0); */
+
+	mainCanvas.height = ch;
+	mainCanvas.width = cw;
+}
+function rcKernelsSetDimensions(rcKernels) {
+	//From registerRayCastingKernels
+	/* rcKernels.getDRay.setOutput([cw, ch]);
+	rcKernels.nextCrossingPoints.setOutput([cw, ch]);
+	rcKernels.pVoxel.setOutput([cw, ch]);
+	rcKernels.segTransp.setOutput([cw, ch]);
+	rcKernels.nextAccumEmission.setOutput([cw, ch]);
+	rcKernels.nextAccumTransp.setOutput([cw, ch]);
+	rcKernels.nextRayAlive.setOutput([cw, ch]); */
+
+	//From registerRayCastingKernelMono
+	rcKernels.rayCaster.setOutput([cw, ch]);
+	//rcKernels.renderTex.setOutput([cw, ch]);
+
+	//From registerRayCastingKernelMap
+	//rcKernels.rayCastingCycle.setOutput([cw, ch]);
 }
 
 function viewRayDirsCompute_Rectilinear(ch, cw) {

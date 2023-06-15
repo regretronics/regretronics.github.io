@@ -234,6 +234,7 @@
 		//initParticles_random();
 		//worldVoxelsInit();
 		restartGPU();
+		dynLastTime = performance.now();
 		viewUpdate();
 		//pos = clientPos;
 		//Object.assign(pos, clientPos);
@@ -255,12 +256,12 @@
 		</canvas>
 	</div>
 	<p>
-		<label for="txtWorldSize">Volumetric resolution</label> <input id="txtWorldSize" type="number" value="96" step="16" />, 
+		<label for="txtWorldSize">Volumetric resolution</label> <input id="txtWorldSize" type="number" value="96" min="8" step="8" />, 
 		<output id="outVoxelCount">0</output> voxel(s).
 	</p>
 	<p>
-		Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" step="16" list="resList" />, 
-		<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" step="16" list="resList" />.
+		Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" min="16" step="16" list="resList" />, 
+		<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" min="16" step="16" list="resList" />.
 		<datalist id="resList">
 			<option value="64" />
 			<option value="80" />
@@ -309,7 +310,7 @@
 	</p>
 	<p>
 		<label for="txtMarchingLayers">Marching layers</label> 
-		<input id="txtMarchingLayers" type="number" value="48" step="8" list="layerCountList" />. 
+		<input id="txtMarchingLayers" type="number" value="48" min="0" max="1024" step="8" list="layerCountList" />. 
 		<datalist id="layerCountList">
 			<option value="16" />
 			<option value="20" />
@@ -326,7 +327,7 @@
 			<option value="256" />
 		</datalist>
 		<label for="txtFrameTimeout">Frame timeout (ms)</label> 
-		<input id="txtFrameTimeout" type="number" value="80" step="5" list="intervalMsList" />.
+		<input id="txtFrameTimeout" type="number" value="80" min="0" step="5" list="intervalMsList" />.
 		<datalist id="intervalMsList">
 			<option value="5" />
 			<option value="8" />
@@ -350,7 +351,8 @@
 		<button id="btnViewUpdate">Update once</button>
 		<button id="btnStartUpdating">Start updating</button>
 		<button id="btnStopUpdating">Stop updating</button>
-		<input type="checkbox" id="chkNavAuto" /><label for="chkNavAuto">Automatic drift.</label>
+		<input type="checkbox" id="chkNavFwd" checked="true" /><label for="chkNavFwd">Forward with wrapping.</label>
+		<input type="checkbox" id="chkNavDrift" checked="true" /><label for="chkNavDrift">Random parallax drift.</label>
 	</p>
 	<p>
 		Frame: render time 
@@ -360,6 +362,12 @@
 		<output id="outFrameCount">0</output> frame(s) generated, 
 		avg. <output id="outSegTAvg">0</output> ns/segment.
 	</p>
-	<p>This page is a graphical test, requiring HTML canvas and modern JavaScript to work, and thus a modern browser. This page automatically starts an update cycle 3 seconds after loading, to facilitate performance testing. You can improve the animation by lowering the frame timeout. If the animation jitters, you can lower the resolution or the number of layers. You will need a keyboard, gamepad or joystick to guide navigation, or you can use automatic drift.</p>
+	<p>
+		This page is a graphical test, requiring HTML canvas and modern JavaScript to work, and thus a modern browser.
+		This page automatically starts an update cycle 3 seconds after loading, to facilitate performance testing.
+		You can improve the animation by lowering the frame timeout.
+		If the animation jitters, you can lower the resolution or the number of layers.
+		You can use a keyboard, gamepad or joystick to guide navigation, if you disable automatic drift.
+	</p>
 </body>
 </html>

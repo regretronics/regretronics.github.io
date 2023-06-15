@@ -61,7 +61,7 @@ function getControllerInput(controller, kind, path, transfer) {
 	if (path == undefined) return val;
 	val = val[path];
 	//if (val == undefined) return false;
-	if (kind === "axes" && val != undefined && transfer != undefined) {
+	if (/* kind === "axes" && */ val != undefined && transfer != undefined) {
 		//val = deadZone(val, 0.0625);
 		//val = Math.abs(val)**2 * Math.sign(val);
 		val = transfer(val);
@@ -70,7 +70,7 @@ function getControllerInput(controller, kind, path, transfer) {
 }
 
 function matrixMultiply_3x3(m1, m2) {
-	return [
+	return new Float32Array([
 		m1[0] * m2[0] + m1[1] * m2[3] + m1[2] * m2[6],
 		m1[0] * m2[1] + m1[1] * m2[4] + m1[2] * m2[7],
 		m1[0] * m2[2] + m1[1] * m2[5] + m1[2] * m2[8],
@@ -82,37 +82,26 @@ function matrixMultiply_3x3(m1, m2) {
 		m1[6] * m2[0] + m1[7] * m2[3] + m1[8] * m2[6],
 		m1[6] * m2[1] + m1[7] * m2[4] + m1[8] * m2[7],
 		m1[6] * m2[2] + m1[7] * m2[5] + m1[8] * m2[8]
-	];
+	]);
+}
+function vectorTransform_3(m1, v2) {
+	return new Float32Array([
+		v2[0] * m1[0] + v2[1] * m1[3] + v2[2] * m1[6],
+		v2[0] * m1[1] + v2[1] * m1[4] + v2[2] * m1[7],
+		v2[0] * m1[2] + v2[1] * m1[5] + v2[2] * m1[8]
+	]);
 }
 function updateDynamics(dt) {
 	/* clientPos[0] += dPos[0] * dt;
 	clientPos[1] += dPos[1] * dt;
 	clientPos[2] += dPos[2] * dt; */
-	clientPos[0] += (dPos[0] * clientSpcTransf[0] + dPos[1] * clientSpcTransf[3] + dPos[2] * clientSpcTransf[6]) * dt;
-	clientPos[1] += (dPos[0] * clientSpcTransf[1] + dPos[1] * clientSpcTransf[4] + dPos[2] * clientSpcTransf[7]) * dt;
-	clientPos[2] += (dPos[0] * clientSpcTransf[2] + dPos[1] * clientSpcTransf[5] + dPos[2] * clientSpcTransf[8]) * dt;
+	let dPosAligned = vectorTransform_3(clientSpcTransf, dPos);
+	clientPos[0] += dPosAligned[0] * dt;
+	clientPos[1] += dPosAligned[1] * dt;
+	clientPos[2] += dPosAligned[2] * dt;
 
 	const tau = 2 * Math.PI;
 	//let newTransform = Object.create(IdentityMatrix3);
-	/* let r0Transform = [ //yaw
-		Math.cos(tau * rot[0]), 0.0, Math.sin(tau * rot[0]),
-		0.0, 1.0, 0.0,
-		-Math.sin(tau * rot[0]), 0.0, Math.cos(tau * rot[0])
-	],
-	r1Transform = [ //pitch
-		1.0, 0.0, 0.0,
-		0.0, Math.cos(tau * rot[1]), -Math.sin(tau * rot[1]),
-		0.0, Math.sin(tau * rot[1]), Math.cos(tau * rot[1])
-	],
-	r2Transform = [ //roll
-		Math.cos(tau * rot[2]), -Math.sin(tau * rot[2]), 0.0,
-		Math.sin(tau * rot[2]), Math.cos(tau * rot[2]), 0.0,
-		0.0, 0.0, 1.0,
-	];
-	clientSpcTransf = matrixMultiply_3x3(matrixMultiply_3x3(r2Transform, r1Transform), r0Transform);
-	rot[0] += dRot[0] * dt;
-	rot[1] += dRot[1] * dt;
-	rot[2] += dRot[2] * dt; */
 
 	rot[0] = tau * dRot[0] * dt;
 	rot[1] = tau * dRot[1] * dt;
@@ -132,6 +121,10 @@ function updateDynamics(dt) {
 		Math.sin(rot[2]), Math.cos(rot[2]), 0.0,
 		0.0, 0.0, 1.0,
 	];
+	/* clientSpcTransf = matrixMultiply_3x3(matrixMultiply_3x3(r2Transform, r1Transform), r0Transform);
+	rot[0] += dRot[0] * dt;
+	rot[1] += dRot[1] * dt;
+	rot[2] += dRot[2] * dt; */
 	clientSpcTransf = matrixMultiply_3x3(matrixMultiply_3x3(matrixMultiply_3x3(r2Transform, r1Transform), r0Transform), clientSpcTransf);
 
 	Object.assign(dPos, [0.0, 0.0, 0.0]); //question: replace with Object constructor?
