@@ -30,9 +30,9 @@ const mazeFillThres = new Float32Array( //maze voxel fill probability by sum of 
 //var clientPos = new Float32Array([0.5 * worldRes[0] + 0.5, 0.5 * worldRes[1] + 0.5, 0.375 * worldRes[2] + 0.5, 0.0]);
 var clientPos = new Float32Array([0.5 * worldRes[0] + 4.5, 0.5 * worldRes[1] + 4.5, 0.375 * worldRes[2] + 0.5, 0.0]);
 var clientSpcTransf = new Float32Array([
- 1, 0, 0,
- 0, 1, 0,
- 0, 0, 1]);
+	1, 0, 0,
+	0, 1, 0,
+	0, 0, 1]);
 var clientFoVH = 1;
 var rayDirsCol, rayDirsRow;
 var texRayDirs, texRayDirsSign;
@@ -162,10 +162,10 @@ function registerFieldKernels(gpu) {
 	}, function(particleCount, particleR, particlePos, particleEmission, particleAlpha) {
 		let myPos = [this.thread.x, this.thread.y, this.thread.z]; //gpu.js bug: this.thread.x + 0.5 is not a float.
 		myPos = [myPos[0] + 0.5, myPos[1] + 0.5, myPos[2] + 0.5];
-		//let accumColor = [0.0, 0.0, 0.0, 0.0];
-		//let accumAlpha = [0.0, 0.0, 0.0, 0.0];
-		const accumAlpha = [0.0625, 0.0625, 0.0625, 0.0];
-		const accumColor = [accumAlpha[0] * Math.random(), accumAlpha[1] * Math.random(), accumAlpha[2] * Math.random(), 0.0];
+		//let accumAlpha = [0.0, 0.0, 0.0/* , 0.0 */];
+		let accumColor = [0.0, 0.0, 0.0/* , 0.0 */];
+		let accumAlpha = [0.0625, 0.0625, 0.0625/* , 0.0 */];
+		//let accumColor = [accumAlpha[0] * Math.random(), accumAlpha[1] * Math.random(), accumAlpha[2] * Math.random()/* , 0.0 */];
 
 		for (let i = 0; i < particleCount; i++) {
 			const r = particleR[i];
@@ -199,7 +199,7 @@ function registerFieldKernels(gpu) {
 				}
 			}
 		}
-		let fgColor = [0.0, 0.0, 0.0, 0.0];
+		let fgColor = [0.0, 0.0, 0.0/* , 0.0 */];
 		if(accumAlpha[0] > 0.0) fgColor[0] = accumColor[0] / accumAlpha[0];
 		if(accumAlpha[1] > 0.0) fgColor[1] = accumColor[1] / accumAlpha[1];
 		if(accumAlpha[2] > 0.0) fgColor[2] = accumColor[2] / accumAlpha[2];
@@ -207,7 +207,8 @@ function registerFieldKernels(gpu) {
 		return fgColor;
 	}, {
 		//constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2] },
-		returnType: 'Array(4)',
+		//returnType: 'Array(4)',
+		returnType: 'Array(3)',
 		output: [worldRes[0], worldRes[1], worldRes[2]],
 		//immutable: true,
 		//dynamicOutput: true,
@@ -1097,7 +1098,7 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) 
 	//fieldMap?.alpha?.clear();
 	//fieldMap?.result?.delete();
 	//fieldMap?.alpha?.delete();
-	//let fieldMap = generalKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
+	//let fieldMap = fieldKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
 
 	rcKernels0.rayCaster(layerCount, new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
 	//return rcKernels0.rayCaster.exec(layerCount, new Float32Array(clientPos), texRayDirs, texRayDirsSign, fieldMap.result, fieldMap.alpha);
@@ -1107,8 +1108,8 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) 
 
 	/* fieldMap.result.clear();
 	fieldMap.alpha.clear(); */
-	//fieldMap.result.delete();
-	//fieldMap.alpha.delete();
+	/* fieldMap.result.delete();
+	fieldMap.alpha.delete(); */
 }
 function frameRenderRaycasting_kernelMap(/* bufH, bufW, */ timeout) {
 	let timeoutEnabled = (typeof(timeout) === "number"), tStart;

@@ -103,22 +103,24 @@ function updateDynamics(dt) {
 	const tau = 2 * Math.PI;
 	//let newTransform = Object.create(IdentityMatrix3);
 
-	rot[0] = tau * dRot[0] * dt;
-	rot[1] = tau * dRot[1] * dt;
-	rot[2] = tau * dRot[2] * dt;
+	let frac = tau * dt; //precalculation optimizations
+	let rotAngle = [frac * dRot[0], frac * dRot[1], frac * dRot[2]];
+	let catheti = [[Math.cos(rotAngle[0]), Math.sin(rotAngle[0])],
+		[Math.cos(rotAngle[1]), Math.sin(rotAngle[1])],
+		[Math.cos(rotAngle[2]), Math.sin(rotAngle[2])]];
 	let r0Transform = [ //yaw
-		Math.cos(rot[0]), 0.0, Math.sin(rot[0]),
+		catheti[0][0], 0.0, -catheti[0][1],
 		0.0, 1.0, 0.0,
-		-Math.sin(rot[0]), 0.0, Math.cos(rot[0])
+		catheti[0][1], 0.0, catheti[0][0]
 	],
 	r1Transform = [ //pitch
 		1.0, 0.0, 0.0,
-		0.0, Math.cos(rot[1]), -Math.sin(rot[1]),
-		0.0, Math.sin(rot[1]), Math.cos(rot[1])
+		0.0, catheti[1][0], -catheti[1][1],
+		0.0, catheti[1][1], catheti[1][0]
 	],
 	r2Transform = [ //roll
-		Math.cos(rot[2]), -Math.sin(rot[2]), 0.0,
-		Math.sin(rot[2]), Math.cos(rot[2]), 0.0,
+		catheti[2][0], -catheti[2][1], 0.0,
+		catheti[2][1], catheti[2][0], 0.0,
 		0.0, 0.0, 1.0,
 	];
 	/* clientSpcTransf = matrixMultiply_3x3(matrixMultiply_3x3(r2Transform, r1Transform), r0Transform);

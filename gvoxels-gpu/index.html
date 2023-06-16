@@ -24,14 +24,16 @@
 	#canvasContainer canvas {
 		object-fit: contain;
 	}
-	#canvasContainer canvas:not(:fullscreen) {
-		max-width: 98%;
-		max-height: 98vh;
-	}
-	#canvasContainer canvas:fullscreen, :fullscreen #canvasContainer canvas {
+	#canvasContainer canvas/*:not(:fullscreen)*/ {
+		/* max-width: 98%;
+		max-height: 98vh; */
 		max-width: 100%;
 		max-height: 100vh;
 	}
+	/* #canvasContainer canvas:fullscreen, :fullscreen #canvasContainer canvas {
+		max-width: 100%;
+		max-height: 100vh;
+	} */
 	p {
 		max-width: min(120ch, 100% - 3ch);
 		margin-inline: auto;
@@ -62,7 +64,7 @@
 
 	//var pos = [0.0, 0.0, 0.0];
 	var dPos = [0.0, 0.0, 0.0];
-	var rot = [0.0, 0.0, 0.0];
+	var rot = [0.0, 0.0, 0.0]; //currently out of use
 	var dRot = [0.0, 0.0, 0.0];
 	const vars = {pos: clientPos, dPos: dPos, rot: rot, dRot: dRot};
 	//const outVars = {pos: pos, vel: dPos, rot: rot, dRot: dRot};
@@ -78,25 +80,25 @@
 
 	var keyTarget;
 	var inputKeyMap = [
-		{ keyCode: "KeyA", inputMode: "ifPressed", cmdName: "Strafe-left"  , action: "add", object: "dPos", param: [-128 / 16.0, 0.0,  0.0] },
-		{ keyCode: "KeyD", inputMode: "ifPressed", cmdName: "Strafe-right" , action: "add", object: "dPos", param: [ 128 / 16.0, 0.0,  0.0] },
-		{ keyCode: "KeyW", inputMode: "ifPressed", cmdName: "Move-forward" , action: "add", object: "dPos", param: [ 0.0, 0.0,  128 / 16.0] },
-		{ keyCode: "KeyS", inputMode: "ifPressed", cmdName: "Move-backward", action: "add", object: "dPos", param: [ 0.0, 0.0, -128 / 16.0] },
-		{ keyCode: "ArrowLeft" , inputMode: "ifPressed", cmdName: "Yaw-left"  , action: "add", object: "dRot", param: [ 1.0 / 8.0,  0.0, 0.0] },
-		{ keyCode: "ArrowRight", inputMode: "ifPressed", cmdName: "Yaw-right" , action: "add", object: "dRot", param: [-1.0 / 8.0,  0.0, 0.0] },
-		{ keyCode: "ArrowUp"   , inputMode: "ifPressed", cmdName: "Pitch-up"  , action: "add", object: "dRot", param: [ 0.0,  1.0 / 8.0, 0.0] },
-		{ keyCode: "ArrowDown" , inputMode: "ifPressed", cmdName: "Pitch-down", action: "add", object: "dRot", param: [ 0.0, -1.0 / 8.0, 0.0] },
-		{ keyCode: "KeyQ"      , inputMode: "ifPressed", cmdName: "Roll-ccw"  , action: "add", object: "dRot", param: [ 0.0, 0.0,  1.0 / 8.0] },
-		{ keyCode: "KeyE"      , inputMode: "ifPressed", cmdName: "Roll-cw"   , action: "add", object: "dRot", param: [ 0.0, 0.0, -1.0 / 8.0] }
+		{ keyCode: "KeyA", inputMode: "ifPressed", cmdName: "Strafe-left"  , action: "add", object: "dPos", param: [-128 / 16.0, 0.0, 0.0] },
+		{ keyCode: "KeyD", inputMode: "ifPressed", cmdName: "Strafe-right" , action: "add", object: "dPos", param: [ 128 / 16.0, 0.0, 0.0] },
+		{ keyCode: "KeyW", inputMode: "ifPressed", cmdName: "Move-forward" , action: "add", object: "dPos", param: [0.0, 0.0,  128 / 16.0] },
+		{ keyCode: "KeyS", inputMode: "ifPressed", cmdName: "Move-backward", action: "add", object: "dPos", param: [0.0, 0.0, -128 / 16.0] },
+		{ keyCode: "ArrowLeft" , inputMode: "ifPressed", cmdName: "Yaw-left"  , action: "add", object: "dRot", param: [-1.0 / 8.0, 0.0, 0.0] },
+		{ keyCode: "ArrowRight", inputMode: "ifPressed", cmdName: "Yaw-right" , action: "add", object: "dRot", param: [ 1.0 / 8.0, 0.0, 0.0] },
+		{ keyCode: "ArrowUp"   , inputMode: "ifPressed", cmdName: "Pitch-up"  , action: "add", object: "dRot", param: [0.0,  1.0 / 8.0, 0.0] },
+		{ keyCode: "ArrowDown" , inputMode: "ifPressed", cmdName: "Pitch-down", action: "add", object: "dRot", param: [0.0, -1.0 / 8.0, 0.0] },
+		{ keyCode: "KeyQ"      , inputMode: "ifPressed", cmdName: "Roll-ccw"  , action: "add", object: "dRot", param: [0.0, 0.0,  1.0 / 8.0] },
+		{ keyCode: "KeyE"      , inputMode: "ifPressed", cmdName: "Roll-cw"   , action: "add", object: "dRot", param: [0.0, 0.0, -1.0 / 8.0] }
 	];
 	var keysPressed = {};
 	var inputGamepadMap = [
 		{ controllerIndex: 0, inputKind: "axes", inputPath: 0, varName: "Strafe", action: "add", transfer: symmetricAxis, object: "dPos", param: [128 / 16.0, 0.0,  0.0] },
 		{ controllerIndex: 0, inputKind: "axes", inputPath: 1, varName: "Move"  , action: "add", transfer: symmetricAxis, object: "dPos", param: [0.0, 0.0, -128 / 16.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 2, varName: "Yaw"     , action: "add", transfer: symmetricAxis, object: "dRot", param: [-1.0 / 4.0,  0.0, 0.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 5, varName: "Pitch"   , action: "add", transfer: symmetricAxis, object: "dRot", param: [ 0.0, -1.0 / 4.0, 0.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 3, varName: "Roll-ccw", action: "add", transfer: invBtnToAxis, object: "dRot", param: [ 0.0, 0.0,  1.0 / 4.0] },
-		{ controllerIndex: 0, inputKind: "axes", inputPath: 4, varName: "Roll-cw" , action: "add", transfer: invBtnToAxis, object: "dRot", param: [ 0.0, 0.0, -1.0 / 4.0] }
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 2, varName: "Yaw"     , action: "add", transfer: symmetricAxis, object: "dRot", param: [1.0 / 4.0,  0.0, 0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 5, varName: "Pitch"   , action: "add", transfer: symmetricAxis, object: "dRot", param: [0.0, -1.0 / 4.0, 0.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 3, varName: "Roll-ccw", action: "add", transfer: invBtnToAxis, object: "dRot", param: [0.0, 0.0,  1.0 / 4.0] },
+		{ controllerIndex: 0, inputKind: "axes", inputPath: 4, varName: "Roll-cw" , action: "add", transfer: invBtnToAxis, object: "dRot", param: [0.0, 0.0, -1.0 / 4.0] }
 	];
 
 	function initParticles() {
@@ -119,9 +121,10 @@
 	}
 	function initParticles_random() {
 		//const particleCount = 4096;
+		const particleCount = 16384;
 		//const particleCount = 65536;
 		//const particleCount = 262144;
-		const particleCount = 1048576;
+		//const particleCount = 1048576;
 		particles = {
 			count: particleCount,
 			r: new Float32Array(particleCount),
@@ -310,7 +313,7 @@
 	</p>
 	<p>
 		<label for="txtMarchingLayers">Marching layers</label> 
-		<input id="txtMarchingLayers" type="number" value="48" min="0" max="1024" step="8" list="layerCountList" />. 
+		<input id="txtMarchingLayers" type="number" value="32" min="0" max="1024" step="8" list="layerCountList" />. 
 		<datalist id="layerCountList">
 			<option value="16" />
 			<option value="20" />
@@ -355,7 +358,7 @@
 		<input type="checkbox" id="chkNavDrift" checked="true" /><label for="chkNavDrift">Random parallax drift.</label>
 	</p>
 	<p>
-		Frame: render time 
+		Frame: <!-- render time -->interval 
 		<output id="outFrameRenderT">0</output> ms 
 		<!-- avg. <output id="outFrameLayers">0</output> layer(s)  -->
 		(avg. <output id="outSegTime">0</output> ns/segment). 
