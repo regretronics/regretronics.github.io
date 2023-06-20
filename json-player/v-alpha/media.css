@@ -1,6 +1,6 @@
 @media screen {
 	:root {
-		background-color: revert !important; /*dark reader workaround*/
+		background-color: revert !important; /*Dark Reader workaround*/
 	}
 	/*for wide viewports, a two-column layout (control panel + documentation)*/
 	/*@media (min-width: 160ch) {*/
@@ -23,10 +23,13 @@
 			height: 100%;
 			/*height: 100vh;*/
 		}
-		body > main, body > section {
+		/* body > main, body > section { */
+		body > .major-section {
 			box-sizing: border-box;
 			height: 100%;
 			overflow-y: auto;
+			/* padding: 2vmin; */
+			padding: max(0em, calc(7.5vmin - 8ch));
 		}
 		body > main {
 			flex-basis: 96ch;
@@ -117,8 +120,8 @@
 		resize: none;
 	}
 }
-@media (min-width: 96ch) {
+/* @media (min-width: 96ch) {
 	td {
 		padding: 0.25em;
 	}
-}
+} */

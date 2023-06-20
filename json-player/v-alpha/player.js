@@ -198,10 +198,7 @@ function renderNote(clip, note) {
 			let fltBandPass = new BiquadFilterNode(clip.audioCtx, {
 				type: "bandpass",
 				frequency: Math.abs(noteFreq),
-				//Q: 0.0625
-				//Q: 0.25
-				Q: 1
-				//Q: 4
+				Q: NaNToDefault(note.q, defaultNoteNode.q)
 			}); //to do: exponentially increasing Q? (but how?)
 			terminalNode.connect(fltBandPass);
 			terminalNode = fltBandPass;

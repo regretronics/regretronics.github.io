@@ -102,11 +102,14 @@
 			//elem.addEventListener("click", recalcEditorCursorPos);
 		}
 
-		let toolTipDomains = ["body>main", "body>section"];
+		//let toolTipDomains = ["body>main", "body>section"];
+		let toolTipDomains = ["body>main", "#tblFractionIntervals"];
 		let toolTipHandlers = [event => setToolTip(event, document.getElementById("outToolTip")),
 			event => setToolTip(event, document.getElementById("outToolTip2"))];
 		for(const i in toolTipDomains)
 			addToolTipHandler(toolTipDomains[i], toolTipHandlers[i]);
+
+		addIntervalSamples();
 
 		//just eye candy
 		if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
@@ -114,7 +117,8 @@
 			document.addEventListener("scroll", scrollUpdate);
 			//document.addEventListener("resize", resizeUpdate);
 			document.dispatchEvent(evt);
-			for(const elem of document.querySelectorAll("body>:not(hr):not(.bg)")) {
+			//for(const elem of document.querySelectorAll("body>:not(hr):not(.bg)")) {
+			for(const elem of document.querySelectorAll("body>.major-section")) {
 				elem.addEventListener("scroll", scrollUpdate);
 				//elem.addEventListener("resize", resizeUpdate);
 				elem.dispatchEvent(evt);
@@ -136,7 +140,7 @@
 </head>
 <body><!--<div id="wrapper">-->
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
-	<main hidden="">
+	<main class="major-section" hidden="">
 		<div class="flex-row align-top">
 			<h1 style="flex-basis: 24ch;">
 				<picture id="title-icon">
@@ -344,7 +348,7 @@
 	</main>
 
 	<hr hidden="" />
-	<section>
+	<section class="major-section">
 		<article>
 			<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
 				Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
@@ -364,11 +368,11 @@
 					<thead>
 						<tr>
 							<!--hyphenation based on Oxford Advanced Leaner's Dictionary, with http://www.ushuaia.pl/hyphen/?ln=en to fill in the gaps.-->
-							<th>Frac&shy;tion</th>
-							<th>Prime fac&shy;tor&shy;iza&shy;tion</th>
-							<th><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semi&shy;tones (12-TET)</a></th>
-							<th>Trad&shy;ition&shy;al name (approx.)</th>
-							<th>Notes</th>
+							<th scope="col">Frac&shy;tion</th>
+							<th scope="col">Prime fac&shy;tor&shy;iza&shy;tion</th>
+							<th scope="col"><a href="https://en.wikipedia.org/wiki/12_equal_temperament">Semi&shy;tones (12-TET)</a></th>
+							<th scope="col">Trad&shy;ition&shy;al name (approx.)</th>
+							<th scope="col">Notes</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -598,6 +602,9 @@
 							<td>1.194</td>
 							<td>Semitone</td>
 						</tr>
+						<tr>
+							<td colspan="5" id="outToolTip2" class="tool-tip print-dp-none">A description of the selected item will appear here.</td>
+						</tr>
 					</tbody>
 				</table></p>
 				<p>Note: "Semitone" is a British English term, corresponding to "half step" in American English. 
@@ -797,7 +804,6 @@
 				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
 				<dd>Affected by overall time scale.</dd>
 			</dl>
-			<p id="outToolTip2" class="tool-tip print-dp-none">A description of the selected item will appear here.</p>
 		</article>
 		<footer>
 			<hr />

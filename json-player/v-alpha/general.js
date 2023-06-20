@@ -19,6 +19,7 @@ const defaultBlockNode = {
 	volRatio: 1,
 
 	timbre: "sine",
+	q: 1, //for noise resonance; currently undocumented.
 	decayFactor: 256, //question: rename this to sustain(Factor)?
 	attack: 1 / 64,
 
@@ -29,7 +30,7 @@ const defaultBlockNode = {
 	vibratoDepth: 0,
 	vibratoAttack: 3
 }, relativeBlockProps = ["timeDelta", "timeScale", "freqRatio", "volRatio"],
- substitutiveProps = ["timbre", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
+ substitutiveProps = ["timbre", "q", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
 const defaultNoteNode = {
 	noteStart: 0, //seconds
 	duration: 1, //seconds
@@ -38,6 +39,7 @@ const defaultNoteNode = {
 	vol: defaultBlockNode.volRatio, //negative volumes are supported in the player, and apparently result in phase inversion.
 
 	timbre: defaultBlockNode.timbre,
+	q: defaultBlockNode.q,
 	decayFactor: defaultBlockNode.decayFactor, //seconds
 	attack: defaultBlockNode.attack, //seconds
 
@@ -46,7 +48,7 @@ const defaultNoteNode = {
 	vibratoDepth: defaultBlockNode.vibratoDepth, //octaves or bits
 	vibratoAttack: defaultBlockNode.vibratoAttack //seconds
 }, incrementalNoteProps = ["noteStart", "duration", "noteStop", "freq0", "freq", "vol"],
-tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
+tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"]; //to do: noise-only properties?
 
 //of course there are infinite primes, but these are more than enough.
 var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47], primeCount = 2, expVariance = 2;
@@ -188,7 +190,7 @@ const timeDisplPrecision = 2;
 
 //look-up table to be used in an aspect of the volume envelope
 var releaseCurve;
-const releaseCurveSize = 2048;
+const releaseCurveSize = 8192;
 
 //variability per prime factor (2, 3, 5, 7, ...)
 let maxPitches = null;
@@ -222,7 +224,6 @@ function docLoaded() {
 }
 
 let textSize = 1;
-/*function rescaleText(f) {*/
 function rescaleText(event) {
 	if(!document || !document.body || !document.body.style) return false;
 	const elem = event.target;
@@ -637,4 +638,79 @@ function hueAnimation() {
 	animHue = (animHue + 360 / 384) % 360;
 	//root.style.setProperty("--hue-accent2", animHue);
 	root.style.setProperty("--hue-anim", animHue);
+}
+
+function addIntervalSamples() {
+	{
+		//add cell to row in table header
+		const row = document.querySelector("#tblFractionIntervals thead tr");
+		const cell = document.createElement("th"); //insertCell would make a td element.
+		cell.scope = "col";
+		cell.innerHTML = "Sam&shy;ple";
+		row.insertBefore(cell, row.children[4]);
+	}
+
+	//add cells to rows in table body
+	const container = document.querySelector("#tblFractionIntervals tbody");
+	//const len = container.children.length;
+	for (const row of container.children) {
+		if(row.tagName.toUpperCase() !== "TR") continue;
+		if(row.children.length < 1) continue;
+		if(row.children[0].tagName.toUpperCase() === "TH" || row.children[0].classList.contains("tool-tip")) {
+			row.children[0].colSpan++;
+			continue;
+		}
+
+		const cell = row.insertCell(4);
+		const link = document.createElement("a");
+		link.dataset["fraction"] = row.children[0].innerText;
+		link.href = "#";
+		link.innerText="\u{1F442}"; //ear
+		//link.innerText="\u{1F50A}"; //speaker
+		link.addEventListener("click", playIntervalHandler);
+
+		cell.appendChild(link);
+	}
+}
+//to do: review this code
+//to do: separate AudioContext?
+function playIntervalHandler(event) {
+	//console.log(event);
+	event.preventDefault();
+	if(!event?.target) return;
+	let fraction = event.target.dataset["fraction"];
+	if(!fraction || fraction == "") return;
+	fraction = parseNumber(fraction);
+
+	if(rootFreq == 0) return false;
+	if(playFreqScale == 0) return false;
+	let playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	//to do: allow reverse playback?
+	if(playTimeScale <= 0) return false;
+	//let playTimeDelta = NaNToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
+	let playTimeDelta = 0; //probably not, I think.
+
+	const noteInterval = 0.25, noteDuration = 3;
+	const clip = new SoundClip(null, playTimeScale * (noteDuration + noteInterval), playTimeScale, playTimeDelta, playVolScale, playFreqScale);
+	if(playerClip) clip.audioCtx = playerClip.audioCtx;
+	if(!clip.audioCtx || clip.audioCtx.state === 'closed') {
+		//clip.audioCtx = new AudioContext({latencyHint: "playback"});
+		clip.audioCtx = new AudioContext({latencyHint: "interactive"});
+		//clip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
+	}
+	clip.destNode = clip.audioCtx.destination;
+	clip.t0 = clip.audioCtx.currentTime - clip.playTimeDelta;
+
+	renderNote(clip, {
+		noteStart: 0, noteStop: noteDuration,
+		freq: rootFreq, vol: 0.5,
+		portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
+	});
+	renderNote(clip, {
+		noteStart: noteInterval, noteStop: noteInterval + noteDuration,
+		freq: fraction * rootFreq, vol: 0.5,
+		portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
+	});
+	if(clip.audioCtx.state === 'suspended') clip.audioCtx.resume();
+	clip.open = true;
 }

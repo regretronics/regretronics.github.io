@@ -70,7 +70,7 @@ function makeChords() {
 	if(voiceCount < 2) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
-	if(rootFreq === 0) return false;
+	if(rootFreq == 0) return false;
 	
 	let polyphony = voiceCount - 1; //partial superposition
 	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
@@ -195,7 +195,7 @@ function rhythmSubNodes(struct, level, tuning) {
 function makeRhythm() {
 	let repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return false;
-	if(rootFreq === 0) return false;
+	if(rootFreq == 0) return false;
 
 	//hierarchy of beats
 	let percussion = elems.chkPercussivePattern.checked;
@@ -402,7 +402,7 @@ function makeMelody() {
 	if(repeatCount <= 0) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
-	if(rootFreq === 0) return false;
+	if(rootFreq == 0) return false;
 
 	//top-level node
 	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
