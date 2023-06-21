@@ -60,9 +60,9 @@ function NaNToDefault(x, def) {
 function exprEliminateParens(str) {
 	//use regular expressions matching last-level parenthesized text (without additional parentheses inside), and replace iteratively by values
 	//warning: this is a string-to-string operation, where numbers become decimal-to-binary-to-decimal coded
-	let re = new RegExp(/\(([^\(\)]*)\)/, "g");
+	const re = new RegExp(/\(([^\(\)]*)\)/, "g");
 	do {
-		let s = str.replace(re, (match, p1, offset, string) => parseNumber(p1).toString());
+		const s = str.replace(re, (match, p1, offset, string) => parseNumber(p1).toString());
 		if(s == str) break;
 		str = s;
 	} while(true);
@@ -74,7 +74,7 @@ function parseNumber(n) {
 	if(arguments.length < 1) return undefined; //unspecific
 	if(n === undefined) return undefined;
 	if(n === null) return NaN; //more specific
-	let t = typeof(n);
+	const t = typeof(n);
 
 	//simpler attempts first.
 	if(t === "number" || t === "bigint") return n;
@@ -82,11 +82,10 @@ function parseNumber(n) {
 
 	if(Array.isArray(n)) {
 		//a product, prime factor-based
-		let r = 1, i;
+		let r = 1;
 		//to do: lisp-like (polish notation) array interpretation as s-expressions? (e.g. ["+", 12, 34, 56] -> 12 + 34 + 56)
-		for(i in n) {
+		for(const i in n)
 			r *= Math.pow(primes[i], NaNToDefault(parseNumber(n[i]), 0));
-		}
 		return r;
 	}
 
@@ -94,7 +93,7 @@ function parseNumber(n) {
 	//note: JavaScript converts Number([]) to 0; that's why array detection comes earlier
 	//JavaScript converts Number("") to 0; let's try to prevent this
 	if(t !== "string" || n.length != 0) {
-		let ret = Number(n);
+		const ret = Number(n);
 		if(!isNaN(ret)) return ret;
 	}
 
@@ -158,11 +157,11 @@ function parseNumber(n) {
 
 	//a product (object with explicit factors)
 	if(t === "object") {
-		let r = 1, i;
-		for(i in n) {
+		let r = 1;
+		for(const i in n) {
 			//1 as default base neutralizes unrecognized bases
 			//to do: probably there are objects that shouldn't be boiled down straight into numbers. names that can't become numbers may be a sign of that.
-			let iNum = NaNToDefault(parseNumber(i), 1); //even the factors can actually be complex things
+			const iNum = NaNToDefault(parseNumber(i), 1); //even the factors can actually be complex things
 			if(isNaN(iNum)) continue;
 			r *= Math.pow(iNum, NaNToDefault(parseNumber(n[i]), 0));
 		}
@@ -193,13 +192,12 @@ var releaseCurve;
 const releaseCurveSize = 8192;
 
 //variability per prime factor (2, 3, 5, 7, ...)
-let maxPitches = null;
+var maxPitches = null;
 
 function docLoaded() {
 	//load HTML element references
-	for(let s of elemNames) {
+	for(const s of elemNames)
 		elems[s] = document.getElementById(s);
-	}
 	if(elems.chkAutoFlatten) elems.chkAutoFlatten.checked = autoFlatten;
 	if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
 	if(elems.outAudioDur) elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
@@ -250,7 +248,7 @@ function themeChanged(event) {
 }
 function btnHueClick(event) {
 	if(!document) return false;
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem) return false;
 	let delta = Number(elem.dataset["delta"]);
 
@@ -298,7 +296,7 @@ function primeCountChanged() {
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
 function expSpinnerChanged(event) {
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem) return false;
 	//let val = elem.valueAsNumber;
 	let val = parseNumber(elem.value);
@@ -310,7 +308,7 @@ function expSpinnerChanged(event) {
 		elem.classList.remove("invalid");
 		elem.setCustomValidity("");
 	}
-	let magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
+	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
 	elem.step = step;
 	//if(elem == elems.txtBaseFreq) {elem.min = val - 2 * step;}
 	elem.min = val - 2 * Math.sign(val) * step;
@@ -327,7 +325,7 @@ function expSpinnerChanged(event) {
 const defaultRootFreq = 440;
 var rootFreq = defaultRootFreq, playFreqScale = 1, playVolScale = 1;
 function baseFreqChanged() {
-	let ctl = elems.txtBaseFreq;
+	const ctl = elems.txtBaseFreq;
 	if(!ctl) return false;
 	rootFreq = parseNumber(ctl.value);
 	if(!rootFreq) {
@@ -340,14 +338,14 @@ function baseFreqChanged() {
 	}
 }
 function playFreqScaleChanged() {
-	let ctl = elems.txtPlayFreqScale;
+	const ctl = elems.txtPlayFreqScale;
 	if(!ctl) return false;
 	//if(ctl.valueAsNumber <= 0) ctl.stepUp();
 	playFreqScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.freqRatio);
 	if(playerClip) playerClip.playFreqScale = playFreqScale;
 }
 function playVolScaleChanged() {
-	let ctl = elems.txtPlayVolScale;
+	const ctl = elems.txtPlayVolScale;
 	if(!ctl) return false;
 	//if(ctl.valueAsNumber < 0) ctl.stepUp();
 	playVolScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.volRatio);
@@ -358,7 +356,7 @@ function playVolScaleChanged() {
 var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmAccumUpdate() {
 	if(!rhythmFactors) rhythmFactors = [];
-	let factors = rhythmFactors.slice(); //array clone
+	const factors = rhythmFactors.slice(); //array clone
 	let product = 1;
 	rhythmFactorsAccum = [1];
 	while(factors.length > 0) {
@@ -380,9 +378,9 @@ function rhythmFactorsChanged() {
 		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
 		for(const n of s) {
 			//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
-			let pos = n.indexOf("^");
+			const pos = n.indexOf("^");
 			if(pos >= 0) {
-				let base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
+				const base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
 				for(let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
 					rhythmFactors.push(base);
 				//question: non-integer exponents? (if(exp > 0) ...)
@@ -418,7 +416,7 @@ function btnStopClick(event) {
 
 function deletePrevTab() {
 	//outdent line (actually, erase the nearest tab before caret)
-	let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
+	const rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
 	let pos = rng.endOffset;
 	let node = rng.endContainer; //to do: store original node?
 	let txt = node.textContent;
@@ -473,18 +471,18 @@ function editorInput(event) {
 	event.target.classList.remove("invalid");
 }
 function recalcEditorCursorPos(event) { //not working, at least in Ffx
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem) return false;
 	elem.normalize();
 	
-	let rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
+	const rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
 	if(!rng) return false;
 	let pos = rng.endOffset;
 	let node = rng.endContainer;
 	let txt = node.textContent;
 	
 	let i, count = 1;
-	//let iArr = [];
+	//const iArr = [];
 	while(true) {
 		if(!txt || !(txt.length >= 1) || !(pos > 0))
 			i = -1;
@@ -516,7 +514,7 @@ function addToolTipHandler(rootSelector, handler) {
 	//document.body.addEventListener("touchstart", handler);
 	//document.querySelector(rootSelector).addEventListener("touchstart", handler);
 	for(const elem of document.querySelectorAll(rootSelector.toString() + " *[title]")) {
-		let tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
+		const tagIndex = focusableElemTypes.indexOf(elem.tagName.toUpperCase());
 		if(tagIndex >= 0) {
 			elem.addEventListener("focus", handler);
 			if(tagIndex === 0) elem.addEventListener("input", handler);
@@ -541,7 +539,7 @@ function setToolTip(event, outToolTip) {
 	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem)
 		return false; //could have focus -> should have focus
 
-	let sentences = [];
+	const sentences = [];
 	let description = elem.title;
 	if(typeof(description) === "string" && description.length > 0)
 		sentences.push(description);
@@ -561,24 +559,24 @@ function setToolTip(event, outToolTip) {
 let lastCodeObjURL = null;
 function getDateTimeCode(size) {
 	if(size < 1) return "";
-	let now = new Date();
-	let dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()];
+	const now = new Date();
+	const dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()];
 	if(size < 7) dArr.length = size;
-	let dPadding = [4, 2, 2, 2, 2, 2, 3];
-	for(let i in dArr)
+	const dPadding = [4, 2, 2, 2, 2, 2, 3]; //digits per field
+	for(const i in dArr)
 		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0");
 	return dArr.join("-");
 }
 function structDownload(event) {
 	if(!elems.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-	let data = [elems.ctlStructuredScript.innerText];
-	//let data = [elems.ctlStructuredScript.value];
+	const data = [elems.ctlStructuredScript.innerText];
+	//const data = [elems.ctlStructuredScript.value];
 	let file;
-	let properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
+	const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 	
 	//date for file name
-	let fileName = getDateTimeCode(5) + ".mus.json";
+	const fileName = getDateTimeCode(5) + ".mus.json";
 	
 	try {
 		//specify the filename using the File constructor, but...
@@ -594,7 +592,7 @@ function structDownload(event) {
 	elems.aStructDownload.setAttribute('href', lastCodeObjURL);
 	elems.aStructDownload.setAttribute('download', fileName);
 	
-	/*let newEvent = new MouseEvent('click');
+	/*const newEvent = new MouseEvent('click');
 	elems.aStructDownload.dispatchEvent(newEvent);*/
 	elems.aStructDownload.click();
 	return true;
@@ -612,14 +610,14 @@ function scrollUpdate(event) {
 	//root.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
 	elem.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
 
-	/*let scrollYPages = elem.scrollTop / elem.clientHeight;
+	/*const scrollYPages = elem.scrollTop / elem.clientHeight;
 	const setTranslate = (id, dy) => {document.getElementById(id).style.translate = "0% " + (- 100 * dy).toString() + "%";};
 	for(let i = 1; i <= 2; i++) {
-		//let y = scrollYPages / i;
-		//let y = scrollYPages / (5 - i);
-		//let y = 4 * scrollYPages / i;
-		let y = scrollYPages * 0.5 ** i;
-		//let y = scrollYPages * 0.5 ** (5 - i);
+		//const y = scrollYPages / i;
+		//const y = scrollYPages / (5 - i);
+		//const y = 4 * scrollYPages / i;
+		const y = scrollYPages * 0.5 ** i;
+		//const y = scrollYPages * 0.5 ** (5 - i);
 		setTranslate(`noise${i}rect1`, (y + 1) % 2 - 1);
 		setTranslate(`noise${i}rect2`, (y + 0) % 2 - 0);
 	}*/
@@ -662,21 +660,24 @@ function addIntervalSamples() {
 		}
 
 		const cell = row.insertCell(4);
-		const link = document.createElement("a");
-		link.dataset["fraction"] = row.children[0].innerText;
-		link.href = "#";
+		cell.classList.add("sample-cell");
+		cell.addEventListener("click", playIntervalHandler);
+		cell.dataset["fraction"] = row.children[0].innerText;
+		cell.innerText="\u{1F442}"; //ear
+		
+		/* const link = document.createElement("a");
+		link.classList.add("interval-sample");
+		//link.href = "#";
 		link.innerText="\u{1F442}"; //ear
 		//link.innerText="\u{1F50A}"; //speaker
-		link.addEventListener("click", playIntervalHandler);
-
-		cell.appendChild(link);
+		cell.appendChild(link); */
 	}
 }
 //to do: review this code
 //to do: separate AudioContext?
 function playIntervalHandler(event) {
-	//console.log(event);
-	event.preventDefault();
+	console.log(event);
+	//event.preventDefault();
 	if(!event?.target) return;
 	let fraction = event.target.dataset["fraction"];
 	if(!fraction || fraction == "") return;
@@ -684,11 +685,11 @@ function playIntervalHandler(event) {
 
 	if(rootFreq == 0) return false;
 	if(playFreqScale == 0) return false;
-	let playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	const playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//to do: allow reverse playback?
 	if(playTimeScale <= 0) return false;
-	//let playTimeDelta = NaNToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
-	let playTimeDelta = 0; //probably not, I think.
+	//const playTimeDelta = NaNToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
+	const playTimeDelta = 0; //probably not, I think.
 
 	const noteInterval = 0.25, noteDuration = 3;
 	const clip = new SoundClip(null, playTimeScale * (noteDuration + noteInterval), playTimeScale, playTimeDelta, playVolScale, playFreqScale);

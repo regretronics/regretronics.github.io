@@ -1,5 +1,9 @@
 "use strict";
 
+//imported variables
+var elems;
+var autoFlatten;
+
 //shared variables
 var struct;
 
@@ -9,7 +13,7 @@ var struct;
 //question: require a special format for pattern names? (to prevent collision with future properties)
 function parseNode(flatStruct, node, blockContext) {
 	//alter context.
-	let newContext = Object.assign({}, blockContext);
+	const newContext = Object.assign({}, blockContext);
 	//to do: bounds check and node elimination? (e.g. when freqRatio or freq or volRatio or vol or timeScale = 0)
 	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), 0); //additive
 	
@@ -24,7 +28,7 @@ function parseNode(flatStruct, node, blockContext) {
 			&& isNaN(Number(prop))) { //numerical indices are reserved for notes
 			let val = node[prop];
 			if(!["boolean", "number", "bigint"].includes(typeof(val))) { //things that are not numbers...
-				let numVal = parseNumber(val);
+				const numVal = parseNumber(val);
 				if(!isNaN(numVal)) val = numVal; //...but could become numbers, should become numbers
 			}
 			if(["boolean", "number", "bigint", "string"].includes(typeof(val))) //property content must be ultimately simple
@@ -32,6 +36,7 @@ function parseNode(flatStruct, node, blockContext) {
 		}
 	}*/
 	if(node.timbre) newContext.timbre = node.timbre;
+	newContext.q = NaNToDefault(parseNumber(node.q), newContext.q);
 	newContext.decayFactor = NaNToDefault(parseNumber(node.decayFactor), newContext.decayFactor);
 	newContext.attack = NaNToDefault(parseNumber(node.attack), newContext.attack);
 	newContext.portamento = NaNToDefault(parseNumber(node.portamento), newContext.portamento);
@@ -51,11 +56,11 @@ function parseNode(flatStruct, node, blockContext) {
 			} else
 				node.noteStop = NaNToDefault(parseNumber(node.noteStop), node.noteStart + defaultNoteNode.duration);
 			
-			let newNote = { //preferred order...
+			const newNote = { //preferred order...
 				noteStart: newContext.timeDelta + newContext.timeScale * node.noteStart,
 				noteStop: newContext.timeDelta + newContext.timeScale * node.noteStop
 			};
-			let noteVol = newContext.volRatio * NaNToDefault(parseNumber(node.vol), defaultNoteNode.vol);
+			const noteVol = newContext.volRatio * NaNToDefault(parseNumber(node.vol), defaultNoteNode.vol);
 			if(noteVol != defaultNoteNode.vol) newNote.vol = noteVol;
 
 			if(newContext.timbre != defaultNoteNode.timbre) newNote.timbre = newContext.timbre;
@@ -66,7 +71,7 @@ function parseNode(flatStruct, node, blockContext) {
 				if(!relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
 					&& !incrementalNoteProps.includes(prop) //exclude "blended" note properties
 					&& (newNote.timbre != "noise" || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
-						let val = newContext[prop];
+						const val = newContext[prop];
 						if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
 							newNote[prop] = val;
 					}
@@ -100,9 +105,9 @@ function flattenStruct() {
 		//struct = JSON.parse(elems.ctlStructuredScript.value);
 		elems.ctlStructuredScript.classList.remove("invalid");
 		//elems.ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
-		let flatStruct = [];
+		const flatStruct = [];
 		if(Array.isArray(struct)) {
-			for(let elem of struct)
+			for(const elem of struct)
 				parseNode(flatStruct, elem, defaultBlockNode);
 		} else
 			parseNode(flatStruct, struct, defaultBlockNode);
