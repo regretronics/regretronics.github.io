@@ -1,27 +1,34 @@
 "use strict";
 
-let freqMin = 30, freqMax = 13000;
+//imported variables
+var primes, primeCount, expVariance;
+var elems;
+var maxPitches;
+var rootFreq;
+var rhythmFactors, rhythmFactorsAccum;
+
+const freqMin = 30, freqMax = 13000;
 
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
-	let diff = Math.round(Math.log2(parseNumber(refFreq))) - Math.round(Math.log2(parseNumber(targetFreq)));
+	const diff = Math.round(Math.log2(parseNumber(refFreq))) - Math.round(Math.log2(parseNumber(targetFreq)));
 	targetFreq[2] += diff;
 }
 //makes a simple interval by introducing a random prime factor up or down one unit
 //to do: reuse this in melodySubNodes? (probably not)
 function addInterval(refFreq, targetFreq) {
 	//question: weighted random on factor selection? (currently yes)
-	//let iPrime = Math.floor(primeCount * Math.random());
-	let iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
-	let sign = (Math.random() >= 0.5 ? 1 : -1);
+	//const iPrime = Math.floor(primeCount * Math.random());
+	const iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
+	let sign = (Math.random() >= 0.5 ? 1 : -1); //JavaScript may have a funky operator precedence, if I got it right, so I use extra parens with the ternary conditional: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
 	Object.assign(targetFreq, refFreq);
 
-	let newExp = targetFreq[primes[iPrime]] + sign;
+	const newExp = targetFreq[primes[iPrime]] + sign;
 	//bounds (tonality) check
 	//question: should + 1 be + 0.5?
 	//for chords with a fixed first note, the exponents should vary in a bilateral way
-	let maxExp = expVariance * maxPitches[iPrime] + 1;
-	if((Math.abs(newExp) > 1 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
+	const maxExp = expVariance * maxPitches[iPrime] + 1;
+	if(Math.abs(newExp) > 1 * maxExp && sign === Math.sign(newExp)) sign *= -1;
 	targetFreq[primes[iPrime]] += sign;
 
 	//pitch normalization into factor 2, i.e. octave normalization, except when changing the very octave on purpose
@@ -32,14 +39,14 @@ function addInterval(refFreq, targetFreq) {
 	//to do: limitFreq?
 }
 function newChord(voiceCount, polyphony) {
-	let chordStruct = {
+	const chordStruct = {
 		0: {freq: {}}
 	};
 	//initialize prime factors (first note is always neutral)
 	//question: variable first note? (currently no)
 	for(let i = 0; i < primeCount; i++)
 		chordStruct[0].freq[primes[i]] = 0;
-	let pitches = [parseNumber(chordStruct[0].freq)];
+	const pitches = [parseNumber(chordStruct[0].freq)];
 	for(let i = 0; i < voiceCount; i++) {
 		let note;
 		if(i > 0) {
@@ -64,17 +71,17 @@ function newChord(voiceCount, polyphony) {
 }
 function makeChords() {
 	if(primeCount < 2) return false;
-	let patCount = parseInt(elems.txtPatternCount.value);
+	const patCount = parseInt(elems.txtPatternCount.value);
 	if(patCount <= 0) return false;
-	let voiceCount = parseInt(elems.txtVoiceCount.value);
+	const voiceCount = parseInt(elems.txtVoiceCount.value);
 	if(voiceCount < 2) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
-	if(rootFreq === 0) return false;
+	if(rootFreq == 0) return false;
 	
-	let polyphony = voiceCount - 1; //partial superposition
-	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
-	let rootStruct = {
+	const polyphony = voiceCount - 1; //partial superposition
+	const _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	const rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: rootFreq,
 		volRatio: 1 / polyphony,
@@ -107,7 +114,7 @@ function makeRhythmFactors() {
 	for(let i = primeCount - 1, factor, y; i >= 0; i--) {
 		factor = primes[i];
 		if(factor > scale) continue; //ignore primes that are too large
-		let maxExp = Math.log2(scale) / Math.log2(factor);
+		const maxExp = Math.log2(scale) / Math.log2(factor);
 		//y = Math.floor(- 2 * Math.log(Math.random()) / factor);
 		y = Math.floor((maxExp + 0.5) * Math.random());
 		//if(y >= 1) rhythmFactors.unshift(Math.pow(factor, y));
@@ -121,7 +128,7 @@ function makeRhythmFactors() {
 		if(scale >= 2) {
 			let factor;
 			do {
-				let rnd = Math.random();
+				const rnd = Math.random();
 				factor = primes[Math.floor(primeCount * rnd * rnd)];
 			} while(factor > scale);
 			rhythmFactors.push(factor);
@@ -156,17 +163,17 @@ function limitFreq(tuning, freq) {
 //recursive function
 function rhythmSubNodes(struct, level, tuning) {
 	if(level >= rhythmFactors.length) return false;
-	let beats = rhythmFactors[level - 1];
-	let scale = rhythmFactorsAccum[level];
+	const beats = rhythmFactors[level - 1];
+	const scale = rhythmFactorsAccum[level];
 
-	let freqDummy = {2: 0};
+	const freqDummy = {2: 0};
 	tuning *= beats;
 	limitFreq(tuning, freqDummy); //not THAT high
-	let subNodePattern = {
+	const subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling
 		
 		freqRatio: beats,
-		volRatio: "1/" + beats,
+		volRatio: "1/" + beats.toString(),
 
 		duration: 0
 	};
@@ -177,14 +184,14 @@ function rhythmSubNodes(struct, level, tuning) {
 	}
 
 	//when using non-integer measures, sub-bars may become non-uniform in number of beats
-	let beats2 = struct.duration / scale;
+	const beats2 = struct.duration / scale;
 	for(let i = 0; i < beats2; i++) {
-		let newNode = Object.assign({}, subNodePattern);
+		const newNode = Object.assign({}, subNodePattern);
 		struct[i] = newNode;
 		newNode.timeDelta = i.toString() + "*" + scale.toString();
 		if(i === 0) newNode.vol = 0; //omit strong beats, but not all their descendants
 
-		let crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
+		const crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
 		newNode.duration = scale * crumb;
 		//if(crumb !== 1) newNode.freq = "1/" + crumb.toString();
 		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString(); //to do: include this in tuning calculation
@@ -193,14 +200,14 @@ function rhythmSubNodes(struct, level, tuning) {
 	}
 }
 function makeRhythm() {
-	let repeatCount = parseInt(elems.txtReptCount.value);
+	const repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return false;
-	if(rootFreq === 0) return false;
+	if(rootFreq == 0) return false;
 
 	//hierarchy of beats
-	let percussion = elems.chkPercussivePattern.checked;
-	let pattern = [];
-	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	const percussion = elems.chkPercussivePattern.checked;
+	const pattern = [];
+	const _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
 	let rhythmStart = 0;
 	if(percussion) {
 		let sumVol = 0; //theoretical combined/maximum amplitude
@@ -208,8 +215,8 @@ function makeRhythm() {
 			//sumVol += 1 / scale;
 			sumVol += rhythmFactorsAccum[0] / scale;
 		}
-		let freqDummy = {2: 0};
-		let tuning = rootFreq / rhythmFactorsAccum[0];
+		const freqDummy = {2: 0};
+		const tuning = rootFreq / rhythmFactorsAccum[0];
 		limitFreq(tuning, freqDummy); //not THAT low
 		pattern.push({ //rhythm formula root block and note
 			freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
@@ -248,7 +255,7 @@ function makeRhythm() {
 		if(i !== 0) pattern[Math.floor(Math.random() * noteCount) + rhythmStart].duration += i;
 	}
 
-	//now that the durations are known, adjust note start sequentially (let no superposition)
+	//now that the durations are known, adjust note start sequentially (allow no superposition)
 	for(let i = 0, t = 0, lastDuration = 0; i < noteCount; i++) {
 		if(i > 0) {
 			pattern[i + rhythmStart].noteStart = t.toString() + "+" + lastDuration.toString();
@@ -259,7 +266,7 @@ function makeRhythm() {
 		lastDuration = pattern[i + rhythmStart].duration;
 	}
 
-	let rootStruct = {
+	const rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: rootFreq,
 		//decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0] //lengthier bars = more sustain
@@ -284,27 +291,27 @@ function makeRhythm() {
 //to do: option for rhythm pattern in both rhythm and melody generator
 function melodySubNodes(struct, level, tuning) {
 	if(level >= rhythmFactors.length) return false;
-	let beats = rhythmFactors[level - 1];
-	let scale = rhythmFactorsAccum[level];
-	let subNodePattern = {
+	const beats = rhythmFactors[level - 1];
+	const scale = rhythmFactorsAccum[level];
+	const subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling
 		freqRatio: beats, //faster scales are higher-pitched
-		volRatio: "1/" + beats,
+		volRatio: "1/" + beats.toString(),
 
 		duration: 0,
 		freq: null //using {} here will cause a bug of using the same reference without cloning {}
 	};
 	tuning *= subNodePattern.freqRatio;
 	//when using non-integer measures, sub-bars may become non-uniform in number of beats
-	let beats2 = struct.duration / scale;
-	let altLevel = Math.log2(rhythmFactorsAccum[0] / scale);
-	let beatStrengthInv = Math.random() < 0.25;
+	const beats2 = struct.duration / scale;
+	const altLevel = Math.log2(rhythmFactorsAccum[0] / scale);
+	const beatStrengthInv = Math.random() < 0.25;
 	for(let i = 0; i < beats2; i++) {
-		let newNode = Object.assign({}, subNodePattern);
+		const newNode = Object.assign({}, subNodePattern);
 		struct[i] = newNode;
 		newNode.timeDelta = i.toString() + "*" + scale.toString();
 
-		let crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
+		const crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
 		newNode.duration = scale * crumb;
 		//to do: newTuning?
 		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString();
@@ -337,7 +344,7 @@ function melodySubNodes(struct, level, tuning) {
 			//iPrime = Math.floor(primeCount * rnd ** level);
 			iPrime = Math.floor((primeCount - 0.5) * rnd ** (0.5 * Math.max(altLevel + 1, 1)) + 0.5);
 
-			//let factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[primeCount - 1]); //1 - rnd is to avoid division by zero
+			//const factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[primeCount - 1]); //1 - rnd is to avoid division by zero
 			//for(iPrime = 0; primes[iPrime + 1] <= factor; iPrime++) {}
 		}
 		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
@@ -347,12 +354,12 @@ function melodySubNodes(struct, level, tuning) {
 		//let sign = (iPrime <= 0) ? 0 : ((Math.random() >= 0.5) ? 1 : -1); //neutral for factor 2
 		let sign = (Math.random() >= 0.5) ? 1 : -1;
 
-		let newExp = newNode.freq[primes[iPrime]] + sign;
+		const newExp = newNode.freq[primes[iPrime]] + sign;
 		//bounds (tonality) check
 		//question: should + 1 be + 0.5?
 		//question: should the variance here be less than when choosing pattern root pitch?
-		let maxExp = expVariance * maxPitches[iPrime] + 1;
-		let deviation = newExp - 0.5 * maxExp;
+		const maxExp = expVariance * maxPitches[iPrime] + 1;
+		const deviation = newExp - 0.5 * maxExp;
 		if((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation)) sign *= -1;
 		newNode.freq[primes[iPrime]] += sign;
 
@@ -369,26 +376,26 @@ function melodySubNodes(struct, level, tuning) {
 //to do: pattern variations
 function makeMelody() {
 	if(primeCount < 2) return false;
-	let patCount = parseInt(elems.txtPatternCount.value);
+	const patCount = parseInt(elems.txtPatternCount.value);
 	if(patCount <= 0) return false;
-	let reptPeriod = parseNumber(elems.txtReptPeriod.value);
+	const reptPeriod = parseNumber(elems.txtReptPeriod.value);
 	if(reptPeriod <= 0) return false;
-	let repeatCount = parseInt(elems.txtReptCount.value);
+	const repeatCount = parseInt(elems.txtReptCount.value);
 	if(repeatCount <= 0) return false;
 	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
-	if(rootFreq === 0) return false;
+	if(rootFreq == 0) return false;
 
 	//top-level node
-	let _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
-	let barDuration = rhythmFactorsAccum[0];
+	const _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	const barDuration = rhythmFactorsAccum[0];
 	let sumVol = 0;
 	for(const scale of rhythmFactorsAccum) {
 		//sumVol += 1 / scale;
 		sumVol += barDuration / scale;
 	}
-	let partialScaleOffset = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2); //to do: explicitly represent exponentiation?
-	let rootStruct = {
+	const partialScaleOffset = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2); //to do: explicitly represent exponentiation?
+	const rootStruct = {
 		//to do: should some of these properties be exclusive for melodic notes?
 		timeScale: _timeScale,
 		//freqRatio: rootFreq.toString() + "/" + barDuration.toString(),
@@ -401,16 +408,15 @@ function makeMelody() {
 	};
 
 	//hierarchy of beats
-	let percussion = elems.chkPercussivePattern.checked;
 	let percussivePattern = null;
-	if(percussion) {
+	if(elems.chkPercussivePattern.checked) {
 		let sumVol = 0; //theoretical combined/maximum amplitude
 		for(const scale of rhythmFactorsAccum) {
 			//sumVol += 1 / scale;
 			sumVol += rhythmFactorsAccum[0] / scale;
 		}
-		let freqDummy = {2: 0};
-		let tuning = rootFreq / rhythmFactorsAccum[0];
+		const freqDummy = {2: 0};
+		const tuning = rootFreq / rhythmFactorsAccum[0];
 		limitFreq(tuning, freqDummy); //not THAT low
 		percussivePattern = { //rhythm formula root block and note
 			//to do: readjust these parameters below
@@ -430,7 +436,7 @@ function makeMelody() {
 	
 	//make various patterns of notes
 	for(let i = 0; i < patCount; i++) {
-		let pattern = {
+		const pattern = {
 			duration: barDuration,
 			freq: {}
 		};
@@ -442,7 +448,7 @@ function makeMelody() {
 			//currently the factors can only go upwards
 			//question: signed (bipolar) random is possibly better
 			//	question: in such case, use round() instead of floor() or trunc()?
-			let exp = Math.trunc((expVariance * maxPitches[p] + 1) * Math.random());
+			const exp = Math.trunc((expVariance * maxPitches[p] + 1) * Math.random());
 			pattern.freq[primes[p]] = exp;
 			product *= primes[p] ** exp;
 		}

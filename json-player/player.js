@@ -1,5 +1,10 @@
 "use strict";
 
+//imported variables
+var elems;
+var releaseCurve;
+var playFreqScale, playVolScale;
+
 //to do: iterative self-filtering for subtractive synthesis?
 
 //note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting.
@@ -7,7 +12,7 @@
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
 //to do: review audioTimer(), playerClipEnd(), exportClipEnd().
 
-let playerClip = null;
+var playerClip = null; //shared variable
 const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
 
 //constructor
@@ -37,9 +42,9 @@ function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolSc
 const noiseBufferTime = 86400 / 4096; //seconds
 function createNoiseBuffer(audioCtx) {
 	if(!audioCtx) return false;
-	let sampleCount = noiseBufferTime * audioCtx.sampleRate;
-	let buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
-	let arr = buffer.getChannelData(0);
+	const sampleCount = noiseBufferTime * audioCtx.sampleRate;
+	const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
+	const arr = buffer.getChannelData(0);
 	
 	for(let i = 0; i < sampleCount; i++) {
 		//noise
@@ -59,7 +64,7 @@ function createNoiseBuffer(audioCtx) {
 //currently an in-place operation, not functional.
 function removeFrom(arr, item) {
 	if(!item || !arr) return false;
-	let i = arr.indexOf(item);
+	const i = arr.indexOf(item);
 	if(i >= 0) arr.splice(i, 1);
 }
 
@@ -92,17 +97,17 @@ function defNodeEnded() {
 	if(this.oscVibrato) this.oscVibrato.stop();
 	this.disconnect();
 
-	let clip = this.sndClip;
+	const clip = this.sndClip;
 	if(!clip) return;
 	//remove modules from list.
 	//question: move this into conditionals above, to prevent strict-mode errors? (probably it's not raising errors)
 	removeFrom(clip.generators, this);
-	let auxNodes = clip.auxNodes;
-	removeFrom(auxNodes, this.fltBandPass);
-	removeFrom(auxNodes, this.modGainDecay);
-	removeFrom(auxNodes, this.modGainAttack);
-	removeFrom(auxNodes, this.modGainRelease);
-	removeFrom(auxNodes, this.modGainVibrato);
+	const auxNodes = clip.auxNodes;
+	removeFrom(auxNodes, this?.fltBandPass);
+	removeFrom(auxNodes, this?.modGainDecay);
+	removeFrom(auxNodes, this?.modGainAttack);
+	removeFrom(auxNodes, this?.modGainRelease);
+	removeFrom(auxNodes, this?.modGainVibrato);
 
 	if(!clip.audioCtx) {
 		printClip(clip, "defNodeEnded(): ");
@@ -136,7 +141,7 @@ function defNodeEnded() {
 
 function newToneNode(clip, noteFreq, minStart, portamento, freq0) {
 	//note: negative frequency causes phase inversion (at least in Ffx 100)
-	let sourceNode = new OscillatorNode(clip.audioCtx, {type: "sine", frequency: noteFreq});
+	const sourceNode = new OscillatorNode(clip.audioCtx, {type: "sine", frequency: noteFreq});
 	try {
 		if(portamento <= 0) return;
 		//portamento (using detune for an exponential frequency variation)
@@ -148,7 +153,7 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) {
 			freq0 = clip.lastFreq;
 			if(clip.lastFreq0 && clip.lastPortamento > 0) {
 				//portamento of previous note may have been incomplete
-				let lastNoteT = (clip.audioCtx.currentTime - clip.lastNoteStart) / (Math.abs(clip.playTimeScale) * clip.lastPortamento);
+				const lastNoteT = (clip.audioCtx.currentTime - clip.lastNoteStart) / (Math.abs(clip.playTimeScale) * clip.lastPortamento);
 				freq0 *= (clip.lastFreq0 / clip.lastFreq) ** (0.5 ** lastNoteT);
 			}
 		}
@@ -169,19 +174,19 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) {
 //question: which one to prefer? noteStop (current choice) or duration?
 function renderNote(clip, note) {
 	//idea: Object.assign() from defaultNoteNode and note into a new note object
-	let noteFreq = clip.playFreqScale * note.freq;
+	const noteFreq = clip.playFreqScale * note.freq;
 	let noteStart = clip.playTimeScale * note.noteStart;
 	let noteStop = clip.playTimeScale * note.noteStop;
-	let duration = noteStop - noteStart;
+	const duration = noteStop - noteStart;
 	if(duration < 0) { //question: ignore negative-length notes? (currently no)
-		let temp = noteStart;
+		const temp = noteStart;
 		noteStart = noteStop;
 		noteStop = temp;
 	}
 	let noteTimbre = note.timbre;
 	if(!noteTimbre) noteTimbre = defaultNoteNode.timbre;
-	let isNoise = noteTimbre.toLowerCase() === "noise";
-	let minStart = Math.max(clip.t0 + noteStart, clip.audioCtx.currentTime);
+	const isNoise = noteTimbre.toLowerCase() === "noise";
+	const minStart = Math.max(clip.t0 + noteStart, clip.audioCtx.currentTime);
 	
 	let sourceNode, oscVibrato = null;
 	if(isNoise)
@@ -195,13 +200,10 @@ function renderNote(clip, note) {
 	
 	try {
 		if(isNoise) {
-			let fltBandPass = new BiquadFilterNode(clip.audioCtx, {
+			const fltBandPass = new BiquadFilterNode(clip.audioCtx, {
 				type: "bandpass",
 				frequency: Math.abs(noteFreq),
-				//Q: 0.0625
-				//Q: 0.25
-				Q: 1
-				//Q: 4
+				Q: NaNToDefault(note.q, defaultNoteNode.q)
 			}); //to do: exponentially increasing Q? (but how?)
 			terminalNode.connect(fltBandPass);
 			terminalNode = fltBandPass;
@@ -209,8 +211,8 @@ function renderNote(clip, note) {
 			clip.auxNodes.push(fltBandPass);
 		} else {
 			//vibrato (using detune for an exponential frequency variation)
-			let vibratoDepth = NaNToDefault(note.vibratoDepth, defaultNoteNode.vibratoDepth);
-			let vibratoFreq = NaNToDefault(note.vibratoFreq, defaultNoteNode.vibratoFreq);
+			const vibratoDepth = NaNToDefault(note.vibratoDepth, defaultNoteNode.vibratoDepth);
+			const vibratoFreq = NaNToDefault(note.vibratoFreq, defaultNoteNode.vibratoFreq);
 			if(vibratoFreq && vibratoDepth) {
 				oscVibrato = new OscillatorNode(clip.audioCtx, {type: "sine", frequency: Math.abs(clip.playTimeScale) * vibratoFreq});
 				sourceNode.oscVibrato = oscVibrato;
@@ -218,8 +220,8 @@ function renderNote(clip, note) {
 				oscVibrato.onended = defNodeEnded;
 				clip.generators.push(oscVibrato);
 
-				let gainVibrato = new GainNode(clip.audioCtx, {gain: 0});
-				let vibratoAttack = NaNToDefault(note.vibratoAttack, defaultNoteNode.vibratoAttack);
+				const gainVibrato = new GainNode(clip.audioCtx, {gain: 0});
+				const vibratoAttack = NaNToDefault(note.vibratoAttack, defaultNoteNode.vibratoAttack);
 				if(vibratoAttack)
 					gainVibrato.gain.setTargetAtTime(1200 * vibratoDepth, minStart, Math.abs(clip.playTimeScale) * vibratoAttack * Math.LOG2E);
 				else
@@ -231,11 +233,10 @@ function renderNote(clip, note) {
 			}
 		}
 
-		let gainDecay, gainAttack, gainRelease;
 		//volume scale and decay (from vol to 0)
 		//note: negative gain causes phase inversion (at least in Ffx 100)
-		gainDecay = new GainNode(clip.audioCtx, {gain: clip.playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol)}); //to do: consider the optional chaining operator here
-		let decayFactor = NaNToDefault(note.decayFactor, defaultNoteNode.decayFactor);
+		const gainDecay = new GainNode(clip.audioCtx, {gain: clip.playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol)}); //to do: consider the optional chaining operator here
+		const decayFactor = NaNToDefault(note.decayFactor, defaultNoteNode.decayFactor);
 		//question: should decay factor be subject to playTimeScale? (currently yes)
 		gainDecay.gain.setTargetAtTime(0, minStart, Math.abs(clip.playTimeScale) * decayFactor * Math.LOG2E / Math.abs(noteFreq)); //negative time constants currently don't work
 		terminalNode.connect(gainDecay);
@@ -244,9 +245,9 @@ function renderNote(clip, note) {
 		clip.auxNodes.push(gainDecay);
 		
 		//volume attack (from 0 to 1)
-		let attack = NaNToDefault(note.attack, defaultNoteNode.attack);
+		const attack = NaNToDefault(note.attack, defaultNoteNode.attack);
 		if(attack > 0) {
-			gainAttack = new GainNode(clip.audioCtx, {gain: 0});
+			const gainAttack = new GainNode(clip.audioCtx, {gain: 0});
 			//question: should attack time be subject to noteFreq? (currently no)
 			//question: should attack time be subject to playTimeScale? (currently yes)
 			gainAttack.gain.setTargetAtTime(1, minStart, Math.abs(clip.playTimeScale) * attack * Math.LOG2E);
@@ -258,7 +259,7 @@ function renderNote(clip, note) {
 		
 		if(releaseCurve) {
 			//volume decay within note time
-			gainRelease = new GainNode(clip.audioCtx);
+			const gainRelease = new GainNode(clip.audioCtx);
 			gainRelease.gain.setValueCurveAtTime(releaseCurve, minStart, Math.abs(duration));
 			terminalNode.connect(gainRelease);
 			terminalNode = gainRelease;
@@ -283,7 +284,7 @@ function enqueueNotes(clip, tNow, tMargin) {
 	if(!clip || !clip.audioCtx || !clip.flatStruct) return false;
 	tNow /= clip.playTimeScale; //to do: move the divisions outside this procedure (to facilitate variable time scale)?
 	tMargin /= clip.playTimeScale;
-	let tMax = tNow + tMargin;
+	const tMax = tNow + tMargin;
 	let note;
 	//progressively enter notes
 	//this procedure presumes a time-sorted array of notes
@@ -330,12 +331,13 @@ function drawNote(group, sourceNode) {
 	if(!freq) return false;
 
 	//to do: alternative blend modes such as lighten or hue?
-	let noteShape = document.createElementNS(svgNS, "rect"), wid = noteVisWidth;
+	const noteShape = document.createElementNS(svgNS, "rect");
+	let wid = noteVisWidth;
 	if(isNoise)
 		wid *= 16 / sourceNode.fltBandPass.Q.value; //arbitrary factor
 	else
 		if(sourceNode.modGainVibrato) {
-			let vibratoGain = sourceNode.modGainVibrato.gain.value / 1200;
+			const vibratoGain = sourceNode.modGainVibrato.gain.value / 1200;
 			if(sourceNode.oscVibrato) //question: precisely estimate vibrato oscillation? (currently yes)
 				freq *= 2 ** (vibratoGain * Math.sin(2 * Math.PI * (sourceNode.context.currentTime - sourceNode.oscVibrato.tStart) * sourceNode.oscVibrato.frequency.value)); //yes
 			else
@@ -421,7 +423,7 @@ function audioTimer(clip) {
 	
 	//to do: move this upwards?
 	//if(noEnqueue === undefined) noEnqueue = false;
-	let currT = clip.audioCtx.currentTime;
+	const currT = clip.audioCtx.currentTime;
 	//if(!noEnqueue)
 		enqueueNotes(clip, currT - clip.t0, 2 * Math.max(audioTimerInterval, currT - lastT));
 	lastT = currT;
@@ -432,10 +434,10 @@ function audioTimer(clip) {
 	if(clip === playerClip) {
 		if(elems.imgVisualizer) {
 			//scroll
-			let slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
+			const slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
 			for(let i = slices.length - 1; i >= 0; i--) {
 				const slice = slices[i];
-				let t = parseFloat(slice.getAttribute("data-t"));
+				const t = parseFloat(slice.getAttribute("data-t")); //to do: use dataset?
 				let newY = t + visSliceCount - visT;
 				if(newY <= -1) {
 					slice.remove(); //it's easier to delete when we use groups
@@ -449,9 +451,9 @@ function audioTimer(clip) {
 		if(elems.imgVisualizer) {
 			//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
 			//to do: consider a node-based polyline
-			let slice = document.createElementNS(svgNS, "g");
+			const slice = document.createElementNS(svgNS, "g");
 			slice.setAttributeNS(null, "class", "vis-slice");
-			slice.setAttributeNS(null, "data-t", visT.toString());
+			slice.setAttributeNS(null, "data-t", visT.toString()); //to do: use dataset?
 			slice.setAttributeNS(null, "transform", `translate(0 ${(visSliceCount - 1) / visSliceCount})`);
 			elems.imgVisualizer.appendChild(slice);
 			for(const node of clip.generators)
@@ -478,10 +480,10 @@ function loadNewClip() {
 	if(playFreqScale == 0) return false;
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
-	let playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	const playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//to do: allow reverse playback?
 	if(playTimeScale <= 0) return false;
-	let playTimeDelta = NaNToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
+	const playTimeDelta = NaNToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
 
 	let flatStruct;
 	try {
@@ -498,7 +500,7 @@ function loadNewClip() {
 
 	//estimate total clip duration and fills order-dependent implied noteStart's
 	let duration = 0;
-	let len = flatStruct.length;
+	const len = flatStruct.length;
 	let lastNoteStop = 0;
 	for(let i = 0, note; i < len; i++) {
 		note = flatStruct[i];
@@ -511,7 +513,7 @@ function loadNewClip() {
 
 		//if(note.noteStop <= note.noteStart) continue;
 		if(note.noteStop < note.noteStart) { //question: ignore negative-length notes?
-			let temp = note.noteStart;
+			const temp = note.noteStart;
 			note.noteStart = note.noteStop;
 			note.noteStop = temp;
 			lastNoteStop = temp;
@@ -529,8 +531,7 @@ function loadNewClip() {
 		return diff;
 	});
 	
-	let clip = new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
-	return clip;
+	return new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
 }
 function beforePlay() {
 	console.log("beforePlay started...");
@@ -545,7 +546,7 @@ function beforePlay() {
 
 	visT = 0;
 	if(elems.imgVisualizer) {
-		let slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
+		const slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
 		for(let i = slices.length - 1; i >= 0; i--)
 			slices[i].remove();
 	}
@@ -644,7 +645,7 @@ function emptyClip(clip, suspend) {
 	if(suspend && clip.audioCtx) return clip.audioCtx.suspend(); //keep audioCtx, to avoid recreating noiseBuffer for future audio contexts.
 }
 function playerClipEnd(suspend) {
-	let clip = this ?? playerClip;
+	const clip = this ?? playerClip;
 	printClip(clip, "playerClipEnd(): ");
 	if(!clip) {
 		//console.info("playerClipEnd(): clip is empty. Returning.");
@@ -702,9 +703,9 @@ function audioDownload(data) {
 	else
 		if(exportType.startsWith("audio/webm"))
 			fileName += ".webm";
-	//let properties = {type: 'audio/webm; codecs=opus'}; //constructor parameters: container's MIME-type, and encoding.
-	//let properties = {type: 'audio/webm'}; //constructor parameters: container's MIME-type.
-	//let properties = {};
+	//const properties = {type: 'audio/webm; codecs=opus'}; //constructor parameters: container's MIME-type, and encoding.
+	//const properties = {type: 'audio/webm'}; //constructor parameters: container's MIME-type.
+	//const properties = {};
 	try {
 		//specify the filename using the File constructor, but...
 		//file = new File(data, fileName, properties);
@@ -722,14 +723,14 @@ function audioDownload(data) {
 	elems.aAudioDownload.setAttribute('href', lastAudioObjURL);
 	elems.aAudioDownload.setAttribute('download', fileName);
 	elems.aAudioDownload.click();
-	let sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
+	const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
 	if(elems.outExportProgress)
 		elems.outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
 	exportType = "";
 }
 let mediaRecorder, chunks = [], exportClip = null;
 function exportClipEnd() {
-	let clip = this ?? exportClip;
+	const clip = this ?? exportClip;
 	if(!clip) return false;
 
 	emptyClip(clip, false);
@@ -785,14 +786,14 @@ function beforeRecord() {
 	exportClip.t0 = lastT - exportClip.playTimeDelta;
 
 	//based on code from https://github.com/mdn/webaudio-examples/blob/master/create-media-stream-destination/index.html
-	let dest = exportClip.audioCtx.createMediaStreamDestination();
-	//let dest = new MediaStreamAudioDestinationNode(exportClip.audioCtx, {channelCount: 1});
+	const dest = exportClip.audioCtx.createMediaStreamDestination();
+	//const dest = new MediaStreamAudioDestinationNode(exportClip.audioCtx, {channelCount: 1});
 	exportClip.destNode = dest;
 
 	//audio/ogg, audio/webm, audio/mp4, audio/3gp2, audio/mpeg
 	//codecs={vorbis, opus, mp4a.40.1 (AAC main), mp4a.40.34 (MP3)}
 	exportType = 'audio/webm; codecs=opus'; //fallback: this is apparently the only thing that Opera supports
-	let _exportType = 'audio/ogg; codecs=opus';
+	const _exportType = 'audio/ogg; codecs=opus';
 	if(MediaRecorder.isTypeSupported(_exportType)) exportType = _exportType;
 	mediaRecorder = new MediaRecorder(dest.stream, {mimeType: exportType});
 	if(elems.outExportFormat) elems.outExportFormat.innerText = exportType;
@@ -821,8 +822,8 @@ function beforeRecord() {
 		console.log('Rendering completed successfully');
 		console.debug(renderedBuffer);
 
-		//let chunks = [renderedBuffer.getChannelData(0)];
-		let chunks = renderedBuffer.getChannelData(0);
+		//const chunks = [renderedBuffer.getChannelData(0)];
+		const chunks = renderedBuffer.getChannelData(0);
 		audioDownload(chunks);
 		console.debug("audioCtx startRendering promise then end");
 	}).catch(function(err) {

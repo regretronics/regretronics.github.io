@@ -23,10 +23,12 @@
 			height: 100%;
 			/*height: 100vh;*/
 		}
-		body > main, body > section {
+		body > .major-section {
 			box-sizing: border-box;
 			height: 100%;
 			overflow-y: auto;
+			/* padding: 2vmin; */
+			padding: max(0em, calc(7.5vmin - 8ch));
 		}
 		body > main {
 			flex-basis: 96ch;
@@ -115,10 +117,5 @@
 		height: unset;
 		white-space: pre-wrap;
 		resize: none;
-	}
-}
-@media (min-width: 96ch) {
-	td {
-		padding: 0.25em;
 	}
 }

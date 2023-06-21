@@ -119,3 +119,11 @@ img:not(.trueColors) { /*class "trueColors" reserved for future use*/
 svg g {
 	fill: url(#noteFill1);
 }
+td {
+	padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em);
+}
+/* td:has( .interval-sample) { */ /* :has not supported in Firefox 114 */
+td.sample-cell {
+	padding: 0em;
+	text-align: center;
+}
