@@ -221,6 +221,81 @@ function docLoaded() {
 	}
 }
 
+var adjustingPreferences = false;
+function loadPreferences() {
+	try {
+		adjustingPreferences = true;
+		//let v = localStorage.getItem("prop");
+		//localStorage.setItem("prop", v);
+		//Page appearance
+		//Generator parameters
+		//Rhythm parameters
+		//Additional generator parameters
+		//Structured music editor
+		//Flattened note list
+		//Overall play controls
+		//Player
+		//Audio export
+		//Reset preferences
+	} finally {
+		adjustingPreferences = false;
+	}
+}
+function savePreferences() {
+	//Page appearance
+	localStorage.setItem("pageAppearance.textSize", JSON.stringify(document.children[0].style.fontSize));
+	localStorage.setItem("pageAppearance.theme", JSON.stringify(cboPageTheme.value));
+	localStorage.setItem("pageAppearance.hue", JSON.stringify(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent")));
+	
+	//Generator parameters
+	localStorage.setItem("genParams.baseFreq", JSON.stringify(txtBaseFreq.valueAsNumber)); //rootFreq?
+	localStorage.setItem("genParams.timeScale", JSON.stringify());
+	localStorage.setItem("genParams.patternCount", JSON.stringify());
+	localStorage.setItem("genParams.primeCount", JSON.stringify());
+	localStorage.setItem("genParams.expVariance", JSON.stringify());
+	/*
+	//Rhythm parameters
+	localStorage.setItem("rhythmParams.rhythmScale", JSON.stringify());
+	localStorage.setItem("rhythmParams.rhythmFactors", JSON.stringify());
+	//Additional generator parameters
+	localStorage.setItem("addGenParams.voiceCount", JSON.stringify());
+	localStorage.setItem("addGenParams.reptCount", JSON.stringify());
+	localStorage.setItem("addGenParams.reptPeriod", JSON.stringify());
+	localStorage.setItem("addGenParams.percussivePattern", JSON.stringify());
+	//Structured music editor
+	localStorage.setItem("structuredMusic.overflow", JSON.stringify());
+	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify());
+	localStorage.setItem("structuredMusic.content", JSON.stringify());
+	//Flattened note list
+	localStorage.setItem("flatScript.autoFlatten", JSON.stringify());
+	localStorage.setItem("flatScript.overflow", JSON.stringify());
+	localStorage.setItem("flatScript.lineWrapping", JSON.stringify());
+	localStorage.setItem("flatScript.content", JSON.stringify());
+	//Overall play controls
+	localStorage.setItem("clipParams.freqScale", JSON.stringify());
+	localStorage.setItem("clipParams.volScale", JSON.stringify());
+	localStorage.setItem("clipParams.timeScale", JSON.stringify());
+	localStorage.setItem("clipParams.timeDelta", JSON.stringify());
+	//Player
+	localStorage.setItem("player.autoReload", JSON.stringify());
+	//Audio export
+	//localStorage.setItem("audioExport.", JSON.stringify());
+	//Reset preferences
+	localStorage.setItem("reset.pageAppearance", JSON.stringify());
+	localStorage.setItem("reset.genParams", JSON.stringify());
+	localStorage.setItem("reset.rhythmParams", JSON.stringify());
+	localStorage.setItem("reset.addGenParams", JSON.stringify());
+	localStorage.setItem("reset.structuredMusic", JSON.stringify());
+	localStorage.setItem("reset.flatScript", JSON.stringify());
+	localStorage.setItem("reset.clipParams", JSON.stringify());
+	localStorage.setItem("reset.player", JSON.stringify());
+	localStorage.setItem("reset.reset", JSON.stringify());
+	*/
+}
+function resetPreferences() {
+	//
+}
+
 let textSize = 1;
 function rescaleText(event) {
 	if(!document || !document.body || !document.body.style) return false;
@@ -296,6 +371,7 @@ function primeCountChanged() {
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
 function expSpinnerChanged(event) {
+	//console.log(event);
 	const elem = event.target;
 	if(!elem) return false;
 	//let val = elem.valueAsNumber;
@@ -650,7 +726,6 @@ function addIntervalSamples() {
 
 	//add cells to rows in table body
 	const container = document.querySelector("#tblFractionIntervals tbody");
-	//const len = container.children.length;
 	for (const row of container.children) {
 		if(row.tagName.toUpperCase() !== "TR") continue;
 		if(row.children.length < 1) continue;
@@ -664,13 +739,7 @@ function addIntervalSamples() {
 		cell.addEventListener("click", playIntervalHandler);
 		cell.dataset["fraction"] = row.children[0].innerText;
 		cell.innerText="\u{1F442}"; //ear
-		
-		/* const link = document.createElement("a");
-		link.classList.add("interval-sample");
-		//link.href = "#";
-		link.innerText="\u{1F442}"; //ear
-		//link.innerText="\u{1F50A}"; //speaker
-		cell.appendChild(link); */
+		//cell.innerText="\u{1F50A}"; //speaker
 	}
 }
 //to do: review this code

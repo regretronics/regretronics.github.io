@@ -23,7 +23,6 @@
 			height: 100%;
 			/*height: 100vh;*/
 		}
-		/* body > main, body > section { */
 		body > .major-section {
 			box-sizing: border-box;
 			height: 100%;
@@ -43,6 +42,10 @@
 		}
 		body > hr, body > .bg {
 			display: none;
+		}
+		#outToolTip {
+			padding-inline: 1em;
+			max-width: 100%;
 		}
 	}
 	.codeEditor {
@@ -120,8 +123,3 @@
 		resize: none;
 	}
 }
-/* @media (min-width: 96ch) {
-	td {
-		padding: 0.25em;
-	}
-} */

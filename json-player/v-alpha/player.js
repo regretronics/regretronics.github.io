@@ -437,7 +437,7 @@ function audioTimer(clip) {
 			const slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
 			for(let i = slices.length - 1; i >= 0; i--) {
 				const slice = slices[i];
-				const t = parseFloat(slice.getAttribute("data-t"));
+				const t = parseFloat(slice.getAttribute("data-t")); //to do: use dataset?
 				let newY = t + visSliceCount - visT;
 				if(newY <= -1) {
 					slice.remove(); //it's easier to delete when we use groups
@@ -453,7 +453,7 @@ function audioTimer(clip) {
 			//to do: consider a node-based polyline
 			const slice = document.createElementNS(svgNS, "g");
 			slice.setAttributeNS(null, "class", "vis-slice");
-			slice.setAttributeNS(null, "data-t", visT.toString());
+			slice.setAttributeNS(null, "data-t", visT.toString()); //to do: use dataset?
 			slice.setAttributeNS(null, "transform", `translate(0 ${(visSliceCount - 1) / visSliceCount})`);
 			elems.imgVisualizer.appendChild(slice);
 			for(const node of clip.generators)

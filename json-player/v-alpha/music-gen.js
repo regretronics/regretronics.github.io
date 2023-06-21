@@ -7,12 +7,13 @@ var maxPitches;
 var rootFreq;
 var rhythmFactors, rhythmFactorsAccum;
 
-let freqMin = 30, freqMax = 13000;
+const freqMin = 30, freqMax = 13000;
 
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
-	const diff = Math.round(Math.log2(parseNumber(refFreq))) - Math.round(Math.log2(parseNumber(targetFreq)));
-	targetFreq[2] += diff;
+	const refOctave = Math.round(Math.log2(parseNumber(refFreq)));
+	const targetOctave = Math.round(Math.log2(parseNumber(targetFreq)));
+	targetFreq[2] += refOctave - targetOctave;
 }
 //makes a simple interval by introducing a random prime factor up or down one unit
 //to do: reuse this in melodySubNodes? (probably not)
