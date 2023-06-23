@@ -101,10 +101,10 @@ let hasScriptChanged = true;
 function flattenStruct() {
 	if(!hasScriptChanged) return false;
 	try {
-		struct = JSON.parse(elems.ctlStructuredScript.innerText);
-		//struct = JSON.parse(elems.ctlStructuredScript.value);
-		elems.ctlStructuredScript.classList.remove("invalid");
-		//elems.ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
+		struct = JSON.parse(ctlStructuredScript.innerText);
+		//struct = JSON.parse(ctlStructuredScript.value);
+		ctlStructuredScript.classList.remove("invalid");
+		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 		const flatStruct = [];
 		if(Array.isArray(struct)) {
 			for(const elem of struct)
@@ -122,24 +122,24 @@ function flattenStruct() {
 		s = s.replace(regex, " ");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		s = s.replace(regex, "}");
-		elems.ctlFlatScript.innerText = s;
-		elems.ctlFlatScript.classList.remove("invalid");
+		ctlFlatScript.innerText = s;
+		ctlFlatScript.classList.remove("invalid");
 	} catch(error) {
-		//elems.ctlFlatScript.innerText = error.name + ": " + error.message;
-		elems.ctlFlatScript.innerText = error.toString();
-		elems.ctlStructuredScript.classList.add("invalid");
-		//elems.ctlStructuredScript.setCustomValidity(error.toString());
+		//ctlFlatScript.innerText = error.name + ": " + error.message;
+		ctlFlatScript.innerText = error.toString();
+		ctlStructuredScript.classList.add("invalid");
+		//ctlStructuredScript.setCustomValidity(error.toString());
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
-	elems.btnFlattenStruct.innerText = "Flattened";
+	btnFlattenStruct.innerText = "Flattened";
 }
 
 function setStructuredText(s) {
 	hasScriptChanged = true;
-	if(elems.btnFlattenStruct) elems.btnFlattenStruct.innerText = "Flatten";
-	if(elems.ctlStructuredScript) elems.ctlStructuredScript.innerText = s;
-	//if(elems.ctlStructuredScript) elems.ctlStructuredScript.value = s;
+	if(btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
+	if(ctlStructuredScript) ctlStructuredScript.innerText = s;
+	//if(ctlStructuredScript) ctlStructuredScript.value = s;
 	if(autoFlatten) flattenStruct();
 }
 
@@ -147,7 +147,7 @@ let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
 function scriptChanged() {
 	hasScriptChanged = true;
-	if(elems.btnFlattenStruct) elems.btnFlattenStruct.innerText = "Flatten";
+	if(btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 	
 	if(flattenTimeoutID) {
 		window.clearTimeout(flattenTimeoutID);

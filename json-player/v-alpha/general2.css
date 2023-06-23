@@ -126,4 +126,5 @@ td {
 td.sample-cell {
 	padding: 0em;
 	text-align: center;
+	cursor: pointer;
 }

@@ -67,14 +67,14 @@
 		document.getElementById("btnMelodyGen").addEventListener("click", makeMelody);
 
 		document.getElementById("btnStructDownload").addEventListener("click", structDownload);
-		document.getElementById("btnOverflowToggle1").addEventListener("click", ev => overflowToggle(elems.ctlStructuredScript));
-		document.getElementById("btnLineWrapToggle1").addEventListener("click", ev => lineWrapToggle(elems.ctlStructuredScript));
+		document.getElementById("btnOverflowToggle1").addEventListener("click", ev => overflowToggle(ctlStructuredScript));
+		document.getElementById("btnLineWrapToggle1").addEventListener("click", ev => lineWrapToggle(ctlStructuredScript));
 		document.getElementById("ctlStructuredScript").addEventListener("input", scriptChanged);
 
 		document.getElementById("btnFlattenStruct").addEventListener("click", flattenStruct);
-		document.getElementById("chkAutoFlatten").addEventListener("click", ev => setAutoFlatten(elems.chkAutoFlatten.checked));
-		document.getElementById("btnOverflowToggle2").addEventListener("click", ev => overflowToggle(elems.ctlFlatScript));
-		document.getElementById("btnLineWrapToggle2").addEventListener("click", ev => lineWrapToggle(elems.ctlFlatScript));
+		document.getElementById("chkAutoFlatten").addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
+		document.getElementById("btnOverflowToggle2").addEventListener("click", ev => overflowToggle(ctlFlatScript));
+		document.getElementById("btnLineWrapToggle2").addEventListener("click", ev => lineWrapToggle(ctlFlatScript));
 		document.getElementById("ctlFlatScript").addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
 
 		document.getElementById("txtPlayFreqScale").addEventListener("input", playFreqScaleChanged);
@@ -92,7 +92,7 @@
 
 		{
 			const evt = new Event("input");
-			for(const s of expSpinners) elems[s].dispatchEvent(evt);
+			for(const s of expSpinners) window[s].dispatchEvent(evt);
 		}
 
 		for(const elem of document.getElementsByClassName("codeEditor")) {
@@ -344,9 +344,9 @@
 		<!-- <details>
 			<summary><strong>Reset preferences:</strong></summary>
 			<p><input type="checkbox" id="chkResetPageAppearance" title="" /> <label for="chkResetPageAppearance">Page appearance</label></p>
-			<p><input type="checkbox" id="chkResetGenParams" title="" /> <label for="chkResetGenParams">Generator parameters</label></p>
+			<p><input type="checkbox" id="chkResetGenParams" title="" /> <label for="chkResetGenParams">Generator parameters, common</label></p>
 			<p><input type="checkbox" id="chkResetRhythmParams" title="" /> <label for="chkResetRhythmParams">Rhythm parameters</label></p>
-			<p><input type="checkbox" id="chkResetAddGenParams" title="" /> <label for="chkResetAddGenParams">Additional generator parameters</label></p>
+			<p><input type="checkbox" id="chkResetAddGenParams" title="" /> <label for="chkResetAddGenParams">Generator parameters, additional</label></p>
 			<p><input type="checkbox" id="chkResetStructuredMusic" title="" /> <label for="chkResetStructuredMusic">Structured music editor</label></p>
 			<p><input type="checkbox" id="chkResetFlatScript" title="" /> <label for="chkResetFlatScript">Flattened note list</label></p>
 			<p><input type="checkbox" id="chkResetClipParams" title="" /> <label for="chkResetClipParams">Overall play controls</label></p>

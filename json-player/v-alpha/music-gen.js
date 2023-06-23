@@ -2,7 +2,6 @@
 
 //imported variables
 var primes, primeCount, expVariance;
-var elems;
 var maxPitches;
 var rootFreq;
 var rhythmFactors, rhythmFactorsAccum;
@@ -72,16 +71,16 @@ function newChord(voiceCount, polyphony) {
 }
 function makeChords() {
 	if(primeCount < 2) return false;
-	const patCount = parseInt(elems.txtPatternCount.value);
+	const patCount = parseInt(txtPatternCount.value);
 	if(patCount <= 0) return false;
-	const voiceCount = parseInt(elems.txtVoiceCount.value);
+	const voiceCount = parseInt(txtVoiceCount.value);
 	if(voiceCount < 2) return false;
-	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
+	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq == 0) return false;
 	
 	const polyphony = voiceCount - 1; //partial superposition
-	const _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	const _timeScale = NaNToDefault(parseNumber(txtTimeScale.value), defaultBlockNode.timeScale);
 	const rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: rootFreq,
@@ -109,7 +108,7 @@ function makeChords() {
 function makeRhythmFactors() {
 	if(primeCount < 1) return false;
 	rhythmFactors = [];
-	let scale = Math.abs(NaNToDefault(parseNumber(elems.txtRhythmScale.value), 4));
+	let scale = Math.abs(NaNToDefault(parseNumber(txtRhythmScale.value), 4));
 	//builds a (random) product of prime factors
 	//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
 	for(let i = primeCount - 1, factor, y; i >= 0; i--) {
@@ -137,7 +136,7 @@ function makeRhythmFactors() {
 		//	rhythmFactors.push(1); //at least factor one
 	}
 
-	if(elems.txtRhythmFactors) elems.txtRhythmFactors.value = rhythmFactors.join("*");
+	if(txtRhythmFactors) txtRhythmFactors.value = rhythmFactors.join("*");
 	rhythmAccumUpdate();
 }
 
@@ -201,14 +200,14 @@ function rhythmSubNodes(struct, level, tuning) {
 	}
 }
 function makeRhythm() {
-	const repeatCount = parseInt(elems.txtReptCount.value);
+	const repeatCount = parseInt(txtReptCount.value);
 	if(repeatCount <= 0) return false;
 	if(rootFreq == 0) return false;
 
 	//hierarchy of beats
-	const percussion = elems.chkPercussivePattern.checked;
+	const percussion = chkPercussivePattern.checked;
 	const pattern = [];
-	const _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	const _timeScale = NaNToDefault(parseNumber(txtTimeScale.value), defaultBlockNode.timeScale);
 	let rhythmStart = 0;
 	if(percussion) {
 		let sumVol = 0; //theoretical combined/maximum amplitude
@@ -402,18 +401,18 @@ function melodySubNodes(struct, level, tuning) {
 //to do: pattern variations
 function makeMelody() {
 	if(primeCount < 2) return false;
-	const patCount = parseInt(elems.txtPatternCount.value);
+	const patCount = parseInt(txtPatternCount.value);
 	if(patCount <= 0) return false;
-	const reptPeriod = parseNumber(elems.txtReptPeriod.value);
+	const reptPeriod = parseNumber(txtReptPeriod.value);
 	if(reptPeriod <= 0) return false;
-	const repeatCount = parseInt(elems.txtReptCount.value);
+	const repeatCount = parseInt(txtReptCount.value);
 	if(repeatCount <= 0) return false;
-	expVariance = NaNToDefault(parseNumber(elems.txtExpVariance.value), 2);
+	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq == 0) return false;
 
 	//top-level node
-	const _timeScale = NaNToDefault(parseNumber(elems.txtTimeScale.value), defaultBlockNode.timeScale);
+	const _timeScale = NaNToDefault(parseNumber(txtTimeScale.value), defaultBlockNode.timeScale);
 	const barDuration = rhythmFactorsAccum[0];
 	let sumVol = 0;
 	for(const scale of rhythmFactorsAccum) {
@@ -435,7 +434,7 @@ function makeMelody() {
 
 	//hierarchy of beats
 	let percussivePattern = null;
-	if(elems.chkPercussivePattern.checked) {
+	if(chkPercussivePattern.checked) {
 		let sumVol = 0; //theoretical combined/maximum amplitude
 		for(const scale of rhythmFactorsAccum) {
 			//sumVol += 1 / scale;
