@@ -47,57 +47,58 @@
 		for(const elem of document.querySelectorAll("input.exp"))
 			elem.addEventListener("input", expSpinnerChanged);
 
-		/*document.getElementById("btnTextShrink").addEventListener("click", ev => rescaleText(0.8));
-		document.getElementById("btnTextEnlarge").addEventListener("click", ev => rescaleText(1.25));*/
-		document.getElementById("btnTextShrink").addEventListener("click", rescaleText);
-		document.getElementById("btnTextEnlarge").addEventListener("click", rescaleText);
-		//document.getElementById("cboPageTheme").addEventListener("click", themeChanged); //click only works via mouse. doesn't work well in G. Chrome.
-		//document.getElementById("cboPageTheme").addEventListener("focus", themeChanged); //doesn't work well in G. Chrome.
-		document.getElementById("cboPageTheme").addEventListener("input", themeChanged); //working: change, input. inappropriate: toggle, select, selectionchange.
-		document.getElementById("btnHueFine1").addEventListener("click", btnHueClick);
-		document.getElementById("btnHueFine2").addEventListener("click", btnHueClick);
+		/*btnTextShrink.addEventListener("click", ev => rescaleText(0.8));
+		btnTextEnlarge.addEventListener("click", ev => rescaleText(1.25));*/
+		btnTextShrink.addEventListener("click", rescaleText);
+		btnTextEnlarge.addEventListener("click", rescaleText);
+		//cboPageTheme.addEventListener("click", themeChanged); //click only works via mouse. doesn't work well in G. Chrome.
+		//cboPageTheme.addEventListener("focus", themeChanged); //doesn't work well in G. Chrome.
+		cboPageTheme.addEventListener("input", themeChanged); //working: change, input. inappropriate: toggle, select, selectionchange.
+		btnHueFine1.addEventListener("click", btnHueClick);
+		btnHueFine2.addEventListener("click", btnHueClick);
 
-		document.getElementById("txtBaseFreq").addEventListener("input", baseFreqChanged);
-		document.getElementById("txtPrimeCount").addEventListener("input", primeCountChanged);
+		txtBaseFreq.addEventListener("input", baseFreqChanged);
+		txtPrimeCount.addEventListener("input", primeCountChanged);
 
-		document.getElementById("btnRhythmFactorsGen").addEventListener("click", makeRhythmFactors);
-		document.getElementById("txtRhythmFactors").addEventListener("input", rhythmFactorsChanged);
+		btnRhythmFactorsGen.addEventListener("click", makeRhythmFactors);
+		txtRhythmFactors.addEventListener("input", rhythmFactorsChanged);
 
-		document.getElementById("btnChordGen").addEventListener("click", makeChords);
-		document.getElementById("btnRhythmGen").addEventListener("click", makeRhythm);
-		document.getElementById("btnMelodyGen").addEventListener("click", makeMelody);
+		btnChordGen.addEventListener("click", makeChords);
+		btnRhythmGen.addEventListener("click", makeRhythm);
+		btnMelodyGen.addEventListener("click", makeMelody);
 
-		document.getElementById("btnStructDownload").addEventListener("click", structDownload);
-		document.getElementById("btnOverflowToggle1").addEventListener("click", overflowToggle);
-		document.getElementById("btnLineWrapToggle1").addEventListener("click", lineWrapToggle);
-		document.getElementById("ctlStructuredScript").addEventListener("input", scriptChanged);
+		btnStructDownload.addEventListener("click", structDownload);
+		btnOverflowToggle1.addEventListener("click", overflowToggle);
+		btnLineWrapToggle1.addEventListener("click", lineWrapToggle);
+		ctlStructuredScript.addEventListener("input", scriptChanged);
 
-		document.getElementById("btnFlattenStruct").addEventListener("click", flattenStruct);
-		document.getElementById("chkAutoFlatten").addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
-		document.getElementById("btnOverflowToggle2").addEventListener("click", overflowToggle);
-		document.getElementById("btnLineWrapToggle2").addEventListener("click", lineWrapToggle);
-		document.getElementById("ctlFlatScript").addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
+		btnFlattenStruct.addEventListener("click", flattenStruct);
+		chkAutoFlatten.addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
+		btnOverflowToggle2.addEventListener("click", overflowToggle);
+		btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
+		ctlFlatScript.addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
 
-		document.getElementById("txtPlayFreqScale").addEventListener("input", playFreqScaleChanged);
-		document.getElementById("txtPlayVolScale").addEventListener("input", playVolScaleChanged);
+		txtPlayFreqScale.addEventListener("input", playFreqScaleChanged);
+		txtPlayVolScale.addEventListener("input", playVolScaleChanged);
 
-		document.getElementById("btnPlay").addEventListener("click", loadAndPlay);
-		document.getElementById("btnPause").addEventListener("click", pauseToggle);
-		document.getElementById("btnStop").addEventListener("click", btnStopClick);
+		btnPlay.addEventListener("click", loadAndPlay);
+		btnPause.addEventListener("click", pauseToggle);
+		btnStop.addEventListener("click", btnStopClick);
 
-		document.getElementById("btnAudioExport").addEventListener("click", audioExport);
-		document.getElementById("btnAudioExportCancel").addEventListener("click", audioExportCancel);
+		btnAudioExport.addEventListener("click", audioExport);
+		btnAudioExportCancel.addEventListener("click", audioExportCancel);
 
-		primeCountChanged();
-		rhythmFactorsChanged();
+		btnResetPreferences.addEventListener("click", btnResetPreferencesClick);
+
 		{
 			const evt = new Event("input");
 			for(const s of expSpinners) window[s].dispatchEvent(evt);
 		}
-
 		for(const elem of document.querySelectorAll("[data-pref]"))
 			elem.addEventListener("input", saveInputValue);
 		loadPreferences();
+		primeCountChanged();
+		rhythmFactorsChanged();
 
 		for(const elem of document.getElementsByClassName("codeEditor")) {
 			elem.addEventListener("keydown", editorKeyDown);
@@ -107,8 +108,8 @@
 
 		//const toolTipDomains = ["body>main", "body>section"];
 		const toolTipDomains = ["body>main", "#tblFractionIntervals"];
-		const toolTipHandlers = [event => setToolTip(event, document.getElementById("outToolTip")),
-			event => setToolTip(event, document.getElementById("outToolTip2"))];
+		const toolTipHandlers = [event => setToolTip(event, outToolTip),
+			event => setToolTip(event, outToolTip2)];
 		for(const i in toolTipDomains)
 			addToolTipHandler(toolTipDomains[i], toolTipHandlers[i]);
 
@@ -155,7 +156,7 @@
 					<!--<img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" />-->
 					<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" />
 				</picture>
-				JSON <span class="chunk">music format</span>, player <span class="chunk">and generator</span></h1>
+				JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></h1>
 			<span class="right print-dp-none">
 				<span class="cell"><strong>Text&nbsp;size:</strong> 
 					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
@@ -274,7 +275,7 @@
 		<p class="flex-row">
 			<span style="flex-basis: 40ch;"><strong>Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
+				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
 			</span>
 			<span class="right">
 				<button id="btnOverflowToggle2" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below.">Toggle overflow</button>
@@ -343,7 +344,7 @@
 			</p>
 		</details>
 
-		<!-- <details>
+		<details>
 			<summary><strong>Reset preferences:</strong></summary>
 			<p><input type="checkbox" id="chkResetPageAppearance" data-pref="reset.pageAppearance" title="" /><label for="chkResetPageAppearance">Page appearance</label></p>
 			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters, common</label></p>
@@ -354,8 +355,8 @@
 			<p><input type="checkbox" id="chkResetClipParams" data-pref="reset.clipParams" title="" /><label for="chkResetClipParams">Overall play controls</label></p>
 			<p><input type="checkbox" id="chkResetPlayer" data-pref="reset.player" title="" /><label for="chkResetPlayer">Player</label></p>
 			<p><input type="checkbox" id="chkResetReset" data-pref="reset.player" title="" /><label for="chkResetReset">Reset preferences</label></p>
-			<p><button id="btnResetPreferences">Reset selected</button></p>
-		</details> -->
+			<p><button id="btnResetPreferences">Reset selected now</button></p>
+		</details>
 
 		<p id="outToolTip" class="tool-tip print-dp-none">A description of the selected item will appear here.</p>
 	</main>

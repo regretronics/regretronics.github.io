@@ -101,8 +101,10 @@ let hasScriptChanged = true;
 function flattenStruct() {
 	if(!hasScriptChanged) return false;
 	try {
-		struct = JSON.parse(ctlStructuredScript.innerText);
-		//struct = JSON.parse(ctlStructuredScript.value);
+		if(["INPUT", "TEXTAREA"].includes(ctlStructuredScript.tagName.toUpperCase()))
+			struct = JSON.parse(ctlStructuredScript.value);
+		else
+			struct = JSON.parse(ctlStructuredScript.innerText);
 		ctlStructuredScript.classList.remove("invalid");
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 		const flatStruct = [];
