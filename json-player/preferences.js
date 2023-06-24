@@ -433,18 +433,18 @@ function saveInputValue(event) {
 	if(!prefKey) return;
 
 	if(event.target.tagName.toUpperCase() === "SELECT") {
-		localStorage.setItem(prefKey, JSON.stringify(event.target.value));
+		localStorage.setItem(prefKey, event.target.value);
 		return;
 	}
 	if(event.target.tagName.toUpperCase() === "INPUT") {
 		if(event.target.type.toUpperCase() === "CHECKBOX")
 			localStorage.setItem(prefKey, JSON.stringify(event.target.checked));
 		else
-			localStorage.setItem(prefKey, JSON.stringify(event.target.value));
+			localStorage.setItem(prefKey, event.target.value);
 		return;
 	}
 	if(event.target.contentEditable.toUpperCase() == "TRUE" || event.target.classList.contains("codeEditor")) {
-		localStorage.setItem(prefKey, JSON.stringify(event.target.innerText));
+		localStorage.setItem(prefKey, event.target.innerText);
 		return;
 	}
 	console.warn("Could not save a preference: exceptional control type.");
