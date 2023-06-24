@@ -136,7 +136,7 @@ function makeRhythmFactors() {
 		//	rhythmFactors.push(1); //at least factor one
 	}
 
-	if(txtRhythmFactors) {
+	if(window.txtRhythmFactors) {
 		txtRhythmFactors.value = rhythmFactors.join("*");
 		txtRhythmFactors.dispatchEvent(new Event("input"));
 	}
@@ -388,7 +388,7 @@ function melodySubNodes(struct, level, tuning) {
 		//question: should the variance here be less than when choosing pattern root pitch?
 		//const maxExp = expVariance * maxPitches[iPrime] + 1;
 		//const deviation = newExp - 0.5 * maxExp;
-		//if((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation)) sign *= -1;
+		//if(Math.abs(deviation) > (0.5 * maxExp) && sign === Math.sign(deviation)) sign *= -1;
 		newNode.freq[primes[iPrime]] += sign;
 
 		//pitch normalization into factor 2, i.e. octave normalization
