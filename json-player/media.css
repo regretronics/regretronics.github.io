@@ -43,6 +43,10 @@
 		body > hr, body > .bg {
 			display: none;
 		}
+		#outToolTip {
+			padding-inline: 1em;
+			max-width: 100%;
+		}
 	}
 	.codeEditor {
 		height: 12em;

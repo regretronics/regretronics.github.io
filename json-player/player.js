@@ -1,7 +1,6 @@
 "use strict";
 
 //imported variables
-var elems;
 var releaseCurve;
 var playFreqScale, playVolScale;
 
@@ -74,10 +73,10 @@ function printClip(clip, prefix) {
 		console.debug(prefix + `clip: ${clip}`);
 		return;
 	}
-	if(clip == playerClip) {
+	/* if(clip == playerClip) {
 		console.debug(prefix + "clip == playerClip");
 		return;
-	}
+	} */
 	if(clip == exportClip) {
 		console.debug(prefix + "clip == exportClip");
 		//return;
@@ -114,7 +113,7 @@ function defNodeEnded() {
 		console.log("defNodeEnded(): clip.audioCtx is empty. Ending.");
 		if(clip.open)
 			if(clip.onClipEnd) clip.onClipEnd(false); else emptyClip(clip, false);
-		if(clip === playerClip && elems.chkAutoReload && elems.chkAutoReload.checked)
+		if(clip === playerClip && chkAutoReload && chkAutoReload.checked)
 			loadAndPlay();
 		return;
 	}
@@ -131,7 +130,7 @@ function defNodeEnded() {
 		if(clip === playerClip && clip.audioCtx.state === 'running') {
 			console.log("defNodeEnded(): Will suspend audioCtx.");
 			clip.audioCtx.suspend().then(() => {
-				if(clip === playerClip && elems.chkAutoReload && elems.chkAutoReload.checked)
+				if(clip === playerClip && chkAutoReload && chkAutoReload.checked)
 					loadAndPlay();
 			}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
 		}
@@ -308,9 +307,9 @@ function enqueueNotes(clip, tNow, tMargin) {
 function audioTUpdate() {
 	if(!playerClip) return false;
 	//question: trunc instead of round for time?
-	if(playerClip.audioCtx && elems.outAudioT)
-		elems.outAudioT.innerText = (playerClip.audioCtx.currentTime - playerClip.t0).toFixed(timeDisplPrecision);
-	if(elems.outGenCount) elems.outGenCount.innerText = playerClip.generators.length.toString();
+	if(playerClip.audioCtx && outAudioT)
+		outAudioT.innerText = (playerClip.audioCtx.currentTime - playerClip.t0).toFixed(timeDisplPrecision);
+	if(outGenCount) outGenCount.innerText = playerClip.generators.length.toString();
 }
 const visSliceCount = 48;
 const svgNS = "http://www.w3.org/2000/svg";
@@ -384,7 +383,7 @@ function audioTimer(clip) {
 		}
 		return false;
 	}
-	//clip.playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
+	//clip.playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
 	if(clip === playerClip) audioTUpdate();
 	//if(clip.flatStruct.length < 1 && (clip.audioCtx.currentTime - clip.t0 >= clip.duration)) {
 	if(clip.audioCtx.state !== 'suspended'
@@ -398,7 +397,7 @@ function audioTimer(clip) {
 		if(clip === playerClip) {
 			console.log("audioTimer(): Will suspend audioCtx and return.");
 			clip.audioCtx?.suspend?.()?.then?.(() => {
-				if(clip === playerClip && elems.chkAutoReload && elems.chkAutoReload.checked)
+				if(clip === playerClip && chkAutoReload && chkAutoReload.checked)
 					loadAndPlay();
 			}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
 		}
@@ -432,9 +431,9 @@ function audioTimer(clip) {
 	
 	//if(clip.audioCtx.state === 'suspended') return;
 	if(clip === playerClip) {
-		if(elems.imgVisualizer) {
+		if(imgVisualizer) {
 			//scroll
-			const slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
+			const slices = imgVisualizer.getElementsByClassName("vis-slice");
 			for(let i = slices.length - 1; i >= 0; i--) {
 				const slice = slices[i];
 				const t = parseFloat(slice.getAttribute("data-t")); //to do: use dataset?
@@ -448,14 +447,14 @@ function audioTimer(clip) {
 			}
 		}
 		//visualization
-		if(elems.imgVisualizer) {
+		if(imgVisualizer) {
 			//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
 			//to do: consider a node-based polyline
 			const slice = document.createElementNS(svgNS, "g");
 			slice.setAttributeNS(null, "class", "vis-slice");
 			slice.setAttributeNS(null, "data-t", visT.toString()); //to do: use dataset?
 			slice.setAttributeNS(null, "transform", `translate(0 ${(visSliceCount - 1) / visSliceCount})`);
-			elems.imgVisualizer.appendChild(slice);
+			imgVisualizer.appendChild(slice);
 			for(const node of clip.generators)
 				try {
 					drawNote(slice, node);
@@ -476,26 +475,26 @@ function audioTimer(clip) {
 
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.innerText.
 function loadNewClip() {
-	if(!elems.ctlFlatScript) return false;
+	if(!ctlFlatScript) return false;
 	if(playFreqScale == 0) return false;
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
-	const playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//to do: allow reverse playback?
 	if(playTimeScale <= 0) return false;
-	const playTimeDelta = NaNToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
+	const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
 
 	let flatStruct;
 	try {
-		flatStruct = JSON.parse(elems.ctlFlatScript.innerText);
+		flatStruct = JSON.parse(ctlFlatScript.innerText);
 	} catch(error) {
-		elems.ctlFlatScript.classList.add("invalid");
-		elems.ctlFlatScript.title = error.message;
+		ctlFlatScript.classList.add("invalid");
+		ctlFlatScript.title = error.message;
 		console.error(error);
 		return false;
 	}
-	elems.ctlFlatScript.classList.remove("invalid");
-	elems.ctlFlatScript.title = "";
+	ctlFlatScript.classList.remove("invalid");
+	ctlFlatScript.title = "";
 	if(!flatStruct) return false;
 
 	//estimate total clip duration and fills order-dependent implied noteStart's
@@ -545,8 +544,8 @@ function beforePlay() {
 	playerClip.t0 = lastT - playerClip.playTimeDelta;
 
 	visT = 0;
-	if(elems.imgVisualizer) {
-		const slices = elems.imgVisualizer.getElementsByClassName("vis-slice");
+	if(imgVisualizer) {
+		const slices = imgVisualizer.getElementsByClassName("vis-slice");
 		for(let i = slices.length - 1; i >= 0; i--)
 			slices[i].remove();
 	}
@@ -564,9 +563,9 @@ function beforePlay() {
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
 		//window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
 		playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
-	if(elems.btnPause) {
-		elems.btnPause.innerHTML = pauseToggleCaptions[true];
-		elems.btnPause.disabled = false;
+	if(btnPause) {
+		btnPause.innerHTML = pauseToggleCaptions[true];
+		btnPause.disabled = false;
 	}
 }
 function audioCtxDefStateChanged() {
@@ -589,10 +588,10 @@ function loadAndPlay() {
 	playerClip.noiseBuffer = noiseBuffer;
 	playerClip.onClipEnd = playerClipEnd;
 
-	if(elems.outNoteCount) elems.outNoteCount.innerText = playerClip.flatStruct.length.toString();
-	if(elems.outAudioDur) elems.outAudioDur.innerText = playerClip.duration.toFixed(timeDisplPrecision);
+	if(outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
+	if(outAudioDur) outAudioDur.innerText = playerClip.duration.toFixed(timeDisplPrecision);
 	if(playerClip.flatStruct.length <= 0)
-		if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
+		if(outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 
 	playerClip.open = true;
 	if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed') {
@@ -654,7 +653,7 @@ function playerClipEnd(suspend) {
 
 	if(clip === playerClip) {
 		if(clip.open) audioTUpdate();
-		if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[true];
+		if(btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 	}
 	return emptyClip(clip, suspend);
 }
@@ -670,7 +669,7 @@ function pauseToggle() {
 		playerClip.audioCtx.suspend().then(() => {
 			audioTUpdate();
 			lastT = playerClip.audioCtx.currentTime;
-			if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[false];
+			if(btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
 			if(playerClip?.timerID) {
 				window.clearInterval(playerClip.timerID);
 				playerClip.timerID = NaN;
@@ -682,7 +681,7 @@ function pauseToggle() {
 		;
 		playerClip.audioCtx.resume().then(() => {
 			audioTimer(playerClip);
-			if(elems.btnPause) elems.btnPause.innerHTML = pauseToggleCaptions[true];
+			if(btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 			playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 		});
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
@@ -719,13 +718,13 @@ function audioDownload(data) {
 	lastAudioObjURL = URL.createObjectURL(file);
 	//console.log("audioDownload(): createObjectURL object");
 
-	if(!elems.aAudioDownload) return false;
-	elems.aAudioDownload.setAttribute('href', lastAudioObjURL);
-	elems.aAudioDownload.setAttribute('download', fileName);
-	elems.aAudioDownload.click();
+	if(!aAudioDownload) return false;
+	aAudioDownload.setAttribute('href', lastAudioObjURL);
+	aAudioDownload.setAttribute('download', fileName);
+	aAudioDownload.click();
 	const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
-	if(elems.outExportProgress)
-		elems.outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
+	if(outExportProgress)
+		outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
 	exportType = "";
 }
 let mediaRecorder, chunks = [], exportClip = null;
@@ -736,7 +735,7 @@ function exportClipEnd() {
 	emptyClip(clip, false);
 	if(clip.audioCtx) clip.audioCtx.suspend?.()?.then?.(() => {
 	//if(clip.audioCtx) clip.audioCtx.close?.()?.then?.(() => {
-		if(elems.outExportProgress) elems.outExportProgress.innerText = "Rendered";
+		if(outExportProgress) outExportProgress.innerText = "Rendered";
 		if(mediaRecorder) {
 			mediaRecorder.requestData();
 			mediaRecorder.stop(); //to do: move this into mediaRecorder.ondataavailable? (probably not)
@@ -756,8 +755,8 @@ function exportAudioTimer(clip) {
 		return false;
 	}
 	//question: trunc instead of round for time?
-	if(elems.outExportProgress)
-		elems.outExportProgress.innerText = (100 * (clip.audioCtx.currentTime) / (clip.duration + clip.t0)).toFixed(2) + "%";
+	if(outExportProgress)
+		outExportProgress.innerText = (100 * (clip.audioCtx.currentTime) / (clip.duration + clip.t0)).toFixed(2) + "%";
 	//if(clip.flatStruct.length < 1 && (clip.audioCtx.currentTime - clip.t0 > clip.duration)) {
 	if(clip.audioCtx.state !== 'suspended' && (clip.audioCtx.currentTime - clip.t0 > 0) && clip.generators.length < 1) {
 		printClip(clip, "exportAudioTimer(): ");
@@ -796,7 +795,7 @@ function beforeRecord() {
 	const _exportType = 'audio/ogg; codecs=opus';
 	if(MediaRecorder.isTypeSupported(_exportType)) exportType = _exportType;
 	mediaRecorder = new MediaRecorder(dest.stream, {mimeType: exportType});
-	if(elems.outExportFormat) elems.outExportFormat.innerText = exportType;
+	if(outExportFormat) outExportFormat.innerText = exportType;
 	mediaRecorder.ondataavailable = function(event) {
 		//push each chunk (blobs) in an array
 		console.debug("MediaRecorder.ondataavailable event");
@@ -810,7 +809,7 @@ function beforeRecord() {
 
 	enqueueNotes(exportClip, lastT, Infinity);
 	//console.log("audioExport(): enqueueNotes done.");
-	if(elems.outExportProgress) elems.outExportProgress.innerText = "Starting";
+	if(outExportProgress) outExportProgress.innerText = "Starting";
 	mediaRecorder.start();
 	exportClip.audioCtx.resume().then(() => {
 		exportAudioTimer(exportClip);
@@ -835,8 +834,8 @@ function audioExport() {
 	if(exportClip && exportClip.open) return false;
 	exportClip = new loadNewClip();
 	exportClip.onClipEnd = exportClipEnd;
-	if(elems.outExportProgress) elems.outExportProgress.innerText = "Note list loaded";
-	if(elems.outExportDuration) elems.outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
+	if(outExportProgress) outExportProgress.innerText = "Note list loaded";
+	if(outExportDuration) outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
 	//to do: stop AudioContext playback? (probably unnecessary)
 	exportClip.open = true;
 	const sampleRate = 48000; //will become a variable later
@@ -849,7 +848,7 @@ function audioExportCancel() {
 	if(!exportClip) return false;
 	emptyClip(exportClip, false);
 	if(exportClip.audioCtx) exportClip.audioCtx.suspend()?.then?.(() => {
-		if(elems.outExportProgress) elems.outExportProgress.innerText = "Canceled";
+		if(outExportProgress) outExportProgress.innerText = "Canceled";
 		if(mediaRecorder) {
 			//mediaRecorder.onstop = null; //question: allow partial download? (currently yes)
 			mediaRecorder.stop();

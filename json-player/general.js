@@ -51,7 +51,7 @@ const defaultNoteNode = {
 tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"]; //to do: noise-only properties?
 
 //of course there are infinite primes, but these are more than enough.
-var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47], primeCount = 2, expVariance = 2;
+var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
 
 function NaNToDefault(x, def) {
 	return isNaN(x) ? def : x;
@@ -171,20 +171,7 @@ function parseNumber(n) {
 	return NaN;
 }
 
-//HTML elements
-const elemNames = ["txtBaseFreq", "txtTimeScale", "txtPatternCount", "txtPrimeCount", "txtExpVariance", //generator parameters, common
-	"txtRhythmScale", "txtRhythmFactors", //rhythm
-	"txtVoiceCount", "txtReptCount", "txtReptPeriod", "chkPercussivePattern", //generator parameters, additional
-	"txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale", "txtPlayTimeDelta", //overall/playback controls
-	"ctlFlatScript", "ctlStructuredScript", //code editors
-	"btnFlattenStruct", "chkAutoFlatten", "btnPause", "chkAutoReload", "aStructDownload", "imgVisualizer", "aAudioDownload", //other controls
-	"outToolTip", "outPrimeList", "outRhythmScales", //output fields, misc.
-	"outAudioT", "outAudioDur", "outNoteCount", "outGenCount", //output fields, player
-	"outExportFormat", "outExportDuration", "outExportProgress" //output fields, audio exporter
-];
 const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
-var elems = {};
-var autoFlatten = true;
 const timeDisplPrecision = 2;
 
 //look-up table to be used in an aspect of the volume envelope
@@ -196,12 +183,12 @@ var maxPitches = null;
 
 function docLoaded() {
 	//load HTML element references
-	for(const s of elemNames)
-		elems[s] = document.getElementById(s);
-	if(elems.chkAutoFlatten) elems.chkAutoFlatten.checked = autoFlatten;
-	if(elems.outAudioT) elems.outAudioT.innerText = (0).toFixed(timeDisplPrecision);
-	if(elems.outAudioDur) elems.outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
-	if(elems.txtPrimeCount) elems.txtPrimeCount.max = primes.length.toString();
+	for(let s of document.querySelectorAll('[id]'))
+		window[s.id] = s;
+	if(chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
+	if(outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+	if(outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(txtPrimeCount) txtPrimeCount.max = primes.length.toString();
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
@@ -221,81 +208,28 @@ function docLoaded() {
 	}
 }
 
-let textSize = 1;
-function rescaleText(event) {
-	if(!document || !document.body || !document.body.style) return false;
+function overflowToggle(event) {
 	const elem = event.target;
 	if(!elem) return false;
-	const f = Number(elem.dataset["factor"]);
-	textSize *= f;
-	//document.body.style.fontSize = textSize + "em";
-	document.children[0].style.fontSize = textSize + "em"; //html element
-}
-function themeChanged(event) {
-	if(!document) return false;
-	const elem = event.target;
-	if(!elem) return false;
-	const styleTitle = elem.value.toString();
-	const sheets = document.querySelectorAll("head link[rel~=stylesheet][title]");
-	for(const sheet of sheets) {
-		if(!sheet.hasAttribute("title")) continue;
-		sheet.disabled = sheet.title !== styleTitle;
-		if(sheet.disabled)
-			sheet.rel = "alternate stylesheet";
-		else
-			sheet.rel = "stylesheet";
-	}
-}
-function btnHueClick(event) {
-	if(!document) return false;
-	const elem = event.target;
-	if(!elem) return false;
-	let delta = Number(elem.dataset["delta"]);
-
-	const root = document.documentElement;
-	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
-
-	//if(hue == undefined) return;
-	if(typeof(hue) === "string") hue = parseFloat(hue);
-	if(isNaN(hue) || !isFinite(hue)) hue = 120;
-
-	delta *= 30;
-	if(event.shiftKey) delta *= 4;
-	hue += delta;
-	/*hue %= 360; //this wrapping screws filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
-	if(hue < 0) hue += 360;*/
-
-	root.style.setProperty("--hue-accent", hue);
-
-	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
-	for(const elem2 of metaElems) {
-		if(elem2.hasAttribute("media")) { //test (to do?)
-			if(elem2.getAttribute("media").toLowerCase() == "(prefers-color-scheme: dark)")
-				elem2.setAttribute("content", "darkred");
-			else
-				elem2.setAttribute("content", "chartreuse");
-		} else
-			elem2.setAttribute("content", "red");
-	}*/
-}
-function overflowToggle(control) {
+	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
 	control.classList.toggle("expanded");
+	if(elem.dataset["pref"])
+		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("expanded")));
 }
-function lineWrapToggle(control) {
+function lineWrapToggle(event) {
+	const elem = event.target;
+	if(!elem) return false;
+	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
 	control.classList.toggle("lineWrapping");
-}
-
-function primeCountChanged() {
-	if(!elems.txtPrimeCount) return false;
-	primeCount = NaNToDefault(parseNumber(elems.txtPrimeCount.value), 2);
-	if(primeCount < 2) primeCount = 2;
-	if(elems.outPrimeList) elems.outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
+	if(elem.dataset["pref"])
+		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("lineWrapping")));
 }
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
 function expSpinnerChanged(event) {
+	//console.log(event);
 	const elem = event.target;
 	if(!elem) return false;
 	//let val = elem.valueAsNumber;
@@ -310,7 +244,7 @@ function expSpinnerChanged(event) {
 	}
 	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
 	elem.step = step;
-	//if(elem == elems.txtBaseFreq) {elem.min = val - 2 * step;}
+	//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
 	elem.min = val - 2 * Math.sign(val) * step;
 	//elem.reportValidity();
 }
@@ -322,38 +256,6 @@ function expSpinnerChanged(event) {
 	return true;
 }*/
 
-const defaultRootFreq = 440;
-var rootFreq = defaultRootFreq, playFreqScale = 1, playVolScale = 1;
-function baseFreqChanged() {
-	const ctl = elems.txtBaseFreq;
-	if(!ctl) return false;
-	rootFreq = parseNumber(ctl.value);
-	if(!rootFreq) {
-		ctl.classList.add("invalid");
-		ctl.setCustomValidity("Base frequency shouldn't be 0.");
-		rootFreq = defaultRootFreq;
-	} else {
-		ctl.classList.remove("invalid");
-		ctl.setCustomValidity("");
-	}
-}
-function playFreqScaleChanged() {
-	const ctl = elems.txtPlayFreqScale;
-	if(!ctl) return false;
-	//if(ctl.valueAsNumber <= 0) ctl.stepUp();
-	playFreqScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.freqRatio);
-	if(playerClip) playerClip.playFreqScale = playFreqScale;
-}
-function playVolScaleChanged() {
-	const ctl = elems.txtPlayVolScale;
-	if(!ctl) return false;
-	//if(ctl.valueAsNumber < 0) ctl.stepUp();
-	playVolScale = NaNToDefault(parseNumber(ctl.value), defaultBlockNode.volRatio);
-	if(playerClip) playerClip.playVolScale = playVolScale;
-}
-
-//rhythm structure data (hierarchy of factors)
-var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmAccumUpdate() {
 	if(!rhythmFactors) rhythmFactors = [];
 	const factors = rhythmFactors.slice(); //array clone
@@ -364,48 +266,8 @@ function rhythmAccumUpdate() {
 		rhythmFactorsAccum.unshift(product); //add as first
 	}
 	//rhythmFactorsAccum.push(1);
-	if(elems.outRhythmScales) elems.outRhythmScales.innerText = rhythmFactorsAccum.join("/");
+	if(outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	rhythmFactors.push(1);
-}
-function rhythmFactorsChanged() {
-	//to do: support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
-	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
-	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
-	if(!elems.txtRhythmFactors) return false;
-	let s = elems.txtRhythmFactors.value.toString(); //text
-	rhythmFactors = []; //will become an array of numbers
-	if(s.length >= 1) {
-		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
-		for(const n of s) {
-			//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
-			const pos = n.indexOf("^");
-			if(pos >= 0) {
-				const base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
-				for(let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
-					rhythmFactors.push(base);
-				//question: non-integer exponents? (if(exp > 0) ...)
-			} else
-				rhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
-		}
-	}
-	//to do: invalidate factors below 1? and negative factors?
-	//note: empty structures now allowed
-	try {
-		if(rhythmFactors.some(x => x == 0)) //has zeroes?
-			throw "Rhythm factors can't include zero.";
-		
-		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
-			throw "Unrecognized numerical expression in rhythm formula.";
-
-		elems.txtRhythmFactors.classList.remove("invalid");
-		elems.txtRhythmFactors.setCustomValidity("");
-	} catch(error) {
-		//default/fallback
-		rhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
-		elems.txtRhythmFactors.classList.add("invalid");
-		elems.txtRhythmFactors.setCustomValidity(error.toString());
-	}
-	rhythmAccumUpdate();
 }
 
 function btnStopClick(event) {
@@ -527,10 +389,9 @@ function addToolTipHandler(rootSelector, handler) {
 		//elem.addEventListener("pointerenter", handler);
 		//elem.addEventListener("pointerover", handler);
 	}
-
 }
 function setToolTip(event, outToolTip) {
-	if(!outToolTip) outToolTip = elems.outToolTip;
+	if(!outToolTip) outToolTip = window.outToolTip;
 	if(!outToolTip) return false;
 	let elem = event.target;
 	if(!elem || !elem.title || !elem.title.length)
@@ -568,10 +429,10 @@ function getDateTimeCode(size) {
 	return dArr.join("-");
 }
 function structDownload(event) {
-	if(!elems.ctlStructuredScript) return false;
+	if(!ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-	const data = [elems.ctlStructuredScript.innerText];
-	//const data = [elems.ctlStructuredScript.value];
+	const data = [ctlStructuredScript.innerText];
+	//const data = [ctlStructuredScript.value];
 	let file;
 	const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 	
@@ -588,13 +449,13 @@ function structDownload(event) {
 	if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 	lastCodeObjURL = URL.createObjectURL(file);
 	
-	if(!elems.aStructDownload) return false;
-	elems.aStructDownload.setAttribute('href', lastCodeObjURL);
-	elems.aStructDownload.setAttribute('download', fileName);
+	if(!aStructDownload) return false;
+	aStructDownload.setAttribute('href', lastCodeObjURL);
+	aStructDownload.setAttribute('download', fileName);
 	
 	/*const newEvent = new MouseEvent('click');
-	elems.aStructDownload.dispatchEvent(newEvent);*/
-	elems.aStructDownload.click();
+	aStructDownload.dispatchEvent(newEvent);*/
+	aStructDownload.click();
 	return true;
 }
 
@@ -644,13 +505,12 @@ function addIntervalSamples() {
 		const row = document.querySelector("#tblFractionIntervals thead tr");
 		const cell = document.createElement("th"); //insertCell would make a td element.
 		cell.scope = "col";
-		cell.innerHTML = "Sam&shy;ple";
+		cell.innerHTML = "Sam&shy;ple"; //Sample
 		row.insertBefore(cell, row.children[4]);
 	}
 
 	//add cells to rows in table body
 	const container = document.querySelector("#tblFractionIntervals tbody");
-	//const len = container.children.length;
 	for (const row of container.children) {
 		if(row.tagName.toUpperCase() !== "TR") continue;
 		if(row.children.length < 1) continue;
@@ -664,19 +524,12 @@ function addIntervalSamples() {
 		cell.addEventListener("click", playIntervalHandler);
 		cell.dataset["fraction"] = row.children[0].innerText;
 		cell.innerText="\u{1F442}"; //ear
-		
-		/* const link = document.createElement("a");
-		link.classList.add("interval-sample");
-		//link.href = "#";
-		link.innerText="\u{1F442}"; //ear
-		//link.innerText="\u{1F50A}"; //speaker
-		cell.appendChild(link); */
+		//cell.innerText="\u{1F50A}"; //speaker
 	}
 }
 //to do: review this code
 //to do: separate AudioContext?
 function playIntervalHandler(event) {
-	console.log(event);
 	//event.preventDefault();
 	if(!event?.target) return;
 	let fraction = event.target.dataset["fraction"];
@@ -685,10 +538,10 @@ function playIntervalHandler(event) {
 
 	if(rootFreq == 0) return false;
 	if(playFreqScale == 0) return false;
-	const playTimeScale = NaNToDefault(parseNumber(elems.txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//to do: allow reverse playback?
 	if(playTimeScale <= 0) return false;
-	//const playTimeDelta = NaNToDefault(parseNumber(elems.txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
+	//const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
 	const playTimeDelta = 0; //probably not, I think.
 
 	const noteInterval = 0.25, noteDuration = 3;
