@@ -78,10 +78,16 @@ input[type=text], textarea, select {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
+	vertical-align: middle;
 	margin-inline: 0.125em;
 }
 input[type=number], #txtRhythmFactors {
 	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
+}
+input[type=checkbox] + label {
+	vertical-align: middle;
+	margin-inline: 0.125em;
+	padding-inline: 0.25em;
 }
 
 .cell {

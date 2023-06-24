@@ -1,4 +1,8 @@
 /*general basic styles*/
+:root {
+	--page-scale: 1;
+	font-size: calc(var(--page-scale, 1) * 1em);
+}
 /*body {
 	display: flex;
 	flex-direction: column;
@@ -50,6 +54,12 @@ input[type=number] {
 /*input.exp:not([size]) {
 	width: 8ch;
 }*/
+select {
+	font-size: 1em;
+}
+input[type=checkbox] {
+	scale: var(--page-scale, 1);
+}
 #txtRhythmFactors {
 	text-align: right;
 	width: 12ch;

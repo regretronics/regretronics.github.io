@@ -136,8 +136,11 @@ function makeRhythmFactors() {
 		//	rhythmFactors.push(1); //at least factor one
 	}
 
-	if(txtRhythmFactors) txtRhythmFactors.value = rhythmFactors.join("*");
-	rhythmAccumUpdate();
+	if(txtRhythmFactors) {
+		txtRhythmFactors.value = rhythmFactors.join("*");
+		txtRhythmFactors.dispatchEvent(new Event("input"));
+	}
+	//rhythmAccumUpdate();
 }
 
 function limitFreq(tuning, freq) {

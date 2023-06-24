@@ -33,6 +33,7 @@
 	<meta name="theme-color" media="(prefers-color-scheme: light) and (prefers-contrast: more)" content="hsl(var(--hue-accent, 120), 50%, 12.5%)" />
 	<meta name="theme-color" media="(prefers-contrast: more)" content="hsl(var(--hue-accent, 120), 50%, 87.5%)" />
 
+	<script type="text/javascript" src="preferences.js"></script>
 	<script type="text/javascript" src="general.js"></script>
 	<script type="text/javascript" src="player.js"></script>
 	<script type="text/javascript" src="musical-format.js"></script>
@@ -67,14 +68,14 @@
 		document.getElementById("btnMelodyGen").addEventListener("click", makeMelody);
 
 		document.getElementById("btnStructDownload").addEventListener("click", structDownload);
-		document.getElementById("btnOverflowToggle1").addEventListener("click", ev => overflowToggle(ctlStructuredScript));
-		document.getElementById("btnLineWrapToggle1").addEventListener("click", ev => lineWrapToggle(ctlStructuredScript));
+		document.getElementById("btnOverflowToggle1").addEventListener("click", overflowToggle);
+		document.getElementById("btnLineWrapToggle1").addEventListener("click", lineWrapToggle);
 		document.getElementById("ctlStructuredScript").addEventListener("input", scriptChanged);
 
 		document.getElementById("btnFlattenStruct").addEventListener("click", flattenStruct);
 		document.getElementById("chkAutoFlatten").addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
-		document.getElementById("btnOverflowToggle2").addEventListener("click", ev => overflowToggle(ctlFlatScript));
-		document.getElementById("btnLineWrapToggle2").addEventListener("click", ev => lineWrapToggle(ctlFlatScript));
+		document.getElementById("btnOverflowToggle2").addEventListener("click", overflowToggle);
+		document.getElementById("btnLineWrapToggle2").addEventListener("click", lineWrapToggle);
 		document.getElementById("ctlFlatScript").addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
 
 		document.getElementById("txtPlayFreqScale").addEventListener("input", playFreqScaleChanged);
@@ -94,6 +95,10 @@
 			const evt = new Event("input");
 			for(const s of expSpinners) window[s].dispatchEvent(evt);
 		}
+
+		for(const elem of document.querySelectorAll("[data-pref]"))
+			elem.addEventListener("input", saveInputValue);
+		loadPreferences();
 
 		for(const elem of document.getElementsByClassName("codeEditor")) {
 			elem.addEventListener("keydown", editorKeyDown);
@@ -116,13 +121,14 @@
 			document.addEventListener("scroll", scrollUpdate);
 			//document.addEventListener("resize", resizeUpdate);
 			document.dispatchEvent(evt);
-			for(const elem of document.querySelectorAll("body>.major-section")) {
+			//for(const elem of document.querySelectorAll("body>.major-section")) {
+			for(const elem of document.getElementsByClassName("major-section")) {
 				elem.addEventListener("scroll", scrollUpdate);
 				//elem.addEventListener("resize", resizeUpdate);
 				elem.dispatchEvent(evt);
 			}
 			window.setInterval(hueAnimation, 150);
-			/*window.setInterval(() => { //spectrum bars
+			/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
 				const bars = "▁▂▃▄▅▆▇█";
 				let s = "";
 				for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
@@ -156,7 +162,7 @@
 					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
 					<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
 				<span class="cell"><label for="cboPageTheme"><strong>Color&nbsp;scheme:</strong></label> 
-					<select id="cboPageTheme">
+					<select id="cboPageTheme" data-pref="pageAppearance.theme">
 						<!--to do: on page load, replace this list with one from document.querySelectorAll("head link[rel~=stylesheet][title]").-->
 						<option selected="">Automatic</option>
 						<option>Null (vanilla)</option>
@@ -188,35 +194,34 @@
 				<option value="466" />
 			</datalist>
 			<span class="cell"><label for="txtBaseFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-				<input type="number" id="txtBaseFreq" value="440" class="exp" list="tunings" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></span><wbr />
+				<input type="number" id="txtBaseFreq" value="440" class="exp" list="tunings" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></span><wbr />
 			<!--to do: consider negative time scale values-->
 			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp" title="Inverse speed. Used by chord, rhythm and melody generators." size="7" /></span><wbr />
+				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="7" /></span><wbr />
 			<span class="cell"><label for="txtPatternCount">patterns</label>
-				<input type="number" id="txtPatternCount" value="4" step="1" min="1" title="Amount of content to make. Used by chord and melody generators." size="5" /></span><wbr />
+				<input type="number" id="txtPatternCount" value="4" step="1" min="1" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></span><wbr />
 			<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
-				<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" title="Used by rhythm structure, chord and melody generators." size="3" /></span>
+				<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators." size="3" /></span>
 			<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output><wbr />
 			<span class="cell"><label for="txtExpVariance">tone&nbsp;(exponent)&nbsp;depth</label>
-				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="6" /></span>
+				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="6" /></span>
 		</p>
 		<p><strong>Rhythm:</strong> 
 			<span class="cell"><label for="txtRhythmScale">approx. scale</label>
-				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" title="Used by rhythm structure generator." size="4" /></span>
+				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" /></span>
 			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
 			<span class="cell"><label for="txtRhythmFactors">structure</label>
-				<input type="text" id="txtRhythmFactors" value="2*2*2" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></span>
+				<input type="text" id="txtRhythmFactors" value="2*2*2" data-pref="rhythmParams.rhythmFactors" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></span>
 			<output id="outRhythmScales" title="Cascade of rhythmic scales">1</output>
 		</p>
 		<p><strong>Additional&nbsp;gen.&nbsp;params.:</strong> 
 			<span class="cell"><label for="txtVoiceCount">voices</label>
-				<input type="number" id="txtVoiceCount" value="3" min="1" step="1" title="Used by chord generator." size="3" /></span><wbr />
+				<input type="number" id="txtVoiceCount" value="3" min="1" step="1" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" /></span><wbr />
 			<span class="cell"><label for="txtReptCount">rept.&nbsp;count</label>
-				<input type="number" id="txtReptCount" value="2" step="1" min="1" title="Used by rhythm and melody generators." size="4" /></span><wbr />
+				<input type="number" id="txtReptCount" value="2" step="1" min="1" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators." size="4" /></span><wbr />
 			<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period</label>
-				<input type="number" id="txtReptPeriod" value="4" step="1" min="1" title="Used by melody generator." size="4" /></span>
-			<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." />
-				<label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
+				<input type="number" id="txtReptPeriod" value="4" step="1" min="1" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" /></span>
+			<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
 		</p>
 		<p class="flex-row">
 			<span style="flex-basis: 52ch;"><strong>Structured&nbsp;music:</strong> 
@@ -227,8 +232,8 @@
 			<span class="right" style="flex-basis: 40ch;">
 				<a id="aStructDownload" href="" hidden=""></a>
 				<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
-				<button id="btnOverflowToggle1" title="Expand or contract the editor below.">Toggle overflow</button>
-				<button id="btnLineWrapToggle1" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+				<button id="btnOverflowToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below.">Toggle overflow</button>
+				<button id="btnLineWrapToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
 			</span>
 		</p>
 		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="none">
@@ -249,7 +254,7 @@
 	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},
 	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}
 }</textarea></p>-->
-		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off">
+		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" data-pref="structuredMusic.content">
 {
 	"freqRatio": 440,
 	"volRatio": 0.5,
@@ -270,35 +275,33 @@
 		<p class="flex-row">
 			<span style="flex-basis: 40ch;"><strong>Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" />
-					<label for="chkAutoFlatten">Automatically flatten</label></span>
+				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
 			</span>
 			<span class="right">
-				<button id="btnOverflowToggle2" title="Expand or contract the editor below.">Toggle overflow</button>
-				<button id="btnLineWrapToggle2" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+				<button id="btnOverflowToggle2" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below.">Toggle overflow</button>
+				<button id="btnLineWrapToggle2" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
 			</span>
 		</p>
-		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" title="">
+		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" data-pref="flatScript.content" title="">
 [{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
 {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
 		<p><strong>Overall&nbsp;controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
 			<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
-				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp" data-pref="clipParams.freqScale" title="Multiplicative factor" size="7" /></span> <wbr />
 			<span class="cell"><label for="txtPlayVolScale">volume</label>
-				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp" data-pref="clipParams.volScale" title="Multiplicative factor" size="7" /></span> <wbr />
 			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp" data-pref="clipParams.timeScale" title="Multiplicative factor" size="7" /></span> <wbr />
 			<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(skip vs. lead-in) (s)</label>
-				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
+				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
 		</p>
 		<p class="flex-row">
 			<span style="flex-basis: 48ch;"><strong>Player:</strong> 
 				<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
 				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
 				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
-				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." />
-					<label for="chkAutoReload">Auto-reload</label></span>
+				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" data-pref="player.autoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." /><label for="chkAutoReload">Auto-reload</label></span>
 				<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 			</span>
 			<span class="right" style="flex-basis: 12ch;">
@@ -343,15 +346,15 @@
 
 		<!-- <details>
 			<summary><strong>Reset preferences:</strong></summary>
-			<p><input type="checkbox" id="chkResetPageAppearance" title="" /> <label for="chkResetPageAppearance">Page appearance</label></p>
-			<p><input type="checkbox" id="chkResetGenParams" title="" /> <label for="chkResetGenParams">Generator parameters, common</label></p>
-			<p><input type="checkbox" id="chkResetRhythmParams" title="" /> <label for="chkResetRhythmParams">Rhythm parameters</label></p>
-			<p><input type="checkbox" id="chkResetAddGenParams" title="" /> <label for="chkResetAddGenParams">Generator parameters, additional</label></p>
-			<p><input type="checkbox" id="chkResetStructuredMusic" title="" /> <label for="chkResetStructuredMusic">Structured music editor</label></p>
-			<p><input type="checkbox" id="chkResetFlatScript" title="" /> <label for="chkResetFlatScript">Flattened note list</label></p>
-			<p><input type="checkbox" id="chkResetClipParams" title="" /> <label for="chkResetClipParams">Overall play controls</label></p>
-			<p><input type="checkbox" id="chkResetPlayer" title="" /> <label for="chkResetPlayer">Player</label></p>
-			<p><input type="checkbox" id="chkResetReset" title="" /> <label for="chkResetReset">Reset preferences</label></p>
+			<p><input type="checkbox" id="chkResetPageAppearance" data-pref="reset.pageAppearance" title="" /><label for="chkResetPageAppearance">Page appearance</label></p>
+			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters, common</label></p>
+			<p><input type="checkbox" id="chkResetRhythmParams" data-pref="reset.rhythmParams" title="" /><label for="chkResetRhythmParams">Rhythm parameters</label></p>
+			<p><input type="checkbox" id="chkResetAddGenParams" data-pref="reset.addGenParams" title="" /><label for="chkResetAddGenParams">Generator parameters, additional</label></p>
+			<p><input type="checkbox" id="chkResetStructuredMusic" data-pref="reset.structuredMusic" title="" /><label for="chkResetStructuredMusic">Structured music editor</label></p>
+			<p><input type="checkbox" id="chkResetFlatScript" data-pref="reset.flatScript" title="" /><label for="chkResetFlatScript">Flattened note list</label></p>
+			<p><input type="checkbox" id="chkResetClipParams" data-pref="reset.clipParams" title="" /><label for="chkResetClipParams">Overall play controls</label></p>
+			<p><input type="checkbox" id="chkResetPlayer" data-pref="reset.player" title="" /><label for="chkResetPlayer">Player</label></p>
+			<p><input type="checkbox" id="chkResetReset" data-pref="reset.player" title="" /><label for="chkResetReset">Reset preferences</label></p>
 			<p><button id="btnResetPreferences">Reset selected</button></p>
 		</details> -->
 

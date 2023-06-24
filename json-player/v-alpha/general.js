@@ -51,7 +51,7 @@ const defaultNoteNode = {
 tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"]; //to do: noise-only properties?
 
 //of course there are infinite primes, but these are more than enough.
-var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47], primeCount = 2, expVariance = 2;
+var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
 
 function NaNToDefault(x, def) {
 	return isNaN(x) ? def : x;
@@ -172,7 +172,6 @@ function parseNumber(n) {
 }
 
 const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
-var autoFlatten = true;
 const timeDisplPrecision = 2;
 
 //look-up table to be used in an aspect of the volume envelope
@@ -209,341 +208,23 @@ function docLoaded() {
 	}
 }
 
-var adjustingPreferences = false;
-function loadPreferences() {
-	try {
-		adjustingPreferences = true;
-		let s;
-
-		//Page appearance
-		s = localStorage.getItem("pageAppearance.textSize");
-		if(s) {
-			textSize = JSON.parse(s);
-			document.documentElement.style.fontSize = textSize.toString() + "em";
-		}
-		s = localStorage.getItem("pageAppearance.theme");
-		if(s) {
-			cboPageTheme.value = JSON.parse(s);
-			cboPageTheme.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("pageAppearance.hue");
-		if(s) {
-			document.documentElement.style.setProperty("--hue-accent", JSON.parse(s));
-		}
-
-		//Generator parameters
-		s = localStorage.getItem("genParams.baseFreq");
-		if(s) {
-			txtBaseFreq.valueAsNumber = JSON.parse(s);
-			txtBaseFreq.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.timeScale");
-		if(s) {
-			txtTimeScale.valueAsNumber = JSON.parse(s);
-			txtTimeScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.patternCount");
-		if(s) {
-			txtPatternCount.valueAsNumber = JSON.parse(s);
-			txtPatternCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.primeCount");
-		if(s) {
-			txtPrimeCount.valueAsNumber = JSON.parse(s);
-			txtPrimeCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.expVariance");
-		if(s) {
-			txtExpVariance.valueAsNumber = JSON.parse(s);
-			txtExpVariance.dispatchEvent(new Event("input"));
-		}
-		
-		//Rhythm parameters
-		s = localStorage.getItem("rhythmParams.rhythmScale");
-		if(s) {
-			txtRhythmScale.valueAsNumber = JSON.parse(s);
-			txtRhythmScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("rhythmParams.rhythmFactors");
-		if(s) {
-			txtRhythmFactors.valueAsNumber = JSON.parse(s);
-			txtRhythmFactors.dispatchEvent(new Event("input"));
-		}
-
-		//Additional generator parameters
-		s = localStorage.getItem("addGenParams.voiceCount");
-		if(s) {
-			txtVoiceCount.valueAsNumber = JSON.parse(s);
-			txtVoiceCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("addGenParams.reptCount");
-		if(s) {
-			txtReptCount.valueAsNumber = JSON.parse(s);
-			txtReptCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("addGenParams.reptPeriod");
-		if(s) {
-			txtReptPeriod.valueAsNumber = JSON.parse(s);
-			txtReptPeriod.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("addGenParams.percussivePattern");
-		if(s) {
-			chkPercussivePattern.valueAsNumber = JSON.parse(s);
-			chkPercussivePattern.dispatchEvent(new Event("input"));
-		}
-
-		//Structured music editor
-		s = localStorage.getItem("structuredMusic.overflow");
-		if(s) {
-			if(Boolean(JSON.parse(s)))
-				ctlStructuredScript.classList.add("expanded");
-			else
-				ctlStructuredScript.classList.remove("expanded");
-		}
-		s = localStorage.getItem("structuredMusic.lineWrapping");
-		if(s) {
-			if(Boolean(JSON.parse(s)))
-				ctlStructuredScript.classList.add("lineWrapping");
-			else
-				ctlStructuredScript.classList.remove("lineWrapping");
-		}
-		s = localStorage.getItem("structuredMusic.content");
-		if(s) {
-			ctlStructuredScript.innerText = JSON.parse(s);
-			ctlStructuredScript.dispatchEvent(new Event("input"));
-		}
-
-		//Flattened note list
-		s = localStorage.getItem("flatScript.autoFlatten");
-		if(s) {
-			chkAutoFlatten.checked = JSON.parse(s);
-			chkAutoFlatten.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("flatScript.overflow");
-		if(s) {
-			if(Boolean(JSON.parse(s)))
-				ctlFlatScript.classList.add("expanded");
-			else
-				ctlFlatScript.classList.remove("expanded");
-		}
-		s = localStorage.getItem("flatScript.lineWrapping");
-		if(s) {
-			if(Boolean(JSON.parse(s)))
-				ctlFlatScript.classList.add("lineWrapping");
-			else
-				ctlFlatScript.classList.remove("lineWrapping");
-		}
-		s = localStorage.getItem("flatScript.content");
-		if(s) {
-			ctlFlatScript.innerText = JSON.parse(s);
-			ctlFlatScript.dispatchEvent(new Event("input"));
-		}
-
-		//Overall play controls
-		s = localStorage.getItem("clipParams.freqScale");
-		if(s) {
-			txtPlayFreqScale.valueAsNumber = JSON.parse(s);
-			txtPlayFreqScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("clipParams.volScale");
-		if(s) {
-			txtPlayVolScale.valueAsNumber = JSON.parse(s);
-			txtPlayVolScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("clipParams.timeScale");
-		if(s) {
-			txtPlayTimeScale.valueAsNumber = JSON.parse(s);
-			txtPlayTimeScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("clipParams.timeDelta");
-		if(s) {
-			txtPlayTimeDelta.valueAsNumber = JSON.parse(s);
-			txtPlayTimeDelta.dispatchEvent(new Event("input"));
-		}
-
-		//Player
-		s = localStorage.getItem("player.autoReload");
-		if(s) {
-			chkAutoReload.checked = JSON.parse(s);
-			chkAutoReload.dispatchEvent(new Event("input"));
-		}
-
-		//Audio export
-		//s = localStorage.getItem("audioExport.");
-
-		//Reset preferences
-		s = localStorage.getItem("reset.pageAppearance");
-		if(s) {
-			chkResetPageAppearance.valueAsNumber = JSON.parse(s);
-			chkResetPageAppearance.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.genParams");
-		if(s) {
-			chkResetGenParams.valueAsNumber = JSON.parse(s);
-			chkResetGenParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.rhythmParams");
-		if(s) {
-			chkResetRhythmParams.valueAsNumber = JSON.parse(s);
-			chkResetRhythmParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.addGenParams");
-		if(s) {
-			chkResetAddGenParams.valueAsNumber = JSON.parse(s);
-			chkResetAddGenParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.structuredMusic");
-		if(s) {
-			chkResetStructuredMusic.valueAsNumber = JSON.parse(s);
-			chkResetStructuredMusic.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.flatScript");
-		if(s) {
-			chkResetFlatScript.valueAsNumber = JSON.parse(s);
-			chkResetFlatScript.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.clipParams");
-		if(s) {
-			chkResetClipParams.valueAsNumber = JSON.parse(s);
-			chkResetClipParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.player");
-		if(s) {
-			chkResetPlayer.valueAsNumber = JSON.parse(s);
-			chkResetPlayer.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.reset");
-		if(s) {
-			chkResetReset.valueAsNumber = JSON.parse(s);
-			chkResetReset.dispatchEvent(new Event("input"));
-		}
-	} finally {
-		adjustingPreferences = false;
-	}
-}
-function savePreferences() {
-	//Page appearance
-	localStorage.setItem("pageAppearance.textSize", JSON.stringify(document.children[0].style.fontSize)); //textSize?
-	localStorage.setItem("pageAppearance.theme", JSON.stringify(cboPageTheme.value));
-	localStorage.setItem("pageAppearance.hue", JSON.stringify(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent")));
-	
-	//Generator parameters
-	localStorage.setItem("genParams.baseFreq", JSON.stringify(txtBaseFreq.valueAsNumber)); //rootFreq?
-	localStorage.setItem("genParams.timeScale", JSON.stringify()); //txtTimeScale
-	localStorage.setItem("genParams.patternCount", JSON.stringify()); //txtPatternCount
-	localStorage.setItem("genParams.primeCount", JSON.stringify(primeCount)); //txtPrimeCount?
-	localStorage.setItem("genParams.expVariance", JSON.stringify(expVariance)); //txtExpVariance?
-	/*
-	//Rhythm parameters
-	localStorage.setItem("rhythmParams.rhythmScale", JSON.stringify(txtRhythmScale));
-	localStorage.setItem("rhythmParams.rhythmFactors", JSON.stringify(txtRhythmFactors)); //rhythmFactors?
-	//Additional generator parameters
-	localStorage.setItem("addGenParams.voiceCount", JSON.stringify(txtVoiceCount));
-	localStorage.setItem("addGenParams.reptCount", JSON.stringify(txtReptCount));
-	localStorage.setItem("addGenParams.reptPeriod", JSON.stringify(txtReptPeriod));
-	localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern));
-	//Structured music editor
-	localStorage.setItem("structuredMusic.overflow", JSON.stringify());
-	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify());
-	localStorage.setItem("structuredMusic.content", JSON.stringify(ctlStructuredScript.innerText));
-	//Flattened note list
-	localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten));
-	localStorage.setItem("flatScript.overflow", JSON.stringify());
-	localStorage.setItem("flatScript.lineWrapping", JSON.stringify());
-	localStorage.setItem("flatScript.content", JSON.stringify(ctlFlatScript.innerText));
-	//Overall play controls
-	localStorage.setItem("clipParams.freqScale", JSON.stringify(playFreqScale)); //txtPlayFreqScale?
-	localStorage.setItem("clipParams.volScale", JSON.stringify(playVolScale)); //txtPlayVolScale?
-	localStorage.setItem("clipParams.timeScale", JSON.stringify(txtPlayTimeScale));
-	localStorage.setItem("clipParams.timeDelta", JSON.stringify(txtPlayTimeDelta));
-	//Player
-	localStorage.setItem("player.autoReload", JSON.stringify(chkAutoReload));
-	//Audio export
-	//localStorage.setItem("audioExport.", JSON.stringify());
-	//Reset preferences
-	localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance));
-	localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams));
-	localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams));
-	localStorage.setItem("reset.addGenParams", JSON.stringify(chkResetAddGenParams));
-	localStorage.setItem("reset.structuredMusic", JSON.stringify(chkResetStructuredMusic));
-	localStorage.setItem("reset.flatScript", JSON.stringify(chkResetFlatScript));
-	localStorage.setItem("reset.clipParams", JSON.stringify(chkResetClipParams));
-	localStorage.setItem("reset.player", JSON.stringify(chkResetPlayer));
-	localStorage.setItem("reset.reset", JSON.stringify(chkResetReset));
-	*/
-}
-function resetPreferences() {
-	localStorage.clear();
-	loadPreferences();
-}
-
-let textSize = 1;
-function rescaleText(event) {
-	if(!document || !document.documentElement || !document.documentElement.style) return false;
+function overflowToggle(event) {
 	const elem = event.target;
 	if(!elem) return false;
-	const f = Number(elem.dataset["factor"]);
-	textSize *= f;
-	document.documentElement.style.fontSize = textSize.toString() + "em"; //html element
-}
-function themeChanged(event) {
-	if(!document) return false;
-	const elem = event.target;
-	if(!elem) return false;
-	const styleTitle = elem.value.toString();
-	const sheets = document.querySelectorAll("head link[rel~=stylesheet][title]");
-	for(const sheet of sheets) {
-		if(!sheet.hasAttribute("title")) continue;
-		sheet.disabled = sheet.title !== styleTitle;
-		sheet.rel = (sheet.disabled ? "alternate stylesheet" : "stylesheet");
-	}
-}
-function btnHueClick(event) {
-	if(!document) return false;
-	const elem = event.target;
-	if(!elem) return false;
-	let delta = Number(elem.dataset["delta"]);
-
-	const root = document.documentElement;
-	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
-
-	//if(hue == undefined) return;
-	if(typeof(hue) === "string") hue = parseFloat(hue);
-	if(isNaN(hue) || !isFinite(hue)) hue = 120;
-
-	delta *= 30;
-	if(event.shiftKey) delta *= 4;
-	hue += delta;
-	/*hue %= 360; //this wrapping screws filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
-	if(hue < 0) hue += 360;*/
-
-	root.style.setProperty("--hue-accent", hue);
-
-	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
-	for(const elem2 of metaElems) {
-		if(elem2.hasAttribute("media")) { //test (to do?)
-			if(elem2.getAttribute("media").toLowerCase() == "(prefers-color-scheme: dark)")
-				elem2.setAttribute("content", "darkred");
-			else
-				elem2.setAttribute("content", "chartreuse");
-		} else
-			elem2.setAttribute("content", "red");
-	}*/
-}
-function overflowToggle(control) {
+	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
 	control.classList.toggle("expanded");
+	if(elem.dataset["pref"])
+		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("expanded")));
 }
-function lineWrapToggle(control) {
+function lineWrapToggle(event) {
+	const elem = event.target;
+	if(!elem) return false;
+	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
 	control.classList.toggle("lineWrapping");
-}
-
-function primeCountChanged() {
-	if(!txtPrimeCount) return false;
-	primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
-	if(primeCount < 2) primeCount = 2;
-	if(outPrimeList) outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
+	if(elem.dataset["pref"])
+		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("lineWrapping")));
 }
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
@@ -575,35 +256,6 @@ function expSpinnerChanged(event) {
 	return true;
 }*/
 
-const defaultRootFreq = 440;
-var rootFreq = defaultRootFreq, playFreqScale = 1, playVolScale = 1;
-function baseFreqChanged() {
-	if(!txtBaseFreq) return false;
-	rootFreq = parseNumber(txtBaseFreq.value);
-	if(!rootFreq) {
-		txtBaseFreq.classList.add("invalid");
-		txtBaseFreq.setCustomValidity("Base frequency shouldn't be 0.");
-		rootFreq = defaultRootFreq;
-	} else {
-		txtBaseFreq.classList.remove("invalid");
-		txtBaseFreq.setCustomValidity("");
-	}
-}
-function playFreqScaleChanged() {
-	if(!txtPlayFreqScale) return false;
-	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
-	playFreqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
-	if(playerClip) playerClip.playFreqScale = playFreqScale;
-}
-function playVolScaleChanged() {
-	if(!txtPlayVolScale) return false;
-	//if(txtPlayVolScale.valueAsNumber < 0) txtPlayVolScale.stepUp();
-	playVolScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
-	if(playerClip) playerClip.playVolScale = playVolScale;
-}
-
-//rhythm structure data (hierarchy of factors)
-var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmAccumUpdate() {
 	if(!rhythmFactors) rhythmFactors = [];
 	const factors = rhythmFactors.slice(); //array clone
@@ -616,46 +268,6 @@ function rhythmAccumUpdate() {
 	//rhythmFactorsAccum.push(1);
 	if(outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	rhythmFactors.push(1);
-}
-function rhythmFactorsChanged() {
-	//to do: support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
-	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
-	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
-	if(!txtRhythmFactors) return false;
-	let s = txtRhythmFactors.value.toString(); //text
-	rhythmFactors = []; //will become an array of numbers
-	if(s.length >= 1) {
-		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
-		for(const n of s) {
-			//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
-			const pos = n.indexOf("^");
-			if(pos >= 0) {
-				const base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
-				for(let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
-					rhythmFactors.push(base);
-				//question: non-integer exponents? (if(exp > 0) ...)
-			} else
-				rhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
-		}
-	}
-	//to do: invalidate factors below 1? and negative factors?
-	//note: empty structures now allowed
-	try {
-		if(rhythmFactors.some(x => x == 0)) //has zeroes?
-			throw "Rhythm factors can't include zero.";
-		
-		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
-			throw "Unrecognized numerical expression in rhythm formula.";
-
-		txtRhythmFactors.classList.remove("invalid");
-		txtRhythmFactors.setCustomValidity("");
-	} catch(error) {
-		//default/fallback
-		rhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
-		txtRhythmFactors.classList.add("invalid");
-		txtRhythmFactors.setCustomValidity(error.toString());
-	}
-	rhythmAccumUpdate();
 }
 
 function btnStopClick(event) {
@@ -777,7 +389,6 @@ function addToolTipHandler(rootSelector, handler) {
 		//elem.addEventListener("pointerenter", handler);
 		//elem.addEventListener("pointerover", handler);
 	}
-
 }
 function setToolTip(event, outToolTip) {
 	if(!outToolTip) outToolTip = window.outToolTip;
@@ -894,7 +505,7 @@ function addIntervalSamples() {
 		const row = document.querySelector("#tblFractionIntervals thead tr");
 		const cell = document.createElement("th"); //insertCell would make a td element.
 		cell.scope = "col";
-		cell.innerHTML = "Sam&shy;ple";
+		cell.innerHTML = "Sam&shy;ple"; //Sample
 		row.insertBefore(cell, row.children[4]);
 	}
 
