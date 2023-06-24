@@ -10,208 +10,228 @@ function loadPreferences() {
 		adjustingPreferences = true;
 		let s;
 
+		//Reset preferences (influences later conditionals)
+		if(!chkResetReset.checked) {
+			s = localStorage.getItem("reset.pageAppearance");
+			if(s) {
+				chkResetPageAppearance.checked = JSON.parse(s);
+				//chkResetPageAppearance.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.genParams");
+			if(s) {
+				chkResetGenParams.checked = JSON.parse(s);
+				//chkResetGenParams.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.rhythmParams");
+			if(s) {
+				chkResetRhythmParams.checked = JSON.parse(s);
+				//chkResetRhythmParams.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.addGenParams");
+			if(s) {
+				chkResetAddGenParams.checked = JSON.parse(s);
+				//chkResetAddGenParams.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.structuredMusic");
+			if(s) {
+				chkResetStructuredMusic.checked = JSON.parse(s);
+				//chkResetStructuredMusic.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.flatScript");
+			if(s) {
+				chkResetFlatScript.checked = JSON.parse(s);
+				//chkResetFlatScript.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.clipParams");
+			if(s) {
+				chkResetClipParams.checked = JSON.parse(s);
+				//chkResetClipParams.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.player");
+			if(s) {
+				chkResetPlayer.checked = JSON.parse(s);
+				//chkResetPlayer.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("reset.reset");
+			if(s) {
+				chkResetReset.checked = JSON.parse(s);
+				//chkResetReset.dispatchEvent(new Event("input"));
+			}
+		}
+
 		//Page appearance
-		s = localStorage.getItem("pageAppearance.textSize");
-		if(s) {
-			textSize = JSON.parse(s);
-			//document.documentElement.style.fontSize = textSize.toString() + "em";
-			document.documentElement.style.setProperty("--page-scale", textSize);
-		}
-		s = localStorage.getItem("pageAppearance.theme");
-		if(s) {
-			cboPageTheme.value = JSON.parse(s);
-			cboPageTheme.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("pageAppearance.hue");
-		if(s) {
-			document.documentElement.style.setProperty("--hue-accent", JSON.parse(s));
+		if(!chkResetPageAppearance.checked) {
+			s = localStorage.getItem("pageAppearance.textSize");
+			if(s) {
+				textSize = JSON.parse(s);
+				//document.documentElement.style.fontSize = textSize.toString() + "em";
+				document.documentElement.style.setProperty("--page-scale", textSize);
+			}
+			s = localStorage.getItem("pageAppearance.theme");
+			if(s) {
+				cboPageTheme.value = s;
+				cboPageTheme.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("pageAppearance.hue");
+			if(s) {
+				document.documentElement.style.setProperty("--hue-accent", JSON.parse(s));
+			}
 		}
 
 		//Generator parameters
-		s = localStorage.getItem("genParams.baseFreq");
-		if(s) {
-			txtBaseFreq.value = JSON.parse(s);
-			txtBaseFreq.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.timeScale");
-		if(s) {
-			txtTimeScale.value = JSON.parse(s);
-			txtTimeScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.patternCount");
-		if(s) {
-			txtPatternCount.value = JSON.parse(s);
-			txtPatternCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.primeCount");
-		if(s) {
-			txtPrimeCount.value = JSON.parse(s);
-			txtPrimeCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("genParams.expVariance");
-		if(s) {
-			txtExpVariance.value = JSON.parse(s);
-			txtExpVariance.dispatchEvent(new Event("input"));
+		if(!chkResetGenParams.checked) {
+			s = localStorage.getItem("genParams.baseFreq");
+			if(s) {
+				txtBaseFreq.value = s;
+				txtBaseFreq.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("genParams.timeScale");
+			if(s) {
+				txtTimeScale.value = s;
+				txtTimeScale.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("genParams.patternCount");
+			if(s) {
+				txtPatternCount.value = s;
+				txtPatternCount.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("genParams.primeCount");
+			if(s) {
+				txtPrimeCount.value = s;
+				txtPrimeCount.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("genParams.expVariance");
+			if(s) {
+				txtExpVariance.value = s;
+				txtExpVariance.dispatchEvent(new Event("input"));
+			}
 		}
 		
 		//Rhythm parameters
-		s = localStorage.getItem("rhythmParams.rhythmScale");
-		if(s) {
-			txtRhythmScale.value = JSON.parse(s);
-			txtRhythmScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("rhythmParams.rhythmFactors");
-		if(s) {
-			txtRhythmFactors.value = JSON.parse(s);
-			txtRhythmFactors.dispatchEvent(new Event("input"));
+		if(!chkResetRhythmParams.checked) {
+			s = localStorage.getItem("rhythmParams.rhythmScale");
+			if(s) {
+				txtRhythmScale.value = s;
+				txtRhythmScale.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("rhythmParams.rhythmFactors");
+			if(s) {
+				txtRhythmFactors.value = s;
+				txtRhythmFactors.dispatchEvent(new Event("input"));
+			}
 		}
 
 		//Additional generator parameters
-		s = localStorage.getItem("addGenParams.voiceCount");
-		if(s) {
-			txtVoiceCount.value = JSON.parse(s);
-			txtVoiceCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("addGenParams.reptCount");
-		if(s) {
-			txtReptCount.value = JSON.parse(s);
-			txtReptCount.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("addGenParams.reptPeriod");
-		if(s) {
-			txtReptPeriod.value = JSON.parse(s);
-			txtReptPeriod.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("addGenParams.percussivePattern");
-		if(s) {
-			chkPercussivePattern.checked = JSON.parse(s);
-			chkPercussivePattern.dispatchEvent(new Event("click")); //question: input or click event for check boxes?
+		if(!chkResetAddGenParams.checked) {
+			s = localStorage.getItem("addGenParams.voiceCount");
+			if(s) {
+				txtVoiceCount.value = s;
+				txtVoiceCount.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("addGenParams.reptCount");
+			if(s) {
+				txtReptCount.value = s;
+				txtReptCount.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("addGenParams.reptPeriod");
+			if(s) {
+				txtReptPeriod.value = s;
+				txtReptPeriod.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("addGenParams.percussivePattern");
+			if(s) {
+				chkPercussivePattern.checked = JSON.parse(s);
+				chkPercussivePattern.dispatchEvent(new Event("click")); //question: input or click event for check boxes?
+			}
 		}
 
 		//Structured music editor
-		s = localStorage.getItem("structuredMusic.overflow");
-		if(s) {
-			if(JSON.parse(s))
-				ctlStructuredScript.classList.add("expanded");
-			else
-				ctlStructuredScript.classList.remove("expanded");
-		}
-		s = localStorage.getItem("structuredMusic.lineWrapping");
-		if(s) {
-			if(JSON.parse(s))
-				ctlStructuredScript.classList.add("lineWrapping");
-			else
-				ctlStructuredScript.classList.remove("lineWrapping");
-		}
-		s = localStorage.getItem("structuredMusic.content");
-		if(s) {
-			ctlStructuredScript.innerText = JSON.parse(s);
-			ctlStructuredScript.dispatchEvent(new Event("input"));
+		if(!chkResetStructuredMusic.checked) {
+			s = localStorage.getItem("structuredMusic.overflow");
+			if(s) {
+				if(JSON.parse(s))
+					ctlStructuredScript.classList.add("expanded");
+				else
+					ctlStructuredScript.classList.remove("expanded");
+			}
+			s = localStorage.getItem("structuredMusic.lineWrapping");
+			if(s) {
+				if(JSON.parse(s))
+					ctlStructuredScript.classList.add("lineWrapping");
+				else
+					ctlStructuredScript.classList.remove("lineWrapping");
+			}
+			s = localStorage.getItem("structuredMusic.content");
+			if(s) {
+				ctlStructuredScript.innerText = s;
+				ctlStructuredScript.dispatchEvent(new Event("input"));
+			}
 		}
 
 		//Flattened note list
-		s = localStorage.getItem("flatScript.autoFlatten");
-		if(s) {
-			chkAutoFlatten.checked = JSON.parse(s);
-			chkAutoFlatten.dispatchEvent(new Event("click"));
-		}
-		s = localStorage.getItem("flatScript.overflow");
-		if(s) {
-			if(JSON.parse(s))
-				ctlFlatScript.classList.add("expanded");
-			else
-				ctlFlatScript.classList.remove("expanded");
-		}
-		s = localStorage.getItem("flatScript.lineWrapping");
-		if(s) {
-			if(JSON.parse(s))
-				ctlFlatScript.classList.add("lineWrapping");
-			else
-				ctlFlatScript.classList.remove("lineWrapping");
-		}
-		s = localStorage.getItem("flatScript.content");
-		if(s) {
-			ctlFlatScript.innerText = JSON.parse(s);
-			ctlFlatScript.dispatchEvent(new Event("input"));
+		if(!chkResetFlatScript.checked) {
+			s = localStorage.getItem("flatScript.autoFlatten");
+			if(s) {
+				chkAutoFlatten.checked = JSON.parse(s);
+				chkAutoFlatten.dispatchEvent(new Event("click")); //?
+			}
+			s = localStorage.getItem("flatScript.overflow");
+			if(s) {
+				if(JSON.parse(s))
+					ctlFlatScript.classList.add("expanded");
+				else
+					ctlFlatScript.classList.remove("expanded");
+			}
+			s = localStorage.getItem("flatScript.lineWrapping");
+			if(s) {
+				if(JSON.parse(s))
+					ctlFlatScript.classList.add("lineWrapping");
+				else
+					ctlFlatScript.classList.remove("lineWrapping");
+			}
+			s = localStorage.getItem("flatScript.content");
+			if(s) {
+				ctlFlatScript.innerText = s;
+				ctlFlatScript.dispatchEvent(new Event("input"));
+			}
 		}
 
 		//Overall play controls
-		s = localStorage.getItem("clipParams.freqScale");
-		if(s) {
-			txtPlayFreqScale.value = JSON.parse(s);
-			txtPlayFreqScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("clipParams.volScale");
-		if(s) {
-			txtPlayVolScale.value = JSON.parse(s);
-			txtPlayVolScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("clipParams.timeScale");
-		if(s) {
-			txtPlayTimeScale.value = JSON.parse(s);
-			txtPlayTimeScale.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("clipParams.timeDelta");
-		if(s) {
-			txtPlayTimeDelta.value = JSON.parse(s);
-			txtPlayTimeDelta.dispatchEvent(new Event("input"));
+		if(!chkResetClipParams.checked) {
+			s = localStorage.getItem("clipParams.freqScale");
+			if(s) {
+				txtPlayFreqScale.value = s;
+				txtPlayFreqScale.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("clipParams.volScale");
+			if(s) {
+				txtPlayVolScale.value = s;
+				txtPlayVolScale.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("clipParams.timeScale");
+			if(s) {
+				txtPlayTimeScale.value = s;
+				txtPlayTimeScale.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("clipParams.timeDelta");
+			if(s) {
+				txtPlayTimeDelta.value = s;
+				txtPlayTimeDelta.dispatchEvent(new Event("input"));
+			}
 		}
 
 		//Player
-		s = localStorage.getItem("player.autoReload");
-		if(s) {
-			chkAutoReload.checked = JSON.parse(s);
-			chkAutoReload.dispatchEvent(new Event("click"));
+		if(!chkResetPlayer.checked) {
+			s = localStorage.getItem("player.autoReload");
+			if(s) {
+				chkAutoReload.checked = JSON.parse(s);
+				chkAutoReload.dispatchEvent(new Event("click"));
+			}
 		}
 
 		//Audio export
-		//s = localStorage.getItem("audioExport.");
-
-		//Reset preferences
-		/* s = localStorage.getItem("reset.pageAppearance");
-		if(s) {
-			chkResetPageAppearance.valueAsNumber = JSON.parse(s);
-			chkResetPageAppearance.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.genParams");
-		if(s) {
-			chkResetGenParams.valueAsNumber = JSON.parse(s);
-			chkResetGenParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.rhythmParams");
-		if(s) {
-			chkResetRhythmParams.valueAsNumber = JSON.parse(s);
-			chkResetRhythmParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.addGenParams");
-		if(s) {
-			chkResetAddGenParams.valueAsNumber = JSON.parse(s);
-			chkResetAddGenParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.structuredMusic");
-		if(s) {
-			chkResetStructuredMusic.valueAsNumber = JSON.parse(s);
-			chkResetStructuredMusic.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.flatScript");
-		if(s) {
-			chkResetFlatScript.valueAsNumber = JSON.parse(s);
-			chkResetFlatScript.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.clipParams");
-		if(s) {
-			chkResetClipParams.valueAsNumber = JSON.parse(s);
-			chkResetClipParams.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.player");
-		if(s) {
-			chkResetPlayer.valueAsNumber = JSON.parse(s);
-			chkResetPlayer.dispatchEvent(new Event("input"));
-		}
-		s = localStorage.getItem("reset.player");
-		if(s) {
-			chkResetReset.valueAsNumber = JSON.parse(s);
-			chkResetReset.dispatchEvent(new Event("input"));
+		/* if(!chkResetAudioExport.checked) {
+			s = localStorage.getItem("audioExport.");
 		} */
 	} finally {
 		adjustingPreferences = false;
@@ -220,58 +240,54 @@ function loadPreferences() {
 function savePreferences() {
 	//Page appearance
 	localStorage.setItem("pageAppearance.textSize", JSON.stringify(textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
-	localStorage.setItem("pageAppearance.theme", JSON.stringify(cboPageTheme.value));
-	localStorage.setItem("pageAppearance.hue", JSON.stringify(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent")));
-	
+	localStorage.setItem("pageAppearance.theme", cboPageTheme.value);
+	localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent").toString());
 	//Generator parameters
-	localStorage.setItem("genParams.baseFreq", JSON.stringify(txtBaseFreq.value)); //rootFreq?
-	localStorage.setItem("genParams.timeScale", JSON.stringify(txtTimeScale.value)); //txtTimeScale
-	localStorage.setItem("genParams.patternCount", JSON.stringify(txtPatternCount.value)); //txtPatternCount
-	localStorage.setItem("genParams.primeCount", JSON.stringify(primeCount)); //txtPrimeCount?
-	localStorage.setItem("genParams.expVariance", JSON.stringify(expVariance)); //txtExpVariance?
-	
+	localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(rootFreq)?
+	localStorage.setItem("genParams.timeScale", txtTimeScale.value);
+	localStorage.setItem("genParams.patternCount", txtPatternCount.value);
+	localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(primeCount)?
+	localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(expVariance)?
 	//Rhythm parameters
-	localStorage.setItem("rhythmParams.rhythmScale", JSON.stringify(txtRhythmScale.value));
-	localStorage.setItem("rhythmParams.rhythmFactors", JSON.stringify(txtRhythmFactors.value)); //rhythmFactors?
+	localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
+	localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(rhythmFactors)?
 	//Additional generator parameters
-	localStorage.setItem("addGenParams.voiceCount", JSON.stringify(txtVoiceCount.value));
-	localStorage.setItem("addGenParams.reptCount", JSON.stringify(txtReptCount.value));
-	localStorage.setItem("addGenParams.reptPeriod", JSON.stringify(txtReptPeriod.value));
+	localStorage.setItem("addGenParams.voiceCount", txtVoiceCount.value);
+	localStorage.setItem("addGenParams.reptCount", txtReptCount.value);
+	localStorage.setItem("addGenParams.reptPeriod", txtReptPeriod.value);
 	localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked));
 	//Structured music editor
 	localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
 	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("lineWrapping")));
-	localStorage.setItem("structuredMusic.content", JSON.stringify(ctlStructuredScript.innerText));
+	localStorage.setItem("structuredMusic.content", ctlStructuredScript.innerText);
 	//Flattened note list
-	localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten));
+	localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
 	localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
 	localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("lineWrapping")));
-	localStorage.setItem("flatScript.content", JSON.stringify(ctlFlatScript.innerText));
+	localStorage.setItem("flatScript.content", ctlFlatScript.innerText);
 	//Overall play controls
-	localStorage.setItem("clipParams.freqScale", JSON.stringify(playFreqScale)); //txtPlayFreqScale?
-	localStorage.setItem("clipParams.volScale", JSON.stringify(playVolScale)); //txtPlayVolScale?
-	localStorage.setItem("clipParams.timeScale", JSON.stringify(txtPlayTimeScale.value));
-	localStorage.setItem("clipParams.timeDelta", JSON.stringify(txtPlayTimeDelta.value));
+	localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
+	localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(playVolScale)?
+	localStorage.setItem("clipParams.timeScale", txtPlayTimeScale.value);
+	localStorage.setItem("clipParams.timeDelta", txtPlayTimeDelta.value);
 	//Player
 	localStorage.setItem("player.autoReload", JSON.stringify(chkAutoReload.checked));
-	/*
 	//Audio export
 	//localStorage.setItem("audioExport.", JSON.stringify());
 	//Reset preferences
-	localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance));
-	localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams));
-	localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams));
-	localStorage.setItem("reset.addGenParams", JSON.stringify(chkResetAddGenParams));
-	localStorage.setItem("reset.structuredMusic", JSON.stringify(chkResetStructuredMusic));
-	localStorage.setItem("reset.flatScript", JSON.stringify(chkResetFlatScript));
-	localStorage.setItem("reset.clipParams", JSON.stringify(chkResetClipParams));
-	localStorage.setItem("reset.player", JSON.stringify(chkResetPlayer));
-	localStorage.setItem("reset.reset", JSON.stringify(chkResetReset));
-	*/
+	localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance.checked));
+	localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
+	localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams.checked));
+	localStorage.setItem("reset.addGenParams", JSON.stringify(chkResetAddGenParams.checked));
+	localStorage.setItem("reset.structuredMusic", JSON.stringify(chkResetStructuredMusic.checked));
+	localStorage.setItem("reset.flatScript", JSON.stringify(chkResetFlatScript.checked));
+	localStorage.setItem("reset.clipParams", JSON.stringify(chkResetClipParams.checked));
+	localStorage.setItem("reset.player", JSON.stringify(chkResetPlayer.checked));
+	localStorage.setItem("reset.reset", JSON.stringify(chkResetReset.checked));
 }
-function resetPreferences() {
+function resetAllPreferences() {
 	localStorage.clear();
-	loadPreferences();
+	loadPreferences(); //?
 }
 
 let textSize = 1;
@@ -432,4 +448,149 @@ function saveInputValue(event) {
 		return;
 	}
 	console.warn("Could not save a preference: exceptional control type.");
+}
+
+function btnResetPreferencesClick(event) {
+	//resetAllPreferences();
+	try {
+		adjustingPreferences = true;
+		if(chkResetPageAppearance.checked) {
+			localStorage.removeItem("pageAppearance.textSize");
+			localStorage.removeItem("pageAppearance.theme");
+			localStorage.removeItem("pageAppearance.hue");
+
+			textSize = 1;
+			document.documentElement.style.setProperty("--page-scale", textSize);
+			cboPageTheme.value = "Automatic";
+			cboPageTheme.dispatchEvent(new Event("input"));
+			document.documentElement.style.setProperty("--hue-accent", 120);
+		}
+		if(chkResetGenParams.checked) {
+			localStorage.removeItem("genParams.baseFreq");
+			localStorage.removeItem("genParams.timeScale");
+			localStorage.removeItem("genParams.patternCount");
+			localStorage.removeItem("genParams.primeCount");
+			localStorage.removeItem("genParams.expVariance");
+
+			txtBaseFreq.value = "440";
+			txtBaseFreq.dispatchEvent(new Event("input"));
+			txtTimeScale.value = "0.5";
+			txtTimeScale.dispatchEvent(new Event("input"));
+			txtPatternCount.value = "4";
+			txtPatternCount.dispatchEvent(new Event("input"));
+			txtPrimeCount.value = "3";
+			txtPrimeCount.dispatchEvent(new Event("input"));
+			txtExpVariance.value = "2";
+			txtExpVariance.dispatchEvent(new Event("input"));
+		}
+		if(chkResetRhythmParams.checked) {
+			localStorage.removeItem("rhythmParams.rhythmScale");
+			localStorage.removeItem("rhythmParams.rhythmFactors");
+
+			txtRhythmScale.value = "8";
+			txtRhythmScale.dispatchEvent(new Event("input"));
+			txtRhythmFactors.value = "2*2*2";
+			txtRhythmFactors.dispatchEvent(new Event("input"));
+		}
+		if(chkResetAddGenParams.checked) {
+			localStorage.removeItem("addGenParams.voiceCount");
+			localStorage.removeItem("addGenParams.reptCount");
+			localStorage.removeItem("addGenParams.reptPeriod");
+			localStorage.removeItem("addGenParams.percussivePattern");
+
+			txtVoiceCount.value = "3";
+			txtVoiceCount.dispatchEvent(new Event("input"));
+			txtReptCount.value = "2";
+			txtReptCount.dispatchEvent(new Event("input"));
+			txtReptPeriod.value = "4";
+			txtReptPeriod.dispatchEvent(new Event("input"));
+			chkPercussivePattern.checked = true;
+			chkPercussivePattern.dispatchEvent(new Event("click"));
+		}
+		if(chkResetStructuredMusic.checked) {
+			localStorage.removeItem("structuredMusic.overflow");
+			localStorage.removeItem("structuredMusic.lineWrapping");
+			localStorage.removeItem("structuredMusic.content");
+
+			ctlStructuredScript.classList.remove("expanded");
+			ctlStructuredScript.classList.remove("lineWrapping");
+			ctlStructuredScript.innerText = '{\n\
+	"freqRatio": 440,\n\
+	"volRatio": 0.5,\n\
+	"timeDelta": 0,\n\
+	"timeScale": 0.5,\n\
+	"decayFactor": 128,\n\
+	"attack": "1/64",\n\
+	"pat1": [\n\
+		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},\n\
+		{"noteStart": 0, "duration": 1, "freq": 1},\n\
+		{"noteStart": 1, "duration": 1, "freq": "5/4"},\n\
+		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},\n\
+		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}\n\
+	],\n\
+	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},\n\
+	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}\n\
+}';
+			//ctlStructuredScript.dispatchEvent(new Event("input"));
+		}
+		if(chkResetFlatScript.checked) {
+			localStorage.removeItem("flatScript.autoFlatten");
+			localStorage.removeItem("flatScript.overflow");
+			localStorage.removeItem("flatScript.lineWrapping");
+			localStorage.removeItem("flatScript.content");
+
+			chkAutoFlatten.checked = true;
+			//chkAutoFlatten.dispatchEvent(new Event("click"));
+			ctlFlatScript.classList.remove("expanded");
+			ctlFlatScript.classList.remove("lineWrapping");
+			ctlFlatScript.innerText = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
+{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
+			ctlFlatScript.dispatchEvent(new Event("input"));
+		}
+		if(chkResetClipParams.checked) {
+			localStorage.removeItem("clipParams.freqScale");
+			localStorage.removeItem("clipParams.volScale");
+			localStorage.removeItem("clipParams.timeScale");
+			localStorage.removeItem("clipParams.timeDelta");
+			
+			txtPlayFreqScale.value = "1";
+			txtPlayFreqScale.dispatchEvent(new Event("input"));
+			txtPlayVolScale.value = "1";
+			txtPlayVolScale.dispatchEvent(new Event("input"));
+			txtPlayTimeScale.value = "1";
+			txtPlayTimeScale.dispatchEvent(new Event("input"));
+			txtPlayTimeDelta.value = "0";
+			txtPlayTimeDelta.dispatchEvent(new Event("input"));
+		}
+		if(chkResetPlayer.checked) {
+			localStorage.removeItem("player.autoReload");
+
+			chkAutoReload.checked = false;
+			chkAutoReload.dispatchEvent(new Event("click"));
+		}
+		if(chkResetReset.checked) {
+			localStorage.removeItem("reset.pageAppearance");
+			localStorage.removeItem("reset.genParams");
+			localStorage.removeItem("reset.rhythmParams");
+			localStorage.removeItem("reset.addGenParams");
+			localStorage.removeItem("reset.structuredMusic");
+			localStorage.removeItem("reset.flatScript");
+			localStorage.removeItem("reset.clipParams");
+			localStorage.removeItem("reset.player");
+			localStorage.removeItem("reset.reset");
+			
+			chkResetPageAppearance.checked = false;
+			chkResetGenParams.checked = false;
+			chkResetRhythmParams.checked = false;
+			chkResetAddGenParams.checked = false;
+			chkResetStructuredMusic.checked = false;
+			chkResetFlatScript.checked = false;
+			chkResetClipParams.checked = false;
+			chkResetPlayer.checked = false;
+			chkResetReset.checked = false;
+			//.dispatchEvent(new Event("input"));
+		}
+	} finally {
+		adjustingPreferences = false;
+	}
 }

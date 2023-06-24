@@ -185,7 +185,7 @@ function docLoaded() {
 	//load HTML element references
 	for(let s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
-	if(chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
+	//if(chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
 	if(outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
 	if(outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
 	if(txtPrimeCount) txtPrimeCount.max = primes.length.toString();
@@ -472,22 +472,22 @@ function scrollUpdate(event) {
 	elem.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
 
 	/*const scrollYPages = elem.scrollTop / elem.clientHeight;
-	const setTranslate = (id, dy) => {document.getElementById(id).style.translate = "0% " + (- 100 * dy).toString() + "%";};
+	const setTranslate = (id, dy) => {id.style.translate = "0% " + (- 100 * dy).toString() + "%";};
 	for(let i = 1; i <= 2; i++) {
 		//const y = scrollYPages / i;
 		//const y = scrollYPages / (5 - i);
 		//const y = 4 * scrollYPages / i;
 		const y = scrollYPages * 0.5 ** i;
 		//const y = scrollYPages * 0.5 ** (5 - i);
-		setTranslate(`noise${i}rect1`, (y + 1) % 2 - 1);
-		setTranslate(`noise${i}rect2`, (y + 0) % 2 - 0);
+		setTranslate(document.getElementById(`noise${i}rect1`), (y + 1) % 2 - 1);
+		setTranslate(document.getElementById(`noise${i}rect2`), (y + 0) % 2 - 0);
 	}*/
 }
 function resizeUpdate(event) {
-	//document.getElementById("imgBgLayer1").style.height = document.body.children[0].scrollHeight;
-	document.documentElement.style.setProperty("--scroll-height", document.getElementById("wrapper2").scrollHeight);
+	//imgBgLayer1.style.height = document.body.children[0].scrollHeight;
+	document.documentElement.style.setProperty("--scroll-height", wrapper2.scrollHeight);
 	//for(let i = 1; i <= 3; i++)
-	//	document.getElementById(`imgBgLayer${i}`).style.height = document.getElementById("wrapper2").scrollHeight.toString() + "px";
+	//	document.getElementById(`imgBgLayer${i}`).style.height = wrapper2.scrollHeight.toString() + "px";
 }
 
 let animHue = 0;
