@@ -7,6 +7,28 @@
 		hsl(calc(var(--hue-accent2, 300) + var(--hue-scroll, 0)), 12.5%, 12.5%)
 		hsl(calc(var(--hue-accent2, 300) + var(--hue-scroll, 0)), 12.5%, 93.75%);
 }
+*::-webkit-scrollbar {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 93.75%);
+	/* color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%); */
+}
+*::-webkit-scrollbar-thumb {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 12.5%);
+}
+*::-webkit-scrollbar-track {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 93.75%);
+}
+/* *::-webkit-scrollbar-track-piece {
+	background-color: black;
+} */
+*::-webkit-scrollbar-corner {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 93.75%);
+}
+/* *::-webkit-resizer {
+	background-color: black;
+	color: red;
+	accent-color: red;
+} */
+
 body {
 	background-color: hsl(var(--hue-accent, 120), 25%, 96.875%);
 	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);

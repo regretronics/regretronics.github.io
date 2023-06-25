@@ -12,6 +12,28 @@
 		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%, 0.875);
 
 }
+*::-webkit-scrollbar {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%, 0.875);
+	/* color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875); */
+}
+*::-webkit-scrollbar-thumb {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 37.5%, 25%, 0.875);
+}
+*::-webkit-scrollbar-track {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%, 0.875);
+}
+/* *::-webkit-scrollbar-track-piece {
+	background-color: black;
+} */
+*::-webkit-scrollbar-corner {
+	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%, 0.875);
+}
+/* *::-webkit-resizer {
+	background-color: black;
+	color: red;
+	accent-color: red;
+} */
+
 body {
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 75%);
 	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);

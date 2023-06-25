@@ -110,7 +110,7 @@ input[type=checkbox] + label {
 	background-color: canvas;
 }
 code, .codeEditor {
-	font-size: 80%;
+	font-size: 0.8em;
 }
 
 img:not(.trueColors) { /*class "trueColors" reserved for future use*/
