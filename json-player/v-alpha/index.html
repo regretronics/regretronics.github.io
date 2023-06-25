@@ -47,8 +47,6 @@
 		for(const elem of document.querySelectorAll("input.exp"))
 			elem.addEventListener("input", expSpinnerChanged);
 
-		/*btnTextShrink.addEventListener("click", ev => rescaleText(0.8));
-		btnTextEnlarge.addEventListener("click", ev => rescaleText(1.25));*/
 		btnTextShrink.addEventListener("click", rescaleText);
 		btnTextEnlarge.addEventListener("click", rescaleText);
 		//cboPageTheme.addEventListener("click", themeChanged); //click only works via mouse. doesn't work well in G. Chrome.
