@@ -221,7 +221,7 @@
 		cbxCanvasScale.addEventListener("change", canvasScaleChanged);
 
 		btnViewUpdate.addEventListener("click", viewUpdate);
-		btnStartUpdating.addEventListener("click", (evt) => {animating = true; startUpdating();});
+		btnStartUpdating.addEventListener("click", event => {animating = true; startUpdating();});
 		btnStopUpdating.addEventListener("click", stopUpdating);
 		keyTarget = document.body;
 	}

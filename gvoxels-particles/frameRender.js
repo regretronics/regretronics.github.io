@@ -604,13 +604,14 @@ function registerRayCastingKernelMono() {
 		}
 
 		//let color = vecAccumEmission;
-		let color = [0.5, 0.5, 0.5/* , 0.0 */];
-		let alphaNew = [1.0 - vecAccumTransp[0], 1.0 - vecAccumTransp[1], 1.0 - vecAccumTransp[2]];
+		//let color = [0.5, 0.5, 0.5/* , 0.0 */];
+		/* let alphaNew = [1.0 - vecAccumTransp[0], 1.0 - vecAccumTransp[1], 1.0 - vecAccumTransp[2]];
 		if(alphaNew[0] > 0.0) color[0] = vecAccumEmission[0] / alphaNew[0];
 		if(alphaNew[1] > 0.0) color[1] = vecAccumEmission[1] / alphaNew[1];
-		if(alphaNew[2] > 0.0) color[2] = vecAccumEmission[2] / alphaNew[2];
+		if(alphaNew[2] > 0.0) color[2] = vecAccumEmission[2] / alphaNew[2]; */
 
-		this.color(color[0], color[1], color[2]);
+		//this.color(color[0], color[1], color[2]);
+		this.color(vecAccumEmission[0], vecAccumEmission[1], vecAccumEmission[2]);
 		//return color;
 	}, {
 		constants: { worldRes0: worldRes[0], worldRes1: worldRes[1], worldRes2: worldRes[2],
