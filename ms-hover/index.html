@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>Hover!</title>
+    <link rel="shortcut icon" type="image/ico" href="images/ui/favicon.ico">
+    <meta name="description" content="Hover is Back – Internet Explorer 11 brings the classic Windows 95 capture-the-flag game to the web with brand new 3D graphics and touch gameplay.">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no,width=device-width" />
+    <link rel="canonical" href="http://hover.ie/">
+
+    <link href="css/game.css" rel="stylesheet" type="text/css">
+    
+    <meta property="og:image" content="images/ui/hoverfb.png"/>
+    <meta property="og:title" content="Hover! by Internet Explorer"/>
+    <meta property="og:site_name" content="Hover! by Internet Explorer"/>      
+    <meta property="og:url" content="http://hover.ie/"/>
+    <meta property="og:description" content="Hover is Back – Internet Explorer 11 brings the classic Windows 95 capture-the-flag game to the web with brand new 3D graphics and touch gameplay."/>
+    
+    <meta name="application-name" content="Hover!" />
+    <meta name="msapplication-TileColor" content="#170D18"/>
+    <meta name="msapplication-TileImage" content="images/ui/favicon-144.png"/>
+    <meta name="msapplication-square70x70logo" content="images/ui/favicon-144.png" />
+    <meta name="msapplication-square150x150logo" content="images/ui/tile270.png" />
+    <meta name="msapplication-wide310x150logo" content="images/ui/tilewide.png" />
+    <meta name="msapplication-square310x310logo" content="images/ui/tile558.jpg" />    
+    
+</head>
+<body>
+    <div id="main-bg"></div>
+
+    <div id="background">
+        <canvas id="starsCanvas"></canvas>
+        <div class="lightaccent lightaccent-topleft"></div>
+        <div class="lightaccent lightaccent-bottomleft"></div>
+        <div class="lightaccent lightaccent-topright"></div>
+        <div class="lightaccent lightaccent-bottomright"></div>   
+        <div class="spotaccent spotaccent-topleft"></div>
+        <div class="spotaccent spotaccent-center"></div>
+        <div id="linesaccent"></div>
+    </div>
+    
+    <div id="main"></div>
+    <div id="dd"></div>
+    
+    <div id="iepanel"></div>
+
+    <ul id="footer">
+        <li>© 2013 Microsoft</li> |
+        <li><a class="footerLink" href="http://go.microsoft.com/fwlink/?LinkId=248681"
+            target="_blank">Privacy &amp; Cookies</a>
+        </li> |
+        <li><a class="footerLink" href="http://go.microsoft.com/?linkid=4412892"
+            target="_blank">Terms of Use</a>
+        </li>
+    </ul>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-43007360-1', 'hover.ie');
+    </script>
+    <!-- bbrinza -->
+    <!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/game-libs.js"></script>
+    <script src="scripts/three.min.js"></script>
+    <script src="scripts/mazes.js"></script>
+    <script src="scripts/cdn-files.js"></script>
+    <script src="scripts/game.js"></script>
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    </script>
+    
+</body>
+</html>
+
+<!-- /u/danchurch950/ -->
+
