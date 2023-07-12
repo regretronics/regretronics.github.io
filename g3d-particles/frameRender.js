@@ -189,11 +189,11 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 	let x, xf, lenInv;
 	for(x = 0; x < ch; x++) {
 		xf = clientFoVH * (2.0 * (x + 0.5) * chInv - 1.0);
-		lenInv = 1.0 / Math.sqrt(1.0 + xf * xf);
 		rayDirsCol[4 * x    ] = 0.0;
 		rayDirsCol[4 * x + 1] = xf;
 		rayDirsCol[4 * x + 2] = 1.0;
-
+		
+		lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
 		rowNormals[4 * x    ] = 0.0;
 		rowNormals[4 * x + 1] = -1.0 * lenInv;
 		rowNormals[4 * x + 2] = xf * lenInv;
@@ -203,11 +203,11 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 	colNormals = new Float32Array(cw * 4);
 	for(x = 0; x < cw; x++) {
 		xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
-		lenInv = 1.0 / Math.sqrt(1.0 + xf * xf);
 		rayDirsRow[4 * x    ] = xf;
 		rayDirsRow[4 * x + 1] = 0.0;
 		rayDirsRow[4 * x + 2] = 0.0;
-
+		
+		lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
 		colNormals[4 * x    ] = -1.0 * lenInv;
 		colNormals[4 * x + 1] = 0.0;
 		colNormals[4 * x + 2] = xf * lenInv;
@@ -265,7 +265,7 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 					const rayDir = [rayDirsRow[4 * x], rayDirsCol[4 * y + 1], rayDirsCol[4 * y + 2]];
 					const rayDirFactor = 1.0 / Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * rayDir[2]);
 					const z = rayDirFactor * (rayDir[0] * pos[0] + rayDir[1] * pos[1] + rayDir[2] * pos[2]);
-					particlesInRay.push({i: p, z: z - rem2, st: true});
+					particlesInRay.push({i: p, z: z - rem2, st: true}); //st = start of sphere
 					particlesInRay.push({i: p, z: z + rem2, st: false});
 				}
 			}
@@ -317,7 +317,7 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 						localEm1 = 0.0;
 						localEm2 = 0.0;
 					}
-					//Render ray segment into fragment (alpha blend)
+					//Render ray segment into fragment (order-sensitive alpha blend)
 					const factor = opacityFactor * (z2 - z);
 					const segAlpha0 = Math.exp(factor * localAlpha0);
 					const segAlpha1 = Math.exp(factor * localAlpha1);
@@ -333,12 +333,15 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 			}
 
 			//particlesInRays.push(particlesInRay);
-			if(alpha0 === 1.0) em0 = 0.0; else em0 /= (1.0 - alpha0);
+			/* if(alpha0 === 1.0) em0 = 0.0; else em0 /= (1.0 - alpha0);
 			if(alpha1 === 1.0) em1 = 0.0; else em1 /= (1.0 - alpha1);
-			if(alpha2 === 1.0) em2 = 0.0; else em2 /= (1.0 - alpha2);
+			if(alpha2 === 1.0) em2 = 0.0; else em2 /= (1.0 - alpha2); */
 			/* if(alpha0 !== 1.0) em0 /= (1.0 - alpha0);
 			if(alpha1 !== 1.0) em1 /= (1.0 - alpha1);
 			if(alpha2 !== 1.0) em2 /= (1.0 - alpha2); */
+			/* em0 += 0.0 * alpha0;
+			em1 += 0.0 * alpha1;
+			em2 += 0.0 * alpha2; */
 			const pPixel = 4 * (y * cw + x);
 			imgArr[pPixel    ] = em0;
 			imgArr[pPixel + 1] = em1;

@@ -22,8 +22,8 @@ function initParticles() {
 	};
 }
 function initParticles_random() {
-	const particleCount = 256;
-	//const particleCount = 1024;
+	//const particleCount = 256;
+	const particleCount = 1024;
 	//const particleCount = 4096;
 	//const particleCount = 16384;
 	//const particleCount = 65536;
@@ -53,10 +53,9 @@ function initParticles_random() {
 
 const particlesZSorted = [];
 function alignParticles() {
-	particlesZSorted.length = 0;
+	particlesZSorted.length = 0; //Clear array
 	if(!partPosLocal) partPosLocal = new Float32Array(4 * particles.count);
 	for(let i = 0; i < particles.count; i++) {
-		//const r = particles.r[i];
 		//const pos = particles.pos.subarray(4 * i, 4 * i + 3);
 		const pos = [particles.pos[4 * i] - clientPos[0], particles.pos[4 * i + 1] - clientPos[1], particles.pos[4 * i + 2] - clientPos[2]];
 		const posAligned = vectorTransform_3(clientSpcTransfInv, pos);
