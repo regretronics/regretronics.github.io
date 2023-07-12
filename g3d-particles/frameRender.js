@@ -16,12 +16,6 @@ var worldSize = 64;
 var worldRes = new Int32Array(
 //var worldRes = new Float32Array(
 	[worldSize, worldSize, worldSize]);
-//var fieldMap;
-
-const mazeSize = new Int32Array(
-	[16, 16, 16]);
-const mazeFillThres = new Float32Array( //maze voxel fill probability by sum of odnesses
-	[15.0 / 16.0, 11.0 / 16.0, 5.0 / 16.0, 1.0 / 16.0]);
 
 //--
 //virtual vectorial client context
@@ -233,10 +227,6 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 //var frameMaxLayers = 16;
 //const rayTranspThreshold = 1.0 / 96.0;
 const rayTranspThreshold = 1.0 / 128.0;
-
-//var texState;
-//var texRayAlive, texCrossingPoints, texAccumBufferEmission, texAccumBufferTransp;
-//var isBufferSecond = false, texBuffer0, texBuffer1;
 
 function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 	/* let timeoutEnabled = (typeof(timeout) === "number"), tStart;

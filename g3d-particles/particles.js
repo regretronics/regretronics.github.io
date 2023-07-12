@@ -51,27 +51,7 @@ function initParticles_random() {
 	partPosLocal = new Float32Array(4 * particles.count);
 }
 
-//const partBoundsNear = [], partBoundsFar = [];
-//var partBoundsNear = [], partBoundsFar = [];
-/* function alignParticles() {
-	partBoundsNear.length = 0;
-	partBoundsFar.length = 0;
-	if(!partPosLocal) partPosLocal = new Float32Array(4 * particles.count);
-	for(let i = 0; i < particles.count; i++) {
-		const r = particles.r[i];
-		//const pos = particles.pos.subarray(4 * i, 4 * i + 3);
-		const pos = [particles.pos[4 * i] - clientPos[0], particles.pos[4 * i + 1] - clientPos[1], particles.pos[4 * i + 2] - clientPos[2]];
-		partPosLocal.set(pos, 4 * i);
-		const dist = Math.hypot(pos[0], pos[1], pos[2]);
-		partBoundsNear.push({i: i, d: dist - r});
-		partBoundsFar.push({i: i, d: dist + r});
-	}
-	const sorter = (a, b) => (a.d - b.d);
-	partBoundsNear.sort(sorter);
-	partBoundsFar.sort(sorter);
-} */
 const particlesZSorted = [];
-//var particlesZSortedArr/* , texParticles */;
 function alignParticles() {
 	particlesZSorted.length = 0;
 	if(!partPosLocal) partPosLocal = new Float32Array(4 * particles.count);
@@ -87,8 +67,4 @@ function alignParticles() {
 			particlesZSorted.push({i: i, z: dist});
 	}
 	particlesZSorted.sort((a, b) => (a.z - b.z));
-	/* particlesZSortedArr = new Int32Array(particlesZSorted.length);
-	for(let i = 0; i < particlesZSorted.length; i++) {
-		particlesZSortedArr[i] = particlesZSorted[i].i;
-	} */
 }
