@@ -132,11 +132,6 @@ function canvasSizeChange(newCW, newCH) {
 	//From registerKernels
 	/* generalKernels.rayDirs2d.setOutput([cw, ch]);
 	generalKernels.rayDirsSigns.setOutput([cw, ch]); */
-	/* generalKernels.resetRayAlive.setOutput([cw, ch]);
-	generalKernels.resetRayCrossingPoints.setOutput([cw, ch]);
-	generalKernels.resetAccumBufferEmission.setOutput([cw, ch]);
-	generalKernels.resetAccumBufferTransp.setOutput([cw, ch]);
-	generalKernels.renderAccum.setOutput([cw, ch]); */
 
 	//rcKernelsSetDimensions(rcKernels0);
 	//rcKernelsSetDimensions(rcKernels1);
@@ -146,13 +141,7 @@ function canvasSizeChange(newCW, newCH) {
 	//texBuffer1 = {};
 
 	//force-compile
-	//frameRenderRaycasting(ch, cw, 0);
-	//frameRenderRaycasting(ch, cw, 0);
-	//frameRenderRaycasting_kernelMap(0);
-	//frameRenderRaycasting_kernelMap(0);
-	frameRenderRaycasting_mono(1);
-	/* frameRenderRaycasting_combinedKernel(0);
-	frameRenderRaycasting_combinedKernel(0); */
+	frameRenderRaycasting(1);
 
 	mainCanvas.height = ch;
 	mainCanvas.width = cw;
@@ -249,7 +238,7 @@ const rayTranspThreshold = 1.0 / 128.0;
 //var texRayAlive, texCrossingPoints, texAccumBufferEmission, texAccumBufferTransp;
 //var isBufferSecond = false, texBuffer0, texBuffer1;
 
-function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) {
+function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 	/* let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now(); */
 	
@@ -264,7 +253,7 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) 
 			const p = particlesZSorted[j].i;
 			const rowNormal = [rowNormals[4 * y], rowNormals[4 * y + 1], rowNormals[4 * y + 2]];
 			const d = Math.abs(partPosLocal[4 * p] * rowNormal[0] + partPosLocal[4 * p + 1] * rowNormal[1] + partPosLocal[4 * p + 2] * rowNormal[2]);
-			const r = particles.r[p];
+			const r = particles.r[p]; //Particle -> ball
 			if(d < r)
 				particlesInRow.push({i: p, rem: r * r - d * d}); //Remainder = other catheti squared
 		}
@@ -298,75 +287,60 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) 
 
 			const localParticleSet = new Set();
 			let j = 0, z = 0.0, z2 = 0.0;
-			//if(particlesInRay.length > 0) {
-				//localParticleSet.add(particlesInRay[0].i); //?
-				//if(particlesInRay[j].z > z) //{
-					//z = particlesInRay[j].z;
-
-				while(j < particlesInRay.length) {
-					for(; j < particlesInRay.length; j++) {
-						const elem = particlesInRay[j];
-						z2 = elem.z;
-						if(z2 > z) break;
-						if(elem.st)
-							localParticleSet.add(elem.i);
-						else
-							localParticleSet.delete(elem.i);
-					}
-					if(z2 > z) {
-						let localEm0 = 0.0, localEm1 = 0.0, localEm2 = 0.0;
-						let localAlpha0 = 0.0, localAlpha1 = 0.0, localAlpha2 = 0.0;
-						if(localParticleSet.size > 0) {
-							//Accumulate (sum) colors of particles present in the segment
-							for(const part of localParticleSet) {
-								const segAlpha0 = particles.alpha[4 * part    ];
-								const segAlpha1 = particles.alpha[4 * part + 1];
-								const segAlpha2 = particles.alpha[4 * part + 2];
-								localEm0 += particles.emission[4 * part    ] * segAlpha0;
-								localEm1 += particles.emission[4 * part + 1] * segAlpha1;
-								localEm2 += particles.emission[4 * part + 2] * segAlpha2;
-								localAlpha0 += segAlpha0;
-								localAlpha1 += segAlpha1;
-								localAlpha2 += segAlpha2;
-							}
-							localEm0 /= localAlpha0;
-							localEm1 /= localAlpha1;
-							localEm2 /= localAlpha2;
-							/* localEm0 = 1.0 / 4.0;
-							localAlpha0 = 1.0; */
-						} else {
-							//Fog
-							localAlpha0 = 0.0625;
-							localAlpha1 = 0.0625;
-							localAlpha2 = 0.0625;
-							localEm0 = 0.0;
-							localEm1 = 0.0;
-							localEm2 = 0.0;
-						}
-						//Render ray segment into fragment (alpha blend)
-						const factor = opacityFactor * (z2 - z);
-						const segAlpha0 = Math.exp(factor * localAlpha0);
-						const segAlpha1 = Math.exp(factor * localAlpha1);
-						const segAlpha2 = Math.exp(factor * localAlpha2);
-						em0 += alpha0 * localEm0 * (1.0 - segAlpha0);
-						em1 += alpha1 * localEm1 * (1.0 - segAlpha1);
-						em2 += alpha2 * localEm2 * (1.0 - segAlpha2);
-						/* em0 += localEm0 * (1.0 - segAlpha0);
-						em1 += localEm1 * (1.0 - segAlpha1);
-						em2 += localEm2 * (1.0 - segAlpha2); */
-						/* em0 += localEm0 * Math.exp(factor) / 1.0;
-						em1 += localEm1 * Math.exp(factor) / 1.0;
-						em2 += localEm2 * Math.exp(factor) / 1.0; */
-						/* em0 += alpha0 * localEm0;
-						em1 += alpha1 * localEm1;
-						em2 += alpha2 * localEm2; */
-						alpha0 *= segAlpha0;
-						alpha1 *= segAlpha1;
-						alpha2 *= segAlpha2;
-					}
-					z = z2;
+			while(j < particlesInRay.length) {
+				for(; j < particlesInRay.length; j++) {
+					const elem = particlesInRay[j];
+					z2 = elem.z;
+					if(z2 > z) break;
+					if(elem.st)
+						localParticleSet.add(elem.i);
+					else
+						localParticleSet.delete(elem.i);
 				}
-			//}
+				if(z2 > z) {
+					let localEm0 = 0.0, localEm1 = 0.0, localEm2 = 0.0;
+					let localAlpha0 = 0.0, localAlpha1 = 0.0, localAlpha2 = 0.0;
+					if(localParticleSet.size > 0) {
+						//Accumulate (sum) colors of particles present in the segment
+						for(const part of localParticleSet) {
+							const segAlpha0 = particles.alpha[4 * part    ];
+							const segAlpha1 = particles.alpha[4 * part + 1];
+							const segAlpha2 = particles.alpha[4 * part + 2];
+							localEm0 += particles.emission[4 * part    ] * segAlpha0;
+							localEm1 += particles.emission[4 * part + 1] * segAlpha1;
+							localEm2 += particles.emission[4 * part + 2] * segAlpha2;
+							localAlpha0 += segAlpha0;
+							localAlpha1 += segAlpha1;
+							localAlpha2 += segAlpha2;
+						}
+						localEm0 /= localAlpha0;
+						localEm1 /= localAlpha1;
+						localEm2 /= localAlpha2;
+						/* localEm0 = 1.0 / 4.0;
+						localAlpha0 = 1.0; */
+					} else {
+						//Fog
+						localAlpha0 = 0.0625;
+						localAlpha1 = 0.0625;
+						localAlpha2 = 0.0625;
+						localEm0 = 0.0;
+						localEm1 = 0.0;
+						localEm2 = 0.0;
+					}
+					//Render ray segment into fragment (alpha blend)
+					const factor = opacityFactor * (z2 - z);
+					const segAlpha0 = Math.exp(factor * localAlpha0);
+					const segAlpha1 = Math.exp(factor * localAlpha1);
+					const segAlpha2 = Math.exp(factor * localAlpha2);
+					em0 += alpha0 * localEm0 * (1.0 - segAlpha0);
+					em1 += alpha1 * localEm1 * (1.0 - segAlpha1);
+					em2 += alpha2 * localEm2 * (1.0 - segAlpha2);
+					alpha0 *= segAlpha0;
+					alpha1 *= segAlpha1;
+					alpha2 *= segAlpha2;
+				}
+				z = z2;
+			}
 
 			//particlesInRays.push(particlesInRay);
 			if(alpha0 === 1.0) em0 = 0.0; else em0 /= (1.0 - alpha0);
@@ -384,7 +358,6 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) 
 			imgArr[pPixel + 2] = alpha2; */
 		}
 		//texParticles = gpu.input(particlesZSortedArr, [particlesZSortedArr.length]); //to do: check case
-		//rcKernels0.rayCasterRow(i, layerCount, normalsCol, normalsRow, partPosLocal, texParticles, texParticles.length, particles.r, particles.emission, particles.alpha);
 	}
 	generalKernels.drawPixels(imgArr, cw, ch);
 }

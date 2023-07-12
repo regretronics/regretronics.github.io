@@ -29,7 +29,7 @@ function canvasSizeCheck() {
 	newCH |= 0;
 	newCW |= 0;
 	if(newCH <= 0 || newCW <= 0) return false;
-	if(newCH === ch && newCW === cw) return false; 
+	if(newCH === ch && newCW === cw) return false;
 
 	canvasSizeChange(newCW, newCH);
 	canvasScaleChanged();
@@ -59,7 +59,7 @@ function viewUpdate() {
 	
 	/* let */ layerCount = txtMarchingLayers.valueAsNumber;
 	alignParticles();
-	frameRenderRaycasting_mono(layerCount);
+	frameRenderRaycasting(layerCount);
 	
 	if(dynLastTime != undefined) {
 		let tFrame = tNow - dynLastTime;
