@@ -50,20 +50,3 @@ function initParticles_random() {
 	}
 	partPosLocal = new Float32Array(4 * particles.count);
 }
-
-const particlesZSorted = [];
-function alignParticles() {
-	particlesZSorted.length = 0; //Clear array
-	if(!partPosLocal) partPosLocal = new Float32Array(4 * particles.count);
-	for(let i = 0; i < particles.count; i++) {
-		//const pos = particles.pos.subarray(4 * i, 4 * i + 3);
-		const pos = [particles.pos[4 * i] - clientPos[0], particles.pos[4 * i + 1] - clientPos[1], particles.pos[4 * i + 2] - clientPos[2]];
-		const posAligned = vectorTransform_3(clientSpcTransfInv, pos);
-		partPosLocal.set(posAligned, 4 * i);
-		//const dist = Math.hypot(posAligned[0], posAligned[1], posAligned[2]);
-		const dist = posAligned[2];
-		if(dist > -particles.r[i])
-			particlesZSorted.push({i: i, z: dist});
-	}
-	particlesZSorted.sort((a, b) => (a.z - b.z));
-}

@@ -46,64 +46,106 @@ function registerKernels() { //to do: Delete?
 }
 function registerGeneralKernels(gpu) {
 	let newKernels = {};
-	newKernels.rayDirs2d = gpu.createKernel(function(rayDirsCol, rayDirsRow) {
-		let ray = [
-			rayDirsCol[4 * this.thread.y + 0] + rayDirsRow[4 * this.thread.x + 0],
-			rayDirsCol[4 * this.thread.y + 1] + rayDirsRow[4 * this.thread.x + 1],
-			rayDirsCol[4 * this.thread.y + 2] + rayDirsRow[4 * this.thread.x + 2],
-			0.0];
-		ray[3] = this.constants.opacityFactor * Math.sqrt(ray[0] * ray[0] + ray[1] * ray[1] + ray[2] * ray[2]);
-		return ray;
-	}, {
-		constants: { opacityFactor: opacityFactor },
-		returnType: 'Array(4)',
-		output: [cw, ch],
-		//immutable: true,
-		dynamicOutput: true,
-		dynamicArguments: true,
-		pipeline: true
-	});
-	newKernels.rayDirsSigns = gpu.createKernel(function(rayDirs) {
-		let ray = rayDirs[this.thread.y][this.thread.x];
-		return [Math.sign(ray[0]), Math.sign(ray[1]), Math.sign(ray[2]), 0.0];
-	}, {
-		returnType: 'Array(4)',
-		output: [cw, ch],
-		//immutable: true,
-		dynamicOutput: true,
-		dynamicArguments: true,
-		pipeline: true
-	});
 
-	/* newKernels.renderAccum = gpu.createKernel(function(accumBufferEmission, accumBufferTransp) {
-		let accumEmission = accumBufferEmission[this.thread.y][this.thread.x];
-		//let color = accumEmission;
+	newKernels.rayCastRow = gpu.createKernel(function(alphaArr, emissionArr, stopCount, indexes, depths, extremes, arrDepth, cw) {
+		//Render particles by segment sections as they cross the ray
+		let em = [0.0, 0.0, 0.0, 0.0];
+		let alpha = [1.0, 1.0, 1.0/* , 1.0 */];
 
-		let color = [0.5, 0.5, 0.5];
-		//let color = [0.5, 0.5, 0.5, 0.0];
-		let accumTransp = accumBufferTransp[this.thread.y][this.thread.x];
-		let alphaNew = [1.0 - accumTransp[0], 1.0 - accumTransp[1], 1.0 - accumTransp[2]];
-		if(alphaNew[0] > 0) color[0] = accumEmission[0] / alphaNew[0];
-		if(alphaNew[1] > 0) color[1] = accumEmission[1] / alphaNew[1];
-		if(alphaNew[2] > 0) color[2] = accumEmission[2] / alphaNew[2];
+		let chordEm = [0.0, 0.0, 0.0/* , 0.0 */];
+		let chordAlpha = [0.0, 0.0, 0.0/* , 0.0 */];
 
-		this.color(color[0], color[1], color[2]);
-	}, {
-		argumentTypes: {accumBufferEmission: "Array(4)", accumBufferTransp: "Array(4)"},
-		//argumentTypes: {accumBufferEmission: "TextureArray(4)", accumBufferTransp: "TextureArray(4)"},
-		output: [cw, ch],
-		immutable: true,
-		//dynamicOutput: true,
-		//dynamicArguments: true,
-		graphical: true
-		//to do: precision
-	}); */
-	newKernels.drawPixels = gpu.createKernel(function(buf, cw, ch) {
-		const pPixel = 4 * (this.thread.y * cw + this.thread.x);
-		this.color(buf[pPixel], buf[pPixel + 1], buf[pPixel + 2]);
+		let j = 0, z = 0.0, z2 = 0.0;
+		let crossingParticles = 0;
+		const pPixel = this.thread.y * cw + this.thread.x;
+		const pPixel2 = pPixel * arrDepth;
+		while(j < stopCount[pPixel] && j < arrDepth) {
+			for(; j < stopCount[pPixel] && j < arrDepth; j++) {
+				//z2 = depths[pPixel][j];
+				z2 = depths[pPixel2 + j];
+				if(z2 > z) break;
+
+				//const i = 4 * indexes[pPixel][j];
+				const i = 4 * indexes[pPixel2 + j];
+				const partAlpha = [alphaArr[i], alphaArr[i + 1], alphaArr[i + 2]/* , 0.0 */];
+				//if(extremes[pPixel][j] > 0) { //Accumulate (sum) colors of particles present in the segment
+				if(extremes[pPixel2 + j] > 0) { //Accumulate (sum) colors of particles present in the segment
+					chordAlpha[0] += partAlpha[0];
+					chordAlpha[1] += partAlpha[1];
+					chordAlpha[2] += partAlpha[2];
+					chordEm[0] += partAlpha[0] * emissionArr[i];
+					chordEm[1] += partAlpha[1] * emissionArr[i + 1];
+					chordEm[2] += partAlpha[2] * emissionArr[i + 2];
+					crossingParticles++;
+				} else {
+					chordAlpha[0] -= partAlpha[0];
+					chordAlpha[1] -= partAlpha[1];
+					chordAlpha[2] -= partAlpha[2];
+					chordEm[0] -= partAlpha[0] * emissionArr[i];
+					chordEm[1] -= partAlpha[1] * emissionArr[i + 1];
+					chordEm[2] -= partAlpha[2] * emissionArr[i + 2];
+					crossingParticles--;
+				}
+			}
+			if(z2 > z) {
+				let localEm = [0.0, 0.0, 0.0/* , 0.0 */];
+				//let localAlpha = [0.0, 0.0, 0.0/* , 0.0 */];
+				let localAlpha = chordAlpha;
+				if(crossingParticles == 0) {
+					//Empty -> fog
+					//localEm = [0.0, 0.0, 0.0/* , 0.0 */];
+					localAlpha = [0.0625, 0.0625, 0.0625/* , 0.0 */];
+				} else {
+					//localAlpha = chordAlpha;
+					localEm[0] = chordEm[0] / localAlpha[0];
+					localEm[1] = chordEm[1] / localAlpha[1];
+					localEm[2] = chordEm[2] / localAlpha[2];
+				}
+
+				//Render ray segment into fragment (order-sensitive alpha blend)
+				const factor = this.constants.opacityFactor * (z2 - z);
+				/* const segAlpha0 = Math.exp(factor * localAlpha[0]);
+				const segAlpha1 = Math.exp(factor * localAlpha[1]);
+				const segAlpha2 = Math.exp(factor * localAlpha[2]); */
+				const segAlpha = [Math.exp(factor * localAlpha[0]),
+					Math.exp(factor * localAlpha[1]),
+					Math.exp(factor * localAlpha[2])];
+				em[0] += alpha[0] * localEm[0] * (1.0 - segAlpha[0]);
+				em[1] += alpha[1] * localEm[1] * (1.0 - segAlpha[1]);
+				em[2] += alpha[2] * localEm[2] * (1.0 - segAlpha[2]);
+				alpha[0] *= segAlpha[0];
+				alpha[1] *= segAlpha[1];
+				alpha[2] *= segAlpha[2];
+				if(alpha[0] < this.constants.rayTranspThreshold && alpha[1] < this.constants.rayTranspThreshold && alpha[2] < this.constants.rayTranspThreshold) break;
+			}
+			z = z2;
+		}
+		//return em;
+		//return [0.0, 0.5, 1.0, 0.0];
+		this.color(em[0], em[1], em[2]);
 	}, {
 		//argumentTypes: {accumBufferEmission: "Array(4)", accumBufferTransp: "Array(4)"},
 		//argumentTypes: {accumBufferEmission: "TextureArray(4)", accumBufferTransp: "TextureArray(4)"},
+		constants: {opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold},
+		output: [cw, ch],
+		//optimizeFloatMemory: true,
+		//immutable: true,
+		//pipeline: true,
+		//dynamicOutput: true,
+		dynamicArguments: true,
+		graphical: true
+		//to do: precision
+	});
+
+	newKernels.drawPixels = gpu.createKernel(function(buf, cw, ch) {
+		/* let arr = [[0.0, 0.0, 0.0, 0.0],
+			[0.0, 0.0, 0.0, 0.0],
+			[0.0, 0.0, 0.0, 0.0],
+			[0.0, 0.0, 0.0, 0.0]]; */
+		const pPixel = 4 * (this.thread.y * cw + this.thread.x);
+		this.color(buf[pPixel], buf[pPixel + 1], buf[pPixel + 2]);
+	}, {
+		argumentTypes: {buf: "Array", cw: "Integer", ch: "Integer"},
 		output: [cw, ch],
 		immutable: true,
 		//dynamicOutput: true,
@@ -192,11 +234,12 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirsCol[4 * x    ] = 0.0;
 		rayDirsCol[4 * x + 1] = xf;
 		rayDirsCol[4 * x + 2] = 1.0;
+		rayDirsCol[4 * x + 3] = 1.0 + xf * xf; //Partial sum of squares
 		
-		lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
+		//lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
 		rowNormals[4 * x    ] = 0.0;
-		rowNormals[4 * x + 1] = -1.0 * lenInv;
-		rowNormals[4 * x + 2] = xf * lenInv;
+		rowNormals[4 * x + 1] = -1.0 /* * lenInv */;
+		rowNormals[4 * x + 2] = xf /* * lenInv */;
 	}
 	
 	rayDirsRow = new Float32Array(cw * 4);
@@ -206,15 +249,15 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirsRow[4 * x    ] = xf;
 		rayDirsRow[4 * x + 1] = 0.0;
 		rayDirsRow[4 * x + 2] = 0.0;
+		rayDirsRow[4 * x + 3] = xf * xf; //Partial sum of squares
 		
-		lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
-		colNormals[4 * x    ] = -1.0 * lenInv;
+		//lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
+		colNormals[4 * x    ] = -1.0 /* * lenInv */;
 		colNormals[4 * x + 1] = 0.0;
-		colNormals[4 * x + 2] = xf * lenInv;
+		colNormals[4 * x + 2] = xf /* * lenInv */;
 	}
 
 	//texRayDirs = generalKernels.rayDirs2d(rayDirsCol, rayDirsRow);
-	//texRayDirsSign = generalKernels.rayDirsSigns(texRayDirs);
 	//texNormalsCol = gpu.input(normalsCol, [normalsCol.length]); //to do: check case
 	//texNormalsRow = gpu.input(normalsRow, [normalsRow.length]); //to do: check case
 }
@@ -232,10 +275,29 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 	/* let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now(); */
 	
+	const particlesZSorted = [];
+	//particlesZSorted.length = 0; //Clear array
+	if(!partPosLocal) partPosLocal = new Float32Array(4 * particles.count);
+	for(let i = 0; i < particles.count; i++) {
+		//const pos = particles.pos.subarray(4 * i, 4 * i + 3);
+		const pos = [particles.pos[4 * i] - clientPos[0], particles.pos[4 * i + 1] - clientPos[1], particles.pos[4 * i + 2] - clientPos[2]];
+		const posAligned = vectorTransform_3(clientSpcTransfInv, pos);
+		partPosLocal.set(posAligned, 4 * i);
+		//const dist = Math.hypot(posAligned[0], posAligned[1], posAligned[2]);
+		const dist = posAligned[2];
+		if(dist > -particles.r[i]) //Particles in front of viewer, perhaps partially
+			particlesZSorted.push({i: i, z: dist});
+	}
+	particlesZSorted.sort((a, b) => (a.z - b.z));
+
 	//to do: use gpu.input
 	//const imgData = new ImageData(cw, ch);
 	//const imgArr = imgData.data;
-	const imgArr = new Float32Array(4 * cw * ch);
+	//const imgArr = new Float32Array(4 * cw * ch);
+	//const frameRows = [];
+	const stopCount = new Int32Array(cw * ch);
+	const indexes = [], depths = [], extremes = [];
+	let maxStopCount = 0;
 	for(let y = 0; y < ch; y++) {
 		//Filter particles that cross a row
 		const particlesInRow = [];
@@ -247,8 +309,13 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 			if(d < r)
 				particlesInRow.push({i: p, rem: r * r - d * d}); //Remainder = other catheti squared
 		}
+		//console.debug(`frameRenderRaycasting, row ${y}: ${particlesInRow.length} particles`);
 
 		//const particlesInRays = [];
+		//const rowStopCount = [];
+		//const rowStopCount = new Float32Array(cw);
+		//const rowIndexes = [], rowDepths = [], rowExtremes = [];
+		//let maxStopCount = 0;
 		for(let x = 0; x < cw; x++) {
 			//Further filter to particles that cross a column
 			const particlesInRay = [];
@@ -263,21 +330,45 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 					const rem2 = Math.sqrt(d2);
 					//const rayDir = [rayDirsCol[4 * y] + rayDirsRow[4 * x], rayDirsCol[4 * y + 1] + rayDirsRow[4 * x + 1], rayDirsCol[4 * y + 2] + rayDirsRow[4 * x + 2]];
 					const rayDir = [rayDirsRow[4 * x], rayDirsCol[4 * y + 1], rayDirsCol[4 * y + 2]];
-					const rayDirFactor = 1.0 / Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * rayDir[2]);
+					//const rayDirFactor = 1.0 / Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * rayDir[2]);
+					const rayDirFactor = 1.0 / Math.sqrt(rayDirsRow[4 * x + 3] + rayDirsCol[4 * y + 3]);
 					const z = rayDirFactor * (rayDir[0] * pos[0] + rayDir[1] * pos[1] + rayDir[2] * pos[2]);
 					particlesInRay.push({i: p, z: z - rem2, st: true}); //st = start of sphere
 					particlesInRay.push({i: p, z: z + rem2, st: false});
 				}
 			}
 			particlesInRay.sort((a, b) => (a.z - b.z));
+			/* const rayIndexes = [], rayDepths = [], rayExtremes = [];
+			for(const part of particlesInRay) { //to do: try map()
+				rayIndexes.push(part.i);
+				rayDepths.push(part.z);
+				rayExtremes.push(part.st);
+			} */
+			const rayIndexes = particlesInRay.map(p => p.i), rayDepths = particlesInRay.map(p => p.z), rayExtremes = particlesInRay.map(p => p.st);
+			/* rayIndexes.length = 32;
+			rayDepths.length = 32;
+			rayExtremes.length = 32; */
+			/* const rayIndexes = new Uint32Array(2 * particlesInRow.length), rayDepths = new Float32Array(2 * particlesInRow.length), rayExtremes = new Uint32Array(2 * particlesInRow.length);
+			for(const i in particlesInRay) {
+				rayIndexes[i] = particlesInRay[i].i;
+				rayDepths[i] = particlesInRay[i].z;
+				rayExtremes[i] = particlesInRay[i].st;
+			} */
+			maxStopCount = Math.max(maxStopCount, particlesInRay.length);
+			//rowStopCount.push(particlesInRay.length);
+			//stopCount[x] = particlesInRay.length;
+			stopCount[y * cw + x] = particlesInRay.length;
+			indexes.push(rayIndexes);
+			depths.push(rayDepths);
+			extremes.push(rayExtremes);
 			
-			//Render particles by segment sections as they cross the ray
+			/* //Render particles by segment sections as they cross the ray
 			let em0 = 0.0, em1 = 0.0, em2 = 0.0;
 			let alpha0 = 1.0, alpha1 = 1.0, alpha2 = 1.0;
 
 			const localParticleSet = new Set();
-			let j = 0, z = 0.0, z2 = 0.0;
-			while(j < particlesInRay.length) {
+			let j = 0, z = 0.0, z2 = 0.0; */
+			/* while(j < particlesInRay.length) {
 				for(; j < particlesInRay.length; j++) {
 					const elem = particlesInRay[j];
 					z2 = elem.z;
@@ -292,13 +383,14 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 					let localAlpha0 = 0.0, localAlpha1 = 0.0, localAlpha2 = 0.0;
 					if(localParticleSet.size > 0) {
 						//Accumulate (sum) colors of particles present in the segment
-						for(const part of localParticleSet) {
-							const segAlpha0 = particles.alpha[4 * part    ];
-							const segAlpha1 = particles.alpha[4 * part + 1];
-							const segAlpha2 = particles.alpha[4 * part + 2];
-							localEm0 += particles.emission[4 * part    ] * segAlpha0;
-							localEm1 += particles.emission[4 * part + 1] * segAlpha1;
-							localEm2 += particles.emission[4 * part + 2] * segAlpha2;
+						for(const i of localParticleSet) {
+							const pPart = 4 * i;
+							const segAlpha0 = particles.alpha[pPart    ];
+							const segAlpha1 = particles.alpha[pPart + 1];
+							const segAlpha2 = particles.alpha[pPart + 2];
+							localEm0 += particles.emission[pPart    ] * segAlpha0;
+							localEm1 += particles.emission[pPart + 1] * segAlpha1;
+							localEm2 += particles.emission[pPart + 2] * segAlpha2;
 							localAlpha0 += segAlpha0;
 							localAlpha1 += segAlpha1;
 							localAlpha2 += segAlpha2;
@@ -306,8 +398,6 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 						localEm0 /= localAlpha0;
 						localEm1 /= localAlpha1;
 						localEm2 /= localAlpha2;
-						/* localEm0 = 1.0 / 4.0;
-						localAlpha0 = 1.0; */
 					} else {
 						//Fog
 						localAlpha0 = 0.0625;
@@ -328,9 +418,10 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 					alpha0 *= segAlpha0;
 					alpha1 *= segAlpha1;
 					alpha2 *= segAlpha2;
+					if(alpha0 < rayTranspThreshold && alpha1 < rayTranspThreshold && alpha2 < rayTranspThreshold) break;
 				}
 				z = z2;
-			}
+			} */
 
 			//particlesInRays.push(particlesInRay);
 			/* if(alpha0 === 1.0) em0 = 0.0; else em0 /= (1.0 - alpha0);
@@ -342,15 +433,53 @@ function frameRenderRaycasting(/* bufH, bufW, */ /* timeout */ layerCount) {
 			/* em0 += 0.0 * alpha0;
 			em1 += 0.0 * alpha1;
 			em2 += 0.0 * alpha2; */
-			const pPixel = 4 * (y * cw + x);
+			/* const pPixel = 4 * (y * cw + x);
 			imgArr[pPixel    ] = em0;
 			imgArr[pPixel + 1] = em1;
-			imgArr[pPixel + 2] = em2;
+			imgArr[pPixel + 2] = em2; */
 			/* imgArr[pPixel    ] = alpha0;
 			imgArr[pPixel + 1] = alpha1;
 			imgArr[pPixel + 2] = alpha2; */
 		}
 		//texParticles = gpu.input(particlesZSortedArr, [particlesZSortedArr.length]); //to do: check case
+		
+		/* maxStopCount = 16;
+		const rowIndexesArr = new Float32Array(cw * maxStopCount), rowDepthsArr = new Float32Array(cw * maxStopCount), rowExtremesArr = new Float32Array(cw * maxStopCount);
+		for(let x = 0; x < cw; x++) {
+			for(let i = 0; i < maxStopCount; i++) {
+				rowIndexesArr[x * maxStopCount + i] = rowIndexes[x][i] || 0;
+				rowDepthsArr[x * maxStopCount + i] = rowDepths[x][i] || 0;
+				rowExtremesArr[x * maxStopCount + i] = rowExtremes[x][i] || 0; */
+				/* rowIndexesArr[i * cw + x] = rowIndexes[x][i] || 0;
+				rowDepthsArr[i * cw + x] = rowDepths[x][i] || 0;
+				rowExtremesArr[i * cw + x] = rowExtremes[x][i] || 0; */
+			/* }
+		} */
+
+		//frameRows.push(generalKernels.rayCastRow(particles.alpha, particles.emission, rowStopCount, rowIndexes, rowDepths, rowExtremes));
+		//frameRows.push(generalKernels.rayCastRow(particles.alpha, particles.emission, rowStopCount, rowIndexesArr, rowDepthsArr, rowExtremesArr, maxStopCount));
+		/* frameRows.push(generalKernels.rayCastRow(particles.alpha, particles.emission,
+			rowStopCount,
+			GPUClass.input(rowIndexesArr, [maxStopCount, cw]),
+			GPUClass.input(rowDepthsArr, [maxStopCount, cw]),
+			GPUClass.input(rowExtremesArr, [maxStopCount, cw]), maxStopCount)); */
+		/* frameRows.push(generalKernels.rayCastRow(particles.alpha, particles.emission,
+			rowStopCount,
+			GPUClass.input(rowIndexesArr, [cw, maxStopCount]),
+			GPUClass.input(rowDepthsArr, [cw, maxStopCount]),
+			GPUClass.input(rowExtremesArr, [cw, maxStopCount]), maxStopCount)); */
 	}
-	generalKernels.drawPixels(imgArr, cw, ch);
+	//generalKernels.drawPixels(imgArr, cw, ch);
+	//generalKernels.drawPixels(frameRows, cw, ch);
+
+	console.debug(`frameRenderRaycasting, maxStopCount: ${maxStopCount}`);
+	//maxStopCount = 4;
+	maxStopCount = Math.max(4, maxStopCount);
+	const indexesArr = new Int32Array(cw * ch * maxStopCount), depthsArr = new Float32Array(cw * ch * maxStopCount), extremesArr = new Int32Array(cw * ch * maxStopCount);
+	for(let x = 0; x < cw * ch; x++) {
+		indexesArr.set(indexes[x], x * maxStopCount);
+		depthsArr.set(depths[x], x * maxStopCount);
+		extremesArr.set(extremes[x], x * maxStopCount);
+	}
+	generalKernels.rayCastRow(particles.alpha, particles.emission, stopCount, indexesArr, depthsArr, extremesArr, maxStopCount, cw);
 }

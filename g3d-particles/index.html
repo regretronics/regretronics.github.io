@@ -48,7 +48,7 @@
 	//to do: use defer="true" or async in any script tag?
 	//  idea: have a "reload script" button?
 	//I'm putting height before width, because x (columns) is subordinate to y (rows).
-	var ch, cw, gpu, mainCanvas;
+	var ch, cw, gpu, GPUClass, mainCanvas;
 	var canvasScale = 1;
 	var frameCount = 0, renderTimeSum = 0, /* segmentCount = 0 */layerCount = 0;
 	var firstTimeout = 0, updateCycleId = 0, animating = false;
@@ -103,7 +103,7 @@
 	];
 
 	function restartGPU() {
-		let GPUClass = GPU;
+		/* let */ GPUClass = GPU;
 		if(typeof(GPUClass) !== "function") GPUClass = GPUClass.GPU;
 		gpu = new GPUClass();
 		//Warning: CPU mode doesn't seem to be multithreaded.
