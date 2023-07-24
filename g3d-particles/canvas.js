@@ -58,8 +58,8 @@ function viewUpdate() {
 	if(dynLastTime == undefined) dynLastTime = tNow;
 	
 	/* let */ layerCount = txtMarchingLayers.valueAsNumber;
-	//alignParticles();
-	frameRenderRaycasting(layerCount);
+	//frameRenderRaycasting(layerCount);
+	frameRenderRaycasting2(layerCount);
 	
 	if(dynLastTime != undefined) {
 		let tFrame = tNow - dynLastTime;
