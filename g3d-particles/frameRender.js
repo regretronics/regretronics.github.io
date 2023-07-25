@@ -69,20 +69,27 @@ function registerGeneralKernels(gpu) {
 		//to do: precision
 	});
 
-	newKernels.partAlphaToGPU = gpu.createKernel(function(arr) {
+	newKernels.uploadArr4to3 = gpu.createKernel(function(arr) {
 		const p = 4 * this.thread.x;
 		return [arr[p], arr[p + 1], arr[p + 2]];
 	}, {
-		//constants: {opacityFactor: opacityFactor, rayTranspThreshold: rayTranspThreshold, cw: cw},
 		argumentTypes: {arr: "Array"},
 		returnType: 'Array(3)',
-		//output: [cw, ch, 4],
-		//optimizeFloatMemory: true,
 		immutable: true,
 		pipeline: true,
 		dynamicOutput: true,
-		dynamicArguments: true,
-		//to do: precision
+		dynamicArguments: true
+	});
+	newKernels.uploadArr4 = gpu.createKernel(function(arr) {
+		const p = 4 * this.thread.x;
+		return [arr[p], arr[p + 1], arr[p + 2], arr[p + 3]];
+	}, {
+		argumentTypes: {arr: "Array"},
+		returnType: 'Array(4)',
+		immutable: true,
+		pipeline: true,
+		dynamicOutput: true,
+		dynamicArguments: true
 	});
 
 	newKernels.getPartBounds = gpu.createKernel(function(partPosLocal, partR) {
@@ -245,6 +252,46 @@ function registerGeneralKernels(gpu) {
 		pipeline: true,
 		immutable: true
 	});
+	newKernels.sortBatcherOddEven2 = gpu.createKernel(function(stopList, stopEntryPoints, /* l, */ p, expL, expP, maxX) {
+		const x = this.thread.x;
+		//if(x >= maxX) return [0.0, 0.0, 0.0, 0.0];
+		const val0 = stopList[x], i = val0[3];
+		//return val0;
+		const p1 = stopEntryPoints[i];//, p2 = stopEntryPoints[i + 1];
+		const n = x - p1;//, size = p2 - p1;
+		let partner = n ^ (0.5 * expL);
+		if(p != 1) {
+			const sn = Math.floor(n * expP / expL) - Math.floor(n / expL) * expP;
+			if(sn == 0 || sn == expP - 1)
+				//partner = n;
+				return val0;
+			else {
+				const scale = expL / expP;
+				if(sn % 2 == 0) partner = n - scale; else partner = n + scale;
+			}
+		}
+		//if(partner >= size) return val0;
+		
+		const val1 = stopList[p1 + partner];
+		if(i != val1[3]) return val0;
+		
+		const c1 = (val0[1] < val1[1] ? 1 : 0);
+		const c2 = (n < partner ? 1 : 0);
+		const c3 = c1 ^ c2;
+		return (c3 == 0) ? val0 : val1;
+	}, {
+		//argumentTypes: {stopList: "Array(4)", stopEntryPoints: "Array", /* l: "Integer", */ p: "Float", expL: "Float", expP: "Float", maxX: "Float"},
+		argumentTypes: {stopList: "Array(4)", stopEntryPoints: "Array", /* l: "Integer", */ p: "Integer", expL: "Integer", expP: "Integer", maxX: "Integer"},
+		returnType: 'Array(4)',
+		//optimizeFloatMemory: true,
+		//output: [cw, ch, 8],
+		dynamicOutput: true,
+		dynamicArguments: true,
+		pipeline: true,
+		immutable: true
+		//precision: "single",
+		//tactic: "precision"
+	});
 
 	newKernels.rayCast3 = gpu.createKernel(function(partAlpha, partEmission, stopEntryPoints, stopBuf, cw) {
 		//Render particles by segment sections as they cross the ray
@@ -270,12 +317,13 @@ function registerGeneralKernels(gpu) {
 			for(; j < p2; j++) {
 				//const stop = stopList[j][this.thread.y][this.thread.x];
 				//const stop = stopBuf[3 * (p1 + j)];
-				const stop = [stopBuf[3 * j], stopBuf[3 * j + 1], stopBuf[3 * j + 2]];
+				//const stop = [stopBuf[4 * j], stopBuf[4 * j + 1], stopBuf[4 * j + 2]];
+				const stop = stopBuf[j];
 				//z2 = depths[pPixel][j];
 				z2 = stop[1];
 				//if(z2 > 1e20) break;
 				if(z2 > z) break;
-				if(stop[0] == -1) break;
+				//if(stop[0] == -1) break;
 
 				//const i = 4 * indices[pPixel][j];
 				//const i = 4 * stop[0];
@@ -289,46 +337,24 @@ function registerGeneralKernels(gpu) {
 				const partEmission1 = partEmission[i];
 				
 				//Accumulate (sum) colors of particles present in the segment
-				/* chordAlpha[0] += sign * partAlpha[0];
-				chordAlpha[1] += sign * partAlpha[1];
-				chordAlpha[2] += sign * partAlpha[2];
-				chordEm[0] += sign * partAlpha[0] * partEmission[i];
-				chordEm[1] += sign * partAlpha[1] * partEmission[i + 1];
-				chordEm[2] += sign * partAlpha[2] * partEmission[i + 2]; */
-				/* chordAlpha = [chordAlpha[0] + partAlpha2[0],
-					chordAlpha[1] + partAlpha2[1],
-					chordAlpha[2] + partAlpha2[2]];
-				chordEm = [chordEm[0] + partAlpha2[0] * partEmission1[0],
-					chordEm[1] + partAlpha2[1] * partEmission1[1],
-					chordEm[2] + partAlpha2[2] * partEmission1[2]]; */
-				//if(stop[2] >= 0) crossingParticles++; else crossingParticles--;
 				crossingParticles += sign;
 				//const partAlpha = [alphaArr[i], alphaArr[i + 1], alphaArr[i + 2]/* , 0.0 */];
-				//if(extremes[pPixel][j] > 0) { //Accumulate (sum) colors of particles present in the segment
-				if(sign > 0) {
-					/* chordAlpha[0] += partAlpha2[0];
-					chordAlpha[1] += partAlpha2[1];
-					chordAlpha[2] += partAlpha2[2];
-					chordEm[0] += partAlpha2[0] * partEmission1[0];
-					chordEm[1] += partAlpha2[1] * partEmission1[1];
-					chordEm[2] += partAlpha2[2] * partEmission1[2]; */
-					chordAlpha = [chordAlpha[0] + partAlpha2[0],
+				if(sign > 0) { //Accumulate (sum) colors of particles present in the segment
+					chordAlpha = [
+						chordAlpha[0] + partAlpha2[0],
 						chordAlpha[1] + partAlpha2[1],
 						chordAlpha[2] + partAlpha2[2]];
-					chordEm = [chordEm[0] + partAlpha2[0] * partEmission1[0],
+					chordEm = [
+						chordEm[0] + partAlpha2[0] * partEmission1[0],
 						chordEm[1] + partAlpha2[1] * partEmission1[1],
 						chordEm[2] + partAlpha2[2] * partEmission1[2]];
 				} else {
-					/* chordAlpha[0] += partAlpha2[0];
-					chordAlpha[1] += partAlpha2[1];
-					chordAlpha[2] += partAlpha2[2];
-					chordEm[0] += partAlpha2[0] * partEmission1[0];
-					chordEm[1] += partAlpha2[1] * partEmission1[1];
-					chordEm[2] += partAlpha2[2] * partEmission1[2]; */
-					chordAlpha = [chordAlpha[0] + partAlpha2[0],
+					chordAlpha = [
+						chordAlpha[0] + partAlpha2[0],
 						chordAlpha[1] + partAlpha2[1],
 						chordAlpha[2] + partAlpha2[2]];
-					chordEm = [chordEm[0] + partAlpha2[0] * partEmission1[0],
+					chordEm = [
+						chordEm[0] + partAlpha2[0] * partEmission1[0],
 						chordEm[1] + partAlpha2[1] * partEmission1[1],
 						chordEm[2] + partAlpha2[2] * partEmission1[2]];
 				}
@@ -351,10 +377,8 @@ function registerGeneralKernels(gpu) {
 
 				//Render ray segment into fragment (order-sensitive alpha blend)
 				const factor = this.constants.opacityFactor * (z2 - z);
-				/* const segAlpha0 = Math.exp(factor * localAlpha[0]);
-				const segAlpha1 = Math.exp(factor * localAlpha[1]);
-				const segAlpha2 = Math.exp(factor * localAlpha[2]); */
-				const segAlpha = [Math.exp(factor * localAlpha[0]),
+				const segAlpha = [
+					Math.exp(factor * localAlpha[0]),
 					Math.exp(factor * localAlpha[1]),
 					Math.exp(factor * localAlpha[2])];
 				em[0] += alpha[0] * localEm[0] * (1.0 - segAlpha[0]);
@@ -368,7 +392,6 @@ function registerGeneralKernels(gpu) {
 					&& alpha[2] < this.constants.rayTranspThreshold)
 					break;
 			}
-			//if(z2 > 1e20) break;
 			z = z2;
 		}
 		//return em;
@@ -678,6 +701,7 @@ function canvasSizeChange(newCW, newCH) {
 	//force-compile
 	//frameRenderRaycasting(1);
 	//frameRenderRaycasting2(1);
+	//frameRenderRaycasting3(1);
 
 	/* mainCanvas.height = ch;
 	mainCanvas.width = cw; */
@@ -1195,6 +1219,191 @@ function frameRenderRaycasting2(layerCount) {
 	//generalKernels.rayCast2(partAlphaGPU, partEmissionGPU, stopList, 2 * partByRowMax);
 	generalKernels.rayCast3(partAlphaGPU, partEmissionGPU, stopEntryPoints, stopBuf, cw);
 	//stopList.delete?.();
+
+	//generalKernels.drawPixels(/* null, */ cw, ch);
+}
+
+function frameRenderRaycasting3(layerCount) {
+	//generalKernels.alignParticles.setOutput([particles.count]);
+	//const alignedPos = generalKernels.alignParticles(particles.pos, clientPos, clientSpcTransfInv);
+	//const alignedPosArr = alignedPos.toArray();
+
+	//generalKernels.getPartBounds.setOutput([particles.count]);
+	//const partBounds = generalKernels.getPartBounds(alignedPos, particles.r); //Particle -> ball
+
+	const fovInv = 1.0 / clientFoVH, cwHalf = 0.5 * cw, chHalf = 0.5 * ch;
+	const partStopFrame = [];
+	partStopFrame.length = cw * ch;
+	for(let j = 0; j < cw * ch; j++) {
+		partStopFrame[j] = [];
+	}
+
+	for(let j = 0; j < particles.count; j++) {
+		const r = particles.r[j];
+		const posLocal = [particles.pos[4 * j] - clientPos[0], particles.pos[4 * j + 1] - clientPos[1], particles.pos[4 * j + 2] - clientPos[2]];
+		const pos = vectorTransform_3(clientSpcTransfInv, posLocal);
+
+		if(pos[2] <= -r) continue;
+	
+		const d2 = pos[2] * pos[2] - r * r;
+		const extremeLen = [Math.sqrt(pos[0] * pos[0] + d2), Math.sqrt(pos[1] * pos[1] + d2)];
+		const boundsFrame = [0, 0, cw, ch];
+		let bounds;
+		if(isNaN(extremeLen[0]) || isNaN(extremeLen[1]))
+			bounds = boundsFrame;
+		else {
+			const rx = pos[0] * r, ry = pos[1] * r, rz = pos[2] * r;
+			const aux1x = pos[0] * extremeLen[0], aux1y = pos[1] * extremeLen[1];
+			const aux2zx = pos[2] * extremeLen[0], aux2zy = pos[2] * extremeLen[1];
+			bounds =  [
+				(aux1x - rz) / (aux2zx + rx), (aux1y - rz) / (aux2zy + ry),
+				(aux1x + rz) / (aux2zx - rx), (aux1y + rz) / (aux2zy - ry)];
+			//let bounds = partBounds[j];
+			//let bounds = new Array(4);
+			if(isFinite(bounds[0]))
+				bounds[0] = Math.max(0, Math.floor(bounds[0] * chHalf * fovInv + cwHalf - 0.5));
+			else
+				bounds[0] = boundsFrame[0];
+			if(isFinite(bounds[1]))
+				bounds[1] = Math.max(0, Math.floor((bounds[1] * fovInv + 1.0) * chHalf - 0.5));
+			else
+				bounds[1] = boundsFrame[1];
+			if(isFinite(bounds[2]))
+				bounds[2] = Math.min(cw, Math.ceil(bounds[2] * chHalf * fovInv + cwHalf - 0.5));
+			else
+				bounds[2] = boundsFrame[2];
+			if(isFinite(bounds[3]))
+				bounds[3] = Math.min(ch, Math.ceil((bounds[3] * fovInv + 1.0) * chHalf - 0.5));
+			else
+				bounds[3] = boundsFrame[3];
+			/* bounds[0] = Math.max(0, Math.floor(partBounds[4 * j] * ch * 0.5 / clientFoVH + 0.5 * cw - 0.5));
+			bounds[1] = Math.max(0, Math.floor((partBounds[4 * j + 1] / clientFoVH + 1.0) * ch * 0.5 - 0.5));
+			bounds[2] = Math.min(cw - 1, Math.ceil(partBounds[4 * j + 2] * ch * 0.5 / clientFoVH + 0.5 * cw - 0.5));
+			bounds[3] = Math.min(ch - 1, Math.ceil((partBounds[4 * j + 3] / clientFoVH + 1.0) * ch * 0.5 - 0.5)); */
+		}
+		if(bounds[2] > bounds[0] && bounds[3] > bounds[1]) {
+			const dxArr = new Float32Array(bounds[2] - bounds[0]);
+			for(let x = bounds[0]; x < bounds[2]; x++) {
+				const x2 = 4 * x;
+				const d = pos[0] * colNormals[x2] + pos[1] * colNormals[x2 + 1] + pos[2] * colNormals[x2 + 2];
+				dxArr[x - bounds[0]] = d * d;
+			}
+
+			for(let y = bounds[1]; y < bounds[3]; y++) {
+				const dy = Math.abs(pos[0] * rowNormals[4 * y] + pos[1] * rowNormals[4 * y + 1] + pos[2] * rowNormals[4 * y + 2]);
+				const d1 = r * r - dy * dy;
+				for(let x = bounds[0]; x < bounds[2]; x++) {
+					//const colNormal = [colNormals[4 * x], colNormals[4 * x + 1], colNormals[4 * x + 2]];
+					//const d = pos[0] * colNormal[0] + pos[1] * colNormal[1] + pos[2] * colNormal[2]; //to do: optimize by moving to an array
+					//const d2 = d1 - d * d;
+					const d2 = d1 - dxArr[x - bounds[0]];
+					if(d2 > 0.0) {
+						const rem2 = Math.sqrt(d2);
+						//const rayDir = [rayDirsCol[4 * y] + rayDirsRow[4 * x], rayDirsCol[4 * y + 1] + rayDirsRow[4 * x + 1], rayDirsCol[4 * y + 2] + rayDirsRow[4 * x + 2]];
+						const rayDir = [rayDirsRow[4 * x], rayDirsCol[4 * y + 1], rayDirsCol[4 * y + 2]];
+						//const rayDirFactor = 1.0 / Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * rayDir[2]);
+						const rayDirFactor = 1.0 / Math.sqrt(rayDirsRow[4 * x + 3] + rayDirsCol[4 * y + 3]);
+						const z = rayDirFactor * (rayDir[0] * pos[0] + rayDir[1] * pos[1] + rayDir[2] * pos[2]);
+						const arr = partStopFrame[y * cw + x];
+						arr.push([j, z - rem2, 1]); //particle index, surface distance, sign of surface to ball
+						arr.push([j, z + rem2, -1]);
+					}
+				}
+			}
+		}
+	}
+	
+	let maxStopCount = 1;
+	const stopEntryPoints = new Int32Array(cw * ch + 1);
+	//const stopEntryPoints = new Float32Array(cw * ch + 1);
+	//const stopEntryPoints = new Int32Array(cw * ch + 64);
+	let p = 0;
+	for(let j = 0; j < cw * ch; j++) {
+		stopEntryPoints[j] = p;
+		const arr = partStopFrame[j];
+		//while(arr.length < 16) arr.push([0, 6e20, 0]);
+		p += arr.length;
+		maxStopCount = Math.max(maxStopCount, arr.length);
+		//arr.sort((a, b) => (a[1] - b[1]));
+	}
+	stopEntryPoints[cw * ch] = p;
+	//console.log(`maxStopCount ${maxStopCount}`);
+
+	//Load stop list into typed array.
+	/* const gpuBlock = 1, bufSize = gpuBlock * Math.ceil(Math.max(3 * p, 1) / gpuBlock);
+	const stopBuf = new Float32Array(bufSize);
+	p = 0;
+	for(let j = 0; j < cw * ch; j++) {
+		const arr = partStopFrame[j];
+		for(let k = 0; k < arr.length; k++) {
+			//stopBuf.set(arr[k], 3 * (p + k));
+			stopBuf.set(arr[k], p);
+			p += 3;
+		}
+	} */
+	//Load stop list into typed array.
+	const gpuBlock = 1, bufSize = gpuBlock * Math.ceil(Math.max(4 * p, 1) / gpuBlock);
+	const stopBuf = new Float32Array(bufSize);
+	p = 0;
+	for(let j = 0; j < cw * ch; j++) {
+		const arr = partStopFrame[j];
+		for(let k = 0; k < arr.length; k++) {
+			stopBuf.set(arr[k], p);
+			stopBuf[p + 3] = j;
+			p += 4;
+		}
+	}
+
+	//alignedPos.delete?.();
+	//partBounds.delete?.();
+	
+	//generalKernels.makeStopList.setOutput([cw, ch, 2 * particlesByRowMax]);
+	/* generalKernels.makeStopList.setOutput([2 * partByRowBlock, cw, ch]);
+	let stopList = generalKernels.makeStopList(partPerRayUnsorted);
+	partPerRayUnsorted.delete?.(); */
+	
+	/* generalKernels.sortBitonic.setOutput([2 * particlesByRowMax, cw, ch]);
+	for(let i = 0; i < 2 * particlesByRowMax; i++) {
+		const stopList2 = generalKernels.sortBitonic(stopList, 2 * particlesByRowMax, i % 2);
+		stopList.delete?.();
+		stopList = stopList2;
+	} */
+
+	//generalKernels.uploadArr4.setOutput([stopEntryPoints[cw * ch]]);
+	generalKernels.uploadArr4.setOutput([bufSize / 4]);
+	let stopList = generalKernels.uploadArr4(stopBuf);
+
+	//generalKernels.sortBatcherOddEven.setOutput([cw, ch, 2 * particlesByRowMax]);
+	//generalKernels.sortBatcherOddEven2.setOutput([stopEntryPoints[cw * ch]]);
+	//generalKernels.sortBatcherOddEven2.setOutput([bufSize / 4]);
+	//let stopList = GPUClass.input(stopBuf, [4, stopEntryPoints[cw * ch]]);
+	//stopList = generalKernels.sortBatcherOddEven(stopList, 1, 1);
+	const d = Math.ceil(Math.log2(maxStopCount));
+	for(let l = 1; l <= d; l++)
+		for(let p = 1; p <= l; p++) {
+			generalKernels.sortBatcherOddEven2.setOutput([bufSize / 4]);
+			const stopList2 = generalKernels.sortBatcherOddEven2(stopList, stopEntryPoints, p, 1 << l, 1 << p, stopEntryPoints[cw * ch]);
+			stopList.delete?.();
+			stopList = stopList2;
+		}
+
+	//if(!partEmissionGPU) partEmissionGPU = GPUClass.input(particles.emission, [particles.emission.length]);
+	//if(!partAlphaGPU) partAlphaGPU = GPUClass.input(particles.alpha, [particles.alpha.length]);
+	if(!partEmissionGPU) {
+		generalKernels.uploadArr4to3.setOutput([particles.emission.length]);
+		partEmissionGPU = generalKernels.uploadArr4to3(particles.emission);
+	}
+	if(!partAlphaGPU) {
+		generalKernels.uploadArr4to3.setOutput([particles.alpha.length]);
+		partAlphaGPU = generalKernels.uploadArr4to3(particles.alpha);
+	}
+
+	//generalKernels.rayCast3.setOutput([cw, ch]);
+	mainCanvas.height = ch;
+	mainCanvas.width = cw;
+	//generalKernels.rayCast3(partAlphaGPU, partEmissionGPU, stopEntryPoints, stopBuf, cw);
+	generalKernels.rayCast3(partAlphaGPU, partEmissionGPU, stopEntryPoints, stopList, cw);
+	stopList.delete?.();
 
 	//generalKernels.drawPixels(/* null, */ cw, ch);
 }

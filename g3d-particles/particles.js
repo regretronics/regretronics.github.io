@@ -22,8 +22,8 @@ function initParticles() {
 	};
 }
 function initParticles_random() {
-	//const particleCount = 256;
-	const particleCount = 1024;
+	const particleCount = 256;
+	//const particleCount = 1024;
 	//const particleCount = 4096;
 	//const particleCount = 16384;
 	//const particleCount = 65536;

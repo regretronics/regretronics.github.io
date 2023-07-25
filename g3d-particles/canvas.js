@@ -59,7 +59,7 @@ function viewUpdate() {
 	
 	/* let */ layerCount = txtMarchingLayers.valueAsNumber;
 	//frameRenderRaycasting(layerCount);
-	frameRenderRaycasting2(layerCount);
+	frameRenderRaycasting3(layerCount);
 	
 	if(dynLastTime != undefined) {
 		let tFrame = tNow - dynLastTime;
