@@ -104,9 +104,10 @@ function registerGeneralKernels(gpu) {
 	newKernels.getPartBounds = gpu.createKernel(function(partPosLocal, partR) {
 		//const p = 4 * this.thread.x;
 		const pos = partPosLocal[this.thread.x];
+		const posSq = [pos[0] * pos[0], pos[1] * pos[1], pos[2] * pos[2]];
 		const r = partR[this.thread.x];
-		const d2 = pos[2] * pos[2] - r * r;
-		const distExtr = [Math.sqrt(pos[0] * pos[0] + d2), Math.sqrt(pos[1] * pos[1] + d2)];
+		const d2 = posSq[2] - r * r;
+		const distExtr = [Math.sqrt(posSq[0] + d2), Math.sqrt(posSq[1] + d2)];
 		const zr = pos[2] * r;
 		return [
 			(pos[0] * distExtr[0] - zr) / (pos[2] * distExtr[0] + pos[0] * r),
@@ -166,7 +167,7 @@ function registerGeneralKernels(gpu) {
 		//const zHalf = (z - odd) * 0.5;
 		const zHalf = (z - odd) / 2, p = 4 * zHalf;
 		const part = [particlesPerRay[p], particlesPerRay[p + 1], particlesPerRay[p + 2], particlesPerRay[p + 3]];
-		if(part[0] == -1 || part[2] <= 0.0) return [-1, 6e20, 0, 0];
+		if(part[0] == -1 || part[2] <= 0.0) return [-1, 6e20, 0, part[3]];
 		const odd2 = 2 * odd - 1;
 		return [part[0], part[1] + odd2 * part[2], -odd2, part[3]];
 	}, {
@@ -274,34 +275,36 @@ function registerGeneralKernels(gpu) {
 				if(z2 > z) break;
 				
 				const i = stop[0];
-				if(i == -1) break;
-				const sign = stop[2];
-				//const sign = (stop[2] > 0 ? 1 : (stop[2] < 0 ? -1 : 0));
-				const partAlpha1 = partAlpha[i];
-				const partAlpha2 = [sign * partAlpha1[0], sign * partAlpha1[1], sign * partAlpha1[2]/* , 0.0 */];
-				const partEmission1 = partEmission[i];
-				
-				//Accumulate (sum) colors of particles present in the segment
-				crossingParticles += sign;
-				//const partAlpha = [alphaArr[i], alphaArr[i + 1], alphaArr[i + 2]/* , 0.0 */];
-				if(sign > 0) { //Accumulate (sum) colors of particles present in the segment
-					chordAlpha = [
-						chordAlpha[0] + partAlpha2[0],
-						chordAlpha[1] + partAlpha2[1],
-						chordAlpha[2] + partAlpha2[2]];
-					chordEm = [
-						chordEm[0] + partAlpha2[0] * partEmission1[0],
-						chordEm[1] + partAlpha2[1] * partEmission1[1],
-						chordEm[2] + partAlpha2[2] * partEmission1[2]];
-				} else {
-					chordAlpha = [
-						chordAlpha[0] + partAlpha2[0],
-						chordAlpha[1] + partAlpha2[1],
-						chordAlpha[2] + partAlpha2[2]];
-					chordEm = [
-						chordEm[0] + partAlpha2[0] * partEmission1[0],
-						chordEm[1] + partAlpha2[1] * partEmission1[1],
-						chordEm[2] + partAlpha2[2] * partEmission1[2]];
+				//if(i == -1) break;
+				if(i != -1) {
+					const sign = stop[2];
+					//const sign = (stop[2] > 0 ? 1 : (stop[2] < 0 ? -1 : 0));
+					const partAlpha1 = partAlpha[i];
+					const partAlpha2 = [sign * partAlpha1[0], sign * partAlpha1[1], sign * partAlpha1[2]/* , 0.0 */];
+					const partEmission1 = partEmission[i];
+					
+					//Accumulate (sum) colors of particles present in the segment
+					crossingParticles += sign;
+					//const partAlpha = [alphaArr[i], alphaArr[i + 1], alphaArr[i + 2]/* , 0.0 */];
+					if(sign > 0) { //Accumulate (sum) colors of particles present in the segment
+						chordAlpha = [
+							chordAlpha[0] + partAlpha2[0],
+							chordAlpha[1] + partAlpha2[1],
+							chordAlpha[2] + partAlpha2[2]];
+						chordEm = [
+							chordEm[0] + partAlpha2[0] * partEmission1[0],
+							chordEm[1] + partAlpha2[1] * partEmission1[1],
+							chordEm[2] + partAlpha2[2] * partEmission1[2]];
+					} else {
+						chordAlpha = [
+							chordAlpha[0] + partAlpha2[0],
+							chordAlpha[1] + partAlpha2[1],
+							chordAlpha[2] + partAlpha2[2]];
+						chordEm = [
+							chordEm[0] + partAlpha2[0] * partEmission1[0],
+							chordEm[1] + partAlpha2[1] * partEmission1[1],
+							chordEm[2] + partAlpha2[2] * partEmission1[2]];
+					}
 				}
 			}
 			//if(z2 > 1e20) break;
@@ -363,7 +366,6 @@ function registerGeneralKernels(gpu) {
 		//dynamicOutput: true,
 		//dynamicArguments: true,
 		graphical: true
-		//to do: precision
 	});
 	return newKernels;
 }
@@ -415,7 +417,7 @@ function rcKernelsSetDimensions(rcKernels) {
 }
 
 function viewRayDirsCompute_Rectilinear(ch, cw) {
-	let chInv = 1.0 / ch;
+	const chInv = 1.0 / ch;
 	
 	rayDirsCol = new Float32Array(ch * 4);
 	rowNormals = new Float32Array(ch * 4);
@@ -508,6 +510,7 @@ function frameRenderRaycasting3(layerCount) {
 	//const partBounds = generalKernels.getPartBounds(alignedPos, particles.r); //Particle -> ball
 
 	const fovInv = 1.0 / clientFoVH, cwHalf = 0.5 * cw, chHalf = 0.5 * ch;
+	const chInv = 1.0 / ch;
 	const partStopFrame = [];
 	partStopFrame.length = cw * ch;
 	for(let j = 0; j < cw * ch; j++) {
@@ -519,31 +522,29 @@ function frameRenderRaycasting3(layerCount) {
 		const posLocal = [particles.pos[4 * j] - clientPos[0], particles.pos[4 * j + 1] - clientPos[1], particles.pos[4 * j + 2] - clientPos[2]];
 		const pos = vectorTransform_3(clientSpcTransfInv, posLocal);
 
-		if(pos[2] <= -r) continue;
+		if(pos[2] <= -r) continue; //Too far behind
 	
-		const posSq = [pos[0] * pos[0], pos[1] * pos[1], pos[2] * pos[2]];
-		const d2 = posSq[2] - r * r;
-		const extremeLen = [Math.sqrt(posSq[0] + d2), Math.sqrt(posSq[1] + d2)];
+		const posSq = [pos[0] * pos[0], pos[1] * pos[1], pos[2] * pos[2]], posSqSum = posSq[0] + posSq[1] + posSq[2];
+		const r2 = r * r, sqRemLength = r2 - posSqSum;
+		//const d2 = posSq[2] - r2, extremeLen = [Math.sqrt(posSq[0] + d2), Math.sqrt(posSq[1] + d2)];
+		const extremeLen = [Math.sqrt(-sqRemLength - posSq[1]), Math.sqrt(-sqRemLength - posSq[0])];
 		let bounds = [0, 0, cw, ch];
-		if(!isNaN(extremeLen[0]) && !isNaN(extremeLen[1]) && (posSq[0] + posSq[1] + d2) > 0) {
+		if(!isNaN(extremeLen[0]) && !isNaN(extremeLen[1]) && sqRemLength < 0) {
 			const rx = pos[0] * r, ry = pos[1] * r, rz = pos[2] * r;
 			//const rx = pos[0] * r, ry = pos[1] * r, rz = Math.abs(pos[2]) * r;
-			const aux1x = pos[0] * extremeLen[0], aux1y = pos[1] * extremeLen[1];
-			const aux2zx = pos[2] * extremeLen[0], aux2zy = pos[2] * extremeLen[1];
-
+			
+			const aux1x = pos[0] * extremeLen[0], aux2zx = pos[2] * extremeLen[0];
 			const auxDivX1 = aux2zx + rx, auxDivX2 = aux2zx - rx;
-			if(auxDivX1 != 0 && auxDivX2 != 0) {
-				bounds[0] = (aux1x - rz) / auxDivX1;
-				bounds[2] = (aux1x + rz) / auxDivX2;
-				bounds[0] = Math.max(0, Math.floor(bounds[0] * chHalf * fovInv + cwHalf - 0.5));
-				bounds[2] = Math.min(cw, Math.ceil(bounds[2] * chHalf * fovInv + cwHalf - 0.5));
+			if(auxDivX1 !== 0 && auxDivX2 !== 0) {
+				bounds[0] = Math.max(0, Math.floor((aux1x - rz) / auxDivX1 * chHalf * fovInv + cwHalf - 0.5));
+				bounds[2] = Math.min(cw, Math.ceil((aux1x + rz) / auxDivX2 * chHalf * fovInv + cwHalf - 0.5));
 			}
+
+			const aux1y = pos[1] * extremeLen[1], aux2zy = pos[2] * extremeLen[1];
 			const auxDivY1 = aux2zy + ry, auxDivY2 = aux2zy - ry;
-			if(auxDivY1 != 0 && auxDivY2 != 0) {
-				bounds[1] = (aux1y - rz) / auxDivY1;
-				bounds[3] = (aux1y + rz) / auxDivY2;
-				bounds[1] = Math.max(0, Math.floor((bounds[1] * fovInv + 1.0) * chHalf - 0.5));
-				bounds[3] = Math.min(ch, Math.ceil((bounds[3] * fovInv + 1.0) * chHalf - 0.5));
+			if(auxDivY1 !== 0 && auxDivY2 !== 0) {
+				bounds[1] = Math.max(0, Math.floor(((aux1y - rz) / auxDivY1 * fovInv + 1.0) * chHalf - 0.5));
+				bounds[3] = Math.min(ch, Math.ceil(((aux1y + rz) / auxDivY2 * fovInv + 1.0) * chHalf - 0.5));
 			}
 			/* bounds[0] = Math.max(0, Math.floor(partBounds[4 * j] * ch * 0.5 / clientFoVH + 0.5 * cw - 0.5));
 			bounds[1] = Math.max(0, Math.floor((partBounds[4 * j + 1] / clientFoVH + 1.0) * ch * 0.5 - 0.5));
@@ -551,35 +552,57 @@ function frameRenderRaycasting3(layerCount) {
 			bounds[3] = Math.min(ch - 1, Math.ceil((partBounds[4 * j + 3] / clientFoVH + 1.0) * ch * 0.5 - 0.5)); */
 		}
 		if(bounds[2] > bounds[0] && bounds[3] > bounds[1]) {
-			const dxArr = new Float32Array(bounds[2] - bounds[0]);
+			const rayDir = [0, 0, 1];
+			/* const dxArr = new Float32Array(bounds[2] - bounds[0]);
 			for(let x = bounds[0]; x < bounds[2]; x++) {
 				const x2 = 4 * x;
-				const d = pos[0] * colNormals[x2] + pos[1] * colNormals[x2 + 1] + pos[2] * colNormals[x2 + 2];
+				//const d = pos[0] * colNormals[x2] + pos[1] * colNormals[x2 + 1] + pos[2] * colNormals[x2 + 2];
+				const d = pos[0] * colNormals[x2] + pos[2] * colNormals[x2 + 2];
 				dxArr[x - bounds[0]] = d * d;
-			}
+			} */
 
 			for(let y = bounds[1]; y < bounds[3]; y++) {
-				const dy = Math.abs(pos[0] * rowNormals[4 * y] + pos[1] * rowNormals[4 * y + 1] + pos[2] * rowNormals[4 * y + 2]);
-				const d1 = r * r - dy * dy;
-				if(d1 <= 0.0) continue;
+				//const dy = /* Math.abs */(/* pos[0] * rowNormals[4 * y] + */ pos[1] * rowNormals[4 * y + 1] + pos[2] * rowNormals[4 * y + 2]);
+				//const d1 = r * r - dy * dy;
+				//if(d1 <= 0.0) continue;
+				rayDir[1] = clientFoVH * (2.0 * (y + 0.5) * chInv - 1.0);
+				const partSqRayLen = rayDir[1] * rayDir[1] + 1;
+				const partProj = rayDir[1] * pos[1] + 1 * pos[2];
 
 				for(let x = bounds[0]; x < bounds[2]; x++) {
 					//const colNormal = [colNormals[4 * x], colNormals[4 * x + 1], colNormals[4 * x + 2]];
 					//const d = pos[0] * colNormal[0] + pos[1] * colNormal[1] + pos[2] * colNormal[2]; //to do: optimize by moving to an array
 					//const d2 = d1 - d * d;
-					const d2 = d1 - dxArr[x - bounds[0]];
-					if(d2 <= 0.0) continue;
+					//const d2 = d1 - dxArr[x - bounds[0]];
+					//const d2 = r - Math.sqrt(dy * dy + dxArr[x - bounds[0]]);
+					//if(d2 <= 0.0) continue;
+					rayDir[0] = clientFoVH * 2.0 * (x + 0.5 - cwHalf) * chInv;
 					
-					const rem2 = Math.sqrt(d2);
+					//const rem2 = Math.sqrt(d2);
+					//const rem2 = d2;
 					//const rayDir = [rayDirsCol[4 * y] + rayDirsRow[4 * x], rayDirsCol[4 * y + 1] + rayDirsRow[4 * x + 1], rayDirsCol[4 * y + 2] + rayDirsRow[4 * x + 2]];
-					const rayDir = [rayDirsRow[4 * x], rayDirsCol[4 * y + 1], rayDirsCol[4 * y + 2]];
+					//const rayDir = [rayDirsRow[4 * x], rayDirsCol[4 * y + 1], rayDirsCol[4 * y + 2]];
 					//const rayDirFactor = 1.0 / Math.sqrt(rayDir[0] * rayDir[0] + rayDir[1] * rayDir[1] + rayDir[2] * rayDir[2]);
-					const rayDirFactor = 1.0 / Math.sqrt(rayDirsRow[4 * x + 3] + rayDirsCol[4 * y + 3]);
-					const z = rayDirFactor * (rayDir[0] * pos[0] + rayDir[1] * pos[1] + rayDir[2] * pos[2]);
+					//const rayDirFactor = 1.0 / Math.sqrt(rayDirsRow[4 * x + 3] + rayDirsCol[4 * y + 3]);
+
+					const sqRayLen = rayDir[0] * rayDir[0] + partSqRayLen;
+					const proj = rayDir[0] * pos[0] + partProj;
+					//const proj2 = invSq * proj;
+					
+					//const diff = [rayDir[0] * proj2 - pos[0], rayDir[1] * proj2 - pos[1], rayDir[2] * proj2 - pos[2]];
+					//const rem3 = (r2 - diff[0] * diff[0] - diff[1] * diff[1] - diff[2] * diff[2]);
+					//const rem3 = (r2 - posSqSum + proj * proj * invSq) * invSq;
+					const rem3 = proj * proj + sqRemLength * sqRayLen;
+					if(rem3 <= 0.0) continue;
+
+					//const invSq = 1.0 / sqRayLen;
+					const invLen = Math.sqrt(1.0 / sqRayLen);
+					const z = proj * invLen;
+					
 					const arr = partStopFrame[y * cw + x];
 					//arr.push([j, z - rem2, 1]); //particle index, surface distance, sign of surface to ball
 					//arr.push([j, z + rem2, -1]);
-					arr.push([j, z, rem2]); //This entry will later be expanded into 2 stops (for start and end of sphere chord in a ray).
+					arr.push([j, z, Math.sqrt(rem3) * invLen]); //This entry will later be expanded into 2 stops (for start and end of sphere chord in a ray).
 				}
 			}
 		}
