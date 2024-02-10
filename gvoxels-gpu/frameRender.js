@@ -19,7 +19,9 @@ var worldRes = new Int32Array(
 var fieldMap;
 
 const mazeSize = new Int32Array(
-	[16, 16, 16]);
+	//[16, 16, 16]);
+	[12, 12, 12]);
+	//[96, 96, 96]);
 const mazeFillThres = new Float32Array( //maze voxel fill probability by sum of odnesses
 	[15.0 / 16.0, 11.0 / 16.0, 5.0 / 16.0, 1.0 / 16.0]);
 
@@ -241,20 +243,32 @@ function registerFieldKernels(gpu) {
 		alpha: function fieldAlpha(vecColor) {
 			return vecColor;
 		}
-	}, function(mazeMap) {
-		let myPos = [Math.floor(this.thread.x / 8), Math.floor(this.thread.y / 8), Math.floor(this.thread.z / 8)];
-		let cell = mazeMap[(myPos[2] * this.constants.mapSize1 + myPos[1]) * this.constants.mapSize0 + myPos[0]];
-		const fill = [Math.random(), Math.random(), Math.random()/* , 0.0 */];
+	}, function(mazeMap, worldRes, mazeSize) {
+		//let myPos = [Math.floor(this.thread.x / 8), Math.floor(this.thread.y / 8), Math.floor(this.thread.z / 8)];
+		let myPos = [
+			Math.floor(this.thread.x * mazeSize[0] / worldRes[0]),
+			Math.floor(this.thread.y * mazeSize[1] / worldRes[1]),
+			Math.floor(this.thread.z * mazeSize[2] / worldRes[2])];
+		let cell = mazeMap[(myPos[2] * this.constants.mazeSize1 + myPos[1]) * this.constants.mazeSize0 + myPos[0]];
+		//const fill = [Math.random(), Math.random(), Math.random()/* , 0.0 */];
+		const fill = [
+			/* 0.125 + 0.75 * this.thread.x / worldRes[0],
+			0.125 + 0.75 * this.thread.y / worldRes[1],
+			0.125 + 0.75 * this.thread.z / worldRes[2]]; */
+			0.25 * Math.random() + 0.75 * this.thread.x / worldRes[0],
+			0.25 * Math.random() + 0.75 * this.thread.y / worldRes[1],
+			0.25 * Math.random() + 0.75 * this.thread.z / worldRes[2]];
 		//const fill = [1.0, 1.0, 1.0, 0.0];
 
 		//let gain = (cell >= 1 ? 0.9375 : 0.0625);
 		let gain = (cell >= 1 ? 1.0 : 0.125);
-		let alpha = (cell >= 1 ? 0.5 : 0.25);
+		//let alpha = (cell >= 1 ? 0.5 : 0.25);
+		let alpha = (cell >= 1 ? 1 : 0.25);
 
 		fieldAlpha([alpha, alpha, alpha/* , 0.0 */]);
 		return [gain * fill[0], gain * fill[1], gain * fill[2]/* , 0.0 */];
 	}, {
-		constants: { mapSize0: mazeSize[0], mapSize1: mazeSize[1], mapSize2: mazeSize[2] },
+		constants: { mazeSize0: mazeSize[0], mazeSize1: mazeSize[1], mazeSize2: mazeSize[2] },
 		returnType: 'Array(3)',
 		output: [worldRes[0], worldRes[1], worldRes[2]],
 		//immutable: true,

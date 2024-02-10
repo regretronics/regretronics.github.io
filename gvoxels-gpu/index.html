@@ -42,6 +42,9 @@
 		width: 5em;
 		text-align: right;
 	}
+	input[type="range"] {
+		vertical-align: middle;
+	}
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
@@ -49,9 +52,9 @@
 	//  idea: have a "reload script" button?
 	//I'm putting height before width, because x (columns) is subordinate to y (rows).
 	var ch, cw, gpu, mainCanvas;
-	var canvasScale = 1;
+	var aspectRatio, resMagnitude, canvasScale = 1;
 	var frameCount = 0, renderTimeSum = 0, /* segmentCount = 0 */layerCount = 0;
-	var firstTimeout = 0, updateCycleId = 0, animating = false;
+	var targetFrameTime = 100, firstTimeout = 0, updateCycleId = 0, animating = false;
 	var particles;
 	/*]]>*/</script>
 	<script type="text/javascript" src="gpu-browser.min.js"></script>
@@ -159,7 +162,7 @@
 		//registerKernels();
 		fieldKernels = registerFieldKernels(gpu);
 		let mazeMap = fieldKernels.createMaze(mazeFillThres);
-		fieldMap = fieldKernels.mapField_maze(mazeMap);
+		fieldMap = fieldKernels.mapField_maze(mazeMap, worldRes, mazeSize);
 		mazeMap.delete();
 		//fieldMap = fieldKernels.mapField_particles(particles.count, particles.r, particles.pos, particles.emission, particles.alpha);
 
@@ -212,13 +215,138 @@
 		gpu = undefined;
 	}
 
+	function recalcResolution() {
+		let rem = 2 ** resMagnitude / aspectRatio[0] / aspectRatio[1];
+		rem = 0.5 * Math.log2(rem);
+		let rem2 = rem - Math.log2(1.5), mantissa;
+		if(Math.abs(rem - Math.round(rem)) <= Math.abs(rem2 - Math.round(rem2))) {
+			mantissa = 1;
+			rem = Math.round(rem);
+		} else {
+			mantissa = 1.5;
+			rem = Math.round(rem2);
+		}
+		rem = mantissa * 2 ** rem;
+		newCW = rem * aspectRatio[0];
+		newCH = rem * aspectRatio[1];
+
+		outCanvasResW.innerText = newCW.toString();
+		outCanvasResH.innerText = newCH.toString();
+		//cw = newCW;
+		//ch = newCH;
+		//canvasSizeChange(newCW, newCH);
+		//canvasScaleChanged();
+	}
+	function cbxCanvasRatioChanged(event) {
+		const elem = event.target;
+		//const v = elem.value;
+		let newAspectRatio = elem.value.split("_");
+		aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
+		recalcResolution();
+	}
+	function rngCanvasResolutionInput(event) {
+		const elem = event.target;
+		resMagnitude = elem.valueAsNumber;
+		recalcResolution();
+	}
+	function rngMarchingLayersInput(event) {
+		const elem = event.target;
+		const v = elem.valueAsNumber, magnitude = Math.floor(v / 2), mod = v - 2 * magnitude;
+		layerCount = 2 ** magnitude * [1, 1.5][mod];
+		localStorage.setItem("layerCount", layerCount);
+		txtMarchingLayers.valueAsNumber = layerCount;
+	}
+	function txtMarchingLayersInput(event) {
+		const elem = event.target;
+		const v = elem.valueAsNumber;
+		layerCount = v;
+		localStorage.setItem("layerCount", layerCount);
+
+		const magnitude = Math.floor(Math.log2(v)), mantissa = v / 2 ** magnitude;
+		const mod = (mantissa >= 1.5) ? 1 : 0;
+		rngMarchingLayers.valueAsNumber = (2 * magnitude + mod);
+	}
+	function motionRateInput(event) {
+		const elem = event.target;
+		const rate = elem.valueAsNumber, magnitude = Math.floor(rate / 2), mod = rate - 2 * magnitude;
+		const fps = 2 ** magnitude * [1, 1.5][mod] * 5;
+		outMotionRate.innerText = fps.toString() + " fps";
+		targetFrameTime = 1000 / fps;
+		localStorage.setItem("targetFrameTime", targetFrameTime);
+		txtFrameTimeout.valueAsNumber = Math.round(targetFrameTime);
+	}
+	function frameTimeoutInput(event) {
+		const elem = event.target;
+		const t = elem.valueAsNumber;
+		targetFrameTime = t;
+		localStorage.setItem("targetFrameTime", targetFrameTime);
+		
+		let fps = 1000 / t;
+		const magnitude = Math.floor(Math.log2(fps / 5)), mantissa = fps / 5 / 2 ** magnitude;
+		const mod = (mantissa >= 1.5) ? 1 : 0;
+		rngMotionRate.valueAsNumber = (2 * magnitude + mod);
+		fps = 2 ** magnitude * [1, 1.5][mod] * 5;
+		outMotionRate.innerText = fps.toString() + " fps";
+	}
+
 	function pageLoad() {
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 
-		btnResDiv2.addEventListener("click", event => {txtResW.valueAsNumber *= 0.5; txtResH.valueAsNumber *= 0.5;});
-		btnResMul2.addEventListener("click", event => {txtResW.valueAsNumber *= 2.0; txtResH.valueAsNumber *= 2.0;});
+		cbxCanvasRatio.addEventListener("change", cbxCanvasRatioChanged);
+		rngCanvasResolution.addEventListener("input", rngCanvasResolutionInput);
+
+		let s;
+		if(s = localStorage.getItem("canvas.aspectRatio")) {
+			aspectRatio = JSON.parse(s);
+			cbxCanvasRatio.value = aspectRatio.join("_");
+			//+?
+		} else {
+			let newAspectRatio = cbxCanvasRatio.value.split("_");
+			aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
+		}
+		if(s = localStorage.getItem("canvas.resMagnitude")) {
+			resMagnitude = JSON.parse(s);
+			rngCanvasResolution.valueAsNumber = resMagnitude;
+		} else {
+			resMagnitude = rngCanvasResolution.valueAsNumber;
+		}
+		recalcResolution();
+
+		//btnResDiv2.addEventListener("click", event => {txtResW.valueAsNumber *= 0.5; txtResH.valueAsNumber *= 0.5;});
+		//btnResMul2.addEventListener("click", event => {txtResW.valueAsNumber *= 2.0; txtResH.valueAsNumber *= 2.0;});
+		btnResDiv2.addEventListener("click", event => {resMagnitude -= 2; rngCanvasResolution.valueAsNumber = resMagnitude; recalcResolution();});
+		btnResMul2.addEventListener("click", event => {resMagnitude += 2; rngCanvasResolution.valueAsNumber = resMagnitude; recalcResolution();});
 		cbxCanvasScale.addEventListener("change", canvasScaleChanged);
+
+		if(s = localStorage.getItem("layerCount")) {
+			layerCount = JSON.parse(s);
+
+			txtMarchingLayers.valueAsNumber = layerCount;
+			
+			const magnitude = Math.floor(Math.log2(layerCount)), mantissa = layerCount / 2 ** magnitude;
+			const mod = (mantissa >= 1.5) ? 1 : 0;
+			rngMarchingLayers.valueAsNumber = (2 * magnitude + mod);
+		} else
+			layerCount = txtMarchingLayers.valueAsNumber;
+		if(s = localStorage.getItem("targetFrameTime")) {
+			targetFrameTime = JSON.parse(s);
+
+			txtFrameTimeout.valueAsNumber = Math.round(targetFrameTime);
+
+			let fps = 1000 / targetFrameTime;
+			const magnitude = Math.floor(Math.log2(fps / 5)), mantissa = fps / 5 / 2 ** magnitude;
+			const mod = (mantissa >= 1.5) ? 1 : 0;
+			rngMotionRate.valueAsNumber = (2 * magnitude + mod);
+			fps = 2 ** magnitude * [1, 1.5][mod] * 5;
+			outMotionRate.innerText = fps.toString() + " fps";
+		} else
+			targetFrameTime = txtFrameTimeout.valueAsNumber;
+
+		rngMarchingLayers.addEventListener("input", rngMarchingLayersInput);
+		txtMarchingLayers.addEventListener("input", txtMarchingLayersInput);
+		rngMotionRate.addEventListener("input", motionRateInput);
+		txtFrameTimeout.addEventListener("input", frameTimeoutInput);
 
 		btnViewUpdate.addEventListener("click", viewUpdate);
 		btnStartUpdating.addEventListener("click", event => {animating = true; startUpdating();});
@@ -263,7 +391,53 @@
 		<output id="outVoxelCount">0</output> voxel(s).
 	</p>
 	<p>
-		Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" min="16" step="16" list="resList" />, 
+		Canvas: 
+		<label for="cbxCanvasRatio">aspect ratio</label> <select id="cbxCanvasRatio">
+			<option value="3_1">3:1</option>
+			<option value="8_3">8:3</option>
+			<option value="5_2">5:2</option>
+			<option value="12_5">12:5</option>
+			<option value="9_4">9:4</option>
+			<option value="32_15">32:15</option>
+
+			<option value="2_1">2:1</option>
+			<option value="15_8">15:8</option>
+			<option value="16_9">16:9</option>
+			<option value="5_3">5:3</option>
+			<option value="8_5">8:5</option>
+
+			<option value="3_2" selected="true">3:2</option>
+			<option value="4_3">4:3</option>
+			<option value="6_5">6:5</option>
+			<option value="5_4">5:4</option>
+			<option value="9_8">9:8</option>
+			<option value="16_15">16:15</option>
+
+			<option value="1_1">1:1</option>
+			<option value="15_16">15:16</option>
+			<option value="8_9">8:9</option>
+			<option value="4_5">4:5</option>
+			<option value="5_6">5:6</option>
+			<option value="3_4">3:4</option>
+
+			<option value="2_3">2:3</option>
+			<option value="5_8">5:8</option>
+			<option value="3_5">3:5</option>
+			<option value="9_16">9:16</option>
+			<option value="8_15">8:15</option>
+
+			<option value="1_2">1:2</option>
+			<option value="15_32">15:32</option>
+			<option value="4_9">4:9</option>
+			<option value="5_12">5:12</option>
+			<option value="2_5">2:5</option>
+			<option value="3_8">3:8</option>
+
+			<option value="1_3">1:3</option>
+		</select>, 
+		<label for="rngCanvasResolution">resolution</label> <input id="rngCanvasResolution" type="range" min="12" max="24" step="1" value="17" />
+		<output id="outCanvasResW">0</output>x<output id="outCanvasResH">0</output>.
+		<!-- <label for="txtResW">width</label> <input id="txtResW" type="number" value="384" min="16" step="16" list="resList" />, 
 		<label for="txtResH">height</label> <input id="txtResH" type="number" value="256" min="16" step="16" list="resList" />.
 		<datalist id="resList">
 			<option value="64" />
@@ -288,7 +462,7 @@
 			<option value="5120" />
 			<option value="6144" />
 			<option value="8192" />
-		</datalist>
+		</datalist> -->
 		<button id="btnResDiv2">Half res.</button> 
 		<button id="btnResMul2">Double res.</button> 
 		<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
@@ -312,7 +486,8 @@
 		</select>.
 	</p>
 	<p>
-		<label for="txtMarchingLayers">Marching layers</label> 
+		<label for="rngMarchingLayers">Marching layers</label> 
+		<input id="rngMarchingLayers" type="range" min="6" max="16" step="1" value="10" />
 		<input id="txtMarchingLayers" type="number" value="32" min="0" max="1024" step="8" list="layerCountList" />. 
 		<datalist id="layerCountList">
 			<option value="16" />
@@ -329,8 +504,11 @@
 			<option value="192" />
 			<option value="256" />
 		</datalist>
+		<label for="rngMotionRate">Target motion rate</label> 
+		<input id="rngMotionRate" type="range" min="-2" max="10" step="1" value="2" />
+		<output id="outMotionRate">10 fps</output>. 
 		<label for="txtFrameTimeout">Frame timeout (ms)</label> 
-		<input id="txtFrameTimeout" type="number" value="80" min="0" step="5" list="intervalMsList" />.
+		<input id="txtFrameTimeout" type="number" value="100" min="0" step="5" list="intervalMsList" />.
 		<datalist id="intervalMsList">
 			<option value="5" />
 			<option value="8" />

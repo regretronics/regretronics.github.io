@@ -1,6 +1,7 @@
 "use strict";
 
 var ch, cw;
+var newCH, newCW;
 var canvasScale;
 var frameCount, renderTimeSum, segmentCount;
 var firstTimeout, updateCycleId, animating;
@@ -9,7 +10,7 @@ var firstTimeout, updateCycleId, animating;
 //const scaleValues = {"1_1": 1; };
 
 function canvasScaleChanged() {
-	var newCanvasScale = cbxCanvasScale.value.split("_");
+	let newCanvasScale = cbxCanvasScale.value.split("_");
 	newCanvasScale = [parseInt(newCanvasScale[0]), parseInt(newCanvasScale[1])];
 	//isNaN and isFinite require ECMAScript 6/2015.
 	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) return;
@@ -45,8 +46,8 @@ function worldResChange(newSize) {
 	ch = 0;
 }
 function canvasSizeCheck() {
-	let newCH = parseInt(txtResH.value);
-	let newCW = parseInt(txtResW.value);
+	//let newCH = parseInt(txtResH.value);
+	//let newCW = parseInt(txtResW.value);
 	//isNaN requires ECMAScript 6/2015.
 	if(isNaN(newCH) || isNaN(newCW)) return false;
 	newCH |= 0;
@@ -75,7 +76,8 @@ function viewUpdate() {
 	outVoxelCount.innerText = (worldSize ** 3).toFixed(0);
 	//if(frameCount) kinematicsRefresh();
 
-	timeout = parseFloat(txtFrameTimeout.value);
+	//timeout = parseFloat(txtFrameTimeout.value);
+	timeout = targetFrameTime;
 	if(isNaN(timeout)) timeout = defTimeout;
 	let tNow = performance.now();
 	if(dynLastTime == undefined) dynLastTime = tNow;
@@ -84,7 +86,7 @@ function viewUpdate() {
 	//frameRenderRaycasting(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_kernelMap(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_combinedKernel(timeout);
-	/* let */ layerCount = txtMarchingLayers.valueAsNumber;
+	///* let */ layerCount = txtMarchingLayers.valueAsNumber;
 	frameRenderRaycasting_mono(layerCount);
 	
 	if(dynLastTime != undefined) {
@@ -146,7 +148,8 @@ function startUpdating() {
 	firstTimeout = 0;
 	if(!animating || updateCycleId) return;
 	//updateCycleId = setInterval(viewUpdate, 250);
-	timeout = parseFloat(txtFrameTimeout.value);
+	//timeout = parseFloat(txtFrameTimeout.value);
+	timeout = targetFrameTime;
 	if(isNaN(timeout)) timeout = defTimeout;
 	updateCycleId = setTimeout(viewUpdate, timeout);
 }
