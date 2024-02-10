@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Joystick/gamepad axis exercise</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		background-color: revert !important; /*Dark Reader workaround*/
+	}
+	body {
+		background-color: canvas;
+		color: canvastext;
+		color-scheme: dark;
+	}
+
+	input[type=number] {
+		width: 8ch;
+		text-align: right;
+	}
+
+	#imgChart {
+		height: 12em;
+		width: 100%;
+		background-color: hsla(0 0% 75% / 0.25);
+	}
+	#imgChart rect {
+		fill: white;
+	}
+
+	#valueHistory {
+		font-size: 0.8em;
+	}
+	#valueHistory td {
+		text-align: right;
+	}
+	/*]]>*/</style>
+	<!-- <script type="text/javascript" src="navigationCore.js"></script> -->
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	let controllerIndex, axisIndex;
+	let dynLastTime;
+	let valueHistorySize = 192, valueHistory, valueHistoryIndex = 0;
+	const tableRows = 32;
+	const chartPointHeight = 1 / 64;
+
+	function animLoop() {
+		/* let newLastTime = performance.now();
+		let dt = 0.001 * (newLastTime - dynLastTime);
+		updateDynamics(dt);
+		inputCycle(newLastTime, dt);
+		dynLastTime = newLastTime; */
+		
+		try {
+			const gpList = navigator.getGamepads();
+			if(!gpList) return false;
+			if (controllerIndex >= gpList.length) return false;
+			
+			const gp = gpList[controllerIndex];
+			if(!gp) return false;
+			
+			let val = gp.axes[axisIndex];
+			if(val == undefined) return false;
+			valueHistory[valueHistoryIndex] = val;
+			valueHistoryIndex = (++valueHistoryIndex) % valueHistorySize;
+
+			updateOutput();
+		} finally {
+			window.requestAnimationFrame(animLoop);
+		}
+	}
+	const svgNS = "http://www.w3.org/2000/svg";
+	function updateOutput() {
+		const tblBody = document.querySelector("#valueHistory tbody");
+		for (let i = 0; i < tableRows; i++) {
+			const row = tblBody.children[i];
+			//row.children[1].innerText = Math.random().toFixed(4);
+			row.children[1].innerText = valueHistory[(valueHistoryIndex + valueHistorySize - 1 - i) % valueHistorySize].toFixed(4);
+		}
+
+		const svgChildren = document.querySelector("#imgChart").children;
+		//svg.querySelectorAll("rect").forEach((value, key, parent) => {value.remove();});
+		for (let i = 0; i < valueHistorySize; i++) {
+			const point = svgChildren[i];
+			//point.x.baseVal.value = i / valueHistorySize;
+			point.y.baseVal.value = 0.5 * valueHistory[(valueHistoryIndex + valueHistorySize - 1 - i) % valueHistorySize] + 0.5 - 0.5 * chartPointHeight;
+			//point.width.baseVal.value = 1 / valueHistorySize;
+			//point.height.baseVal.value = chartPointHeight;
+		}
+	}
+	/* function axisChange(evt) {
+		if(evt)
+			elem = evt.target;
+		else
+			elem = document.getElementById("txtAxisIndex");
+		axisIndex = elem.value;
+	} */
+	function configChanged() {
+		controllerIndex = document.getElementById("txtControllerIndex").value;
+		axisIndex = document.getElementById("txtAxisIndex").value;
+		let axisCount = 0;
+		const gpList = navigator.getGamepads();
+		if(gpList)
+			if (controllerIndex < gpList.length) {
+				axisCount = gpList[controllerIndex].axes.length;
+			}
+		document.getElementById("outAxisCount").innerText = axisCount.toString();
+	}
+	function gamepadConnected(event) {
+		const gamepadCount = navigator.getGamepads().length;
+		document.getElementById("outGamepadCount").innerText = gamepadCount.toString();
+		configChanged();
+		//if(gamepadCount <= 1) window.requestAnimationFrame(animLoop);
+	}
+	function gamepadDisconnected(event) {
+		const gamepadCount = navigator.getGamepads().length;
+		document.getElementById("outGamepadCount").innerText = gamepadCount.toString();
+		configChanged();
+	}
+
+	/* function pageLoad(event) {
+	} */
+	function pageReady(event) {
+		//configChanged();
+		window.addEventListener("gamepadconnected", gamepadConnected);
+		window.addEventListener("gamepaddisconnected", gamepadDisconnected);
+		gamepadDisconnected();
+		//document.getElementById("txtAxisIndex").addEventListener("input", axisChange);
+		document.getElementById("txtControllerIndex").addEventListener("input", configChanged);
+		document.getElementById("txtAxisIndex").addEventListener("input", configChanged);
+
+		//valueHistory = new Array();
+		valueHistory = new Array(valueHistorySize);
+		valueHistory.fill(0); //to do: check this
+
+		//generate table rows for data points
+		const tblBody = document.querySelector("#valueHistory tbody");
+		tblBody.querySelectorAll("tr").forEach((value, key, parent) => {value.remove();});
+		for (let i = 0; i < tableRows; i++) {
+			const newRow = document.createElement("tr");
+			tblBody.appendChild(newRow);
+
+			const newCells = [document.createElement("td"), document.createElement("td")];
+			newRow.appendChild(newCells[0]);
+			newRow.appendChild(newCells[1]);
+
+			newCells[0].innerText = (-i).toString();
+			newCells[1].innerText = (0).toString();
+		}
+
+		//generate visual elements for data points
+		const svg = document.querySelector("#imgChart");
+		svg.querySelectorAll("rect").forEach((value, key, parent) => {value.remove();});
+		for (let i = 0; i < valueHistorySize; i++) {
+			const newPoint = document.createElementNS(svgNS, "rect");
+			newPoint.x.baseVal.value = i / valueHistorySize;
+			newPoint.y.baseVal.value = 0.5 - 0.5 * chartPointHeight;
+			newPoint.width.baseVal.value = 1 / valueHistorySize;
+			newPoint.height.baseVal.value = chartPointHeight;
+			svg.appendChild(newPoint);
+		}
+
+		dynLastTime = performance.now();
+		window.requestAnimationFrame(animLoop);
+	}
+
+	//window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<p>
+		<label for="txtControllerIndex">Controller index</label> <input type="number" id="txtControllerIndex" min="0" value="0" />
+		gamepads connected: <output id="outGamepadCount">0</output>
+	</p>
+	<p>
+		<label for="txtAxisIndex">Axis index</label> <input type="number" id="txtAxisIndex" min="0" value="0" />
+		axes available: <output id="outAxisCount">0</output>
+	</p>
+	<p>
+		<svg id="imgChart" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none">
+		</svg>
+	</p>
+	<table id="valueHistory">
+		<thead>
+			<tr>
+				<th scope="col">Time</th>
+				<th scope="col">Position</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>0</td>
+				<td>0</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>
