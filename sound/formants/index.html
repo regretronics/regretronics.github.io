@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Formants</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		background-color: revert !important; /*Dark Reader workaround*/
+	}
+	body {
+		/* background-color: canvas;
+		color: canvastext; */
+		color-scheme: dark;
+		font-size: 1.5em;
+	}
+	input {
+		font-size: 0.8em;
+	}
+	input[type="checkbox"] {
+		width: 1em;
+		height: 1em;
+	}
+	input[type="number"] {
+		width: 4em;
+		text-align: right;
+	}
+	#txtSource {
+		font-size: 0.85em;
+
+		/* width: calc(100% - 1em); */
+		box-sizing: border-box;
+		width: 100%;
+		min-width: 16em;
+		height: 16em;
+	}
+	#txtSource.parsing {
+		background-color: hsl(60deg 50% 25%);
+	}
+	#txtSource.invalid {
+		background-color: hsl(0deg 50% 25%);
+	}
+	#visualizer {
+		border-style: solid;
+		border-width: 0.25em;
+		border-color: gray;
+
+		box-sizing: border-box;
+		max-width: 100%;
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	const noiseBufferTime = 86400 / 4096; //seconds
+	function createNoiseBuffer(audioCtx) {
+		if(!audioCtx) return false;
+		const sampleCount = noiseBufferTime * audioCtx.sampleRate;
+		const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
+		const arr = buffer.getChannelData(0);
+
+		for(let i = 0; i < sampleCount; i++) {
+			//noise
+			//arr[i] = 2 * Math.random() - 1; //non-gaussian
+			//gaussian noise
+			//arr[i] = 0.5 * (Math.random() + Math.random() + Math.random() + Math.random()) - 1;
+			arr[i] = 1 * (Math.random() + Math.random() - Math.random() - Math.random()); //can result in overdrive/clipping, but in practice seems ok
+
+			//test: sine wave that fades in and then out
+			//arr[i] = (1 - Math.abs((i - 0.5 * sampleCount) / (0.5 * sampleCount))) * Math.sin(2 * Math.PI * 440 * i / audioCtx.sampleRate);
+		}
+
+		return buffer;
+	}
+
+	var audioCtx = null;
+	var noiseBuffer = null;
+	const defFormant = {"freq": 100, "q": 10, "gain": 1};
+	var acousticList = [
+		[{"freq": 100, "q": 10, "gain": 8}, {"freq": 400, "q": 10, "gain": 4}]
+		];
+	var cnvVisualizer, visCtx;
+
+	function checkInitAudio() {
+		if(audioCtx) return true;
+
+		audioCtx = new AudioContext({latencyHint: "playback"});
+		//audioCtx = new AudioContext({latencyHint: "interactive"});
+		noiseBuffer = createNoiseBuffer(audioCtx);
+
+		reloadPhonemes();
+		makeSoundNodes(audioCtx, document.getElementById("txtIPhon").valueAsNumber);
+
+		cnvVisualizer = document.getElementById("visualizer");
+		visCtx = cnvVisualizer.getContext("2d");
+
+		return true;
+	}
+	function reloadPhonemes() {
+		const txtSource = document.getElementById("txtSource");
+		txtSource.className = "parsing";
+		try {
+			acousticList = JSON.parse(txtSource.value);
+			txtSource.className = "";
+		} catch(error) {
+			txtSource.className = "invalid";
+		}
+	}
+
+	var bufferLength, dataArray;
+	function makeSoundNodes(audioCtx, iPhon) {
+		if(iPhon < 0) return false;
+		if(iPhon >= acousticList.length) return false;
+
+		const formantList = acousticList[iPhon];
+		if(formantList.length < 1) return false;
+
+		const sourceNode = new AudioBufferSourceNode(audioCtx, {buffer: noiseBuffer, loop: true});
+		audioCtx.sourceNode = sourceNode;
+
+		const delayNode = new DelayNode(audioCtx, {
+			delayTime: 1.0 / document.getElementById("txtCombFreq").valueAsNumber
+		});
+		sourceNode.connect(delayNode);
+		sourceNode.delayNode = delayNode;
+
+		const delayGainNode = new GainNode(audioCtx, {
+			gain: document.getElementById("txtCombGain").valueAsNumber
+		});
+		delayNode.connect(delayGainNode);
+		delayNode.delayGainNode = delayGainNode;
+
+		const analyserNode = new AnalyserNode(audioCtx/* , {fftSize: 2048, maxDecibels: -30, minDecibels: -100, smoothingTimeConstant: 0.8} */);
+		//audioCtx.destination.connect(analyserNode); //didn't work
+		analyserNode.connect(audioCtx.destination);
+		bufferLength = analyserNode.frequencyBinCount;
+		dataArray = new Float32Array(bufferLength);
+		//analyserNode.getFloatTimeDomainData(dataArray);
+		analyserNode.getFloatFrequencyData(dataArray);
+		audioCtx.analyserNode = analyserNode;
+
+		const qScale = document.getElementById("txtQScale").valueAsNumber;
+		const gainScale = document.getElementById("txtGainScale").valueAsNumber;
+		for (const formant of formantList) {
+			if(isNaN(formant.freq)) formant.freq = defFormant.freq;
+			if(isNaN(formant.q)) formant.q = defFormant.q;
+			if(isNaN(formant.gain)) formant.gain = defFormant.gain;
+
+			let terminalNode = sourceNode;
+			try {
+				const fltBandPass = new BiquadFilterNode(audioCtx, {
+					type: "bandpass",
+					frequency: formant.freq,
+					Q: qScale * formant.q
+					//Q: qScale * formant.q * formant.freq / 1024.0 //bandwidth compensation by frequency
+				});
+				sourceNode.connect(fltBandPass);
+				delayGainNode.connect(fltBandPass);
+				terminalNode = fltBandPass;
+				//sourceNode.fltBandPass = fltBandPass;
+				//auxNodes.push(fltBandPass);
+
+				const gainNode = new GainNode(audioCtx, {gain: gainScale * formant.gain});
+				terminalNode.connect(gainNode);
+				terminalNode = gainNode;
+			} catch(error) {
+			} finally {
+				terminalNode.connect(analyserNode);
+			}
+		}
+
+		sourceNode.start(0, Math.random() * noiseBuffer.duration); //random start point
+	}
+	function freeSoundNodes() {
+		//to do?
+		//perhaps unnecessary
+	}
+	function drawVisualizer() {
+		if(!audioCtx || !audioCtx.analyserNode) return false;
+		requestAnimationFrame(drawVisualizer);
+
+		//audioCtx.analyserNode.getFloatTimeDomainData(dataArray);
+		audioCtx.analyserNode.getFloatFrequencyData(dataArray);
+		const cw = cnvVisualizer.width, ch = cnvVisualizer.height;
+
+		visCtx.fillStyle = "canvastext";
+		visCtx.fillRect(0, 0, cw, ch);
+
+		visCtx.lineWidth = 3;
+		visCtx.strokeStyle = "hsl(0deg 100% 75%)";
+		visCtx.beginPath();
+		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 8000.0);
+		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
+		const sliceWidth = (cw + 1) / maxSpectrumIndex;
+		for (let i = 0; i <= maxFreq; i += 1000.0) {
+			const x = i * cw / maxFreq;
+			visCtx.moveTo(x, 0);
+			visCtx.lineTo(x, ch - 1);
+		}
+		visCtx.stroke();
+
+		visCtx.fillStyle = "canvas";
+		//visCtx.lineWidth = 1;
+		//visCtx.strokeStyle = "canvas";
+		visCtx.beginPath();
+
+		/* const sliceWidth = cw / bufferLength;
+		let x = 0;
+		for(let i = 0; i < bufferLength; i++) {
+			const v = 1.0 - dataArray[i]; //waveform
+			const y = (v * ch) / 2;
+
+			if (i === 0) {
+				visCtx.moveTo(x, y);
+			} else {
+				visCtx.lineTo(x, y);
+			}
+
+			x += sliceWidth;
+		}
+		visCtx.lineTo(cw, ch * 0.5); //waveform */
+
+		let x = 0;
+		for(let i = 0; i < maxSpectrumIndex; i++) {
+			const v = - dataArray[i] / 140.0; //spectrum
+			const y = v * ch;
+
+			if (i === 0) {
+				visCtx.moveTo(x, y);
+			} else {
+				visCtx.lineTo(x, y);
+			}
+
+			x += sliceWidth;
+		}
+		//visCtx.lineTo(cw, ch); //spectrum (necessary?)
+		//visCtx.stroke();
+
+		visCtx.lineTo(cw - 1, ch - 1);
+		visCtx.lineTo(0, ch - 1);
+		visCtx.closePath();
+		visCtx.fill();
+	}
+
+	function audioStateChanged(event) {
+		if(!event.target || event.target.checked === undefined) return;
+		if(event.target.checked) {
+			checkInitAudio();
+			audioCtx.resume();
+			drawVisualizer();
+		} else
+			//audioCtx.suspend();
+			{
+			audioCtx.close();
+			audioCtx = null;
+		}
+	}
+	function formantFreqChanged(event) {
+		if(!event.target) return;
+		//to do?
+	}
+
+	/* function pageLoad(event) {
+	} */
+	function pageReady(event) {
+		document.getElementById("chkAudioCtx").addEventListener("input", audioStateChanged);
+		document.getElementById("txtSource").addEventListener("input", reloadPhonemes);
+	}
+
+	//window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<h1>Formant synthesis</h1>
+	<p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">Sound system enable</label></p>
+	<p>Comb filter (phonation tone gen.): <label for="txtCombFreq">frequency</label> <input type="number" id="txtCombFreq" value="120" /> <label for="txtCombGain">gain</label> <input type="number" id="txtCombGain" value="-1" /></p>
+	<p>Overall params.: <label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="1" /> <label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" /></p>
+	<p><label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" /></p>
+	<p>List of phonemes (each a list of formants) (in JSON):<br />
+	<!-- Sources:
+		http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html
+		https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html -->
+	<textarea id="txtSource">
+[[
+{"freq": 650, "q": 32, "gain": 4},
+{"freq": 1100, "q": 32, "gain": 2.5},
+{"freq": 2600, "q": 32, "gain": 1}]
+, [
+{"freq": 300, "q": 32, "gain": 3},
+{"freq": 2200, "q": 32, "gain": 0.8},
+{"freq": 3150, "q": 32, "gain": 0.9}]
+, [
+{"freq": 340, "q": 32, "gain": 2.3},
+{"freq": 640, "q": 32, "gain": 1.4},
+{"freq": 2500, "q": 32, "gain": 0.15}]
+, [
+{"freq":  650, "q": 8.125, "gain": 1},
+{"freq": 1080, "q": 12, "gain": 0.501187234},
+{"freq": 2650, "q": 22.08333333, "gain": 0.446683592},
+{"freq": 2900, "q": 22.30769231, "gain": 0.398107171},
+{"freq": 3250, "q": 23.21428571, "gain": 0.079432823}]
+, [
+{"freq":  400, "q": 5.714285714, "gain": 1},
+{"freq": 1700, "q": 21.25, "gain": 0.199526231},
+{"freq": 2600, "q": 26, "gain": 0.251188643},
+{"freq": 3200, "q": 26.66666667, "gain": 0.199526231},
+{"freq": 3580, "q": 29.83333333, "gain": 0.1}]
+, [
+{"freq":  290, "q": 7.25, "gain": 1},
+{"freq": 1870, "q": 20.77777778, "gain": 0.177827941},
+{"freq": 2800, "q": 28, "gain": 0.125892541},
+{"freq": 3250, "q": 27.08333333, "gain": 0.1},
+{"freq": 3540, "q": 29.5, "gain": 0.031622777}]
+, [
+{"freq":  400, "q": 10, "gain": 1},
+{"freq":  800, "q": 10, "gain": 0.316227766},
+{"freq": 2600, "q": 26, "gain": 0.251188643},
+{"freq": 2800, "q": 23.33333333, "gain": 0.251188643},
+{"freq": 3000, "q": 25, "gain": 0.050118723}]
+, [
+{"freq":  350, "q": 8.75, "gain": 1},
+{"freq":  600, "q": 10, "gain": 0.1},
+{"freq": 2700, "q": 27, "gain": 0.141253754},
+{"freq": 2900, "q": 24.16666667, "gain": 0.199526231},
+{"freq": 3300, "q": 27.5, "gain": 0.050118723}]
+]</textarea></p>
+<!--
+
+-->
+	<p><canvas id="visualizer" width="1024" height="256">[Sound visualizer.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the sound spectrum without Canvas.</canvas></p>
+</body>
+</html>
