@@ -255,9 +255,9 @@ function registerFieldKernels(gpu) {
 			/* 0.125 + 0.75 * this.thread.x / worldRes[0],
 			0.125 + 0.75 * this.thread.y / worldRes[1],
 			0.125 + 0.75 * this.thread.z / worldRes[2]]; */
-			0.25 * Math.random() + 0.75 * this.thread.x / worldRes[0],
-			0.25 * Math.random() + 0.75 * this.thread.y / worldRes[1],
-			0.25 * Math.random() + 0.75 * this.thread.z / worldRes[2]];
+			0.375 * Math.random() + 0.625 * this.thread.x / worldRes[0],
+			0.375 * Math.random() + 0.625 * this.thread.y / worldRes[1],
+			0.375 * Math.random() + 0.625 * this.thread.z / worldRes[2]];
 		//const fill = [1.0, 1.0, 1.0, 0.0];
 
 		//let gain = (cell >= 1 ? 0.9375 : 0.0625);
