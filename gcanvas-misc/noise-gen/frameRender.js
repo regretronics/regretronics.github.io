@@ -161,7 +161,7 @@ function frameRenderNoise1(imgData) {
 		}
 	}
 }
-function frameRenderNoise2(imgData) {
+function frameRenderNoise2(imgData, cx, cy, scale) {
 	const data = imgData.data;
 	const bufH = imgData.height, bufW = imgData.width;
 	const accumBuf = new Float32Array(bufW * bufH);
@@ -198,9 +198,9 @@ function frameRenderNoise2(imgData) {
 					for(let x2 = 0; x2 < 4; x2++)
 						v += sourceFrags[y2 * 4 + x2] * filterCacheY[y2] * filterCacheX[x2];
 				}
-				accumBuf[pFrag++] += layerWeight * v;
-				//accumBuf[pFrag++] += 4 * layerWeight * v / Math.sqrt(layerScale);
-				//accumBuf[pFrag++] += 0.0625 * layerWeight * v / Math.sqrt(layerScale) / scale;
+				accumBuf[pFrag++] += layerWeight * v; //self-similar texture
+				//accumBuf[pFrag++] += 2 * layerWeight * v / Math.sqrt(layerScale); //smaller scales are watered down
+				//accumBuf[pFrag++] += 0.0625 * layerWeight * v / Math.sqrt(layerScale) / scale; //contrast is enhanced at small scales, curves getting more jagged
 			}
 		}	
 	}

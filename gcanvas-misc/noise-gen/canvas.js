@@ -61,7 +61,7 @@ function viewUpdate() {
 
 	let t = Date.now();
 	//frameRenderSimple(imgData);
-	frameRenderNoise2(imgData);
+	frameRenderNoise2(imgData, cx, cy, scale);
 	//frameRender(imgData);
 	c2d.putImageData(imgData, 0, 0);
 	t = Date.now() - t;
