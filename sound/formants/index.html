@@ -12,7 +12,8 @@
 		color: canvastext;
 	}
 	body {
-		font-size: 1.5em;
+		font-size: 1.25em;
+		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
 	}
 
 	input {
@@ -32,7 +33,7 @@
 		/* height: 1.5em; */
 	}
 
-	#txtSource {
+	#txtPhonSource {
 		font-size: 0.85em;
 
 		/* width: calc(100% - 1em); */
@@ -41,10 +42,10 @@
 		min-width: 16em;
 		height: 16em;
 	}
-	#txtSource.parsing {
+	#txtPhonSource.parsing {
 		background-color: hsl(60deg 50% 25%);
 	}
-	#txtSource.invalid {
+	#txtPhonSource.invalid {
 		background-color: hsl(0deg 50% 25%);
 	}
 
@@ -56,6 +57,11 @@
 		box-sizing: border-box;
 		max-width: 100%;
 	}
+
+	/* text-wrap-style
+	line-clamp
+	overflow-inline
+	 */
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
@@ -107,12 +113,12 @@
 		return true;
 	}
 	function reloadPhonemes() {
-		txtSource.className = "parsing";
+		txtPhonSource.className = "parsing";
 		try {
-			acousticList = JSON.parse(txtSource.value);
-			txtSource.className = "";
+			acousticList = JSON.parse(txtPhonSource.value);
+			txtPhonSource.className = "";
 		} catch(error) {
-			txtSource.className = "invalid";
+			txtPhonSource.className = "invalid";
 		}
 	}
 
@@ -341,7 +347,7 @@
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 		chkAudioCtx.addEventListener("input", audioStateChanged);
-		txtSource.addEventListener("input", reloadPhonemes);
+		txtPhonSource.addEventListener("input", reloadPhonemes);
 		btnPhonemePrev.addEventListener("click", phonIdxIncrement);
 		btnPhonemeNext.addEventListener("click", phonIdxIncrement);
 	}
@@ -367,18 +373,18 @@
 		<label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" />
 		<button id="btnPhonemePrev" data-delta="-1" title="Previous phoneme in list">&lt;</button><button id="btnPhonemeNext" data-delta="1" title="Next phoneme in list">&gt;</button></p>
 	<p>List of phonemes (each a list of formants) (in JSON):<br />
-	<textarea id="txtSource">
+	<textarea id="txtPhonSource">
 [[
-{"freq": 650, "q": 16, "gain": 2},
+{"freq":  650, "q": 16, "gain": 2},
 {"freq": 1100, "q": 16, "gain": 1.25},
 {"freq": 2600, "q": 16, "gain": 0.5}]
 , [
-{"freq": 300, "q": 16, "gain": 1.5},
+{"freq":  300, "q": 16, "gain": 1.5},
 {"freq": 2200, "q": 16, "gain": 0.4},
 {"freq": 3150, "q": 16, "gain": 0.45}]
 , [
-{"freq": 340, "q": 16, "gain": 1.15},
-{"freq": 640, "q": 16, "gain": 0.7},
+{"freq":  340, "q": 16, "gain": 1.15},
+{"freq":  640, "q": 16, "gain": 0.7},
 {"freq": 2500, "q": 16, "gain": 0.075}]
 , [
 {"freq":  650, "q": 8.125, "gain": 1},
@@ -413,7 +419,7 @@
 ]</textarea></p>
 	<p><canvas id="visualizer" width="1024" height="256">[Sound visualizer.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the sound spectrum without Canvas.</canvas></p>
 	<p>Sources:</p>
-	<ul>
+	<ul class="sources">
 		<li><a href="http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html">http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html</a></li>
 		<li><a href="https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html">https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html</a></li>
 	</ul>
