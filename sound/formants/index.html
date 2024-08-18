@@ -7,10 +7,9 @@
 	<title>Formants</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
-		/* background-color: revert !important; */ /*Dark Reader workaround*/
+		color-scheme: dark;
 		background-color: canvas;
 		color: canvastext;
-		color-scheme: dark;
 	}
 	body {
 		font-size: 1.5em;
@@ -18,7 +17,7 @@
 	input {
 		font-size: 0.8em;
 	}
-	input[type="checkbox"] {
+	input[type="checkbox"], input[type="radio"] {
 		width: 1em;
 		height: 1em;
 	}
@@ -59,13 +58,15 @@
 		const sampleCount = noiseBufferTime * audioCtx.sampleRate;
 		const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
 		const arr = buffer.getChannelData(0);
+		//let accum = 0;
 
 		for(let i = 0; i < sampleCount; i++) {
 			//noise
 			//arr[i] = 2 * Math.random() - 1; //non-gaussian
 			//gaussian noise
 			//arr[i] = 0.5 * (Math.random() + Math.random() + Math.random() + Math.random()) - 1;
-			arr[i] = 1 * (Math.random() + Math.random() - Math.random() - Math.random()); //can result in overdrive/clipping, but in practice seems ok
+			//arr[i] = 1 * (Math.random() + Math.random() - Math.random() - Math.random()); //can result in overdrive/clipping, but in practice seems ok
+			arr[i] = 2.0 / 3.0 * (Math.random() + Math.random() - Math.random() - Math.random()); //can result in overdrive/clipping, but in practice seems ok
 
 			//test: sine wave that fades in and then out
 			//arr[i] = (1 - Math.abs((i - 0.5 * sampleCount) / (0.5 * sampleCount))) * Math.sin(2 * Math.PI * 440 * i / audioCtx.sampleRate);
@@ -119,11 +120,38 @@
 		const sourceNode = new AudioBufferSourceNode(audioCtx, {buffer: noiseBuffer, loop: true});
 		audioCtx.sourceNode = sourceNode;
 
+		/* const sourceFilterNode = new IIRFilterNode(audioCtx, {
+			//feedforward: [-1.0, 1.0], feedback: [1.0] //pink/derivative?
+			feedforward: [0.125], feedback: [1.0, -1.0] //brown/brownian/integral
+			//feedforward: [0.0625], feedback: [1.0, -2.0, 1.0] //double integration?
+		});
+		sourceNode.connect(sourceFilterNode);
+		audioCtx.sourceFilterNode = sourceFilterNode; */
+		//const sourceFilterNode = sourceNode;
+
+		let sourceFilterNode;
+		if(document.getElementById("radNoiseWhite").checked) {
+			sourceFilterNode = sourceNode;
+		} else {
+			if(document.getElementById("radNoiseBrownian").checked) {
+				sourceFilterNode = new IIRFilterNode(audioCtx, {
+					feedforward: [0.125], feedback: [1.0, -1.0] //brown/brownian/integral
+					//feedforward: [0.0625], feedback: [1.0, -2.0, 1.0] //double integration?
+				});
+			} else {
+				sourceFilterNode = new IIRFilterNode(audioCtx, {
+					feedforward: [-8.0, 8.0], feedback: [1.0] //pink/derivative
+				});
+			}
+			sourceNode.connect(sourceFilterNode);
+		}
+		audioCtx.sourceFilterNode = sourceFilterNode;
+
 		const delayNode = new DelayNode(audioCtx, {
 			delayTime: 0.5 / document.getElementById("txtCombFreq").valueAsNumber
 		});
-		sourceNode.connect(delayNode);
-		sourceNode.delayNode = delayNode;
+		sourceFilterNode.connect(delayNode);
+		sourceFilterNode.delayNode = delayNode;
 
 		const delayGainNode = new GainNode(audioCtx, {
 			gain: document.getElementById("txtCombGain").valueAsNumber
@@ -148,7 +176,7 @@
 			if(isNaN(formant.q)) formant.q = defFormant.q;
 			if(isNaN(formant.gain)) formant.gain = defFormant.gain;
 
-			let terminalNode = sourceNode;
+			let terminalNode = sourceFilterNode;
 			try {
 				const fltBandPass = new BiquadFilterNode(audioCtx, {
 					type: "bandpass",
@@ -156,7 +184,7 @@
 					Q: qScale * formant.q
 					//Q: qScale * formant.q * formant.freq / 1024.0 //bandwidth compensation by frequency
 				});
-				sourceNode.connect(fltBandPass);
+				sourceFilterNode.connect(fltBandPass);
 				delayGainNode.connect(fltBandPass);
 				terminalNode = fltBandPass;
 				//sourceNode.fltBandPass = fltBandPass;
@@ -177,6 +205,7 @@
 		//to do?
 		//perhaps unnecessary
 	}
+
 	function drawVisualizer() {
 		if(!audioCtx || !audioCtx.analyserNode) return false;
 		requestAnimationFrame(drawVisualizer);
@@ -188,18 +217,27 @@
 		visCtx.fillStyle = "canvastext";
 		visCtx.fillRect(0, 0, cw, ch);
 
-		visCtx.lineWidth = 3;
-		visCtx.strokeStyle = "hsl(0deg 100% 75%)";
-		visCtx.beginPath();
-		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 8000.0);
+		//visCtx.lineWidth = 3;
+		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
+		//visCtx.beginPath();
+		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 6000.0);
 		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
 		const sliceWidth = (cw + 1) / maxSpectrumIndex;
-		for (let i = 0; i <= maxFreq; i += 1000.0) {
+		for (let i = 0; i <= maxFreq; i += 250.0) {
+			visCtx.beginPath();
+			if((i % 1000.0) === 0.0) {
+				visCtx.lineWidth = 3;
+				visCtx.strokeStyle = "hsl(0deg 100% 75%)";
+			} else {
+				visCtx.lineWidth = 1;
+				visCtx.strokeStyle = "hsl(0deg 100% 50%)";
+			}
 			const x = i * cw / maxFreq;
 			visCtx.moveTo(x, 0);
 			visCtx.lineTo(x, ch - 1);
+			visCtx.stroke();
 		}
-		visCtx.stroke();
+		//visCtx.stroke();
 
 		visCtx.fillStyle = "canvas";
 		//visCtx.lineWidth = 1;
@@ -279,11 +317,15 @@
 <body>
 	<h1>Formant synthesis</h1>
 	<p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">Sound system enable</label></p>
+	<p>Noise source (breath): 
+		<input type="radio" id="radNoiseBrownian" name="noiseColor" /> <label for="radNoiseBrownian">Brownian (integral)</label>
+		<input type="radio" id="radNoiseWhite" name="noiseColor" checked="true" /> <label for="radNoiseWhite">White</label>
+		<input type="radio" id="radNoisePink" name="noiseColor" /> <label for="radNoisePink">Pink (derivative)</label></p>
 	<p>Comb filter (phonation tone gen.): 
 		<label for="txtCombFreq">fundamental (Hz)</label> <input type="number" id="txtCombFreq" value="120" /> 
 		<label for="txtCombGain">gain</label> <input type="number" id="txtCombGain" value="-1" /></p>
 	<p>Overall params.: 
-		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="16" /> 
+		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="8" /> 
 		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="0.25" /></p>
 	<p><label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" /></p>
 	<p>List of phonemes (each a list of formants) (in JSON):<br />
