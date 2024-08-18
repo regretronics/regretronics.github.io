@@ -7,12 +7,12 @@
 	<title>Formants</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
-		background-color: revert !important; /*Dark Reader workaround*/
+		/* background-color: revert !important; */ /*Dark Reader workaround*/
+		background-color: canvas;
+		color: canvastext;
+		color-scheme: dark;
 	}
 	body {
-		/* background-color: canvas;
-		color: canvastext; */
-		color-scheme: dark;
 		font-size: 1.5em;
 	}
 	input {
@@ -120,7 +120,7 @@
 		audioCtx.sourceNode = sourceNode;
 
 		const delayNode = new DelayNode(audioCtx, {
-			delayTime: 1.0 / document.getElementById("txtCombFreq").valueAsNumber
+			delayTime: 0.5 / document.getElementById("txtCombFreq").valueAsNumber
 		});
 		sourceNode.connect(delayNode);
 		sourceNode.delayNode = delayNode;
@@ -131,7 +131,8 @@
 		delayNode.connect(delayGainNode);
 		delayNode.delayGainNode = delayGainNode;
 
-		const analyserNode = new AnalyserNode(audioCtx/* , {fftSize: 2048, maxDecibels: -30, minDecibels: -100, smoothingTimeConstant: 0.8} */);
+		const analyserNode = new AnalyserNode(audioCtx);
+		//const analyserNode = new AnalyserNode(audioCtx, {fftSize: 2048, maxDecibels: -30, minDecibels: -100, smoothingTimeConstant: 0.8});
 		//audioCtx.destination.connect(analyserNode); //didn't work
 		analyserNode.connect(audioCtx.destination);
 		bufferLength = analyserNode.frequencyBinCount;
@@ -141,7 +142,7 @@
 		audioCtx.analyserNode = analyserNode;
 
 		const qScale = document.getElementById("txtQScale").valueAsNumber;
-		const gainScale = document.getElementById("txtGainScale").valueAsNumber;
+		const gainScale = qScale * document.getElementById("txtGainScale").valueAsNumber;
 		for (const formant of formantList) {
 			if(isNaN(formant.freq)) formant.freq = defFormant.freq;
 			if(isNaN(formant.q)) formant.q = defFormant.q;
@@ -209,7 +210,7 @@
 		let x = 0;
 		for(let i = 0; i < bufferLength; i++) {
 			const v = 1.0 - dataArray[i]; //waveform
-			const y = (v * ch) / 2;
+			const y = v * 0.5 * ch;
 
 			if (i === 0) {
 				visCtx.moveTo(x, y);
@@ -223,7 +224,8 @@
 
 		let x = 0;
 		for(let i = 0; i < maxSpectrumIndex; i++) {
-			const v = - dataArray[i] / 140.0; //spectrum
+			//const v = - dataArray[i] / 140.0; //spectrum, log amplitude
+			const v = 1.0 - 24.0 * Math.pow(10.0, dataArray[i] / 20.0); //spectrum, linear amplitude
 			const y = v * ch;
 
 			if (i === 0) {
@@ -237,8 +239,10 @@
 		//visCtx.lineTo(cw, ch); //spectrum (necessary?)
 		//visCtx.stroke();
 
-		visCtx.lineTo(cw - 1, ch - 1);
-		visCtx.lineTo(0, ch - 1);
+		visCtx.lineTo(cw, ch);
+		visCtx.lineTo(0, ch);
+		/* visCtx.lineTo(cw - 1, ch - 1);
+		visCtx.lineTo(0, ch - 1); */
 		visCtx.closePath();
 		visCtx.fill();
 	}
@@ -275,26 +279,30 @@
 <body>
 	<h1>Formant synthesis</h1>
 	<p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">Sound system enable</label></p>
-	<p>Comb filter (phonation tone gen.): <label for="txtCombFreq">frequency</label> <input type="number" id="txtCombFreq" value="120" /> <label for="txtCombGain">gain</label> <input type="number" id="txtCombGain" value="-1" /></p>
-	<p>Overall params.: <label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="1" /> <label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" /></p>
-	<p><label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" /></p>
+	<p>Comb filter (phonation tone gen.): 
+		<label for="txtCombFreq">fundamental (Hz)</label> <input type="number" id="txtCombFreq" value="120" /> 
+		<label for="txtCombGain">gain</label> <input type="number" id="txtCombGain" value="-1" /></p>
+	<p>Overall params.: 
+		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="16" /> 
+		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="0.25" /></p>
+	<p><label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" /></p>
 	<p>List of phonemes (each a list of formants) (in JSON):<br />
 	<!-- Sources:
 		http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html
 		https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html -->
 	<textarea id="txtSource">
 [[
-{"freq": 650, "q": 32, "gain": 4},
-{"freq": 1100, "q": 32, "gain": 2.5},
-{"freq": 2600, "q": 32, "gain": 1}]
+{"freq": 650, "q": 16, "gain": 2},
+{"freq": 1100, "q": 16, "gain": 1.25},
+{"freq": 2600, "q": 16, "gain": 0.5}]
 , [
-{"freq": 300, "q": 32, "gain": 3},
-{"freq": 2200, "q": 32, "gain": 0.8},
-{"freq": 3150, "q": 32, "gain": 0.9}]
+{"freq": 300, "q": 16, "gain": 1.5},
+{"freq": 2200, "q": 16, "gain": 0.4},
+{"freq": 3150, "q": 16, "gain": 0.45}]
 , [
-{"freq": 340, "q": 32, "gain": 2.3},
-{"freq": 640, "q": 32, "gain": 1.4},
-{"freq": 2500, "q": 32, "gain": 0.15}]
+{"freq": 340, "q": 16, "gain": 1.15},
+{"freq": 640, "q": 16, "gain": 0.7},
+{"freq": 2500, "q": 16, "gain": 0.075}]
 , [
 {"freq":  650, "q": 8.125, "gain": 1},
 {"freq": 1080, "q": 12, "gain": 0.501187234},
@@ -326,9 +334,6 @@
 {"freq": 2900, "q": 24.16666667, "gain": 0.199526231},
 {"freq": 3300, "q": 27.5, "gain": 0.050118723}]
 ]</textarea></p>
-<!--
-
--->
 	<p><canvas id="visualizer" width="1024" height="256">[Sound visualizer.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the sound spectrum without Canvas.</canvas></p>
 </body>
 </html>
