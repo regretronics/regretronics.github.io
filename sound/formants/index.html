@@ -24,12 +24,15 @@
 		height: 1em;
 	}
 	input[type="number"] {
-		width: 4em;
+		width: 8ch;
 		text-align: right;
+	}
+	#txtToneDecay {
+		width: 10ch;
 	}
 	#btnPhonemePrev, #btnPhonemeNext {
 		font-size: 0.85em;
-		width: 1.5em;
+		width: 3ch;
 		/* height: 1.5em; */
 	}
 
@@ -39,7 +42,7 @@
 		/* width: calc(100% - 1em); */
 		box-sizing: border-box;
 		width: 100%;
-		min-width: 16em;
+		min-width: 32ch;
 		height: 16em;
 	}
 	#txtPhonSource.parsing {
@@ -57,11 +60,6 @@
 		box-sizing: border-box;
 		max-width: 100%;
 	}
-
-	/* text-wrap-style
-	line-clamp
-	overflow-inline
-	 */
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
@@ -85,6 +83,37 @@
 			//test: sine wave that fades in and then out
 			//arr[i] = (1 - Math.abs((i - 0.5 * sampleCount) / (0.5 * sampleCount))) * Math.sin(2 * Math.PI * 440 * i / audioCtx.sampleRate);
 		}
+
+		return buffer;
+	}
+	function createIRBuffer(audioCtx, decayFactor, interval) {
+		if(!audioCtx) return false;
+
+		const maxDecay = 1.0 - 1.0 / 32.0;
+		if(Math.abs(decayFactor) > maxDecay) decayFactor = Math.sign(decayFactor) * maxDecay;
+		const decayFactorAbs = Math.abs(decayFactor);
+
+		//estimate required duration.
+		//const bufferTime = interval / (1.0 - decayFactorAbs); //simpler calculation
+		//threshold-based calculation
+		const levelThreshold = 1.0 / 4096.0;
+		const reverbCount = Math.log(levelThreshold) / Math.log(decayFactorAbs);
+		const bufferTime = interval * reverbCount;
+		const sampleCount = bufferTime * audioCtx.sampleRate;
+		
+		const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
+		const arr = buffer.getChannelData(0);
+		//sparse impulse response (simple)
+		let level = 1.0;
+		for(let sample = 0; sample < sampleCount; sample += interval * audioCtx.sampleRate) {
+			arr[Math.round(sample)] = level;
+			level *= decayFactor;
+		}
+
+		//to do: gaussian blob-based impulse response (complex)
+		/* for(let i = 0; i < sampleCount; i++) {
+			//
+		} */
 
 		return buffer;
 	}
@@ -160,17 +189,26 @@
 		}
 		audioCtx.sourceFilterNode = sourceFilterNode;
 
-		const delayNode = new DelayNode(audioCtx, {
-			delayTime: 0.5 / txtCombFreq.valueAsNumber
+		//Comb filter (single delay, simple)
+		/* const delayNode = new DelayNode(audioCtx, {
+			delayTime: 0.5 / txtToneFreq.valueAsNumber
 		});
 		sourceFilterNode.connect(delayNode);
 		sourceFilterNode.delayNode = delayNode;
 
 		const delayGainNode = new GainNode(audioCtx, {
-			gain: txtCombGain.valueAsNumber
+			gain: txtToneDecay.valueAsNumber
 		});
 		delayNode.connect(delayGainNode);
-		delayNode.delayGainNode = delayGainNode;
+		delayNode.delayGainNode = delayGainNode; */
+		
+		//Convolution/reverb
+		const convolverNode = new ConvolverNode(audioCtx, {
+			buffer: createIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber),
+			disableNormalization: true
+		});
+		sourceFilterNode.connect(convolverNode);
+		audioCtx.convolverNode = convolverNode;
 
 		const analyserNode = new AnalyserNode(audioCtx);
 		//const analyserNode = new AnalyserNode(audioCtx, {fftSize: 2048, maxDecibels: -30, minDecibels: -100, smoothingTimeConstant: 0.8});
@@ -189,7 +227,7 @@
 			if(isNaN(formant.q)) formant.q = defFormant.q;
 			if(isNaN(formant.gain)) formant.gain = defFormant.gain;
 
-			let terminalNode = sourceFilterNode;
+			let terminalNode = convolverNode;
 			try {
 				const fltBandPass = new BiquadFilterNode(audioCtx, {
 					type: "bandpass",
@@ -197,8 +235,9 @@
 					Q: qScale * formant.q
 					//Q: qScale * formant.q * formant.freq / 1024.0 //bandwidth compensation by frequency
 				});
-				sourceFilterNode.connect(fltBandPass);
-				delayGainNode.connect(fltBandPass);
+				/* sourceFilterNode.connect(fltBandPass);
+				delayGainNode.connect(fltBandPass); */
+				convolverNode.connect(fltBandPass);
 				terminalNode = fltBandPass;
 				//sourceNode.fltBandPass = fltBandPass;
 				//auxNodes.push(fltBandPass);
@@ -237,9 +276,20 @@
 			const formantList = acousticList[txtIPhon.valueAsNumber];
 			for(const formant of formantList) {
 				visCtx.beginPath();
-				visCtx.lineWidth = 0.25 * cw / formant.q;
+
 				visCtx.strokeStyle = "hsl(210deg 100% 75% / 0.5)";
-				const x = formant.freq * cw / maxFreq;
+				//question: multiply by overall q? (currently not.)
+				//range calculation, linear
+				/* visCtx.lineWidth = cw * formant.freq / (4096.0 * formant.q);
+				const x = formant.freq * cw / maxFreq; */
+				
+				//range calculation, exponential (more precise)
+				const centralFreq = formant.freq / maxFreq;
+				const bandwidthFactor = Math.exp(Math.LN2 / (1.0 * formant.q));
+				const freqLower = centralFreq / bandwidthFactor, freqUpper = centralFreq * bandwidthFactor;
+				visCtx.lineWidth = (freqUpper - freqLower) * cw;
+				const x = 0.5 * (freqLower + freqUpper) * cw;
+
 				visCtx.moveTo(x, 0);
 				visCtx.lineTo(x, ch);
 				visCtx.stroke();
@@ -360,15 +410,15 @@
 	<h1>Formant synthesis</h1>
 	<p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">Sound system enable</label></p>
 	<p>Noise source (breath): 
-		<input type="radio" id="radNoiseBrownian" name="noiseColor" /> <label for="radNoiseBrownian">Brownian (integral)</label>
-		<input type="radio" id="radNoiseWhite" name="noiseColor" checked="true" /> <label for="radNoiseWhite">White</label>
-		<input type="radio" id="radNoisePink" name="noiseColor" /> <label for="radNoisePink">Pink (derivative)</label></p>
-	<p>Comb filter (phonation tone gen.): 
-		<label for="txtCombFreq">fundamental (Hz)</label> <input type="number" id="txtCombFreq" value="120" /> 
-		<label for="txtCombGain">gain</label> <input type="number" id="txtCombGain" value="-1" /></p>
+		<input type="radio" id="radNoiseBrownian" name="noiseColor" />&nbsp;<label for="radNoiseBrownian">Brownian (integral)</label>
+		<input type="radio" id="radNoiseWhite" name="noiseColor" checked="true" />&nbsp;<label for="radNoiseWhite">White</label>
+		<input type="radio" id="radNoisePink" name="noiseColor" />&nbsp;<label for="radNoisePink">Pink (derivative)</label></p>
+	<p>Tone filter (phonation gen.): 
+		<label for="txtToneFreq">fundamental (Hz)</label> <input type="number" id="txtToneFreq" value="120" /> 
+		<label for="txtToneDecay">decay factor</label> <input type="number" id="txtToneDecay" value="-0.75" step="0.0625" min="-1" max="1" /></p>
 	<p>Overall params.: 
-		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="8" /> 
-		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="0.25" /></p>
+		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="2" /> 
+		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" /></p>
 	<p>
 		<label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" />
 		<button id="btnPhonemePrev" data-delta="-1" title="Previous phoneme in list">&lt;</button><button id="btnPhonemeNext" data-delta="1" title="Next phoneme in list">&gt;</button></p>
