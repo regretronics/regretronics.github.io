@@ -14,6 +14,7 @@
 	body {
 		font-size: 1.5em;
 	}
+
 	input {
 		font-size: 0.8em;
 	}
@@ -25,6 +26,12 @@
 		width: 4em;
 		text-align: right;
 	}
+	#btnPhonemePrev, #btnPhonemeNext {
+		font-size: 0.85em;
+		width: 1.5em;
+		/* height: 1.5em; */
+	}
+
 	#txtSource {
 		font-size: 0.85em;
 
@@ -40,6 +47,7 @@
 	#txtSource.invalid {
 		background-color: hsl(0deg 50% 25%);
 	}
+
 	#visualizer {
 		border-style: solid;
 		border-width: 0.25em;
@@ -91,15 +99,14 @@
 		noiseBuffer = createNoiseBuffer(audioCtx);
 
 		reloadPhonemes();
-		makeSoundNodes(audioCtx, document.getElementById("txtIPhon").valueAsNumber);
+		makeSoundNodes(audioCtx, txtIPhon.valueAsNumber);
 
-		cnvVisualizer = document.getElementById("visualizer");
+		cnvVisualizer = visualizer;
 		visCtx = cnvVisualizer.getContext("2d");
 
 		return true;
 	}
 	function reloadPhonemes() {
-		const txtSource = document.getElementById("txtSource");
 		txtSource.className = "parsing";
 		try {
 			acousticList = JSON.parse(txtSource.value);
@@ -130,10 +137,10 @@
 		//const sourceFilterNode = sourceNode;
 
 		let sourceFilterNode;
-		if(document.getElementById("radNoiseWhite").checked) {
+		if(radNoiseWhite.checked) {
 			sourceFilterNode = sourceNode;
 		} else {
-			if(document.getElementById("radNoiseBrownian").checked) {
+			if(radNoiseBrownian.checked) {
 				sourceFilterNode = new IIRFilterNode(audioCtx, {
 					feedforward: [0.125], feedback: [1.0, -1.0] //brown/brownian/integral
 					//feedforward: [0.0625], feedback: [1.0, -2.0, 1.0] //double integration?
@@ -148,13 +155,13 @@
 		audioCtx.sourceFilterNode = sourceFilterNode;
 
 		const delayNode = new DelayNode(audioCtx, {
-			delayTime: 0.5 / document.getElementById("txtCombFreq").valueAsNumber
+			delayTime: 0.5 / txtCombFreq.valueAsNumber
 		});
 		sourceFilterNode.connect(delayNode);
 		sourceFilterNode.delayNode = delayNode;
 
 		const delayGainNode = new GainNode(audioCtx, {
-			gain: document.getElementById("txtCombGain").valueAsNumber
+			gain: txtCombGain.valueAsNumber
 		});
 		delayNode.connect(delayGainNode);
 		delayNode.delayGainNode = delayGainNode;
@@ -169,9 +176,9 @@
 		analyserNode.getFloatFrequencyData(dataArray);
 		audioCtx.analyserNode = analyserNode;
 
-		const qScale = document.getElementById("txtQScale").valueAsNumber;
-		const gainScale = qScale * document.getElementById("txtGainScale").valueAsNumber;
-		for (const formant of formantList) {
+		const qScale = txtQScale.valueAsNumber;
+		const gainScale = qScale * txtGainScale.valueAsNumber;
+		for(const formant of formantList) {
 			if(isNaN(formant.freq)) formant.freq = defFormant.freq;
 			if(isNaN(formant.q)) formant.q = defFormant.q;
 			if(isNaN(formant.gain)) formant.gain = defFormant.gain;
@@ -214,31 +221,48 @@
 		audioCtx.analyserNode.getFloatFrequencyData(dataArray);
 		const cw = cnvVisualizer.width, ch = cnvVisualizer.height;
 
+		//clear frame.
 		visCtx.fillStyle = "canvastext";
 		visCtx.fillRect(0, 0, cw, ch);
 
+		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 6000.0);
+		//frequency guide lines.
+		if(acousticList.length >= 1 && acousticList[txtIPhon.valueAsNumber]) {
+			const formantList = acousticList[txtIPhon.valueAsNumber];
+			for(const formant of formantList) {
+				visCtx.beginPath();
+				visCtx.lineWidth = 0.25 * cw / formant.q;
+				visCtx.strokeStyle = "hsl(210deg 100% 75% / 0.5)";
+				const x = formant.freq * cw / maxFreq;
+				visCtx.moveTo(x, 0);
+				visCtx.lineTo(x, ch);
+				visCtx.stroke();
+			}
+		}
+
+		//vertical grid lines.
 		//visCtx.lineWidth = 3;
 		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
 		//visCtx.beginPath();
-		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 6000.0);
-		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
-		const sliceWidth = (cw + 1) / maxSpectrumIndex;
 		for (let i = 0; i <= maxFreq; i += 250.0) {
 			visCtx.beginPath();
 			if((i % 1000.0) === 0.0) {
 				visCtx.lineWidth = 3;
-				visCtx.strokeStyle = "hsl(0deg 100% 75%)";
+				visCtx.strokeStyle = "hsl(30deg 100% 75% / 0.75)";
 			} else {
 				visCtx.lineWidth = 1;
-				visCtx.strokeStyle = "hsl(0deg 100% 50%)";
+				visCtx.strokeStyle = "hsl(30deg 100% 50% / 0.75)";
 			}
 			const x = i * cw / maxFreq;
 			visCtx.moveTo(x, 0);
-			visCtx.lineTo(x, ch - 1);
+			visCtx.lineTo(x, ch);
 			visCtx.stroke();
 		}
 		//visCtx.stroke();
 
+		//draw content.
+		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
+		const sliceWidth = (cw + 1) / maxSpectrumIndex;
 		visCtx.fillStyle = "canvas";
 		//visCtx.lineWidth = 1;
 		//visCtx.strokeStyle = "canvas";
@@ -302,12 +326,24 @@
 		if(!event.target) return;
 		//to do?
 	}
+	function phonIdxIncrement(event) {
+		if(!document) return false;
+		const elem = event.target;
+		if(!elem) return false;
+		let delta = Number(elem.dataset["delta"]);
+		txtIPhon.valueAsNumber += delta;
+	}
 
 	/* function pageLoad(event) {
 	} */
 	function pageReady(event) {
-		document.getElementById("chkAudioCtx").addEventListener("input", audioStateChanged);
-		document.getElementById("txtSource").addEventListener("input", reloadPhonemes);
+		//load HTML element references
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+		chkAudioCtx.addEventListener("input", audioStateChanged);
+		txtSource.addEventListener("input", reloadPhonemes);
+		btnPhonemePrev.addEventListener("click", phonIdxIncrement);
+		btnPhonemeNext.addEventListener("click", phonIdxIncrement);
 	}
 
 	//window.addEventListener("DOMContentLoaded", pageLoad);
@@ -327,11 +363,10 @@
 	<p>Overall params.: 
 		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="8" /> 
 		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="0.25" /></p>
-	<p><label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" /></p>
+	<p>
+		<label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" />
+		<button id="btnPhonemePrev" data-delta="-1" title="Previous phoneme in list">&lt;</button><button id="btnPhonemeNext" data-delta="1" title="Next phoneme in list">&gt;</button></p>
 	<p>List of phonemes (each a list of formants) (in JSON):<br />
-	<!-- Sources:
-		http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html
-		https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html -->
 	<textarea id="txtSource">
 [[
 {"freq": 650, "q": 16, "gain": 2},
@@ -377,5 +412,10 @@
 {"freq": 3300, "q": 27.5, "gain": 0.050118723}]
 ]</textarea></p>
 	<p><canvas id="visualizer" width="1024" height="256">[Sound visualizer.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the sound spectrum without Canvas.</canvas></p>
+	<p>Sources:</p>
+	<ul>
+		<li><a href="http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html">http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html</a></li>
+		<li><a href="https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html">https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html</a></li>
+	</ul>
 </body>
 </html>
