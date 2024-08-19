@@ -244,7 +244,8 @@
 		if(formantList.length < 1) return false;
 
 		const qScale = txtQScale.valueAsNumber;
-		const gainScale = qScale * Math.exp(Math.LN2 * txtGainScale.valueAsNumber);
+		const gainScale = qScale * txtGainScale.valueAsNumber;
+		//const gainScale = qScale * Math.exp(Math.LN2 * txtGainScale.valueAsNumber); //in bits (inconsistent, might be confusing)
 		for(const formant of formantList) {
 			if(isNaN(formant.freq)) formant.freq = defFormant.freq;
 			if(isNaN(formant.q)) formant.q = defFormant.q;
@@ -493,6 +494,7 @@
 		txtQScale.addEventListener("input", refreshFormants);
 		txtQScale.addEventListener("input", expSpinnerChanged);
 		txtGainScale.addEventListener("input", refreshFormants);
+		txtGainScale.addEventListener("input", expSpinnerChanged);
 
 		btnPhonemePrev.addEventListener("click", phonIdxIncrement);
 		btnPhonemeNext.addEventListener("click", phonIdxIncrement);
@@ -515,8 +517,8 @@
 		<label for="txtToneFreq">fundamental (Hz)</label> <input type="number" id="txtToneFreq" value="120" step="5" /> 
 		<label for="txtToneDecay">decay factor</label> <input type="number" id="txtToneDecay" value="-0.8125" step="0.0625" min="-1" max="1" /></p>
 	<p>Overall params.: 
-		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="1" /> 
-		<label for="txtGainScale">gain (bits)</label> <input type="number" id="txtGainScale" value="0" step="0.25" /></p>
+		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="1" step="0.25" /> 
+		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" step="0.25" /></p>
 	<p>
 		<label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" />
 		<button id="btnPhonemePrev" data-delta="-1" title="Previous phoneme in list">&lt;</button><button id="btnPhonemeNext" data-delta="1" title="Next phoneme in list">&gt;</button></p>
