@@ -69,6 +69,7 @@
 		if(!audioCtx) return false;
 		const sampleCount = noiseBufferTime * audioCtx.sampleRate;
 		const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
+		if(!buffer) return null;
 		const arr = buffer.getChannelData(0);
 		//let accum = 0;
 
@@ -97,15 +98,16 @@
 		//const bufferTime = interval / (1.0 - decayFactorAbs); //simpler calculation
 		//threshold-based calculation
 		const levelThreshold = 1.0 / 4096.0;
-		const reverbCount = Math.log(levelThreshold) / Math.log(decayFactorAbs);
+		const reverbCount = (decayFactorAbs == 0.0 ? 0 : Math.log(levelThreshold) / Math.log(decayFactorAbs));
 		const bufferTime = interval * reverbCount;
-		const sampleCount = bufferTime * audioCtx.sampleRate;
+		const sampleCount = 1 + bufferTime * audioCtx.sampleRate;
 		
 		const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
-		const arr = buffer.getChannelData(0);
+		if(!buffer) return null;
+		const arr = buffer.getChannelData(0), sampleInc = interval * audioCtx.sampleRate;
 		//sparse impulse response (simple)
 		let level = 1.0;
-		for(let sample = 0; sample < sampleCount; sample += interval * audioCtx.sampleRate) {
+		for(let sample = 0; sample < sampleCount; sample += sampleInc) {
 			arr[Math.round(sample)] = level;
 			level *= decayFactor;
 		}
@@ -131,13 +133,27 @@
 
 		audioCtx = new AudioContext({latencyHint: "playback"});
 		//audioCtx = new AudioContext({latencyHint: "interactive"});
+		if(!audioCtx) return false;
 		noiseBuffer = createNoiseBuffer(audioCtx);
 
+		makeSoundNodes(audioCtx);
 		reloadPhonemes();
-		makeSoundNodes(audioCtx, txtIPhon.valueAsNumber);
+		try {
+			const iPhon = txtIPhon.valueAsNumber;
+			if(iPhon < 0) return false;
+			if(iPhon >= acousticList.length) return false;
 
-		cnvVisualizer = visualizer;
-		visCtx = cnvVisualizer.getContext("2d");
+			const formantList = acousticList[iPhon];
+			if(formantList.length < 1) return false;
+
+			//makeSoundNodes(audioCtx);
+			makeFormantNodes(formantList, audioCtx, audioCtx.convolverNode, audioCtx.analyserNode);
+
+			audioCtx.sourceNode.start(0, Math.random() * noiseBuffer.duration); //random start point
+		} finally {
+			cnvVisualizer = visualizer;
+			visCtx = cnvVisualizer.getContext("2d");
+		}
 
 		return true;
 	}
@@ -148,29 +164,14 @@
 			txtPhonSource.className = "";
 		} catch(error) {
 			txtPhonSource.className = "invalid";
+			return false;
 		}
+		return true;
 	}
 
 	var bufferLength, dataArray;
-	function makeSoundNodes(audioCtx, iPhon) {
-		if(iPhon < 0) return false;
-		if(iPhon >= acousticList.length) return false;
-
-		const formantList = acousticList[iPhon];
-		if(formantList.length < 1) return false;
-
-		const sourceNode = new AudioBufferSourceNode(audioCtx, {buffer: noiseBuffer, loop: true});
-		audioCtx.sourceNode = sourceNode;
-
-		/* const sourceFilterNode = new IIRFilterNode(audioCtx, {
-			//feedforward: [-1.0, 1.0], feedback: [1.0] //pink/derivative?
-			feedforward: [0.125], feedback: [1.0, -1.0] //brown/brownian/integral
-			//feedforward: [0.0625], feedback: [1.0, -2.0, 1.0] //double integration?
-		});
-		sourceNode.connect(sourceFilterNode);
-		audioCtx.sourceFilterNode = sourceFilterNode; */
-		//const sourceFilterNode = sourceNode;
-
+	var formantNodes = [];
+	function getSourceFilterNode(sourceNode) {
 		let sourceFilterNode;
 		if(radNoiseWhite.checked) {
 			sourceFilterNode = sourceNode;
@@ -187,9 +188,28 @@
 			}
 			sourceNode.connect(sourceFilterNode);
 		}
+		return sourceFilterNode;
+	}
+	function makeSoundNodes(audioCtx) {
+		if(!audioCtx) return false;
+		const sourceNode = new AudioBufferSourceNode(audioCtx, {buffer: noiseBuffer, loop: true});
+		audioCtx.sourceNode = sourceNode;
+
+		//primary noise filter.
+		/* const sourceFilterNode = new IIRFilterNode(audioCtx, {
+			//feedforward: [-1.0, 1.0], feedback: [1.0] //pink/derivative?
+			feedforward: [0.125], feedback: [1.0, -1.0] //brown/brownian/integral
+			//feedforward: [0.0625], feedback: [1.0, -2.0, 1.0] //double integration?
+		});
+		sourceNode.connect(sourceFilterNode);
+		audioCtx.sourceFilterNode = sourceFilterNode; */
+		//const sourceFilterNode = sourceNode;
+
+		const sourceFilterNode = getSourceFilterNode(sourceNode);
 		audioCtx.sourceFilterNode = sourceFilterNode;
 
-		//Comb filter (single delay, simple)
+		//tone generator:
+		//comb filter (single delay, simple)
 		/* const delayNode = new DelayNode(audioCtx, {
 			delayTime: 0.5 / txtToneFreq.valueAsNumber
 		});
@@ -202,7 +222,7 @@
 		delayNode.connect(delayGainNode);
 		delayNode.delayGainNode = delayGainNode; */
 		
-		//Convolution/reverb
+		//convolution/reverb
 		const convolverNode = new ConvolverNode(audioCtx, {
 			buffer: createIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber),
 			disableNormalization: true
@@ -210,7 +230,7 @@
 		sourceFilterNode.connect(convolverNode);
 		audioCtx.convolverNode = convolverNode;
 
-		const analyserNode = new AnalyserNode(audioCtx);
+		const analyserNode = new AnalyserNode(audioCtx, {smoothingTimeConstant: 0.5});
 		//const analyserNode = new AnalyserNode(audioCtx, {fftSize: 2048, maxDecibels: -30, minDecibels: -100, smoothingTimeConstant: 0.8});
 		//audioCtx.destination.connect(analyserNode); //didn't work
 		analyserNode.connect(audioCtx.destination);
@@ -219,58 +239,73 @@
 		//analyserNode.getFloatTimeDomainData(dataArray);
 		analyserNode.getFloatFrequencyData(dataArray);
 		audioCtx.analyserNode = analyserNode;
+	}
+	function makeFormantNodes(formantList, audioCtx, source, endpoint) {
+		if(formantList.length < 1) return false;
 
 		const qScale = txtQScale.valueAsNumber;
-		const gainScale = qScale * txtGainScale.valueAsNumber;
+		const gainScale = qScale * Math.exp(Math.LN2 * txtGainScale.valueAsNumber);
 		for(const formant of formantList) {
 			if(isNaN(formant.freq)) formant.freq = defFormant.freq;
 			if(isNaN(formant.q)) formant.q = defFormant.q;
 			if(isNaN(formant.gain)) formant.gain = defFormant.gain;
 
-			let terminalNode = convolverNode;
+			let terminalNode = source;
 			try {
 				const fltBandPass = new BiquadFilterNode(audioCtx, {
 					type: "bandpass",
 					frequency: formant.freq,
-					Q: qScale * formant.q
-					//Q: qScale * formant.q * formant.freq / 1024.0 //bandwidth compensation by frequency
+					//question: bandwidth compensation by frequency
+					Q: qScale * formant.q //no.
+					//Q: qScale * formant.q * formant.freq / 1024.0 //yes
 				});
 				/* sourceFilterNode.connect(fltBandPass);
 				delayGainNode.connect(fltBandPass); */
-				convolverNode.connect(fltBandPass);
+				source.connect(fltBandPass);
 				terminalNode = fltBandPass;
-				//sourceNode.fltBandPass = fltBandPass;
-				//auxNodes.push(fltBandPass);
+				formantNodes.push(fltBandPass);
 
 				const gainNode = new GainNode(audioCtx, {gain: gainScale * formant.gain});
 				terminalNode.connect(gainNode);
 				terminalNode = gainNode;
+				formantNodes.push(gainNode);
 			} catch(error) {
 			} finally {
-				terminalNode.connect(analyserNode);
+				terminalNode?.connect(endpoint);
 			}
 		}
-
-		sourceNode.start(0, Math.random() * noiseBuffer.duration); //random start point
+		return true;
+	}
+	function freeFormantNodes() {
+		if(!formantNodes) return false;
+		for(const node of formantNodes) node.disconnect();
+		formantNodes.length = 0;
 	}
 	function freeSoundNodes() {
-		//to do?
-		//perhaps unnecessary
+		freeFormantNodes();
+		if(!audioCtx) return false;
+		audioCtx.analyserNode.disconnect();
+		audioCtx.analyserNode = null;
+		audioCtx.sourceNode.disconnect();
+		audioCtx.sourceNode = null;
+		audioCtx.sourceFilterNode.disconnect();
+		audioCtx.sourceFilterNode = null;
+		audioCtx.convolverNode.disconnect();
+		audioCtx.convolverNode = null;
 	}
 
-	function drawVisualizer() {
-		if(!audioCtx || !audioCtx.analyserNode) return false;
-		requestAnimationFrame(drawVisualizer);
-
-		//audioCtx.analyserNode.getFloatTimeDomainData(dataArray);
-		audioCtx.analyserNode.getFloatFrequencyData(dataArray);
-		const cw = cnvVisualizer.width, ch = cnvVisualizer.height;
+	var visBackground = null;
+	//save all the background in an imagedata
+	function drawVisBackground(cw, ch, maxFreq) {
+		if(visBackground) {
+			visCtx.putImageData(visBackground, 0, 0);
+			return true;
+		}
 
 		//clear frame.
 		visCtx.fillStyle = "canvastext";
 		visCtx.fillRect(0, 0, cw, ch);
 
-		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 6000.0);
 		//frequency guide lines.
 		if(acousticList.length >= 1 && acousticList[txtIPhon.valueAsNumber]) {
 			const formantList = acousticList[txtIPhon.valueAsNumber];
@@ -315,6 +350,20 @@
 			visCtx.stroke();
 		}
 		//visCtx.stroke();
+
+		visBackground = visCtx.getImageData(0, 0, cw, ch);
+	}
+	function drawVisualizer() {
+		if(!audioCtx || !audioCtx.analyserNode) return false;
+		requestAnimationFrame(drawVisualizer);
+
+		//audioCtx.analyserNode.getFloatTimeDomainData(dataArray);
+		audioCtx.analyserNode.getFloatFrequencyData(dataArray);
+		const cw = cnvVisualizer.width, ch = cnvVisualizer.height;
+		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 6000.0);
+
+		//retrieve the background at every frame.
+		drawVisBackground(cw, ch, maxFreq);
 
 		//draw content.
 		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
@@ -365,6 +414,15 @@
 		visCtx.fill();
 	}
 
+	function expSpinnerChanged(event) {
+		const elem = event.target;
+		if(!elem) return false;
+		let val = elem.valueAsNumber;
+
+		const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
+		elem.step = step;
+		elem.min = val - 2 * Math.sign(val) * step;
+	}
 	function audioStateChanged(event) {
 		if(!event.target || event.target.checked === undefined) return;
 		if(event.target.checked) {
@@ -374,20 +432,47 @@
 		} else
 			//audioCtx.suspend();
 			{
-			audioCtx.close();
+			freeSoundNodes();
+			audioCtx?.close?.();
 			audioCtx = null;
+			visBackground = null;
 		}
 	}
-	function formantFreqChanged(event) {
-		if(!event.target) return;
-		//to do?
+	function radNoiseChanged(event) {
+		if(!audioCtx) return;
+		if(audioCtx.sourceFilterNode) audioCtx.sourceFilterNode.disconnect();
+		const sourceFilterNode = getSourceFilterNode(audioCtx.sourceNode);
+		audioCtx.sourceFilterNode = sourceFilterNode;
+		sourceFilterNode.connect(audioCtx.convolverNode);
+	}
+	function toneFilterChanged(event) {
+		if(!audioCtx) return;
+		//audioCtx.convolverNode.disconnect();
+		audioCtx.convolverNode.buffer = createIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber);
 	}
 	function phonIdxIncrement(event) {
 		if(!document) return false;
 		const elem = event.target;
 		if(!elem) return false;
-		let delta = Number(elem.dataset["delta"]);
-		txtIPhon.valueAsNumber += delta;
+		const delta = Number(elem.dataset["delta"]), newValue = Math.max(-1, txtIPhon.valueAsNumber + delta);
+		txtIPhon.valueAsNumber = newValue;
+		txtIPhon.dispatchEvent(new Event("input"));
+	}
+	function refreshFormants() {
+		freeFormantNodes();
+		visBackground = null;
+		if(!audioCtx) return false;
+
+		const iPhon = txtIPhon.valueAsNumber;
+		if(iPhon < 0) return;
+		if(iPhon >= acousticList.length) return;
+
+		const formantList = acousticList[iPhon];
+		if(formantList.length < 1) return;
+		makeFormantNodes(formantList, audioCtx, audioCtx.convolverNode, audioCtx.analyserNode);
+	}
+	function phonSourceChanged(event) {
+		if(reloadPhonemes()) refreshFormants();
 	}
 
 	/* function pageLoad(event) {
@@ -397,28 +482,41 @@
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 		chkAudioCtx.addEventListener("input", audioStateChanged);
-		txtPhonSource.addEventListener("input", reloadPhonemes);
+
+		radNoiseBrownian.addEventListener("input", radNoiseChanged);
+		radNoiseWhite.addEventListener("input", radNoiseChanged);
+		radNoisePink.addEventListener("input", radNoiseChanged);
+
+		txtToneFreq.addEventListener("input", toneFilterChanged);
+		txtToneDecay.addEventListener("input", toneFilterChanged);
+
+		txtQScale.addEventListener("input", refreshFormants);
+		txtQScale.addEventListener("input", expSpinnerChanged);
+		txtGainScale.addEventListener("input", refreshFormants);
+
 		btnPhonemePrev.addEventListener("click", phonIdxIncrement);
 		btnPhonemeNext.addEventListener("click", phonIdxIncrement);
-	}
+		txtIPhon.addEventListener("input", refreshFormants);
 
+		txtPhonSource.addEventListener("input", phonSourceChanged);
+	}
 	//window.addEventListener("DOMContentLoaded", pageLoad);
 	window.addEventListener("load", pageReady);
 	/*]]>*/</script>
 </head>
 <body>
 	<h1>Formant synthesis</h1>
-	<p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">Sound system enable/refresh (always use this after changes)</label></p>
+	<p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">Sound system enable/refresh (use this after changes)</label></p>
 	<p>Noise source (breath): 
 		<input type="radio" id="radNoiseBrownian" name="noiseColor" />&nbsp;<label for="radNoiseBrownian">Brownian (integral)</label>
 		<input type="radio" id="radNoiseWhite" name="noiseColor" checked="true" />&nbsp;<label for="radNoiseWhite">White</label>
 		<input type="radio" id="radNoisePink" name="noiseColor" />&nbsp;<label for="radNoisePink">Pink (derivative)</label></p>
 	<p>Tone filter (phonation gen.): 
-		<label for="txtToneFreq">fundamental (Hz)</label> <input type="number" id="txtToneFreq" value="120" /> 
+		<label for="txtToneFreq">fundamental (Hz)</label> <input type="number" id="txtToneFreq" value="120" step="5" /> 
 		<label for="txtToneDecay">decay factor</label> <input type="number" id="txtToneDecay" value="-0.8125" step="0.0625" min="-1" max="1" /></p>
 	<p>Overall params.: 
 		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="1" /> 
-		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" /></p>
+		<label for="txtGainScale">gain (bits)</label> <input type="number" id="txtGainScale" value="0" step="0.25" /></p>
 	<p>
 		<label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" />
 		<button id="btnPhonemePrev" data-delta="-1" title="Previous phoneme in list">&lt;</button><button id="btnPhonemeNext" data-delta="1" title="Next phoneme in list">&gt;</button></p>
@@ -517,8 +615,8 @@
 	<p>Sources:</p>
 	<ul class="sources">
 		<li>0&ndash;2: <a href="http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html">http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html</a><br />/ɑ/, /i/, /u/</li>
-		<li>3&ndash;7: <a href="https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html">https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html</a><br />"a", "e", "i", "o", "u"</li>
-		<li>8&ndash;18: <a href="https://www.phon.ucl.ac.uk/home/wells/formants/table-1-uni.htm">https://www.phon.ucl.ac.uk/home/wells/formants/table-1-uni.htm</a><br />/i/, /ɩ/, /ɛ/, /æ/, /ɑ/, /ɒ/, /ɔ/, /ɷ/, /u/, /ʌ/, /ɜ/</li>
+		<li>3&ndash;7: <a href="https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html">https://www.classes.cs.uchicago.edu/archive/1999/spring/CS295/Computing_Resources/Csound/CsManual3.48b1.HTML/Appendices/table3.html</a><br />"a", "e", "i", "o", "u" (tenor)</li>
+		<li>8&ndash;18: <a href="https://www.phon.ucl.ac.uk/home/wells/formants/table-1-uni.htm">https://www.phon.ucl.ac.uk/home/wells/formants/table-1-uni.htm</a><br />/i/, /ɩ ɪ/, /ɛ/, /æ/, /ɑ/, /ɒ/, /ɔ/, /ɷ ʊ/, /u/, /ʌ/, /ɜ/</li>
 	</ul>
 </body>
 </html>
