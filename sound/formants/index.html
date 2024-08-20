@@ -139,6 +139,7 @@
 		makeSoundNodes(audioCtx);
 		reloadPhonemes();
 		try {
+			outPhonComment.innerText = "";
 			const iPhon = txtIPhon.valueAsNumber;
 			if(iPhon < 0) return false;
 			if(iPhon >= acousticList.length) return false;
@@ -241,12 +242,18 @@
 		audioCtx.analyserNode = analyserNode;
 	}
 	function makeFormantNodes(formantList, audioCtx, source, endpoint) {
+		//outPhonComment.innerText = "";
 		if(formantList.length < 1) return false;
 
 		const qScale = txtQScale.valueAsNumber;
 		const gainScale = qScale * txtGainScale.valueAsNumber;
 		//const gainScale = qScale * Math.exp(Math.LN2 * txtGainScale.valueAsNumber); //in bits (inconsistent, might be confusing)
 		for(const formant of formantList) {
+			if(typeof(formant) === "string") {
+				outPhonComment.innerText = formant;
+				continue;
+			}
+
 			if(isNaN(formant.freq)) formant.freq = defFormant.freq;
 			if(isNaN(formant.q)) formant.q = defFormant.q;
 			if(isNaN(formant.gain)) formant.gain = defFormant.gain;
@@ -464,6 +471,7 @@
 		visBackground = null;
 		if(!audioCtx) return false;
 
+		outPhonComment.innerText = "";
 		const iPhon = txtIPhon.valueAsNumber;
 		if(iPhon < 0) return;
 		if(iPhon >= acousticList.length) return;
@@ -522,94 +530,95 @@
 		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" step="0.25" /></p>
 	<p>
 		<label for="txtIPhon">Phoneme selection index:</label> <input type="number" id="txtIPhon" value="0" min="-1" />
-		<button id="btnPhonemePrev" data-delta="-1" title="Previous phoneme in list">&lt;</button><button id="btnPhonemeNext" data-delta="1" title="Next phoneme in list">&gt;</button></p>
+		<button id="btnPhonemePrev" data-delta="-1" title="Previous phoneme in list">&lt;</button><button id="btnPhonemeNext" data-delta="1" title="Next phoneme in list">&gt;</button>
+		<output id="outPhonComment"></output></p>
 	<p>List of phonemes (each a list of formants) (in JSON):<br />
 	<textarea id="txtPhonSource">
-[[
+[["English /ɑ/",
 {"freq":  650, "q": 16, "gain": 2},
 {"freq": 1100, "q": 16, "gain": 1.25},
 {"freq": 2600, "q": 16, "gain": 0.5}]
-, [
+, ["English /i/",
 {"freq":  300, "q": 16, "gain": 1.5},
 {"freq": 2200, "q": 16, "gain": 0.4},
 {"freq": 3150, "q": 16, "gain": 0.45}]
-, [
+, ["English /u/",
 {"freq":  340, "q": 16, "gain": 1.15},
 {"freq":  640, "q": 16, "gain": 0.7},
 {"freq": 2500, "q": 16, "gain": 0.075}]
 
-, [
+, ["\"a\" (tenor)",
 {"freq":  650, "q": 8.125, "gain": 1},
 {"freq": 1080, "q": 12, "gain": 0.501187234},
 {"freq": 2650, "q": 22.08333333, "gain": 0.446683592},
 {"freq": 2900, "q": 22.30769231, "gain": 0.398107171},
 {"freq": 3250, "q": 23.21428571, "gain": 0.079432823}]
-, [
+, ["\"e\" (tenor)",
 {"freq":  400, "q": 5.714285714, "gain": 1},
 {"freq": 1700, "q": 21.25, "gain": 0.199526231},
 {"freq": 2600, "q": 26, "gain": 0.251188643},
 {"freq": 3200, "q": 26.66666667, "gain": 0.199526231},
 {"freq": 3580, "q": 29.83333333, "gain": 0.1}]
-, [
+, ["\"i\" (tenor)",
 {"freq":  290, "q": 7.25, "gain": 1},
 {"freq": 1870, "q": 20.77777778, "gain": 0.177827941},
 {"freq": 2800, "q": 28, "gain": 0.125892541},
 {"freq": 3250, "q": 27.08333333, "gain": 0.1},
 {"freq": 3540, "q": 29.5, "gain": 0.031622777}]
-, [
+, ["\"o\" (tenor)",
 {"freq":  400, "q": 10, "gain": 1},
 {"freq":  800, "q": 10, "gain": 0.316227766},
 {"freq": 2600, "q": 26, "gain": 0.251188643},
 {"freq": 2800, "q": 23.33333333, "gain": 0.251188643},
 {"freq": 3000, "q": 25, "gain": 0.050118723}]
-, [
+, ["\"u\" (tenor)",
 {"freq":  350, "q": 8.75, "gain": 1},
 {"freq":  600, "q": 10, "gain": 0.1},
 {"freq": 2700, "q": 27, "gain": 0.141253754},
 {"freq": 2900, "q": 24.16666667, "gain": 0.199526231},
 {"freq": 3300, "q": 27.5, "gain": 0.050118723}]
 
-, [
+, ["English /i/",
 {"freq":  285, "q": 16, "gain": 0.794328235},
 {"freq": 2373, "q": 16, "gain": 0.022387211},
 {"freq": 3088, "q": 16, "gain": 0.014125375}]
-, [
+, ["English /ɪ/",
 {"freq":  356, "q": 16, "gain": 1.77827941},
 {"freq": 2098, "q": 16, "gain": 0.112201845},
 {"freq": 2696, "q": 16, "gain": 0.050118723}]
-, [
+, ["English /ɛ/",
 {"freq":  569, "q": 16, "gain": 0.794328235},
 {"freq": 1965, "q": 16, "gain": 0.158489319},
 {"freq": 2636, "q": 16, "gain": 0.063095734}]
-, [
+, ["English /æ/",
 {"freq":  748, "q": 16, "gain": 0.501187234},
 {"freq": 1746, "q": 16, "gain": 0.281838293},
 {"freq": 2460, "q": 16, "gain": 0.063095734}]
-, [
+, ["English /ɑ/",
 {"freq":  677, "q": 16, "gain": 0.630957344},
 {"freq": 1083, "q": 16, "gain": 0.316227766},
 {"freq": 2540, "q": 16, "gain": 0.017782794}]
-, [
+, ["English /ɒ/",
 {"freq":  599, "q": 16, "gain": 1},
 {"freq":  891, "q": 16, "gain": 0.501187234},
 {"freq": 2605, "q": 16, "gain": 0.017782794}]
-, [
+, ["English /ɔ/",
 {"freq":  449, "q": 16, "gain": 1},
 {"freq":  737, "q": 16, "gain": 0.316227766},
 {"freq": 2635, "q": 16, "gain": 0.007943282}]
-, [
+, ["English /ʊ/",
 {"freq":  376, "q": 16, "gain": 1.584893192},
 {"freq":  950, "q": 16, "gain": 0.316227766},
 {"freq": 2440, "q": 16, "gain": 0.015848932}]
-, [
+, ["English /u/",
 {"freq":  309, "q": 16, "gain": 1.258925412},
 {"freq":  939, "q": 16, "gain": 0.079432823},
 {"freq": 2320, "q": 16, "gain": 0.008912509}]
-, [
+, ["English /ʌ/",
 {"freq":  722, "q": 16, "gain": 0.794328235},
 {"freq": 1236, "q": 16, "gain": 0.446683592},
 {"freq": 2537, "q": 16, "gain": 0.031622777}]
-, [
+, ["English /ɜ/",
 {"freq":  581, "q": 16, "gain": 0.794328235},
 {"freq": 1381, "q": 16, "gain": 0.177827941},
 {"freq": 2436, "q": 16, "gain": 0.028183829}]
