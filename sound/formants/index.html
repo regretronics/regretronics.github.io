@@ -87,7 +87,7 @@
 
 		return buffer;
 	}
-	function createIRBuffer(audioCtx, decayFactor, interval) {
+	function createFIRBuffer(audioCtx, decayFactor, interval) {
 		if(!audioCtx) return false;
 
 		const maxDecay = 1.0 - 1.0 / 32.0;
@@ -197,8 +197,8 @@
 
 		//primary noise filter.
 		/* const sourceFilterNode = new IIRFilterNode(audioCtx, {
-			//feedforward: [-1.0, 1.0], feedback: [1.0] //pink/derivative?
-			feedforward: [0.125], feedback: [1.0, -1.0] //brown/brownian/integral
+			//feedforward: [-1.0, 1.0], feedback: [1.0] //violet/derivative?
+			feedforward: [0.125], feedback: [1.0, -1.0] //brownian/brown/integral
 			//feedforward: [0.0625], feedback: [1.0, -2.0, 1.0] //double integration?
 		});
 		sourceNode.connect(sourceFilterNode);
@@ -224,7 +224,7 @@
 		
 		//convolution/reverb
 		const convolverNode = new ConvolverNode(audioCtx, {
-			buffer: createIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber),
+			buffer: createFIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber),
 			disableNormalization: true
 		});
 		sourceFilterNode.connect(convolverNode);
@@ -296,7 +296,7 @@
 	}
 
 	var visBackground = null;
-	//save all the background in an imagedata
+	//save all the background in an ImageData
 	function drawVisBackground(cw, ch, maxFreq) {
 		if(visBackground) {
 			visCtx.putImageData(visBackground, 0, 0);
@@ -449,7 +449,7 @@
 	function toneFilterChanged(event) {
 		if(!audioCtx) return;
 		//audioCtx.convolverNode.disconnect();
-		audioCtx.convolverNode.buffer = createIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber);
+		audioCtx.convolverNode.buffer = createFIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber);
 	}
 	function phonIdxIncrement(event) {
 		if(!document) return false;
@@ -482,6 +482,7 @@
 		//load HTML element references
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
+
 		chkAudioCtx.addEventListener("input", audioStateChanged);
 
 		radNoiseBrownian.addEventListener("input", radNoiseChanged);

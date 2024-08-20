@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>IIR filter design</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+		background-color: canvas;
+		color: canvastext;
+	}
+	body {
+		font-size: 1.25em;
+		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	}
+
+	input {
+		font-size: 0.8em;
+	}
+	input[type="checkbox"], input[type="radio"] {
+		width: 1em;
+		height: 1em;
+	}
+	input[type="number"] {
+		width: 8ch;
+		text-align: right;
+	}
+	#btnFilterPrev, #btnFilterNext {
+		font-size: 0.85em;
+		width: 3ch;
+		/* height: 1.5em; */
+	}
+
+	#txtFiltersSource {
+		font-size: 0.85em;
+
+		/* width: calc(100% - 1em); */
+		box-sizing: border-box;
+		width: 100%;
+		min-width: 32ch;
+		height: 8em;
+	}
+	#txtFiltersSource.parsing {
+		background-color: hsl(60deg 50% 25%);
+	}
+	#txtFiltersSource.invalid {
+		background-color: hsl(0deg 50% 25%);
+	}
+
+	#visualizer {
+		border-style: solid;
+		border-width: 0.25em;
+		border-color: gray;
+
+		box-sizing: border-box;
+		max-width: 100%;
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	var audioCtx = null;
+	var filterList = [
+		{"feedforward": [-1.0, 1.0], "feedback": [1.0]}
+		];
+	var myFrequencyArray, magResponseOutput, phaseResponseOutput;
+	var cnvVisualizer, visCtx;
+	const totalArrayItems = 10 * 4 + 1;
+
+	function checkInitAudio() {
+		if(audioCtx) return true;
+
+		//audioCtx = new AudioContext({latencyHint: "playback"});
+		//audioCtx = new AudioContext({latencyHint: "interactive"});
+		audioCtx = new OfflineAudioContext({
+			numberOfChannels: 1,
+			length: 64,
+			sampleRate: 48000,
+		});
+		if(!audioCtx) return false;
+
+		//https://codepen.io/Rumyra/pen/oPxvYB/?editors=0010
+		// arrays for our frequency response
+		// Here we want to create an array of frequency values that we would like to get data about. We could go for a linear approach, but it's far better when working with frequencies to take a log approach, so let's fill our array with frequencies that get larger as array item goes up.
+		myFrequencyArray = new Float32Array(totalArrayItems);
+		myFrequencyArray = myFrequencyArray.map(function(item, index) {
+			return 20 * Math.pow(2, index / 4);
+		});
+		// We need to create arrays that return the data, these need to be the same size as the origianl frequency array
+		magResponseOutput = new Float32Array(totalArrayItems);
+		phaseResponseOutput = new Float32Array(totalArrayItems);
+
+		reloadSourceCode();
+		try {
+			const iFilter = txtFilterIdx.valueAsNumber;
+			if(iFilter < 0) return false;
+			if(iFilter >= filterList.length) return false;
+
+			makeFilterNode(filterList[iFilter], audioCtx);
+		} finally {
+			cnvVisualizer = visualizer;
+			visCtx = cnvVisualizer.getContext("2d");
+		}
+
+		return true;
+	}
+	function reloadSourceCode() {
+		txtFiltersSource.className = "parsing";
+		try {
+			filterList = JSON.parse(txtFiltersSource.value);
+			txtFiltersSource.className = "";
+		} catch(error) {
+			txtFiltersSource.className = "invalid";
+			return false;
+		}
+		return true;
+	}
+
+	function getSourceFilterNode(audioCtx, filterParams, gain) {
+		const newParams = Object.assign({}, filterParams);
+		newParams.feedforward = filterParams.feedforward.map(x => gain * x);
+		return new IIRFilterNode(audioCtx, newParams);
+	}
+	function makeFilterNode(filterParams, audioCtx) {
+		if(!filterParams.feedforward || !filterParams.feedback) return false;
+
+		const gainScale = txtGainScale.valueAsNumber;
+		//const gainScale = Math.exp(Math.LN2 * txtGainScale.valueAsNumber);
+		audioCtx.sourceFilterNode = getSourceFilterNode(audioCtx, filterParams, gainScale);
+
+		return true;
+	}
+
+	var visBackground = null;
+	//save all the background in an ImageData
+	function drawVisBackground(cw, ch, maxFreq, minFreq) {
+		if(visBackground) {
+			visCtx.putImageData(visBackground, 0, 0);
+			return true;
+		}
+
+		//clear frame.
+		visCtx.fillStyle = "canvastext";
+		visCtx.fillRect(0, 0, cw, ch);
+
+		//vertical grid lines.
+		/* //linear frequency
+		//visCtx.lineWidth = 3;
+		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
+		//visCtx.beginPath();
+		for (let i = 0; i <= maxFreq; i += 250.0) {
+			visCtx.beginPath();
+			if((i % 1000.0) === 0.0) {
+				visCtx.lineWidth = 3;
+				visCtx.strokeStyle = "hsl(30deg 100% 75% / 0.75)";
+			} else {
+				visCtx.lineWidth = 1;
+				visCtx.strokeStyle = "hsl(30deg 100% 50% / 0.75)";
+			}
+			const x = i * cw / maxFreq;
+			visCtx.moveTo(x, 0);
+			visCtx.lineTo(x, ch);
+			visCtx.stroke();
+		}
+		//visCtx.stroke(); */
+
+		//log frequency
+		//visCtx.lineWidth = 3;
+		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
+		//visCtx.beginPath();
+		for (let i = 250.0; i <= maxFreq; i += 250.0) {
+			visCtx.beginPath();
+			if((i % 1000.0) === 0.0) {
+				visCtx.lineWidth = 3;
+				visCtx.strokeStyle = "hsl(30deg 100% 75% / 0.75)";
+			} else {
+				visCtx.lineWidth = 1;
+				visCtx.strokeStyle = "hsl(30deg 100% 50% / 0.75)";
+			}
+			const x = Math.log2(i / minFreq) * cw / Math.log2(maxFreq / minFreq);
+			visCtx.moveTo(x, 0);
+			visCtx.lineTo(x, ch);
+			visCtx.stroke();
+		}
+		//visCtx.stroke();
+
+		visBackground = visCtx.getImageData(0, 0, cw, ch);
+	}
+	function drawVisualizer() {
+		if(!audioCtx || !audioCtx.sourceFilterNode) return false;
+
+		const cw = cnvVisualizer.width, ch = cnvVisualizer.height;
+		const maxFreq = Math.min(0.5 * audioCtx.sampleRate, 6000.0);
+		const minFreq = 20.0;
+
+		//retrieve the background at every frame.
+		drawVisBackground(cw, ch, maxFreq, minFreq);
+
+		// get our frequency response
+		audioCtx.sourceFilterNode.getFrequencyResponse(myFrequencyArray, magResponseOutput, phaseResponseOutput);
+		
+		//draw content.
+		//const maxSpectrumIndex = totalArrayItems * maxFreq * 2 / audioCtx.sampleRate;
+		//const sliceWidth = (cw + 1) / maxSpectrumIndex;
+		visCtx.fillStyle = "canvas";
+		//visCtx.lineWidth = 1;
+		//visCtx.strokeStyle = "canvas";
+		//visCtx.beginPath();
+
+		// draw our graph
+		//const sliceWidth = cw / totalArrayItems;
+		const rangeLow = txtAmpRangeLow.valueAsNumber, rangeHigh = txtAmpRangeHigh.valueAsNumber;
+		visCtx.beginPath();
+		for(let i = 0; i < magResponseOutput.length; i++) {
+			//const x = i * cw / totalArrayItems;
+			//const x = myFrequencyArray[i] * cw / maxFreq; //linear frequency
+			const x = Math.log2(myFrequencyArray[i] / minFreq) * cw / Math.log2(maxFreq / minFreq); //log frequency
+			//const v = magResponseOutput[i];
+			const v = (Math.log2(magResponseOutput[i]) - rangeLow) / (rangeHigh - rangeLow);
+			const y = ch * (1.0 - v);
+			if (i === 0) {
+				visCtx.moveTo(x, y);
+			} else {
+				visCtx.lineTo(x, y);
+			}
+		}
+
+		/* let x = 0;
+		for(let i = 0; i < maxSpectrumIndex; i++) {
+			//const v = - dataArray[i] / 140.0; //spectrum, log amplitude
+			const v = 1.0 - 24.0 * Math.pow(10.0, dataArray[i] / 20.0); //spectrum, linear amplitude
+			const y = v * ch;
+
+			if (i === 0) {
+				visCtx.moveTo(x, y);
+			} else {
+				visCtx.lineTo(x, y);
+			}
+
+			x += sliceWidth;
+		} */
+		//visCtx.lineTo(cw, ch); //spectrum (necessary?)
+		//visCtx.stroke();
+
+		visCtx.lineTo(cw, ch);
+		visCtx.lineTo(0, ch);
+		/* visCtx.lineTo(cw - 1, ch - 1);
+		visCtx.lineTo(0, ch - 1); */
+		visCtx.closePath();
+		visCtx.fill();
+	}
+
+	function expSpinnerChanged(event) {
+		const elem = event.target;
+		if(!elem) return false;
+		let val = elem.valueAsNumber;
+
+		const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
+		elem.step = step;
+		elem.min = val - 2 * Math.sign(val) * step;
+	}
+	/* function audioStateChanged(event) {
+		if(!event.target || event.target.checked === undefined) return;
+		if(event.target.checked) {
+			checkInitAudio();
+			//audioCtx.resume();
+			drawVisualizer();
+		} else
+			//audioCtx.suspend();
+			{
+			audioCtx?.close?.();
+			audioCtx = null;
+			visBackground = null;
+		}
+	} */
+	function filterIdxIncrement(event) {
+		if(!document) return false;
+		const elem = event.target;
+		if(!elem) return false;
+		const delta = Number(elem.dataset["delta"]), newValue = Math.max(-1, txtFilterIdx.valueAsNumber + delta);
+		txtFilterIdx.valueAsNumber = newValue;
+		txtFilterIdx.dispatchEvent(new Event("input"));
+	}
+	function refreshFilter() {
+		//visBackground = null;
+		if(!audioCtx) return false;
+
+		const iFilter = txtFilterIdx.valueAsNumber;
+		if(iFilter < 0) return;
+		if(iFilter >= filterList.length) return;
+
+		makeFilterNode(filterList[iFilter], audioCtx);
+		drawVisualizer();
+	}
+	function codeSourceChanged(event) {
+		if(reloadSourceCode()) refreshFilter();
+	}
+
+	/* function pageLoad(event) {
+	} */
+	function pageReady(event) {
+		//load HTML element references
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+
+		//chkAudioCtx.addEventListener("input", audioStateChanged);
+
+		txtGainScale.addEventListener("input", refreshFilter);
+		txtGainScale.addEventListener("input", expSpinnerChanged);
+
+		btnFilterPrev.addEventListener("click", filterIdxIncrement);
+		btnFilterNext.addEventListener("click", filterIdxIncrement);
+		txtFilterIdx.addEventListener("input", refreshFilter);
+		
+		txtAmpRangeLow.addEventListener("input", refreshFilter);
+		txtAmpRangeHigh.addEventListener("input", refreshFilter);
+		txtFiltersSource.addEventListener("input", codeSourceChanged);
+
+		checkInitAudio();
+		drawVisualizer();
+	}
+	//window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<h1>IIR filter design</h1>
+	<!-- <p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">Sound system enable/refresh (use this after changes)</label></p> -->
+	<p>Overall params.: <label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" step="0.25" /></p>
+	<p>
+		<label for="txtFilterIdx">Filter selection index:</label> <input type="number" id="txtFilterIdx" value="0" min="-1" />
+		<button id="btnFilterPrev" data-delta="-1" title="Previous filter in list">&lt;</button><button id="btnFilterNext" data-delta="1" title="Next filter in list">&gt;</button></p>
+	<p>List of filters (in JSON):<br />
+	<textarea id="txtFiltersSource">
+[
+	{"feedforward": [1.0], "feedback": [1.0]}
+, 
+	{"feedforward": [1.0, -1.0], "feedback": [1.0]}
+, 
+	{"feedforward": [1.0, -1.5, 0.5], "feedback": [1.0]}
+, 
+	{"feedforward": [1.0, -2.0, 1.0], "feedback": [1.0]}
+, 
+	{"feedforward": [0.125], "feedback": [1.0, -1.0]}
+, 
+	{"feedforward": [0.0625], "feedback": [1.0, -1.5, 0.5]}
+, 
+	{"feedforward": [0.0625], "feedback": [1.0, -2.0, 1.0]}
+]</textarea></p>
+	<p>Log. amp. range: 
+		<label for="txtAmpRangeLow">low</label> <input type="number" id="txtAmpRangeLow" value="-2" step="0.25" />
+		<label for="txtAmpRangeHigh">high</label> <input type="number" id="txtAmpRangeHigh" value="6" step="0.25" /></p>
+	<p><canvas id="visualizer" width="512" height="512">[Sound visualizer.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the sound spectrum without Canvas.</canvas></p>
+</body>
+</html>
