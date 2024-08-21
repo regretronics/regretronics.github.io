@@ -308,6 +308,7 @@ function deletePrevTab() {
 	rng.setEnd(node, i + 1);
 	//rng.deleteContents();
 	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently I haven't found any proper replacement for this command.
+	//to do: try a method from Selection instead of from Range, maybe deleteFromDocument()
 	rng.setStart(node, pos - 1); //also buggy
 	rng.setEnd(node, pos - 1);
 }
@@ -391,7 +392,7 @@ function addToolTipHandler(rootSelector, handler) {
 	}
 }
 function setToolTip(event, outToolTip) {
-	if(!outToolTip && window.outToolTip) outToolTip = window.outToolTip;
+	if(!outToolTip) outToolTip = window.outToolTip;
 	if(!outToolTip) return false;
 	let elem = event.target;
 	if(!elem || !elem.title || !elem.title.length)

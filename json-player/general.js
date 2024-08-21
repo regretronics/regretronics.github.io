@@ -185,10 +185,10 @@ function docLoaded() {
 	//load HTML element references
 	for(let s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
-	//if(chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
-	if(outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
-	if(outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
-	if(txtPrimeCount) txtPrimeCount.max = primes.length.toString();
+	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
+	if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+	if(window.outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 	
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
@@ -266,7 +266,7 @@ function rhythmAccumUpdate() {
 		rhythmFactorsAccum.unshift(product); //add as first
 	}
 	//rhythmFactorsAccum.push(1);
-	if(outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
+	if(window.outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	rhythmFactors.push(1);
 }
 
@@ -308,6 +308,7 @@ function deletePrevTab() {
 	rng.setEnd(node, i + 1);
 	//rng.deleteContents();
 	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently I haven't found any proper replacement for this command.
+	//to do: try a method from Selection instead of from Range, maybe deleteFromDocument()
 	rng.setStart(node, pos - 1); //also buggy
 	rng.setEnd(node, pos - 1);
 }
@@ -429,7 +430,7 @@ function getDateTimeCode(size) {
 	return dArr.join("-");
 }
 function structDownload(event) {
-	if(!ctlStructuredScript) return false;
+	if(!window.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 	const data = [ctlStructuredScript.innerText];
 	//const data = [ctlStructuredScript.value];

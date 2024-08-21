@@ -8,6 +8,7 @@
 		(orientation: landscape) and (min-width: 160ch),
 		(min-aspect-ratio: 3/2) and (min-width: 128ch),
 		(min-aspect-ratio: 2/1) and (min-width: 80ch) {
+		/* (min-aspect-ratio: 2/1) and (min-width: calc(var(--page-scale, 1) * 80ch)) { */
 		:root {
 			height: 100%;
 		}
