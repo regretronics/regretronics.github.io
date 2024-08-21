@@ -58,7 +58,9 @@ input[type=number] {
 	width: 8ch;
 }*/
 input[type=checkbox] {
-	scale: var(--page-scale, 1);
+	/* scale: var(--page-scale, 1); */
+	width: 1em;
+	height: 1em;
 }
 #txtRhythmFactors {
 	text-align: right;

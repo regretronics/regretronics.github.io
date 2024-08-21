@@ -3,6 +3,11 @@
 :root {
 	--img-filter1: invert(87.5%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg + 180deg - 120deg);
+
+	background-color: hsl(var(--hue-accent, 120), 37.5%, 75%);
+	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
+	accent-color: hsl(var(--hue-accent, 120), 50%, 37.5%);
+	color-scheme: light;
 }
 * {
 	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 62.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);*/
@@ -34,12 +39,8 @@
 	accent-color: red;
 } */
 
-body {
-	background-color: hsl(var(--hue-accent, 120), 37.5%, 75%);
-	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
-	accent-color: hsl(var(--hue-accent, 120), 50%, 37.5%);
-	color-scheme: light;
-}
+/* body {
+} */
 @media screen and not (prefers-reduced-motion: reduce) {
 	:root::selection, *::selection { /*not really working*/
 		transition-property: background-color, color !important;
