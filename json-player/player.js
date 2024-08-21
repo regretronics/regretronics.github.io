@@ -431,12 +431,12 @@ function audioTimer(clip) {
 	
 	//if(clip.audioCtx.state === 'suspended') return;
 	if(clip === playerClip) {
-		if(imgVisualizer) {
+		if(window.imgVisualizer) {
 			//scroll
 			const slices = imgVisualizer.getElementsByClassName("vis-slice");
 			for(let i = slices.length - 1; i >= 0; i--) {
 				const slice = slices[i];
-				const t = parseFloat(slice.getAttribute("data-t")); //to do: use dataset?
+				const t = parseFloat(slice.getAttribute("data-t")); //dataset doesn't work here, somehow
 				let newY = t + visSliceCount - visT;
 				if(newY <= -1) {
 					slice.remove(); //it's easier to delete when we use groups
@@ -447,12 +447,12 @@ function audioTimer(clip) {
 			}
 		}
 		//visualization
-		if(imgVisualizer) {
+		if(window.imgVisualizer) {
 			//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
 			//to do: consider a node-based polyline
 			const slice = document.createElementNS(svgNS, "g");
 			slice.setAttributeNS(null, "class", "vis-slice");
-			slice.setAttributeNS(null, "data-t", visT.toString()); //to do: use dataset?
+			slice.setAttributeNS(null, "data-t", visT.toString());
 			slice.setAttributeNS(null, "transform", `translate(0 ${(visSliceCount - 1) / visSliceCount})`);
 			imgVisualizer.appendChild(slice);
 			for(const node of clip.generators)
@@ -475,7 +475,7 @@ function audioTimer(clip) {
 
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.innerText.
 function loadNewClip() {
-	if(!ctlFlatScript) return false;
+	if(!window.ctlFlatScript) return false;
 	if(playFreqScale == 0) return false;
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
@@ -544,7 +544,7 @@ function beforePlay() {
 	playerClip.t0 = lastT - playerClip.playTimeDelta;
 
 	visT = 0;
-	if(imgVisualizer) {
+	if(window.imgVisualizer) {
 		const slices = imgVisualizer.getElementsByClassName("vis-slice");
 		for(let i = slices.length - 1; i >= 0; i--)
 			slices[i].remove();
@@ -563,7 +563,7 @@ function beforePlay() {
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
 		//window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
 		playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
-	if(btnPause) {
+	if(window.btnPause) {
 		btnPause.innerHTML = pauseToggleCaptions[true];
 		btnPause.disabled = false;
 	}
@@ -588,10 +588,10 @@ function loadAndPlay() {
 	playerClip.noiseBuffer = noiseBuffer;
 	playerClip.onClipEnd = playerClipEnd;
 
-	if(outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
-	if(outAudioDur) outAudioDur.innerText = playerClip.duration.toFixed(timeDisplPrecision);
+	if(window.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
+	if(window.outAudioDur) outAudioDur.innerText = playerClip.duration.toFixed(timeDisplPrecision);
 	if(playerClip.flatStruct.length <= 0)
-		if(outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
+		if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 
 	playerClip.open = true;
 	if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed') {
@@ -653,7 +653,7 @@ function playerClipEnd(suspend) {
 
 	if(clip === playerClip) {
 		if(clip.open) audioTUpdate();
-		if(btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
+		if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 	}
 	return emptyClip(clip, suspend);
 }
@@ -669,7 +669,7 @@ function pauseToggle() {
 		playerClip.audioCtx.suspend().then(() => {
 			audioTUpdate();
 			lastT = playerClip.audioCtx.currentTime;
-			if(btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
+			if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
 			if(playerClip?.timerID) {
 				window.clearInterval(playerClip.timerID);
 				playerClip.timerID = NaN;
@@ -681,7 +681,7 @@ function pauseToggle() {
 		;
 		playerClip.audioCtx.resume().then(() => {
 			audioTimer(playerClip);
-			if(btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
+			if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 			playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 		});
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
@@ -723,7 +723,7 @@ function audioDownload(data) {
 	aAudioDownload.setAttribute('download', fileName);
 	aAudioDownload.click();
 	const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
-	if(outExportProgress)
+	if(window.outExportProgress)
 		outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
 	exportType = "";
 }
@@ -735,7 +735,7 @@ function exportClipEnd() {
 	emptyClip(clip, false);
 	if(clip.audioCtx) clip.audioCtx.suspend?.()?.then?.(() => {
 	//if(clip.audioCtx) clip.audioCtx.close?.()?.then?.(() => {
-		if(outExportProgress) outExportProgress.innerText = "Rendered";
+		if(window.outExportProgress) outExportProgress.innerText = "Rendered";
 		if(mediaRecorder) {
 			mediaRecorder.requestData();
 			mediaRecorder.stop(); //to do: move this into mediaRecorder.ondataavailable? (probably not)
@@ -755,7 +755,7 @@ function exportAudioTimer(clip) {
 		return false;
 	}
 	//question: trunc instead of round for time?
-	if(outExportProgress)
+	if(window.outExportProgress)
 		outExportProgress.innerText = (100 * (clip.audioCtx.currentTime) / (clip.duration + clip.t0)).toFixed(2) + "%";
 	//if(clip.flatStruct.length < 1 && (clip.audioCtx.currentTime - clip.t0 > clip.duration)) {
 	if(clip.audioCtx.state !== 'suspended' && (clip.audioCtx.currentTime - clip.t0 > 0) && clip.generators.length < 1) {
@@ -795,7 +795,7 @@ function beforeRecord() {
 	const _exportType = 'audio/ogg; codecs=opus';
 	if(MediaRecorder.isTypeSupported(_exportType)) exportType = _exportType;
 	mediaRecorder = new MediaRecorder(dest.stream, {mimeType: exportType});
-	if(outExportFormat) outExportFormat.innerText = exportType;
+	if(window.outExportFormat) outExportFormat.innerText = exportType;
 	mediaRecorder.ondataavailable = function(event) {
 		//push each chunk (blobs) in an array
 		console.debug("MediaRecorder.ondataavailable event");
@@ -809,7 +809,7 @@ function beforeRecord() {
 
 	enqueueNotes(exportClip, lastT, Infinity);
 	//console.log("audioExport(): enqueueNotes done.");
-	if(outExportProgress) outExportProgress.innerText = "Starting";
+	if(window.outExportProgress) outExportProgress.innerText = "Starting";
 	mediaRecorder.start();
 	exportClip.audioCtx.resume().then(() => {
 		exportAudioTimer(exportClip);
@@ -834,8 +834,8 @@ function audioExport() {
 	if(exportClip && exportClip.open) return false;
 	exportClip = new loadNewClip();
 	exportClip.onClipEnd = exportClipEnd;
-	if(outExportProgress) outExportProgress.innerText = "Note list loaded";
-	if(outExportDuration) outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
+	if(window.outExportProgress) outExportProgress.innerText = "Note list loaded";
+	if(window.outExportDuration) outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
 	//to do: stop AudioContext playback? (probably unnecessary)
 	exportClip.open = true;
 	const sampleRate = 48000; //will become a variable later
@@ -848,7 +848,7 @@ function audioExportCancel() {
 	if(!exportClip) return false;
 	emptyClip(exportClip, false);
 	if(exportClip.audioCtx) exportClip.audioCtx.suspend()?.then?.(() => {
-		if(outExportProgress) outExportProgress.innerText = "Canceled";
+		if(window.outExportProgress) outExportProgress.innerText = "Canceled";
 		if(mediaRecorder) {
 			//mediaRecorder.onstop = null; //question: allow partial download? (currently yes)
 			mediaRecorder.stop();

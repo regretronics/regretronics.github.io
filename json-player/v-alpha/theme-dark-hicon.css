@@ -154,5 +154,6 @@ input.invalid {
 	background-color: hsla(0, 0%, 0%, 0.5);
 }
 linearGradient#noteFill1 stop {
-	stop-color: hsla(var(--hue-accent2, 300), 0%, 100%, 0.875);
+	/* stop-color: hsla(var(--hue-accent2, 300), 0%, 100%, 0.875); */
+	stop-color: hsl(var(--hue-accent2, 300), 0%, 100%);
 }

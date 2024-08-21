@@ -139,9 +139,13 @@ function flattenStruct() {
 
 function setStructuredText(s) {
 	hasScriptChanged = true;
-	if(btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
-	if(ctlStructuredScript) ctlStructuredScript.innerText = s;
-	//if(ctlStructuredScript) ctlStructuredScript.value = s;
+	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
+	if(window.ctlStructuredScript) {
+		if(["INPUT", "TEXTAREA"].includes(ctlStructuredScript.tagName.toUpperCase()))
+			ctlStructuredScript.value = s;
+		else
+			ctlStructuredScript.innerText = s;
+	}
 	if(autoFlatten) flattenStruct();
 }
 
@@ -149,7 +153,7 @@ let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
 function scriptChanged() {
 	hasScriptChanged = true;
-	if(btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
+	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 	
 	if(flattenTimeoutID) {
 		window.clearTimeout(flattenTimeoutID);

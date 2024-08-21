@@ -53,8 +53,7 @@ code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }
 
-/*to do: fix check box vertical alignment (if possible)*/
-button, input:not([type=checkbox]):not([type=radio]) {
+button, input:not([type=checkbox]):not([type=radio]), select {
 	font-size: 0.85em;
 	margin-block: 0.125em;
 }
@@ -110,8 +109,8 @@ input[type=checkbox] + label {
 
 	background-color: canvas;
 }
-.codeEditor {
-	font-size: 90%;
+code, .codeEditor {
+	font-size: 0.8em;
 }
 
 img:not(.trueColors) { /*class "trueColors" reserved for future use*/

@@ -136,7 +136,7 @@ function makeRhythmFactors() {
 		//	rhythmFactors.push(1); //at least factor one
 	}
 
-	if(txtRhythmFactors) {
+	if(window.txtRhythmFactors) {
 		txtRhythmFactors.value = rhythmFactors.join("*");
 		txtRhythmFactors.dispatchEvent(new Event("input"));
 	}

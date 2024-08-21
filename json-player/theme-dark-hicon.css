@@ -12,6 +12,28 @@
 		hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
 
 }
+*::-webkit-scrollbar {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
+	/* color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%); */
+}
+*::-webkit-scrollbar-thumb {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 87.5%);
+}
+*::-webkit-scrollbar-track {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
+}
+/* *::-webkit-scrollbar-track-piece {
+	background-color: black;
+} */
+*::-webkit-scrollbar-corner {
+	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
+}
+/* *::-webkit-resizer {
+	background-color: black;
+	color: red;
+	accent-color: red;
+} */
+
 body {
 	background-color: hsl(var(--hue-accent, 120), 25%, 3.125%);
 	color: hsla(var(--hue-accent, 120), 25%, 100%, 0.9375);

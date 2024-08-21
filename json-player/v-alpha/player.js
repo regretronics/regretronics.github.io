@@ -102,11 +102,11 @@ function defNodeEnded() {
 	//question: move this into conditionals above, to prevent strict-mode errors? (probably it's not raising errors)
 	removeFrom(clip.generators, this);
 	const auxNodes = clip.auxNodes;
-	removeFrom(auxNodes, this.fltBandPass);
-	removeFrom(auxNodes, this.modGainDecay);
-	removeFrom(auxNodes, this.modGainAttack);
-	removeFrom(auxNodes, this.modGainRelease);
-	removeFrom(auxNodes, this.modGainVibrato);
+	removeFrom(auxNodes, this?.fltBandPass);
+	removeFrom(auxNodes, this?.modGainDecay);
+	removeFrom(auxNodes, this?.modGainAttack);
+	removeFrom(auxNodes, this?.modGainRelease);
+	removeFrom(auxNodes, this?.modGainVibrato);
 
 	if(!clip.audioCtx) {
 		printClip(clip, "defNodeEnded(): ");
@@ -309,7 +309,7 @@ function audioTUpdate() {
 	//question: trunc instead of round for time?
 	if(playerClip.audioCtx && outAudioT)
 		outAudioT.innerText = (playerClip.audioCtx.currentTime - playerClip.t0).toFixed(timeDisplPrecision);
-	if(window.outGenCount) outGenCount.innerText = playerClip.generators.length.toString();
+	if(outGenCount) outGenCount.innerText = playerClip.generators.length.toString();
 }
 const visSliceCount = 48;
 const svgNS = "http://www.w3.org/2000/svg";
