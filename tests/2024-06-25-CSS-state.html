@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>CSS state experiment</title>
+		<style type="text/css">/*<![CDATA[*/
+			:root {
+				--text-scale: 2;
+				--text-scale: pow(2, 0.25 * var(--text-scale-log, 0));
+				font-size: calc(1em * var(--text-scale, 1));
+				
+				--luma-scale: 1;
+
+				--hue1: 0deg;
+				--hue1: calc(30deg * var(--hue1-int, 0));
+
+				--contrast-drive: 1;
+				--contrast-drive: calc(pow(2, 0.25 * var(--contrast-drive-int, 0)));
+
+				/* --lum-p0-25: calc(100% * (0.5 + var(--luma-scale, 1) * 0.25));
+				--lum-m0-375: calc(100% * (0.5 - var(--luma-scale, 1) * 0.375)); */
+
+				/* --lum1-p0-25: 0.25 * var(--contrast-drive, 1);
+				--lum1-m0-375: -0.375 * var(--contrast-drive, 1); */
+				/* --lum1-p0-25: calc(atan(0.25 * var(--contrast-drive, 1)) / 180deg);
+				--lum1-m0-375: calc(atan(-0.375 * var(--contrast-drive, 1)) / 180deg); */
+				--lum2-p0-25: calc(0.25 * var(--contrast-drive, 1));
+				--lum2-m0-375: calc(-0.375 * var(--contrast-drive, 1));
+				--lum2-p0-375: calc(0.375 * var(--contrast-drive, 1));
+				--lum1-p0-25: calc(var(--lum2-p0-25, 0) / sqrt(1 + pow(var(--lum2-p0-25, 0), 2)));
+				--lum1-m0-375: calc(var(--lum2-m0-375, 0) / sqrt(1 + pow(var(--lum2-m0-375, 0), 2)));
+				--lum1-p0-375: calc(var(--lum2-p0-375, 0) / sqrt(1 + pow(var(--lum2-p0-375, 0), 2)));
+				--lum-p0-25: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-p0-25, 0)));
+				--lum-m0-375: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-m0-375, 0)));
+				--lum-p0-375: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-p0-375, 0)));
+
+				--color-back: hsl(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%));
+
+				height: 100%;
+				/* height: 100vh; */
+			}
+			:root:has(#chkAnimations:checked) * {
+				transition-property: font-size, background-color, color;
+				transition-duration: 0.25s;
+			}
+			/* :root:has(#chkAnimations:checked) input[type="checkbox"] {
+				transition-property: block-size, inline-size;
+				transition-duration: 0.25s;
+			} */
+			:root:has(#chkAnimations:checked) :is(input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, select) {
+				transition-property: font-size, background-color, color, box-shadow;
+				/* transition-duration: 0.25s, 0.25s, 0.25s, 0.25s; */
+			}
+			:root:has(#chkAnimations:checked) :is(button, input[type=button]) {
+				transition-property: font-size, background-color, color, box-shadow;
+				transition-duration: 0.25s, 0.25s, 0.25s, 1s;
+			}
+			:root:has(#chkAnimations:checked) :is(button, input[type=button]):is(:active:hover) {
+				transition-property: font-size, background-color, color, box-shadow;
+				transition-duration: 0.25s, 0.25s, 0.25s, 0.125s;
+			}
+
+			body {
+				/* background-color: hsl(var(--hue1, 0deg), 25%, 75%);
+				color: hsl(var(--hue1, 0deg), 25%, 12.5%); */
+
+				/* background-color: hsl(var(--hue1, 0deg), 25%, calc(100% * (0.5 + var(--luma-scale, 1) * 0.25)));
+				color: hsl(var(--hue1, 0deg), 25%, calc(100% * (0.5 - var(--luma-scale, 1) * 0.375))); */
+
+				background-color: var(--color-back);
+				color: hsl(var(--hue1, 0deg), 25%, var(--lum-m0-375, 50%));
+				/* background-image: url("https://upload.wikimedia.org/wikipedia/commons/6/64/KLIK59b.jpg"); */
+				/* background-image: cross-fade(25% linear-gradient(hsl(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%)) 0% 100%), url("https://upload.wikimedia.org/wikipedia/commons/6/64/KLIK59b.jpg")); */
+				/* background-image: linear-gradient(hsla(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%), 0.5) 0% 100%), url("https://upload.wikimedia.org/wikipedia/commons/6/64/KLIK59b.jpg"); */
+				background-image: linear-gradient(0.25turn in hsl longer hue, hsla(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%), 0.5) 0% 100%), url("https://upload.wikimedia.org/wikipedia/commons/6/64/KLIK59b.jpg");
+				background-origin: border-box;
+				/* background-clip: border-box; */
+				background-position: center;
+				background-size: cover;
+				background-attachment: fixed;
+				/* backdrop-filter: opacity(0.5); */
+				/* height: 100vh; */
+				/* min-height: 100%; */
+			}
+			p:not(.shade-group) > span, p > label {
+				/* backdrop-filter: blur(0.5em) opacity(0.75); */
+				backdrop-filter: blur(0.25em);
+				background-color: hsla(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%), 0.125);
+				background-image:
+					linear-gradient(0turn, transparent, hsla(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%), 0.25) 25% 75%, transparent);
+				/* filter: drop-shadow(0 0 0.5em var(--color-back)); */
+				/* text-shadow: 0 0 0.125em var(--color-back); */
+				/* text-shadow:
+					0 0 0.09375em var(--color-back),
+					0 0 0.1875em var(--color-back),
+					0 0 0.375em var(--color-back); */
+				--color-shadow: hsl(var(--hue1, 0deg), 25%, var(--lum-p0-375, 50%));
+				text-shadow:
+					0 0 0.0625em var(--color-shadow),
+					0 0 0.125em var(--color-shadow),
+					0 0 0.25em var(--color-shadow),
+					0 0 0.5em var(--color-shadow);
+				/* color: transparent; */ /* provisory */
+				border-start-start-radius: 0.125em;
+				border-start-end-radius: 0.3125em;
+				border-end-start-radius: 0.125em;
+				border-end-end-radius: 0.3125em;
+			}
+			
+			/* input, select {
+				scale: var(--text-scale, 1);
+			} */
+			input, textarea, button, select {
+				font-size: inherit;
+			}
+			input:not([type=checkbox]):not([type=radio]), textarea, button, select {
+				border-start-start-radius: 0.125em;
+				border-start-end-radius: 0.3125em;
+				border-end-start-radius: 0.125em;
+				border-end-end-radius: 0.3125em;
+				border-width: 0;
+				padding: 0.125em;
+
+				--lum2-p0-25: calc(0.25 * var(--contrast-drive, 1));
+				--lum2-m0-25: calc(-0.25 * var(--contrast-drive, 1));
+				--lum1-p0-25: calc(var(--lum2-p0-25, 0) / sqrt(1 + pow(var(--lum2-p0-25, 0), 2)));
+				--lum1-m0-25: calc(var(--lum2-m0-25, 0) / sqrt(1 + pow(var(--lum2-m0-25, 0), 2)));
+				--lum-p0-25: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-p0-25, 0)));
+				--lum-m0-25: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-m0-25, 0)));
+
+				background-color: hsl(var(--hue1, 0deg), 50%, var(--lum-p0-25, 50%));
+				color: hsl(var(--hue1, 0deg), 50%, var(--lum-m0-25, 50%));
+			}
+			input[type=checkbox] {
+				/* block-size: 1em;
+				inline-size: 1em;
+				vertical-align: middle; */
+				block-size: 1cap;
+				inline-size: 1cap;
+				vertical-align: baseline;
+			}
+			input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, select {
+				/* box-shadow:
+					inset 0.0625em 0.0625em 0.0625em 0em rgba(0, 0, 0, 0.5),
+					inset -0.0625em -0.0625em 0.0625em 0em rgba(255, 255, 255, 0.5); */
+				/* box-shadow:
+					-0.0625em -0.0625em 0.0625em 0em rgba(0, 0, 0, 0.5),
+					0.0625em 0.0625em 0.0625em 0em rgba(255, 255, 255, 0.5); */
+				box-shadow:
+					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
+					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
+					-0.0625em -0.0625em 0.125em -0.0625em rgba(0, 0, 0, 0.75),
+					0.0625em 0.0625em 0.125em -0.0625em rgba(255, 255, 255, 0.75);
+			}
+			select:focus {
+				/* box-shadow: none; */
+				box-shadow:
+					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0),
+					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0),
+					-0.0625em -0.0625em 0.125em -0.0625em rgba(0, 0, 0, 0),
+					0.0625em 0.0625em 0.125em -0.0625em rgba(255, 255, 255, 0);
+			}
+			button, input[type=button] { /* to do: active or focus? */
+				padding: 0.25em;
+
+				/* box-shadow:
+					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.5),
+					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.5); */
+				/* box-shadow:
+					-0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.5),
+					0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.5); */
+				box-shadow:
+					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
+					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
+					-0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
+					0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75);
+			}
+			button:active:hover, input[type=button]:active:hover {
+				/* box-shadow: inherit; */
+				/* box-shadow: initial; */
+				/* box-shadow: revert; */
+				/* box-shadow:
+					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
+					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75); */
+				box-shadow:
+					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
+					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
+					-0.0625em -0.0625em 0.125em -0.0625em rgba(0, 0, 0, 0.75),
+					0.0625em 0.0625em 0.125em -0.0625em rgba(255, 255, 255, 0.75);
+			}
+			select {
+				padding-inline-start: 0.25em;
+				margin-block: 0.125em;
+				margin-inline: 0.25em;
+			}
+			button:has(label) {
+				padding: 0;
+			}
+			button > label {
+				display: block;
+				padding: 0.25em;
+				border-radius: inherit;
+			}
+
+			/* #rngTextScale {
+				accent-color: green;
+			} */
+
+			/* :root:has(#selTextScale option[value="-1"]:checked) {
+				--text-scale-log: -1;
+			}
+			:root:has(#selTextScale option[value="0"]:checked) {
+				--text-scale-log: 0;
+			}
+			:root:has(#selTextScale option[value="1"]:checked) {
+				--text-scale-log: 1;
+			}
+			:root:has(#selTextScale option[value="2"]:checked) {
+				--text-scale-log: 2;
+			} */
+			:root:has(#selTextScale option:nth-child(1):checked) {
+				--text-scale-log: -3;
+			}
+			:root:has(#selTextScale option:nth-child(2):checked) {
+				--text-scale-log: -2;
+			}
+			:root:has(#selTextScale option:nth-child(3):checked) {
+				--text-scale-log: -1;
+			}
+			:root:has(#selTextScale option:nth-child(4):checked) {
+				--text-scale-log: 0;
+			}
+			:root:has(#selTextScale option:nth-child(5):checked) {
+				--text-scale-log: 1;
+			}
+			:root:has(#selTextScale option:nth-child(6):checked) {
+				--text-scale-log: 2;
+			}
+			:root:has(#selTextScale option:nth-child(7):checked) {
+				--text-scale-log: 3;
+			}
+			:root:has(#selTextScale option:nth-child(8):checked) {
+				--text-scale-log: 4;
+			}
+			:root:has(#selTextScale option:nth-child(9):checked) {
+				--text-scale-log: 5;
+			}
+			:root:has(#selTextScale option:nth-child(10):checked) {
+				--text-scale-log: 6;
+			}
+
+			:root:has(#selLumaScale option[value="-2"]:checked) {
+				--luma-scale: -2;
+			}
+			:root:has(#selLumaScale option[value="-1"]:checked) {
+				--luma-scale: -1;
+			}
+			:root:has(#selLumaScale option[value="1"]:checked) {
+				--luma-scale: 1;
+			}
+			:root:has(#selLumaScale option[value="2"]:checked) {
+				--luma-scale: 2;
+			}
+
+			:root:has(#selHue option[value="0"]:checked) {
+				--hue1-int: 0;
+			}
+			:root:has(#selHue option[value="1"]:checked) {
+				--hue1-int: 1;
+			}
+			:root:has(#selHue option[value="2"]:checked) {
+				--hue1-int: 2;
+			}
+			:root:has(#selHue option[value="3"]:checked) {
+				--hue1-int: 3;
+			}
+			:root:has(#selHue option[value="4"]:checked) {
+				--hue1-int: 4;
+			}
+			:root:has(#selHue option[value="5"]:checked) {
+				--hue1-int: 5;
+			}
+			:root:has(#selHue option[value="6"]:checked) {
+				--hue1-int: 6;
+			}
+			:root:has(#selHue option[value="7"]:checked) {
+				--hue1-int: 7;
+			}
+			:root:has(#selHue option[value="8"]:checked) {
+				--hue1-int: 8;
+			}
+			:root:has(#selHue option[value="9"]:checked) {
+				--hue1-int: 9;
+			}
+			:root:has(#selHue option[value="10"]:checked) {
+				--hue1-int: 10;
+			}
+			:root:has(#selHue option[value="11"]:checked) {
+				--hue1-int: 11;
+			}
+
+			:root:has(#selContrastDrive option[value="-3"]:checked) {
+				--contrast-drive-int: -3;
+			}
+			:root:has(#selContrastDrive option[value="-2"]:checked) {
+				--contrast-drive-int: -2;
+			}
+			:root:has(#selContrastDrive option[value="-1"]:checked) {
+				--contrast-drive-int: -1;
+			}
+			:root:has(#selContrastDrive option[value="0"]:checked) {
+				--contrast-drive-int: 0;
+			}
+			:root:has(#selContrastDrive option[value="1"]:checked) {
+				--contrast-drive-int: 1;
+			}
+			:root:has(#selContrastDrive option[value="2"]:checked) {
+				--contrast-drive-int: 2;
+			}
+			:root:has(#selContrastDrive option[value="3"]:checked) {
+				--contrast-drive-int: 3;
+			}
+			:root:has(#selContrastDrive option[value="4"]:checked) {
+				--contrast-drive-int: 4;
+			}
+
+			/* .shade-group {
+				
+			} */
+			.shade-group > span {
+				float: left;
+				block-size: 2em;
+				inline-size: 2em;
+
+				--lum2-back: calc(((var(--index, 0) + 0.5) / 12 - 0.5) * var(--contrast-drive, 1));
+				--lum1-back: calc(var(--lum2-back, 0) / sqrt(1 + pow(var(--lum2-back, 0), 2)));
+				--lum-back: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-back, 0)));
+
+				background-color: hsl(calc(var(--hue1, 0deg) + 60deg), 25%, var(--lum-back, 50%));
+			}
+			.shade-group > span:nth-of-type(1) {
+				--index: 0;
+			}
+			.shade-group > span:nth-of-type(2) {
+				--index: 1;
+			}
+			.shade-group > span:nth-of-type(3) {
+				--index: 2;
+			}
+			.shade-group > span:nth-of-type(4) {
+				--index: 3;
+			}
+			.shade-group > span:nth-of-type(5) {
+				--index: 4;
+			}
+			.shade-group > span:nth-of-type(6) {
+				--index: 5;
+			}
+			.shade-group > span:nth-of-type(7) {
+				--index: 6;
+			}
+			.shade-group > span:nth-of-type(8) {
+				--index: 7;
+			}
+			.shade-group > span:nth-of-type(9) {
+				--index: 8;
+			}
+			.shade-group > span:nth-of-type(10) {
+				--index: 9;
+			}
+			.shade-group > span:nth-of-type(11) {
+				--index: 10;
+			}
+			.shade-group > span:nth-of-type(12) {
+				--index: 11;
+			}
+		/*]]>*/</style>
+	</head>
+	<body>
+		<p>
+			<!-- (range inputs didn't reflect their state) Text scale <input type="range" id="rngTextScale" value="0" min="-1" max="1" step="1" /> -->
+			<label for="selTextScale">Text scale</label> 
+			<select id="selTextScale">
+				<option value="-3">-3</option>
+				<option value="-2">-2</option>
+				<option value="-1">-1</option>
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2" selected="true">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+			</select>
+		</p>
+		<p>
+			<label for="selLumaScale">Luma scheme</label> 
+			<select id="selLumaScale">
+				<option value="-2">dark extreme</option>
+				<option value="-1">dark</option>
+				<option value="1" selected="true">light</option>
+				<option value="2">light extreme</option>
+			</select>
+		</p>
+		<p>
+			<label for="selHue">Hue</label> 
+			<select id="selHue">
+				<option value="0" selected="true">red</option>
+				<option value="1">orange</option>
+				<option value="2">yellow</option>
+				<option value="3">chartreuse</option>
+				<option value="4">green</option>
+				<option value="5">spring green</option>
+				<option value="6">cyan</option>
+				<option value="7">azure</option>
+				<option value="8">blue</option>
+				<option value="9">violet</option>
+				<option value="10">magenta</option>
+				<option value="11">rose</option>
+			</select>
+		</p>
+		<p>
+			<label for="selContrastDrive">Contrast</label> 
+			<select id="selContrastDrive">
+				<option value="-3">-3</option>
+				<option value="-2">-2</option>
+				<option value="-1">-1</option>
+				<option value="0" selected="true">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+			</select>
+		</p>
+		<p>
+			<input type="checkbox" id="chkAnimations" checked="true" /> <label for="chkAnimations">Animations</label>
+		</p>
+		<p>
+			<button>Butt'n</button>
+			<button><label for="chkAnimations">Butt'n</label></button>
+			<!-- <label for="chkAnimations"><button>Butt'n</button></label> -->
+		</p>
+		<p><span>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+		</span></p>
+		<p><span>
+			Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
+		</span></p>
+		<p class="shade-group">
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+			<span>&nbsp;</span>
+		</p>
+	</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>CSS state experiment</title>
+		<style type="text/css">/*<![CDATA[*/
+			:root {
+				font-size: 2em;
+				color-scheme: dark;
+			}
+			:root:has(#test1:target) p {
+				font-weight: bold;
+			}
+			:root:has(#test2:target) p {
+				font-style: italic;
+			}
+			:root:has(meta[charset="utf-8"]) p:last-child {
+				color: red;
+			}
+
+			/* p:checked, p:active, p:focus, p:focus-visible, p:focus-within {
+				color: palevioletred;
+			} */
+			/* input[type="checkbox"]:focus {
+				height: 2em;
+				width: 2em;
+			} */
+
+			#frame1 {
+				width: 50%;
+				height: 50vh;
+			}
+			/* #frame1:has(#test2:target) {
+				border-color: red;
+			}
+			#frame1 p {
+				color: red;
+			} */
+			#frame1[src="2024-06-25-CSS-state.html"] {
+				border-color: red;
+			}
+			#frame1[src="2024-07-11-CSS-state.html"] {
+				border-radius: 1em;
+			}
+
+			[contenteditable] {
+				background-color: dimgray;
+				border-style: solid;
+				border-color: lightgray;
+				counter-reset: edit;
+			}
+			[contenteditable]:focus-within {
+				border-style: dashed;
+			}
+			/* [contenteditable]:has(:nth-child(4)) {
+				background-color: green;
+			} */
+			[contenteditable]:has(div:nth-child(odd):last-child) {
+				background-color: green;
+			}
+			[contenteditable] div {
+				counter-increment: edit;
+			}
+			/* [contenteditable] div:nth-child(odd) {
+				background-color: red;
+			}
+			[contenteditable] div:last-child {
+				background-color: blue;
+			} */
+			/* [contenteditable] div:active, [contenteditable] div:focus, [contenteditable] div:focus-visible, [contenteditable] div:focus-within { */
+			/* [contenteditable] div:has(::selection) { */
+			[contenteditable]:has(::selection) {
+				/* font-size: 2em;
+				text-align: right; */
+				background-color: purple;
+			}
+			[contenteditable] div:hover::after {
+				float: right;
+				content: counter(edit) " ";
+			}
+			/* [contenteditable] ::selection { */
+			[contenteditable] *:has(::selection) {
+				/* font-family: sans-serif; */
+				background-color: purple;
+			}
+			[contenteditable] :focus-within {
+				border-style: dashed;
+				border-width: 4px;
+				border-color: purple;
+				background-color: black;
+			}
+
+			input[type="checkbox"] {
+				font-size: inherit;
+				height: 1em;
+				width: 1em;
+			}
+
+			/* #eEgg1 {
+				display: none;
+			}
+			:root:has(#checkBoxes input[type="checkbox"]:checked:nth-of-type(2)) #eEgg1 {
+				display: revert;
+			} */
+			/* :root:has(#checkBoxes input[type="checkbox"]:nth-of-type(4):checked) #eEgg1 {
+				display: none;
+			} */
+
+			#checkBoxes {
+				counter-reset: chkTest 10 chkParity 0;
+				/* counter-reset: reversed(chkTest) 10; */
+			}
+			#checkBoxes input[type="checkbox"]:checked {
+				counter-increment: chkTest -2;
+			}
+			#checkBoxes input[type="checkbox"]:nth-of-type(odd):checked {
+				counter-increment: chkTest -2 chkParity -1;
+				/* counter-increment: inherit chkParity -1; */
+			}
+			#checkBoxes input[type="checkbox"]:nth-of-type(even):checked {
+				counter-increment: chkTest -2 chkParity 1;
+				/* counter-increment: inherit chkParity 1; */
+			}
+			#outCounter::after {
+				content: counter(chkTest);
+				/* content: counter(chkTest) " - " counter(chkParity); */
+			}
+			#outCounter2::after {
+				content: counter(chkParity);
+			}
+			/* #outCounter {
+				height: calc(counter(chkTest) * 1em);
+			} */
+
+			/* :root {
+				counter-reset: elems;
+			} */
+			/* *::before { */
+			* {
+				/* counter-reset: elems; */
+				/* counter-set: elems 1; */
+				counter-increment: elems;
+			}
+			/* *:hover::before { */
+			/* *:hover:not(:has(:hover))::before {
+				content: counters(elems, ".");
+			} */
+
+			:root:has(p:hover) p:not(:hover) {
+			/* :root:has(p:hover):scope p:not(:hover) { */
+				color: lightskyblue;
+				/* opacity: 0.25; */
+			}
+			:root:hover :not(:hover) {
+				opacity: 0.7071;
+			}
+		/*]]>*/</style>
+	</head>
+	<body>
+		<p>
+			<a href="#test1">Test 1</a>
+			<a href="#test2">Test 2</a>
+			<a href="#test3">Test 3</a>
+			<a href="#test4">Test 4</a>
+			<!-- <a href="about:srcdoc#test1" target="frame1">Test 1</a>
+			<a href="about:srcdoc#test2" target="frame1">Test 2</a>
+			<a href="about:srcdoc#test3" target="frame1">Test 3</a>
+			<a href="about:srcdoc#test4" target="frame1">Test 4</a> -->
+		</p>
+		<p hidden="true">
+			<span id="test1" hidden="true"></span>
+			<span id="test2" hidden="true"></span>
+			<span id="test3" hidden="true"></span>
+			<span id="test4" hidden="true"></span>
+		</p>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+		</p>
+		<!-- <iframe src="2024-06-25-CSS-state.html" name="frame1" id="frame1"></iframe> -->
+		<!-- <iframe srcdoc="<p id=&quot;test1&quot;>asdf 1</p><p id=&quot;test2&quot;>asdf 2</p>" name="frame1" id="frame1"></iframe> -->
+		<!-- <p contenteditable="true">asdf asdf</p> -->
+		<div contenteditable="true">
+			<!-- <div contenteditable="true">asdf 01</div>
+			<div contenteditable="true">asdf 02</div>
+			<div contenteditable="true">asdf 03</div> -->
+			<div>asdf 01</div>
+			<div>asdf 02</div>
+			<div>asdf 03</div>
+		</div>
+		<p>
+			Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
+		</p>
+		<p id="checkBoxes">
+			<input type="checkbox" id="chkTest01" /> <label for="chkTest01">Test 01</label>
+			<input type="checkbox" id="chkTest02" /> <label for="chkTest02">Test 02</label>
+			<input type="checkbox" id="chkTest03" /> <label for="chkTest03">Test 03</label>
+			<input type="checkbox" id="chkTest04" /> <label for="chkTest04">Test 04</label>
+		</p>
+		<p id="outCounter">Count: </p>
+		<p id="outCounter2">Balance: </p>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+		</p>
+		<p>
+			Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
+		</p>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+		</p>
+		<p>
+			Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
+		</p>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+		</p>
+		<p>
+			Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
+		</p>
+	</body>
+</html>

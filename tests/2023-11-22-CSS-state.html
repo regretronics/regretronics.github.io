@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>CSS state experiment</title>
+		<style type="text/css">/*<![CDATA[*/
+		span:has(+ input:checked) {
+		/* span:has(~ input:checked) { */
+		/* input:checked ~ span { */
+		/* input:checked + span { */
+			font-weight: bold;
+		}
+		input[type=radio]:checked {
+		/* input[type="radio"]:checked { */
+			/* border-style: solid;
+			border-width: 1em;
+			border-color: red; */
+			outline-style: solid;
+			outline-width: 0.25em;
+			outline-color: red;
+		}
+
+		input[name="prop1"][value="v1"]:checked ~ span.color {
+			background-color: red;
+		}
+		input[name="prop1"][value="v2"]:checked ~ span.color {
+			background-color: green;
+		}
+		input[name="prop1"][value="v3"]:checked ~ span.color {
+			background-color: blue;
+		}
+
+		input[name="prop1"][value="v1"]:checked ~ span.prop1-v1 {
+			font-weight: bold;
+		}
+		input[name="prop1"][value="v2"]:checked ~ span.prop1-v2 {
+			font-weight: bold;
+		}
+		input[name="prop1"][value="v3"]:checked ~ span.prop1-v3 {
+			font-weight: bold;
+		}
+
+		span[class^="prop2"] {
+			display: none;
+		}
+		input#p2v1:checked ~ span.prop2-v1,
+		input#p2v2:checked ~ span.prop2-v2,
+		input#p2v3:checked ~ span.prop2-v3 {
+			display: initial;
+		}
+		.prop2 label {
+			font-weight: bold;
+		}
+
+		.bar {
+			display: inline-block;
+			text-align: center;
+			width: 1em;
+			background-color: gray;
+			opacity: 0.25;
+		}
+		.bar:has(~ input[name="prop2"]:checked) {
+			background-color: red;
+			opacity: initial;
+		}
+		/* input[name="prop2"]:checked ~ .bar {
+			background-color: blue;
+		} */
+
+		/* option:checked, option:focus, option:active, option:focus-visible, option:target {
+			font-weight: bold;
+		} */
+		/* option[selected] {
+			color: red;
+		}
+		select[value="v2"] {
+			color: green;
+		} */
+		/* input[type=text][value="asdf"] {
+			font-weight: bold;
+		} */
+		
+		.prop3 ~ p .st-open {
+			display: none;
+		}
+		.prop3[open] ~ p .st-open {
+			display: initial;
+		}
+		.prop3[open] ~ p .st-closed {
+			display: none;
+		}
+
+		table {
+			background-color: palevioletred;
+			counter-reset: tbl-rows 0;
+			/* color: black; */
+		}
+		table tr {
+			counter-increment: tbl-rows;
+			counter-reset: tbl-cols 0;
+		}
+		table td {
+			counter-increment: tbl-cols;
+			background-color: coral;
+			width: 3em;
+			height: 3em;
+		}
+		/* td:active { */
+		td:hover {
+			background-color: chartreuse;
+		}
+		td:hover::after {
+			/* display: block;
+			text-align: center; */
+			font-size: 2em;
+			/* color: black; */
+			content: counter(tbl-rows) attr(data-hidden, "-");
+		}
+		td:hover ~ td {
+			background-color: darkgreen;
+		}
+		td:has(~ td:hover) {
+			background-color: lightgreen;
+		}
+
+		:root:has(td:nth-child(1):hover) {
+			--x: 8;
+		}
+		:root:has(td:nth-child(2):hover) {
+			--x: 6;
+		}
+		:root:has(td:nth-child(3):hover) {
+			--x: 4;
+		}
+		:root:has(td:nth-child(4):hover) {
+			--x: 2;
+		}
+		.var-bar-x {
+			--val: var(--x, 1);
+			/* --val: var(tbl-cols, 1); */
+			/* --val: counter(tbl-cols); */
+			/* --val: calc(0 + 1 * counter(tbl-cols)); */
+			margin-block: 1em;
+			width: calc(2em * var(--val));
+			height: 2em;
+			background-color: oklch(0.5 100% calc(1turn * var(--val) / 10));
+		}
+		/* .var-bar-x::after {
+			content: "<" var(--val, "--") ">";
+		} */
+
+		:root:has(tr:nth-child(1):hover) {
+			--y: 8;
+		}
+		:root:has(tr:nth-child(2):hover) {
+			--y: 6;
+		}
+		:root:has(tr:nth-child(3):hover) {
+			--y: 4;
+		}
+		:root:has(tr:nth-child(4):hover) {
+			--y: 2;
+		}
+		.var-bar-y {
+			--val: var(--y, 1);
+			margin-block: 1em;
+			width: calc(2em * var(--val));
+			height: 2em;
+			background-color: oklch(0.5 100% calc(1turn * var(--val) / 10));
+		}
+		.arrow-box {
+			width: 4em;
+			height: 4em;
+
+			rotate: calc(atan2(var(--y) - 5, var(--x) - 5));
+			transform-origin: center;
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.arrow {
+			width: 100%;
+			height: 40%;
+			/* position: absolute; */
+			margin: auto;
+			text-align: center;
+			background-color: oklch(100% 100% calc(atan2(var(--y) - 5, var(--x) - 5)));
+			clip-path: polygon(100% 80%,
+				40% 80%,
+				40% 100%,
+				0% 50%,
+				40% 0%,
+				40% 20%,
+				100% 20%);
+		}
+
+		:root {
+			--tree1-b03: 0;
+			--tree1-b02: 0;
+			--tree1-b01: 0;
+			--tree1-b00: 0;
+			/* --tree1: var(--tree1-b02, 0); */
+			/* --tree1: calc(4 * --tree1-b02 + 2 * --tree1-b01 + --tree1-b00); */
+			--tree1: calc(8 * var(--tree1-b03) + 4 * var(--tree1-b02) + 2 * var(--tree1-b01) + var(--tree1-b00));
+		}
+		:root:has(.tree-l3:nth-child(2):hover) {
+			--tree1-b03: 1;
+		}
+		:root:has(.tree-l2:nth-child(2):hover) {
+			--tree1-b02: 1;
+		}
+		:root:has(.tree-l1:nth-child(2):hover) {
+			--tree1-b01: 1;
+		}
+		:root:has(.tree-l0:nth-child(2):hover) {
+			--tree1-b00: 1;
+		}
+		.tree-root {
+			/* white-space: nowrap; */
+			display: flex;
+			height: 2em;
+			width: 80%;
+			counter-reset: tree-gauge 0;
+		}
+		.tree-root span {
+			display: inline-flex;
+			width: 50%;
+		}
+		.tree-root span:hover ~ span, .tree-root span:hover ~ span * {
+			background-color: red;
+		}
+		.tree-l0:hover::after, .tree-root span:hover ~ .tree-l0::after, .tree-root span:hover ~ * .tree-l0::after {
+			/* display: block; */
+			content: counter(tree-gauge);
+			text-align: center;
+			font-size: 100%;
+			/* height: 50%; */
+			margin: auto auto;
+		}
+		.tree-l0 {
+			/* height: 2em; */
+			/* width: 2em; */
+			/* display: inline-block; */
+			text-align: center;
+			background-color: gray;
+			counter-increment: tree-gauge;
+		}
+		.tree-l0:hover {
+			counter-set: tree-gauge 0;
+			background-color: greenyellow;
+		}
+		.tree-bar {
+			height: 2em;
+			width: calc(1em * (1 + var(--tree1, 0)));
+			display: inline-block;
+			background-color: oklch(0.5 100% calc(1turn * var(--tree1, 0) / 16));
+			transition-property: background-color, width;
+			/* transition-delay: 0.125s; */
+			transition-duration: 0.5s;
+			transition-timing-function: cubic-bezier(.5,2,.5,.75);
+			/* transition-timing-function: cubic-bezier(.5,-0.5,.25,1.25); */
+		}
+		/*]]>*/</style>
+	</head>
+	<body>
+		<!-- <p>
+			<input type="text" value="asdf" />
+			<input type="number" value="12" />
+		</p> -->
+		<p>
+			<span>qwer</span>
+			<input type="checkbox" id="chk1" checked="true" />
+			<span>uiop</span>
+		</p>
+		<hr />
+		<p class="prop1">
+			<input type="radio" name="prop1" value="v1" /><br />
+			<input type="radio" name="prop1" value="v2" /><br />
+			<input type="radio" name="prop1" value="v3" /><br />
+			<span class="color">color</span>
+			<span class="prop1-v1">v1 </span>
+			<span class="prop1-v2">v2 </span>
+			<span class="prop1-v3">v3</span>
+		</p>
+		<hr />
+		<p class="prop2">
+			<span class="bar">x</span>
+			<input type="radio" id="p2v1" name="prop2" value="v1" />
+			<span class="bar">x</span>
+			<input type="radio" id="p2v2" name="prop2" value="v2" />
+			<span class="bar">x</span>
+			<input type="radio" id="p2v3" name="prop2" value="v3" />
+			<span class="prop2-v1">v1 <label for="p2v2">next</label></span>
+			<span class="prop2-v2">v2 <label for="p2v3">next</label></span>
+			<span class="prop2-v3">v3 <label for="p2v1">next</label></span>
+		</p>
+		<hr />
+		<!-- <p>
+			<select id="sel1" name="sel1">
+				<option value="v1">v1</option>
+				<option value="v2">v2</option>
+				<option value="v3" selected="true">v3</option>
+			</select>
+		</p> -->
+		<details class="prop3">
+			<summary>summary</summary>
+			details
+		</details>
+		<p>
+			<span class="st-open">open!</span>
+			<span class="st-closed">closed!</span>
+		</p>
+		<hr />
+		<table>
+			<tbody>
+				<tr>
+					<td data-hidden="q">&nbsp;</td>
+					<td data-hidden="w">&nbsp;</td>
+					<td data-hidden="e">&nbsp;</td>
+					<td data-hidden="r">&nbsp;</td>
+				</tr>
+				<tr>
+					<td data-hidden="a">&nbsp;</td>
+					<td data-hidden="s">&nbsp;</td>
+					<td data-hidden="d">&nbsp;</td>
+					<td data-hidden="f">&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="var-bar-x"></div>
+		<div class="var-bar-y"></div>
+		<div class="arrow-box">
+			<div class="arrow">arrow</div>
+		</div>
+		<hr />
+		<p class="tree">
+			<div class="tree-root">
+				<span class="tree-l3">
+					<span class="tree-l2">
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+					</span>
+					<span class="tree-l2">
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+					</span>
+				</span>
+				<span class="tree-l3">
+					<span class="tree-l2">
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+					</span>
+					<span class="tree-l2">
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+						<span class="tree-l1">
+							<span class="tree-l0">
+							</span>
+							<span class="tree-l0">
+							</span>
+						</span>
+					</span>
+				</span>
+			</div>
+			<div class="tree-bar"></div>
+		</p>
+	</body>
+</html>

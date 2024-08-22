@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Thue-Morse sequence guessing</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		background-color: revert !important; /*Dark Reader workaround*/
+	}
+	body {
+		background-color: canvas;
+		color: canvastext;
+		color-scheme: dark;
+		font-size: 2em;
+	}
+	/*]]>*/</style>
+	<!-- <script type="text/javascript" src="navigationCore.js"></script> -->
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	let seqCycle = 0;
+
+	function keyDown(event) {
+		//console.log(event);
+		if(event.repeat) return;
+		const text = event.key.toLocaleUpperCase();
+		const digits = ["A", "Z"];
+		if(digits.includes(text)) {
+			let digit = digits.indexOf(text);
+			let seqCycle2 = seqCycle, parity = 0;
+			for(let i = 0; i < 31; i++) {
+				parity ^= seqCycle2 % 2;
+				seqCycle2 >>>= 1;
+			}
+			if(digit === parity) {
+				document.getElementById("outSequence").innerText += text;
+				seqCycle++;
+				//document.getElementById("outSequence").innerText += text + (((seqCycle + 1) % 4) === 0 ? " " : "");
+				if((seqCycle % 4) == 0) document.getElementById("outSequence").innerText += "-";
+			}
+			document.getElementById("outText").innerText = `${text} (${["incorrect", "correct"][Number(digit === parity)]})`;
+		}
+	}
+
+	/* function pageLoad(event) {
+	} */
+	function pageReady(event) {
+		document.addEventListener("keydown", keyDown);
+	}
+
+	//window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<p>Sequence: <output id="outSequence"></output></p>
+	<p>Press A or Z for 0 or 1, respectively.</p>
+	<p>Pressed: <output id="outText"></output>.</p>
+</body>
+</html>

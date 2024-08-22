@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>CSS metaballs</title>
+		<style type="text/css">/*<![CDATA[*/
+			body, html, .wrap {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+			}
+			body {
+				filter: contrast(1.25) brightness(6);
+				background-color: black;
+			}
+			.wrap {
+				width: 200%;
+				height: 200%;
+				margin: -50vh -50vw -50vh -50vw;
+				background-color: inherit;
+				filter: sepia(1);
+				animation: 7s spin ease-in-out infinite;
+				animation-composition: add;
+			}
+			.blob {
+				position: absolute;
+				width: 30vmin;
+				height: 30vmin;
+				left: 50%;
+				top: 50%;
+				margin: -15vmin;
+				/* opacities based on binomial distribution */
+				background-image: radial-gradient(
+					closest-side,
+					hsla(30deg, 0%, 100%, calc(0.25 * 924 / 924)),
+					hsla(30deg, 0%, 100%, calc(0.25 * 792 / 924)),
+					hsla(30deg, 0%, 100%, calc(0.25 * 495 / 924)),
+					hsla(30deg, 0%, 100%, calc(0.25 * 220 / 924)),
+					hsla(30deg, 0%, 100%, calc(0.25 * 66 / 924)),
+					hsla(30deg, 0%, 100%, calc(0.25 * 12 / 924)),
+					hsla(30deg, 0%, 100%, calc(0.25 * 1 / 924)),
+					transparent);
+				background-blend-mode: screen;
+				animation: move infinite alternate ease-in-out;
+			}
+			.blob:nth-child(1) {
+				animation-duration: 12s;
+				animation-delay: 0s;
+			}
+			.blob:nth-child(2) {
+				animation-duration: 19.3s;
+				animation-delay: -3.3s;
+			}
+			.blob:nth-child(3) {
+				animation-duration: 14.7s;
+				animation-delay: -2.7s;
+			}
+			.blob:nth-child(4) {
+				animation-duration: 8.7s;
+				animation-delay: -5.32s;
+			}
+			@keyframes spin {
+				to {
+					transform: rotate(1turn);
+					filter: hue-rotate(1turn);
+				}
+			}
+			@keyframes move {
+				0% {
+					transform: translate(0%, 50%);
+				}
+				15% {
+					transform: translate(-60%, 80%);
+				}
+				30% {
+					transform: translate(50%, -40%);
+				}
+				40% {
+					transform: translate(-70%, 0%);
+				}
+				60% {
+					transform: translate(20%, -40%);
+				}
+				80% {
+					transform: translate(-80%, -10%);
+				}
+				100% {
+					transform: translate(20%, 30%);
+				}
+			}
+		/*]]>*/</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<div class="blob"></div>
+			<div class="blob"></div>
+			<div class="blob"></div>
+			<div class="blob"></div>
+		</div>
+	</body>
+</html>

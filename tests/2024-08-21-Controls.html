@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>HTML tests</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+		background-color: canvas;
+		color: canvastext;
+		font-size: 1.25em;
+	}
+	body {
+		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	}
+
+	input {
+		font-size: 0.8em;
+	}
+	/* input[type="number"] {
+		width: 8ch;
+		text-align: right;
+	} */
+
+	button:checked {
+		rotate: 90deg;
+	}
+
+	.spinEdit {
+		display: inline-flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+
+		/* height: 1em; */
+		width: calc(2em + 4ch);
+		/* text-wrap: nowrap; */
+
+		background-color: dimgray;
+		border-start-start-radius: 0.375em;
+		border-end-start-radius: 0.375em;
+		border-start-end-radius: 0.25em;
+		border-end-end-radius: 0.25em;
+	}
+	.spinEdit#txtTest2 {
+		width: calc(2em + 8ch);
+	}
+	.spinEdit :first-child {
+		border-start-start-radius: inherit;
+		border-end-start-radius: inherit;
+	}
+	.spinEdit :last-child, .spinEdit :last-child :last-child {
+		border-start-end-radius: inherit;
+		border-end-end-radius: inherit;
+	}
+
+	.spinEdit .controlContainer {
+		/* width: calc(100% - 2em); */
+		width: auto;
+		/* width: fit-content; */
+		/* width: min-content; */ /* too small */
+		/* width: max-content; */
+		
+		/* min-width: auto; */
+		/* min-width: fit-content; */
+		/* min-width: max-content; */ /* stupid */
+		/* max-width: min-content; */ /* too small */
+		
+		/* max-width: fit-content; */
+		/* max-width: min-content; */
+		/* max-width: max-content; */
+		
+		flex-shrink: 1;
+		/* flex-basis: content; */
+		flex-basis: auto;
+	}
+	.spinEdit input:first-of-type {
+		box-sizing: border-box;
+		/* border-style: solid; */
+		border-start-start-radius: inherit;
+		border-end-start-radius: inherit;
+		/* border-start-end-radius: 0.25em;
+		border-end-end-radius: 0.25em; */
+
+		width: 100%;
+		height: 100%;
+		text-align: right;
+		vertical-align: text-bottom;
+	}
+	.spinEdit:has(.buttonsArea) input:first-of-type {
+		appearance: textfield;
+	}
+	.spinEdit > input:first-of-type {
+		/* flex-shrink: 1;
+		flex-basis: auto; */
+		vertical-align: text-top;
+	}
+	.spinEdit:has(.buttonsArea) input:first-of-type::inner-spin-button, 
+	.spinEdit:has(.buttonsArea) input:first-of-type::outer-spin-button {
+		-webkit-appearance: none;
+		appearance: none;
+		display: none;
+		opacity: 0;
+	}
+	.spinEdit:has(.buttonsArea) input:first-of-type::-webkit-inner-spin-button, 
+	.spinEdit:has(.buttonsArea) input:first-of-type::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		appearance: none;
+		display: none;
+		opacity: 0;
+	}
+
+	.spinEdit .buttonsArea {
+		user-select: none;
+		flex-basis: content;
+		flex-shrink: 0.25;
+		text-align: center;
+
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap; /* ? */
+	}
+	.spinEdit .buttonsArea > * {
+		/* pointer-events: ; */
+		/* touch-action: manipulation; */
+		width: 1em;
+		/* flex-basis: 1em; */
+		/* flex-basis: auto; */
+		flex-grow: 1;
+		/* display: inline-block; */
+	}
+	.spinEdit .buttonsArea > *:hover {
+		background-color: darkgray;
+	}
+	/* .spinEdit .buttonsArea > *:active {
+		background-color: canvastext;
+		color: canvas;
+	} */
+	.spinEdit .buttonsArea:active {
+		background-color: canvastext;
+		color: canvas;
+	}
+
+	p > input[type=number] {
+		/* appearance: none; */
+		appearance: textfield;
+	}
+	p > input[type=number]::inner-spin-button, 
+	p > input[type=number]::outer-spin-button {
+		-webkit-appearance: none;
+		appearance: none;
+		display: none;
+		opacity: 0;
+	}
+	p > input[type=number]::-webkit-inner-spin-button, 
+	p > input[type=number]::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		appearance: none;
+		display: none;
+		opacity: 0;
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	function spinEditTimer(spinEdit) {
+		//console.log("spinEditTimer", spinEdit);
+		let buttonsArea = spinEdit.querySelector(".buttonsArea");
+		if(!buttonsArea) return;
+		buttonsArea.deltaTimer = 0;
+		if(!buttonsArea.matches(":active")) return;
+
+		let txtControl = spinEdit.querySelector("input");
+		if(buttonsArea.hoverElem.classList.contains("btnDec")) {
+			//if(txtControl) txtControl.valueAsNumber -= txtControl.step;
+			if(txtControl) txtControl.stepDown();
+		} else if(buttonsArea.hoverElem.classList.contains("btnInc")) {
+			//if(txtControl) txtControl.valueAsNumber += txtControl.step;
+			if(txtControl) txtControl.stepUp();
+		}
+
+		buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 250, spinEdit);
+	}
+	function spinEditMouseDown(event) {
+		if(!event?.target) return;
+		//let buttonsArea = event.target.querySelector(".buttonsArea:has(:scope)");
+		//let buttonsArea = event.target.querySelector(":root .buttonsArea:has(:scope)");
+		let buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttonsArea") ?
+		if(!buttonsArea) return;
+		buttonsArea.hoverElem = event.target;
+		//buttonsArea.deltaTimer = window.setInterval(spinEditTimer, 250, buttonsArea.parentNode);
+		//buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 250, buttonsArea.parentNode);
+		spinEditTimer(buttonsArea.parentNode);
+	}
+	function spinEditMouseMove(event) {
+		if(!event?.currentTarget) return;
+		let buttonsArea = event.currentTarget;
+		buttonsArea.hoverElem = event.target;
+	}
+	function spinEditMouseUp(event) {
+		if(!event?.currentTarget) return;
+		let buttonsArea = event.currentTarget;
+		window.clearTimeout(buttonsArea.deltaTimer);
+		buttonsArea.deltaTimer = undefined;
+	}
+	function spinEditMouseLeave(event) {
+		//console.log(event);
+	}
+
+	function spinEditTouchStart(event) {
+		//to do
+		console.log(event);
+	}
+	function spinEditTouchEnd(event) {
+		//to do
+		console.log(event);
+	}
+	function spinEditTouchMove(event) {
+		//to do
+		console.log(event);
+	}
+	function spinEditTouchCancel(event) {
+		//to do
+		console.log(event);
+	}
+
+	/* function pageLoad(event) {
+	} */
+	function pageReady(event) {
+		//load HTML element references
+		for(let s of document.querySelectorAll(".spinEdit")) {
+			let txtControl = s.querySelector("input");
+			if(txtControl) {
+				if(txtControl.step === "") txtControl.step = 1;
+			}
+
+			let buttonsArea = s.querySelector(".buttonsArea");
+			if(!buttonsArea) {
+				buttonsArea = document.createElement("span");
+				buttonsArea.classList.add("buttonsArea");
+				s.insertBefore(buttonsArea, null);
+			}
+
+			let btnDec = s.querySelector(".btnDec");
+			if(!btnDec) {
+				btnDec = document.createElement("span");
+				btnDec.classList.add("btnDec");
+				btnDec.innerHTML = "&minus;";
+				buttonsArea.insertBefore(btnDec, null);
+			}
+			let btnInc = s.querySelector(".btnInc");
+			if(!btnInc) {
+				let btnInc = document.createElement("span");
+				btnInc.classList.add("btnInc");
+				btnInc.innerHTML = "&plus;";
+				buttonsArea.insertBefore(btnInc, null);
+			}
+
+			buttonsArea.addEventListener("mousedown" , spinEditMouseDown);
+			buttonsArea.addEventListener("mousemove" , spinEditMouseMove);
+			buttonsArea.addEventListener("mouseup"   , spinEditMouseUp);
+			//buttonsArea.addEventListener("mouseleave", spinEditMouseLeave);
+
+			buttonsArea.addEventListener("touchstart" , spinEditTouchStart, {passive: true});
+			buttonsArea.addEventListener("touchend"   , spinEditTouchEnd, {passive: true});
+			buttonsArea.addEventListener("touchmove"  , spinEditTouchMove, {passive: true});
+			buttonsArea.addEventListener("touchcancel", spinEditTouchCancel, {passive: true});
+		}
+	}
+	//window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<p><button popovertarget="po">asfdasdf</button> <span id="po" popover>popover</span></p>
+
+	<p><input type="checkbox" id="chkAudioCtx" /> <label for="chkAudioCtx">asdf</label></p>
+
+	<p><input type="number" value="0" /></p>
+	<p><input type="text" inputmode="numeric" pattern="\d*" value="0" /></p>
+
+	<p><span class="spinEdit" id="txtTest1">
+		<!-- <span class="controlContainer"> --><input type="number" value="0" /><!-- </span> -->
+	</span></p>
+	<p><span class="spinEdit" id="txtTest2">
+		<!-- <span class="controlContainer"> --><input type="number" value="0" /><!-- </span> -->
+	</span></p>
+</body>
+</html>
