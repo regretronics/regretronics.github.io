@@ -54,6 +54,7 @@
 		border-end-start-radius: 0.375em;
 		border-start-end-radius: 0.25em;
 		border-end-end-radius: 0.25em;
+		clip-path: border-box;
 	}
 	.spinEdit > :first-child {
 		border-start-start-radius: inherit;
@@ -155,27 +156,41 @@
 		buttonsArea.deltaTimer = 0;
 		//if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) return;
 		if(!buttonsArea.hasPointerCapture(pointerId)) return;
+		let pressure = 0.5;
+		if(buttonsArea.lastPointerEvent) {
+			pressure = buttonsArea.lastPointerEvent.pressure;
+			if(buttonsArea.lastPointerEvent.pointerType === "mouse")
+				pressure = 0.5;
+		}
+		document.getElementById("outPressure").innerText = (buttonsArea?.lastPointerEvent?.pointerType ?? "") + " " + pressure.toString();
+		const iterations = Math.round(2 * pressure);
 
 		const txtControl = spinEdit.querySelector("input");
 		if(buttonsArea.hoverElem) {
 			if(buttonsArea.hoverElem.classList.contains("btnDec")) {
 				//if(txtControl) txtControl.valueAsNumber -= txtControl.step;
-				if(txtControl) txtControl.stepDown();
+				if(txtControl)
+					for(let i = 0; i < iterations; i++)
+						txtControl.stepDown();
 				buttonsArea.currentDelta--;
 			} else if(buttonsArea.hoverElem.classList.contains("btnInc")) {
 				//if(txtControl) txtControl.valueAsNumber += txtControl.step;
-				if(txtControl) txtControl.stepUp();
+				if(txtControl)
+					for(let i = 0; i < iterations; i++)
+						txtControl.stepUp();
 				buttonsArea.currentDelta++;
 			}
 		}
 
 		buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, spinInterval * Math.pow(0.5, Math.abs(buttonsArea.currentDelta) / 16.0), spinEdit, pointerId);
 	}
+
 	function spinEditPointerDown(event) {
 		if(!event?.target) return;
 		const buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttonsArea") ?
 		if(!buttonsArea) return;
 
+		buttonsArea.lastPointerEvent = event;
 		//buttonsArea.pointerDown = true;
 		//buttonsArea.hoverElem = event.target;
 		let hit = document.elementFromPoint(event?.clientX, event?.clientY);
@@ -190,9 +205,13 @@
 	}
 	function spinEditPointerMove(event) {
 		//console.log(event);
-		if(!event?.target) return;
+		if(!event) return;
 		const buttonsArea = event.target;
-		let hit = document.elementFromPoint(event?.clientX, event?.clientY);
+		if(!buttonsArea) return;
+
+		if(!buttonsArea.hasPointerCapture(event.pointerId)) return;
+		buttonsArea.lastPointerEvent = event;
+		let hit = document.elementFromPoint(event.clientX, event.clientY);
 		if(!buttonsArea.contains(hit)) hit = null;
 		if(buttonsArea.hoverElem && buttonsArea.hoverElem !== hit)
 			buttonsArea.hoverElem.classList.remove("hover");
@@ -218,7 +237,21 @@
 		//console.log(event);
 		if(!event?.srcElement) return;
 		const buttonsArea = event.srcElement;
+
+		if(buttonsArea.hoverElem) buttonsArea.hoverElem.classList.remove("hover");
 		buttonsArea.hoverElem = null;
+	}
+	function spinEditPointerCancel(event) {
+		//console.log(event);
+		if(!event?.srcElement) return;
+		const buttonsArea = event.srcElement;
+		//buttonsArea.pointerDown = false;
+
+		window.clearTimeout(buttonsArea.deltaTimer);
+		buttonsArea.deltaTimer = undefined;
+
+		buttonsArea.releasePointerCapture(event.pointerId);
+		buttonsArea.removeEventListener("pointermove", spinEditPointerMove, true);
 	}
 
 	/* function spinEditTouchStart(event) {
@@ -242,7 +275,8 @@
 	} */
 	function pageReady(event) {
 		for(const txtControl of document.querySelectorAll(".customSpin")) {
-			if(txtControl && txtControl.step === "") txtControl.step = 1;
+			if(!txtControl) continue;
+			if(txtControl.step === "") txtControl.step = 1;
 			let spinEdit = txtControl.closest(".spinEdit");
 			if(!spinEdit) {
 				spinEdit = document.createElement("span");
@@ -277,7 +311,7 @@
 			//buttonsArea.addEventListener("pointermove" , spinEditPointerMove);
 			buttonsArea.addEventListener("pointerup"   , spinEditPointerUp);
 			buttonsArea.addEventListener("pointerleave", spinEditPointerLeave);
-			//to do: pointercancel?
+			buttonsArea.addEventListener("pointercancel", spinEditPointerCancel);
 
 			/* buttonsArea.addEventListener("touchstart" , spinEditTouchStart, {passive: true});
 			buttonsArea.addEventListener("touchend"   , spinEditTouchEnd, {passive: true});
@@ -297,9 +331,10 @@
 	<p><input type="number" value="0" /></p>
 	<p><input type="text" inputmode="numeric" pattern="\d*" value="0" /></p>
 
-	<p><span class="spinEdit">
-		<input type="number" id="txtTest1" value="0" class="customSpin" />
-	</span></p>
+	<p>
+		<span class="spinEdit"><input type="number" id="txtTest1" value="0" class="customSpin" /></span>
+		<output id="outPressure">0</output>
+	</p>
 	<p>
 		<input type="number" id="txtTest2" value="0" class="customSpin" />
 	</p>
