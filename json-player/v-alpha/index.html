@@ -60,12 +60,12 @@
 		txtBaseFreq.addEventListener("input", baseFreqChanged);
 		txtPrimeCount.addEventListener("input", primeCountChanged);
 
-		btnRhythmFactorsGen.addEventListener("click", makeRhythmFactors);
+		btnRhythmFactorsGen.addEventListener("click", btnRhythmFactorsGenClick);
 		txtRhythmFactors.addEventListener("input", rhythmFactorsChanged);
 
-		btnChordGen.addEventListener("click", makeChords);
-		btnRhythmGen.addEventListener("click", makeRhythm);
-		btnMelodyGen.addEventListener("click", makeMelody);
+		btnChordGen.addEventListener("click", btnChordGenClick);
+		btnRhythmGen.addEventListener("click", btnRhythmGenClick);
+		btnMelodyGen.addEventListener("click", btnMelodyGenClick);
 
 		btnStructDownload.addEventListener("click", structDownload);
 		//btnOverflowToggle1.addEventListener("click", overflowToggle);
@@ -183,7 +183,6 @@
 			</span>
 		</div>
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
-		<!--to do: make my own spin buttons, around text inputs-->
 		<!--to do: review all tool tips for compatibility with the status bar, e.g. "the editor below"-->
 		<p><strong>Generator&nbsp;params.:</strong> 
 			<datalist id="tunings">

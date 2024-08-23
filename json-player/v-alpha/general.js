@@ -278,6 +278,45 @@ function rhythmAccumUpdate() {
 	rhythmFactors.push(1);
 }
 
+function btnRhythmFactorsGenClick(event) {
+	rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value));
+	if(window.txtRhythmFactors) {
+		txtRhythmFactors.value = rhythmFactors.join("*");
+		txtRhythmFactors.dispatchEvent(new Event("input"));
+	}
+	//rhythmAccumUpdate();
+}
+function btnChordGenClick(event) {
+	const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtExpVariance.value), parseNumber(txtTimeScale.value));
+	let s = JSON.stringify(rootStruct, null, "\t");
+	//final adjustments on indentation
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	s = s.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	s = s.replace(regex, "\{$1\}");
+	setStructuredText(s);
+}
+function btnRhythmGenClick(event) {
+	const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
+	let s = JSON.stringify(rootStruct, null, "\t");
+	//final adjustments on indentation
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	s = s.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	s = s.replace(regex, "\{$1\}");
+	setStructuredText(s);
+}
+function btnMelodyGenClick(event) {
+	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked);
+	let s = JSON.stringify(rootStruct, null, "\t");
+	//final adjustments on indentation
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	s = s.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	s = s.replace(regex, "\{$1\}");
+	setStructuredText(s);
+}
 function btnStopClick(event) {
 	if(!playerClip) return;
 	if(playerClip.onClipEnd) playerClip.onClipEnd(); else emptyClip(playerClip);
@@ -427,7 +466,7 @@ function setToolTip(event, outToolTip) {
 }
 
 let lastCodeObjURL = null;
-function getDateTimeCode(size) {
+function getDateTimeCode(size) { //hard-coded to Gregorian calendar.
 	if(size < 1) return "";
 	const now = new Date();
 	const dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()];

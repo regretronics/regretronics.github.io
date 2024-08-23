@@ -69,18 +69,16 @@ function newChord(voiceCount, polyphony) {
 	}
 	return chordStruct;
 }
-function makeChords() {
+function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
 	if(primeCount < 2) return false;
-	const patCount = parseInt(txtPatternCount.value);
 	if(patCount <= 0) return false;
-	const voiceCount = parseInt(txtVoiceCount.value);
 	if(voiceCount < 2) return false;
-	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	expVariance = NaNToDefault(_expVariance, 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq == 0) return false;
 	
 	const polyphony = voiceCount - 1; //partial superposition
-	const _timeScale = NaNToDefault(parseNumber(txtTimeScale.value), defaultBlockNode.timeScale);
+	_timeScale = NaNToDefault(_timeScale, defaultBlockNode.timeScale);
 	const rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: rootFreq,
@@ -95,20 +93,14 @@ function makeChords() {
 		rootStruct[i].timeDelta = i.toString() + "*" + (voiceCount - 1 + polyphony).toString(); //in this case, the last note extra time = polyphony
 	}
 
-	let s = JSON.stringify(rootStruct, null, "\t");
-	//final adjustments on indentation
-	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-	s = s.replace(regex, "\{$1\}");
-	setStructuredText(s);
+	return rootStruct;
 }
 
 //rhythm structure generator
-function makeRhythmFactors() {
+function makeRhythmFactors(rhythmScale) {
 	if(primeCount < 1) return false;
-	rhythmFactors = [];
-	let scale = Math.abs(NaNToDefault(parseNumber(txtRhythmScale.value), 4));
+	const rhythmFactors = [];
+	let scale = Math.abs(NaNToDefault(rhythmScale, 4));
 	//builds a (random) product of prime factors
 	//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
 	for(let i = primeCount - 1, factor, y; i >= 0; i--) {
@@ -136,11 +128,7 @@ function makeRhythmFactors() {
 		//	rhythmFactors.push(1); //at least factor one
 	}
 
-	if(window.txtRhythmFactors) {
-		txtRhythmFactors.value = rhythmFactors.join("*");
-		txtRhythmFactors.dispatchEvent(new Event("input"));
-	}
-	//rhythmAccumUpdate();
+	return rhythmFactors;
 }
 
 function limitFreq(tuning, freq) {
@@ -202,15 +190,13 @@ function rhythmSubNodes(struct, level, tuning) {
 		rhythmSubNodes(newNode, level + 1, tuning);
 	}
 }
-function makeRhythm() {
-	const repeatCount = parseInt(txtReptCount.value);
+function makeRhythm(repeatCount, percussion, timeScale) {
 	if(repeatCount <= 0) return false;
 	if(rootFreq == 0) return false;
 
 	//hierarchy of beats
-	const percussion = chkPercussivePattern.checked;
 	const pattern = [];
-	const _timeScale = NaNToDefault(parseNumber(txtTimeScale.value), defaultBlockNode.timeScale);
+	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);
 	let rhythmStart = 0;
 	if(percussion) {
 		let sumVol = 0; //theoretical combined/maximum amplitude
@@ -279,14 +265,7 @@ function makeRhythm() {
 	for(let i = 0; i < repeatCount; i++) {
 		rootStruct[i] = {timeDelta: i.toString() + "*" + rhythmFactorsAccum[0].toString(), 0: "pat"};
 	}
-	
-	let s = JSON.stringify(rootStruct, null, "\t");
-	//final adjustments on indentation
-	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-	s = s.replace(regex, "\{$1\}");
-	setStructuredText(s);
+	return rootStruct;
 }
 
 //the melody generator also presumes that rhythmFactors and rhythmFactorsAccum are properly filled
@@ -402,20 +381,16 @@ function melodySubNodes(struct, level, tuning) {
 	}
 }
 //to do: pattern variations
-function makeMelody() {
+function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 	if(primeCount < 2) return false;
-	const patCount = parseInt(txtPatternCount.value);
 	if(patCount <= 0) return false;
-	const reptPeriod = parseNumber(txtReptPeriod.value);
 	if(reptPeriod <= 0) return false;
-	const repeatCount = parseInt(txtReptCount.value);
 	if(repeatCount <= 0) return false;
-	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq == 0) return false;
 
 	//top-level node
-	const _timeScale = NaNToDefault(parseNumber(txtTimeScale.value), defaultBlockNode.timeScale);
+	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);
 	const barDuration = rhythmFactorsAccum[0];
 	let sumVol = 0;
 	for(const scale of rhythmFactorsAccum) {
@@ -437,7 +412,7 @@ function makeMelody() {
 
 	//hierarchy of beats
 	let percussivePattern = null;
-	if(chkPercussivePattern.checked) {
+	if(percussion) {
 		let sumVol = 0; //theoretical combined/maximum amplitude
 		for(const scale of rhythmFactorsAccum) {
 			//sumVol += 1 / scale;
@@ -508,11 +483,5 @@ function makeMelody() {
 		}
 	}
 
-	let s = JSON.stringify(rootStruct, null, "\t");
-	//final adjustments on indentation
-	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-	s = s.replace(regex, "\{$1\}");
-	setStructuredText(s);
+	return rootStruct;
 }
