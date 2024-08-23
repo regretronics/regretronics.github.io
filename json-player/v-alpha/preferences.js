@@ -149,6 +149,8 @@ function loadPreferences() {
 		if(!chkResetStructuredMusic.checked) {
 			s = localStorage.getItem("structuredMusic.overflow");
 			if(s) {
+				chkOverflow1.checked = JSON.parse(s);
+				//chkOverflow1.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlStructuredScript.classList.add("expanded");
 				else
@@ -156,6 +158,8 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("structuredMusic.lineWrapping");
 			if(s) {
+				chkLineWrap1.checked = JSON.parse(s);
+				//chkLineWrap1.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlStructuredScript.classList.add("lineWrapping");
 				else
@@ -177,6 +181,8 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("flatScript.overflow");
 			if(s) {
+				chkOverflow2.checked = JSON.parse(s);
+				//chkOverflow2.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlFlatScript.classList.add("expanded");
 				else
@@ -184,6 +190,8 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("flatScript.lineWrapping");
 			if(s) {
+				chkLineWrap2.checked = JSON.parse(s);
+				//chkLineWrap2.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlFlatScript.classList.add("lineWrapping");
 				else
@@ -514,6 +522,8 @@ function btnResetPreferencesClick(event) {
 
 			ctlStructuredScript.classList.remove("expanded");
 			ctlStructuredScript.classList.remove("lineWrapping");
+			chkOverflow1.checked = false;
+			chkLineWrap1.checked = false;
 			ctlStructuredScript.innerText = '{\n\
 	"freqRatio": 440,\n\
 	"volRatio": 0.5,\n\
@@ -543,6 +553,8 @@ function btnResetPreferencesClick(event) {
 			//chkAutoFlatten.dispatchEvent(new Event("click"));
 			ctlFlatScript.classList.remove("expanded");
 			ctlFlatScript.classList.remove("lineWrapping");
+			chkOverflow2.checked = false;
+			chkLineWrap2.checked = false;
 			ctlFlatScript.innerText = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
 {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
 			ctlFlatScript.dispatchEvent(new Event("input"));

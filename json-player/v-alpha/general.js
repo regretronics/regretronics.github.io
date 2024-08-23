@@ -213,7 +213,11 @@ function overflowToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	control.classList.toggle("expanded");
+	//control.classList.toggle("expanded");
+	if(elem.checked)
+		control.classList.add("expanded");
+	else
+		control.classList.remove("expanded");
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("expanded")));
 }
@@ -222,7 +226,11 @@ function lineWrapToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	control.classList.toggle("lineWrapping");
+	//control.classList.toggle("lineWrapping");
+	if(elem.checked)
+		control.classList.add("lineWrapping");
+	else
+		control.classList.remove("lineWrapping");
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("lineWrapping")));
 }
