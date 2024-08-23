@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>HTML tests</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		/* color-scheme: dark; */
+		color-scheme: light;
+		background-color: canvas;
+		color: canvastext;
+		font-size: 1.25em;
+	}
+	body {
+		/* overflow-wrap: break-word; */ /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	}
+
+	/* input {
+		font-size: 0.8em;
+	} */
+	/* input[type="number"] {
+		width: 8ch;
+		text-align: right;
+	} */
+	body > div {
+		/* background-color: attr(data-color color); */
+		float: left;
+		width: 8em;
+		height: 8em;
+	}
+	body > div::after {
+		user-select: all;
+		pointer-events: all;
+		content: attr(data-color);
+	}
+
+	div[data-color="AccentColor"] {
+		background-color: AccentColor;
+		color: AccentColorText;
+	}
+	div[data-color="AccentColorText"] {
+		background-color: AccentColorText;
+		color: AccentColor;
+	}
+	div[data-color="ActiveText"] {
+		background-color: ActiveText;
+	}
+	div[data-color="ButtonBorder"] {
+		background-color: ButtonBorder;
+	}
+	div[data-color="ButtonFace"] {
+		background-color: ButtonFace;
+		color: ButtonText;
+	}
+	div[data-color="ButtonText"] {
+		background-color: ButtonText;
+		color: ButtonFace;
+	}
+	div[data-color="Canvas"] {
+		background-color: Canvas;
+		color: CanvasText;
+	}
+	div[data-color="CanvasText"] {
+		background-color: CanvasText;
+		color: Canvas;
+	}
+	div[data-color="Field"] {
+		background-color: Field;
+		color: FieldText;
+	}
+	div[data-color="FieldText"] {
+		background-color: FieldText;
+		color: Field;
+	}
+	div[data-color="GrayText"] {
+		background-color: GrayText;
+	}
+	div[data-color="Highlight"] {
+		background-color: Highlight;
+		color: HighlightText;
+	}
+	div[data-color="HighlightText"] {
+		background-color: HighlightText;
+		color: Highlight;
+	}
+	div[data-color="LinkText"] {
+		background-color: LinkText;
+		color: Canvas;
+	}
+	div[data-color="Mark"] {
+		background-color: Mark;
+		color: MarkText;
+	}
+	div[data-color="MarkText"] {
+		background-color: MarkText;
+		color: Mark;
+	}
+	div[data-color="SelectedItem"] {
+		background-color: SelectedItem;
+		color: SelectedItemText;
+	}
+	div[data-color="SelectedItemText"] {
+		background-color: SelectedItemText;
+		color: SelectedItem;
+	}
+	div[data-color="VisitedText"] {
+		background-color: VisitedText;
+		color: Canvas;
+	}
+	/*]]>*/</style>
+</head>
+<body>
+	<!-- AccentColor
+	AccentColorText
+	ActiveText
+	ButtonBorder
+	ButtonFace
+	ButtonText
+	Canvas
+	CanvasText
+	Field
+	FieldText
+	GrayText
+	Highlight
+	HighlightText
+	LinkText
+	Mark
+	MarkText
+	SelectedItem
+	SelectedItemText
+	VisitedText -->
+	<div data-color="AccentColor"></div>
+	<div data-color="AccentColorText"></div>
+	<div data-color="ActiveText"></div>
+	<div data-color="ButtonBorder"></div>
+	<div data-color="ButtonFace"></div>
+	<div data-color="ButtonText"></div>
+	<div data-color="Canvas"></div>
+	<div data-color="CanvasText"></div>
+	<div data-color="Field"></div>
+	<div data-color="FieldText"></div>
+	<div data-color="GrayText"></div>
+	<div data-color="Highlight"></div>
+	<div data-color="HighlightText"></div>
+	<div data-color="LinkText"></div>
+	<div data-color="Mark"></div>
+	<div data-color="MarkText"></div>
+	<div data-color="SelectedItem"></div>
+	<div data-color="SelectedItemText"></div>
+	<div data-color="VisitedText"></div>
+</body>
+</html>
