@@ -110,7 +110,7 @@
 		flex-wrap: nowrap; /* ? */
 	}
 	.spinEdit .buttonsArea > * {
-		/* touch-action: manipulation; */
+		touch-action: manipulation;
 		width: 1em;
 		/* flex-basis: 1em; */
 		/* flex-basis: auto; */
@@ -119,11 +119,11 @@
 	}
 	.spinEdit .buttonsArea > *:hover,
 	.spinEdit .buttonsArea > *.hover {
-		background-color: darkgray;
-	}
-	.spinEdit .buttonsArea:active {
 		background-color: canvastext;
 		color: canvas;
+	}
+	.spinEdit .buttonsArea:active {
+		background-color: darkgray;
 	}
 
 	p > input[type=number]:not(.customSpin) {
@@ -156,14 +156,17 @@
 		buttonsArea.deltaTimer = 0;
 		//if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) return;
 		if(!buttonsArea.hasPointerCapture(pointerId)) return;
-		let pressure = 0.5;
+		let force = 1.0;
 		if(buttonsArea.lastPointerEvent) {
-			pressure = buttonsArea.lastPointerEvent.pressure;
 			if(buttonsArea.lastPointerEvent.pointerType === "mouse")
-				pressure = 0.5;
+				force = 1.0;
+			else
+				force = 64.0 * buttonsArea.lastPointerEvent.width * buttonsArea.lastPointerEvent.height;
+			//if(force === 0.0) force = 1.0;
 		}
-		document.getElementById("outPressure").innerText = (buttonsArea?.lastPointerEvent?.pointerType ?? "") + " " + pressure.toString();
-		const iterations = Math.round(2 * pressure);
+		document.getElementById("outPressure").innerText = ((buttonsArea?.lastPointerEvent?.pointerType ?? "") + " " + force.toString() + " " + (buttonsArea?.lastPointerEvent?.webkitForce ?? "")).trim();
+		force *= Math.pow(2.0, Math.abs(buttonsArea.currentDelta) / 16.0);
+		const iterations = Math.round(1 * force);
 
 		const txtControl = spinEdit.querySelector("input");
 		if(buttonsArea.hoverElem) {
@@ -182,7 +185,8 @@
 			}
 		}
 
-		buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, spinInterval * Math.pow(0.5, Math.abs(buttonsArea.currentDelta) / 16.0), spinEdit, pointerId);
+		//buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, spinInterval * Math.pow(0.5, Math.abs(buttonsArea.currentDelta) / 16.0), spinEdit, pointerId);
+		buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 0.25 * spinInterval, spinEdit, pointerId);
 	}
 
 	function spinEditPointerDown(event) {
