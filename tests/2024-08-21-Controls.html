@@ -122,7 +122,6 @@
 		flex-wrap: nowrap; /* ? */
 	}
 	.spinEdit .buttonsArea > * {
-		/* pointer-events: ; */
 		/* touch-action: manipulation; */
 		width: 1em;
 		/* flex-basis: 1em; */
@@ -130,7 +129,8 @@
 		flex-grow: 1;
 		/* display: inline-block; */
 	}
-	.spinEdit .buttonsArea > *:hover {
+	.spinEdit .buttonsArea > *:hover,
+	.spinEdit .buttonsArea > *.hover {
 		background-color: darkgray;
 	}
 	/* .spinEdit .buttonsArea > *:active {
@@ -164,48 +164,80 @@
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
 
-	function spinEditTimer(spinEdit) {
-		//console.log("spinEditTimer", spinEdit);
-		let buttonsArea = spinEdit.querySelector(".buttonsArea");
+	function spinEditTimer(spinEdit, pointerId) {
+		//console.log("spinEditTimer", spinEdit, pointerId);
+		if(!spinEdit) return;
+		const buttonsArea = spinEdit.querySelector(".buttonsArea");
 		if(!buttonsArea) return;
 		buttonsArea.deltaTimer = 0;
-		if(!buttonsArea.matches(":active")) return;
+		//if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) return;
+		if(!buttonsArea.hasPointerCapture(pointerId)) return;
 
-		let txtControl = spinEdit.querySelector("input");
-		if(buttonsArea.hoverElem.classList.contains("btnDec")) {
-			//if(txtControl) txtControl.valueAsNumber -= txtControl.step;
-			if(txtControl) txtControl.stepDown();
-		} else if(buttonsArea.hoverElem.classList.contains("btnInc")) {
-			//if(txtControl) txtControl.valueAsNumber += txtControl.step;
-			if(txtControl) txtControl.stepUp();
+		const txtControl = spinEdit.querySelector("input");
+		if(buttonsArea.hoverElem) {
+			if(buttonsArea.hoverElem.classList.contains("btnDec")) {
+				//if(txtControl) txtControl.valueAsNumber -= txtControl.step;
+				if(txtControl) txtControl.stepDown();
+				buttonsArea.currentDelta--;
+			} else if(buttonsArea.hoverElem.classList.contains("btnInc")) {
+				//if(txtControl) txtControl.valueAsNumber += txtControl.step;
+				if(txtControl) txtControl.stepUp();
+				buttonsArea.currentDelta++;
+			}
 		}
 
-		buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 250, spinEdit);
+		buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 250 * Math.pow(0.5, Math.abs(buttonsArea.currentDelta) / 16.0), spinEdit, pointerId);
 	}
-	function spinEditMouseDown(event) {
+	function spinEditPointerDown(event) {
 		if(!event?.target) return;
-		//let buttonsArea = event.target.querySelector(".buttonsArea:has(:scope)");
-		//let buttonsArea = event.target.querySelector(":root .buttonsArea:has(:scope)");
-		let buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttonsArea") ?
+		const buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttonsArea") ?
 		if(!buttonsArea) return;
-		buttonsArea.hoverElem = event.target;
-		//buttonsArea.deltaTimer = window.setInterval(spinEditTimer, 250, buttonsArea.parentNode);
-		//buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 250, buttonsArea.parentNode);
-		spinEditTimer(buttonsArea.parentNode);
+
+		buttonsArea.pointerDown = true;
+		//buttonsArea.hoverElem = event.target;
+		let hit = document.elementFromPoint(event?.clientX, event?.clientY);
+		if(!buttonsArea.contains(hit)) hit = null;
+		if(hit) hit.classList.add("hover");
+		buttonsArea.hoverElem = hit;
+		buttonsArea.currentDelta = 0;
+
+		buttonsArea.setPointerCapture(event.pointerId);
+		buttonsArea.addEventListener("pointermove", spinEditPointerMove, true);
+		spinEditTimer(buttonsArea.parentElement, event.pointerId);
 	}
-	function spinEditMouseMove(event) {
-		if(!event?.currentTarget) return;
-		let buttonsArea = event.currentTarget;
-		buttonsArea.hoverElem = event.target;
+	function spinEditPointerMove(event) {
+		//console.log(event);
+		if(!event?.target) return;
+		const buttonsArea = event.target;
+		let hit = document.elementFromPoint(event?.clientX, event?.clientY);
+		if(!buttonsArea.contains(hit)) hit = null;
+		if(buttonsArea.hoverElem && buttonsArea.hoverElem !== hit)
+			buttonsArea.hoverElem.classList.remove("hover");
+		if(hit) hit.classList.add("hover");
+		buttonsArea.hoverElem = hit;
+
+		//if(!buttonsArea.deltaTimer) spinEditTimer(buttonsArea.parentElement, event.pointerId);
 	}
-	function spinEditMouseUp(event) {
-		if(!event?.currentTarget) return;
-		let buttonsArea = event.currentTarget;
+	function spinEditPointerUp(event) {
+		//console.log(event);
+		if(!event?.srcElement) return;
+		const buttonsArea = event.srcElement;
+		buttonsArea.pointerDown = false;
+
+		if(buttonsArea.hoverElem) buttonsArea.hoverElem.classList.remove("hover");
+		buttonsArea.hoverElem = null;
+
 		window.clearTimeout(buttonsArea.deltaTimer);
 		buttonsArea.deltaTimer = undefined;
+
+		buttonsArea.releasePointerCapture(event.pointerId);
+		buttonsArea.removeEventListener("pointermove", spinEditPointerMove, true);
 	}
-	function spinEditMouseLeave(event) {
+	function spinEditPointerLeave(event) {
 		//console.log(event);
+		if(!event?.srcElement) return;
+		const buttonsArea = event.srcElement;
+		buttonsArea.hoverElem = null;
 	}
 
 	function spinEditTouchStart(event) {
@@ -229,27 +261,25 @@
 	} */
 	function pageReady(event) {
 		//load HTML element references
-		for(let s of document.querySelectorAll(".spinEdit")) {
-			let txtControl = s.querySelector("input");
-			if(txtControl) {
-				if(txtControl.step === "") txtControl.step = 1;
-			}
+		for(const spinEdit of document.querySelectorAll(".spinEdit")) {
+			const txtControl = spinEdit.querySelector("input");
+			if(txtControl && txtControl.step === "") txtControl.step = 1;
 
-			let buttonsArea = s.querySelector(".buttonsArea");
+			let buttonsArea = spinEdit.querySelector(".buttonsArea");
 			if(!buttonsArea) {
 				buttonsArea = document.createElement("span");
 				buttonsArea.classList.add("buttonsArea");
-				s.insertBefore(buttonsArea, null);
+				spinEdit.insertBefore(buttonsArea, null);
 			}
 
-			let btnDec = s.querySelector(".btnDec");
+			let btnDec = spinEdit.querySelector(".btnDec");
 			if(!btnDec) {
 				btnDec = document.createElement("span");
 				btnDec.classList.add("btnDec");
 				btnDec.innerHTML = "&minus;";
 				buttonsArea.insertBefore(btnDec, null);
 			}
-			let btnInc = s.querySelector(".btnInc");
+			let btnInc = spinEdit.querySelector(".btnInc");
 			if(!btnInc) {
 				let btnInc = document.createElement("span");
 				btnInc.classList.add("btnInc");
@@ -257,15 +287,15 @@
 				buttonsArea.insertBefore(btnInc, null);
 			}
 
-			buttonsArea.addEventListener("mousedown" , spinEditMouseDown);
-			buttonsArea.addEventListener("mousemove" , spinEditMouseMove);
-			buttonsArea.addEventListener("mouseup"   , spinEditMouseUp);
-			//buttonsArea.addEventListener("mouseleave", spinEditMouseLeave);
+			buttonsArea.addEventListener("pointerdown" , spinEditPointerDown);
+			//buttonsArea.addEventListener("pointermove" , spinEditPointerMove);
+			buttonsArea.addEventListener("pointerup"   , spinEditPointerUp);
+			buttonsArea.addEventListener("pointerleave", spinEditPointerLeave);
 
-			buttonsArea.addEventListener("touchstart" , spinEditTouchStart, {passive: true});
+			/* buttonsArea.addEventListener("touchstart" , spinEditTouchStart, {passive: true});
 			buttonsArea.addEventListener("touchend"   , spinEditTouchEnd, {passive: true});
 			buttonsArea.addEventListener("touchmove"  , spinEditTouchMove, {passive: true});
-			buttonsArea.addEventListener("touchcancel", spinEditTouchCancel, {passive: true});
+			buttonsArea.addEventListener("touchcancel", spinEditTouchCancel, {passive: true}); */
 		}
 	}
 	//window.addEventListener("DOMContentLoaded", pageLoad);
