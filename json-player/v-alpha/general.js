@@ -19,7 +19,7 @@ const defaultBlockNode = {
 	volRatio: 1,
 
 	timbre: "sine",
-	q: 1, //for noise resonance; currently undocumented.
+	q: 1, //for noise resonance. question: substitutive or relative? (currently substitutive)
 	decayFactor: 256, //question: rename this to sustain(Factor)?
 	attack: 1 / 64,
 
@@ -28,9 +28,12 @@ const defaultBlockNode = {
 	vibratoFreq: 2 ** 18 / 86400,
 	//vibratoDepth: 1 / 8,
 	vibratoDepth: 0,
-	vibratoAttack: 3
+	vibratoAttack: 3,
+
+	remark: "", //one-time comment; currently unprocessed altogether.
+	tag: "" //inherited (substitutive) comment; currently unprocessed altogether.
 }, relativeBlockProps = ["timeDelta", "timeScale", "freqRatio", "volRatio"],
- substitutiveProps = ["timbre", "q", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
+ substitutiveProps = ["timbre", "q", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack", "tag"]; //currently unused.
 const defaultNoteNode = {
 	noteStart: 0, //seconds
 	duration: 1, //seconds
@@ -46,7 +49,10 @@ const defaultNoteNode = {
 	portamento: defaultBlockNode.portamento, //seconds
 	vibratoFreq: defaultBlockNode.vibratoFreq, //Hertz
 	vibratoDepth: defaultBlockNode.vibratoDepth, //octaves or bits
-	vibratoAttack: defaultBlockNode.vibratoAttack //seconds
+	vibratoAttack: defaultBlockNode.vibratoAttack, //seconds
+
+	remark: defaultBlockNode.remark,
+	tag: defaultBlockNode.tag
 }, incrementalNoteProps = ["noteStart", "duration", "noteStop", "freq0", "freq", "vol"],
 tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"]; //to do: noise-only properties?
 

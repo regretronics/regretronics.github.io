@@ -659,7 +659,7 @@
 				You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. 
 				Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
 			<hr />
-			<p>Block (inheritable) properties are:</p>
+			<p>Block properties are (all inheritable except <code>remark</code>):</p>
 			<dl>
 				<dt><strong><code>freqRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
 				<dd>Can be used both for pitch tuning and interval accumulation.</dd>
@@ -670,12 +670,15 @@
 				<dt><strong><code>timeScale</code></strong> (multiplicative, default <code>1</code>)</dt>
 				<dd>Inverse of tempo/speed.</dd>
 				<dt><strong><code>timbre</code></strong> (substitutive)</dt>
+				<dt><strong><code>q</code></strong> (substitutive)</dt>
 				<dt><strong><code>decayFactor</code></strong> (substitutive)</dt>
 				<dt><strong><code>attack</code></strong> (substitutive)</dt>
 				<dt><strong><code>portamento</code></strong> (substitutive)</dt>
 				<dt><strong><code>vibratoFreq</code></strong> (substitutive)</dt>
 				<dt><strong><code>vibratoDepth</code></strong> (substitutive)</dt>
 				<dt><strong><code>vibratoAttack</code></strong> (substitutive)</dt>
+				<dt><strong><code>remark</code></strong> (generative)</dt>
+				<dt><strong><code>tag</code></strong> (substitutive)</dt>
 			</dl>
 			<p>In the structured format, note properties are (influenced by block property values):</p>
 			<dl>
@@ -703,6 +706,10 @@
 				<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
 				<dd>Waveform used in synthesis (comparable to a musical instrument). 
 					Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
+				<dd>Absolute override when present.</dd>
+
+				<dt><strong><code>q</code></strong> (default <code>1</code>)</dt>
+				<dd>Inverse of relative bandwidth for a resonance filter. Used only with noise.</dd>
 				<dd>Absolute override when present.</dd>
 
 				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
@@ -734,6 +741,13 @@
 				
 				<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
 				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+				<dd>Absolute override when present.</dd>
+				
+				<dt><strong><code>remark</code></strong> (default <code>""</code>)</dt>
+				<dd>Non-inheritable property meant to be ignored by the computer (works like comments in a programming language). Can store a string or other things in its value.</dd>
+
+				<dt><strong><code>tag</code></strong> (default <code>""</code>)</dt>
+				<dd>Inheritable property meant to be ignored by the computer (works like comments in a programming language). Can store a string or other things in its value.</dd>
 				<dd>Absolute override when present.</dd>
 			</dl>
 			<hr />
@@ -772,60 +786,48 @@
 				For creative representation (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is to play the music.</p>
 			<p>In the flattened format, note properties are:</p>
 			<dl>
-				<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
-				<dd>The moment in time the note is played.</dd>
+				<dt><strong><code>noteStart</code></strong></dt>
 				<dd>Affected by overall time delta and overall time scale.</dd>
 
-				<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
-				<dd>The moment in time the note is silenced.</dd>
+				<dt><strong><code>noteStop</code></strong></dt>
 				<dd>Affected by overall time delta and overall time scale.</dd>
 
-				<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
-				<dd>The amount of time the note plays. 
-					(You don't need both noteStop and duration&mdash;they are redundant.)</dd>
+				<dt><strong><code>duration</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
 
-				<dt><strong><code>freq</code></strong> (default <code>1</code>, must be non-zero in flattened list)</dt>
-				<dd>Frequency, which represents pitch.</dd>
+				<dt><strong><code>freq</code></strong> (must be non-zero in flattened list)</dt>
 				<dd>Affected by overall frequency scale.</dd>
 
-				<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
-				<dd>Amplitude, which represents volume.</dd>
+				<dt><strong><code>vol</code></strong></dt>
 				<dd>Affected by overall volume scale.</dd>
 
-				<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
-				<dd>Waveform used in synthesis (comparable to a musical instrument). 
-					Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
+				<dt><strong><code>timbre</code></strong></dt>
 
-				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
-				<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
+				<dt><strong><code>q</code></strong></dt>
+
+				<dt><strong><code>decayFactor</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
 
-				<dt><strong><code>attack</code></strong> (default <em>1/64</em>)</dt>
-				<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
-				<dd>Affected by overall time scale.</dd>
-				
-				<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
-				<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). 
-					When zero, portamento is disabled and pitches are abrupt.</dd>
+				<dt><strong><code>attack</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
 
-				<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
-				<dd>If portamento is enabled, this is the initial frequency. 
-					A <code>0</code> value disables portamento. 
-					If freq0 is not present, the default portamento behavior is to start from the (estimated) current pitch of the last note.</dd>
+				<dt><strong><code>portamento</code></strong></dt>
+				<dd>Affected by overall time scale.</dd>
+
+				<dt><strong><code>freq0</code></strong></dt>
 				<dd>Note-only property, not inherited by blocks.</dd>
-				
-				<dt><strong><code>vibratoFreq</code></strong> (default <em>2^18 / 86400</em> = ~<code>3.034</code>)</dt>
-				<dd>Frequency for pitch modulation.</dd>
+
+				<dt><strong><code>vibratoFreq</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
-				
-				<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
-				<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
-				
-				<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
-				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+
+				<dt><strong><code>vibratoDepth</code></strong></dt>
+
+				<dt><strong><code>vibratoAttack</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
+
+				<dt><strong><code>remark</code></strong></dt>
+
+				<dt><strong><code>tag</code></strong></dt>
 			</dl>
 		</article>
 		<footer>

@@ -70,7 +70,6 @@ function spinEditPointerDown(event) {
 	spinEditTimer(buttonsArea.parentElement, event.pointerId);
 }
 function spinEditPointerMove(event) {
-	//console.log(event);
 	if(!event) return;
 	const buttonsArea = event.target;
 	if(!buttonsArea) return;
@@ -85,7 +84,6 @@ function spinEditPointerMove(event) {
 	buttonsArea.hoverElem = hit;
 }
 function spinEditPointerUp(event) {
-	//console.log(event);
 	if(!event?.srcElement) return;
 	const buttonsArea = event.srcElement;
 	//buttonsArea.pointerDown = false;
@@ -100,7 +98,6 @@ function spinEditPointerUp(event) {
 	buttonsArea.removeEventListener("pointermove", spinEditPointerMove, true);
 }
 function spinEditPointerLeave(event) {
-	//console.log(event);
 	if(!event?.srcElement) return;
 	const buttonsArea = event.srcElement;
 
@@ -108,7 +105,6 @@ function spinEditPointerLeave(event) {
 	buttonsArea.hoverElem = null;
 }
 function spinEditPointerCancel(event) {
-	//console.log(event);
 	if(!event?.srcElement) return;
 	const buttonsArea = event.srcElement;
 	//buttonsArea.pointerDown = false;

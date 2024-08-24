@@ -270,7 +270,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 
 //the melody generator also presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
-//to do: option for rhythm pattern in both rhythm and melody generator
+//done: option for rhythm pattern in both rhythm and melody generator
 function melodySubNodes(struct, level, tuning) {
 	if(level >= rhythmFactors.length) return false;
 	const beats = rhythmFactors[level - 1];
