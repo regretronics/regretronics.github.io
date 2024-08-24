@@ -458,6 +458,25 @@ function saveInputValue(event) {
 	console.warn("Could not save a preference: exceptional control type.");
 }
 
+const defStructuredCode = '{\n\
+	"freqRatio": 440,\n\
+	"volRatio": 0.5,\n\
+	"timeDelta": 0,\n\
+	"timeScale": 0.5,\n\
+	"decayFactor": 128,\n\
+	"attack": "1/64",\n\
+	"pat1": [\n\
+		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},\n\
+		{"noteStart": 0, "duration": 1, "freq": 1},\n\
+		{"noteStart": 1, "duration": 1, "freq": "5/4"},\n\
+		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},\n\
+		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}\n\
+	],\n\
+	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1", "remark": "asdfsf"},\n\
+	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1", "remark": 1234, "tag": "qwert"}\n\
+}';
+const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
+{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
 function btnResetPreferencesClick(event) {
 	//resetAllPreferences();
 	try {
@@ -524,23 +543,7 @@ function btnResetPreferencesClick(event) {
 			ctlStructuredScript.classList.remove("lineWrapping");
 			chkOverflow1.checked = false;
 			chkLineWrap1.checked = false;
-			ctlStructuredScript.innerText = '{\n\
-	"freqRatio": 440,\n\
-	"volRatio": 0.5,\n\
-	"timeDelta": 0,\n\
-	"timeScale": 0.5,\n\
-	"decayFactor": 128,\n\
-	"attack": "1/64",\n\
-	"pat1": [\n\
-		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},\n\
-		{"noteStart": 0, "duration": 1, "freq": 1},\n\
-		{"noteStart": 1, "duration": 1, "freq": "5/4"},\n\
-		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},\n\
-		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}\n\
-	],\n\
-	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},\n\
-	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}\n\
-}';
+			ctlStructuredScript.innerText = defStructuredCode;
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetFlatScript?.checked) {
@@ -555,8 +558,7 @@ function btnResetPreferencesClick(event) {
 			ctlFlatScript.classList.remove("lineWrapping");
 			chkOverflow2.checked = false;
 			chkLineWrap2.checked = false;
-			ctlFlatScript.innerText = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
-{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
+			ctlFlatScript.innerText = defFlattenedCode;
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetClipParams?.checked) {
