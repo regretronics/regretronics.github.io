@@ -53,7 +53,7 @@ code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }
 
-button, input:not([type=checkbox]):not([type=radio]), select {
+button, input:not([type=radio]), select {
 	font-size: 0.85em;
 }
 .spinEdit, :not(.spinEdit) > :is(button, input:not([type=checkbox]):not([type=radio]), select) {
@@ -79,7 +79,6 @@ input[type=text], textarea, select {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
-	font-size: 0.85em;
 	vertical-align: middle;
 	margin-inline: 0.125em;
 }

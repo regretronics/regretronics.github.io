@@ -19,15 +19,21 @@
 	background-color: ButtonFace;
 	color: ButtonText;
 
-	border-start-start-radius: 0.375em;
+	/* border-start-start-radius: 0.375em;
 	border-end-start-radius: 0.375em;
 	border-start-end-radius: 0.25em;
-	border-end-end-radius: 0.25em;
+	border-end-end-radius: 0.25em; */
+	border-start-start-radius: 0.25em;
+	border-end-start-radius: 0.25em;
+	border-start-end-radius: 0.125em;
+	border-end-end-radius: 0.125em;
 	/* clip-path: border-box; */
 }
 .spinEdit > :first-child {
 	border-start-start-radius: inherit;
 	border-end-start-radius: inherit;
+	border-start-end-radius: 0em;
+	border-end-end-radius: 0em;
 }
 .spinEdit > :last-child, .spinEdit > :last-child > :last-child {
 	border-start-end-radius: inherit;

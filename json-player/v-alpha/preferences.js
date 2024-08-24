@@ -177,7 +177,7 @@ function loadPreferences() {
 			s = localStorage.getItem("flatScript.autoFlatten");
 			if(s) {
 				chkAutoFlatten.checked = JSON.parse(s);
-				chkAutoFlatten.dispatchEvent(new Event("click")); //?
+				chkAutoFlatten.dispatchEvent(new Event("click"));
 			}
 			s = localStorage.getItem("flatScript.overflow");
 			if(s) {

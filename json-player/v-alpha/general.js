@@ -472,7 +472,7 @@ function setToolTip(event, outToolTip) {
 }
 
 let lastCodeObjURL = null;
-function getDateTimeCode(size) { //hard-coded to Gregorian calendar.
+function getDateTimeCode(size) { //hard-coded to Western calendar.
 	if(size < 1) return "";
 	const now = new Date();
 	const dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()];
