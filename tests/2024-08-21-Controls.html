@@ -161,7 +161,7 @@
 			if(buttonsArea.lastPointerEvent.pointerType === "mouse")
 				force = 1.0;
 			else
-				force = 64.0 * buttonsArea.lastPointerEvent.width * buttonsArea.lastPointerEvent.height;
+				force = 64.0 * buttonsArea.lastPointerEvent.pressure * buttonsArea.lastPointerEvent.width * buttonsArea.lastPointerEvent.height;
 			if(force === 0.0) force = 1.0;
 		}
 		document.getElementById("outPressure").innerText = ((buttonsArea?.lastPointerEvent?.pointerType ?? "") + " " + force.toString() + " " + (buttonsArea?.lastPointerEvent?.webkitForce ?? "")).trim();
