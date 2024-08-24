@@ -1,0 +1,67 @@
+{
+	"remark": "I–V–vi–IV",
+	"0": {
+		"0": {
+			"freq": {"2": 0, "3": 0, "5": 0},
+			"noteStart": 0, "duration": 2
+		},
+		"1": {
+			"freq": {"2": -2, "3": 0, "5": 1},
+			"noteStart": 1, "duration": 2
+		},
+		"2": {
+			"freq": {"2": -1, "3": 1, "5": 0},
+			"noteStart": 2, "duration": 2
+		},
+		"timeDelta": "0*4"
+	},
+	"1": {
+		"0": {
+			"freq": {"2": -1, "3": 1, "5": 0},
+			"noteStart": 0, "duration": 2
+		},
+		"1": {
+			"freq": {"2": -3, "3": 1, "5": 1},
+			"noteStart": 1, "duration": 2
+		},
+		"2": {
+			"freq": {"2": -3, "3": 2, "5": 0},
+			"noteStart": 2, "duration": 2
+		},
+		"timeDelta": "1*4"
+	},
+	"2": {
+		"0": {
+			"freq": {"2": 0, "3": -1, "5": 1},
+			"noteStart": 0, "duration": 2
+		},
+		"1": {
+			"freq": {"2": 1, "3": 0, "5": 0},
+			"noteStart": 1, "duration": 2
+		},
+		"2": {
+			"freq": {"2": -2, "3": 0, "5": 1},
+			"noteStart": 2, "duration": 2
+		},
+		"timeDelta": "2*4"
+	},
+	"3": {
+		"0": {
+			"freq": {"2": 2, "3": -1, "5": 0},
+			"noteStart": 0, "duration": 2
+		},
+		"1": {
+			"freq": {"2": 0, "3": -1, "5": 1},
+			"noteStart": 1, "duration": 2
+		},
+		"2": {
+			"freq": {"2": 1, "3": 0, "5": 0},
+			"noteStart": 2, "duration": 2
+		},
+		"timeDelta": "3*4"
+	},
+	"timeScale": 0.5,
+	"freqRatio": 440,
+	"volRatio": 0.5,
+	"decayFactor": "256*0.5*2"
+}
