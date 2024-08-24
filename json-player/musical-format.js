@@ -35,7 +35,7 @@ function parseNode(flatStruct, node, blockContext) {
 				newContext[prop] = val;
 		}
 	}*/
-	if(node.timbre) newContext.timbre = node.timbre;
+	if(node.timbre) newContext.timbre = node.timbre; //string expected.
 	newContext.q = NaNToDefault(parseNumber(node.q), newContext.q);
 	newContext.decayFactor = NaNToDefault(parseNumber(node.decayFactor), newContext.decayFactor);
 	newContext.attack = NaNToDefault(parseNumber(node.attack), newContext.attack);
@@ -43,6 +43,8 @@ function parseNode(flatStruct, node, blockContext) {
 	newContext.vibratoFreq = NaNToDefault(parseNumber(node.vibratoFreq), newContext.vibratoFreq);
 	newContext.vibratoDepth = NaNToDefault(parseNumber(node.vibratoDepth), newContext.vibratoDepth);
 	newContext.vibratoAttack = NaNToDefault(parseNumber(node.vibratoAttack), newContext.vibratoAttack);
+	if(node.remark) newContext.remark = node.remark; //string expected.
+	if(node.tag) newContext.tag = node.tag; //string expected.
 
 	//to do: allow noteStart to be inferred from previous noteStop? or inferred by its node index?
 	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") || node.hasOwnProperty("freq") || node.hasOwnProperty("vol"))
@@ -76,12 +78,28 @@ function parseNode(flatStruct, node, blockContext) {
 							newNote[prop] = val;
 					}
 			}
+			if(newContext.remark != defaultNoteNode.remark) newNote.remark = newContext.remark;
+			if(newContext.tag != defaultNoteNode.tag) newNote.tag = newContext.tag;
 
 			flatStruct.push(newNote);
 		} catch(error) {
 			console.error(error);
 		}
+		else
+		if(node.remark) {
+			//remark-only dummy note
+			node.noteStart = NaNToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
+			node.duration = 0;
+			const newNote = { //preferred order...
+				noteStart: newContext.timeDelta + newContext.timeScale * node.noteStart,
+				noteStop: newContext.timeDelta + newContext.timeScale * node.noteStart,
+				remark: newContext.remark
+			};
+			if(newContext.tag != defaultNoteNode.tag) newNote.tag = newContext.tag;
+			flatStruct.push(newNote);
+		}
 
+	delete newContext.remark;
 	for(let iNote = 0, t; (t = node[iNote]); iNote++) { //indexed sub-nodes
 		if(typeof(t) === "string") { //reference by name
 			//pattern invocation, local
@@ -116,7 +134,7 @@ function flattenStruct() {
 		
 		//finally, yield the flattened version
 		let s = JSON.stringify(flatStruct, null, "\t");
-		struct = null; //frees memory
+		struct = null; //frees memory, hopefully
 		//final adjustments on indentation
 		let regex = new RegExp(/\{\n\t{2,}/, "g");
 		s = s.replace(regex, "{");
@@ -168,7 +186,7 @@ function scriptChanged() {
 function setAutoFlatten(value) {
 	autoFlatten = value;
 	if(autoFlatten) {
-		if(hasScriptChanged && !flattenTimeoutID) {flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);}
+		if(hasScriptChanged && !flattenTimeoutID) flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	} else {
 		if(flattenTimeoutID) {
 			window.clearTimeout(flattenTimeoutID);

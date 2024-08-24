@@ -10,6 +10,7 @@
 	<link rel="stylesheet" type="text/css" href="general.css" />
 	<link rel="stylesheet" type="text/css" href="general2.css" />
 	<link rel="stylesheet" type="text/css" href="media.css" />
+	<link rel="stylesheet" type="text/css" href="custom-spin.css" />
 	<link rel="stylesheet" type="text/css" href="theme-light-hicon.css" media="print" />
 
 	<link rel="stylesheet" type="text/css" href="theme-auto.css" media="screen" title="Automatic" />
@@ -35,6 +36,7 @@
 
 	<script type="text/javascript" src="preferences.js"></script>
 	<script type="text/javascript" src="general.js"></script>
+	<script type="text/javascript" src="custom-spin.js"></script>
 	<script type="text/javascript" src="player.js"></script>
 	<script type="text/javascript" src="musical-format.js"></script>
 	<script type="text/javascript" src="music-gen.js"></script>
@@ -58,22 +60,26 @@
 		txtBaseFreq.addEventListener("input", baseFreqChanged);
 		txtPrimeCount.addEventListener("input", primeCountChanged);
 
-		btnRhythmFactorsGen.addEventListener("click", makeRhythmFactors);
+		btnRhythmFactorsGen.addEventListener("click", btnRhythmFactorsGenClick);
 		txtRhythmFactors.addEventListener("input", rhythmFactorsChanged);
 
-		btnChordGen.addEventListener("click", makeChords);
-		btnRhythmGen.addEventListener("click", makeRhythm);
-		btnMelodyGen.addEventListener("click", makeMelody);
+		btnChordGen.addEventListener("click", btnChordGenClick);
+		btnRhythmGen.addEventListener("click", btnRhythmGenClick);
+		btnMelodyGen.addEventListener("click", btnMelodyGenClick);
 
 		btnStructDownload.addEventListener("click", structDownload);
-		btnOverflowToggle1.addEventListener("click", overflowToggle);
-		btnLineWrapToggle1.addEventListener("click", lineWrapToggle);
+		//btnOverflowToggle1.addEventListener("click", overflowToggle);
+		//btnLineWrapToggle1.addEventListener("click", lineWrapToggle);
+		chkOverflow1.addEventListener("click", overflowToggle);
+		chkLineWrap1.addEventListener("click", lineWrapToggle);
 		ctlStructuredScript.addEventListener("input", scriptChanged);
 
 		btnFlattenStruct.addEventListener("click", flattenStruct);
 		chkAutoFlatten.addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
-		btnOverflowToggle2.addEventListener("click", overflowToggle);
-		btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
+		//btnOverflowToggle2.addEventListener("click", overflowToggle);
+		//btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
+		chkOverflow2.addEventListener("click", overflowToggle);
+		chkLineWrap2.addEventListener("click", lineWrapToggle);
 		ctlFlatScript.addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
 
 		txtPlayFreqScale.addEventListener("input", playFreqScaleChanged);
@@ -88,6 +94,8 @@
 
 		btnResetPreferences.addEventListener("click", btnResetPreferencesClick);
 
+		ctlStructuredScript.innerText = defStructuredCode;
+		ctlFlatScript.innerText = defFlattenedCode;
 		{
 			const evt = new Event("input");
 			for(const s of expSpinners) window[s].dispatchEvent(evt);
@@ -111,7 +119,9 @@
 		for(const i in toolTipDomains)
 			addToolTipHandler(toolTipDomains[i], toolTipHandlers[i]);
 
-		addIntervalSamples();
+		window.initSpinControls?.();
+
+		window.addIntervalSamples?.();
 
 		//just eye candy
 		if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
@@ -125,7 +135,7 @@
 				//elem.addEventListener("resize", resizeUpdate);
 				elem.dispatchEvent(evt);
 			}
-			window.setInterval(hueAnimation, 150);
+			//window.setInterval(hueAnimation, 150);
 			/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
 				const bars = "▁▂▃▄▅▆▇█";
 				let s = "";
@@ -175,7 +185,6 @@
 			</span>
 		</div>
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
-		<!--to do: make my own spin buttons, around text inputs-->
 		<!--to do: review all tool tips for compatibility with the status bar, e.g. "the editor below"-->
 		<p><strong>Generator&nbsp;params.:</strong> 
 			<datalist id="tunings">
@@ -192,21 +201,21 @@
 				<option value="466" />
 			</datalist>
 			<span class="cell"><label for="txtBaseFreq">base&nbsp;freq.&nbsp;(Hz)</label>
-				<input type="number" id="txtBaseFreq" value="440" class="exp" list="tunings" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></span><wbr />
+				<input type="number" id="txtBaseFreq" value="440" class="exp customSpin" list="tunings" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></span><wbr />
 			<!--to do: consider negative time scale values-->
 			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="7" /></span><wbr />
+				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp customSpin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="7" /></span><wbr />
 			<span class="cell"><label for="txtPatternCount">patterns</label>
-				<input type="number" id="txtPatternCount" value="4" step="1" min="1" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></span><wbr />
+				<input type="number" id="txtPatternCount" value="4" step="1" min="1" class="customSpin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></span><wbr />
 			<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
-				<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators." size="3" /></span>
+				<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" class="customSpin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators." size="3" /></span>
 			<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output><wbr />
 			<span class="cell"><label for="txtExpVariance">tone&nbsp;(exponent)&nbsp;depth</label>
-				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="6" /></span>
+				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" class="customSpin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="6" /></span>
 		</p>
 		<p><strong>Rhythm:</strong> 
 			<span class="cell"><label for="txtRhythmScale">approx. scale</label>
-				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" /></span>
+				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" class="customSpin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" /></span>
 			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
 			<span class="cell"><label for="txtRhythmFactors">structure</label>
 				<input type="text" id="txtRhythmFactors" value="2*2*2" data-pref="rhythmParams.rhythmFactors" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></span>
@@ -214,11 +223,11 @@
 		</p>
 		<p><strong>Additional&nbsp;gen.&nbsp;params.:</strong> 
 			<span class="cell"><label for="txtVoiceCount">voices</label>
-				<input type="number" id="txtVoiceCount" value="3" min="1" step="1" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" /></span><wbr />
+				<input type="number" id="txtVoiceCount" value="3" min="1" step="1" class="customSpin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" /></span><wbr />
 			<span class="cell"><label for="txtReptCount">rept.&nbsp;count</label>
-				<input type="number" id="txtReptCount" value="2" step="1" min="1" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators." size="4" /></span><wbr />
+				<input type="number" id="txtReptCount" value="2" step="1" min="1" class="customSpin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators." size="4" /></span><wbr />
 			<span class="cell"><label for="txtReptPeriod">rept.&nbsp;period</label>
-				<input type="number" id="txtReptPeriod" value="4" step="1" min="1" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" /></span>
+				<input type="number" id="txtReptPeriod" value="4" step="1" min="1" class="customSpin" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" /></span>
 			<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></span>
 		</p>
 		<p class="flex-row">
@@ -230,69 +239,37 @@
 			<span class="right" style="flex-basis: 40ch;">
 				<a id="aStructDownload" href="" hidden=""></a>
 				<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
-				<button id="btnOverflowToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below.">Toggle overflow</button>
-				<button id="btnLineWrapToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+				<input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1">Overflow</label>
+				<!-- <button id="btnOverflowToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below.">Toggle overflow</button> -->
+				<input id="chkLineWrap1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap1">Line wrapping</label>
+				<!-- <button id="btnLineWrapToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button> -->
 			</span>
 		</p>
-		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="none">
-{
-	"freqRatio": 440,
-	"volRatio": 0.5,
-	"timeDelta": 0,
-	"timeScale": 0.5,
-	"decayFactor": 128,
-	"attack": "1/64",
-	"pat1": [
-		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},
-		{"noteStart": 0, "duration": 1, "freq": 1},
-		{"noteStart": 1, "duration": 1, "freq": "5/4"},
-		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},
-		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
-	],
-	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},
-	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}
-}</textarea></p>-->
-		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" data-pref="structuredMusic.content">
-{
-	"freqRatio": 440,
-	"volRatio": 0.5,
-	"timeDelta": 0,
-	"timeScale": 0.5,
-	"decayFactor": 128,
-	"attack": "1/64",
-	"pat1": [
-		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},
-		{"noteStart": 0, "duration": 1, "freq": 1},
-		{"noteStart": 1, "duration": 1, "freq": "5/4"},
-		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},
-		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}
-	],
-	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},
-	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}
-}</pre>
+		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></textarea></p>-->
+		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></pre>
 		<p class="flex-row">
 			<span style="flex-basis: 40ch;"><strong>Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
 			</span>
 			<span class="right">
-				<button id="btnOverflowToggle2" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below.">Toggle overflow</button>
-				<button id="btnLineWrapToggle2" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button>
+				<input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2">Overflow</label>
+				<!-- <button id="btnOverflowToggle2" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below.">Toggle overflow</button> -->
+				<input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label>
+				<!-- <button id="btnLineWrapToggle2" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button> -->
 			</span>
 		</p>
-		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off" data-pref="flatScript.content" title="">
-[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},
-{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]</pre>
+		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title=""></pre>
 		<p><strong>Overall&nbsp;controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
 			<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
-				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp" data-pref="clipParams.freqScale" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="7" /></span> <wbr />
 			<span class="cell"><label for="txtPlayVolScale">volume</label>
-				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp" data-pref="clipParams.volScale" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.volScale" title="Multiplicative factor" size="7" /></span> <wbr />
 			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp" data-pref="clipParams.timeScale" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="7" /></span> <wbr />
 			<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(skip vs. lead-in) (s)</label>
-				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
+				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="customSpin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
 		</p>
 		<p class="flex-row">
 			<span style="flex-basis: 48ch;"><strong>Player:</strong> 
@@ -648,7 +625,7 @@
 				You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. 
 				Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
 			<hr />
-			<p>Block (inheritable) properties are:</p>
+			<p>Block properties are (all inheritable except <code>remark</code>):</p>
 			<dl>
 				<dt><strong><code>freqRatio</code></strong> (multiplicative, default <code>1</code>)</dt>
 				<dd>Can be used both for pitch tuning and interval accumulation.</dd>
@@ -659,12 +636,15 @@
 				<dt><strong><code>timeScale</code></strong> (multiplicative, default <code>1</code>)</dt>
 				<dd>Inverse of tempo/speed.</dd>
 				<dt><strong><code>timbre</code></strong> (substitutive)</dt>
+				<dt><strong><code>q</code></strong> (substitutive)</dt>
 				<dt><strong><code>decayFactor</code></strong> (substitutive)</dt>
 				<dt><strong><code>attack</code></strong> (substitutive)</dt>
 				<dt><strong><code>portamento</code></strong> (substitutive)</dt>
 				<dt><strong><code>vibratoFreq</code></strong> (substitutive)</dt>
 				<dt><strong><code>vibratoDepth</code></strong> (substitutive)</dt>
 				<dt><strong><code>vibratoAttack</code></strong> (substitutive)</dt>
+				<dt><strong><code>remark</code></strong> (generative)</dt>
+				<dt><strong><code>tag</code></strong> (substitutive)</dt>
 			</dl>
 			<p>In the structured format, note properties are (influenced by block property values):</p>
 			<dl>
@@ -692,6 +672,10 @@
 				<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
 				<dd>Waveform used in synthesis (comparable to a musical instrument). 
 					Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
+				<dd>Absolute override when present.</dd>
+
+				<dt><strong><code>q</code></strong> (default <code>1</code>)</dt>
+				<dd>Inverse of relative bandwidth for a resonance filter. Used only with noise.</dd>
 				<dd>Absolute override when present.</dd>
 
 				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
@@ -723,6 +707,13 @@
 				
 				<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
 				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+				<dd>Absolute override when present.</dd>
+				
+				<dt><strong><code>remark</code></strong> (default <code>""</code>)</dt>
+				<dd>Non-inheritable property meant to be ignored by the computer (works like comments in a programming language). Can store a string or other things in its value.</dd>
+
+				<dt><strong><code>tag</code></strong> (default <code>""</code>)</dt>
+				<dd>Inheritable property meant to be ignored by the computer (works like comments in a programming language). Can store a string or other things in its value.</dd>
 				<dd>Absolute override when present.</dd>
 			</dl>
 			<hr />
@@ -761,60 +752,48 @@
 				For creative representation (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is to play the music.</p>
 			<p>In the flattened format, note properties are:</p>
 			<dl>
-				<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
-				<dd>The moment in time the note is played.</dd>
+				<dt><strong><code>noteStart</code></strong></dt>
 				<dd>Affected by overall time delta and overall time scale.</dd>
 
-				<dt><strong><code>noteStop</code></strong> (default <em>noteStart + duration</em>)</dt>
-				<dd>The moment in time the note is silenced.</dd>
+				<dt><strong><code>noteStop</code></strong></dt>
 				<dd>Affected by overall time delta and overall time scale.</dd>
 
-				<dt><strong><code>duration</code></strong> (default <code>1</code>)</dt>
-				<dd>The amount of time the note plays. 
-					(You don't need both noteStop and duration&mdash;they are redundant.)</dd>
+				<dt><strong><code>duration</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
 
-				<dt><strong><code>freq</code></strong> (default <code>1</code>, must be non-zero in flattened list)</dt>
-				<dd>Frequency, which represents pitch.</dd>
+				<dt><strong><code>freq</code></strong> (must be non-zero in flattened list)</dt>
 				<dd>Affected by overall frequency scale.</dd>
 
-				<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
-				<dd>Amplitude, which represents volume.</dd>
+				<dt><strong><code>vol</code></strong></dt>
 				<dd>Affected by overall volume scale.</dd>
 
-				<dt><strong><code>timbre</code></strong> (default <code>"sine"</code>)</dt>
-				<dd>Waveform used in synthesis (comparable to a musical instrument). 
-					Can be <code>"sine"</code> (oscillator, narrow-band) or <code>"noise"</code> (wide-band but filtered).</dd>
+				<dt><strong><code>timbre</code></strong></dt>
 
-				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
-				<dd>Sustain time factor (how slowly the note amplitude is dampened while still playing); more precisely, decay half-life = decayFactor / freq.</dd>
+				<dt><strong><code>q</code></strong></dt>
+
+				<dt><strong><code>decayFactor</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
 
-				<dt><strong><code>attack</code></strong> (default <em>1/64</em>)</dt>
-				<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
-				<dd>Affected by overall time scale.</dd>
-				
-				<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
-				<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). 
-					When zero, portamento is disabled and pitches are abrupt.</dd>
+				<dt><strong><code>attack</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
 
-				<dt><strong><code>freq0</code></strong> (default <em>last note frequency</em>, <code>0</code> initially)</dt>
-				<dd>If portamento is enabled, this is the initial frequency. 
-					A <code>0</code> value disables portamento. 
-					If freq0 is not present, the default portamento behavior is to start from the (estimated) current pitch of the last note.</dd>
+				<dt><strong><code>portamento</code></strong></dt>
+				<dd>Affected by overall time scale.</dd>
+
+				<dt><strong><code>freq0</code></strong></dt>
 				<dd>Note-only property, not inherited by blocks.</dd>
-				
-				<dt><strong><code>vibratoFreq</code></strong> (default <em>2^18 / 86400</em> = ~<code>3.034</code>)</dt>
-				<dd>Frequency for pitch modulation.</dd>
+
+				<dt><strong><code>vibratoFreq</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
-				
-				<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
-				<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
-				
-				<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
-				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
+
+				<dt><strong><code>vibratoDepth</code></strong></dt>
+
+				<dt><strong><code>vibratoAttack</code></strong></dt>
 				<dd>Affected by overall time scale.</dd>
+
+				<dt><strong><code>remark</code></strong></dt>
+
+				<dt><strong><code>tag</code></strong></dt>
 			</dl>
 		</article>
 		<footer>

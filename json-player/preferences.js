@@ -149,6 +149,8 @@ function loadPreferences() {
 		if(!chkResetStructuredMusic.checked) {
 			s = localStorage.getItem("structuredMusic.overflow");
 			if(s) {
+				chkOverflow1.checked = JSON.parse(s);
+				//chkOverflow1.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlStructuredScript.classList.add("expanded");
 				else
@@ -156,6 +158,8 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("structuredMusic.lineWrapping");
 			if(s) {
+				chkLineWrap1.checked = JSON.parse(s);
+				//chkLineWrap1.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlStructuredScript.classList.add("lineWrapping");
 				else
@@ -173,10 +177,12 @@ function loadPreferences() {
 			s = localStorage.getItem("flatScript.autoFlatten");
 			if(s) {
 				chkAutoFlatten.checked = JSON.parse(s);
-				chkAutoFlatten.dispatchEvent(new Event("click")); //?
+				chkAutoFlatten.dispatchEvent(new Event("click"));
 			}
 			s = localStorage.getItem("flatScript.overflow");
 			if(s) {
+				chkOverflow2.checked = JSON.parse(s);
+				//chkOverflow2.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlFlatScript.classList.add("expanded");
 				else
@@ -184,6 +190,8 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("flatScript.lineWrapping");
 			if(s) {
+				chkLineWrap2.checked = JSON.parse(s);
+				//chkLineWrap2.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
 					ctlFlatScript.classList.add("lineWrapping");
 				else
@@ -450,6 +458,25 @@ function saveInputValue(event) {
 	console.warn("Could not save a preference: exceptional control type.");
 }
 
+const defStructuredCode = '{\n\
+	"freqRatio": 440,\n\
+	"volRatio": 0.5,\n\
+	"timeDelta": 0,\n\
+	"timeScale": 0.5,\n\
+	"decayFactor": 128,\n\
+	"attack": "1/64",\n\
+	"pat1": [\n\
+		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},\n\
+		{"noteStart": 0, "duration": 1, "freq": 1},\n\
+		{"noteStart": 1, "duration": 1, "freq": "5/4"},\n\
+		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},\n\
+		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}\n\
+	],\n\
+	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1", "remark": "asdfsf"},\n\
+	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1", "remark": 1234, "tag": "qwert"}\n\
+}';
+const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
+{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
 function btnResetPreferencesClick(event) {
 	//resetAllPreferences();
 	try {
@@ -514,23 +541,9 @@ function btnResetPreferencesClick(event) {
 
 			ctlStructuredScript.classList.remove("expanded");
 			ctlStructuredScript.classList.remove("lineWrapping");
-			ctlStructuredScript.innerText = '{\n\
-	"freqRatio": 440,\n\
-	"volRatio": 0.5,\n\
-	"timeDelta": 0,\n\
-	"timeScale": 0.5,\n\
-	"decayFactor": 128,\n\
-	"attack": "1/64",\n\
-	"pat1": [\n\
-		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},\n\
-		{"noteStart": 0, "duration": 1, "freq": 1},\n\
-		{"noteStart": 1, "duration": 1, "freq": "5/4"},\n\
-		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},\n\
-		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}\n\
-	],\n\
-	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1"},\n\
-	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1"}\n\
-}';
+			chkOverflow1.checked = false;
+			chkLineWrap1.checked = false;
+			ctlStructuredScript.innerText = defStructuredCode;
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetFlatScript?.checked) {
@@ -543,8 +556,9 @@ function btnResetPreferencesClick(event) {
 			//chkAutoFlatten.dispatchEvent(new Event("click"));
 			ctlFlatScript.classList.remove("expanded");
 			ctlFlatScript.classList.remove("lineWrapping");
-			ctlFlatScript.innerText = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
-{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
+			chkOverflow2.checked = false;
+			chkLineWrap2.checked = false;
+			ctlFlatScript.innerText = defFlattenedCode;
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetClipParams?.checked) {

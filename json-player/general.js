@@ -19,7 +19,7 @@ const defaultBlockNode = {
 	volRatio: 1,
 
 	timbre: "sine",
-	q: 1, //for noise resonance; currently undocumented.
+	q: 1, //for noise resonance. question: substitutive or relative? (currently substitutive)
 	decayFactor: 256, //question: rename this to sustain(Factor)?
 	attack: 1 / 64,
 
@@ -28,9 +28,12 @@ const defaultBlockNode = {
 	vibratoFreq: 2 ** 18 / 86400,
 	//vibratoDepth: 1 / 8,
 	vibratoDepth: 0,
-	vibratoAttack: 3
+	vibratoAttack: 3,
+
+	remark: "", //one-time comment; currently unprocessed altogether.
+	tag: "" //inherited (substitutive) comment; currently unprocessed altogether.
 }, relativeBlockProps = ["timeDelta", "timeScale", "freqRatio", "volRatio"],
- substitutiveProps = ["timbre", "q", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
+ substitutiveProps = ["timbre", "q", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack", "tag"]; //currently unused.
 const defaultNoteNode = {
 	noteStart: 0, //seconds
 	duration: 1, //seconds
@@ -46,7 +49,10 @@ const defaultNoteNode = {
 	portamento: defaultBlockNode.portamento, //seconds
 	vibratoFreq: defaultBlockNode.vibratoFreq, //Hertz
 	vibratoDepth: defaultBlockNode.vibratoDepth, //octaves or bits
-	vibratoAttack: defaultBlockNode.vibratoAttack //seconds
+	vibratoAttack: defaultBlockNode.vibratoAttack, //seconds
+
+	remark: defaultBlockNode.remark,
+	tag: defaultBlockNode.tag
 }, incrementalNoteProps = ["noteStart", "duration", "noteStop", "freq0", "freq", "vol"],
 tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"]; //to do: noise-only properties?
 
@@ -213,7 +219,11 @@ function overflowToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	control.classList.toggle("expanded");
+	//control.classList.toggle("expanded");
+	if(elem.checked)
+		control.classList.add("expanded");
+	else
+		control.classList.remove("expanded");
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("expanded")));
 }
@@ -222,7 +232,11 @@ function lineWrapToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	control.classList.toggle("lineWrapping");
+	//control.classList.toggle("lineWrapping");
+	if(elem.checked)
+		control.classList.add("lineWrapping");
+	else
+		control.classList.remove("lineWrapping");
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("lineWrapping")));
 }
@@ -270,6 +284,45 @@ function rhythmAccumUpdate() {
 	rhythmFactors.push(1);
 }
 
+function btnRhythmFactorsGenClick(event) {
+	rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value));
+	if(window.txtRhythmFactors) {
+		txtRhythmFactors.value = rhythmFactors.join("*");
+		txtRhythmFactors.dispatchEvent(new Event("input"));
+	}
+	//rhythmAccumUpdate();
+}
+function btnChordGenClick(event) {
+	const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtExpVariance.value), parseNumber(txtTimeScale.value));
+	let s = JSON.stringify(rootStruct, null, "\t");
+	//final adjustments on indentation
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	s = s.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	s = s.replace(regex, "\{$1\}");
+	setStructuredText(s);
+}
+function btnRhythmGenClick(event) {
+	const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
+	let s = JSON.stringify(rootStruct, null, "\t");
+	//final adjustments on indentation
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	s = s.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	s = s.replace(regex, "\{$1\}");
+	setStructuredText(s);
+}
+function btnMelodyGenClick(event) {
+	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked);
+	let s = JSON.stringify(rootStruct, null, "\t");
+	//final adjustments on indentation
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	s = s.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	s = s.replace(regex, "\{$1\}");
+	setStructuredText(s);
+}
 function btnStopClick(event) {
 	if(!playerClip) return;
 	if(playerClip.onClipEnd) playerClip.onClipEnd(); else emptyClip(playerClip);
@@ -419,7 +472,7 @@ function setToolTip(event, outToolTip) {
 }
 
 let lastCodeObjURL = null;
-function getDateTimeCode(size) {
+function getDateTimeCode(size) { //hard-coded to Western calendar.
 	if(size < 1) return "";
 	const now = new Date();
 	const dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()];
