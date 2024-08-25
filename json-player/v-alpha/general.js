@@ -188,9 +188,6 @@ const releaseCurveSize = 8192;
 var maxPitches = null;
 
 function docLoaded() {
-	//load HTML element references
-	for(let s of document.querySelectorAll('[id]'))
-		window[s.id] = s;
 	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
 	if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
 	if(window.outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
@@ -211,6 +208,117 @@ function docLoaded() {
 
 		//parabolic
 		releaseCurve[i] = 1 - (i / releaseCurveSize) ** 2;
+	}
+}
+function loadEventHandlers() {
+	for(const elem of document.querySelectorAll("input.exp"))
+		elem.addEventListener("input", expSpinnerChanged);
+
+	btnTextShrink.addEventListener("click", rescaleText);
+	btnTextEnlarge.addEventListener("click", rescaleText);
+	//cboPageTheme.addEventListener("click", themeChanged); //click only works via mouse. doesn't work well in G. Chrome.
+	//cboPageTheme.addEventListener("focus", themeChanged); //doesn't work well in G. Chrome.
+	cboPageTheme.addEventListener("input", themeChanged); //working: change, input. inappropriate: toggle, select, selectionchange.
+	btnHueFine1.addEventListener("click", btnHueClick);
+	btnHueFine2.addEventListener("click", btnHueClick);
+
+	txtBaseFreq.addEventListener("input", baseFreqChanged);
+	txtPrimeCount.addEventListener("input", primeCountChanged);
+
+	btnRhythmFactorsGen.addEventListener("click", btnRhythmFactorsGenClick);
+	txtRhythmFactors.addEventListener("input", rhythmFactorsChanged);
+
+	btnChordGen.addEventListener("click", btnChordGenClick);
+	btnRhythmGen.addEventListener("click", btnRhythmGenClick);
+	btnMelodyGen.addEventListener("click", btnMelodyGenClick);
+
+	inFile.addEventListener("change", inFileChange);
+	//inFile.addEventListener("input", inFileChange);
+	btnStructImport.addEventListener("click", btnStructImportClick);
+	btnStructDownload.addEventListener("click", structDownload);
+	//btnOverflowToggle1.addEventListener("click", overflowToggle);
+	//btnLineWrapToggle1.addEventListener("click", lineWrapToggle);
+	chkOverflow1.addEventListener("click", overflowToggle);
+	chkLineWrap1.addEventListener("click", lineWrapToggle);
+	ctlStructuredScript.addEventListener("input", scriptChanged);
+
+	btnFlattenStruct.addEventListener("click", flattenStruct);
+	chkAutoFlatten.addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
+	//btnOverflowToggle2.addEventListener("click", overflowToggle);
+	//btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
+	chkOverflow2.addEventListener("click", overflowToggle);
+	chkLineWrap2.addEventListener("click", lineWrapToggle);
+	ctlFlatScript.addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
+
+	txtPlayFreqScale.addEventListener("input", playFreqScaleChanged);
+	txtPlayVolScale.addEventListener("input", playVolScaleChanged);
+
+	btnPlay.addEventListener("click", loadAndPlay);
+	btnPause.addEventListener("click", pauseToggle);
+	btnStop.addEventListener("click", btnStopClick);
+
+	btnAudioExport.addEventListener("click", audioExport);
+	btnAudioExportCancel.addEventListener("click", audioExportCancel);
+
+	btnResetPreferences.addEventListener("click", btnResetPreferencesClick);
+
+	for(const elem of document.querySelectorAll("[data-pref]"))
+		elem.addEventListener("input", saveInputValue);
+
+	for(const elem of document.getElementsByClassName("codeEditor")) {
+		elem.addEventListener("keydown", editorKeyDown);
+		//elem.addEventListener("keyup", recalcEditorCursorPos);
+		//elem.addEventListener("click", recalcEditorCursorPos);
+	}
+
+	{
+		const main1 = document.getElementsByTagName("main")[0];
+		main1.addEventListener("dragover", mainDragOver);
+		main1.addEventListener("drop", mainDrop);
+	}
+
+	addToolTipHandler("body>main", event => setToolTip(event, outToolTip));
+	addToolTipHandler("#tblFractionIntervals", event => setToolTip(event, outToolTip2));
+}
+function pageLoaded() {
+	//load HTML element references
+	for(let s of document.querySelectorAll('[id]'))
+		window[s.id] = s;
+	docLoaded();
+
+	ctlStructuredScript.innerText = defStructuredCode;
+	ctlFlatScript.innerText = defFlattenedCode;
+	addIntervalSamples();
+
+	loadEventHandlers();
+	{
+		const evt = new Event("input");
+		for(const s of expSpinners) window[s].dispatchEvent(evt);
+	}
+	window.loadPreferences?.();
+	window.primeCountChanged?.();
+	window.rhythmFactorsChanged?.();
+	window.initSpinControls?.();
+
+	//just eye candy
+	if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+		const evt = new Event("scroll");
+		document.addEventListener("scroll", scrollUpdate);
+		//document.addEventListener("resize", resizeUpdate);
+		document.dispatchEvent(evt);
+		//for(const elem of document.querySelectorAll("body>.major-section")) {
+		for(const elem of document.getElementsByClassName("major-section")) {
+			elem.addEventListener("scroll", scrollUpdate);
+			//elem.addEventListener("resize", resizeUpdate);
+			elem.dispatchEvent(evt);
+		}
+		//window.setInterval(hueAnimation, 150);
+		/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
+			const bars = "▁▂▃▄▅▆▇█";
+			let s = "";
+			for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
+			document.title = s + " JSON music";
+		}, 200);*/
 	}
 }
 
@@ -438,10 +546,6 @@ function addToolTipHandler(rootSelector, handler) {
 			elem.addEventListener("click", handler);
 		//mouse-down and touch detection
 		elem.addEventListener("pointerdown", handler);
-		//elem.addEventListener("mouseenter", handler);
-		//elem.addEventListener("mouseover", handler);
-		//elem.addEventListener("pointerenter", handler);
-		//elem.addEventListener("pointerover", handler);
 	}
 }
 function setToolTip(event, outToolTip) {
@@ -483,6 +587,7 @@ function getDateTimeCode(size) { //hard-coded to Western calendar.
 	return dArr.join("-");
 }
 function structDownload(event) {
+	//for the future (as of 2024-08)?: window.showSaveFilePicker()
 	if(!window.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 	let data;
@@ -557,6 +662,25 @@ function hueAnimation() {
 }
 
 function addIntervalSamples() {
+	//add cells to rows in table body
+	const container = document.querySelector("#tblFractionIntervals tbody");
+	for (const row of container.children) {
+		if(row.tagName.toUpperCase() !== "TR") continue;
+		if(row.children.length < 1) continue;
+		const firstChild = row.children[0];
+		if(firstChild.tagName.toUpperCase() === "TH" || firstChild.classList.contains("tool-tip")) {
+			firstChild.colSpan++;
+			continue;
+		}
+
+		const cell = row.insertCell(4);
+		cell.classList.add("sample-cell");
+		cell.addEventListener("click", playIntervalHandler);
+		cell.dataset["fraction"] = firstChild.innerText;
+		cell.innerText="\u{1F442}"; //ear
+		//cell.innerText="\u{1F50A}"; //speaker
+	}
+
 	{
 		//add cell to row in table header
 		const row = document.querySelector("#tblFractionIntervals thead tr");
@@ -564,24 +688,6 @@ function addIntervalSamples() {
 		cell.scope = "col";
 		cell.innerHTML = "Sam&shy;ple"; //Sample
 		row.insertBefore(cell, row.children[4]);
-	}
-
-	//add cells to rows in table body
-	const container = document.querySelector("#tblFractionIntervals tbody");
-	for (const row of container.children) {
-		if(row.tagName.toUpperCase() !== "TR") continue;
-		if(row.children.length < 1) continue;
-		if(row.children[0].tagName.toUpperCase() === "TH" || row.children[0].classList.contains("tool-tip")) {
-			row.children[0].colSpan++;
-			continue;
-		}
-
-		const cell = row.insertCell(4);
-		cell.classList.add("sample-cell");
-		cell.addEventListener("click", playIntervalHandler);
-		cell.dataset["fraction"] = row.children[0].innerText;
-		cell.innerText="\u{1F442}"; //ear
-		//cell.innerText="\u{1F50A}"; //speaker
 	}
 }
 //to do: review this code
@@ -662,7 +768,9 @@ function mainDrop(event) {
 		});
 	}
 }
+
 function btnStructImportClick(event) {
+	//for the future (as of 2024-08)?: window.showOpenFilePicker()
 	importForm.reset(); //needed to reload when choosing same file on Chrome.
 	inFile.showPicker(); //asynchronous
 }

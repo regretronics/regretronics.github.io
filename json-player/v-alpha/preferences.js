@@ -434,28 +434,33 @@ function rhythmFactorsChanged() {
 	rhythmAccumUpdate();
 }
 
+function saveControlPreference(elem) {
+	if(!elem) return false;
+	let prefKey = elem.dataset["pref"];
+	if(!prefKey) return false;
+
+	if(elem.tagName.toUpperCase() === "SELECT") {
+		localStorage.setItem(prefKey, elem.value);
+		return true;
+	}
+	if(elem.tagName.toUpperCase() === "INPUT") {
+		if(elem.type.toUpperCase() === "CHECKBOX")
+			localStorage.setItem(prefKey, JSON.stringify(elem.checked));
+		else
+			localStorage.setItem(prefKey, elem.value);
+		return true;
+	}
+	if(elem.contentEditable.toUpperCase() == "TRUE" || elem.classList.contains("codeEditor")) {
+		localStorage.setItem(prefKey, elem.innerText);
+		return true;
+	}
+	console.warn("Could not save a preference: exceptional control type.");
+	return false;
+}
 function saveInputValue(event) {
 	if(adjustingPreferences) return;
 	if(!event?.target) return;
-	let prefKey = event.target.dataset["pref"];
-	if(!prefKey) return;
-
-	if(event.target.tagName.toUpperCase() === "SELECT") {
-		localStorage.setItem(prefKey, event.target.value);
-		return;
-	}
-	if(event.target.tagName.toUpperCase() === "INPUT") {
-		if(event.target.type.toUpperCase() === "CHECKBOX")
-			localStorage.setItem(prefKey, JSON.stringify(event.target.checked));
-		else
-			localStorage.setItem(prefKey, event.target.value);
-		return;
-	}
-	if(event.target.contentEditable.toUpperCase() == "TRUE" || event.target.classList.contains("codeEditor")) {
-		localStorage.setItem(prefKey, event.target.innerText);
-		return;
-	}
-	console.warn("Could not save a preference: exceptional control type.");
+	saveControlPreference(event.target);
 }
 
 const defStructuredCode = '{\n\

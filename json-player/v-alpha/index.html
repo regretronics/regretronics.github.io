@@ -44,116 +44,6 @@
 	//to do: use defer="true" or async in any script tag?
 	"use strict";
 
-	function pageLoaded() {
-		docLoaded();
-		for(const elem of document.querySelectorAll("input.exp"))
-			elem.addEventListener("input", expSpinnerChanged);
-
-		btnTextShrink.addEventListener("click", rescaleText);
-		btnTextEnlarge.addEventListener("click", rescaleText);
-		//cboPageTheme.addEventListener("click", themeChanged); //click only works via mouse. doesn't work well in G. Chrome.
-		//cboPageTheme.addEventListener("focus", themeChanged); //doesn't work well in G. Chrome.
-		cboPageTheme.addEventListener("input", themeChanged); //working: change, input. inappropriate: toggle, select, selectionchange.
-		btnHueFine1.addEventListener("click", btnHueClick);
-		btnHueFine2.addEventListener("click", btnHueClick);
-
-		txtBaseFreq.addEventListener("input", baseFreqChanged);
-		txtPrimeCount.addEventListener("input", primeCountChanged);
-
-		btnRhythmFactorsGen.addEventListener("click", btnRhythmFactorsGenClick);
-		txtRhythmFactors.addEventListener("input", rhythmFactorsChanged);
-
-		btnChordGen.addEventListener("click", btnChordGenClick);
-		btnRhythmGen.addEventListener("click", btnRhythmGenClick);
-		btnMelodyGen.addEventListener("click", btnMelodyGenClick);
-
-		inFile.addEventListener("change", inFileChange);
-		//inFile.addEventListener("input", inFileChange);
-		btnStructImport.addEventListener("click", btnStructImportClick);
-		btnStructDownload.addEventListener("click", structDownload);
-		//btnOverflowToggle1.addEventListener("click", overflowToggle);
-		//btnLineWrapToggle1.addEventListener("click", lineWrapToggle);
-		chkOverflow1.addEventListener("click", overflowToggle);
-		chkLineWrap1.addEventListener("click", lineWrapToggle);
-		ctlStructuredScript.addEventListener("input", scriptChanged);
-
-		btnFlattenStruct.addEventListener("click", flattenStruct);
-		chkAutoFlatten.addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
-		//btnOverflowToggle2.addEventListener("click", overflowToggle);
-		//btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
-		chkOverflow2.addEventListener("click", overflowToggle);
-		chkLineWrap2.addEventListener("click", lineWrapToggle);
-		ctlFlatScript.addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
-
-		txtPlayFreqScale.addEventListener("input", playFreqScaleChanged);
-		txtPlayVolScale.addEventListener("input", playVolScaleChanged);
-
-		btnPlay.addEventListener("click", loadAndPlay);
-		btnPause.addEventListener("click", pauseToggle);
-		btnStop.addEventListener("click", btnStopClick);
-
-		btnAudioExport.addEventListener("click", audioExport);
-		btnAudioExportCancel.addEventListener("click", audioExportCancel);
-
-		btnResetPreferences.addEventListener("click", btnResetPreferencesClick);
-
-		ctlStructuredScript.innerText = defStructuredCode;
-		ctlFlatScript.innerText = defFlattenedCode;
-		{
-			const evt = new Event("input");
-			for(const s of expSpinners) window[s].dispatchEvent(evt);
-		}
-		for(const elem of document.querySelectorAll("[data-pref]"))
-			elem.addEventListener("input", saveInputValue);
-		loadPreferences();
-		primeCountChanged();
-		rhythmFactorsChanged();
-
-		for(const elem of document.getElementsByClassName("codeEditor")) {
-			elem.addEventListener("keydown", editorKeyDown);
-			//elem.addEventListener("keyup", recalcEditorCursorPos);
-			//elem.addEventListener("click", recalcEditorCursorPos);
-		}
-
-		//const toolTipDomains = ["body>main", "body>section"];
-		const toolTipDomains = ["body>main", "#tblFractionIntervals"];
-		const toolTipHandlers = [event => setToolTip(event, outToolTip),
-			event => setToolTip(event, outToolTip2)];
-		for(const i in toolTipDomains)
-			addToolTipHandler(toolTipDomains[i], toolTipHandlers[i]);
-
-		window.initSpinControls?.();
-
-		window.addIntervalSamples?.();
-
-		{
-			const main1 = document.getElementsByTagName("main")[0];
-			main1.addEventListener("dragover", mainDragOver);
-			main1.addEventListener("drop", mainDrop);
-		}
-
-		//just eye candy
-		if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-			const evt = new Event("scroll");
-			document.addEventListener("scroll", scrollUpdate);
-			//document.addEventListener("resize", resizeUpdate);
-			document.dispatchEvent(evt);
-			//for(const elem of document.querySelectorAll("body>.major-section")) {
-			for(const elem of document.getElementsByClassName("major-section")) {
-				elem.addEventListener("scroll", scrollUpdate);
-				//elem.addEventListener("resize", resizeUpdate);
-				elem.dispatchEvent(evt);
-			}
-			//window.setInterval(hueAnimation, 150);
-			/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
-				const bars = "▁▂▃▄▅▆▇█";
-				let s = "";
-				for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
-				document.title = s + " JSON music";
-			}, 200);*/
-		}
-	}
-
 	//window.addEventListener("load", pageLoaded);
 	window.addEventListener("DOMContentLoaded", pageLoaded);
 	if(location.pathname.split("/").slice(-2)[0] != "json-player") document.title = "JSON music (unstable)";
@@ -259,7 +149,7 @@
 				</span>
 			</span>
 		</p>
-		<!-- the form here is necessary so that the file control can be reset (cleared). so I had to put it outside of paragraphs to not break layout. -->
+		<!-- the form here is necessary so that the file control can be reset (cleared). then I had to put it outside of paragraphs to not break layout. -->
 		<form id="importForm" hidden=""><input type="file" id="inFile" accept=".mus.json,application/json,text/plain" hidden="" /></form>
 		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></textarea></p>-->
 		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></pre>
