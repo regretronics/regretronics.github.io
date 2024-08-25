@@ -664,7 +664,11 @@ function mainDrop(event) {
 }
 function inFileChange(event) {
 	const fileList = this.files;
-	if(fileList.length < 1) return;
+	if(fileList.length < 1) {
+		outToolTip.innerText = "No file was chosen.";
+		outToolTip.style.position = "sticky";
+		return;
+	}
 	const file = fileList[0];
 	file.text()?.then?.(value => {
 		setStructuredText(value);
