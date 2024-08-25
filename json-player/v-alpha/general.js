@@ -485,8 +485,11 @@ function getDateTimeCode(size) { //hard-coded to Western calendar.
 function structDownload(event) {
 	if(!window.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-	const data = [ctlStructuredScript.innerText];
-	//const data = [ctlStructuredScript.value];
+	let data;
+	if(["INPUT", "TEXTAREA"].includes(ctlStructuredScript.tagName.toUpperCase()))
+		data = [ctlStructuredScript.value];
+	else
+		data = [ctlStructuredScript.innerText];
 	let file;
 	const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 	
@@ -621,4 +624,52 @@ function playIntervalHandler(event) {
 	});
 	if(clip.audioCtx.state === 'suspended') clip.audioCtx.resume();
 	clip.open = true;
+}
+
+function mainDragOver(event) {
+	if(!event) return;
+	event.preventDefault();
+	event.dataTransfer.dropEffect = "copy";
+}
+function mainDrop(event) {
+	if(!event || !event.dataTransfer) return;
+	event.preventDefault();
+	//const data = event.dataTransfer.getData("application/json");
+	if(event.dataTransfer.items) {
+		const item = event.dataTransfer.items[0];
+		if(item.kind === "string" && item.type.match(/^text\/plain/)) {
+			item.getAsString((s) => {setStructuredText(s);});
+		} else
+			if(item.kind === "file") {
+				item.getAsFile().text()?.then?.(value => {
+					setStructuredText(value);
+				}, reason => {
+					outToolTip.innerText = "Dropped file could not be read: " + reason.toString();
+					outToolTip.style.position = "sticky";
+				});
+			}
+	} else {
+		if(event.dataTransfer.files.length < 1) {
+			outToolTip.innerText = "No files were dropped.";
+			outToolTip.style.position = "sticky";
+			return;
+		}
+		event.dataTransfer.files[0].text()?.then?.(value => {
+			setStructuredText(value);
+		}, reason => {
+			outToolTip.innerText = "Dropped file could not be read: " + reason.toString();
+			outToolTip.style.position = "sticky";
+		});
+	}
+}
+function inFileChange(event) {
+	const fileList = this.files;
+	if(fileList.length < 1) return;
+	const file = fileList[0];
+	file.text()?.then?.(value => {
+		setStructuredText(value);
+	}, reason => {
+		outToolTip.innerText = "Chosen file could not be read: " + reason.toString();
+		outToolTip.style.position = "sticky";
+	});
 }
