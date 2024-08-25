@@ -662,9 +662,13 @@ function mainDrop(event) {
 		});
 	}
 }
+function btnStructImportClick(event) {
+	importForm.reset(); //needed to reload when choosing same file on Chrome.
+	inFile.showPicker(); //asynchronous
+}
 function inFileChange(event) {
 	const fileList = this.files;
-	if(fileList.length < 1) {
+	if(!fileList || fileList.length < 1) {
 		outToolTip.innerText = "No file was chosen.";
 		outToolTip.style.position = "sticky";
 		return;

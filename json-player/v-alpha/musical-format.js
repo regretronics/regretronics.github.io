@@ -179,8 +179,6 @@ function scriptChanged() {
 	}
 	if(autoFlatten)
 		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
-
-	//prepareDownload();
 }
 
 function setAutoFlatten(value) {

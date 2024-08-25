@@ -68,7 +68,8 @@
 		btnMelodyGen.addEventListener("click", btnMelodyGenClick);
 
 		inFile.addEventListener("change", inFileChange);
-		btnStructImport.addEventListener("click", event => {inFile.showPicker();});
+		//inFile.addEventListener("input", inFileChange);
+		btnStructImport.addEventListener("click", btnStructImportClick);
 		btnStructDownload.addEventListener("click", structDownload);
 		//btnOverflowToggle1.addEventListener("click", overflowToggle);
 		//btnLineWrapToggle1.addEventListener("click", lineWrapToggle);
@@ -246,7 +247,6 @@
 			</span> <wbr />
 			<span class="right" style="flex-basis: 40ch;">
 				<span class="cell">
-					<input type="file" id="inFile" accept=".mus.json,text/plain,application/json" hidden="" />
 					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><u>O</u>pen file</button>
 					<a id="aStructDownload" href="" hidden=""></a>
 					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
@@ -259,6 +259,8 @@
 				</span>
 			</span>
 		</p>
+		<!-- the form here is necessary so that the file control can be reset (cleared). so I had to put it outside of paragraphs to not break layout. -->
+		<form id="importForm" hidden=""><input type="file" id="inFile" accept=".mus.json,application/json,text/plain" hidden="" /></form>
 		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></textarea></p>-->
 		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></pre>
 		<p class="flex-row">
