@@ -94,6 +94,10 @@ input[type=checkbox] + label {
 .cell {
 	margin-inline: 0.375ch;
 }
+/* wbr:has(+ .cell:not(:first-of-type)) {
+	border-inline-start-style: groove;
+	border-inline-start-width: 0.125em;
+} */
 #outAudioT {
 	display: inline-block;
 	min-width: 6ch;

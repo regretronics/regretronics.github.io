@@ -1,23 +1,11 @@
-/* #txtTest1 {
-	width: 6ch;
-}
-#txtTest2 {
-	width: 10ch;
-}
-.spinEdit:has(.buttonsArea) #txtTest1 {
-	width: 4ch;
-}
-.spinEdit:has(.buttonsArea) #txtTest2 {
-	width: 8ch;
-} */
-
 .spinEdit {
 	display: inline-flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
 
-	background-color: ButtonFace;
-	color: ButtonText;
+	/* background-color: ButtonFace;
+	color: ButtonText; */
+	background: none;
 
 	/* border-start-start-radius: 0.375em;
 	border-end-start-radius: 0.375em;
@@ -47,12 +35,10 @@
 	text-align: right;
 	/* vertical-align: text-bottom; */
 }
-.spinEdit > input:first-of-type {
-	/* flex-shrink: 1;
-	flex-basis: auto; */
-	/* flex-basis: content; */
+/* .spinEdit > input:first-of-type {
+	flex-basis: ;
 	vertical-align: text-top;
-}
+} */
 
 .spinEdit:has(.buttonsArea) input:first-of-type {
 	appearance: textfield;
@@ -73,6 +59,9 @@
 }
 
 .spinEdit .buttonsArea {
+	background-color: ButtonFace;
+	color: ButtonText;
+
 	user-select: none;
 	flex-basis: content;
 	flex-shrink: 0.25;

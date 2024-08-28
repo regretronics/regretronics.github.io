@@ -361,7 +361,7 @@ function primeCountChanged() {
 	if(!window.txtPrimeCount) return false;
 	primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
 	if(primeCount < 2) primeCount = 2;
-	if(window.outPrimeList) outPrimeList.innerText = "(" + primes.slice(0, primeCount).join(",") + ")";
+	if(window.outPrimeList) outPrimeList.innerText = "[" + primes.slice(0, primeCount).join(" ") + "]";
 }
 
 const defaultRootFreq = 440;

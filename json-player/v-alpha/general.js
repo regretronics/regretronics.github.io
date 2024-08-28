@@ -177,14 +177,13 @@ function parseNumber(n) {
 	return NaN;
 }
 
-const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 const timeDisplPrecision = 2;
 
 //look-up table to be used in an aspect of the volume envelope
 var releaseCurve;
 const releaseCurveSize = 8192;
 
-//variability per prime factor (2, 3, 5, 7, ...)
+//variability per prime factor (2, 3, 5, 7, ...); array of numbers.
 var maxPitches = null;
 
 function docLoaded() {
@@ -291,18 +290,25 @@ function pageLoaded() {
 	addIntervalSamples();
 
 	loadEventHandlers();
-	{
+	window.loadPreferences?.();
+	adjustingPreferences = true;
+	try {
+		const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
 		const evt = new Event("input");
 		for(const s of expSpinners) window[s].dispatchEvent(evt);
+	} finally {
+		adjustingPreferences = false;
 	}
-	window.loadPreferences?.();
 	window.primeCountChanged?.();
 	window.rhythmFactorsChanged?.();
 	window.initSpinControls?.();
+	for(let s of document.querySelectorAll('label[for]'))
+		//s.title = document.getElementById(s.htmlFor).title ?? "";
+		s.title = s.control.title ?? "";
 
 	//just eye candy
-	if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-		const evt = new Event("scroll");
+	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+		/* const evt = new Event("scroll");
 		document.addEventListener("scroll", scrollUpdate);
 		//document.addEventListener("resize", resizeUpdate);
 		document.dispatchEvent(evt);
@@ -311,7 +317,7 @@ function pageLoaded() {
 			elem.addEventListener("scroll", scrollUpdate);
 			//elem.addEventListener("resize", resizeUpdate);
 			elem.dispatchEvent(evt);
-		}
+		} */
 		//window.setInterval(hueAnimation, 150);
 		/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
 			const bars = "▁▂▃▄▅▆▇█";
@@ -319,7 +325,7 @@ function pageLoaded() {
 			for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
 			document.title = s + " JSON music";
 		}, 200);*/
-	}
+	//}
 }
 
 function overflowToggle(event) {
