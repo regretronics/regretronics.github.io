@@ -103,7 +103,7 @@ input[type=checkbox] + label {
 	width: 0.125em;
 	height: 100%;
 	background-color: GrayText;
-	opacity: 0.5;
+	/* opacity: 0.5; */
 }
 :not(.cell) > .separator {
 	/* border-inline-start-style: groove;
@@ -128,6 +128,7 @@ wbr + .separator {
 .tool-tip {
 	font-style: italic;
 
+	z-index: 256;
 	/*position: sticky;*/
 	bottom: 0em;
 	padding-block: 1em;

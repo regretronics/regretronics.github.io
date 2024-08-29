@@ -65,11 +65,14 @@ strong {
 	color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
 }
 
-noscript {
+noscript, #translationWarning {
 	color: hsl(0, 100%, 87.5%);
 }
 hr {
 	border-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
+}
+.separator {
+	background-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
 }
 table, caption {
 	background-color: hsla(0, 0%, 50%, 0.25);

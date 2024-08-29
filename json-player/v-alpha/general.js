@@ -266,9 +266,11 @@ function loadEventHandlers() {
 
 	for(const elem of document.getElementsByClassName("codeEditor")) {
 		elem.addEventListener("keydown", editorKeyDown);
+		elem.addEventListener("paste", editorPaste);
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}
+	//window.addEventListener("paste", editorPaste);
 
 	{
 		const main1 = document.getElementsByTagName("main")[0];
@@ -310,7 +312,13 @@ function pageLoaded() {
 	for(let s of document.querySelectorAll('.cell:not(:first-of-type)')) {
 		const separator = document.createElement("span");
 		separator.classList.add("separator");
+
 		//s.parentElement.insertBefore(separator, s);
+		//s.insertBefore(separator, s.firstElementChild);
+		//remove unwanted white space that could affect spacing
+		const first = s.firstChild;
+		if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
+			s.removeChild(first);
 		s.insertBefore(separator, s.firstChild);
 	}
 	//
@@ -504,6 +512,16 @@ function editorKeyDown(event) {
 			document.execCommand("insertText", false, "\t");
 	}
 	//to do: home key goes past initial indentation?
+}
+function editorPaste(event) {
+	event.preventDefault();
+
+	let paste = (event.clipboardData || window.clipboardData).getData("text");
+	const selection = window.getSelection();
+	if (!selection.rangeCount) return;
+	selection.deleteFromDocument();
+	selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+	selection.collapseToEnd();
 }
 function editorInput(event) {
 	if(!event || !event.target || !event.target.classList) return false;
