@@ -44,117 +44,16 @@
 	//to do: use defer="true" or async in any script tag?
 	"use strict";
 
-	function pageLoaded() {
-		docLoaded();
-		for(const elem of document.querySelectorAll("input.exp"))
-			elem.addEventListener("input", expSpinnerChanged);
-
-		btnTextShrink.addEventListener("click", rescaleText);
-		btnTextEnlarge.addEventListener("click", rescaleText);
-		//cboPageTheme.addEventListener("click", themeChanged); //click only works via mouse. doesn't work well in G. Chrome.
-		//cboPageTheme.addEventListener("focus", themeChanged); //doesn't work well in G. Chrome.
-		cboPageTheme.addEventListener("input", themeChanged); //working: change, input. inappropriate: toggle, select, selectionchange.
-		btnHueFine1.addEventListener("click", btnHueClick);
-		btnHueFine2.addEventListener("click", btnHueClick);
-
-		txtBaseFreq.addEventListener("input", baseFreqChanged);
-		txtPrimeCount.addEventListener("input", primeCountChanged);
-
-		btnRhythmFactorsGen.addEventListener("click", btnRhythmFactorsGenClick);
-		txtRhythmFactors.addEventListener("input", rhythmFactorsChanged);
-
-		btnChordGen.addEventListener("click", btnChordGenClick);
-		btnRhythmGen.addEventListener("click", btnRhythmGenClick);
-		btnMelodyGen.addEventListener("click", btnMelodyGenClick);
-
-		btnStructDownload.addEventListener("click", structDownload);
-		//btnOverflowToggle1.addEventListener("click", overflowToggle);
-		//btnLineWrapToggle1.addEventListener("click", lineWrapToggle);
-		chkOverflow1.addEventListener("click", overflowToggle);
-		chkLineWrap1.addEventListener("click", lineWrapToggle);
-		ctlStructuredScript.addEventListener("input", scriptChanged);
-
-		btnFlattenStruct.addEventListener("click", flattenStruct);
-		chkAutoFlatten.addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
-		//btnOverflowToggle2.addEventListener("click", overflowToggle);
-		//btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
-		chkOverflow2.addEventListener("click", overflowToggle);
-		chkLineWrap2.addEventListener("click", lineWrapToggle);
-		ctlFlatScript.addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
-
-		txtPlayFreqScale.addEventListener("input", playFreqScaleChanged);
-		txtPlayVolScale.addEventListener("input", playVolScaleChanged);
-
-		btnPlay.addEventListener("click", loadAndPlay);
-		btnPause.addEventListener("click", pauseToggle);
-		btnStop.addEventListener("click", btnStopClick);
-
-		btnAudioExport.addEventListener("click", audioExport);
-		btnAudioExportCancel.addEventListener("click", audioExportCancel);
-
-		btnResetPreferences.addEventListener("click", btnResetPreferencesClick);
-
-		ctlStructuredScript.innerText = defStructuredCode;
-		ctlFlatScript.innerText = defFlattenedCode;
-		{
-			const evt = new Event("input");
-			for(const s of expSpinners) window[s].dispatchEvent(evt);
-		}
-		for(const elem of document.querySelectorAll("[data-pref]"))
-			elem.addEventListener("input", saveInputValue);
-		loadPreferences();
-		primeCountChanged();
-		rhythmFactorsChanged();
-
-		for(const elem of document.getElementsByClassName("codeEditor")) {
-			elem.addEventListener("keydown", editorKeyDown);
-			//elem.addEventListener("keyup", recalcEditorCursorPos);
-			//elem.addEventListener("click", recalcEditorCursorPos);
-		}
-
-		//const toolTipDomains = ["body>main", "body>section"];
-		const toolTipDomains = ["body>main", "#tblFractionIntervals"];
-		const toolTipHandlers = [event => setToolTip(event, outToolTip),
-			event => setToolTip(event, outToolTip2)];
-		for(const i in toolTipDomains)
-			addToolTipHandler(toolTipDomains[i], toolTipHandlers[i]);
-
-		window.initSpinControls?.();
-
-		window.addIntervalSamples?.();
-
-		//just eye candy
-		if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-			const evt = new Event("scroll");
-			document.addEventListener("scroll", scrollUpdate);
-			//document.addEventListener("resize", resizeUpdate);
-			document.dispatchEvent(evt);
-			//for(const elem of document.querySelectorAll("body>.major-section")) {
-			for(const elem of document.getElementsByClassName("major-section")) {
-				elem.addEventListener("scroll", scrollUpdate);
-				//elem.addEventListener("resize", resizeUpdate);
-				elem.dispatchEvent(evt);
-			}
-			//window.setInterval(hueAnimation, 150);
-			/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
-				const bars = "▁▂▃▄▅▆▇█";
-				let s = "";
-				for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
-				document.title = s + " JSON music";
-			}, 200);*/
-		}
-	}
-
 	//window.addEventListener("load", pageLoaded);
 	window.addEventListener("DOMContentLoaded", pageLoaded);
 	if(location.pathname.split("/").slice(-2)[0] != "json-player") document.title = "JSON music (unstable)";
 	/*]]>*/</script>
 </head>
-<body><!--<div id="wrapper">-->
+<body>
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
 	<main class="major-section" hidden="">
 		<div class="flex-row align-top">
-			<h1 style="flex-basis: 24ch;">
+			<h1 style="flex-basis: 24ch;" translate="no">
 				<picture id="title-icon">
 					<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
 					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
@@ -180,12 +79,12 @@
 						<option>Light, high contrast</option>
 					</select></span>
 				<span class="cell"><strong>Hue shift:</strong> 
-					<button id="btnHueFine1" data-delta="-1">MBCGYR</button>
-					<button id="btnHueFine2" data-delta="1">RYGCBM</button></span>
+					<button id="btnHueFine1" data-delta="-1" translate="no">MBCGYR</button>
+					<button id="btnHueFine2" data-delta="1" translate="no">RYGCBM</button></span>
 			</span>
 		</div>
+		<div id="translationWarning" hidden="">Machine translation detected. This page doesn't run well under automatic translation, unfortunately.</div>
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
-		<!--to do: review all tool tips for compatibility with the status bar, e.g. "the editor below"-->
 		<p><strong>Generator&nbsp;params.:</strong> 
 			<datalist id="tunings">
 				<option value="256" />
@@ -204,22 +103,22 @@
 				<input type="number" id="txtBaseFreq" value="440" class="exp customSpin" list="tunings" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></span><wbr />
 			<!--to do: consider negative time scale values-->
 			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp customSpin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="7" /></span><wbr />
+				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp customSpin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" /></span><wbr />
 			<span class="cell"><label for="txtPatternCount">patterns</label>
 				<input type="number" id="txtPatternCount" value="4" step="1" min="1" class="customSpin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></span><wbr />
 			<span class="cell"><label for="txtPrimeCount">prime&nbsp;factors&nbsp;(oddity)</label>
-				<input type="number" id="txtPrimeCount" value="3" min="2" step="1" max="15" class="customSpin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators." size="3" /></span>
-			<output id="outPrimeList" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output><wbr />
+				<input type="number" id="txtPrimeCount" value="3" min="2" step="0.5" max="15" class="customSpin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></span>
+			<output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output><wbr />
 			<span class="cell"><label for="txtExpVariance">tone&nbsp;(exponent)&nbsp;depth</label>
-				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" class="customSpin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="6" /></span>
+				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" class="customSpin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="5" /></span>
 		</p>
 		<p><strong>Rhythm:</strong> 
 			<span class="cell"><label for="txtRhythmScale">approx. scale</label>
 				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" class="customSpin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" /></span>
 			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
 			<span class="cell"><label for="txtRhythmFactors">structure</label>
-				<input type="text" id="txtRhythmFactors" value="2*2*2" data-pref="rhythmParams.rhythmFactors" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></span>
-			<output id="outRhythmScales" title="Cascade of rhythmic scales">1</output>
+				<input type="text" id="txtRhythmFactors" value="2*2*2" data-pref="rhythmParams.rhythmFactors" translate="no" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></span>
+			<output id="outRhythmScales" translate="no" title="Cascade of rhythmic scales">1</output>
 		</p>
 		<p><strong>Additional&nbsp;gen.&nbsp;params.:</strong> 
 			<span class="cell"><label for="txtVoiceCount">voices</label>
@@ -232,19 +131,26 @@
 		</p>
 		<p class="flex-row">
 			<span style="flex-basis: 52ch;"><strong>Structured&nbsp;music:</strong> 
-				<button id="btnChordGen" accesskey="c" title="Chord generator">Make <u>c</u>hords</button>
-				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator">Make <u>r</u>hythm</button>
-				<button id="btnMelodyGen" accesskey="m" title="Melody generator">Make <u>m</u>elody</button>
+				<button id="btnChordGen" accesskey="c" translate="no" title="Chord generator">Make <u>c</u>hords</button>
+				<button id="btnRhythmGen" accesskey="r" translate="no" title="Rhythm generator">Make <u>r</u>hythm</button>
+				<button id="btnMelodyGen" accesskey="m" translate="no" title="Melody generator">Make <u>m</u>elody</button>
 			</span> <wbr />
 			<span class="right" style="flex-basis: 40ch;">
-				<a id="aStructDownload" href="" hidden=""></a>
-				<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
-				<input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1">Overflow</label>
-				<!-- <button id="btnOverflowToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below.">Toggle overflow</button> -->
-				<input id="chkLineWrap1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap1">Line wrapping</label>
-				<!-- <button id="btnLineWrapToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button> -->
+				<span class="cell">
+					<button id="btnStructImport" accesskey="v" translate="no" title="Allows you to choose a local file to import for structured music."><u>O</u>pen file</button>
+					<a id="aStructDownload" href="" hidden=""></a>
+					<button id="btnStructDownload" accesskey="v" translate="no" title="Offers the structured format as a file to save locally.">Sa<u>v</u>e file</button>
+				</span>
+				<span class="cell">
+					<input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1">Overflow</label>
+					<!-- <button id="btnOverflowToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below.">Toggle overflow</button> -->
+					<input id="chkLineWrap1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap1">Line wrapping</label>
+					<!-- <button id="btnLineWrapToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button> -->
+				</span>
 			</span>
 		</p>
+		<!-- the form here is necessary so that the file control can be reset (cleared). then I had to put it outside of paragraphs to not break layout. -->
+		<form id="importForm" hidden=""><input type="file" id="inFile" accept=".mus.json,application/json,text/plain" hidden="" /></form>
 		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></textarea></p>-->
 		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></pre>
 		<p class="flex-row">
@@ -263,25 +169,25 @@
 		<p><strong>Overall&nbsp;controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
 			<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
-				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" /></span><wbr />
 			<span class="cell"><label for="txtPlayVolScale">volume</label>
-				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.volScale" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" /></span><wbr />
 			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="7" /></span> <wbr />
+				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" /></span><wbr />
 			<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(skip vs. lead-in) (s)</label>
-				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="customSpin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="7" /></span>
+				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="customSpin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" /></span>
 		</p>
 		<p class="flex-row">
 			<span style="flex-basis: 48ch;"><strong>Player:</strong> 
-				<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
-				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
-				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
+				<span class="cell"><button id="btnPlay" accesskey="l" translate="no" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
+				<button id="btnPause" accesskey="p" translate="no" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
+				<button id="btnStop" accesskey="s" translate="no" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button></span><wbr />
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" data-pref="player.autoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." /><label for="chkAutoReload">Auto-reload</label></span>
-				<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
+				<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" translate="no" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" translate="no" title="Total duration">0</output>&nbsp;s.</span>
 			</span>
 			<span class="right" style="flex-basis: 12ch;">
-				<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount">0</output>.</span>
-				<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount">0</output>.</span>
+				<span class="cell">Note&nbsp;count: <wbr /><output id="outNoteCount" translate="no">0</output>.</span>
+				<span class="cell">Loaded&nbsp;generators: <wbr /><output id="outGenCount" translate="no">0</output>.</span>
 			</span>
 		</p>
 
@@ -313,9 +219,9 @@
 				<a id="aAudioDownload" href="" hidden=""></a>
 				<button id="btnAudioExport">Export</button>
 				<button id="btnAudioExportCancel">Cancel</button>
-				<span class="cell">Format choosen: <wbr /><code><output id="outExportFormat"></output></code>.</span>
-				<span class="cell">Clip duration: <wbr /><output id="outExportDuration">0</output> s.</span>
-				<span class="cell">Progress: <wbr /><output id="outExportProgress">0%</output>.</span>
+				<span class="cell">Format choosen: <wbr /><code><output id="outExportFormat" translate="no"></output></code>.</span>
+				<span class="cell">Clip duration: <wbr /><output id="outExportDuration" translate="no">0</output> s.</span>
+				<span class="cell">Progress: <wbr /><output id="outExportProgress" translate="no">0%</output>.</span>
 			</p>
 		</details>
 
@@ -366,229 +272,229 @@
 					</thead>
 					<tbody>
 						<tr title="Perfect unison">
-							<td><a href="https://en.wikipedia.org/wiki/Unison">1<wbr />/1</a></td>
-							<td>2<sup>0</sup></td>
-							<td>0.000</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Unison">1<wbr />/1</a></td>
+							<td translate="no">2<sup>0</sup></td>
+							<td translate="no">0.000</td>
 							<td>(Perfect) unison</td>
 							<td>Most consonant, but not always considered an interval.</td>
 						</tr>
 						<tr title="Perfect octave">
-							<td><a href="https://en.wikipedia.org/wiki/Octave">2<wbr />/1</a></td>
-							<td>2<sup>1</sup></td>
-							<td>12.000</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Octave">2<wbr />/1</a></td>
+							<td translate="no">2<sup>1</sup></td>
+							<td translate="no">12.000</td>
 							<td>(Perfect) octave</td>
 							<td>So consonant it can be hard to tell the notes apart, depending on the instrument.</td>
 						</tr>
 						<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
 						<tr title="Just perfect fifth">
-							<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fifth">3<wbr />/2</a></td>
-							<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup></td>
-							<td>7.020</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_perfect_fifth">3<wbr />/2</a></td>
+							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>1</sup></td>
+							<td translate="no">7.020</td>
 							<td>(Perfect) fifth</td>
 							<td rowspan="2">Still sounds very basic.</td>
 						</tr>
 						<tr title="Just perfect fourth">
-							<td><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4<wbr />/3</a></td>
-							<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup></td>
-							<td>4.980</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4<wbr />/3</a></td>
+							<td translate="no">2<sup>2</sup> <wbr />3<sup>&minus;1</sup></td>
+							<td translate="no">4.980</td>
 							<td>(Perfect) fourth</td>
 						</tr>
 						<tr title="Major tone">
-							<td><a href="https://en.wikipedia.org/wiki/Major_tone">9<wbr />/8</a></td>
-							<td>2<sup>&minus;3</sup> <wbr />3<sup>2</sup></td>
-							<td>2.039</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Major_tone">9<wbr />/8</a></td>
+							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>2</sup></td>
+							<td translate="no">2.039</td>
 							<td>Major second</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Pythagorean minor seventh">
-							<td><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16<wbr />/9</a></td>
-							<td>2<sup>4</sup> <wbr />3<sup>&minus;2</sup></td>
-							<td>9.961</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16<wbr />/9</a></td>
+							<td translate="no">2<sup>4</sup> <wbr />3<sup>&minus;2</sup></td>
+							<td translate="no">9.961</td>
 							<td>Minor seventh</td>
 						</tr>
 						<tr><th colspan="5">5-limit (Ptolemaic) harmony</th></tr>
 						<tr title="Just major third">
-							<td><a href="https://en.wikipedia.org/wiki/Just_major_third">5<wbr />/4</a></td>
-							<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
-							<td>3.863</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_major_third">5<wbr />/4</a></td>
+							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
+							<td translate="no">3.863</td>
 							<td>Major third</td>
 							<td rowspan="2">Often used in "good-mood" musical phrases.</td>
 						</tr>
 						<tr title="Just minor sixth">
-							<td><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
-							<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
-							<td>8.137</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
+							<td translate="no">2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td translate="no">8.137</td>
 							<td>Minor sixth</td>
 						</tr>
 						<tr title="Just major sixth">
-							<td><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
-							<td>2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
-							<td>8.844</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
+							<td translate="no">2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
+							<td translate="no">8.844</td>
 							<td>Major sixth</td>
 							<td rowspan="2">Used as a "sad" replacement for 5/4 and 8/5.</td>
 						</tr>
 						<tr title="Just minor third">
-							<td><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>
-							<td>2<sup>1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup></td>
-							<td>3.156</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>
+							<td translate="no">2<sup>1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td translate="no">3.156</td>
 							<td>Minor third</td>
 						</tr>
 						<tr title="Just major seventh">
-							<td><a href="https://en.wikipedia.org/wiki/Just_major_seventh">15<wbr />/8</a></td>
-							<td>2<sup>&minus;3</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup></td>
-							<td>10.883</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_major_seventh">15<wbr />/8</a></td>
+							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup></td>
+							<td translate="no">10.883</td>
 							<td>Major seventh</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Just diatonic semitone">
-							<td><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16<wbr />/15</a></td>
-							<td>2<sup>4</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup></td>
-							<td>1.117</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16<wbr />/15</a></td>
+							<td translate="no">2<sup>4</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td translate="no">1.117</td>
 							<td>Semitone</td>
 						</tr>
 						<tr title="Minor tone">
-							<td><a href="https://en.wikipedia.org/wiki/Minor_tone">10<wbr />/9</a></td>
-							<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>1</sup></td>
-							<td>1.824</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Minor_tone">10<wbr />/9</a></td>
+							<td translate="no">2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>1</sup></td>
+							<td translate="no">1.824</td>
 							<td>Major second</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Large just minor seventh">
-							<td><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9<wbr />/5</a></td>
-							<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;1</sup></td>
-							<td>10.176</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9<wbr />/5</a></td>
+							<td translate="no">2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;1</sup></td>
+							<td translate="no">10.176</td>
 							<td>Minor seventh</td>
 						</tr>
 						<tr title="Just augmented fifth">
-							<td><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25<wbr />/16</a></td>
-							<td>2<sup>&minus;4</sup> <wbr />3<sup>0</sup> <wbr />5<sup>2</sup></td>
-							<td>7.726</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_augmented_fifth">25<wbr />/16</a></td>
+							<td translate="no">2<sup>&minus;4</sup> <wbr />3<sup>0</sup> <wbr />5<sup>2</sup></td>
+							<td translate="no">7.726</td>
 							<td>Minor sixth</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Just diminished fourth">
-							<td><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32<wbr />/25</a></td>
-							<td>2<sup>5</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;2</sup></td>
-							<td>4.274</td>
+							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32<wbr />/25</a></td>
+							<td translate="no">2<sup>5</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;2</sup></td>
+							<td translate="no">4.274</td>
 							<td>Major third</td>
 						</tr>
 						<tr title="Just chromatic semitone">
-							<td><a href="https://en.wikipedia.org/wiki/Just_chromatic_semitone">25<wbr />/24</a></td>
-							<td>2<sup>&minus;3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>2</sup></td>
-							<td>0.707</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_chromatic_semitone">25<wbr />/24</a></td>
+							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>2</sup></td>
+							<td translate="no">0.707</td>
 							<td>Semitone</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Diminished octave">
-							<td><a href="https://en.wikipedia.org/wiki/Diminished_octave">48<wbr />/25</a></td>
-							<td>2<sup>4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;2</sup></td>
-							<td>11.293</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Diminished_octave">48<wbr />/25</a></td>
+							<td translate="no">2<sup>4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;2</sup></td>
+							<td translate="no">11.293</td>
 							<td>Major seventh</td>
 						</tr>
 						<tr title="Classic augmented fourth">
-							<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+augmented+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">25<wbr />/18</a></td>
-							<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>2</sup></td>
-							<td>5.687</td>
+							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+augmented+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">25<wbr />/18</a></td>
+							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>2</sup></td>
+							<td translate="no">5.687</td>
 							<td>Tritone</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Classic diminished fifth">
-							<td><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36<wbr />/25</a></td>
-							<td>2<sup>2</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;2</sup></td>
-							<td>6.313</td>
+							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36<wbr />/25</a></td>
+							<td translate="no">2<sup>2</sup> <wbr />3<sup>2</sup> <wbr />5<sup>&minus;2</sup></td>
+							<td translate="no">6.313</td>
 							<td>Tritone</td>
 						</tr>
 						<tr><th colspan="5">7-limit (septimal) harmony</th></tr>
 						<tr title="Harmonic seventh">
-							<td><a href="https://en.wikipedia.org/wiki/Harmonic_seventh">7<wbr />/4</a></td>
-							<td>2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-							<td>9.688</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Harmonic_seventh">7<wbr />/4</a></td>
+							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td translate="no">9.688</td>
 							<td>Minor seventh</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Septimal whole tone">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8<wbr />/7</a></td>
-							<td>2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-							<td>2.312</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8<wbr />/7</a></td>
+							<td translate="no">2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td translate="no">2.312</td>
 							<td>Major second</td>
 						</tr>
 						<tr title="Septimal minor third">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_third">7<wbr />/6</a></td>
-							<td>2<sup>&minus;1</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-							<td>2.669</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_minor_third">7<wbr />/6</a></td>
+							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td translate="no">2.669</td>
 							<td></td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Septimal major sixth">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12<wbr />/7</a></td>
-							<td>2<sup>2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-							<td>9.331</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12<wbr />/7</a></td>
+							<td translate="no">2<sup>2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td translate="no">9.331</td>
 							<td></td>
 						</tr>
 						<tr title="Septimal narrow fourth">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_narrow_fourth">21<wbr />/16</a></td>
-							<td>2<sup>&minus;4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-							<td>4.708</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_narrow_fourth">21<wbr />/16</a></td>
+							<td translate="no">2<sup>&minus;4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td translate="no">4.708</td>
 							<td>(Perfect) fourth</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diminished sixth">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32<wbr />/21</a></td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32<wbr />/21</a></td>
 							<!--alternative name: wide fifth-->
-							<td>2<sup>5</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-							<td>7.292</td>
+							<td translate="no">2<sup>5</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td translate="no">7.292</td>
 							<td>(Perfect) fifth</td>
 						</tr>
 						<tr title="Septimal minor sixth">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_minor_sixth">14<wbr />/9</a></td>
-							<td>2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
-							<td>7.649</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_minor_sixth">14<wbr />/9</a></td>
+							<td translate="no">2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
+							<td translate="no">7.649</td>
 							<td></td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Septimal major third">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9<wbr />/7</a></td>
-							<td>2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
-							<td>4.351</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9<wbr />/7</a></td>
+							<td translate="no">2<sup>0</sup> <wbr />3<sup>2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td translate="no">4.351</td>
 							<td></td>
 						</tr>
 						<tr title="Huygens' tritone">
-							<td><a href="https://en.wikipedia.org/wiki/Huygens%27_tritone">7<wbr />/5</a></td>
-							<td>2<sup>0</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
-							<td>5.825</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Huygens%27_tritone">7<wbr />/5</a></td>
+							<td translate="no">2<sup>0</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
+							<td translate="no">5.825</td>
 							<td>Tritone</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Euler's tritone">
-							<td><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10<wbr />/7</a></td>
-							<td>2<sup>1</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
-							<td>6.175</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10<wbr />/7</a></td>
+							<td translate="no">2<sup>1</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td translate="no">6.175</td>
 							<td>Tritone</td>
 						</tr>
 						<tr title="Septimal chromatic semitone">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_chromatic_semitone">21<wbr />/20</a></td>
-							<td>2<sup>&minus;2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
-							<td>0.845</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_chromatic_semitone">21<wbr />/20</a></td>
+							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
+							<td translate="no">0.845</td>
 							<td>Semitone</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diminished octave">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave" title="Alternative name: acute major seventh">40<wbr />/21</a></td>
-							<td>2<sup>3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
-							<td>11.155</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave" title="Alternative name: acute major seventh">40<wbr />/21</a></td>
+							<td translate="no">2<sup>3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td translate="no">11.155</td>
 							<td>Major seventh</td>
 						</tr>
 						<tr title="Grave major seventh">
-							<td><a href="https://en.wikipedia.org/w/index.php?search=%2228%2F15%22+music+interval&title=Special:Search&profile=advanced&fulltext=1&ns0=1" title="Alternative name: grave major seventh (means a different interval in Wikipedia)">28<wbr />/15</a></td>
-							<td>2<sup>2</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
-							<td>10.806</td>
+							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%2228%2F15%22+music+interval&title=Special:Search&profile=advanced&fulltext=1&ns0=1" title="Alternative name: grave major seventh (means a different interval in Wikipedia)">28<wbr />/15</a></td>
+							<td translate="no">2<sup>2</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
+							<td translate="no">10.806</td>
 							<td>Major seventh</td>
 							<td rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diatonic semitone">
-							<td><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15<wbr />/14</a></td>
-							<td>2<sup>&minus;1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
-							<td>1.194</td>
+							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15<wbr />/14</a></td>
+							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup> <wbr />7<sup>&minus;1</sup></td>
+							<td translate="no">1.194</td>
 							<td>Semitone</td>
 						</tr>
 						<tr>
@@ -804,5 +710,5 @@
 			<p>I'm still waiting for your feedback! Thanks.</p>
 		</footer>
 	</section>
-<!--</div>--></body>
+</body>
 </html>

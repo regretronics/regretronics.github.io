@@ -125,6 +125,7 @@ function flattenStruct() {
 			struct = JSON.parse(ctlStructuredScript.innerText);
 		ctlStructuredScript.classList.remove("invalid");
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
+
 		const flatStruct = [];
 		if(Array.isArray(struct)) {
 			for(const elem of struct)
@@ -163,6 +164,7 @@ function setStructuredText(s) {
 			ctlStructuredScript.value = s;
 		else
 			ctlStructuredScript.innerText = s;
+		saveControlPreference(ctlStructuredScript);
 	}
 	if(autoFlatten) flattenStruct();
 }
@@ -179,8 +181,6 @@ function scriptChanged() {
 	}
 	if(autoFlatten)
 		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
-
-	//prepareDownload();
 }
 
 function setAutoFlatten(value) {

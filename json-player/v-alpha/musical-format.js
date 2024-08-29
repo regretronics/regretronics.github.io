@@ -125,7 +125,6 @@ function flattenStruct() {
 			struct = JSON.parse(ctlStructuredScript.innerText);
 		ctlStructuredScript.classList.remove("invalid");
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
-		//
 
 		const flatStruct = [];
 		if(Array.isArray(struct)) {
