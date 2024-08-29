@@ -53,6 +53,7 @@ function spinEditTimer(spinEdit, pointerId) {
 
 function spinEditPointerDown(event) {
 	if(!event?.target) return;
+	if(event.button != 0) return;
 	const buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttonsArea") ?
 	if(!buttonsArea) return;
 
@@ -127,6 +128,7 @@ function initSpinControls() {
 			txtControl.parentElement.insertBefore(spinEdit, null);
 			spinEdit.insertBefore(txtControl, null);
 		}
+		spinEdit.translate = false;
 
 		let buttonsArea = spinEdit.querySelector(".buttonsArea");
 		if(!buttonsArea) {
@@ -134,6 +136,7 @@ function initSpinControls() {
 			buttonsArea.classList.add("buttonsArea");
 			spinEdit.insertBefore(buttonsArea, null);
 		}
+		//buttonsArea.translate = false;
 
 		let btnDec = spinEdit.querySelector(".btnDec");
 		if(!btnDec) {
