@@ -169,19 +169,19 @@
 		<p><strong>Overall&nbsp;controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
 			<span class="cell"><label for="txtPlayFreqScale">freq./tuning</label>
-				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" /></span> <wbr />
+				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" /></span><wbr />
 			<span class="cell"><label for="txtPlayVolScale">volume</label>
-				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" /></span> <wbr />
+				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" /></span><wbr />
 			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" /></span> <wbr />
+				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" /></span><wbr />
 			<span class="cell"><label for="txtPlayTimeDelta">time&nbsp;delta&nbsp;(skip vs. lead-in) (s)</label>
 				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="customSpin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" /></span>
 		</p>
 		<p class="flex-row">
 			<span style="flex-basis: 48ch;"><strong>Player:</strong> 
-				<button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
+				<span class="cell"><button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><u>L</u>oad and play</button>
 				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><u>P</u>ause</button>
-				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button><wbr />
+				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><u>S</u>top and unload</button></span><wbr />
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" data-pref="player.autoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." /><label for="chkAutoReload">Auto-reload</label></span>
 				<span class="cell">Play&nbsp;time: <wbr /><output id="outAudioT" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 			</span>

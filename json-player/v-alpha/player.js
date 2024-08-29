@@ -588,6 +588,7 @@ function loadAndPlay() {
 	playerClip.noiseBuffer = noiseBuffer;
 	playerClip.onClipEnd = playerClipEnd;
 
+	//to do: don't include empty remark nodes.
 	if(window.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
 	if(window.outAudioDur) outAudioDur.innerText = playerClip.duration.toFixed(timeDisplPrecision);
 	if(playerClip.flatStruct.length <= 0)

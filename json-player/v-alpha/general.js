@@ -306,6 +306,15 @@ function pageLoaded() {
 		//s.title = document.getElementById(s.htmlFor).title ?? "";
 		s.title = s.control.title ?? "";
 
+	//control separators
+	for(let s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+		const separator = document.createElement("span");
+		separator.classList.add("separator");
+		//s.parentElement.insertBefore(separator, s);
+		s.insertBefore(separator, s.firstChild);
+	}
+	//
+
 	//just eye candy
 	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
 		/* const evt = new Event("scroll");
