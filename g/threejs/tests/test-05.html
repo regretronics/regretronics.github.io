@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
+	<title>Three.js test</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+		background-color: canvas;
+		color: canvastext;
+	}
+	body {
+		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	}
+
+	#c {
+		border-style: solid;
+		border-width: 0.25em;
+		border-color: gray;
+
+		box-sizing: border-box;
+		width: 768px;
+		max-width: 100%;
+	}
+	/*]]>*/</style>
+	<!-- <script  type="importmap">{
+		"imports": {
+			"three": "https://threejs.org/build/three.module.js"
+		}
+	}</script> -->
+</head>
+<body>
+	<p><canvas id="c" width="768" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></p>
+	<!-- <script type="module" src="main.js"></script> -->
+	<script id="FS1" type="x-shader/x-fragment">
+		#include <common>
+		#include <packing>
+
+		//uniform vec3 iResolution;
+		//uniform float iTime;
+		uniform sampler2D target0;
+		uniform sampler2D target0depth;
+		//uniform sampler2DShadow target0depth;
+
+		/*// NOTE: viewZ, the z-coordinate in camera space, is negative for points in front of the camera
+
+		float viewZToOrthographicDepth( const in float viewZ, const in float near, const in float far ) {
+			// -near maps to 0; -far maps to 1
+			return ( viewZ + near ) / ( near - far );
+		}
+
+		float orthographicDepthToViewZ( const in float depth, const in float near, const in float far ) {
+			// maps orthographic depth in [ 0, 1 ] to viewZ
+			return depth * ( near - far ) - near;
+		}
+
+		// NOTE: https://twitter.com/gonnavis/status/1377183786949959682
+
+		float viewZToPerspectiveDepth( const in float viewZ, const in float near, const in float far ) {
+			// -near maps to 0; -far maps to 1
+			return ( ( near + viewZ ) * far ) / ( ( far - near ) * viewZ );
+		}
+
+		float perspectiveDepthToViewZ( const in float depth, const in float near, const in float far ) {
+			// maps perspective depth in [ 0, 1 ] to viewZ
+			return ( near * far ) / ( ( far - near ) * depth - far );
+		}*/
+
+		#define near 0.1
+		#define far 3.0
+
+		void main() {
+			//gl_FragColor = vec4(1, 1, 1, 0.5);
+			//float z = gl_FragCoord.z / near - 9.0;
+			//float z = 1.0 / near - gl_FragCoord.z / near;
+			//float z = 1.0 / near - texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0).x / near;
+			float z = (gl_FragCoord.z - texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0).x) / near;
+			//float z = gl_FragDepth / 0.00001 + 0.5;
+			//float z = gl_FragCoord.w;
+			//z = gl_FragCoord.w - z;
+
+			//gl_FragColor = vec4(z, z, z, 1.0);
+			//gl_FragColor.rgb = vec3(z);
+			gl_FragColor = texelFetch(target0, ivec2(gl_FragCoord.xy), 0) * (1.0 - exp2(-z));
+			//gl_FragColor.a = 0.875;
+			/*if(gl_FrontFacing) {
+				gl_FragColor.rgb = vec3(z);
+				gl_FragColor.a = 0.25;
+			} else {
+				gl_FragColor.rgb = vec3(1.0, 0.5, 0.0) * vec3(z);
+				gl_FragColor.a = 1.0;
+			}*/
+			//gl_FragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0);
+			//gl_FragColor = texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0);
+			gl_FragColor.a = 1.0;
+		}
+	</script>
+	<script type="module">
+	"use strict";
+	import * as THREE from 'three';
+
+	var material0, uniforms1, material1;
+
+	function main() {
+		window.canvas = document.querySelector('#c');
+		window.renderer = new THREE.WebGLRenderer({/* antialias: true, */ /* stencil: true, */ depth: true, canvas});
+		//renderer.autoClearColor = false;
+		//renderer.setTransparentSort(null);
+		window.camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 3);
+
+		window.scene = new THREE.Scene();
+		window.geometry = new THREE.BoxGeometry(1, 1, 1);
+
+		material0 = new THREE.MeshBasicMaterial({
+			color: 0xff8000,
+			//side: THREE.DoubleSide,
+			//side: THREE.BackSide,
+			//transparent: true,
+			//opacity: 1.0
+		});
+
+		window.mesh = new THREE.Mesh(geometry, material0);
+		scene.add(mesh);
+		camera.position.z = 2;
+
+		//new THREE.Vector2()
+		//renderer.getDrawingBufferSize
+		window.target0 = new THREE.WebGLRenderTarget(canvas.width, canvas.height, {format: THREE.RGBAFormat, type: THREE.FloatType, depthBuffer: true});
+		target0.depthTexture = new THREE.DepthTexture();
+		target0.depthTexture.format = THREE.DepthFormat;
+		target0.depthTexture.type = THREE.FloatType;
+
+		uniforms1 = {
+			//iTime: { value: 0 },
+			//iResolution: { value: new THREE.Vector3() },
+			target0: { value: target0.texture },
+			target0depth: { value: target0.depthTexture },
+		};
+		material1 = new THREE.ShaderMaterial({
+			fragmentShader: document.getElementById("FS1").textContent.trim(),
+			uniforms: uniforms1,
+			//side: THREE.DoubleSide,
+			side: THREE.BackSide,
+			//transparent: true,
+			//opacity: 1.0
+		});
+
+		requestAnimationFrame(render);
+	}
+
+	function resizeRendererToDisplaySize(renderer) {
+		const canvas = renderer.domElement;
+		const width = canvas.clientWidth;
+		const height = canvas.clientHeight;
+		const needResize = canvas.width !== width || canvas.height !== height;
+		if(needResize) {
+			renderer.setSize(width, height, false);
+			target0.setSize(width, height);
+		}
+		return needResize;
+	}
+
+	function render(time) {
+		time *= 0.001; // convert to seconds
+
+		mesh.rotation.x += 0.002;
+		mesh.rotation.y += 0.002;
+
+		resizeRendererToDisplaySize(renderer);
+
+		const canvas = renderer.domElement;
+		//uniforms1.iResolution.value.set(canvas.width, canvas.height, 1);
+		//uniforms1.iTime.value = time;
+
+		//frontmost layer
+		mesh.material = material0;
+		renderer.setRenderTarget(target0);
+		renderer.render(scene, camera);
+
+		//next layer
+		uniforms1.target0.value = target0.texture;
+		uniforms1.target0depth.value = target0.depthTexture;
+		mesh.material = material1;
+		renderer.setRenderTarget(null);
+		renderer.render(scene, camera);
+
+		requestAnimationFrame(render);
+	}
+
+	main();
+	</script>
+</body>
+</html>

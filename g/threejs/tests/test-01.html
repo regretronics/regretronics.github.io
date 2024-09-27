@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Three.js test</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+		background-color: canvas;
+		color: canvastext;
+	}
+	body {
+		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	}
+
+	/* body > canvas {
+		border-style: solid;
+		border-width: 0.25em;
+		border-color: gray;
+
+		box-sizing: border-box;
+		max-width: 100%;
+	} */
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	/* function pageLoad(event) {
+	} */
+	/* function pageReady(event) {
+		//load HTML element references
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+
+	} */
+	//window.addEventListener("DOMContentLoaded", pageLoad);
+	//window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<!-- <p><canvas id="c" width="768" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></p> -->
+	<!-- <script type="module" src="main.js"></script> -->
+	<script type="module">
+	"use strict";
+	import * as THREE from 'three';
+
+	const scene = new THREE.Scene();
+	const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+	const renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setAnimationLoop( animate );
+	document.body.appendChild( renderer.domElement );
+
+	const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+	const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+	const cube = new THREE.Mesh( geometry, material );
+	scene.add( cube );
+
+	camera.position.z = 5;
+
+	function animate() {
+		cube.rotation.x += 0.01;
+		cube.rotation.y += 0.01;
+
+		renderer.render( scene, camera );
+	}
+	</script>
+</body>
+</html>
