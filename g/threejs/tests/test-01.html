@@ -13,6 +13,7 @@
 	}
 	body {
 		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+		margin: 0;
 	}
 
 	/* body > canvas {
@@ -41,6 +42,11 @@
 </head>
 <body>
 	<!-- <p><canvas id="c" width="768" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></p> -->
+	<script  type="importmap">{
+		"imports": {
+			"three": "https://threejs.org/build/three.module.js"
+		}
+	}</script>
 	<!-- <script type="module" src="main.js"></script> -->
 	<script type="module">
 	"use strict";
