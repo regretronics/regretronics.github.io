@@ -3,6 +3,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
 <head>
 	<meta charset="UTF-8" />
+	<!-- <meta
+		http-equiv="Cross-Origin-Resource-Policy"
+		content="cross-origin" />
+	<meta
+		http-equiv="Content-Security-Policy"
+		content="default-src * file: 'unsafe-inline'; script-src * file: 'unsafe-inline';" /> -->
+	<!-- <meta
+		http-equiv="Content-Security-Policy"
+		content="default-src 'self'; img-src https://*; child-src 'none';" /> -->
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
 	<title>Three.js test</title>
 	<style type="text/css">/*<![CDATA[*/
@@ -25,11 +34,18 @@
 		max-width: 100%;
 	}
 	/*]]>*/</style>
-	<script  type="importmap">{
+	<!-- <script type="importmap">{
 		"imports": {
 			"three": "https://threejs.org/build/three.module.js"
 		}
-	}</script>
+	}</script> -->
+	<!-- <script type="importmap">{
+		"imports": {
+			"three": "./three.module.js"
+		}
+	}</script> -->
+	<!-- <script type="module" src="./three.module.js"></script> -->
+	<!-- <script type="text/javascript" src="./three.module.js"></script> -->
 </head>
 <body>
 	<p><canvas id="c" width="768" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></p>
@@ -46,6 +62,8 @@
 
 		out vec4 fragColor;
 
+		#define opacityFactor -4.0
+
 		void main() {
 			float dz = gl_FragCoord.z - texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0).x;
 			if(dz <= 0.0) discard;
@@ -61,13 +79,14 @@
 			//fragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0);
 			//fragColor = texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0);
 			//fragColor.a = 1.0;
-			fragColor.a = 1.0 - exp2(-dz / cameraNear);
+			fragColor.a = 1.0 - exp2(opacityFactor * dz / cameraNear);
 			//fragColor.a = 0.25;
 		}
 	</script>
 	<script type="module" id="mod1">
 	"use strict";
-	import * as THREE from 'three';
+	import * as THREE from './three.module.js';
+	//import * as THREE from 'three';
 
 	var material0, uniforms1, material1;
 
@@ -149,8 +168,8 @@
 		renderer.render(scene, camera);
 
 		//next layer
-		uniforms1.target0.value = target0.texture;
-		uniforms1.target0depth.value = target0.depthTexture;
+		//uniforms1.target0.value = target0.texture;
+		//uniforms1.target0depth.value = target0.depthTexture;
 		mesh.material = material1;
 		renderer.setRenderTarget(null);
 		renderer.render(scene, camera);
