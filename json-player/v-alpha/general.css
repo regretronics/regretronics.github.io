@@ -158,6 +158,19 @@ html:not([lang|=en]) #translationWarning {
 	display: revert;
 }
 
+html[lang|=en] .langStatic {
+	display: revert;
+}
+html[lang|=en] .langFlex {
+	display: none;
+}
+html:not([lang|=en]) .langStatic {
+	display: none;
+}
+html:not([lang|=en]) .langFlex {
+	display: revert;
+}
+
 #tblFractionIntervals td:nth-child(1) {
 	text-align: center;
 }
