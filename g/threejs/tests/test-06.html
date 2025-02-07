@@ -19,19 +19,34 @@
 		color-scheme: dark;
 		background-color: canvas;
 		color: canvastext;
+		height: 100%;
+		overflow: hidden;
 	}
 	body {
 		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+		height: 100%;
+		margin: 0;
+		display: flex;
+		align-items: center;
+		align-content: center;
+		justify-content: center;
+		justify-items: center;
 	}
 
+	body > div {
+		height: 100%;
+		align-content: center;
+	}
 	#c {
-		border-style: solid;
+		/* border-style: solid;
 		border-width: 0.25em;
-		border-color: gray;
+		border-color: gray; */
 
 		box-sizing: border-box;
-		width: 768px;
+		/* width: 1024px; */
+		/* width: 100%; */
 		max-width: 100%;
+		max-height: 100%;
 	}
 	/*]]>*/</style>
 	<!-- <script type="importmap">{
@@ -45,10 +60,9 @@
 		}
 	}</script> -->
 	<!-- <script type="module" src="./three.module.js"></script> -->
-	<!-- <script type="text/javascript" src="./three.module.js"></script> -->
 </head>
 <body>
-	<p><canvas id="c" width="768" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></p>
+	<div><canvas id="c" width="512" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></div>
 	<!-- <script type="module" src="main.js"></script> -->
 	<script id="FS1" type="x-shader/x-fragment">
 		#include <common>
@@ -79,18 +93,18 @@
 			//fragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0);
 			//fragColor = texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0);
 			//fragColor.a = 1.0;
-			fragColor.a = 1.0 - exp2(opacityFactor * dz / cameraNear);
+			fragColor.a = 1.0 - exp2(opacityFactor * dz * cameraNear);
 			//fragColor.a = 0.25;
 		}
 	</script>
-	<script type="module" id="mod1">
+	<script type="module">
 	"use strict";
 	import * as THREE from './three.module.js';
 	//import * as THREE from 'three';
 
 	var material0, uniforms1, material1;
 
-	function main() {
+	function loaded(event) {
 		window.canvas = document.querySelector('#c');
 		window.renderer = new THREE.WebGLRenderer({/* antialias: true, */ depth: true, canvas});
 		//renderer.setTransparentSort(null);
@@ -109,7 +123,7 @@
 
 		window.mesh = new THREE.Mesh(geometry, material0);
 		scene.add(mesh);
-		camera.position.z = 2;
+		camera.position.z = 1.5;
 
 		//new THREE.Vector2()
 		//renderer.getDrawingBufferSize
@@ -122,9 +136,9 @@
 			//iResolution: { value: new THREE.Vector3() },
 			target0: { value: target0.texture },
 			target0depth: { value: target0.depthTexture },
-			
-			cameraNear: { value: camera.near },
-			cameraFar: { value: camera.far },
+
+			cameraNear: { value: 1.0 / camera.near },
+			cameraFar: { value: 1.0 / camera.far },
 		};
 		material1 = new THREE.ShaderMaterial({
 			glslVersion: THREE.GLSL3,
@@ -133,7 +147,6 @@
 			//side: THREE.DoubleSide,
 			side: THREE.BackSide,
 			transparent: true,
-			//opacity: 1.0
 		});
 
 		requestAnimationFrame(render);
@@ -141,8 +154,10 @@
 
 	function resizeRendererToDisplaySize(renderer) {
 		const canvas = renderer.domElement;
-		const width = canvas.clientWidth;
-		const height = canvas.clientHeight;
+		/* const width = canvas.clientWidth * devicePixelRatio;
+		const height = canvas.clientHeight * devicePixelRatio; */
+		const width = Math.trunc(canvas.clientWidth * devicePixelRatio);
+		const height = Math.trunc(canvas.clientHeight * devicePixelRatio);
 		const needResize = canvas.width !== width || canvas.height !== height;
 		if(needResize) {
 			renderer.setSize(width, height, false);
@@ -152,7 +167,7 @@
 	}
 
 	function render(time) {
-		time *= 0.001; // convert to seconds
+		time *= 0.001; //convert to seconds
 
 		mesh.rotation.x += 0.002;
 		mesh.rotation.y += 0.002;
@@ -177,7 +192,7 @@
 		requestAnimationFrame(render);
 	}
 
-	main();
+	window.addEventListener("load", loaded);
 	</script>
 </body>
 </html>
