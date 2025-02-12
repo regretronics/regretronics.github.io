@@ -2,7 +2,7 @@
 :root {
 	--page-scale: 1;
 	font-size: calc(var(--page-scale, 1) * 1em);
-	overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 }
 /* :not(:root) {
 	font-size: initial;
@@ -19,14 +19,16 @@ main, hr, .bg {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	margin-block-end: 0.5em;
+	margin-block-end: 0.75em;
 }
-div > h1 {
+div > h1:first-child {
 	margin-block: 0em;
 }
-div.flex-row/* , p:first-child */ {
+div.flex-row {
+	margin-block: 1em;
+}
+.flex-row:first-child {
 	margin-block-start: 0em;
-	margin-block-end: 1em;
 }
 details {
 	margin-bottom: 1.5em;
@@ -35,9 +37,6 @@ noscript {
 	font-size: 1.25em;
 }
 
-/*article p:first-child {
-	margin-top: 0em;
-}*/
 /*p {*/
 	/*line-height: 125%;*/
 	/*line-height: 1.5;*/
@@ -53,7 +52,7 @@ hr + :is(h1, h2, h3, h4, h5, h6), :is(h1, h2, h3, h4, h5, h6):first-child {
 	margin-block-start: 0.5em;
 }
 
-a[hidden] {
+#importForm, #inFile, a[hidden] {
 	display: none;
 }
 
@@ -64,7 +63,7 @@ input[type=number] {
 input:is([type=number], [type=text])[size] {
 	box-sizing: border-box;
 }
-/* inspired by Firefox sizing of input's */
+/*inspired by Firefox sizing of input's*/
 input:is([type=number], [type=text])[size="3"] {
 	width: calc(2*5em/32 + 2ch + 3*1ch);
 }

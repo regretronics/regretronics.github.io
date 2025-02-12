@@ -7,6 +7,7 @@
 	/*--img-hue-shift: 0deg;*/
 	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
 	/*--img-filter: var(--img-filter1, none);*/
+	font-family: 'Liberation Serif', 'Linux Libertine G', Cambria, 'Source Serif 4 Variable', 'Noto Serif', Constantia, 'Baskerville Old Face', Times, 'Times New Roman', 'DejaVu Serif Condensed', 'Bell MT', Garamond, 'Goudy Old Style', 'Georgia Pro', Georgia, serif;
 }
 /* html {
 	position: relative;
@@ -156,7 +157,7 @@ svg g {
 td {
 	padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em);
 }
-/* td:has( .interval-sample) { */ /* :has not supported in Firefox 114 */
+/* td:has(.interval-sample) { */ /*:has not supported in Firefox 114*/
 td.sample-cell {
 	padding: 0em;
 	text-align: center;
