@@ -711,8 +711,8 @@ function addIntervalSamples() {
 		cell.translate = false;
 		cell.addEventListener("click", playIntervalHandler);
 		cell.dataset["fraction"] = firstChild.innerText;
-		cell.innerText="\u{1F442}"; //ear
-		//cell.innerText="\u{1F50A}"; //speaker
+		cell.innerText = "\u{1F442}"; //ear
+		//cell.innerText = "\u{1F50A}"; //speaker
 	}
 
 	{
