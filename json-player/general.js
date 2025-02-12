@@ -708,10 +708,11 @@ function addIntervalSamples() {
 
 		const cell = row.insertCell(4);
 		cell.classList.add("sample-cell");
+		cell.translate = false;
 		cell.addEventListener("click", playIntervalHandler);
 		cell.dataset["fraction"] = firstChild.innerText;
-		cell.innerText="\u{1F442}"; //ear
-		//cell.innerText="\u{1F50A}"; //speaker
+		cell.innerText = "\u{1F442}"; //ear
+		//cell.innerText = "\u{1F50A}"; //speaker
 	}
 
 	{
@@ -719,7 +720,8 @@ function addIntervalSamples() {
 		const row = document.querySelector("#tblFractionIntervals thead tr");
 		const cell = document.createElement("th"); //insertCell would make a td element.
 		cell.scope = "col";
-		cell.innerHTML = "Sam&shy;ple"; //Sample
+		//cell.innerHTML = "Sam&shy;ple"; //Sample
+		cell.innerHTML = '<span class="langStatic" translate="no">Sam&shy;ple</span><span class="langFlex" hidden="">Sample</span>';
 		row.insertBefore(cell, row.children[4]);
 	}
 }

@@ -1,6 +1,6 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
-root {
+:root {
 	background-color: hsl(var(--hue-accent, 120), 25%, 96.875%);
 	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
 	accent-color: hsl(var(--hue-accent, 120), 25%, 25%);
