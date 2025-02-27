@@ -46,17 +46,76 @@
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
 
-	var counter = 0;
-	var idleTimer = null;
-
-	function onIdle() {
-		counter++;
+	var counter = 0, counterInc = 1;
+	function setCounter(value, save) {
+		counter = value;
 		outCounter.textContent = counter.toString();
 
-		//localStorage.setItem("counter", counter);
-		localStorage.setItem("counter", JSON.stringify(counter));
+		if(save) {
+			//localStorage.setItem("counter", counter);
+			localStorage.setItem("counter", JSON.stringify(counter));
+		}
+	}
+	function setCounterInc(value, save) {
+		counterInc = value;
+		outCounterInc.textContent = counterInc.toString();
 
-		idleTimer = setTimeout(onIdle, 1000);
+		if(save) {
+			//localStorage.setItem("counterInc", counterInc);
+			localStorage.setItem("counterInc", JSON.stringify(counterInc));
+		}
+	}
+
+	var idleTimer = null;
+	var cycleIntervalMs = 1000;
+	function idleCycle() {
+		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
+
+		setCounter(counter + counterInc, true);
+
+		WpRndNextArticle();
+	}
+
+	const rndArticleBuffer = [];
+	async function WpRndFetchArticles() {
+		const url = "https://en.wikipedia.org/w/api.php?" +
+			/* new URLSearchParams({
+				origin: "*",
+				action: "parse",
+				page: "Pet door",
+				format: "json",
+			}); */
+			new URLSearchParams({
+				origin: "*",
+				action: "query",
+				format: "json",
+				list: "random",
+				formatversion: "2",
+				rnnamespace: "0",
+				rnlimit: "16",
+			});
+
+		try {
+			const req = await fetch(url);
+			const json = await req.json();
+			//console.log(json.parse.text["*"]);
+			//console.log(json.query.random);
+			rndArticleBuffer.push(...json.query.random);
+
+			if(outWpRndArticle.classList.contains("stalled")) WpRndNextArticle();
+		} catch(e) {
+			console.error(e);
+		}
+	}
+	function WpRndNextArticle() {
+		if(rndArticleBuffer.length < 2) WpRndFetchArticles();
+		const article = rndArticleBuffer.shift();
+		if(!article) {
+			outWpRndArticle.classList.add("stalled");
+			return;
+		}
+		outWpRndArticle.textContent = article.title;
+		outWpRndArticle.classList.remove("stalled");
 	}
 
 	function btnGameResetClick(event) {
@@ -67,13 +126,19 @@
 			idleTimer = null;
 		}
 
-		counter = 0;
-		outCounter.textContent = counter.toString();
-
 		//localStorage.removeItem("counter");
 		localStorage.clear();
 
-		idleTimer = setTimeout(onIdle, 1000);
+		setCounter(0, true);
+		setCounterInc(1, true);
+
+		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
+	}
+	function btnUpgradeClick(event) {
+		if(counter < 256) return;
+
+		setCounterInc(counterInc + 1, true);
+		setCounter(counter - 256, true);
 	}
 
 	/* function pageLoad(event) {
@@ -83,18 +148,29 @@
 		for(let s of document.querySelectorAll("[id]"))
 			window[s.id] = s;
 
-		let s = localStorage.getItem("counter");
-		if(s) {
-			//counter = parseFloat(s);
-			counter = parseFloat(JSON.parse(s));
-			outCounter.textContent = counter.toString();
-		}
-
 		btnGameReset.addEventListener("click", btnGameResetClick);
 		//txtParam01.addEventListener("input", txtParam01Input);
-		//btnPraise.addEventListener("click", btnPraiseClick);
+		btnUpgrade.addEventListener("click", btnUpgradeClick);
 
-		idleTimer = setTimeout(onIdle, 1000);
+		let s = localStorage.getItem("counter");
+		if(s) {
+			//setCounter(parseFloat(s));
+			setCounter(parseFloat(JSON.parse(s)));
+		}
+		s = localStorage.getItem("counterInc");
+		if(s) {
+			//setCounterInc(parseFloat(s));
+			setCounterInc(parseFloat(JSON.parse(s)));
+		}
+		s = localStorage.getItem("cycleInterval");
+		if(s) {
+			//cycleIntervalMs = 1000 * parseFloat(s);
+			cycleIntervalMs = 1000 * parseFloat(JSON.parse(s));
+		}
+
+		WpRndFetchArticles();
+
+		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
 	}
 	//window.addEventListener("DOMContentLoaded", pageLoad);
 	window.addEventListener("load", pageReady);
@@ -105,7 +181,9 @@
 		<small>the game &mdash; Simple to learn, hard to master.</small></h1>
 	<p><button id="btnGameReset">Reset game state</button></p>
 	<p>The counter: <output id="outCounter">0</output>.</p>
-	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p>
-	<p><button id="btnPraise">Praise the @</button></p> -->
+	<p>The counter increment: <output id="outCounterInc">1</output>.</p>
+	<p>Random Wikipedia article: <output id="outWpRndArticle"></output>.</p>
+	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p> -->
+	<p><button id="btnUpgrade">False reward</button></p>
 </body>
 </html>
