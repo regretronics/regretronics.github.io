@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Idle game attempt!</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+		background-color: canvas;
+		color: canvastext;
+	}
+	body {
+		font-size: 1.25em;
+		font-variant: slashed-zero;
+		overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+	}
+
+	h1 {
+		font-size: 3em;
+		line-height: 0.8;
+		text-align: center;
+	}
+	h1 small {
+		font-size: 0.5em;
+		font-variant: small-caps;
+	}
+
+	input {
+		font-size: 0.8em;
+	}
+	input[type="checkbox"], input[type="radio"] {
+		width: 1em;
+		height: 1em;
+	}
+	input[type="number"] {
+		width: 8ch;
+		text-align: right;
+	}
+	input[type="button"], input[type="submit"], input[type="reset"], button {
+		font-variant: small-caps;
+	}
+
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	var counter = 0;
+	var idleTimer = null;
+
+	function onIdle() {
+		counter++;
+		outCounter.textContent = counter.toString();
+
+		//localStorage.setItem("counter", counter);
+		localStorage.setItem("counter", JSON.stringify(counter));
+
+		idleTimer = setTimeout(onIdle, 1000);
+	}
+
+	function btnGameResetClick(event) {
+		if(!confirm("Please confirm if you are dumb.")) return;
+
+		if(idleTimer) {
+			clearTimeout(idleTimer);
+			idleTimer = null;
+		}
+
+		counter = 0;
+		outCounter.textContent = counter.toString();
+
+		//localStorage.removeItem("counter");
+		localStorage.clear();
+
+		idleTimer = setTimeout(onIdle, 1000);
+	}
+
+	/* function pageLoad(event) {
+	} */
+	function pageReady(event) {
+		//load HTML element references
+		for(let s of document.querySelectorAll('[id]'))
+			window[s.id] = s;
+
+		let s = localStorage.getItem("counter");
+		if(s) {
+			//counter = parseFloat(s);
+			counter = parseFloat(JSON.parse(s));
+			outCounter.textContent = counter.toString();
+		}
+
+		btnGameReset.addEventListener("click", btnGameResetClick);
+		//txtParam01.addEventListener("input", txtParam01Input);
+		//btnPraise.addEventListener("click", btnPraiseClick);
+
+		idleTimer = setTimeout(onIdle, 1000);
+	}
+	//window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<h1>Idle the game<br />
+		<small>Simple to learn, hard to master.</small></h1>
+	<p><button id="btnGameReset">Reset game state</button></p>
+	<p>The counter: <output id="outCounter">0</output>.</p>
+	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p>
+	<p><button id="btnPraise">Praise the @</button></p> -->
+</body>
+</html>
