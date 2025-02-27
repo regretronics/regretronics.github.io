@@ -79,8 +79,8 @@
 	/* function pageLoad(event) {
 	} */
 	function pageReady(event) {
-		//load HTML element references
-		for(let s of document.querySelectorAll('[id]'))
+		//load HTML element references (renders document.getElementById unnecessary)
+		for(let s of document.querySelectorAll("[id]"))
 			window[s.id] = s;
 
 		let s = localStorage.getItem("counter");
@@ -101,8 +101,8 @@
 	/*]]>*/</script>
 </head>
 <body>
-	<h1>Idle the game<br />
-		<small>Simple to learn, hard to master.</small></h1>
+	<h1>Idol machine<br />
+		<small>the game &mdash; Simple to learn, hard to master.</small></h1>
 	<p><button id="btnGameReset">Reset game state</button></p>
 	<p>The counter: <output id="outCounter">0</output>.</p>
 	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p>
