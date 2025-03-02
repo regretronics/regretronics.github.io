@@ -12,8 +12,9 @@
 	}
 }
 :root {
+	--hue-phase: 41deg; /*red = ~41deg*/
 	--hue1-ang: 0deg;
-	--hue1-ang: calc(60deg * var(--hue1, 0) + 41deg); /*red = ~41deg*/
+	--hue1-ang: calc(60deg * var(--hue1, 0) + var(--hue-phase, 0deg));
 
 	--gain-balance: display-p3 calc(r*29/32) calc(g*26/32) b;
 	--shade-b: color(display-p3 0 0 0 / 0.75);

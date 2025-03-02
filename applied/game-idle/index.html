@@ -172,6 +172,8 @@
 	/* function pageLoad(event) {
 	} */
 	function pageReady(event) {
+		document.documentElement.style.setProperty("--hue-phase", Math.random() + "turn");
+
 		//load HTML element references (renders document.getElementById unnecessary)
 		for(let s of document.querySelectorAll("[id]"))
 			window[s.id] = s;
