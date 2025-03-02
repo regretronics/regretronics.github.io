@@ -4,12 +4,22 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<!-- <meta http-equiv="content-security-policy" content="default-src 'self' http://*.wikipedia.org 'unsafe-inline'" /> -->
+	<!-- <meta http-equiv="Cross-Origin-Resource-Policy" content="cross-origin" />
+	<meta http-equiv="Access-Control-Allow-Origin" content="*" />
+	<meta http-equiv="Vary" content="Origin" />
+	<meta http-equiv="Access-Control-Allow-Credentials" content="true" /> -->
+	<!-- <meta http-equiv="content-security-policy" content="style-src 'self'" /> -->
+
 	<title>Idle game attempt!</title>
+	<!-- <link rel="stylesheet" type="text/css" href="./general.css" crossorigin="anonymous" /> -->
 	<link rel="stylesheet" type="text/css" href="general.css" />
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
 
-	var counter = 0, counterInc = 1;
+	const counterInitial = 0, counterIncInitial = 1;
+	var counter = counterInitial, counterInc = counterIncInitial;
 	function setCounter(value, save) {
 		counter = value;
 		outCounter.textContent = counter.toString();
@@ -28,7 +38,8 @@
 	}
 
 	var idleTimer = null;
-	var cycleIntervalMs = 1000;
+	const cycleIntervalMsInitial = 1000;
+	var cycleIntervalMs = cycleIntervalMsInitial;
 	function idleCycle() {
 		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
 
@@ -37,9 +48,10 @@
 		if(!document.hidden) WpRndNextArticle();
 	}
 
-	const rndArticleBuffer = [];
+	var rndArticleBuffer = [];
 	async function WpRndFetchArticles() {
 		if(!navigator.onLine) return;
+
 		const url = "https://en.wikipedia.org/w/api.php?" +
 			/* new URLSearchParams({
 				origin: "*",
@@ -63,10 +75,9 @@
 				formatversion: "2",
 				generator: "random",
 				grnnamespace: "0",
-				grnlimit: "16",
+				grnlimit: "64",
 				prop: "pageterms",
 			});
-
 		try {
 			const req = await fetch(url);
 			const json = await req.json();
@@ -75,14 +86,19 @@
 
 			if(outWpRndArticle.classList.contains("stalled") || !outWpRndArticle.hasChildNodes())
 				WpRndNextArticle();
+			else
+				localStorage.setItem("rndArticleBuffer", JSON.stringify(rndArticleBuffer));
 		} catch(e) {
 			console.error(e);
 		}
 	}
+	const rndArticleBufferLookahead = 16;
+	const articleHistoryLimit = 16;
 	function WpRndNextArticle() {
-		if(rndArticleBuffer.length < 2) WpRndFetchArticles();
+		if(rndArticleBuffer.length < rndArticleBufferLookahead) WpRndFetchArticles();
 
 		const article = rndArticleBuffer.shift();
+		localStorage.setItem("rndArticleBuffer", JSON.stringify(rndArticleBuffer));
 		if(!article) {
 			outWpRndArticle.classList.add("stalled");
 			return;
@@ -92,28 +108,34 @@
 		outWpRndArticle.classList.remove("stalled");
 
 		let articleAnchor = document.createElement("a");
-		articleAnchor.textContent = article?.terms?.label ?? article.title;
-		articleAnchor.href = "https://en.wikipedia.org/wiki/" + (article?.title ?? "").replaceAll(" ", "_");
+		articleAnchor.textContent = article.terms?.label ?? article.title;
+		articleAnchor.href = "https://en.wikipedia.org/wiki/" + (article.title ?? "").replaceAll(" ", "_");
 
 		wpRndInfoCard.innerHTML = "";
 		let labelItem = wpRndInfoCard.appendChild(document.createElement("li"));
 		labelItem.append(articleAnchor);
 
-		if(article?.terms?.alias) {
+		if(article.terms?.alias) {
 			let aliasList = labelItem.appendChild(document.createElement("ul"));
 			for(const alias of article.terms.alias)
 				aliasList.appendChild(document.createElement("ul")).textContent = alias;
 		}
-		
-		if(article?.terms?.description)
+
+		if(article.terms?.description)
 			wpRndInfoCard.appendChild(document.createElement("li")).textContent = article.terms.description;
 		
 		let historyNew = document.createElement("li");
 		historyNew.append(articleAnchor.cloneNode(true));
-		lstWpRndHistory.prepend(historyNew);
-		while(lstWpRndHistory.childElementCount > 16) {
-			lstWpRndHistory.lastElementChild.remove();
+		if(article.terms?.description) {
+			//historyNew.appendChild(document.createTextNode("\u00a0")); //non-breaking space
+			historyNew.appendChild(document.createTextNode(" "));
+			const descriptionLabel = historyNew.appendChild(document.createElement("span"));
+			descriptionLabel.textContent = article.terms.description;
+			descriptionLabel.classList.add("article-description");
 		}
+		lstWpRndHistory.prepend(historyNew);
+		while(lstWpRndHistory.childElementCount > articleHistoryLimit)
+			lstWpRndHistory.lastElementChild.remove();
 	}
 
 	function btnGameResetClick(event) {
@@ -129,9 +151,9 @@
 		//localStorage.removeItem("cycleInterval");
 		localStorage.clear();
 
-		setCounter(0, true);
-		setCounterInc(1, true);
-		cycleIntervalMs = 1000;
+		setCounter(counterInitial, true);
+		setCounterInc(counterIncInitial, true);
+		cycleIntervalMs = cycleIntervalMsInitial;
 
 		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
 	}
@@ -140,6 +162,11 @@
 
 		setCounterInc(counterInc + 1, true);
 		setCounter(counter - 256, true);
+	}
+	function detailsToggleSave(event) {
+		if(!event || !event.target) return;
+		//localStorage.setItem(event.target.id + ".open", JSON.stringify(event.newState.startsWith("open")));
+		localStorage.setItem(event.target.id + ".open", JSON.stringify(event.target.open));
 	}
 
 	/* function pageLoad(event) {
@@ -153,20 +180,18 @@
 		//txtParam01.addEventListener("input", txtParam01Input);
 		btnUpgrade.addEventListener("click", btnUpgradeClick);
 
-		let s = localStorage.getItem("counter");
-		if(s) {
-			setCounter(parseFloat(JSON.parse(s)));
-		}
-		s = localStorage.getItem("counterInc");
-		if(s) {
-			setCounterInc(parseFloat(JSON.parse(s)));
-		}
-		s = localStorage.getItem("cycleInterval");
-		if(s) {
-			cycleIntervalMs = 1000 * parseFloat(JSON.parse(s));
-		}
+		const retrieve = function(field, continuation) {
+			const s = localStorage.getItem(field);
+			if(s) continuation(JSON.parse(s));
+		};
+		retrieve("counter", v => {setCounter(v);});
+		retrieve("counterInc", v => {setCounterInc(v);});
+		retrieve("cycleInterval", v => {cycleIntervalMs = 1000 * v;});
+		retrieve("rndArticleBuffer", v => {rndArticleBuffer = v;});
+		retrieve("boxWpRndArticle.open", v => {boxWpRndArticle.open = v;});
+		boxWpRndArticle.addEventListener("toggle", detailsToggleSave);
 
-		WpRndFetchArticles();
+		WpRndNextArticle();
 		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
 	}
 	//window.addEventListener("DOMContentLoaded", pageLoad);
@@ -183,7 +208,7 @@
 	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p> -->
 	<p><button id="btnUpgrade">False reward<br />
 		cost: counter 256</button></p>
-	<details>
+	<details id="boxWpRndArticle" open="open">
 		<summary>Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
 		<ul id="wpRndInfoCard"></ul>
 		<p>History:</p>

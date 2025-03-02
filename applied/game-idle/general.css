@@ -3,6 +3,14 @@
 	inherits: true;
 	initial-value: 0.5;
 }
+@keyframes hueShift {
+	0% {
+		--hue1: 0.0;
+	}
+	100% {
+		--hue1: 6.0;
+	}
+}
 :root {
 	--hue1-ang: 0deg;
 	--hue1-ang: calc(60deg * var(--hue1, 0) + 41deg); /*red = ~41deg*/
@@ -23,17 +31,9 @@
 	color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
 
 	animation-name: hueShift;
-	animation-duration: 12s;
+	animation-duration: 90s;
 	animation-iteration-count: infinite;
 	animation-timing-function: linear;
-}
-@keyframes hueShift {
-	0% {
-		--hue1: 0.0;
-	}
-	100% {
-		--hue1: 6.0;
-	}
 }
 body {
 	font-size: 1.25em;
@@ -45,6 +45,7 @@ h1 {
 	font-size: 3em;
 	line-height: 0.8;
 	text-align: center;
+	color: color(from oklch(0.875 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
 	opacity: 0.8;
 }
 h1 small {
@@ -103,6 +104,19 @@ input:is([type="button"], [type="submit"], [type="reset"]), button { /* to do: a
 		var(--sh-br) var(--sh-thick) var(--shade-w, white);
 }
 
+a:link {
+	color: color(from oklch(0.75 0.25 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+}
+a:visited {
+	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+}
+a:hover {
+	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+}
+a:active, a:focus {
+	color: color(from oklch(0.75 0.25 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+}
+
 details > summary:first-of-type {
 	cursor: pointer;
 }
@@ -123,4 +137,7 @@ details > summary:first-of-type {
 	opacity: 0.5;
 	font-variant: small-caps;
 	content: "(empty)";
+}
+.article-description {
+	opacity: 0.8;
 }
