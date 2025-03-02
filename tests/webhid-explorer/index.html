@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>HID Explorer</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		height: 100%;
+		/* width: 100%; */
+		/* min-height: 100%; */
+	}
+	body {
+		/* margin: 0; */
+
+		box-sizing: border-box;
+		/* height: 100%; */
+		/* height: calc(100% - 1em); */
+		/* width: 100%; */
+		min-height: calc(100% - 1em);
+
+		/* border-style: solid;
+		border-width: 1em;
+		border-color: transparent; */
+		/* padding-inline: 1em; */
+
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		/* align-items: center; */
+		align-items: stretch;
+	}
+
+	body > *:not(:first-child) {
+		margin-block-start: min(1em, 1%);
+	}
+	body > *:not(:last-child) {
+		margin-block-end: min(1em, 1%);
+	}
+
+	div > h1 {
+		margin: 0;
+	}
+	.dev-info {
+		flex-basis: 8em;
+		flex-shrink: 0;
+		flex-grow: 1;
+		overflow: auto;
+	}
+
+	.row-expand {
+		flex-basis: 2em;
+		/* flex-shrink: 0.125; */
+		flex-grow: 0.25;
+	}
+	div > textarea {
+		box-sizing: border-box;
+		width: 100%;
+		height: 100%;
+		/* height: 8em; */
+		/* min-height: 2em; */
+		resize: vertical;
+	}
+	/*]]>*/</style>
+	<script type="text/javascript" src="tables.js"></script>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	let connectedDevices = [];
+	let selectedDevice = null;
+
+	// Formats an 8-bit integer |value| in hexadecimal with leading zeros.
+	const hex8 = value => {
+		return `00${value.toString(16)}`.substr(-2).toUpperCase();
+	};
+
+	// Formats a 16-bit integer |value| in hexadecimal with leading zeros.
+	const hex16 = value => {
+		return `0000${value.toString(16)}`.substr(-4).toUpperCase();
+	};
+
+	const hexview = data => {
+		let buffer = '';
+		let u8array = new Uint8Array(data.buffer);
+		for (const byteValue of u8array) {
+			if (buffer)
+				buffer += ' ';
+			buffer += hex8(byteValue);
+		}
+		return buffer;
+	};
+
+	const parseHexArray = text => {
+		// Remove non-hex characters.
+		text = text.replace(/[^0-9a-fA-F]/g, '');
+		if (text.length % 2)
+			return null;
+
+		// Parse each character pair as a hex byte value.
+		let u8 = new Uint8Array(text.length / 2);
+		for (let i = 0; i < text.length; i += 2)
+			u8[i / 2] = parseInt(text.substr(i, 2), 16);
+
+		return new DataView(u8.buffer);
+	};
+
+	const pluralize = (count, unit) => {
+		if (count === 1) {
+			return `${count} ${unit}`;
+		}
+		return `${count} ${unit}s`;
+	};
+
+	// Displays the device chooser to allow the user to connect to a new device.
+	// The selection is updated to the newly connected device.
+	const connectDevice = async () => {
+		const devices = await navigator.hid.requestDevice({filters: []});
+		if (devices.length == 0)
+			return;
+
+		for (let device of devices)
+			await addDevice(device);
+	};
+
+	// Adds |device| to |connectedDevices|. Selects the device if there was no prior
+	// selection.
+	const addDevice = async (device) => {
+		if (connectedDevices.includes(device)) {
+			console.log('device already in connectedDevices');
+			return;
+		}
+		connectedDevices.push(device);
+		console.log(`device connected: ${device.productName}`);
+		if (selectedDevice === null)
+			await selectDevice(device);
+		updateDeviceMenu();
+	};
+
+	// Removes |device| from |connectedDevices|.
+	const removeDevice = device => {
+		if (device === selectedDevice)
+			selectedDevice = null;
+		for (let i = connectedDevices.length - 1; i >= 0; --i) {
+			if (connectedDevices[i] === device) {
+				connectedDevices.splice(i, 1);
+				console.log(`device disconnected: ${device.productName}`);
+				updateDeviceMenu();
+			}
+		}
+	};
+
+	const handleInputReport = event => {
+		const t = new Date();
+		const inputReportTextView = document.getElementById('inputReport');
+		if (!inputReportTextView) {
+			console.log(event);
+			return;
+		}
+
+		let buffer = hex8(event.reportId) + '\n';
+		const reportData = new Uint8Array(event.data.buffer);
+		for (let byte of reportData)
+			buffer += ' ' + hex8(byte);
+		inputReportTextView.textContent = t.toLocaleTimeString() + ' / ' + t.valueOf() + '\n' + buffer;
+	}
+
+	const sendOutputReport = () => {
+		if (!selectedDevice)
+			return;
+
+		const reportTextArea = document.getElementById('outputReport');
+		if (!reportTextArea)
+			return;
+
+		let data = parseHexArray(reportTextArea.value);
+		reportTextArea.value = hexview(data);
+
+		let reportId = data.getUint8(0);
+		let reportData = new Uint8Array(data.buffer).slice(1);
+		console.log(reportId, reportData);
+
+		selectedDevice.sendReport(reportId, reportData);
+	};
+
+	const sendFeatureReport = () => {
+		if (!selectedDevice)
+			return;
+
+		const reportTextArea = document.getElementById('featureReport');
+		if (!reportTextArea)
+			return;
+
+		let data = parseHexArray(reportTextArea.value);
+		reportTextArea.value = hexview(data);
+
+		let reportId = data.getUint8(0);
+		let reportData = new Uint8Array(data.buffer).slice(1);
+
+		selectedDevice.sendFeatureReport(reportId, reportData);
+	};
+
+	const receiveFeatureReport = () => {
+		if (!selectedDevice)
+			return;
+
+		const reportTextArea = document.getElementById('featureReport');
+		if (!reportTextArea)
+			return;
+
+		let data = parseHexArray(reportTextArea.value);
+		reportTextArea.value = hexview(data);
+		if(!data || data.byteLength < 1) return;
+
+		let reportId = data.getUint8(0);
+
+		try {
+			selectedDevice.receiveFeatureReport(reportId).then(data => {
+				reportTextArea.value = `${hex8(reportId)}\n ${hexview(data)}`;
+			}).catch(e => {reportTextArea.value = e.toString()});
+		} catch (e) {
+			reportTextArea.value = e.toString();
+			//reportTextArea.value = e.message;
+		}
+	};
+
+	// Selects |device| and updates the device info display.
+	const selectDevice = async (device) => {
+		if (selectedDevice)
+			selectedDevice.oninputreport = null;
+
+		if (!device) {
+			selectedDevice = null;
+		} else {
+			let select = document.getElementById('deviceSelect');
+			for (let i = 0; i < select.options.length; ++i) {
+				if (select.options[i].device === device) {
+					select.value = i;
+					break;
+				}
+			}
+			selectedDevice = device;
+		}
+
+		if (selectedDevice) {
+			selectedDevice.oninputreport = handleInputReport;
+			if (!selectedDevice.opened) {
+				try {
+					await selectedDevice.open();
+				} catch (e) {
+					if (e instanceof DOMException) {
+						console.log(`Error opening ${selectedDevice.productName}: ${e.message}`);
+					} else {
+						throw e;
+					}
+				}
+			}
+		}
+
+		updateDeviceInfo();
+	};
+
+	// Updates the device selection menu to match |connectedDevices|.
+	const updateDeviceMenu = () => {
+		let select = document.getElementById('deviceSelect');
+		for (let i = select.options.length - 1; i >= 0; --i)
+			select.options[i] = null;
+
+		if (connectedDevices.length == 0) {
+			var opt = document.createElement('option');
+			opt.value = 0;
+			opt.device = null;
+			opt.textContent = 'No connected devices';
+			select.appendChild(opt);
+
+			updateDeviceInfo();
+			return;
+		}
+
+		let index = 0;
+		for (let device of connectedDevices) {
+			var opt = document.createElement('option');
+			opt.value = index++;
+			opt.device = device;
+			//opt.textContent = device.productName;
+			opt.textContent = `${device.productName}\t${hex16(device.vendorId)}\t${hex16(device.productId)}`;
+			select.appendChild(opt);
+		}
+		
+		updateDeviceInfo();
+	};
+
+	// Called when the user changes the selected device.
+	const deviceSelectionChanged = () => {
+		let select = document.getElementById('deviceSelect');
+		selectDevice(select.options[select.value].device);
+	};
+
+	// Returns true if |item| has at least one usage.
+	const hasUsages = item => {
+		return item.isRange || item.usages.length > 0
+	}
+
+	// Returns true if the physical minimum and maximum for |item| are not both
+	// zero.
+	const hasPhysicalBounds = item => {
+		return item.physicalMinimum != 0 || item.physicalMaximum != item.physicalMinimum;
+	};
+
+	// Returns true if any unit factor exponent is non-zero, if the unit exponent is
+	// not zero, or if the unit system is not 'none'.
+	const hasUnitDefinition = item => {
+		return item.unitFactorLengthExponent != 0 ||
+			item.unitFactorMassExponent != 0 ||
+			item.unitFactorTimeExponent != 0 ||
+			item.unitFactorTemperatureExponent != 0 ||
+			item.unitFactorCurrentExponent != 0 ||
+			item.unitFactorLuminousIntensityExponent != 0 ||
+			item.unitExponent != 0 ||
+			item.unitSystem != 'none';
+	};
+
+	// Returns a string describing the size of an |item| starting at bit |startBit|
+	// within the containing report.
+	const reportSizeAndCountAsString = (item, startBit) => {
+		const bitWidth = item.reportCount * item.reportSize;
+		if (bitWidth == 1)
+			return `1 bit (bit ${startBit})`;
+		
+		const endBit = startBit + bitWidth - 1;
+		if (item.reportCount == 1)
+			return `${item.reportSize} bits (bits ${startBit} to ${endBit})`;
+
+		return `${pluralize(item.reportCount, 'value')} * ${pluralize(item.reportSize, 'bit')} (bits ${startBit} to ${endBit})`;
+	};
+
+	// Returns the bitfield values for |item| using human-readable abbreviations.
+	// Some values are only included if they differ from the typical defaults.
+	const bitFieldAsString = item => {
+		const fields = ["isConstant", "isArray", "isAbsolute", "wrap", "isLinear", "hasPreferredState", "hasNull", "isVolatile", "isBufferedBytes"];
+		const bits = [];
+		for (const field of fields) {
+			if (field in item) {
+				const value = item[field];
+				bits.push(field + "-" + Number(value));
+			}
+		}
+		/* bits.push(item.isConstant ? 'Cnst' : 'Data');
+		bits.push(item.isArray ? 'Ary' : 'Var');
+		bits.push(item.isAbsolute ? 'Abs' : 'Rel');
+		if (item.wrap) bits.push('Wrap');
+		if (!item.isLinear) bits.push('NLin');
+		if (!item.hasPreferredState) bits.push('NPrf');
+		if (item.hasNull) bits.push('Null');
+		if (item.isVolatile) bits.push('Vol');
+		if (item.isBufferedBytes) bits.push('Buf'); */
+		return bits.join(', ');
+	};
+	
+	// Returns the top-level usage assigned to |collection| as a human-readable string.
+	const collectionUsageAsString = collection => {
+		return `Usage: ${usageName((collection.usagePage << 16) + collection.usage)}`;
+	};
+
+	// Returns the usages assigned to |item| as a human-readable string.
+	const usagesAsString = item => {
+		if (item.isRange) {
+			if (item.usageMinimum == item.usageMaximum)
+				return `Usage: ${usageName(item.usageMinimum)}`;
+			return `Usages: ${usageName(item.usageMinimum)} to ${usageName(item.usageMaximum)}`;
+		}
+
+		let usageStrings = [];
+		for (const usage of item.usages)
+			usageStrings.push(usageName(usage));
+		if (usageStrings.length == 1)
+			return `Usage: ${usageStrings[0]}`;
+		return `Usages:\n      ${usageStrings.join('\n      ')}`
+	};
+
+	// Returns the logical bounds of |item| as a human-readable string.
+	const logicalBoundsAsString = item => {
+		return `Logical bounds: ${item.logicalMinimum} to ${item.logicalMaximum}`;
+	};
+
+	// Returns the physical bounds of |item| as a human-readable string.
+	const physicalBoundsAsString = item => {
+		return `Physical bounds: ${item.physicalMinimum} to ${item.physicalMaximum}`;
+	};
+
+	// Appends a string representation of a unit factor with name |unitFactorName|
+	// and exponent |unitFactorExponent| to an array representing unit factors in
+	// the |numerator| or |denominator|. Unit factors with positive exponents are
+	// appended to the numerator, unit factors with negative exponents are appended
+	// to the denominator. Unit factors with exponent zero are not appended.
+	const addUnitFactor = (numerator, denominator, unitFactorName, unitFactorExponent) => {
+		if (unitFactorExponent == 0)
+			return;
+
+		const absoluteExponent = Math.abs(unitFactorExponent);
+		const exponent = (absoluteExponent == 1) ? '' : `^${absoluteExponent}`;
+		if (unitFactorExponent > 0)
+			numerator.push(unitFactorName + exponent);
+		else
+			denominator.push(unitFactorName + exponent);
+	};
+
+	// Returns a human-readable string describing the unit definition for |item|.
+	const unitsAsString = item => {
+		let lengthName;
+		let massName;
+		let timeName;
+		let temperatureName;
+		let currentName;
+		let luminousIntensityName;
+		if (item.unitSystem == 'si-linear') {
+			lengthName = 'cm';  // Centimeter
+			massName = 'g';  // Gram
+			timeName = 's';  // Seconds
+			temperatureName = 'K';  // Kelvin
+			currentName = 'A';  // Ampere
+			luminousIntensityName = 'cd';  // Candela
+		} else if (item.unitSystem == 'si-rotation') {
+			lengthName = 'rad';  // Radians
+			massName = 'g';  // Gram
+			timeName = 's';  // Seconds
+			temperatureName = 'K';  // Kelvin
+			currentName = 'A';  // Ampere
+			luminousIntensityName = 'cd';  // Candela
+		} else if (item.unitSystem == 'english-linear') {
+			lengthName = 'in';  // Inch
+			massName = 'slug';  // Slug
+			timeName = 's';  // Seconds
+			temperatureName = '°F';  // Fahrenheit
+			currentName = 'A';  // Ampere
+			luminousIntensityName = 'cd';  // Candela
+		} else if (item.unitSystem == 'english-rotation') {
+			lengthName = 'deg';  // Degrees
+			massName = 'slug';  // Slug
+			timeName = 's';  // Seconds
+			temperatureName = '°F';  // Fahrenheit
+			currentName = 'A';  // Ampere
+			luminousIntensityName = 'cd';  // Candela
+		} else {
+			lengthName = 'length';
+			massName = 'mass';
+			timeName = 'time';
+			temperatureName = 'temperature';
+			currentName = 'current';
+			luminousIntensityName = 'luminous-intensity';
+		}
+
+		let numeratorFactors = [];
+		let denominatorFactors = [];
+		addUnitFactor(numeratorFactors, denominatorFactors, lengthName, item.unitFactorLengthExponent);
+		addUnitFactor(numeratorFactors, denominatorFactors, massName, item.unitFactorMassExponent);
+		addUnitFactor(numeratorFactors, denominatorFactors, timeName, item.unitFactorTimeExponent);
+		addUnitFactor(numeratorFactors, denominatorFactors, temperatureName, item.unitFactorTemperatureExponent);
+		addUnitFactor(numeratorFactors, denominatorFactors, currentName, item.unitFactorCurrentExponent);
+		addUnitFactor(numeratorFactors, denominatorFactors, luminousIntensityName, item.unitFactorLuminousIntensityExponent);
+
+		const exponent = (item.unitExponent == 0) ? '' : `10^${item.unitExponent}*`;
+		const numerator = (numeratorFactors.length > 0) ? numeratorFactors.join('*') : '1';
+		if (denominatorFactors.length == 0)
+			return `Units: ${exponent}${numerator}`;
+
+		const denominator = denominatorFactors.join('*')
+		return `Units: ${exponent}${numerator}/${denominator}`;
+	};
+
+	// Returns a string representation of all |reports| of a particular report
+	// |type|.
+	const formatReportListInfo = (reports, type) => {
+		let reportInfo = '';
+		for (const r of reports) {
+			reportInfo += `${type} report 0x${hex8(r.reportId)}\n`;
+			let bitOffset = 0;
+			for (const item of r.items) {
+				reportInfo += `  ${reportSizeAndCountAsString(item, bitOffset)}\n`;
+				reportInfo += `    ${bitFieldAsString(item)}\n`;
+				if (hasUsages(item))
+					reportInfo += `    ${usagesAsString(item)}\n`;
+				reportInfo += `    ${logicalBoundsAsString(item)}\n`;
+				if (hasPhysicalBounds(item))
+					reportInfo += `    ${physicalBoundsAsString(item)}\n`;
+				if (hasUnitDefinition(item))
+					reportInfo += `    ${unitsAsString(item)}\n`;
+				bitOffset += item.reportSize * item.reportCount;
+			}
+		}
+		return reportInfo;
+	};
+
+	// Updates the device info display for the currently selected device.
+	const updateDeviceInfo = () => {
+		let textarea = document.getElementById('deviceInfo');
+		if (selectedDevice == null) {
+			textarea.textContent = '';
+			return;
+		}
+		
+		let deviceInfo =
+			`productName: ${selectedDevice.productName}\n` +
+			`vendorId:    0x${hex16(selectedDevice.vendorId)} (${selectedDevice.vendorId}) ${vendorName(selectedDevice.vendorId)}\n` +
+			`productId:   0x${hex16(selectedDevice.productId)} (${selectedDevice.productId})\n` +
+			`opened:      ${(selectedDevice.opened ? 'true' : 'false')}\n`;
+
+		if (selectedDevice.collections.length == 0) {
+			deviceInfo += 'collections: None';
+		} else {
+			for (let i = 0; i < selectedDevice.collections.length; ++i) {
+				const c = selectedDevice.collections[i];
+				let inputReports = [];
+				let outputReports = [];
+				let featureReports = [];
+				for (const r of c.inputReports)
+					inputReports.push(`0x${hex8(r.reportId)}`);
+				for (const r of c.outputReports)
+					outputReports.push(`0x${hex8(r.reportId)}`);
+				for (const r of c.featureReports)
+					featureReports.push(`0x${hex8(r.reportId)}`);
+
+				deviceInfo += `collections[${i}]\n`;
+				deviceInfo += `  ${collectionUsageAsString(c)}\n`;
+				if (inputReports.length > 0)
+					deviceInfo += `  Input reports: ${inputReports.join(', ')}\n`;
+				if (outputReports.length > 0)
+					deviceInfo += `  Output reports: ${outputReports.join(', ')}\n`;
+				if (featureReports.length > 0)
+					deviceInfo += `  Feature reports: ${featureReports.join(', ')}\n`;
+			}
+			
+			for (let i = 0; i < selectedDevice.collections.length; ++i) {
+				const c = selectedDevice.collections[i];
+				deviceInfo += formatReportListInfo(c.inputReports, 'Input');
+				deviceInfo += formatReportListInfo(c.outputReports, 'Output');
+				deviceInfo += formatReportListInfo(c.featureReports, 'Feature');
+			}
+		}
+
+		textarea.textContent = deviceInfo;
+	};
+
+	window.onload = async () => {
+		// Register for connection and disconnection events.
+		navigator.hid.onconnect = e => { addDevice(e.device); };
+		navigator.hid.ondisconnect = e => { removeDevice(e.device); };
+
+		// Fetch the list of connected devices.
+		const devices = await navigator.hid.getDevices();
+		for (let device of devices)
+			await addDevice(device);
+	};
+	/*]]>*/</script>
+</head>
+<body>
+	<div class="title"><h1>HID Explorer</h1></div>
+	<div class="hid-connection">
+		<button onclick="connectDevice()">Connect</button>&nbsp;
+		<select id="deviceSelect" oninput="deviceSelectionChanged()"></select>
+	</div>
+	<div class="row-header">
+		Device info
+	</div>
+	<pre class="dev-info" id="deviceInfo">
+	</pre>
+	<div class="row-header">
+		Input report
+	</div>
+	<div class="row-expand rep-in">
+		<textarea id="inputReport" readonly="readonly"></textarea>
+	</div>
+	<div class="row-header">
+		Output report&nbsp;<button onclick="sendOutputReport()">Send</button>
+	</div>
+	<div class="row-expand rep-out">
+		<textarea id="outputReport"></textarea>
+	</div>
+	<div class="row-header">
+		Feature report&nbsp;
+		<button onclick="sendFeatureReport()">Send</button>&nbsp;
+		<button onclick="receiveFeatureReport()">Receive</button>
+	</div>
+	<div class="row-expand rep-feature">
+		<textarea id="featureReport"></textarea>
+	</div>
+</body>
+</html>
