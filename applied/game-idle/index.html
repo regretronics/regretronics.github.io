@@ -25,7 +25,28 @@
 	}
 
 	const counterInitial = 0, counterIncInitial = 1;
-	var counter = counterInitial, counterInc = counterIncInitial;
+	const gameState = {
+		_counter: counterInitial,
+		get counter() {
+			return this._counter;
+		},
+		set counter(value) {
+			this._counter = value;
+			outCounter.textContent = this._counter.toString();
+			saveData("counter", this._counter);
+		},
+
+		_counterInc: counterIncInitial,
+		get counterInc() {
+			return this._counterInc;
+		},
+		set counterInc(value) {
+			this._counterInc = value;
+			outCounterInc.textContent = this._counterInc.toString();
+			saveData("counterInc", this._counterInc);
+		},
+	};
+	/* var counter = counterInitial, counterInc = counterIncInitial;
 	function setCounter(value) {
 		counter = value;
 		outCounter.textContent = counter.toString();
@@ -35,7 +56,7 @@
 		counterInc = value;
 		outCounterInc.textContent = counterInc.toString();
 		saveData("counterInc", counterInc);
-	}
+	} */
 
 	var idleTimer = null;
 	const cycleIntervalMsInitial = 1000;
@@ -48,7 +69,8 @@
 		}
 		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
 
-		setCounter(counter + counterInc);
+		//setCounter(counter + counterInc);
+		gameState.counter = gameState.counter + gameState.counterInc;
 
 		if(!document.hidden && wpRunning) WpRndNextArticle();
 	}
@@ -157,6 +179,7 @@
 			],
 		},
 	]; */
+	//currently the only difference between costs and rewards is that costs are also prerequisites
 	const gameTrades = [
 		{
 			title: "False reward",
@@ -167,6 +190,33 @@
 				{field: "counterInc", change: 1},
 			],
 		},
+		{
+			title: "Untrue deward",
+			costs: [
+				{field: "counterInc", change: -1},
+			],
+			rewards: [
+				{field: "counter", change: 256},
+			],
+		},
+		{
+			title: "Test: taker",
+			costs: [
+				{field: "counter", change: -256},
+				{field: "counterInc", change: -1},
+			],
+			rewards: [
+			],
+		},
+		{
+			title: "Test: giver",
+			costs: [
+				],
+			rewards: [
+				{field: "counter", change: 256},
+				{field: "counterInc", change: 1},
+			],
+		},
 	];
 	function loadTrades(targetList) {
 		targetList.innerHTML = "";
@@ -174,9 +224,13 @@
 			if(Object.prototype.hasOwnProperty.call(gameTrades, key)) {
 				const trade = gameTrades[key];
 				const tradeElem = targetList.appendChild(document.createElement("li"));
-				tradeElem.appendChild(document.createTextNode(trade.title + " "));
+				const tradeCaption = tradeElem.appendChild(document.createElement("label"));
+				tradeCaption.textContent = trade.title;
+				tradeCaption.htmlFor = "btnTradeOrder" + key;
+				tradeElem.appendChild(document.createTextNode(" "));
 
 				const btnOrder = tradeElem.appendChild(document.createElement("button"));
+				btnOrder.id = "btnTradeOrder" + key;
 				btnOrder.textContent = "Order";
 				btnOrder.addEventListener("click", btnOrderClick);
 				btnOrder.dataset["tradeIdx"] = key;
@@ -201,48 +255,52 @@
 			}
 		}
 	}
-	/* function btnUpgradeClick(event) {
-		if(!event || !event.target) return;
-
-		const costVar = event.target.dataset["costVar"];
-		if(!costVar) return;
-		if(costVar != "counter") return; //to do: this will have to become more flexible eventually
-
-		const costValStr = event.target.dataset["costVal"];
-		//if(!costValStr) return;
-		let costVal = parseFloat(costValStr) ?? 1;
-		if(costVal === NaN) costVal = 1;
-
-		if(counter < costVal) return;
-
-		setCounterInc(counterInc + 1);
-		setCounter(counter - costVal);
-	} */
 	function btnOrderClick(event) {
 		if(!event || !event.target) return;
 
+		//get the data structure of a trade
 		const tradeIdx = parseFloat(event.target.dataset["tradeIdx"]);
 		if(tradeIdx === NaN) return;
 		const tradeObj = gameTrades[tradeIdx];
 		if(!tradeObj) return;
 
-		//to do: this will have to become more flexible eventually
+		//get the requisites and check their presence; quits if some are not present
 		//to do: support for many costs and rewards
-		const cost = tradeObj.costs[0];
-		if(cost.field != "counter") return;
+		/* const cost = tradeObj.costs[0];
+		//if(cost.field != "counter") return;
 
 		let costVal = cost.change ?? 1;
 		if(costVal === NaN) costVal = 1;
-		if(counter < -costVal) return;
+		//if(counter < -costVal) return;
+		if(gameState[cost.field] < -costVal) return; */
+		for(const cost of tradeObj.costs) {
+			let costVal = cost.change ?? 1;
+			if(costVal === NaN) costVal = 1;
+			if(gameState[cost.field] < -costVal) return;
+		}
 
-		const reward = tradeObj.rewards[0];
-		if(reward.field != "counterInc") return;
+		//get rewards
+		/* const reward = tradeObj.rewards[0];
+		//if(reward.field != "counterInc") return;
 
 		let rewardVal = reward.change ?? 1;
-		if(rewardVal === NaN) rewardVal = 1;
+		if(rewardVal === NaN) rewardVal = 1; */
 
-		setCounter(counter + costVal);
-		setCounterInc(counterInc + rewardVal);
+		//apply costs and rewards
+		//setCounter(counter + costVal);
+		//setCounterInc(counterInc + rewardVal);
+		/* gameState[cost.field] = gameState[cost.field] + costVal;
+		gameState[reward.field] = gameState[reward.field] + rewardVal; */
+		for(const cost of tradeObj.costs) {
+			let costVal = cost.change ?? 1;
+			if(costVal === NaN) costVal = 1;
+			gameState[cost.field] = gameState[cost.field] + costVal;
+		}
+		for(const reward of tradeObj.rewards) {
+			let rewardVal = reward.change ?? 1;
+			if(rewardVal === NaN) rewardVal = 1;
+			gameState[reward.field] = gameState[reward.field] + rewardVal;
+		}
 	}
 
 	function btnGameResetClick(event) {
@@ -253,6 +311,7 @@
 			idleTimer = null;
 		}
 
+		//localStorage.clear();
 		const eraseData = function(field) {
 			localStorage.removeItem(field);
 			localStorage.removeItem("gameIdle." + field);
@@ -261,11 +320,12 @@
 		eraseData("counterInc");
 		eraseData("cycleInterval");
 		//eraseData("rndArticleBuffer"); //?
-		//localStorage.clear();
 
 		storageCanWrite = true;
-		setCounter(counterInitial);
-		setCounterInc(counterIncInitial);
+		//setCounter(counterInitial);
+		//setCounterInc(counterIncInitial);
+		gameState.counter = counterInitial;
+		gameState.counterInc = counterIncInitial;
 		cycleIntervalMs = cycleIntervalMsInitial;
 
 		if(gameRunning) idleTimer = setTimeout(idleCycle, cycleIntervalMs);
@@ -294,8 +354,10 @@
 				if(s) continuation(JSON.parse(s));
 			};
 			retrieve("gameRunning", v => {gameRunning = v;});
-			retrieve("counter", v => {setCounter(v);});
-			retrieve("counterInc", v => {setCounterInc(v);});
+			//retrieve("counter", v => {setCounter(v);});
+			//retrieve("counterInc", v => {setCounterInc(v);});
+			retrieve("counter", v => {gameState.counter = v;});
+			retrieve("counterInc", v => {gameState.counterInc = v;});
 			retrieve("cycleInterval", v => {cycleIntervalMs = 1000 * v;});
 			retrieve("rndArticleBuffer", v => {rndArticleBuffer = v;});
 			retrieve("boxWpRndArticle.open", v => {boxWpRndArticle.open = v;});
@@ -315,7 +377,6 @@
 
 		btnGameReset.addEventListener("click", btnGameResetClick);
 		//txtParam01.addEventListener("input", txtParam01Input);
-		//btnUpgrade.addEventListener("click", btnUpgradeClick);
 
 		try {
 			loadState();
@@ -357,8 +418,6 @@
 			</ul>
 		</div>
 	</details>
-	<!-- <p><button id="btnUpgrade" class="gameUpgrade" data-cost-var="counter" data-cost-val="256">False reward<br />
-		cost: </button></p> -->
 	<details id="boxWpRndArticle" open="open">
 		<summary>Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
 		<div class="details-main">

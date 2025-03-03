@@ -85,7 +85,7 @@ details[open] {
 	outline-width: 0.25em;
 	outline-color: color(from oklch(0.5 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.375);
 }
-details > summary:first-of-type {
+details > summary:first-of-type, label {
 	cursor: pointer;
 }
 /* details[open] > :not(summary:first-of-type) {
@@ -149,6 +149,7 @@ input[type="number"] {
 	border-end-end-radius: 0.125em;
 }
 input:is([type="button"], [type="submit"], [type="reset"]), button {
+	font-size: 0.9rem;
 	font-variant: small-caps;
 }
 input:is([type="button"], [type="submit"], [type="reset"]), button { /* to do: active or focus? */
@@ -168,6 +169,9 @@ input:is([type="button"], [type="submit"], [type="reset"]), button { /* to do: a
 		var(--sh-br) var(--sh-thick) var(--shade-w, white);
 }
 
+.trades-list > li > label {
+	font-weight: bolder;
+}
 .trade-features-list > li > .field {
 	font-variant: small-caps;
 	/* font-weight: bolder; */
