@@ -143,6 +143,108 @@
 			lstWpRndHistory.lastElementChild.remove();
 	}
 
+	/* //this is getting too generalized/complicated
+	const changeLinear = (current, change) => (current + change);
+	const conditionGreaterEq = (current, threshold) => (current >= threshold);
+	const gameOperations = [
+		{
+			title: "False reward",
+			reqs: [
+				{field: "counter", thresholdFunc: conditionGreaterEq, thresholdVal: 256, changeFunc: changeLinear, changeVal: -256},
+			],
+			effects: [
+				{field: "counterInc", changeFunc: changeLinear, changeVal: 1, adjustFunc: null, adjustVal: null},
+			],
+		},
+	]; */
+	const gameTrades = [
+		{
+			title: "False reward",
+			costs: [
+				{field: "counter", change: -256},
+			],
+			rewards: [
+				{field: "counterInc", change: 1},
+			],
+		},
+	];
+	function loadTrades(targetList) {
+		targetList.innerHTML = "";
+		for(const key in gameTrades) {
+			if(Object.prototype.hasOwnProperty.call(gameTrades, key)) {
+				const trade = gameTrades[key];
+				const tradeElem = targetList.appendChild(document.createElement("li"));
+				tradeElem.appendChild(document.createTextNode(trade.title + " "));
+
+				const btnOrder = tradeElem.appendChild(document.createElement("button"));
+				btnOrder.textContent = "Order";
+				btnOrder.addEventListener("click", btnOrderClick);
+				btnOrder.dataset["tradeIdx"] = key;
+
+				const lstTradeFeatures = tradeElem.appendChild(document.createElement("ul"));
+				lstTradeFeatures.classList.add("trade-features-list");
+				const enumFeatures = function(list, featureClass) {
+					for (const item of list) {
+						const featureElem = lstTradeFeatures.appendChild(document.createElement("li"));
+
+						const featureField = featureElem.appendChild(document.createElement("span"));
+						featureField.textContent = featureClass + ": ";
+						featureField.classList.add("field");
+
+						const featureValue = featureElem.appendChild(document.createElement("span"));
+						featureValue.textContent = item.field + " " + item.change.toString();
+						featureValue.classList.add("value");
+					}
+				}
+				enumFeatures(trade.costs, "cost");
+				enumFeatures(trade.rewards, "reward");
+			}
+		}
+	}
+	/* function btnUpgradeClick(event) {
+		if(!event || !event.target) return;
+
+		const costVar = event.target.dataset["costVar"];
+		if(!costVar) return;
+		if(costVar != "counter") return; //to do: this will have to become more flexible eventually
+
+		const costValStr = event.target.dataset["costVal"];
+		//if(!costValStr) return;
+		let costVal = parseFloat(costValStr) ?? 1;
+		if(costVal === NaN) costVal = 1;
+
+		if(counter < costVal) return;
+
+		setCounterInc(counterInc + 1);
+		setCounter(counter - costVal);
+	} */
+	function btnOrderClick(event) {
+		if(!event || !event.target) return;
+
+		const tradeIdx = parseFloat(event.target.dataset["tradeIdx"]);
+		if(tradeIdx === NaN) return;
+		const tradeObj = gameTrades[tradeIdx];
+		if(!tradeObj) return;
+
+		//to do: this will have to become more flexible eventually
+		//to do: support for many costs and rewards
+		const cost = tradeObj.costs[0];
+		if(cost.field != "counter") return;
+
+		let costVal = cost.change ?? 1;
+		if(costVal === NaN) costVal = 1;
+		if(counter < -costVal) return;
+
+		const reward = tradeObj.rewards[0];
+		if(reward.field != "counterInc") return;
+
+		let rewardVal = reward.change ?? 1;
+		if(rewardVal === NaN) rewardVal = 1;
+
+		setCounter(counter + costVal);
+		setCounterInc(counterInc + rewardVal);
+	}
+
 	function btnGameResetClick(event) {
 		if(!confirm("Please confirm if you are dumb.")) return;
 
@@ -166,29 +268,12 @@
 		setCounterInc(counterIncInitial);
 		cycleIntervalMs = cycleIntervalMsInitial;
 
-		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
+		if(gameRunning) idleTimer = setTimeout(idleCycle, cycleIntervalMs);
 	}
 	function chkGameRunningClick(event) {
 		gameRunning = chkGameRunning.checked;
 		saveData("gameRunning", gameRunning);
 		if(gameRunning && !idleTimer) idleTimer = setTimeout(idleCycle, cycleIntervalMs);
-	}
-	function btnUpgradeClick(event) {
-		if(!event || !event.target) return;
-
-		const costVar = event.target.dataset["costVar"];
-		if(!costVar) return;
-		if(costVar != "counter") return; //to do: this will have to become more flexible eventually
-
-		const costValStr = event.target.dataset["costVal"];
-		//if(!costValStr) return;
-		let costVal = parseFloat(costValStr) ?? 1;
-		if(costVal === NaN) costVal = 1;
-
-		if(counter < costVal) return;
-
-		setCounterInc(counterInc + 1);
-		setCounter(counter - costVal);
 	}
 	function detailsToggleSave(event) {
 		if(!event || !event.target) return;
@@ -200,19 +285,7 @@
 		saveData("wpRunning", wpRunning);
 	}
 
-	/* function pageLoad(event) {
-	} */
-	function pageReady(event) {
-		document.documentElement.style.setProperty("--hue-phase", Math.random() + "turn");
-
-		//load HTML element references (renders document.getElementById unnecessary)
-		for(let s of document.querySelectorAll("[id]"))
-			window[s.id] = s;
-
-		btnGameReset.addEventListener("click", btnGameResetClick);
-		//txtParam01.addEventListener("input", txtParam01Input);
-		btnUpgrade.addEventListener("click", btnUpgradeClick);
-
+	function loadState() {
 		try {
 			storageCanWrite = false;
 			const retrieve = function(field, continuation) {
@@ -227,15 +300,34 @@
 			retrieve("rndArticleBuffer", v => {rndArticleBuffer = v;});
 			retrieve("boxWpRndArticle.open", v => {boxWpRndArticle.open = v;});
 			retrieve("wpRunning", v => {wpRunning = v;});
+		} finally {
+			storageCanWrite = true;
+		}
+	}
+	/* function pageLoad(event) {
+	} */
+	function pageReady(event) {
+		document.documentElement.style.setProperty("--hue-phase", Math.random() + "turn");
+
+		//load HTML element references (renders document.getElementById unnecessary)
+		for(let s of document.querySelectorAll("[id]"))
+			window[s.id] = s;
+
+		btnGameReset.addEventListener("click", btnGameResetClick);
+		//txtParam01.addEventListener("input", txtParam01Input);
+		//btnUpgrade.addEventListener("click", btnUpgradeClick);
+
+		try {
+			loadState();
 		} catch(error) {
 		}
-
-		storageCanWrite = true;
 		chkGameRunning.checked = gameRunning;
 		chkWpRunning.checked = wpRunning;
 		chkGameRunning.addEventListener("click", chkGameRunningClick);
 		boxWpRndArticle.addEventListener("toggle", detailsToggleSave);
 		chkWpRunning.addEventListener("click", chkWpRunningClick);
+
+		loadTrades(lstTrades);
 
 		WpRndNextArticle();
 		if(gameRunning) idleTimer = setTimeout(idleCycle, cycleIntervalMs);
@@ -252,14 +344,29 @@
 	<p>The counter: <output id="outCounter">0</output>.</p>
 	<p>The counter increment: <output id="outCounterInc">1</output>.</p>
 	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p> -->
-	<p><button id="btnUpgrade" data-cost-var="counter" data-cost-val="256">False reward<br />
-		cost: counter 256</button></p>
+	<details open="open">
+		<summary>Trading</summary>
+		<div class="details-main">
+			<ul id="lstTrades" class="trades-list">
+				<!-- <li>False reward <button>Order</button>
+					<ul class="trade-features-list">
+						<li><span class="field">cost:</span> <span class="value">counter -256</span></li>
+						<li><span class="field">reward:</span> <span class="value">counterInc 1</span></li>
+					</ul>
+				</li> -->
+			</ul>
+		</div>
+	</details>
+	<!-- <p><button id="btnUpgrade" class="gameUpgrade" data-cost-var="counter" data-cost-val="256">False reward<br />
+		cost: </button></p> -->
 	<details id="boxWpRndArticle" open="open">
 		<summary>Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
-		<p><input type="checkbox" id="chkWpRunning" checked="checked" /><label for="chkWpRunning">Keep changing articles</label></p>
-		<ul id="wpRndInfoCard"></ul>
-		<p>History:</p>
-		<ol id="lstWpRndHistory"></ol>
+		<div class="details-main">
+			<p><input type="checkbox" id="chkWpRunning" checked="checked" /><label for="chkWpRunning">Keep changing articles</label></p>
+			<ul id="wpRndInfoCard"></ul>
+			<p>History:</p>
+			<ol id="lstWpRndHistory"></ol>
+		</div>
 	</details>
 </body>
 </html>
