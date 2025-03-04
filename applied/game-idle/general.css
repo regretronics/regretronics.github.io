@@ -22,11 +22,20 @@
 	/* --shade-w: color(display-p3 calc(30/32) calc(27/32) 1 / 0.75); */
 	--shade-w: color(display-p3 1 1 1 / 0.75);
 
-	/*box-shadow: bottom-right, top-left, etc.*/
+	/*box-shadow values: bottom-right, top-left, etc.*/
 	--sh-br: 0.0625em 0.0625em;
 	--sh-tl: -0.0625em -0.0625em;
 	--sh-thin: 0.0625em -0.0625em;
 	--sh-thick: 0.125em -0.0625em;
+
+	--page-scale: 1.25;
+	/*for testing*/
+	/* --page-scale: 0.25; */
+	/* --page-scale: 0.5; */
+	/* --page-scale: 1; */
+	/* --page-scale: 2; */
+	/* --page-scale: 3; */
+	font-size: calc(var(--page-scale, 1) * 1em);
 
 	color-scheme: dark;
 
@@ -40,9 +49,12 @@
 	animation-timing-function: linear;
 }
 body {
-	font-size: 1.25em;
 	font-variant: slashed-zero;
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+}
+::selection {
+	background-color: color(from oklch(0.875 0.25 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: color(from oklch(0.125 0.25 var(--hue1-ang, 0deg)) var(--gain-balance));
 }
 
 h1 {
@@ -112,11 +124,13 @@ details > .details-main > :last-child {
 input, textarea, button, select {
 	font-size: inherit;
 }
-input:not([type=checkbox]):not([type=radio]), textarea, button, select {
+input:is(/* [type=date], [type=datetime-local], */ [type=email], [type=file], [type=hidden], [type=month], [type=password], [type=search], [type=tel], [type=text], [type=url], [type=week], [type=datetime]), textarea, button, select {
 	border-start-start-radius: 0.125em;
 	border-start-end-radius: 0.3125em;
 	border-end-start-radius: 0.125em;
 	border-end-end-radius: 0.3125em;
+}
+input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, button, select {
 	border-width: 0;
 	padding: 0.125em;
 
@@ -125,7 +139,7 @@ input:not([type=checkbox]):not([type=radio]), textarea, button, select {
 	background-color: color(from oklch(0.25 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
 	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
 }
-input[type="checkbox"], input[type="radio"] {
+input[type=checkbox], input[type=radio] {
 	/* block-size: 1em; */
 	/* inline-size: 1em; */
 	/* vertical-align: baseline; */
@@ -135,12 +149,12 @@ input[type="checkbox"], input[type="radio"] {
 	margin-inline: 0em;
 	color: inherit;
 }
-input[type=checkbox] + label, input[type="radio"] + label {
+input[type=checkbox] + label, input[type=radio] + label {
 	/* vertical-align: middle; */
 	margin-inline: 0.125em;
 	padding-inline: 0.25em;
 }
-input[type="number"] {
+input[type=number] {
 	width: 8ch;
 	text-align: right;
 	border-start-start-radius: 0.3125em;
@@ -148,11 +162,20 @@ input[type="number"] {
 	border-end-start-radius: 0.3125em;
 	border-end-end-radius: 0.125em;
 }
-input:is([type="button"], [type="submit"], [type="reset"]), button {
+input[type=range] {
+	vertical-align: middle;
+	scale: var(--page-scale, 1);
+	height: 1em;
+
+	--length: 8;
+	width: calc(1em * var(--length, 8) / var(--page-scale, 1));
+	margin-inline: calc(0.5em + 0.5em * var(--length, 8) * (1 - 1 / var(--page-scale, 1)));
+	/* box-sizing: border-box; */
+}
+
+input:is([type=button], [type=submit], [type=reset]), button {
 	font-size: 0.9rem;
 	font-variant: small-caps;
-}
-input:is([type="button"], [type="submit"], [type="reset"]), button { /* to do: active or focus? */
 	padding: 0.25em;
 
 	box-shadow:
@@ -161,7 +184,12 @@ input:is([type="button"], [type="submit"], [type="reset"]), button { /* to do: a
 		var(--sh-tl) var(--sh-thin) var(--shade-w, white),
 		var(--sh-br) var(--sh-thin) var(--shade-b, black);
 }
-:is(input:is([type="button"], [type="submit"], [type="reset"]), button):active:hover {
+:is(input:is([type=button], [type=submit], [type=reset]), button):is(:hover, :focus) {
+	background-color: color(from oklch(0.25 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+}
+:is(input:is([type=button], [type=submit], [type=reset]), button):active:hover {
+	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
 	box-shadow:
 		inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
 		inset var(--sh-tl) var(--sh-thin) var(--shade-w, white),

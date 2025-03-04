@@ -24,54 +24,54 @@
 		localStorage.setItem("gameIdle." + field, JSON.stringify(value));
 	}
 
-	const counterInitial = 0, counterIncInitial = 1;
-	const gameState = {
-		_counter: counterInitial,
-		get counter() {
-			return this._counter;
+	const gameStateFields = {
+		counter: {
+			titleLong: "The counter",
+			title: "counter",
+			listed: true,
 		},
-		set counter(value) {
-			this._counter = value;
-			outCounter.textContent = this._counter.toString();
-			saveData("counter", this._counter);
+		counterInc: {
+			titleLong: "The counter increment",
+			title: "counter inc",
+			listed: true,
 		},
-
-		_counterInc: counterIncInitial,
-		get counterInc() {
-			return this._counterInc;
-		},
-		set counterInc(value) {
-			this._counterInc = value;
-			outCounterInc.textContent = this._counterInc.toString();
-			saveData("counterInc", this._counterInc);
-		},
+		cycleIntervalMs: {
+			listed: false,
+		}
 	};
-	/* var counter = counterInitial, counterInc = counterIncInitial;
-	function setCounter(value) {
-		counter = value;
-		outCounter.textContent = counter.toString();
-		saveData("counter", counter);
-	}
-	function setCounterInc(value) {
-		counterInc = value;
-		outCounterInc.textContent = counterInc.toString();
-		saveData("counterInc", counterInc);
-	} */
+	const gameStateInitial = {
+		counter: 0,
+		counterInc: 1,
+		cycleIntervalMs: 1000,
+	};
 
-	var idleTimer = null;
-	const cycleIntervalMsInitial = 1000;
-	var cycleIntervalMs = cycleIntervalMsInitial;
+	//var gameState = {}; //central state structure
+	var gameState = Object.assign({}, gameStateInitial);
+	function getStateField(field) {
+		return gameState[field];
+	}
+	function setStateField(field, value) {
+		gameState[field] = value;
+		//const outElem = document.getElementById("out" + field);
+		const outElem = document.querySelector('output[data-field="' + field + '"]');
+		if(outElem) outElem.textContent = value.toString(); //update ui
+		saveData("state." + field, value); //persistence
+	}
+
+	var idleTimer = null; //used to control pending updates
 	var gameRunning = true, wpRunning = true;
 	function idleCycle() {
-		if(!gameRunning) {
+		if(!gameRunning) { //cancel
 			idleTimer = null;
 			return;
 		}
-		idleTimer = setTimeout(idleCycle, cycleIntervalMs);
+		idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs")); //perpetuate
 
-		//setCounter(counter + counterInc);
-		gameState.counter = gameState.counter + gameState.counterInc;
+		//calculations
+		//gameState.counter = gameState.counter + gameState.counterInc;
+		setStateField("counter", getStateField("counter") + getStateField("counterInc"));
 
+		//random article pumping
 		if(!document.hidden && wpRunning) WpRndNextArticle();
 	}
 
@@ -82,15 +82,15 @@
 		const url = "https://en.wikipedia.org/w/api.php?" +
 			/* new URLSearchParams({
 				origin: "*",
-				action: "parse",
+				action: "parse", //https://www.mediawiki.org/wiki/API:Parsing_wikitext
 				page: "Test",
 				format: "json",
 			}); */
 			/* new URLSearchParams({
 				origin: "*",
-				action: "query",
+				action: "query", //https://www.mediawiki.org/wiki/API:Query
 				format: "json",
-				list: "random",
+				list: "random", //https://www.mediawiki.org/wiki/API:Random
 				formatversion: "2",
 				rnnamespace: "0",
 				rnlimit: "16",
@@ -100,18 +100,20 @@
 				action: "query",
 				format: "json",
 				formatversion: "2",
-				generator: "random",
+				generator: "random", //https://www.mediawiki.org/wiki/API:Query#Generators
 				grnnamespace: "0",
 				grnlimit: "64",
-				prop: "pageterms",
+				prop: "pageterms", //https://www.mediawiki.org/wiki/API:Query#API_documentation
 			});
 		try {
+			//https://www.mediawiki.org/wiki/API:Parsing_wikitext#JavaScript
+			//https://www.mediawiki.org/wiki/API:Random#JavaScript
 			const req = await fetch(url);
 			const json = await req.json();
 			//rndArticleBuffer.push(...json.query.random);
 			rndArticleBuffer.push(...Object.values(json.query.pages));
 
-			if(wpRunning && (outWpRndArticle.classList.contains("stalled") || !outWpRndArticle.hasChildNodes()))
+			if(wpRunning && (outWpRndArticle.classList.contains("stalled") || !outWpRndArticle.hasChildNodes())) //pump it up?
 				WpRndNextArticle();
 			else
 				saveData("rndArticleBuffer", rndArticleBuffer);
@@ -126,7 +128,7 @@
 
 		const article = rndArticleBuffer.shift();
 		saveData("rndArticleBuffer", rndArticleBuffer);
-		if(!article) {
+		if(!article) { //no good for now
 			outWpRndArticle.classList.add("stalled");
 			return;
 		}
@@ -134,15 +136,17 @@
 		outWpRndArticle.textContent = article.title;
 		outWpRndArticle.classList.remove("stalled");
 
-		let articleAnchor = document.createElement("a");
+		//update the ui
+		let articleAnchor = document.createElement("a"); //link to article
 		articleAnchor.textContent = article.terms?.label ?? article.title;
 		articleAnchor.href = "https://en.wikipedia.org/wiki/" + (article.title ?? "").replaceAll(" ", "_");
 
+		//replacement
 		wpRndInfoCard.innerHTML = "";
 		let labelItem = wpRndInfoCard.appendChild(document.createElement("li"));
 		labelItem.append(articleAnchor);
 
-		if(article.terms?.alias) {
+		if(article.terms?.alias) { //list of aliases, not always present
 			let aliasList = labelItem.appendChild(document.createElement("ul"));
 			for(const alias of article.terms.alias)
 				aliasList.appendChild(document.createElement("ul")).textContent = alias;
@@ -151,17 +155,17 @@
 		if(article.terms?.description)
 			wpRndInfoCard.appendChild(document.createElement("li")).textContent = article.terms.description;
 		
+		//insertion in list
 		let historyNew = document.createElement("li");
-		historyNew.append(articleAnchor.cloneNode(true));
+		historyNew.append(articleAnchor.cloneNode(true)); //reuse
 		if(article.terms?.description) {
-			//historyNew.appendChild(document.createTextNode("\u00a0")); //non-breaking space
 			historyNew.appendChild(document.createTextNode(" "));
 			const descriptionLabel = historyNew.appendChild(document.createElement("span"));
 			descriptionLabel.textContent = article.terms.description;
 			descriptionLabel.classList.add("article-description");
 		}
 		lstWpRndHistory.prepend(historyNew);
-		while(lstWpRndHistory.childElementCount > articleHistoryLimit)
+		while(lstWpRndHistory.childElementCount > articleHistoryLimit) //truncation
 			lstWpRndHistory.lastElementChild.remove();
 	}
 
@@ -191,71 +195,55 @@
 			],
 		},
 		{
-			title: "Untrue deward",
+			title: "Pure regret",
 			costs: [
 				{field: "counterInc", change: -1},
 			],
 			rewards: [
-				{field: "counter", change: 256},
-			],
-		},
-		{
-			title: "Test: taker",
-			costs: [
-				{field: "counter", change: -256},
-				{field: "counterInc", change: -1},
-			],
-			rewards: [
-			],
-		},
-		{
-			title: "Test: giver",
-			costs: [
-				],
-			rewards: [
-				{field: "counter", change: 256},
-				{field: "counterInc", change: 1},
+				{field: "counter", change: 128},
 			],
 		},
 	];
+	//redo the ui about trades
 	function loadTrades(targetList) {
-		targetList.innerHTML = "";
+		targetList.innerHTML = ""; //empty previous contents
+
 		for(const key in gameTrades) {
-			if(Object.prototype.hasOwnProperty.call(gameTrades, key)) {
-				const trade = gameTrades[key];
-				const tradeElem = targetList.appendChild(document.createElement("li"));
-				const tradeCaption = tradeElem.appendChild(document.createElement("label"));
-				tradeCaption.textContent = trade.title;
-				tradeCaption.htmlFor = "btnTradeOrder" + key;
-				tradeElem.appendChild(document.createTextNode(" "));
+			if(!Object.prototype.hasOwnProperty.call(gameTrades, key)) continue;
+			const trade = gameTrades[key];
 
-				const btnOrder = tradeElem.appendChild(document.createElement("button"));
-				btnOrder.id = "btnTradeOrder" + key;
-				btnOrder.textContent = "Order";
-				btnOrder.addEventListener("click", btnOrderClick);
-				btnOrder.dataset["tradeIdx"] = key;
+			const tradeElem = targetList.appendChild(document.createElement("li")); //a trade
+			const tradeCaption = tradeElem.appendChild(document.createElement("label"));
+			tradeCaption.textContent = trade.title;
+			tradeCaption.htmlFor = "btnTradeOrder" + key;
+			tradeElem.appendChild(document.createTextNode(" "));
 
-				const lstTradeFeatures = tradeElem.appendChild(document.createElement("ul"));
-				lstTradeFeatures.classList.add("trade-features-list");
-				const enumFeatures = function(list, featureClass) {
-					for (const item of list) {
-						const featureElem = lstTradeFeatures.appendChild(document.createElement("li"));
+			const btnTradeOrder = tradeElem.appendChild(document.createElement("button"));
+			btnTradeOrder.id = "btnTradeOrder" + key;
+			btnTradeOrder.textContent = "Order";
+			btnTradeOrder.addEventListener("click", btnTradeOrderClick);
+			btnTradeOrder.dataset["tradeIdx"] = key;
 
-						const featureField = featureElem.appendChild(document.createElement("span"));
-						featureField.textContent = featureClass + ": ";
-						featureField.classList.add("field");
+			const lstTradeFeatures = tradeElem.appendChild(document.createElement("ul")); //features of a trade
+			lstTradeFeatures.classList.add("trade-features-list");
+			const enumFeatures = function(list, featureClass) {
+				for (const item of list) {
+					const featureElem = lstTradeFeatures.appendChild(document.createElement("li")); //feature
 
-						const featureValue = featureElem.appendChild(document.createElement("span"));
-						featureValue.textContent = item.field + " " + item.change.toString();
-						featureValue.classList.add("value");
-					}
+					const featureField = featureElem.appendChild(document.createElement("span"));
+					featureField.textContent = featureClass + ": ";
+					featureField.classList.add("field");
+
+					const featureValue = featureElem.appendChild(document.createElement("span"));
+					featureValue.textContent = item.field + " " + item.change.toString();
+					featureValue.classList.add("value");
 				}
-				enumFeatures(trade.costs, "cost");
-				enumFeatures(trade.rewards, "reward");
 			}
+			enumFeatures(trade.costs, "cost");
+			enumFeatures(trade.rewards, "reward");
 		}
 	}
-	function btnOrderClick(event) {
+	function btnTradeOrderClick(event) {
 		if(!event || !event.target) return;
 
 		//get the data structure of a trade
@@ -265,44 +253,32 @@
 		if(!tradeObj) return;
 
 		//get the requisites and check their presence; quits if some are not present
-		//to do: support for many costs and rewards
-		/* const cost = tradeObj.costs[0];
-		//if(cost.field != "counter") return;
-
-		let costVal = cost.change ?? 1;
-		if(costVal === NaN) costVal = 1;
-		//if(counter < -costVal) return;
-		if(gameState[cost.field] < -costVal) return; */
 		for(const cost of tradeObj.costs) {
-			let costVal = cost.change ?? 1;
-			if(costVal === NaN) costVal = 1;
-			if(gameState[cost.field] < -costVal) return;
+			let costVal = cost.change ?? -1;
+			if(costVal === NaN) costVal = -1;
+			//if(gameState[cost.field] < -costVal) return;
+			if(getStateField(cost.field) < -costVal) return;
 		}
 
-		//get rewards
-		/* const reward = tradeObj.rewards[0];
-		//if(reward.field != "counterInc") return;
-
-		let rewardVal = reward.change ?? 1;
-		if(rewardVal === NaN) rewardVal = 1; */
-
 		//apply costs and rewards
-		//setCounter(counter + costVal);
-		//setCounterInc(counterInc + rewardVal);
-		/* gameState[cost.field] = gameState[cost.field] + costVal;
-		gameState[reward.field] = gameState[reward.field] + rewardVal; */
 		for(const cost of tradeObj.costs) {
-			let costVal = cost.change ?? 1;
-			if(costVal === NaN) costVal = 1;
-			gameState[cost.field] = gameState[cost.field] + costVal;
+			let costVal = cost.change ?? -1;
+			if(costVal === NaN) costVal = -1;
+			//gameState[cost.field] = gameState[cost.field] + costVal;
+			setStateField(cost.field, getStateField(cost.field) + costVal);
 		}
 		for(const reward of tradeObj.rewards) {
 			let rewardVal = reward.change ?? 1;
 			if(rewardVal === NaN) rewardVal = 1;
-			gameState[reward.field] = gameState[reward.field] + rewardVal;
+			//gameState[reward.field] = gameState[reward.field] + rewardVal;
+			setStateField(reward.field, getStateField(reward.field) + rewardVal);
 		}
 	}
 
+	function eraseData(field) {
+		localStorage.removeItem(field);
+		localStorage.removeItem("gameIdle." + field);
+	}
 	function btnGameResetClick(event) {
 		if(!confirm("Please confirm if you are dumb.")) return;
 
@@ -312,28 +288,36 @@
 		}
 
 		//localStorage.clear();
-		const eraseData = function(field) {
-			localStorage.removeItem(field);
-			localStorage.removeItem("gameIdle." + field);
+		//eraseData("counter");
+		//eraseData("counterInc");
+		//eraseData("cycleInterval");
+		for(const field in gameState) {
+			//if(Object.prototype.hasOwnProperty.call(gameState, field))
+			eraseData(field);
+			eraseData("state." + field);
 		}
-		eraseData("counter");
-		eraseData("counterInc");
-		eraseData("cycleInterval");
 		//eraseData("rndArticleBuffer"); //?
 
+		//reset proper, to initial values
 		storageCanWrite = true;
-		//setCounter(counterInitial);
-		//setCounterInc(counterIncInitial);
-		gameState.counter = counterInitial;
-		gameState.counterInc = counterIncInitial;
-		cycleIntervalMs = cycleIntervalMsInitial;
+		//gameState.counter = counterInitial;
+		//gameState.counterInc = counterIncInitial;
+		//gameState = Object.assign({}, gameStateInitial); //setters missing
+		gameState = {};
+		for(const field in gameStateInitial)
+			if(Object.prototype.hasOwnProperty.call(gameStateInitial, field)) {
+				const value = gameStateInitial[field];
+				//gameState[field] = value;
+				setStateField(field, value);
+			}
 
-		if(gameRunning) idleTimer = setTimeout(idleCycle, cycleIntervalMs);
+		//finally restart the game cycle
+		if(gameRunning) idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs"));
 	}
 	function chkGameRunningClick(event) {
 		gameRunning = chkGameRunning.checked;
 		saveData("gameRunning", gameRunning);
-		if(gameRunning && !idleTimer) idleTimer = setTimeout(idleCycle, cycleIntervalMs);
+		if(gameRunning && !idleTimer) idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs"));
 	}
 	function detailsToggleSave(event) {
 		if(!event || !event.target) return;
@@ -347,18 +331,36 @@
 
 	function loadState() {
 		try {
-			storageCanWrite = false;
+			storageCanWrite = false; //inhibit storing feedback in setters
 			const retrieve = function(field, continuation) {
 				let s = localStorage.getItem("gameIdle." + field);
-				if(!s) s = localStorage.getItem(field);
+				if(!s) {
+					s = localStorage.getItem(field);
+					if(s) {
+						localStorage.removeItem(field);
+						localStorage.setItem("gameIdle." + field, s);
+					}
+				}
 				if(s) continuation(JSON.parse(s));
 			};
+			
+			//deprecated
+			retrieve("counter", v => {setStateField("counter", v);});
+			retrieve("counterInc", v => {setStateField("counterInc", v);});
+			retrieve("cycleInterval", v => {setStateField("cycleIntervalMs", 1000 * v);});
+			eraseData("counter");
+			eraseData("counterInc");
+			eraseData("cycleInterval");
+			
+			//take values from all stored game state fields
+			for(let i = 0; i < localStorage.length; i++) {
+				const field = localStorage.key(i);
+				if(!field.startsWith("gameIdle.state.")) continue;
+				const s = localStorage.getItem(field);
+				if(s) setStateField(field.replace("gameIdle.state.", ""), JSON.parse(s));
+			}
+
 			retrieve("gameRunning", v => {gameRunning = v;});
-			//retrieve("counter", v => {setCounter(v);});
-			//retrieve("counterInc", v => {setCounterInc(v);});
-			retrieve("counter", v => {gameState.counter = v;});
-			retrieve("counterInc", v => {gameState.counterInc = v;});
-			retrieve("cycleInterval", v => {cycleIntervalMs = 1000 * v;});
 			retrieve("rndArticleBuffer", v => {rndArticleBuffer = v;});
 			retrieve("boxWpRndArticle.open", v => {boxWpRndArticle.open = v;});
 			retrieve("wpRunning", v => {wpRunning = v;});
@@ -369,6 +371,7 @@
 	/* function pageLoad(event) {
 	} */
 	function pageReady(event) {
+		//starting point for hue of color scheme
 		document.documentElement.style.setProperty("--hue-phase", Math.random() + "turn");
 
 		//load HTML element references (renders document.getElementById unnecessary)
@@ -382,16 +385,20 @@
 			loadState();
 		} catch(error) {
 		}
+
+		//update or load things in the user interface
 		chkGameRunning.checked = gameRunning;
 		chkWpRunning.checked = wpRunning;
+		loadTrades(lstTrades);
+
+		//trap changes
 		chkGameRunning.addEventListener("click", chkGameRunningClick);
 		boxWpRndArticle.addEventListener("toggle", detailsToggleSave);
 		chkWpRunning.addEventListener("click", chkWpRunningClick);
 
-		loadTrades(lstTrades);
-
+		//start main game functions
 		WpRndNextArticle();
-		if(gameRunning) idleTimer = setTimeout(idleCycle, cycleIntervalMs);
+		if(gameRunning) idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs"));
 	}
 	//window.addEventListener("DOMContentLoaded", pageLoad);
 	window.addEventListener("load", pageReady);
@@ -402,19 +409,13 @@
 		<small>the Game</small></h1>
 	<p>Simple to learn, hard to master. Relentlessly unrewarding. Insanely addictive. Made with laziness by idlelaters of @, for idlelaters.</p>
 	<p><button id="btnGameReset">Reset game state</button> <input type="checkbox" id="chkGameRunning" checked="checked" /><label for="chkGameRunning">Run game</label></p>
-	<p>The counter: <output id="outCounter">0</output>.</p>
-	<p>The counter increment: <output id="outCounterInc">1</output>.</p>
+	<p>The counter: <output id="outCounter" data-field="counter">0</output>.</p>
+	<p>The counter increment: <output id="outCounterInc" data-field="counterInc">1</output>.</p>
 	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p> -->
 	<details open="open">
 		<summary>Trading</summary>
 		<div class="details-main">
 			<ul id="lstTrades" class="trades-list">
-				<!-- <li>False reward <button>Order</button>
-					<ul class="trade-features-list">
-						<li><span class="field">cost:</span> <span class="value">counter -256</span></li>
-						<li><span class="field">reward:</span> <span class="value">counterInc 1</span></li>
-					</ul>
-				</li> -->
 			</ul>
 		</div>
 	</details>
