@@ -52,10 +52,40 @@
 	}
 	function setStateField(field, value) {
 		gameState[field] = value;
-		//const outElem = document.getElementById("out" + field);
-		const outElem = document.querySelector('output[data-field="' + field + '"]');
-		if(outElem) outElem.textContent = value.toString(); //update ui
 		saveData("state." + field, value); //persistence
+
+		//update UI
+		if(!gameStateFields[field].listed) return;
+		//const outElem = document.querySelector('output[data-field="' + field + '"]');
+		const outElem = document.querySelector('[data-field="' + field + '"] > .value');
+		if(outElem) outElem.textContent = value.toString();
+	}
+	//redo the UI about state
+	function loadStateList(targetList) {
+		targetList.innerHTML = ""; //empty previous contents
+
+		for(const field in gameState) {
+			if(!Object.prototype.hasOwnProperty.call(gameState, field)) continue;
+			if(!gameStateFields[field].listed) return;
+			const value = gameState[field];
+
+			const fieldElem = targetList.appendChild(document.createElement("li")); //a state field
+			fieldElem.dataset["field"] = field;
+
+			//const fieldTitle = fieldElem.appendChild(document.createElement("label"));
+			const fieldTitle = fieldElem.appendChild(document.createElement("span"));
+			fieldTitle.classList.add("title");
+			fieldTitle.textContent = (gameStateFields[field].titleLong ?? gameStateFields[field].title ?? field);
+			//fieldTitle.htmlFor = "outField-" + field;
+			fieldElem.appendChild(document.createTextNode(": "));
+
+			const fieldValue = fieldElem.appendChild(document.createElement("output"));
+			fieldValue.classList.add("value");
+			fieldValue.textContent = value.toString(); //to do: ...generalize this
+		}
+	}
+	function updateStateValues(targetList) {
+		//to do
 	}
 
 	var idleTimer = null; //used to control pending updates
@@ -73,6 +103,9 @@
 
 		//random article pumping
 		if(!document.hidden && wpRunning) WpRndNextArticle();
+	}
+	function startGameCycle() {
+		if(gameRunning) idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs"));
 	}
 
 	var rndArticleBuffer = [];
@@ -136,28 +169,37 @@
 		outWpRndArticle.textContent = article.title;
 		outWpRndArticle.classList.remove("stalled");
 
-		//update the ui
-		let articleAnchor = document.createElement("a"); //link to article
+		//update the UI
+		const articleAnchor = document.createElement("a"); //link to article
 		articleAnchor.textContent = article.terms?.label ?? article.title;
 		articleAnchor.href = "https://en.wikipedia.org/wiki/" + (article.title ?? "").replaceAll(" ", "_");
 
 		//replacement
 		wpRndInfoCard.innerHTML = "";
-		let labelItem = wpRndInfoCard.appendChild(document.createElement("li"));
+		const labelItem = wpRndInfoCard.appendChild(document.createElement("li"));
+		labelItem.classList.add("title-item");
 		labelItem.append(articleAnchor);
 
 		if(article.terms?.alias) { //list of aliases, not always present
-			let aliasList = labelItem.appendChild(document.createElement("ul"));
-			for(const alias of article.terms.alias)
-				aliasList.appendChild(document.createElement("ul")).textContent = alias;
+			const aliasList = labelItem.appendChild(document.createElement("ul"));
+			aliasList.classList.add("alias-list");
+			for(const alias of article.terms.alias) {
+				const aliasElem = aliasList.appendChild(document.createElement("li"));
+				aliasElem.textContent = alias;
+				aliasElem.classList.add("alias");
+			}
 		}
 
-		if(article.terms?.description)
-			wpRndInfoCard.appendChild(document.createElement("li")).textContent = article.terms.description;
+		if(article.terms?.description) {
+			const descriptionItem = wpRndInfoCard.appendChild(document.createElement("li"));
+			descriptionItem.textContent = article.terms.description;
+			descriptionItem.classList.add("desc-item");
+		}
 		
 		//insertion in list
-		let historyNew = document.createElement("li");
+		const historyNew = document.createElement("li");
 		historyNew.append(articleAnchor.cloneNode(true)); //reuse
+		historyNew.classList.add("history-item");
 		if(article.terms?.description) {
 			historyNew.appendChild(document.createTextNode(" "));
 			const descriptionLabel = historyNew.appendChild(document.createElement("span"));
@@ -204,7 +246,7 @@
 			],
 		},
 	];
-	//redo the ui about trades
+	//redo the UI about trades
 	function loadTrades(targetList) {
 		targetList.innerHTML = ""; //empty previous contents
 
@@ -213,9 +255,10 @@
 			const trade = gameTrades[key];
 
 			const tradeElem = targetList.appendChild(document.createElement("li")); //a trade
-			const tradeCaption = tradeElem.appendChild(document.createElement("label"));
-			tradeCaption.textContent = trade.title;
-			tradeCaption.htmlFor = "btnTradeOrder" + key;
+			const tradeTitle = tradeElem.appendChild(document.createElement("label"));
+			tradeTitle.textContent = trade.title;
+			tradeTitle.htmlFor = "btnTradeOrder" + key;
+			tradeTitle.classList.add("trade-title");
 			tradeElem.appendChild(document.createTextNode(" "));
 
 			const btnTradeOrder = tradeElem.appendChild(document.createElement("button"));
@@ -231,8 +274,10 @@
 					const featureElem = lstTradeFeatures.appendChild(document.createElement("li")); //feature
 
 					const featureField = featureElem.appendChild(document.createElement("span"));
-					featureField.textContent = featureClass + ": ";
+					featureField.textContent = featureClass;
 					featureField.classList.add("field");
+
+					featureElem.appendChild(document.createTextNode(": "));
 
 					const featureValue = featureElem.appendChild(document.createElement("span"));
 					featureValue.textContent = item.field + " " + item.change.toString();
@@ -312,12 +357,12 @@
 			}
 
 		//finally restart the game cycle
-		if(gameRunning) idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs"));
+		startGameCycle();
 	}
 	function chkGameRunningClick(event) {
 		gameRunning = chkGameRunning.checked;
 		saveData("gameRunning", gameRunning);
-		if(gameRunning && !idleTimer) idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs"));
+		if(!idleTimer) startGameCycle();
 	}
 	function detailsToggleSave(event) {
 		if(!event || !event.target) return;
@@ -362,6 +407,8 @@
 
 			retrieve("gameRunning", v => {gameRunning = v;});
 			retrieve("rndArticleBuffer", v => {rndArticleBuffer = v;});
+			retrieve("boxGameState.open", v => {boxGameState.open = v;});
+			retrieve("boxTrades.open", v => {boxTrades.open = v;});
 			retrieve("boxWpRndArticle.open", v => {boxWpRndArticle.open = v;});
 			retrieve("wpRunning", v => {wpRunning = v;});
 		} finally {
@@ -387,18 +434,21 @@
 		}
 
 		//update or load things in the user interface
+		loadStateList(lstStateFields);
 		chkGameRunning.checked = gameRunning;
 		chkWpRunning.checked = wpRunning;
 		loadTrades(lstTrades);
 
-		//trap changes
+		//trap UI changes
 		chkGameRunning.addEventListener("click", chkGameRunningClick);
+		boxGameState.addEventListener("toggle", detailsToggleSave);
+		boxTrades.addEventListener("toggle", detailsToggleSave);
 		boxWpRndArticle.addEventListener("toggle", detailsToggleSave);
 		chkWpRunning.addEventListener("click", chkWpRunningClick);
 
 		//start main game functions
 		WpRndNextArticle();
-		if(gameRunning) idleTimer = setTimeout(idleCycle, getStateField("cycleIntervalMs"));
+		startGameCycle();
 	}
 	//window.addEventListener("DOMContentLoaded", pageLoad);
 	window.addEventListener("load", pageReady);
@@ -409,10 +459,15 @@
 		<small>the Game</small></h1>
 	<p>Simple to learn, hard to master. Relentlessly unrewarding. Insanely addictive. Made with laziness by idlelaters of @, for idlelaters.</p>
 	<p><button id="btnGameReset">Reset game state</button> <input type="checkbox" id="chkGameRunning" checked="checked" /><label for="chkGameRunning">Run game</label></p>
-	<p>The counter: <output id="outCounter" data-field="counter">0</output>.</p>
-	<p>The counter increment: <output id="outCounterInc" data-field="counterInc">1</output>.</p>
 	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p> -->
-	<details open="open">
+	<details id="boxGameState" open="open">
+		<summary>State</summary>
+		<div class="details-main">
+			<ul id="lstStateFields" class="fields-list">
+			</ul>
+		</div>
+	</details>
+	<details id="boxTrades" open="open">
 		<summary>Trading</summary>
 		<div class="details-main">
 			<ul id="lstTrades" class="trades-list">
@@ -423,9 +478,9 @@
 		<summary>Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
 		<div class="details-main">
 			<p><input type="checkbox" id="chkWpRunning" checked="checked" /><label for="chkWpRunning">Keep changing articles</label></p>
-			<ul id="wpRndInfoCard"></ul>
+			<ul id="wpRndInfoCard" class="article-info"></ul>
 			<p>History:</p>
-			<ol id="lstWpRndHistory"></ol>
+			<ol id="lstWpRndHistory" class="history-list"></ol>
 		</div>
 	</details>
 </body>

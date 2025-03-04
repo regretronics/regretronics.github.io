@@ -197,7 +197,14 @@ input:is([type=button], [type=submit], [type=reset]), button {
 		var(--sh-br) var(--sh-thick) var(--shade-w, white);
 }
 
-.trades-list > li > label {
+/* .fields-list > li > :is(.title, .value) { */
+.fields-list > li, .fields-list > li > .title {
+	user-select: all;
+}
+.fields-list > li > .value {
+	opacity: 0.8;
+}
+.trades-list > li > .trade-title {
 	font-weight: bolder;
 }
 .trade-features-list > li > .field {
@@ -205,11 +212,16 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	/* font-weight: bolder; */
 }
 .trade-features-list > li > .value {
+	user-select: all;
 	opacity: 0.8;
 }
 /* .gameUpgrade[data-cost-var]::after {
 	content: " " attr(data-cost-var) " " attr(data-cost-val);
 } */
+.article-description {
+	opacity: 0.8;
+}
+
 #outWpRndArticle {
 	pointer-events: none;
 }
@@ -220,7 +232,8 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	font-variant: small-caps;
 	content: "uhm... Loading? ";
 }
-#wpRndInfoCard > li:first-of-type > ul {
+#wpRndInfoCard > .title-item > ul {
+	user-select: all;
 	font-size: 0.8em;
 }
 #lstWpRndHistory {
@@ -230,7 +243,4 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	opacity: 0.5;
 	font-variant: small-caps;
 	content: "(empty)";
-}
-.article-description {
-	opacity: 0.8;
 }
