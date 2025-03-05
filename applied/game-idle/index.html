@@ -15,6 +15,7 @@
 	<title>Idle game attempt!</title>
 	<!-- <link rel="stylesheet" type="text/css" href="./general.css" crossorigin="anonymous" /> -->
 	<link rel="stylesheet" type="text/css" href="general.css" />
+
 	<script type="text/javascript" src="mediawiki.js"></script>
 	<script type="text/javascript" src="persistence.js"></script>
 	<script type="text/javascript" src="game-trades.js"></script>
@@ -53,7 +54,6 @@
 
 		//update UI
 		if(!gameStateFields[field].listed) return;
-		//const outElem = document.querySelector('output[data-field="' + field + '"]');
 		const outElem = document.querySelector('[data-field="' + field + '"] > .value');
 		if(outElem) outElem.textContent = value.toString();
 	}
@@ -72,7 +72,8 @@
 			//const fieldTitle = fieldElem.appendChild(document.createElement("label"));
 			const fieldTitle = fieldElem.appendChild(document.createElement("span"));
 			fieldTitle.classList.add("title");
-			fieldTitle.textContent = (gameStateFields[field].titleLong ?? gameStateFields[field].title ?? field);
+			fieldTitle.textContent = gameStateFields[field].titleLong ?? gameStateFields[field].title ?? field;
+			fieldTitle.title = gameStateFields[field].title ?? field;
 			//fieldTitle.htmlFor = "outField-" + field;
 			fieldElem.appendChild(document.createTextNode(": "));
 
@@ -116,8 +117,6 @@
 
 		//reset proper, to initial values
 		storageCanWrite = true;
-		//gameState.counter = counterInitial;
-		//gameState.counterInc = counterIncInitial;
 		//gameState = Object.assign({}, gameStateInitial); //setters missing
 		gameState = {};
 		for(const field in gameStateInitial)
@@ -191,21 +190,21 @@
 	<p><button id="btnGameReset">Reset game state</button> <input type="checkbox" id="chkGameRunning" checked="checked" /><label for="chkGameRunning">Run game</label></p>
 	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p> -->
 	<details id="boxGameState" open="open">
-		<summary>State</summary>
+		<summary><span class="marker"></span> State</summary>
 		<div class="details-main">
 			<ul id="lstStateFields" class="fields-list">
 			</ul>
 		</div>
 	</details>
 	<details id="boxTrades" open="open">
-		<summary>Trading</summary>
+		<summary><span class="marker"></span> Trading</summary>
 		<div class="details-main">
 			<ul id="lstTrades" class="trades-list">
 			</ul>
 		</div>
 	</details>
 	<details id="boxWpRndArticle" open="open">
-		<summary>Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
+		<summary><span class="marker"></span> Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
 		<div class="details-main">
 			<p><input type="checkbox" id="chkWpRunning" checked="checked" /><label for="chkWpRunning">Keep changing articles</label></p>
 			<ul id="wpRndInfoCard" class="article-info"></ul>

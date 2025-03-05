@@ -70,12 +70,12 @@ function loadTrades(targetList) {
 				featureElem.appendChild(document.createTextNode(": "));
 
 				const featureValue = featureElem.appendChild(document.createElement("span"));
-				featureValue.textContent = item.field + " " + item.change.toString();
+				featureValue.textContent = gameStateFields[item.field].title + ", " + item.change.toString();
 				featureValue.classList.add("value");
 			}
 		}
-		enumFeatures(trade.costs, "cost");
-		enumFeatures(trade.rewards, "reward");
+		enumFeatures(trade.costs, "Cost");
+		enumFeatures(trade.rewards, "Reward");
 	}
 }
 function btnTradeOrderClick(event) {

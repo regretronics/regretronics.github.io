@@ -52,9 +52,13 @@ body {
 	font-variant: slashed-zero;
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 }
+
 ::selection {
 	background-color: color(from oklch(0.875 0.25 var(--hue1-ang, 0deg)) var(--gain-balance));
 	color: color(from oklch(0.125 0.25 var(--hue1-ang, 0deg)) var(--gain-balance));
+}
+::marker {
+	color: color(from currentColor display-p3 r g b / 0.8);
 }
 
 h1 {
@@ -87,6 +91,7 @@ a:active, a:focus {
 
 details {
 	margin-block: 1em;
+	margin-inline: 0.5em;
 }
 details[open] {
 	background-color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.25);
@@ -97,8 +102,15 @@ details[open] {
 	outline-width: 0.25em;
 	outline-color: color(from oklch(0.5 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.375);
 }
-details > summary:first-of-type, label {
+details > summary:first-of-type {
 	cursor: pointer;
+	padding-inline: 0.5em;
+}
+details[open] > summary:first-of-type {
+	/* text-shadow: 0 0 0.5em color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance)); */
+	text-shadow:
+		0 0 0.125em color(from oklch(0.0 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 1),
+		0 0 0.5em color(from oklch(0.0 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 1);
 }
 /* details[open] > :not(summary:first-of-type) {
 	margin-inline: 1em;
@@ -121,6 +133,36 @@ details > .details-main > :last-child {
 	margin-block-end: 0em;
 }
 
+summary:has(.marker) {
+	list-style-type: none;
+}
+.marker {
+	/* vertical-align: middle; */
+	/* vertical-align: top; */
+	display: inline-block;
+	width: 1em;
+	text-align: end;
+
+	user-select: none;
+	opacity: 0.6;
+}
+.marker::after {
+	/* content: "▸"; */
+	content: "▶";
+	/* content: "►"; */
+}
+/* details[open] > summary:first-of-type::marker {
+	content: "x";
+} */
+details[open] > summary:first-of-type > .marker {
+	opacity: 0.9;
+	rotate: -0.75turn;
+	/* transform: rotateZ(-0.75turn); */
+}
+
+label {
+	cursor: pointer;
+}
 input, textarea, button, select {
 	font-size: inherit;
 }
@@ -151,8 +193,14 @@ input[type=checkbox], input[type=radio] {
 }
 input[type=checkbox] + label, input[type=radio] + label {
 	/* vertical-align: middle; */
-	margin-inline: 0.125em;
+	/* margin-inline: 0.125em; */
 	padding-inline: 0.25em;
+}
+input:is([type=checkbox], input[type=radio]):not(:checked) + label {
+	color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.8);
+}
+input:is([type=checkbox], input[type=radio]):checked + label {
+	color: color(from oklch(0.875 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
 }
 input[type=number] {
 	width: 8ch;
@@ -243,4 +291,23 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	opacity: 0.5;
 	font-variant: small-caps;
 	content: "(empty)";
+}
+
+@media not all and (prefers-reduced-motion: reduce) {
+	details > summary:first-of-type {
+		transition-property: text-shadow;
+		transition-duration: 1s;
+	}
+	.marker {
+		transition-property: opacity, rotate;
+		transition-duration: 1s;
+	}
+	input[type=checkbox] + label, input[type=radio] + label {
+		transition-property: color;
+		transition-duration: 0.5s;
+	}
+	input:is([type=button], [type=submit], [type=reset]), button {
+		transition-property: background-color, color, box-shadow;
+		transition-duration: 0.1875s;
+	}
 }
