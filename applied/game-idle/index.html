@@ -144,19 +144,15 @@
 		saveData("wpRunning", wpRunning);
 	}
 
-	/* function pageLoad(event) {
-	} */
-	function pageReady(event) {
+	function pageLoad(event) {
 		//starting point for hue of color scheme
 		document.documentElement.style.setProperty("--hue-phase", Math.random() + "turn");
 
 		//load HTML element references (renders document.getElementById unnecessary)
 		for(let s of document.querySelectorAll("[id]"))
 			window[s.id] = s;
-
-		btnGameReset.addEventListener("click", btnGameResetClick);
-		//txtParam01.addEventListener("input", txtParam01Input);
-
+	}
+	function pageReady(event) {
 		try {
 			loadFromStorage();
 		} catch(error) {
@@ -169,6 +165,8 @@
 		loadTrades(lstTrades);
 
 		//trap UI changes
+		btnGameReset.addEventListener("click", btnGameResetClick);
+		//txtParam01.addEventListener("input", txtParam01Input);
 		chkGameRunning.addEventListener("click", chkGameRunningClick);
 		boxGameState.addEventListener("toggle", detailsToggleSave);
 		boxTrades.addEventListener("toggle", detailsToggleSave);
@@ -179,7 +177,7 @@
 		WpRndNextArticle();
 		startGameCycle();
 	}
-	//window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("DOMContentLoaded", pageLoad);
 	window.addEventListener("load", pageReady);
 	/*]]>*/</script>
 </head>
