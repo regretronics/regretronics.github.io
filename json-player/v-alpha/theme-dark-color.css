@@ -95,7 +95,7 @@ body {
 	}
 }
 /*::selection {*/
-:not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
+:not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*the exclusions are a bugfix for Blink*/
 	/*background-color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.625);
 	color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);*/
 	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.625);

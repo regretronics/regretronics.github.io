@@ -64,22 +64,22 @@ input:is([type=number], [type=text])[size] {
 	box-sizing: border-box;
 }
 /*inspired by Firefox sizing of input's*/
-input:is([type=number], [type=text])[size="3"] {
+input:is([type=number], [type=text])[size=3] {
 	width: calc(2*5em/32 + 2ch + 3*1ch);
 }
-input:is([type=number], [type=text])[size="4"] {
+input:is([type=number], [type=text])[size=4] {
 	width: calc(2*5em/32 + 2ch + 4*1ch);
 }
-input:is([type=number], [type=text])[size="5"] {
+input:is([type=number], [type=text])[size=5] {
 	width: calc(2*5em/32 + 2ch + 5*1ch);
 }
-input:is([type=number], [type=text])[size="6"] {
+input:is([type=number], [type=text])[size=6] {
 	width: calc(2*5em/32 + 2ch + 6*1ch);
 }
-input:is([type=number], [type=text])[size="7"] {
+input:is([type=number], [type=text])[size=7] {
 	width: calc(2*5em/32 + 2ch + 7*1ch);
 }
-input:is([type=number], [type=text])[size="11"] {
+input:is([type=number], [type=text])[size=11] {
 	width: calc(2*5em/32 + 2ch + 11*1ch);
 }
 /*input[type=number]:not([size]) {
