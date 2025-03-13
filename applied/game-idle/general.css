@@ -18,23 +18,8 @@
 
 	/* --gain-balance: display-p3 calc(r*30/32) calc(g*27/32) b; */
 	--gain-balance: display-p3 r g b;
-	--shade-b: color(display-p3 0 0 0 / 0.75);
-	/* --shade-w: color(display-p3 calc(30/32) calc(27/32) 1 / 0.75); */
-	--shade-w: color(display-p3 1 1 1 / 0.75);
-
-	/*box-shadow values: bottom-right, top-left, etc.*/
-	--sh-br: 0.0625em 0.0625em;
-	--sh-tl: -0.0625em -0.0625em;
-	--sh-thin: 0.0625em -0.0625em;
-	--sh-thick: 0.125em -0.0625em;
 
 	--page-scale: 1.25;
-	/*for testing*/
-	/* --page-scale: 0.25; */
-	/* --page-scale: 0.5; */
-	/* --page-scale: 1; */
-	/* --page-scale: 2; */
-	/* --page-scale: 3; */
 	font-size: calc(var(--page-scale, 1) * 1em);
 
 	color-scheme: dark;
@@ -155,7 +140,7 @@ label {
 input, textarea, button, select {
 	font-size: inherit;
 }
-input:is(/* [type=date], [type=datetime-local], */ [type=email], [type=file], [type=hidden], [type=month], [type=password], [type=search], [type=tel], [type=text], [type=url], [type=week], [type=datetime]), textarea, button, select {
+input:is(/* [type=date], [type=datetime-local], */ [type=email], [type=file], [type=hidden], [type=month], [type=password], [type=search], [type=tel], [type=text], [type=url], [type=week], [type=datetime]), textarea, button, select { /*left-aligned stuff*/
 	border-start-start-radius: 0.125em;
 	border-start-end-radius: 0.3125em;
 	border-end-start-radius: 0.125em;
@@ -287,12 +272,23 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	}
 	input:is([type=button], [type=submit], [type=reset]), button {
 		transition-property: background-color, color, box-shadow;
-		transition-duration: 0.1875s;
+		transition-duration: 0.125s;
 	}
 }
 
 /* @media not all and (prefers-reduced-transparency: reduce) { */
 @media all and (prefers-reduced-transparency: no-preference) {
+	:root {
+		--shade-b: color(display-p3 0 0 0 / 0.75);
+		/* --shade-w: color(display-p3 calc(30/32) calc(27/32) 1 / 0.75); */
+		--shade-w: color(display-p3 1 1 1 / 0.75);
+	
+		/*box-shadow values: bottom-right, top-left, etc.*/
+		--sh-br: 0.0625em 0.0625em;
+		--sh-tl: -0.0625em -0.0625em;
+		--sh-thin: 0.0625em -0.0625em;
+		--sh-thick: 0.125em -0.0625em;
+	}
 	::marker {
 		color: color(from currentColor display-p3 r g b / 0.8);
 	}

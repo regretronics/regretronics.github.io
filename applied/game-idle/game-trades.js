@@ -14,7 +14,7 @@ const gameOperations = [
 		],
 	},
 ]; */
-//currently the only difference between costs and rewards is that costs are also prerequisites
+//currently the only difference between costs and rewards is that costs are also prerequisites (rewards are not checked for amount present)
 const gameTrades = [
 	{
 		title: "False reward",
