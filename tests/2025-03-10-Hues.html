@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS experiment: hues and color spaces</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			color-scheme: dark;
+			--sat: 0.125;
+			--lgh-ref: 0.5;
+			--lgh-colors: 0.5;
+
+			--cl-space: display-p3;
+			--fr: 1;
+			--fg: 1;
+			--fb: 1;
+			--gain-balance: var(--cl-space, srgb) calc(r * var(--fr)) calc(g * var(--fg)) calc(b * var(--fb));
+		}
+		/* #selSaturation {
+			width: 12ch;
+			background-image: linear-gradient(0.25turn in oklch longer hue, oklch(0.5 var(--sat, 0.25) 0turn) 0% 100%);
+		} */
+		input[type=number] {
+			text-align: right;
+			width: 10ch;
+		}
+
+		/* @property --hue-int {
+			syntax: "<number>";
+			inherits: true;
+			initial-value: 0;
+		} */
+		/* .shade-group {
+			counter-reset: sh-hue 0;
+		} */
+		.shade-group > span {
+			/* float: left; */
+			display: inline-block;
+			block-size: 4em;
+			inline-size: 2em;
+
+			/* border: solid gray 0.125ch; */
+			border-style: solid;
+			border-width: 0.25ch;
+			/* border-color: color(display-p3 var(--lgh-ref, 0.5) var(--lgh-ref, 0.5) var(--lgh-ref, 0.5)); */
+			border-color: color(var(--cl-space, srgb) calc(var(--lgh-ref, 0.5) * var(--fr)) calc(var(--lgh-ref, 0.5) * var(--fg)) calc(var(--lgh-ref, 0.5) * var(--fb)));
+
+			/* counter-increment: sh-hue; */
+			--hue-int: attr(data-hue-int type(<number>));
+			/* --hue-int: counter(sh-hue, numeric); */
+			--cl-radial: oklch(var(--lgh-colors, 0.5) var(--sat, 0.25) calc(var(--hue-int, 0) * 1turn / 12));
+			/* background-color: var(--cl-radial, gray); */
+			background-color: color(from var(--cl-radial, gray) var(--gain-balance));
+
+			/* background-color: oklch(0.5 0.2 calc(var(--hue-int, 0) * 1turn / 12));
+			background-color: oklch(0.5 50% calc(var(--hue-int, 0) * 1turn / 12)); */
+		}
+		/* #lstShadeValues {
+			clear: both;
+		} */
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	function updateColorList() {
+		lstShadeValues.innerHTML = "";
+		for(const shadeElem of document.querySelectorAll(".shade-group > span")) {
+			const shadeItem = lstShadeValues.appendChild(document.createElement("li"));
+			shadeItem.textContent = getComputedStyle(shadeElem).getPropertyValue("background-color");
+		}
+	}
+	function txtParamsInput(event) {
+		if(!event || !event.target) return;
+		const elem = event.target;
+		//document.documentElement.style.setProperty("--sat", parseFloat(txtSaturation.value) / 16.0);
+		document.documentElement.style.setProperty(elem.dataset.property, elem.valueAsNumber);
+		updateColorList();
+	}
+	function selColorSpaceInput(event) {
+		if(!event || !event.target) return;
+		const elem = event.target;
+		document.documentElement.style.setProperty(elem.dataset.property, elem.value);
+		updateColorList();
+	}
+
+	function pageLoad(event) {
+		//starting point
+		//document.documentElement.style.setProperty("--sat", Math.random() + "turn");
+
+		//load HTML element references (renders document.getElementById unnecessary)
+		for(let s of document.querySelectorAll("[id]"))
+			window[s.id] = s;
+	}
+	function pageReady(event) {
+		//trap UI changes
+		/* txtSaturation.addEventListener("input", txtParamsInput);
+		txtLightnessRef.addEventListener("input", txtParamsInput);
+		txtLightnessColors.addEventListener("input", txtParamsInput); */
+		document.querySelectorAll("input[type=number][data-property]").forEach(elem => {
+			elem.addEventListener("input", txtParamsInput);
+		});
+		selColorSpace.addEventListener("input", selColorSpaceInput);
+		updateColorList();
+	}
+	window.addEventListener("DOMContentLoaded", pageLoad);
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<p>
+		<label for="txtSaturation">Saturation</label> 
+		<input type="number" id="txtSaturation" value="0.125" step="0.03125" data-property="--sat" /> 
+		<label for="selColorSpace">Target color space</label> 
+		<select id="selColorSpace" data-property="--cl-space">
+			<option>srgb</option>
+			<option>srgb-linear</option>
+			<option selected="true">display-p3</option>
+			<option>a98-rgb</option>
+			<option>prophoto-rgb</option>
+			<option>rec2020</option>
+		</select>
+	</p>
+	<p>
+		<label for="txtLightnessRef">Lightness ref.</label> 
+		<input type="number" id="txtLightnessRef" value="0.5" step="0.03125" data-property="--lgh-ref" /> 
+		<label for="txtLightnessColors">Lightness colors</label> 
+		<input type="number" id="txtLightnessColors" value="0.5" step="0.03125" data-property="--lgh-colors" />
+	</p>
+	<p>
+		<label for="txtGainR">Gain, red</label> 
+		<input type="number" id="txtGainR" value="1" step="0.03125" data-property="--fr" /> 
+		<label for="txtGainG">Gain, green</label> 
+		<input type="number" id="txtGainG" value="1" step="0.03125" data-property="--fg" /> 
+		<label for="txtGainB">Gain, blue</label> 
+		<input type="number" id="txtGainB" value="1" step="0.03125" data-property="--fb" />
+	</p>
+	<p class="shade-group">
+		<span data-hue-int="0">&nbsp;</span>
+		<span data-hue-int="1">&nbsp;</span>
+		<span data-hue-int="2">&nbsp;</span>
+		<span data-hue-int="3">&nbsp;</span>
+		<span data-hue-int="4">&nbsp;</span>
+		<span data-hue-int="5">&nbsp;</span>
+		<span data-hue-int="6">&nbsp;</span>
+		<span data-hue-int="7">&nbsp;</span>
+		<span data-hue-int="8">&nbsp;</span>
+		<span data-hue-int="9">&nbsp;</span>
+		<span data-hue-int="10">&nbsp;</span>
+		<span data-hue-int="11">&nbsp;</span>
+	</p>
+	<ol id="lstShadeValues">
+	</ol>
+</body>
+</html>
