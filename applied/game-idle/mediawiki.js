@@ -65,6 +65,8 @@ function WpRndNextArticle() {
 	const articleAnchor = document.createElement("a"); //link to article
 	articleAnchor.textContent = article.terms?.label ?? article.title;
 	articleAnchor.href = "https://en.wikipedia.org/wiki/" + (article.title ?? "").replaceAll(" ", "_");
+	articleAnchor.hreflang = "en";
+	articleAnchor.target = "_blank";
 
 	//replacement
 	wpRndInfoCard.innerHTML = "";
