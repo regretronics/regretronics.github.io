@@ -63,7 +63,7 @@
 
 		for(const field in gameState) {
 			if(!Object.prototype.hasOwnProperty.call(gameState, field)) continue;
-			if(!gameStateFields[field].listed) return;
+			if(!gameStateFields[field].listed) continue;
 			const value = gameState[field];
 
 			const fieldElem = targetList.appendChild(document.createElement("li")); //a state field
@@ -83,7 +83,7 @@
 		}
 	}
 	function updateStateValues(targetList) {
-		//to do
+		//to do: less destructive variation
 	}
 
 	var idleTimer = null; //used to control pending updates
@@ -188,21 +188,21 @@
 	<p><button id="btnGameReset">Reset game state</button> <input type="checkbox" id="chkGameRunning" checked="checked" /><label for="chkGameRunning">Run game</label></p>
 	<!-- <p>The parameter: <input type="number" id="txtParam01" step="1" value="1" />.</p> -->
 	<details id="boxGameState" open="open">
-		<summary><span class="marker"></span> State</summary>
+		<summary><span class="marker"></span>State</summary>
 		<div class="details-main">
 			<ul id="lstStateFields" class="fields-list">
 			</ul>
 		</div>
 	</details>
 	<details id="boxTrades" open="open">
-		<summary><span class="marker"></span> Trading</summary>
+		<summary><span class="marker"></span>Trading</summary>
 		<div class="details-main">
 			<ul id="lstTrades" class="trades-list">
 			</ul>
 		</div>
 	</details>
 	<details id="boxWpRndArticle" open="open">
-		<summary><span class="marker"></span> Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
+		<summary><span class="marker"></span>Random Wikipedia article: <output id="outWpRndArticle"></output>.</summary>
 		<div class="details-main">
 			<p><input type="checkbox" id="chkWpRunning" checked="checked" /><label for="chkWpRunning">Keep changing articles</label></p>
 			<ul id="wpRndInfoCard" class="article-info"></ul>

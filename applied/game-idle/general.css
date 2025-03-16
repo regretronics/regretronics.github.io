@@ -16,8 +16,8 @@
 	--hue1-ang: 0deg;
 	--hue1-ang: calc(60deg * var(--hue1, 0) + var(--hue-phase, 0deg));
 
-	/* --gain-balance: display-p3 calc(r*30/32) calc(g*27/32) b; */
-	--gain-balance: display-p3 r g b;
+	/* --gain-balance: rec2020 calc(r*30/32) calc(g*27/32) b; */
+	--gain-balance: rec2020 r g b;
 
 	--page-scale: 1.25;
 	font-size: calc(var(--page-scale, 1) * 1em);
@@ -39,8 +39,8 @@ body {
 }
 
 ::selection {
-	background-color: color(from oklch(0.875 0.25 var(--hue1-ang, 0deg)) var(--gain-balance));
-	color: color(from oklch(0.125 0.25 var(--hue1-ang, 0deg)) var(--gain-balance));
+	background-color: color(from oklch(0.875 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: color(from oklch(0.125 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
 }
 ::marker {
 	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
@@ -61,7 +61,7 @@ h1:first-of-type + p {
 }
 
 a:link {
-	color: color(from oklch(0.75 0.25 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
 }
 a:visited {
 	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
@@ -70,7 +70,7 @@ a:hover {
 	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
 }
 a:active, a:focus {
-	color: color(from oklch(0.75 0.25 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
 }
 
 details {
@@ -279,9 +279,9 @@ input:is([type=button], [type=submit], [type=reset]), button {
 /* @media not all and (prefers-reduced-transparency: reduce) { */
 @media all and (prefers-reduced-transparency: no-preference) {
 	:root {
-		--shade-b: color(display-p3 0 0 0 / 0.75);
-		/* --shade-w: color(display-p3 calc(30/32) calc(27/32) 1 / 0.75); */
-		--shade-w: color(display-p3 1 1 1 / 0.75);
+		--shade-b: color(rec2020 0 0 0 / 0.75);
+		/* --shade-w: color(rec2020 calc(30/32) calc(27/32) 1 / 0.75); */
+		--shade-w: color(rec2020 1 1 1 / 0.75);
 	
 		/*box-shadow values: bottom-right, top-left, etc.*/
 		--sh-br: 0.0625em 0.0625em;
@@ -290,11 +290,11 @@ input:is([type=button], [type=submit], [type=reset]), button {
 		--sh-thick: 0.125em -0.0625em;
 	}
 	::marker {
-		color: color(from currentColor display-p3 r g b / 0.8);
+		color: color(from currentColor rec2020 r g b / 0.8);
 	}
 	h1 {
 		opacity: 0.8;
-		text-shadow: 0 0 0.125em color(from oklch(0.75 0.25 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance) / 1);
+		text-shadow: 0 0 0.125em color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance) / 1);
 	}
 	details[open] {
 		background-color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.25);
