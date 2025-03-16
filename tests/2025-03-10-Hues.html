@@ -9,11 +9,12 @@
 	<style type="text/css">/*<![CDATA[*/
 		:root {
 			color-scheme: dark;
+			--hue-phase: 0;
 			--sat: 0.125;
 			--lgh-ref: 0.5;
 			--lgh-colors: 0.5;
 
-			--cl-space: display-p3;
+			--cl-space: rec2020;
 			--fr: 1;
 			--fg: 1;
 			--fb: 1;
@@ -25,7 +26,10 @@
 		} */
 		input[type=number] {
 			text-align: right;
-			width: 10ch;
+			/* width: 10ch; */
+			--step: attr(step type(<number>), 1);
+			--digits: log(var(--step, 1), 0.5);
+			width: calc(5em/16 + 3ch + var(--digits, 0)*1ch);
 		}
 
 		/* @property --hue-int {
@@ -33,30 +37,46 @@
 			inherits: true;
 			initial-value: 0;
 		} */
-		/* .shade-group {
+		.shade-group {
+			display: flex;
+			flex-direction: row;
 			counter-reset: sh-hue 0;
-		} */
+			user-select: none;
+			padding: 0.25ch;
+			gap: 0.25ch;
+			background-color: color(var(--cl-space, srgb) calc(var(--lgh-ref, 0.5) * var(--fr)) calc(var(--lgh-ref, 0.5) * var(--fg)) calc(var(--lgh-ref, 0.5) * var(--fb)));
+		}
 		.shade-group > span {
 			/* float: left; */
-			display: inline-block;
+			/* display: inline-block; */
 			block-size: 4em;
 			inline-size: 2em;
+			flex-grow: 1;
 
 			/* border: solid gray 0.125ch; */
-			border-style: solid;
-			border-width: 0.25ch;
+			/* border-style: solid;
+			border-width: 0.25ch; */
 			/* border-color: color(display-p3 var(--lgh-ref, 0.5) var(--lgh-ref, 0.5) var(--lgh-ref, 0.5)); */
-			border-color: color(var(--cl-space, srgb) calc(var(--lgh-ref, 0.5) * var(--fr)) calc(var(--lgh-ref, 0.5) * var(--fg)) calc(var(--lgh-ref, 0.5) * var(--fb)));
+			/* border-color: color(var(--cl-space, srgb) calc(var(--lgh-ref, 0.5) * var(--fr)) calc(var(--lgh-ref, 0.5) * var(--fg)) calc(var(--lgh-ref, 0.5) * var(--fb))); */
 
-			/* counter-increment: sh-hue; */
+			counter-increment: sh-hue;
 			--hue-int: attr(data-hue-int type(<number>));
 			/* --hue-int: counter(sh-hue, numeric); */
-			--cl-radial: oklch(var(--lgh-colors, 0.5) var(--sat, 0.25) calc(var(--hue-int, 0) * 1turn / 12));
+			--cl-radial: oklch(var(--lgh-colors, 0.5) var(--sat, 0.125) calc(var(--hue-phase, 0) * 1turn + var(--hue-int, 0) * 1turn / 12));
 			/* background-color: var(--cl-radial, gray); */
 			background-color: color(from var(--cl-radial, gray) var(--gain-balance));
 
 			/* background-color: oklch(0.5 0.2 calc(var(--hue-int, 0) * 1turn / 12));
 			background-color: oklch(0.5 50% calc(var(--hue-int, 0) * 1turn / 12)); */
+
+			&:hover::after {
+				display: block;
+				justify-self: center;
+				/* text-align: center; */
+				/* vertical-align: middle; */
+				content: counter(sh-hue);
+				text-shadow: 0 0 0.5ch black;
+			}
 		}
 		/* #lstShadeValues {
 			clear: both;
@@ -83,6 +103,9 @@
 		if(!event || !event.target) return;
 		const elem = event.target;
 		document.documentElement.style.setProperty(elem.dataset.property, elem.value);
+		document.documentElement.style.setProperty("--gain-balance", elem.value.toLowerCase().startsWith("xyz") ?
+			"var(--cl-space, xyz) calc(x * var(--fr)) calc(y * var(--fg)) calc(z * var(--fb))":
+			"var(--cl-space, srgb) calc(r * var(--fr)) calc(g * var(--fg)) calc(b * var(--fb))");
 		updateColorList();
 	}
 
@@ -117,16 +140,23 @@
 		<select id="selColorSpace" data-property="--cl-space">
 			<option>srgb</option>
 			<option>srgb-linear</option>
-			<option selected="true">display-p3</option>
 			<option>a98-rgb</option>
+			<option>display-p3</option>
 			<option>prophoto-rgb</option>
-			<option>rec2020</option>
+			<option selected="true">rec2020</option>
+			<option>rec2100</option>
+			<option>rec2100-linear</option>
+			<option>rec2100-pq</option>
+			<option>rec2100-hlg</option>
+			<option>xyz</option>
+			<option>xyz-d50</option>
+			<option>xyz-d65</option>
 		</select>
 	</p>
 	<p>
-		<label for="txtLightnessRef">Lightness ref.</label> 
+		<label for="txtLightnessRef">Lightness, ref.</label> 
 		<input type="number" id="txtLightnessRef" value="0.5" step="0.03125" data-property="--lgh-ref" /> 
-		<label for="txtLightnessColors">Lightness colors</label> 
+		<label for="txtLightnessColors">Lightness, colors</label> 
 		<input type="number" id="txtLightnessColors" value="0.5" step="0.03125" data-property="--lgh-colors" />
 	</p>
 	<p>
@@ -136,6 +166,10 @@
 		<input type="number" id="txtGainG" value="1" step="0.03125" data-property="--fg" /> 
 		<label for="txtGainB">Gain, blue</label> 
 		<input type="number" id="txtGainB" value="1" step="0.03125" data-property="--fb" />
+	</p>
+	<p>
+		<label for="txtHuePhase">Hue phase (turns)</label> 
+		<input type="number" id="txtHuePhase" value="0" step="0.00390625" data-property="--hue-phase" /> 
 	</p>
 	<p class="shade-group">
 		<span data-hue-int="0">&nbsp;</span>
