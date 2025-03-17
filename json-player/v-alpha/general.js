@@ -722,7 +722,7 @@ function hueAnimation() {
 function addIntervalSamples() {
 	//add cells to rows in table body
 	const container = document.querySelector("#tblFractionIntervals tbody");
-	for (const row of container.children) {
+	for(const row of container.children) {
 		if(row.tagName.toUpperCase() !== "TR") continue;
 		if(row.children.length < 1) continue;
 		const firstChild = row.children[0];
@@ -732,6 +732,7 @@ function addIntervalSamples() {
 		}
 
 		const cell = row.insertCell(4);
+		cell.headers = "colSoundSample";
 		cell.classList.add("sample-cell");
 		cell.translate = false;
 		cell.addEventListener("click", playIntervalHandler);
@@ -744,6 +745,7 @@ function addIntervalSamples() {
 		//add cell to row in table header
 		const row = document.querySelector("#tblFractionIntervals thead tr");
 		const cell = document.createElement("th"); //insertCell would make a td element.
+		cell.id = "colSoundSample";
 		cell.scope = "col";
 		//cell.innerHTML = "Sam&shy;ple"; //Sample
 		cell.innerHTML = '<span class="langStatic" translate="no">Sam&shy;ple</span><span class="langFlex" hidden="">Sample</span>';

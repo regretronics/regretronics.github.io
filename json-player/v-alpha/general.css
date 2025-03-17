@@ -182,13 +182,47 @@ html[lang|=en] .langFlex, html:not([lang|=en]) .langStatic {
 	display: none;
 }
 
-#tblFractionIntervals td:nth-child(1) {
-	text-align: center;
-}
-#tblFractionIntervals td:nth-child(2) {
-	text-align: center;
-	/*white-space: break-spaces;*/
-}
-#tblFractionIntervals td:nth-child(3) {
-	text-align: right;
+#tblFractionIntervals {
+	width: 100%;
+
+	& #colFraction {
+	/* & thead tr th:nth-child(1), & tbody tr td:nth-child(1) { */
+		max-width: 10ch;
+	}
+	& #colPrimeFactors {
+	/* & thead tr th:nth-child(2), & tbody tr td:nth-child(2) { */
+		max-width: 14ch;
+	}
+	& #colSizeSemitones {
+	/* & thead tr th:nth-child(3), & tbody tr td:nth-child(3) { */
+		max-width: 9ch;
+	}
+	& #colIntervalName {
+	/* & thead tr th:nth-child(4), & tbody tr td:nth-child(4) { */
+		max-width: 16ch;
+	}
+	& #colSoundSample/* , & td[headers=colSoundSample] */ {
+		max-width: 6ch;
+	}
+	& #colNotes/* , & td[headers=colNotes] */ {
+		min-width: 10ch;
+	}
+
+	& td:nth-child(1) {
+		text-align: center;
+	}
+	& td:nth-child(2) {
+		text-align: center;
+		/*white-space: break-spaces;*/
+	}
+	& td:nth-child(3) {
+		text-align: right;
+	}
+	@media print {
+		/* &:has(.sample-cell) :is(td, th):nth-child(5) { */
+		/* &:has(#colSoundSample) :is(td, th):nth-child(5) { */
+		& #colSoundSample, & td[headers=colSoundSample] {
+			display: none;
+		}
+	}
 }
