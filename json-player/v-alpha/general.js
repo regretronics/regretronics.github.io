@@ -407,9 +407,15 @@ function expSpinnerChanged(event) {
 		elem.setCustomValidity("");
 	}
 	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
-	elem.step = step;
-	//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
-	elem.min = val - 2 * Math.sign(val) * step;
+	const min = parseFloat(elem.dataset.min);
+	if(min === undefined || min === NaN) {
+		elem.step = step;
+		//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
+		elem.min = val - 2 * Math.sign(val) * step;
+	} else {
+		elem.step = Math.max(min, step);
+		elem.min = Math.max(min, val - 2 * Math.sign(val) * step);
+	}
 	//elem.reportValidity();
 }
 /*function textInvalid(event) { //not working for input type="number"

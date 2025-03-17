@@ -114,7 +114,7 @@
 			</span><wbr />
 			<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
 			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp customSpin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" />
+				<input type="number" id="txtTimeScale" value="0.5" data-min="0" step="0.25" class="exp customSpin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" />
 			</span><wbr />
 			<span class="cell"><label for="txtPatternCount"><span class="langStatic" translate="no">patterns</span><span class="langFlex" hidden="hidden">pattern count</span></label>
 				<input type="number" id="txtPatternCount" value="4" step="1" min="1" class="customSpin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" />
@@ -127,9 +127,9 @@
 				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" class="customSpin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="5" />
 			</span>
 		</p>
-				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" class="customSpin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" />
 		<p><strong class="chunk">Rhythm:</strong> 
 			<span class="cell"><label for="txtRhythmScale"><span class="langStatic" translate="no">approx. scale</span><span class="langFlex" hidden="hidden">approximate scale</span></label>
+				<input type="number" id="txtRhythmScale" value="8" step="1" data-min="1" class="exp customSpin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" />
 			</span>
 			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
 			<span class="cell"><label for="txtRhythmFactors">structure formula</label>
@@ -192,7 +192,7 @@
 				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" />
 			</span><wbr />
 			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" />
+				<input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" />
 			</span><wbr />
 			<span class="cell"><label for="txtPlayTimeDelta"><span class="langStatic" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="langFlex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label>
 				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="customSpin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" />
