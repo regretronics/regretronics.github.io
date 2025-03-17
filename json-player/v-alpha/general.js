@@ -186,13 +186,7 @@ const releaseCurveSize = 8192;
 //variability per prime factor (2, 3, 5, 7, ...); array of numbers.
 var maxPitches = null;
 
-function docLoaded() {
-	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
-	if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
-	if(window.outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
-	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
-	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
-	
+async function initCalculations() {
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 	//question: too simple? should it depend on primeCount?
 	maxPitches = new Array(primes.length);
@@ -282,46 +276,71 @@ function loadEventHandlers() {
 	addToolTipHandler("#tblFractionIntervals", event => setToolTip(event, outToolTip2));
 }
 function pageLoaded() {
-	//load HTML element references
+	//load HTML element references (renders document.getElementById unnecessary)
 	for(let s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
-	docLoaded();
+
+	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
+	if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+	if(window.outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
+	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
+
+	initCalculations();
 
 	ctlStructuredScript.innerText = defStructuredCode;
 	ctlFlatScript.innerText = defFlattenedCode;
-	addIntervalSamples();
 
-	loadEventHandlers();
-	window.loadPreferences?.();
-	adjustingPreferences = true;
-	try {
-		const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
-		const evt = new Event("input");
-		for(const s of expSpinners) window[s].dispatchEvent(evt);
-	} finally {
-		adjustingPreferences = false;
-	}
-	window.primeCountChanged?.();
-	window.rhythmFactorsChanged?.();
-	window.initSpinControls?.();
-	for(let s of document.querySelectorAll('label[for]'))
-		//s.title = document.getElementById(s.htmlFor).title ?? "";
-		s.title = s.control.title ?? "";
+	new Promise((resolve, reject) => {
+	//setTimeout(() => {
+		//control separators
+		for(let s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+			const separator = document.createElement("span");
+			separator.classList.add("separator");
 
-	//control separators
-	for(let s of document.querySelectorAll('.cell:not(:first-of-type)')) {
-		const separator = document.createElement("span");
-		separator.classList.add("separator");
+			//s.parentElement.insertBefore(separator, s);
+			//s.insertBefore(separator, s.firstElementChild);
+			//remove unwanted white space that could affect spacing
+			const first = s.firstChild;
+			if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
+				s.removeChild(first);
+			s.insertBefore(separator, s.firstChild);
+		}
+		//resolve();
+	});
+	//}, 16);
 
-		//s.parentElement.insertBefore(separator, s);
-		//s.insertBefore(separator, s.firstElementChild);
-		//remove unwanted white space that could affect spacing
-		const first = s.firstChild;
-		if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
-			s.removeChild(first);
-		s.insertBefore(separator, s.firstChild);
-	}
-	//
+	new Promise((resolve, reject) => {
+	//setTimeout(() => {
+		addIntervalSamples();
+		//resolve();
+	});
+	//}, 16);
+}
+function pageReady(event) {
+	//new Promise((resolve, reject) => {
+	//setTimeout(() => {
+		loadEventHandlers();
+		window.loadPreferences?.();
+		adjustingPreferences = true;
+		try {
+			const evt = new Event("input");
+			for(const elem of document.querySelectorAll("input.exp"))
+				elem.dispatchEvent(evt);
+		} finally {
+			adjustingPreferences = false;
+		}
+		window.primeCountChanged?.();
+		window.rhythmFactorsChanged?.();
+
+		window.initSpinControls?.(); //custom-spin.js
+		for(let s of document.querySelectorAll('label[for]'))
+			//s.title = document.getElementById(s.htmlFor).title ?? "";
+			s.title = s.control.title ?? "";
+		
+		//resolve();
+	//});
+	//}, 16);
 
 	//just eye candy
 	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
