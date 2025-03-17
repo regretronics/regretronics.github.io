@@ -408,7 +408,7 @@ function expSpinnerChanged(event) {
 	}
 	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
 	const min = parseFloat(elem.dataset.min);
-	if(min === undefined || min === NaN) {
+	if(min === undefined || isNaN(min)) {
 		elem.step = step;
 		//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
 		elem.min = val - 2 * Math.sign(val) * step;
