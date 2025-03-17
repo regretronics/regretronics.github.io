@@ -20,6 +20,10 @@ main, hr, .bg {
 
 h1, h2, h3, h4, h5, h6 {
 	margin-block-end: 0.75em;
+
+	hr + &, &:first-child {
+		margin-block-start: 0.25em;
+	}
 }
 div > h1:first-child {
 	margin-block: 0em;
@@ -45,9 +49,6 @@ noscript {
 p, p * {
 	hyphens: auto;
 }
-hr + :is(h1, h2, h3, h4, h5, h6), :is(h1, h2, h3, h4, h5, h6):first-child {
-	margin-block-start: 0.25em;
-}
 :is(h1, h2, h3, h4, h5, h6) + p, p:first-child {
 	margin-block-start: 0.5em;
 }
@@ -60,27 +61,30 @@ input[type=number] {
 	text-align: right;
 	/* width: 8ch; */
 }
-input:is([type=number], [type=text])[size] {
-	box-sizing: border-box;
-}
-/*inspired by Firefox sizing of input's*/
-input:is([type=number], [type=text])[size=3] {
-	width: calc(2*5em/32 + 2ch + 3*1ch);
-}
-input:is([type=number], [type=text])[size=4] {
-	width: calc(2*5em/32 + 2ch + 4*1ch);
-}
-input:is([type=number], [type=text])[size=5] {
-	width: calc(2*5em/32 + 2ch + 5*1ch);
-}
-input:is([type=number], [type=text])[size=6] {
-	width: calc(2*5em/32 + 2ch + 6*1ch);
-}
-input:is([type=number], [type=text])[size=7] {
-	width: calc(2*5em/32 + 2ch + 7*1ch);
-}
-input:is([type=number], [type=text])[size=11] {
-	width: calc(2*5em/32 + 2ch + 11*1ch);
+input:is([type=number], [type=text]) {
+	&[size] {
+		box-sizing: border-box;
+		width: calc(2*5em/32 + 2ch + var(--size, 6)*1ch);
+	}
+	/*inspired by Firefox sizing of input's*/
+	&[size="3"] { /*as of 2025-03, Chrome requires quotes for numeric contents*/
+		--size: 3;
+	}
+	&[size="4"] {
+		--size: 4;
+	}
+	&[size="5"] {
+		--size: 5;
+	}
+	&[size="6"] {
+		--size: 6;
+	}
+	&[size="7"] {
+		--size: 7;
+	}
+	&[size="11"] {
+		--size: 11;
+	}
 }
 /*input[type=number]:not([size]) {
 	width: 8ch;
@@ -93,6 +97,15 @@ input[type=checkbox] {
 	width: 1em;
 	height: 1em;
 }
+/* input[type=range] {
+	vertical-align: middle;
+	scale: var(--page-scale, 1);
+	height: 1em;
+
+	--length: 8;
+	width: calc(1em * var(--length, 8) / var(--page-scale, 1));
+	margin-inline: calc(0.5em + 0.5em * var(--length, 8) * (1 - 1 / var(--page-scale, 1)));
+} */
 #txtRhythmFactors {
 	text-align: right;
 	width: 12ch;

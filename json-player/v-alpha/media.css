@@ -104,7 +104,12 @@
 		appearance: textfield;
 	}
 	input[type=number]::-webkit-inner-spin-button, 
-	input[type=number]::-webkit-outer-spin-button, 
+	input[type=number]::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		appearance: none;
+		display: none;
+		opacity: 0;
+	}
 	input[type=number]::inner-spin-button, 
 	input[type=number]::outer-spin-button {
 		-webkit-appearance: none;
