@@ -192,7 +192,7 @@
 			<option value="vol" />
 		</datalist>
 		<!--<p hidden="hidden"><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></textarea></p>-->
-		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></pre>
+		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content" role="textbox" aria-multiline="true"></pre>
 		<p class="flex-row">
 			<span style="flex-basis: 40ch;"><strong class="chunk">Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
@@ -203,7 +203,7 @@
 				<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
 			</span>
 		</p>
-		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="flatScript.content" title=""></pre>
+		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true"></pre>
 		<p><strong class="chunk">Overall controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
 			<span class="cell"><label for="txtPlayFreqScale"><span class="langStatic" translate="no">freq./tuning</span><span class="langFlex" hidden="hidden">frequency and tuning</span></label>
