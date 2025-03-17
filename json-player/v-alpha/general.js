@@ -336,8 +336,8 @@ function pageReady(event) {
 		window.initSpinControls?.(); //custom-spin.js
 		for(let s of document.querySelectorAll('label[for]'))
 			//s.title = document.getElementById(s.htmlFor).title ?? "";
-			s.title = s.control.title ?? "";
-		
+			s.title = s.control?.title ?? "";
+
 		//resolve();
 	//});
 	//}, 16);
