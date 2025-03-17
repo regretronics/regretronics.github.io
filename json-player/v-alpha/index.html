@@ -14,11 +14,11 @@
 	<link rel="stylesheet" type="text/css" href="theme-light-hicon.css" media="print" />
 
 	<link rel="stylesheet" type="text/css" href="theme-auto.css" media="screen" title="Automatic" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-null.css" title="Null (vanilla)" disabled="" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-dark-color.css" title="Dark, colored" disabled="" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-light-color.css" title="Light, colored" disabled="" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-dark-hicon.css" title="Dark, high contrast" disabled="" />
-	<link rel="alternate stylesheet" type="text/css" href="theme-light-hicon.css" title="Light, high contrast" disabled="" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-null.css" title="Null (vanilla)" disabled="disabled" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-dark-color.css" title="Dark, colored" disabled="disabled" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-light-color.css" title="Light, colored" disabled="disabled" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-dark-hicon.css" title="Dark, high contrast" disabled="disabled" />
+	<link rel="alternate stylesheet" type="text/css" href="theme-light-hicon.css" title="Light, high contrast" disabled="disabled" />
 
 	<link rel="icon" href="icon/Musical-science-white-4096.png" type="image/png" sizes="4096x4096" />
 	<link rel="icon" href="icon/Musical-science-white-1024.png" type="image/png" sizes="1024x1024" />
@@ -51,7 +51,7 @@
 </head>
 <body>
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
-	<main class="major-section" hidden="">
+	<main class="major-section" hidden="hidden">
 		<div class="flex-row align-top">
 			<h1 style="flex-basis: 24ch;">
 				<picture id="title-icon">
@@ -65,30 +65,30 @@
 				</picture>
 				<!-- "chunks" below are for organizing a line break hierarchy (mostly for aesthetic reasons) -->
 				<!-- throughout this page, langFlex class offers a text better prepared to facilitate machine translation. langStatic is its counterpart. -->
-				<span class="langStatic" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="langFlex" hidden="">JSON-based music format, player and generator</span>
+				<span class="langStatic" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="langFlex" hidden="hidden">JSON-based music format, player and generator</span>
 			</h1>
 			<span class="right print-dp-none">
-				<span class="cell"><strong>Text&nbsp;size:</strong> 
+				<span class="cell"><strong class="chunk">Text size:</strong> 
 					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
 					<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
-				<span class="cell"><label for="cboPageTheme"><strong>Color&nbsp;scheme:</strong></label> 
+				<span class="cell"><label for="cboPageTheme"><strong class="chunk">Color scheme:</strong></label> 
 					<select id="cboPageTheme" data-pref="pageAppearance.theme">
 						<!--to do: on page load, replace this list with one from document.querySelectorAll("head link[rel~=stylesheet][title]").-->
-						<option selected="">Automatic</option>
+						<option selected="selected">Automatic</option>
 						<option>Null (vanilla)</option>
 						<option>Dark, colored</option>
 						<option>Light, colored</option>
 						<option>Dark, high contrast</option>
 						<option>Light, high contrast</option>
 					</select></span>
-				<span class="cell"><strong>Hue shift:</strong> 
+				<span class="cell"><strong class="chunk">Hue shift:</strong> 
 					<button id="btnHueFine1" data-delta="-1" translate="no">MBCGYR</button>
 					<button id="btnHueFine2" data-delta="1" translate="no">RYGCBM</button></span>
 			</span>
 		</div>
-		<div id="translationWarning" hidden="">Warning: machine translation detected. Unfortunately, this page is hard to translate automatically; texts often become inaccurate or incomprehensible, despite adaptations to help automatic translation.</div>
+		<div id="translationWarning" hidden="hidden">Warning: machine translation detected. Unfortunately, this page is hard to translate automatically; texts often become inaccurate or incomprehensible, despite adaptations to help automatic translation.</div>
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
-		<p><strong><span class="langStatic" translate="no">Generator&nbsp;params.</span><span class="langFlex" hidden="">Generator parameters</span>:</strong> 
+		<p><strong class="chunk"><span class="langStatic" translate="no">Generator params.</span><span class="langFlex" hidden="hidden">Generator parameters</span>:</strong> 
 			<datalist id="tunings">
 				<option value="256" />
 				<option value="258.65" />
@@ -102,27 +102,27 @@
 				<option value="443" />
 				<option value="466" />
 			</datalist>
-			<span class="cell"><label for="txtBaseFreq"><span class="langStatic" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="langFlex" hidden="">base frequency (Hz)</span></label>
+			<span class="cell"><label for="txtBaseFreq"><span class="langStatic" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="langFlex" hidden="hidden">base frequency (Hz)</span></label>
 				<input type="number" id="txtBaseFreq" value="440" class="exp customSpin" list="tunings" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" />
 			</span><wbr />
 			<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
 			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
 				<input type="number" id="txtTimeScale" value="0.5" min="0" step="0.25" class="exp customSpin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" />
 			</span><wbr />
-			<span class="cell"><label for="txtPatternCount"><span class="langStatic" translate="no">patterns</span><span class="langFlex" hidden="">pattern count</span></label>
+			<span class="cell"><label for="txtPatternCount"><span class="langStatic" translate="no">patterns</span><span class="langFlex" hidden="hidden">pattern count</span></label>
 				<input type="number" id="txtPatternCount" value="4" step="1" min="1" class="customSpin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" />
 			</span><wbr />
-			<span class="cell"><label for="txtPrimeCount"><span class="langStatic" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="langFlex" hidden="">prime factor reach (harmonic oddity)</span></label>
+			<span class="cell"><label for="txtPrimeCount"><span class="langStatic" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="langFlex" hidden="hidden">prime factor reach (harmonic oddity)</span></label>
 				<input type="number" id="txtPrimeCount" value="3" min="2" step="0.5" max="15" class="customSpin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" />
 			</span>
-			<output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output><wbr />
-			<span class="cell"><label for="txtExpVariance"><span class="langStatic" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="langFlex" hidden="">tone depth (exponent variance)</span></label>
+			<span class="chunk"><output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output></span><wbr />
+			<span class="cell"><label for="txtExpVariance"><span class="langStatic" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="langFlex" hidden="hidden">tone depth (exponent variance)</span></label>
 				<input type="number" id="txtExpVariance" value="2" min="0.5" step="0.25" max="8" class="customSpin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="5" />
 			</span>
 		</p>
-		<p><strong>Rhythm:</strong> 
-			<span class="cell"><label for="txtRhythmScale"><span class="langStatic" translate="no">approx. scale</span><span class="langFlex" hidden="">approximate scale</span></label>
 				<input type="number" id="txtRhythmScale" value="8" step="1" min="1" class="customSpin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" />
+		<p><strong class="chunk">Rhythm:</strong> 
+			<span class="cell"><label for="txtRhythmScale"><span class="langStatic" translate="no">approx. scale</span><span class="langFlex" hidden="hidden">approximate scale</span></label>
 			</span>
 			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
 			<span class="cell"><label for="txtRhythmFactors">structure formula</label>
@@ -130,59 +130,55 @@
 			</span>
 			<output id="outRhythmScales" translate="no" title="Cascade of rhythmic scales">1</output>
 		</p>
-		<p><strong><span class="langStatic" translate="no">Additional&nbsp;gen.&nbsp;params.</span><span class="langFlex" hidden="">Additional generator parameters</span>:</strong> 
+		<p><strong class="chunk"><span class="langStatic" translate="no">Additional gen. params.</span><span class="langFlex" hidden="hidden">Additional generator parameters</span>:</strong> 
 			<span class="cell"><label for="txtVoiceCount">voices</label>
 				<input type="number" id="txtVoiceCount" value="3" min="1" step="1" class="customSpin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" />
 			</span><wbr />
-			<span class="cell"><label for="txtReptCount"><span class="langStatic" translate="no">rept.&nbsp;count</span><span class="langFlex" hidden="">repeat count</span></label>
+			<span class="cell"><label for="txtReptCount"><span class="langStatic" translate="no">rept.&nbsp;count</span><span class="langFlex" hidden="hidden">repeat count</span></label>
 				<input type="number" id="txtReptCount" value="2" step="1" min="1" class="customSpin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators." size="4" />
 			</span><wbr />
-			<span class="cell"><label for="txtReptPeriod"><span class="langStatic" translate="no">rept.&nbsp;period</span><span class="langFlex" hidden="">repeat period</span></label>
+			<span class="cell"><label for="txtReptPeriod"><span class="langStatic" translate="no">rept.&nbsp;period</span><span class="langFlex" hidden="hidden">repeat period</span></label>
 				<input type="number" id="txtReptPeriod" value="4" step="1" min="1" class="customSpin" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" />
 			</span>
 			<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label>
 			</span>
 		</p>
 		<p class="flex-row">
-			<span style="flex-basis: 52ch;"><strong>Structured&nbsp;music:</strong> 
-				<button id="btnChordGen" accesskey="c" title="Chord generator"><span class="langStatic" translate="no">Make <u>c</u>hords</span><span class="langFlex" hidden="">Make chords (<u>c</u>)</span></button>
-				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator"><span class="langStatic" translate="no">Make <u>r</u>hythm</span><span class="langFlex" hidden="">Make rhythm (<u>r</u>)</span></button>
-				<button id="btnMelodyGen" accesskey="m" title="Melody generator"><span class="langStatic" translate="no">Make <u>m</u>elody</span><span class="langFlex" hidden="">Make melody (<u>m</u>)</span></button>
+			<span style="flex-basis: 52ch;"><strong class="chunk">Structured music:</strong> 
+				<button id="btnChordGen" accesskey="c" title="Chord generator"><span class="langStatic" translate="no">Make <u>c</u>hords</span><span class="langFlex" hidden="hidden">Make chords (<u>c</u>)</span></button>
+				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator"><span class="langStatic" translate="no">Make <u>r</u>hythm</span><span class="langFlex" hidden="hidden">Make rhythm (<u>r</u>)</span></button>
+				<button id="btnMelodyGen" accesskey="m" title="Melody generator"><span class="langStatic" translate="no">Make <u>m</u>elody</span><span class="langFlex" hidden="hidden">Make melody (<u>m</u>)</span></button>
 			</span> <wbr />
 			<span class="right" style="flex-basis: 40ch;">
 				<span class="cell">
-					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="langStatic" translate="no"><u>O</u>pen file</span><span class="langFlex" hidden="">Open file (<u>o</u>)</span></button>
-					<a id="aStructDownload" href="" hidden=""></a>
-					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally."><span class="langStatic" translate="no">Sa<u>v</u>e file</span><span class="langFlex" hidden="">Save file (<u>v</u>)</span></button>
+					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="langStatic" translate="no"><u>O</u>pen file</span><span class="langFlex" hidden="hidden">Open file (<u>o</u>)</span></button>
+					<a id="aStructDownload" href="" hidden="hidden"></a>
+					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally."><span class="langStatic" translate="no">Sa<u>v</u>e file</span><span class="langFlex" hidden="hidden">Save file (<u>v</u>)</span></button>
 				</span>
 				<span class="cell">
-					<input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1"><span class="langStatic" translate="no">Overflow</span><span class="langFlex" hidden="">Text overflow</span></label>
-					<!-- <button id="btnOverflowToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below.">Toggle overflow</button> -->
-					<input id="chkLineWrap1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap1">Line wrapping</label>
-					<!-- <button id="btnLineWrapToggle1" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button> -->
+					<span class="chunk"><input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1"><span class="langStatic" translate="no">Overflow</span><span class="langFlex" hidden="hidden">Text overflow</span></label></span>
+					<span class="chunk"><input id="chkLineWrap1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap1">Line wrapping</label></span>
 				</span>
 			</span>
 		</p>
 		<!--the form here is necessary so that the file control can be reset (cleared). then I had to put it outside of paragraphs to not break layout.-->
-		<form id="importForm" hidden=""><input type="file" id="inFile" accept=".mus.json,application/json,text/plain" hidden="" /></form>
-		<!--<p hidden=""><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></textarea></p>-->
+		<form id="importForm" hidden="hidden"><input type="file" id="inFile" accept=".mus.json,application/json,text/plain" hidden="hidden" /></form>
+		<!--<p hidden="hidden"><textarea id="ctlStructuredScript1" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></textarea></p>-->
 		<pre id="ctlStructuredScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content"></pre>
 		<p class="flex-row">
-			<span style="flex-basis: 40ch;"><strong>Flattened note list:</strong> 
+			<span style="flex-basis: 40ch;"><strong class="chunk">Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
 			</span>
 			<span class="right">
-				<input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="langStatic" translate="no">Overflow</span><span class="langFlex" hidden="">Text overflow</span></label>
-				<!-- <button id="btnOverflowToggle2" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below.">Toggle overflow</button> -->
-				<input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label>
-				<!-- <button id="btnLineWrapToggle2" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines.">Toggle line wrapping</button> -->
+				<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="langStatic" translate="no">Overflow</span><span class="langFlex" hidden="hidden">Text overflow</span></label></span>
+				<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
 			</span>
 		</p>
 		<pre id="ctlFlatScript" contenteditable="true" class="codeEditor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title=""></pre>
-		<p><strong>Overall&nbsp;controls:</strong> 
+		<p><strong class="chunk">Overall controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
-			<span class="cell"><label for="txtPlayFreqScale"><span class="langStatic" translate="no">freq./tuning</span><span class="langFlex" hidden="">frequency and tuning</span></label>
+			<span class="cell"><label for="txtPlayFreqScale"><span class="langStatic" translate="no">freq./tuning</span><span class="langFlex" hidden="hidden">frequency and tuning</span></label>
 				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp customSpin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" />
 			</span><wbr />
 			<span class="cell"><label for="txtPlayVolScale">volume</label>
@@ -191,15 +187,15 @@
 			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
 				<input type="number" id="txtPlayTimeScale" value="1" min="0" step="0.25" class="exp customSpin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" />
 			</span><wbr />
-			<span class="cell"><label for="txtPlayTimeDelta"><span class="langStatic" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="langFlex" hidden="">time displacement (skipping vs. lead-in)</span> (s)</label>
+			<span class="cell"><label for="txtPlayTimeDelta"><span class="langStatic" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="langFlex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label>
 				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="customSpin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" />
 			</span>
 		</p>
 		<p class="flex-row">
-			<span style="flex-basis: 48ch;"><strong><span class="langStatic" translate="no">Player</span><span class="langFlex" hidden="">Music player</span>:</strong> 
-				<span class="cell"><button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><span class="langStatic" translate="no"><u>L</u>oad and play</span><span class="langFlex" hidden="">Load and play (<u>l</u>)</span></button>
-				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><span class="langStatic" translate="no"><u>P</u>ause</span><span class="langFlex" hidden="">Pause (<u>p</u>)</span></button>
-				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><span class="langStatic" translate="no"><u>S</u>top and unload</span><span class="langFlex" hidden="">Stop and unload (<u>s</u>)</span></button>
+			<span style="flex-basis: 48ch;"><strong class="chunk"><span class="langStatic" translate="no">Player</span><span class="langFlex" hidden="hidden">Music player</span>:</strong> 
+				<span class="cell"><button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><span class="langStatic" translate="no"><u>L</u>oad and play</span><span class="langFlex" hidden="hidden">Load and play (<u>l</u>)</span></button>
+				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><span class="langStatic" translate="no"><u>P</u>ause</span><span class="langFlex" hidden="hidden">Pause (<u>p</u>)</span></button>
+				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><span class="langStatic" translate="no"><u>S</u>top and unload</span><span class="langFlex" hidden="hidden">Stop and unload (<u>s</u>)</span></button>
 				</span><wbr />
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" data-pref="player.autoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." /><label for="chkAutoReload">Auto-reload</label>
 				</span>
@@ -237,7 +233,7 @@
 			<!--to do: format selector, sample rate-->
 			<!--to do: ...use WebCodecs (not yet supported in Firefox as of version 114)-->
 			<p>
-				<a id="aAudioDownload" href="" hidden=""></a>
+				<a id="aAudioDownload" href="" hidden="hidden"></a>
 				<button id="btnAudioExport">Export</button>
 				<button id="btnAudioExportCancel">Cancel</button>
 				<span class="cell">Format choosen: <wbr /><code><output id="outExportFormat" translate="no"></output></code>.</span>
@@ -263,7 +259,7 @@
 		<p id="outToolTip" class="tool-tip print-dp-none">A description of the selected item will appear here.</p>
 	</main>
 
-	<hr hidden="" />
+	<hr hidden="hidden" />
 	<section class="major-section">
 		<article>
 			<h2>Introduction</h2>
@@ -279,7 +275,7 @@
 				As the irreducible form is the most important one for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can help, as used below. 
 				More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and are often deemed as representing a peaceful mood or positive emotions in soundtracks. 
 				More dissonant (less consonant) intervals may sound <a href="https://en.wikipedia.org/wiki/Beat_(acoustics)">pulsating</a>, complicated, strange, advanced, cacophonous or imperfect, and are symbolically assigned to negative things.</p>
-			<details open="">
+			<details open="open">
 				<summary><strong>Analysis table for main ratio-based intervals</strong></summary>
 				<p><table id="tblFractionIntervals">
 					<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a> (approximately descending order of consonance)</caption>
