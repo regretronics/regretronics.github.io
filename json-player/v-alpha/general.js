@@ -258,7 +258,7 @@ function loadEventHandlers() {
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		elem.addEventListener("input", saveInputValue);
 
-	for(const elem of document.getElementsByClassName("codeEditor")) {
+	for(const elem of document.getElementsByClassName("code-editor")) {
 		elem.addEventListener("keydown", editorKeyDown);
 		elem.addEventListener("paste", editorPaste);
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
@@ -383,13 +383,13 @@ function lineWrapToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	//control.classList.toggle("lineWrapping");
+	//control.classList.toggle("line-wrap");
 	if(elem.checked)
-		control.classList.add("lineWrapping");
+		control.classList.add("line-wrap");
 	else
-		control.classList.remove("lineWrapping");
+		control.classList.remove("line-wrap");
 	if(elem.dataset["pref"])
-		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("lineWrapping")));
+		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("line-wrap")));
 }
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
@@ -749,7 +749,7 @@ function addIntervalSamples() {
 		cell.id = "colSoundSample";
 		cell.scope = "col";
 		//cell.innerHTML = "Sam&shy;ple"; //Sample
-		cell.innerHTML = '<span class="langStatic" translate="no">Sam&shy;ple</span><span class="langFlex" hidden="">Sample</span>';
+		cell.innerHTML = '<span class="lang-static" translate="no">Sam&shy;ple</span><span class="lang-flex" hidden="">Sample</span>';
 		row.insertBefore(cell, row.children[4]);
 	}
 }

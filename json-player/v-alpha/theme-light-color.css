@@ -48,7 +48,7 @@
 	}
 }
 /*::selection {*/
-:not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
+:not(code):not(code *):not(.code-editor):not(.code-editor *)::selection { /*the exclusions are a workaround for Blink*/
 	/*background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
 	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);*/
 	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.625);
@@ -77,12 +77,12 @@ table, caption, td {
 	background-color: hsla(0, 0%, 100%, 0.25);
 }
 
-/*.codeEditor::selection, .codeEditor *::selection, code::selection {*/
-:is(.codeEditor, .codeEditor *, code, code *)::selection {
+/*.code-editor::selection, .code-editor *::selection, code::selection {*/
+:is(.code-editor, .code-editor *, code, code *)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75) !important;
 	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875) !important;
 }
-:is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .codeEditor strong, .codeEditor strong *, .codeEditor em, .codeEditor em *)::selection {
+:is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.875) !important;
 	color: hsl(var(--hue-accent2, 300), 100%, 12.5%) !important;
 }
@@ -139,7 +139,7 @@ input.invalid {
 	background-color: hsl(0, 100%, 87.5%) !important;
 }
 
-.spinEdit .buttonsArea {
+.spin-edit .buttons-area {
 	background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
 	color: hsl(var(--hue-accent, 120), 12.5%, 25%);
 
@@ -160,12 +160,12 @@ input.invalid {
 	background-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);
 }
 
-.codeEditor {
+.code-editor {
 	background-color: hsla(var(--hue-accent, 120), 12.5%, 0%, 0.625);
 	color: hsl(var(--hue-accent, 120), 25%, 100%);
 	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875) hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 }
-.codeEditor.invalid {
+.code-editor.invalid {
 	background-color: hsla(0, 100%, 25%, 0.75);
 }
 

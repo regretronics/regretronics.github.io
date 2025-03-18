@@ -1,4 +1,4 @@
-.spinEdit {
+.spin-edit {
 	display: inline-flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
@@ -17,7 +17,7 @@
 	border-end-end-radius: 0.125em;
 	/* clip-path: border-box; */
 }
-.spinEdit > :first-child {
+.spin-edit > :first-child {
 	border-start-start-radius: inherit;
 	border-end-start-radius: inherit;
 	@media screen {
@@ -29,12 +29,12 @@
 		border-end-end-radius: inherit;
 	}
 }
-.spinEdit > :last-child, .spinEdit > :last-child > :last-child {
+.spin-edit > :last-child, .spin-edit > :last-child > :last-child {
 	border-start-end-radius: inherit;
 	border-end-end-radius: inherit;
 }
 
-.spinEdit input:first-of-type {
+.spin-edit input:first-of-type {
 	box-sizing: border-box;
 	/* border-style: solid; */
 
@@ -42,12 +42,12 @@
 	/* vertical-align: text-bottom; */
 	z-index: 1;
 }
-/* .spinEdit > input:first-of-type {
+/* .spin-edit > input:first-of-type {
 	flex-basis: ;
 	vertical-align: text-top;
 } */
 
-.spinEdit:has(.buttonsArea) input:first-of-type {
+.spin-edit:has(.buttons-area) input:first-of-type {
 	appearance: textfield;
 
 	&::inner-spin-button, &::outer-spin-button {
@@ -64,7 +64,7 @@
 	}
 }
 
-.spinEdit .buttonsArea {
+.spin-edit .buttons-area {
 	background-color: ButtonFace;
 	color: ButtonText;
 	/* background-color: Canvas;

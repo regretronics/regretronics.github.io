@@ -49,7 +49,7 @@ body {
 	}
 }
 /*::selection {*/
-:not(code):not(code *):not(.codeEditor):not(.codeEditor *)::selection { /*bugfix for Blink*/
+:not(code):not(code *):not(.code-editor):not(.code-editor *)::selection { /*the exclusions are a workaround for Blink*/
 	/*background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
 	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);*/
 	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 100%, 0.9375);
@@ -81,12 +81,12 @@ td {
 	background-color: hsla(0, 0%, 0%, 0.5);
 }
 
-/*.codeEditor::selection, .codeEditor *::selection, code::selection {*/
-:is(.codeEditor, .codeEditor *, code, code *)::selection {
+/*.code-editor::selection, .code-editor *::selection, code::selection {*/
+:is(.code-editor, .code-editor *, code, code *)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1) !important;
 	color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375) !important;
 }
-:is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .codeEditor strong, .codeEditor strong *, .codeEditor em, .codeEditor em *)::selection {
+:is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection {
 	color: hsl(var(--hue-accent2, 300), 100%, 93.75%) !important;
 }
 
@@ -142,7 +142,7 @@ input.invalid {
 	background-color: hsl(0, 100%, 12.5%) !important;
 }
 
-.spinEdit .buttonsArea {
+.spin-edit .buttons-area {
 	background-color: hsl(var(--hue-accent, 120), 25%, 6.25%);
 	color: hsl(var(--hue-accent, 120), 100%, 93.75%);
 
@@ -163,11 +163,11 @@ input.invalid {
 	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
 }
 
-.codeEditor {
+.code-editor {
 	background-color: hsla(var(--hue-accent, 120), 0%, 12.5%, 0.625);
 	color: hsla(var(--hue-accent, 120), 25%, 100%, 0.9375);
 }
-.codeEditor.invalid {
+.code-editor.invalid {
 	background-color: hsla(0, 100%, 12.5%, 0.875);
 }
 

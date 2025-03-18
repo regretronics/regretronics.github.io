@@ -161,9 +161,9 @@ function loadPreferences() {
 				chkLineWrap1.checked = JSON.parse(s);
 				//chkLineWrap1.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
-					ctlStructuredScript.classList.add("lineWrapping");
+					ctlStructuredScript.classList.add("line-wrap");
 				else
-					ctlStructuredScript.classList.remove("lineWrapping");
+					ctlStructuredScript.classList.remove("line-wrap");
 			}
 			s = localStorage.getItem("structuredMusic.content");
 			if(s) {
@@ -193,9 +193,9 @@ function loadPreferences() {
 				chkLineWrap2.checked = JSON.parse(s);
 				//chkLineWrap2.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
-					ctlFlatScript.classList.add("lineWrapping");
+					ctlFlatScript.classList.add("line-wrap");
 				else
-					ctlFlatScript.classList.remove("lineWrapping");
+					ctlFlatScript.classList.remove("line-wrap");
 			}
 			s = localStorage.getItem("flatScript.content");
 			if(s) {
@@ -266,12 +266,12 @@ function savePreferences() {
 	localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked));
 	//Structured music editor
 	localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
-	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("lineWrapping")));
+	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("line-wrap")));
 	localStorage.setItem("structuredMusic.content", ctlStructuredScript.textContent);
 	//Flattened note list
 	localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
 	localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
-	localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("lineWrapping")));
+	localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("line-wrap")));
 	localStorage.setItem("flatScript.content", ctlFlatScript.textContent);
 	//Overall play controls
 	localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
@@ -450,7 +450,7 @@ function saveControlPreference(elem) {
 			localStorage.setItem(prefKey, elem.value);
 		return true;
 	}
-	if(elem.contentEditable.toUpperCase() == "TRUE" || elem.classList.contains("codeEditor")) {
+	if(elem.contentEditable.toUpperCase() == "TRUE" || elem.classList.contains("code-editor")) {
 		localStorage.setItem(prefKey, elem.innerText);
 		return true;
 	}
@@ -545,7 +545,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("structuredMusic.content");
 
 			ctlStructuredScript.classList.remove("expanded");
-			ctlStructuredScript.classList.remove("lineWrapping");
+			ctlStructuredScript.classList.remove("line-wrap");
 			chkOverflow1.checked = false;
 			chkLineWrap1.checked = false;
 			ctlStructuredScript.textContent = defStructuredCode;
@@ -560,7 +560,7 @@ function btnResetPreferencesClick(event) {
 			chkAutoFlatten.checked = true;
 			//chkAutoFlatten.dispatchEvent(new Event("click"));
 			ctlFlatScript.classList.remove("expanded");
-			ctlFlatScript.classList.remove("lineWrapping");
+			ctlFlatScript.classList.remove("line-wrap");
 			chkOverflow2.checked = false;
 			chkLineWrap2.checked = false;
 			ctlFlatScript.textContent = defFlattenedCode;

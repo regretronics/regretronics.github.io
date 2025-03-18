@@ -4,9 +4,6 @@
 	font-size: calc(var(--page-scale, 1) * 1em);
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 }
-/* :not(:root) {
-	font-size: initial;
-} */
 /*body {
 	display: flex;
 	flex-direction: column;
@@ -140,11 +137,14 @@ input[type=checkbox] {
 .cell, .chunk {
 	display: inline-block;
 }
+.chunk {
+	text-wrap-mode: wrap;
+}
 .right {
 	text-align: right;
 }
 
-.codeEditor {
+.code-editor {
 	box-sizing: border-box;
 	width: 100%;
 	resize: none;
@@ -160,15 +160,15 @@ input[type=checkbox] {
 		appearance: none;
 		display: block;
 	}
-}
-.codeEditor.expanded {
-	height: unset;
-	textarea& {
-		field-sizing: content;
+	&.expanded {
+		height: unset;
+		textarea& {
+			field-sizing: content;
+		}
 	}
-}
-.codeEditor.lineWrapping {
-	white-space: pre-wrap;
+	&.line-wrap {
+		white-space: pre-wrap;
+	}
 }
 
 #imgVisualizer {
@@ -186,10 +186,10 @@ input[type=checkbox] {
 	vertical-align: text-bottom;
 	/*vertical-align: middle;*/
 }
-html:not([lang|=en]) #translationWarning, html[lang|=en] .langStatic, html:not([lang|=en]) .langFlex {
+html:not([lang|=en]) #translationWarning, html[lang|=en] .lang-static, html:not([lang|=en]) .lang-flex {
 	display: revert;
 }
-html[lang|=en] .langFlex, html:not([lang|=en]) .langStatic {
+html[lang|=en] .lang-flex, html:not([lang|=en]) .lang-static {
 	display: none;
 }
 
