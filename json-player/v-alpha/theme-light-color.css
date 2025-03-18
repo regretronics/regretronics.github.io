@@ -48,20 +48,25 @@
 	}
 }
 /*::selection {*/
-:not(code):not(code *):not(.code-editor):not(.code-editor *)::selection { /*the exclusions are a workaround for Blink*/
-	/*background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
-	color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);*/
-	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.625);
-	color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.875);
+/* :not(code):not(code *):not(.code-editor):not(.code-editor *)::selection { */
+:is(.code-editor, code) {
+	:not(:is(&, & *))::selection { /*the exclusions are a workaround for Blink*/
+		/*background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
+		color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);*/
+		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.625);
+		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.875);
+	}
 }
 
 strong {
 	color: black;
 }
-/*h1::selection, h2::selection, h3::selection, strong::selection, em::selection {*/
-:is(h1, h1 *, h2, h2 *, h3, h3 *, strong, strong *, em, em *)::selection {
-	background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
-	color: hsl(var(--hue-accent, 120), 100%, 87.5%) !important;
+/* :is(h1, h1 *, h2, h2 *, h3, h3 *, strong, strong *, em, em *)::selection { */
+:is(h1, h2, h3, strong, em) {
+	:is(&, & *)::selection {
+		background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
+		color: hsl(var(--hue-accent, 120), 100%, 87.5%) !important;
+	}
 }
 
 noscript, #translationWarning {
@@ -77,14 +82,19 @@ table, caption, td {
 	background-color: hsla(0, 0%, 100%, 0.25);
 }
 
-/*.code-editor::selection, .code-editor *::selection, code::selection {*/
-:is(.code-editor, .code-editor *, code, code *)::selection {
-	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75) !important;
-	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875) !important;
+/* :is(.code-editor, .code-editor *, code, code *)::selection { */
+:is(.code-editor, code) {
+	:is(&, & *)::selection {
+		background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75) !important;
+		color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875) !important;
+	}
 }
-:is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection {
-	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.875) !important;
-	color: hsl(var(--hue-accent2, 300), 100%, 12.5%) !important;
+/* :is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection { */
+:is(strong code, em code, code strong, code em, .code-editor strong, .code-editor em) {
+	:is(&, & *)::selection {
+		background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.875) !important;
+		color: hsl(var(--hue-accent2, 300), 100%, 12.5%) !important;
+	}
 }
 
 a:link {
@@ -112,10 +122,11 @@ button {
 	border-right-color: hsla(var(--hue-accent, 120), 25%, 62.5%, 0.5);
 	border-left-color: hsla(var(--hue-accent, 120), 25%, 62.5%, 0.5);
 	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.75);
-}
-button:active {
-	border-top-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.25);
-	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.25);
+
+	&:active {
+		border-top-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.25);
+		border-bottom-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.25);
+	}
 }
 input[type=number], input[type=text], textarea, select {
 	background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
@@ -164,9 +175,10 @@ input.invalid {
 	background-color: hsla(var(--hue-accent, 120), 12.5%, 0%, 0.625);
 	color: hsl(var(--hue-accent, 120), 25%, 100%);
 	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875) hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
-}
-.code-editor.invalid {
-	background-color: hsla(0, 100%, 25%, 0.75);
+
+	&.invalid {
+		background-color: hsla(0, 100%, 25%, 0.75);
+	}
 }
 
 #imgVisualizer {

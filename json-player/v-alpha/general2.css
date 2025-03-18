@@ -92,14 +92,14 @@ button, input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, s
 input[type=number] {
 	padding-inline: 0em;
 }
-input[type=text], textarea, select {
+:is(input[type=text], textarea, select):not(.right) {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
 	vertical-align: bottom;
 	margin-inline: 0em;
 }
-input[type=number], #txtRhythmFactors {
+input[type=number], :is(input, button, textarea).right {
 	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
 }
 input:is([type=checkbox], [type=radio]) + label {
@@ -112,13 +112,16 @@ input:is([type=checkbox], [type=radio]) + label {
 	margin-inline: 0.375ch;
 	white-space: nowrap;
 	/* text-wrap-mode: nowrap; */
-}
-/* wbr:has(+ .cell:not(:first-of-type)) {
-	border-inline-start-style: groove;
-	border-inline-start-width: 0.125em;
-} */
-.cell + .cell {
-	margin-inline-start: 0em;
+
+	.cell + & {
+		margin-inline-start: 0em;
+	}
+	/* &:not(:first-of-type)::before {
+		content: "\A0";
+		background-color: GrayText;
+	} */
+	/* wbr + & {
+	} */
 }
 .separator {
 	display: inline-block;
@@ -135,20 +138,18 @@ input:is([type=checkbox], [type=radio]) + label {
 .separator::after {
 	content: "\A0";
 }
-/* .cell:not(:first-of-type)::before {
-	content: "\A0";
-	background-color: GrayText;
-} */
-/* wbr + .cell {
+/* wbr:has(+ .cell:not(:first-of-type)) {
+	border-inline-start-style: groove;
+	border-inline-start-width: 0.125em;
 } */
 /* wbr:has(+ .cell) {
 	display: contents;
 	margin-inline-start: 0.1875em;
 } */
+
 #outAudioT {
 	display: inline-block;
 	min-width: 6ch;
-	text-align: right;
 }
 .tool-tip {
 	font-style: italic;
@@ -180,10 +181,11 @@ svg g {
 }
 td {
 	padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em);
-}
-/* td:has(.interval-sample) { */ /*:has not supported in Firefox 114*/
-td.sample-cell {
-	padding: 0em;
-	text-align: center;
-	cursor: pointer;
+
+	/* &:has(.interval-sample) { */
+	&.sample-cell {
+		padding: 0em;
+		text-align: center;
+		cursor: pointer;
+	}
 }

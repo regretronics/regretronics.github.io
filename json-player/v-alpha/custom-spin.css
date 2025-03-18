@@ -16,36 +16,37 @@
 	border-start-end-radius: 0.125em;
 	border-end-end-radius: 0.125em;
 	/* clip-path: border-box; */
-}
-.spin-edit > :first-child {
-	border-start-start-radius: inherit;
-	border-end-start-radius: inherit;
-	@media screen {
-		border-start-end-radius: 0em;
-		border-end-end-radius: 0em;
+
+	& > :first-child {
+		border-start-start-radius: inherit;
+		border-end-start-radius: inherit;
+		@media screen {
+			border-start-end-radius: 0em;
+			border-end-end-radius: 0em;
+		}
+		@media print {
+			border-start-end-radius: inherit;
+			border-end-end-radius: inherit;
+		}
 	}
-	@media print {
+	& > :last-child, & > :last-child > :last-child {
 		border-start-end-radius: inherit;
 		border-end-end-radius: inherit;
 	}
-}
-.spin-edit > :last-child, .spin-edit > :last-child > :last-child {
-	border-start-end-radius: inherit;
-	border-end-end-radius: inherit;
-}
 
-.spin-edit input:first-of-type {
-	box-sizing: border-box;
-	/* border-style: solid; */
+	& input:first-of-type {
+		box-sizing: border-box;
+		/* border-style: solid; */
 
-	text-align: right;
-	/* vertical-align: text-bottom; */
-	z-index: 1;
+		text-align: right;
+		/* vertical-align: text-bottom; */
+		z-index: 1;
+	}
+	/* & > input:first-of-type {
+		flex-basis: ;
+		vertical-align: text-top;
+	} */
 }
-/* .spin-edit > input:first-of-type {
-	flex-basis: ;
-	vertical-align: text-top;
-} */
 
 .spin-edit:has(.buttons-area) input:first-of-type {
 	appearance: textfield;
