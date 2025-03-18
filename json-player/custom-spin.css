@@ -20,8 +20,14 @@
 .spinEdit > :first-child {
 	border-start-start-radius: inherit;
 	border-end-start-radius: inherit;
-	border-start-end-radius: 0em;
-	border-end-end-radius: 0em;
+	@media screen {
+		border-start-end-radius: 0em;
+		border-end-end-radius: 0em;
+	}
+	@media print {
+		border-start-end-radius: inherit;
+		border-end-end-radius: inherit;
+	}
 }
 .spinEdit > :last-child, .spinEdit > :last-child > :last-child {
 	border-start-end-radius: inherit;
@@ -43,51 +49,63 @@
 
 .spinEdit:has(.buttonsArea) input:first-of-type {
 	appearance: textfield;
-}
-.spinEdit:has(.buttonsArea) input:first-of-type::inner-spin-button, 
-.spinEdit:has(.buttonsArea) input:first-of-type::outer-spin-button {
-	-webkit-appearance: none;
-	appearance: none;
-	display: none;
-	opacity: 0;
-}
-.spinEdit:has(.buttonsArea) input:first-of-type::-webkit-inner-spin-button, 
-.spinEdit:has(.buttonsArea) input:first-of-type::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	appearance: none;
-	display: none;
-	opacity: 0;
+
+	&::inner-spin-button, &::outer-spin-button {
+		-webkit-appearance: none;
+		appearance: none;
+		display: none;
+		opacity: 0;
+	}
+	&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		appearance: none;
+		display: none;
+		opacity: 0;
+	}
 }
 
 .spinEdit .buttonsArea {
 	background-color: ButtonFace;
 	color: ButtonText;
+	/* background-color: Canvas;
+	color: CanvasText; */
+	opacity: 0.8;
 
 	user-select: none;
 	flex-basis: content;
 	flex-shrink: 0.25;
 	text-align: center;
 
-	display: flex;
+	@media screen {
+		display: flex;
+	}
+	@media print {
+		display: none;
+	}
 	flex-direction: row;
 	flex-wrap: nowrap; /* ? */
 	/* z-index: -1; */
-}
-.spinEdit .buttonsArea > * {
-	touch-action: none;
-	width: 1em;
-	/* flex-basis: 1em; */
-	/* flex-basis: auto; */
-	flex-grow: 1;
-	/* display: inline-block; */
-	align-content: center;
-}
-.spinEdit .buttonsArea > *:hover,
-.spinEdit .buttonsArea > *.hover {
-	background-color: canvastext;
-	color: canvas;
-}
-.spinEdit .buttonsArea:active {
-	background-color: SelectedItem;
-	color: SelectedItemText;
+
+	&:active {
+		background-color: SelectedItem;
+		color: SelectedItemText;
+	}
+	& > * {
+		touch-action: none;
+		width: 1em;
+		/* flex-basis: 1em; */
+		/* flex-basis: auto; */
+		flex-grow: 1;
+		/* display: inline-block; */
+		align-content: center;
+	}
+	& > *:hover, & > *:active, & > *.hover {
+		background-color: CanvasText;
+		color: Canvas;
+		opacity: 1;
+	}
+	& > *:active {
+		/* box-shadow: 0 0 0.25em CanvasText; */
+		box-shadow: 0 0 0.25em 0.125em CanvasText;
+	}
 }

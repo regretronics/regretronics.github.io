@@ -125,7 +125,7 @@ function initSpinControls() {
 		if(!spinEdit) {
 			spinEdit = document.createElement("span");
 			spinEdit.classList.add("spinEdit");
-			txtControl.parentElement.insertBefore(spinEdit, null);
+			txtControl.parentElement.insertBefore(spinEdit, txtControl);
 			spinEdit.insertBefore(txtControl, null);
 		}
 		spinEdit.translate = false;

@@ -186,13 +186,7 @@ const releaseCurveSize = 8192;
 //variability per prime factor (2, 3, 5, 7, ...); array of numbers.
 var maxPitches = null;
 
-function docLoaded() {
-	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
-	if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
-	if(window.outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
-	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
-	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
-	
+async function initCalculations() {
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 	//question: too simple? should it depend on primeCount?
 	maxPitches = new Array(primes.length);
@@ -282,46 +276,72 @@ function loadEventHandlers() {
 	addToolTipHandler("#tblFractionIntervals", event => setToolTip(event, outToolTip2));
 }
 function pageLoaded() {
-	//load HTML element references
+	//load HTML element references (renders document.getElementById unnecessary)
 	for(let s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
-	docLoaded();
+
+	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
+	if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
+	if(window.outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
+	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
+
+	initCalculations();
 
 	ctlStructuredScript.innerText = defStructuredCode;
 	ctlFlatScript.innerText = defFlattenedCode;
-	addIntervalSamples();
 
-	loadEventHandlers();
-	window.loadPreferences?.();
-	adjustingPreferences = true;
-	try {
-		const expSpinners = ["txtBaseFreq", "txtTimeScale", "txtPlayFreqScale", "txtPlayVolScale", "txtPlayTimeScale"];
-		const evt = new Event("input");
-		for(const s of expSpinners) window[s].dispatchEvent(evt);
-	} finally {
-		adjustingPreferences = false;
-	}
-	window.primeCountChanged?.();
-	window.rhythmFactorsChanged?.();
-	window.initSpinControls?.();
-	for(let s of document.querySelectorAll('label[for]'))
-		//s.title = document.getElementById(s.htmlFor).title ?? "";
-		s.title = s.control.title ?? "";
+	new Promise((resolve, reject) => {
+	//setTimeout(() => {
+		//control separators
+		for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+			const separator = document.createElement("span");
+			separator.classList.add("separator");
 
-	//control separators
-	for(let s of document.querySelectorAll('.cell:not(:first-of-type)')) {
-		const separator = document.createElement("span");
-		separator.classList.add("separator");
+			//s.parentElement.insertBefore(separator, s);
+			//s.insertBefore(separator, s.firstElementChild);
+			//remove unwanted white space that could affect spacing
+			const first = s.firstChild;
+			if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
+				s.removeChild(first);
+			s.insertBefore(separator, s.firstChild);
+			//s.prepend(separator, "\u{A0}");
+		}
+		//resolve();
+	});
+	//}, 16);
 
-		//s.parentElement.insertBefore(separator, s);
-		//s.insertBefore(separator, s.firstElementChild);
-		//remove unwanted white space that could affect spacing
-		const first = s.firstChild;
-		if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
-			s.removeChild(first);
-		s.insertBefore(separator, s.firstChild);
-	}
-	//
+	new Promise((resolve, reject) => {
+	//setTimeout(() => {
+		addIntervalSamples();
+		//resolve();
+	});
+	//}, 16);
+}
+function pageReady(event) {
+	//new Promise((resolve, reject) => {
+	//setTimeout(() => {
+		loadEventHandlers();
+		window.loadPreferences?.();
+		adjustingPreferences = true;
+		try {
+			const evt = new Event("input");
+			for(const elem of document.querySelectorAll("input.exp"))
+				elem.dispatchEvent(evt);
+		} finally {
+			adjustingPreferences = false;
+		}
+		window.primeCountChanged?.();
+		window.rhythmFactorsChanged?.();
+
+		window.initSpinControls?.(); //custom-spin.js
+		for(let s of document.querySelectorAll('label[for]'))
+			//s.title = document.getElementById(s.htmlFor).title ?? "";
+			s.title = s.control?.title ?? "";
+
+		//resolve();
+	//});
+	//}, 16);
 
 	//just eye candy
 	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
@@ -388,9 +408,15 @@ function expSpinnerChanged(event) {
 		elem.setCustomValidity("");
 	}
 	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
-	elem.step = step;
-	//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
-	elem.min = val - 2 * Math.sign(val) * step;
+	const min = parseFloat(elem.dataset.min);
+	if(min === undefined || isNaN(min)) {
+		elem.step = step;
+		//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
+		elem.min = val - 2 * Math.sign(val) * step;
+	} else {
+		elem.step = Math.max(min, step);
+		elem.min = Math.max(min, val - 2 * Math.sign(val) * step);
+	}
 	//elem.reportValidity();
 }
 /*function textInvalid(event) { //not working for input type="number"
@@ -697,7 +723,7 @@ function hueAnimation() {
 function addIntervalSamples() {
 	//add cells to rows in table body
 	const container = document.querySelector("#tblFractionIntervals tbody");
-	for (const row of container.children) {
+	for(const row of container.children) {
 		if(row.tagName.toUpperCase() !== "TR") continue;
 		if(row.children.length < 1) continue;
 		const firstChild = row.children[0];
@@ -707,6 +733,7 @@ function addIntervalSamples() {
 		}
 
 		const cell = row.insertCell(4);
+		cell.headers = "colSoundSample";
 		cell.classList.add("sample-cell");
 		cell.translate = false;
 		cell.addEventListener("click", playIntervalHandler);
@@ -719,6 +746,7 @@ function addIntervalSamples() {
 		//add cell to row in table header
 		const row = document.querySelector("#tblFractionIntervals thead tr");
 		const cell = document.createElement("th"); //insertCell would make a td element.
+		cell.id = "colSoundSample";
 		cell.scope = "col";
 		//cell.innerHTML = "Sam&shy;ple"; //Sample
 		cell.innerHTML = '<span class="langStatic" translate="no">Sam&shy;ple</span><span class="langFlex" hidden="">Sample</span>';
