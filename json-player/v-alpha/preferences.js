@@ -167,7 +167,7 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("structuredMusic.content");
 			if(s) {
-				ctlStructuredScript.innerText = s;
+				ctlStructuredScript.textContent = s;
 				ctlStructuredScript.dispatchEvent(new Event("input"));
 			}
 		}
@@ -199,7 +199,7 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("flatScript.content");
 			if(s) {
-				ctlFlatScript.innerText = s;
+				ctlFlatScript.textContent = s;
 				ctlFlatScript.dispatchEvent(new Event("input"));
 			}
 		}
@@ -267,12 +267,12 @@ function savePreferences() {
 	//Structured music editor
 	localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
 	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("lineWrapping")));
-	localStorage.setItem("structuredMusic.content", ctlStructuredScript.innerText);
+	localStorage.setItem("structuredMusic.content", ctlStructuredScript.textContent);
 	//Flattened note list
 	localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
 	localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
 	localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("lineWrapping")));
-	localStorage.setItem("flatScript.content", ctlFlatScript.innerText);
+	localStorage.setItem("flatScript.content", ctlFlatScript.textContent);
 	//Overall play controls
 	localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
 	localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(playVolScale)?
@@ -548,7 +548,7 @@ function btnResetPreferencesClick(event) {
 			ctlStructuredScript.classList.remove("lineWrapping");
 			chkOverflow1.checked = false;
 			chkLineWrap1.checked = false;
-			ctlStructuredScript.innerText = defStructuredCode;
+			ctlStructuredScript.textContent = defStructuredCode;
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetFlatScript?.checked) {
@@ -563,7 +563,7 @@ function btnResetPreferencesClick(event) {
 			ctlFlatScript.classList.remove("lineWrapping");
 			chkOverflow2.checked = false;
 			chkLineWrap2.checked = false;
-			ctlFlatScript.innerText = defFlattenedCode;
+			ctlFlatScript.textContent = defFlattenedCode;
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetClipParams?.checked) {

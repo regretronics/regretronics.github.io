@@ -294,7 +294,7 @@ function pageLoaded() {
 	new Promise((resolve, reject) => {
 	//setTimeout(() => {
 		//control separators
-		for(let s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+		for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
 			const separator = document.createElement("span");
 			separator.classList.add("separator");
 
@@ -305,6 +305,7 @@ function pageLoaded() {
 			if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
 				s.removeChild(first);
 			s.insertBefore(separator, s.firstChild);
+			//s.prepend(separator, "\u{A0}");
 		}
 		//resolve();
 	});

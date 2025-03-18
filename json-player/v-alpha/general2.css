@@ -89,39 +89,47 @@ input[type=number], #txtRhythmFactors {
 }
 input:is([type=checkbox], [type=radio]) + label {
 	/* vertical-align: middle; */
-	margin-inline: 0.125em;
-	padding-inline: 0.25em;
+	margin-inline-start: 0.375em;
+	/* padding-inline-start: 0.25em; */
 }
 
 .cell {
 	margin-inline: 0.375ch;
+	white-space: nowrap;
+	/* text-wrap-mode: nowrap; */
 }
 /* wbr:has(+ .cell:not(:first-of-type)) {
 	border-inline-start-style: groove;
 	border-inline-start-width: 0.125em;
 } */
+.cell + .cell {
+	margin-inline-start: 0em;
+}
 .separator {
 	display: inline-block;
 	width: 0.125em;
 	height: 100%;
 	background-color: GrayText;
+	/* background-clip: content-box; */
 	/* opacity: 0.5; */
-}
-:not(.cell) > .separator {
-	/* border-inline-start-style: groove;
-	border-inline-start-width: 0.125em; */
-	/* border-inline-width: 0.25em; */
-	/* margin-inline: 0.125em; */
+	/* border-inline-end-width: 0.125em;
+	border-inline-end-style: solid;
+	border-inline-end-color: transparent; */
+	margin-inline-end: 0.375em;
 }
 .separator::after {
 	content: "\A0";
 }
-wbr + .separator {
+/* .cell:not(:first-of-type)::before {
+	content: "\A0";
+	background-color: GrayText;
+} */
+/* wbr + .cell {
+} */
+/* wbr:has(+ .cell) {
+	display: contents;
 	margin-inline-start: 0.1875em;
-}
-.cell .separator {
-	margin-inline-end: 0.25em;
-}
+} */
 #outAudioT {
 	display: inline-block;
 	min-width: 6ch;

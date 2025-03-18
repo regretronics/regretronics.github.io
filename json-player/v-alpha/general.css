@@ -152,9 +152,20 @@ input[type=checkbox] {
 	min-height: 8em;
 	white-space: pre;
 	tab-size: 4;
+	/* text-wrap-mode: nowrap; */
+	/* text-overflow: unset; */
+	/* line-break: anywhere; */
+	/* overflow-wrap: anywhere; */
+	textarea& {
+		appearance: none;
+		display: block;
+	}
 }
 .codeEditor.expanded {
 	height: unset;
+	textarea& {
+		field-sizing: content;
+	}
 }
 .codeEditor.lineWrapping {
 	white-space: pre-wrap;
