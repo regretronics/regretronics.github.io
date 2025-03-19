@@ -57,6 +57,7 @@ function spinEditPointerDown(event) {
 	const buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttons-area") ?
 	if(!buttonsArea) return;
 
+	buttonsArea.classList.add("active");
 	buttonsArea.lastPointerEvent = event;
 	//buttonsArea.pointerDown = true;
 	//buttonsArea.hoverElem = event.target;
@@ -89,6 +90,7 @@ function spinEditPointerUp(event) {
 	const buttonsArea = event.srcElement;
 	//buttonsArea.pointerDown = false;
 
+	buttonsArea.classList.remove("active");
 	if(buttonsArea.hoverElem) buttonsArea.hoverElem.classList.remove("hover");
 	buttonsArea.hoverElem = null;
 

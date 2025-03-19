@@ -95,13 +95,14 @@
 		flex-grow: 1;
 		/* display: inline-block; */
 		align-content: center;
+
+		&:hover/* , &:active */, &.hover {
+			background-color: CanvasText;
+			color: Canvas;
+			opacity: 1;
+		}
 	}
-	& > *:hover, /* & > *:active, */ & > *.hover {
-		background-color: CanvasText;
-		color: Canvas;
-		opacity: 1;
-	}
-	&:active {
+	&:active, &.active, &:has(:active) {
 		background-color: SelectedItem;
 		color: SelectedItemText;
 	

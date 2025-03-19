@@ -161,7 +161,7 @@ input.invalid {
 		background-color: hsl(var(--hue-accent, 120), 100%, 93.75%);
 		color: hsl(var(--hue-accent, 120), 100%, 0%);
 	}
-	&:active {
+	&:active, &.active, &:has(:active) {
 		background-color: hsl(var(--hue-accent, 120), 50%, 12.5%);
 		color: hsl(var(--hue-accent, 120), 100%, 100%);
 
