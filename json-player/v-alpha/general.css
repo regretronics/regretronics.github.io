@@ -142,22 +142,33 @@ input[type=number], .right {
 
 .code-editor {
 	box-sizing: border-box;
+	padding: 0.125em;
+	/* border: solid 0.25em; */
 	width: 100%;
-	resize: none;
+
+	/* resize: none; */
 	overflow-y: auto;
 	min-height: 8em;
-	white-space: pre;
+
 	tab-size: 4;
+	white-space: pre;
 	/* text-wrap-mode: nowrap; */
 	/* text-overflow: unset; */
 	/* line-break: anywhere; */
 	/* overflow-wrap: anywhere; */
+
 	textarea& {
 		appearance: none;
 		display: block;
 	}
+	&:not(.expanded) {
+		resize: vertical;
+		max-height: 93.75vh;
+	}
 	&.expanded {
-		height: unset;
+		resize: none;
+		height: unset !important;
+
 		textarea& {
 			field-sizing: content;
 		}

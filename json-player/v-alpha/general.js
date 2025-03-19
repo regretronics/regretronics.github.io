@@ -176,6 +176,18 @@ function parseNumber(n) {
 
 	return NaN;
 }
+function codeEditorContentGet(elem) {
+	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		return elem.value;
+	else
+		return elem.textContent;
+}
+function codeEditorContentSet(elem, text) {
+	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		elem.value = text;
+	else
+		elem.textContent = text;
+}
 
 const timeDisplPrecision = 2;
 
@@ -261,6 +273,7 @@ function loadEventHandlers() {
 	for(const elem of document.getElementsByClassName("code-editor")) {
 		elem.addEventListener("keydown", editorKeyDown);
 		elem.addEventListener("paste", editorPaste);
+		//elem.addEventListener("input", editorChanged);
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}
@@ -288,8 +301,8 @@ function pageLoaded() {
 
 	initCalculations();
 
-	ctlStructuredScript.innerText = defStructuredCode;
-	ctlFlatScript.innerText = defFlattenedCode;
+	codeEditorContentSet(ctlStructuredScript, defStructuredCode);
+	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
 
 	new Promise((resolve, reject) => {
 	//setTimeout(() => {
@@ -553,6 +566,10 @@ function editorInput(event) {
 	if(!event || !event.target || !event.target.classList) return false;
 	event.target.classList.remove("invalid");
 }
+function editorChanged(event) {
+	if(!event || !event.target) return false;
+	event.target.normalize();
+}
 function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	const elem = event.target;
 	if(!elem) return false;
@@ -649,11 +666,7 @@ function structDownload(event) {
 	//for the future (as of 2024-08)?: window.showSaveFilePicker()
 	if(!window.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-	let data;
-	if(["INPUT", "TEXTAREA"].includes(ctlStructuredScript.tagName.toUpperCase()))
-		data = [ctlStructuredScript.value];
-	else
-		data = [ctlStructuredScript.innerText];
+	const data = codeEditorContentGet(ctlStructuredScript);
 	let file;
 	const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 	

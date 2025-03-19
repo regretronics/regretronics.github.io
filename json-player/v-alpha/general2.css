@@ -1,14 +1,4 @@
 /*general cosmetic styles*/
-:root {
-	/* --hue-accent: 120; */ /*question: include deg unit for hues? (currently never)*/
-	--hue-accent2: calc(var(--hue-accent) + 180);
-	/*--img-filter1: ;*/
-	/*--img-filter1: brightness(1);*/ /*placebo*/
-	/*--img-hue-shift: 0deg;*/
-	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
-	/*--img-filter: var(--img-filter1, none);*/
-	font-family: 'Liberation Serif', 'Linux Libertine G', Cambria, 'Source Serif 4 Variable', 'Noto Serif', Constantia, 'Baskerville Old Face', Times, 'Times New Roman', 'DejaVu Serif Condensed', 'Bell MT', Garamond, 'Goudy Old Style', 'Georgia Pro', Georgia, serif;
-}
 @property --hue-accent {
 	syntax: "<number>"; /*makes interpolation possible*/
 	inherits: true;
@@ -24,6 +14,17 @@
 	inherits: true;
 	initial-value: 0;
 } */
+
+:root {
+	/* --hue-accent: 120; */ /*question: include deg unit for hues? (currently never)*/
+	--hue-accent2: calc(var(--hue-accent, 120) + 180);
+	/*--img-filter1: ;*/
+	/*--img-filter1: brightness(1);*/ /*placebo*/
+	/*--img-hue-shift: 0deg;*/
+	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
+	/*--img-filter: var(--img-filter1, none);*/
+	font-family: 'Liberation Serif', 'Linux Libertine G', Cambria, 'Source Serif 4 Variable', 'Noto Serif', Constantia, 'Baskerville Old Face', Times, 'Times New Roman', 'DejaVu Serif Condensed', 'Bell MT', Garamond, 'Goudy Old Style', 'Georgia Pro', Georgia, serif;
+}
 /* html {
 	position: relative;
 
@@ -82,7 +83,7 @@ button {
 	padding-inline: 0.375em;
 	border-radius: 0.25em;
 }
-button, input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, select {
+button, input:not(:is([type=checkbox], [type=radio], [type=range])), textarea:not(.code-editor), select {
 	border-width: calc(5em/32);
 
 	&:not(:active):not(:focus):not(:hover) {
@@ -92,14 +93,14 @@ button, input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, s
 input[type=number] {
 	padding-inline: 0em;
 }
-:is(input[type=text], textarea, select):not(.right) {
+:is(input[type=text], textarea, select, .code-editor):not(.right) {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
 	vertical-align: bottom;
 	margin-inline: 0em;
 }
-input[type=number], :is(input, button, textarea).right {
+input[type=number], :is(input, button, textarea, .code-editor).right {
 	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
 }
 input:is([type=checkbox], [type=radio]) + label {
@@ -147,6 +148,22 @@ input:is([type=checkbox], [type=radio]) + label {
 	margin-inline-start: 0.1875em;
 } */
 
+/* :focus-visible {
+	outline-offset: 0.125em;
+} */
+/* #ctlStructuredScript:empty::after, #ctlStructuredScript:has(> br:only-child)::after { */
+#ctlStructuredScript:empty::before, #ctlStructuredScript:has(> br:only-child)::before {
+	content: '{"property": 123}';
+	opacity: 0.5;
+	/* display: block;
+	justify-self: center; */
+	/* text-align: center; */
+	/* vertical-align: middle; */
+}
+#ctlFlatScript:empty::before, #ctlFlatScript:has(> br:only-child)::before {
+	content: '[{"property": 123}]';
+	opacity: 0.5;
+}
 #outAudioT {
 	display: inline-block;
 	min-width: 6ch;

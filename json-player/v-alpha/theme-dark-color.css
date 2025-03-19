@@ -113,6 +113,16 @@ strong {
 		color: hsl(var(--hue-accent, 120), 100%, 12.5%) !important;
 	}
 }
+/* :is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection { */
+/* :is(strong code, em code, code strong, code em, .code-editor strong, .code-editor em) { */
+:is(h1, h2, h3, strong, em) {
+	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
+		:is(&, & *)::selection {
+			background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.875) !important;
+			color: hsl(var(--hue-accent2, 300), 100%, 87.5%) !important;
+		}
+	}
+}
 
 noscript, #translationWarning {
 	color: hsl(0, 100%, 87.5%);
@@ -132,13 +142,6 @@ table, caption, td {
 	:is(&, & *)::selection {
 		background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.75) !important;
 		color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 0.875) !important;
-	}
-}
-/* :is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection { */
-:is(strong code, em code, code strong, code em, .code-editor strong, .code-editor em) {
-	:is(&, & *)::selection {
-		background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.875) !important;
-		color: hsl(var(--hue-accent2, 300), 100%, 87.5%) !important;
 	}
 }
 

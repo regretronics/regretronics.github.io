@@ -78,7 +78,7 @@
 		:root, body, img, svg, a:link, a:active, table, caption, td,
 		input, button, textarea, select, label, meter, progress,
 		.buttons-area, .buttons-area *, .code-editor, .tool-tip {
-			transition-property: var(--hue-accent), var(--hue-accent2), opacity; /*doesn't work as of 2022*/
+			transition-property: --hue-accent, --hue-accent2, opacity;
 			/* transition-property: background-color, color, accent-color, border-color, scrollbar-color, stop-color, opacity, filter; */
 			transition-duration: 0.25s;
 		}
