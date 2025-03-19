@@ -153,17 +153,18 @@ input.invalid {
 	background-color: hsl(var(--hue-accent, 120), 25%, 93.75%);
 	color: hsl(var(--hue-accent, 120), 100%, 6.25%);
 
-	&:active {
-		background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
-		color: hsl(var(--hue-accent, 120), 100%, 0%);
-	}
-	& > *:hover, & > *:active, & > *.hover {
+	& > *:hover, & > *.hover {
 		background-color: hsl(var(--hue-accent, 120), 100%, 6.25%);
 		color: hsl(var(--hue-accent, 120), 100%, 100%);
 	}
-	& > *:active {
-		/* box-shadow: 0 0 0.25em hsl(var(--hue-accent, 120), 100%, 6.25%); */
-		box-shadow: 0 0 0.25em 0.125em hsl(var(--hue-accent, 120), 100%, 6.25%);
+	&:active {
+		background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
+		color: hsl(var(--hue-accent, 120), 100%, 0%);
+
+		& > *:hover, & > *.hover {
+			/* box-shadow: 0 0 0.25em hsl(var(--hue-accent, 120), 100%, 6.25%); */
+			box-shadow: 0 0 0.25em 0.125em hsl(var(--hue-accent, 120), 100%, 6.25%);
+		}
 	}
 }
 .tool-tip {
