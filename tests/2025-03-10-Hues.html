@@ -48,10 +48,11 @@
 		}
 		.shade-group > span {
 			/* float: left; */
-			/* display: inline-block; */
 			block-size: 4em;
-			inline-size: 2em;
+			inline-size: 1em;
 			flex-grow: 1;
+			flex-shrink: 1;
+			display: flex;
 
 			/* border: solid gray 0.125ch; */
 			/* border-style: solid;
@@ -69,11 +70,9 @@
 			/* background-color: oklch(0.5 0.2 calc(var(--hue-int, 0) * 1turn / 12));
 			background-color: oklch(0.5 50% calc(var(--hue-int, 0) * 1turn / 12)); */
 
-			&:hover::after {
-				display: block;
-				justify-self: center;
-				/* text-align: center; */
-				/* vertical-align: middle; */
+			&/* :hover */::before {
+				margin: auto;
+
 				content: counter(sh-hue);
 				text-shadow: 0 0 0.5ch black;
 			}
@@ -143,7 +142,7 @@
 			<option>a98-rgb</option>
 			<option>display-p3</option>
 			<option>prophoto-rgb</option>
-			<option selected="true">rec2020</option>
+			<option selected="selected">rec2020</option>
 			<option>rec2100</option>
 			<option>rec2100-linear</option>
 			<option>rec2100-pq</option>
@@ -172,18 +171,18 @@
 		<input type="number" id="txtHuePhase" value="0" step="0.00390625" data-property="--hue-phase" /> 
 	</p>
 	<p class="shade-group">
-		<span data-hue-int="0">&nbsp;</span>
-		<span data-hue-int="1">&nbsp;</span>
-		<span data-hue-int="2">&nbsp;</span>
-		<span data-hue-int="3">&nbsp;</span>
-		<span data-hue-int="4">&nbsp;</span>
-		<span data-hue-int="5">&nbsp;</span>
-		<span data-hue-int="6">&nbsp;</span>
-		<span data-hue-int="7">&nbsp;</span>
-		<span data-hue-int="8">&nbsp;</span>
-		<span data-hue-int="9">&nbsp;</span>
-		<span data-hue-int="10">&nbsp;</span>
-		<span data-hue-int="11">&nbsp;</span>
+		<span data-hue-int="0"></span>
+		<span data-hue-int="1"></span>
+		<span data-hue-int="2"></span>
+		<span data-hue-int="3"></span>
+		<span data-hue-int="4"></span>
+		<span data-hue-int="5"></span>
+		<span data-hue-int="6"></span>
+		<span data-hue-int="7"></span>
+		<span data-hue-int="8"></span>
+		<span data-hue-int="9"></span>
+		<span data-hue-int="10"></span>
+		<span data-hue-int="11"></span>
 	</p>
 	<ol id="lstShadeValues">
 	</ol>

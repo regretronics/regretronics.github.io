@@ -144,7 +144,7 @@
 			margin-block: 1em;
 			width: calc(2em * var(--val));
 			height: 2em;
-			background-color: oklch(0.5 100% calc(1turn * var(--val) / 10));
+			background-color: oklch(0.5 0.15625 calc(1turn * var(--val) / 10));
 		}
 		/* .var-bar-x::after {
 			content: "<" var(--val, "--") ">";
@@ -167,7 +167,7 @@
 			margin-block: 1em;
 			width: calc(2em * var(--val));
 			height: 2em;
-			background-color: oklch(0.5 100% calc(1turn * var(--val) / 10));
+			background-color: oklch(0.5 0.15625 calc(1turn * var(--val) / 10));
 		}
 		.arrow-box {
 			width: 4em;
@@ -186,7 +186,7 @@
 			/* position: absolute; */
 			margin: auto;
 			text-align: center;
-			background-color: oklch(100% 100% calc(atan2(var(--y) - 5, var(--x) - 5)));
+			background-color: oklch(100% 0.15625 calc(atan2(var(--y) - 5, var(--x) - 5)));
 			clip-path: polygon(100% 80%,
 				40% 80%,
 				40% 100%,
@@ -255,7 +255,7 @@
 			height: 2em;
 			width: calc(1em * (1 + var(--tree1, 0)));
 			display: inline-block;
-			background-color: oklch(0.5 100% calc(1turn * var(--tree1, 0) / 16));
+			background-color: oklch(0.5 0.15625 calc(1turn * var(--tree1, 0) / 16));
 			transition-property: background-color, width;
 			/* transition-delay: 0.125s; */
 			transition-duration: 0.5s;
@@ -347,7 +347,7 @@
 			<div class="arrow">arrow</div>
 		</div>
 		<hr />
-		<p class="tree">
+		<div class="tree">
 			<div class="tree-root">
 				<span class="tree-l3">
 					<span class="tree-l2">
@@ -411,6 +411,6 @@
 				</span>
 			</div>
 			<div class="tree-bar"></div>
-		</p>
+		</div>
 	</body>
 </html>

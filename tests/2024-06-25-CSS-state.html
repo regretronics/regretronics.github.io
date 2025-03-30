@@ -121,7 +121,8 @@
 				border-end-end-radius: 0.3125em;
 				border-width: 0;
 				padding: 0.125em;
-
+			}
+			input:not([type=checkbox]):not([type=radio]), textarea, button, select, option {
 				--lum2-p0-25: calc(0.25 * var(--contrast-drive, 1));
 				--lum2-m0-25: calc(-0.25 * var(--contrast-drive, 1));
 				--lum1-p0-25: calc(var(--lum2-p0-25, 0) / sqrt(1 + pow(var(--lum2-p0-25, 0), 2)));
