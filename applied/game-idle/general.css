@@ -51,10 +51,11 @@ h1 {
 	line-height: 0.8;
 	text-align: center;
 	color: color(from oklch(0.875 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
-}
-h1 small {
-	font-size: 0.6em;
-	font-variant: small-caps;
+
+	& small {
+		font-size: 0.6em;
+		font-variant: small-caps;
+	}
 }
 h1:first-of-type + p {
 	font-variant: small-caps;
@@ -113,6 +114,7 @@ summary:has(.marker) {
 	list-style-type: none;
 }
 .marker {
+	margin-inline-end: 0.5em;
 	/* vertical-align: middle; */
 	/* vertical-align: top; */
 	display: inline-block;
