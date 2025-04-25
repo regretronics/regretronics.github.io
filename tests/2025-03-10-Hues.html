@@ -37,10 +37,25 @@
 			inherits: true;
 			initial-value: 0;
 		} */
+		@property --c {
+		/* @property sh-hue { */
+			syntax: "<number>";
+			/* syntax: "<integer>"; */
+			inherits: true;
+			initial-value: 1;
+			/* initial-value: sh-hue; */
+			/* initial-value: counter(sh-hue); */
+			/* initial-value: counter(sh-hue, decimal); */
+			/* initial-value: counter(sh-hue, integer); */
+			/* initial-value: counter(sh-hue, <integer>); */
+			/* initial-value: counter(sh-hue, number); */
+			/* initial-value: counter(sh-hue, <number>); */
+		}
 		.shade-group {
 			display: flex;
 			flex-direction: row;
 			counter-reset: sh-hue 0;
+			/* counter-reset: --c 0; */
 			user-select: none;
 			padding: 0.25ch;
 			gap: 0.25ch;
@@ -61,6 +76,7 @@
 			/* border-color: color(var(--cl-space, srgb) calc(var(--lgh-ref, 0.5) * var(--fr)) calc(var(--lgh-ref, 0.5) * var(--fg)) calc(var(--lgh-ref, 0.5) * var(--fb))); */
 
 			counter-increment: sh-hue;
+			/* counter-increment: --c; */
 			--hue-int: attr(data-hue-int type(<number>));
 			/* --hue-int: counter(sh-hue, numeric); */
 			--cl-radial: oklch(var(--lgh-colors, 0.5) var(--sat, 0.125) calc(var(--hue-phase, 0) * 1turn + var(--hue-int, 0) * 1turn / 12));
@@ -73,13 +89,40 @@
 			&/* :hover */::before {
 				margin: auto;
 
+				/* --c: calc(var(--c, 0) + 1); */
+				/* --c: calc(initial + 1); */
+				/* --c: calc(inherit + 1); */
+				/* --c: sh-hue; */
+				/* --c: "3"; */
+				/* --c: calc('3'); */
+				/* --c: calc(counter(sh-hue, decimal)); */
+				/* --c: var(sh-hue); */
+				/* --c: counter(sh-hue); */
+				/* --c: counter(sh-hue number); */
+				/* --c: counter(sh-hue integer); */
+				/* --c: counter(sh-hue decimal); */
+				/* --c: counter(sh-hue <number>); */
+				/* --c: counter(sh-hue <integer>); */
+				/* --c: counter(sh-hue type(<number>)); */
+				/* --c: counter(sh-hue type(<integer>)); */
+				/* --c: counter(sh-hue, decimal); */
+				/* --c: counter(sh-hue, integer); */
+				/* --c: counter(sh-hue, <integer>); */
+				/* --c: counter(sh-hue, number); */
+				/* --c: counter(sh-hue, <number>); */
+				/* font-size: calc(1em * var(--c, 0.5)); */
+
 				content: counter(sh-hue);
+				/* content: counter(--c); */
 				text-shadow: 0 0 0.5ch black;
 			}
 		}
-		/* #lstShadeValues {
-			clear: both;
-		} */
+		#lstShadeValues {
+			/* clear: both; */
+			& li {
+				font-family: monospace;
+			}
+		}
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";

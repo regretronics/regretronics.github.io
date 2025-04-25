@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS experiment: vars, animation, etc.</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --c {
+			syntax: "<number>";
+			/* syntax: "<string>"; */
+			inherits: true;
+			/* initial-value: 10.5456; */
+			initial-value: 0;
+			/* initial-value: "asdf"; */
+		}
+		@keyframes anim1 {
+			from {
+				--c: 0;
+			}
+			to {
+				--c: 10;
+			}
+		}
+		:root {
+			color-scheme: dark;
+			font-size: 3em;
+
+			--test: "asasdfdf";
+			/* --c: 2; */
+			/* --c: "qwert"; */
+
+			/* counter-reset: cnt 0; */
+			/* counter-reset: cnt var(--c); */
+			/* counter-reset: cnt round(nearest, var(--c), 1) cnt-frac round(nearest, 21, 1); */
+			/* --c-round3: calc(var(--c) + 1 * 0.5 * 0.001); */
+			--c-round3: calc(var(--c) + sign(var(--c)) * 0.5 * 0.001);
+			counter-reset: cnt round(to-zero, var(--c-round3), 1) cnt-frac round(to-zero, 1000 * mod(var(--c-round3), 1), 1);
+
+			animation-name: anim1;
+			animation-duration: 20s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+			/* animation-timeline: scroll(block nearest); */
+		}
+		/* body {
+			height: 100%;
+			width: 100%;
+			overflow: scroll;
+		} */
+		#l2Container {
+			position: absolute;
+			width: 200%;
+			height: 200%;
+		}
+		@counter-style dec3 {
+			system: extends decimal;
+			pad: 3 "0";
+		}
+		#l2Container::after {
+			position: fixed;
+			/* content: var(--c, "def"); */
+			/* content: "asdf" var(--c, 123) "qwer"; */
+			content: counter(cnt) "." counter(cnt-frac, dec3);
+			/* content: counter(cnt, numeric); */
+			/* content: counters(cnt, ".", numeric); */
+		}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+	/*]]>*/</script>
+</head>
+<body>
+	<div id="l2Container"></div>
+</body>
+</html>
