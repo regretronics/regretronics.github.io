@@ -110,7 +110,7 @@
 				<option value="466" />
 			</datalist>
 			<span class="cell"><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label>
-				<input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" />
+				<input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" />
 			</span>
 			<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
 			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
@@ -293,7 +293,7 @@
 			<h2>Introduction</h2>
 			<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
 				Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
-				Here we try to bypass the unreasoning junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
+				Here we try to bypass the <a href="https://en.wikipedia.org/wiki/Arbitrariness">unreasoning</a> junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
 				This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
 			<h3>Pitch and harmony: intervals and consonance</h3>
 			<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval">intervals</a>) are actually frequency ratios (proportions). 

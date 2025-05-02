@@ -216,8 +216,10 @@ async function initCalculations() {
 	}
 }
 function loadEventHandlers() {
-	for(const elem of document.querySelectorAll("input.exp"))
+	for(const elem of document.querySelectorAll("input.exp")) {
 		elem.addEventListener("input", expSpinnerChanged);
+		//elem.addEventListener("invalid", expSpinnerInvalid);
+	}
 
 	btnTextShrink.addEventListener("click", rescaleText);
 	btnTextEnlarge.addEventListener("click", rescaleText);
@@ -410,6 +412,7 @@ function expSpinnerChanged(event) {
 	//console.log(event);
 	const elem = event.target;
 	if(!elem) return false;
+
 	//let val = elem.valueAsNumber;
 	let val = parseNumber(elem.value);
 	if(isNaN(val)) {
@@ -420,18 +423,41 @@ function expSpinnerChanged(event) {
 		elem.classList.remove("invalid");
 		elem.setCustomValidity("");
 	}
-	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
-	const min = parseFloat(elem.dataset.min);
+
+	const magnitude = Math.round(Math.log2(Math.abs(val)));
+	const stepRatio = NaNToDefault(parseFloat(elem.dataset.stepRatio), 0.25);
+	const step = stepRatio * 2 ** magnitude;
+	const dynMin = val - 2 * Math.sign(val) * step, min = parseFloat(elem.dataset.min);
 	if(min === undefined || isNaN(min)) {
 		elem.step = step;
 		//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
-		elem.min = val - 2 * Math.sign(val) * step;
+		elem.min = dynMin;
 	} else {
 		elem.step = Math.max(min, step);
-		elem.min = Math.max(min, val - 2 * Math.sign(val) * step);
+		elem.min = Math.max(min, dynMin);
 	}
+	//console.log(event, elem.checkValidity());
+	//elem.checkValidity();
 	//elem.reportValidity();
+	//elem.setCustomValidity("");
+	//if(elem.validity.stepMismatch) {
+	//if(!elem.validity.valid) {
+	/* if(!elem.checkValidity()) {
+		elem.valieAsNumber = 1;
+		elem.setCustomValidity("");
+		//elem.checkValidity();
+		//elem.reportValidity();
+	} */
 }
+/* function expSpinnerInvalid(event) {
+	console.log(event);
+	event.target.setCustomValidity("");
+	event.preventDefault();
+	event.stopImmediatePropagation();
+	event.stopPropagation();
+	//return true;
+	return false;
+} */
 /*function textInvalid(event) { //not working for input type="number"
 	event.target.setCustomValidity("");
 	event.preventDefault();
@@ -640,7 +666,7 @@ function setToolTip(event, outToolTip) {
 		sentences.push(description);
 
 	description = elem.validationMessage;
-	if(typeof(description) === "string" && description.length > 0)
+	if(typeof(description) === "string" && description.length > 0 && (!elem?.validity || !elem?.validity?.stepMismatch))
 		sentences.push(description);
 
 	if(sentences.length > 0) {
