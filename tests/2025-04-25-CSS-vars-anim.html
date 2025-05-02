@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en" data-val="12321" data-x="var(--x)" data-x-str="attr(data-val)" data-cnt="counter(cnt-z)">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,8 +11,7 @@
 			syntax: "<number>";
 			/* syntax: "<string>"; */
 			inherits: true;
-			/* initial-value: 10.5456; */
-			initial-value: 0;
+			initial-value: 10.5456;
 			/* initial-value: "asdf"; */
 		}
 		@keyframes anim1 {
@@ -30,18 +29,35 @@
 			--test: "asasdfdf";
 			/* --c: 2; */
 			/* --c: "qwert"; */
+			/* --c: 321; */
+			/* --c: calc(var(--c) + 1); */
+			/* --c: calc(inherit + 1); */
+			/* --c: calc(inherit(--c) + 1); */
+			/* --c: sibling-index(); */
+			--x: 345;
+			/* --x-str: attr(data-x); */
+			--x-str: attr(data-x-str type(*));
+			/* --x-str: attr(data-x type(<string>)); */
+			/* --x-str: "hjkl"; */
+			--y: calc(attr(data-x type(<number>)) + 1);
+			/* --y: calc(attr(data-cnt type(<number>)) + 1); */ /* doesn't work */
+			/* --y: calc(attr(data-x type(*)) + 1); */
+			/* --y: 345; */
 
 			/* counter-reset: cnt 0; */
 			/* counter-reset: cnt var(--c); */
 			/* counter-reset: cnt round(nearest, var(--c), 1) cnt-frac round(nearest, 21, 1); */
+			--places: 2;
 			/* --c-round3: calc(var(--c) + 1 * 0.5 * 0.001); */
-			--c-round3: calc(var(--c) + sign(var(--c)) * 0.5 * 0.001);
-			counter-reset: cnt round(to-zero, var(--c-round3), 1) cnt-frac round(to-zero, 1000 * mod(var(--c-round3), 1), 1);
+			/* --c-round3: calc(var(--c) + sign(var(--c)) * 0.5 * 0.001); */
+			--c-round: calc(var(--c) + sign(var(--c)) * 0.5 * pow(0.1, var(--places)));
+			/* counter-reset: cnt round(to-zero, var(--c-round3), 1) cnt-frac round(to-zero, 1000 * mod(var(--c-round3), 1), 1) cnt-y round(nearest, var(--y), 1) cnt-z 789; */
+			counter-reset: cnt round(to-zero, var(--c-round), 1) cnt-frac round(to-zero, pow(10, var(--places)) * mod(var(--c-round), 1), 1) cnt-y round(nearest, var(--y), 1) cnt-z 789;
 
-			animation-name: anim1;
+			/* animation-name: anim1;
 			animation-duration: 20s;
 			animation-iteration-count: infinite;
-			animation-timing-function: linear;
+			animation-timing-function: linear; */
 			/* animation-timeline: scroll(block nearest); */
 		}
 		/* body {
@@ -49,22 +65,39 @@
 			width: 100%;
 			overflow: scroll;
 		} */
+
 		#l2Container {
 			position: absolute;
 			width: 200%;
 			height: 200%;
 		}
-		@counter-style dec3 {
+		@counter-style dec-frac {
 			system: extends decimal;
-			pad: 3 "0";
+			/* pad: 3 "0"; */
+			pad: var(--places) "0";
 		}
 		#l2Container::after {
 			position: fixed;
 			/* content: var(--c, "def"); */
+			/* content: string(var(--c, "def")); */
 			/* content: "asdf" var(--c, 123) "qwer"; */
-			content: counter(cnt) "." counter(cnt-frac, dec3);
+			content: counter(cnt) "." counter(cnt-frac, dec-frac);
 			/* content: counter(cnt, numeric); */
 			/* content: counters(cnt, ".", numeric); */
+		}
+		#l2Container::before {
+			/* content: "asdfasdf"; */
+			/* content: attr(data-x type(*)); */
+			/* content: var(--y); */
+			content: var(--x-str) "\a0";
+			/* content: counter(cnt-y) "--"; */
+		}
+
+		div.item::before {
+			display: inline-block;
+			width: calc(1em * sibling-index());
+			content: "x";
+			background-color: blueviolet;
 		}
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
@@ -72,6 +105,10 @@
 	/*]]>*/</script>
 </head>
 <body>
+	<div>asfd</div>
+	<div class="item">item</div>
+	<div class="item">item</div>
+	<div class="item">item</div>
 	<div id="l2Container"></div>
 </body>
 </html>
