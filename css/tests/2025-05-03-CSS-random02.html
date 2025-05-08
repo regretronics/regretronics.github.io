@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS experiment: vars, animation, etc.</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --t {
+			syntax: "<number>";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@keyframes anim1 {
+			/* from {
+				--t: 79900;
+			} */
+			to {
+				--t: var(--dur);
+				/* --t: calc(80000 + var(--dur)); */
+				/* --t: calc(4 * var(--dur)); */
+			}
+		}
+		:root {
+			color-scheme: dark;
+			font-size: 3em;
+
+			--dur: 86400;
+			/* --c: sibling-index(); */
+
+			--ti: round(down, 30000 + var(--t));
+			--ti1: calc(var(--ti) + 1);
+			--ti2: calc(var(--ti) + 2);
+			--ti3: calc(var(--ti) + 3);
+			--tfrac: mod(var(--t), 1);
+			--tfrac1: calc(1 - var(--tfrac));
+
+			--interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
+			--interp-hermite-10: calc(var(--tfrac) * var(--tfrac1) * var(--tfrac1));
+			--interp-hermite-01: calc(var(--tfrac) * var(--tfrac) * (3 - 2 * var(--tfrac)));
+			--interp-hermite-11: calc(-1 * var(--tfrac) * var(--tfrac) * var(--tfrac1));
+
+			/* --rnd-exp: calc(0.5 + 0.5 * sqrt(5));
+			--rnd-ratio: 0.64575131106459059;
+			--rnd: mod(pow(var(--ti), var(--rnd-exp)) + var(--rnd-ratio) * var(--ti) + e, 1);
+			--rnd1: mod(pow(var(--ti1), var(--rnd-exp)) + var(--rnd-ratio) * var(--ti1) + e, 1); */
+			/* --rnd: calc(pow(var(--ti), var(--rnd-exp)) + var(--ti) * pi + e);
+			--rnd1: calc(pow(var(--ti1), var(--rnd-exp)) + var(--ti1) * pi + e); */
+
+			--rnd-ratio1: mod(sqrt(7), 1);
+			--rnd-ratio2: mod(pow(349, 1 / 5), -1);
+			--rnd-ratio3: mod(pow(3181, 1 / 3), 1);
+			--rnd-exp1: calc(pi * 2 / 3);
+			--rnd-exp2: calc(20 / 7);
+			--rnd-exp3: calc(110 / 113);
+			--rnd-offset: mod(pow(1451, 1 / 7), 1);
+
+			--tilog: log(var(--ti) + pi);
+			--ti1log: log(var(--ti1) + pi);
+			--ti2log: log(var(--ti2) + pi);
+			--ti3log: log(var(--ti3) + pi);
+			--rnd: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--tilog)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd1: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti1log)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti1log)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti1log)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd2: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti2log)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti2log)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti2log)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd3: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti3log)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti3log)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti3log)) 
+				+ var(--rnd-offset), 
+				1);
+
+			/* --rnd-interp: calc(
+				var(--interp-hermite-00) * var(--rnd1)
+				+ var(--interp-hermite-10) * 0.5 * (var(--rnd2) - var(--rnd))
+				+ var(--interp-hermite-01) * var(--rnd2)
+				+ var(--interp-hermite-11) * 0.5 * (var(--rnd3) - var(--rnd1))
+			); */
+			--rnd-interp: calc(
+				var(--interp-hermite-00) * var(--rnd1)
+				+ var(--interp-hermite-10) * 0.735 * (var(--rnd2) - var(--rnd))
+				+ var(--interp-hermite-01) * var(--rnd2)
+				+ var(--interp-hermite-11) * 0.735 * (var(--rnd3) - var(--rnd1))
+			);
+
+			--places: 6;
+			/* --c-round3: calc(var(--c) + 1 * 0.5 * 0.001); */
+			/* --c-round3: calc(var(--c) + sign(var(--c)) * 0.5 * 0.001); */
+			/* --c-round: calc(var(--c) + sign(var(--c)) * 0.5 * pow(0.1, var(--places))); */
+			/* counter-reset: 
+				cnt round(to-zero, var(--c-round3), 1) 
+				cnt-frac round(to-zero, 1000 * mod(var(--c-round3), 1), 1); */
+			/* counter-reset: 
+				cnt round(to-zero, var(--c-round), 1) 
+				cnt-frac round(to-zero, pow(10, var(--places)) * mod(var(--c-round), 1), 1); */
+
+			animation-name: anim1;
+			animation-duration: calc(1s * var(--dur));
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+		}
+		@counter-style dec-frac {
+			system: extends decimal;
+			/* pad: var(--places) "0"; */ /* not working in Chrome as of 2025-05-03 */
+			pad: 6 "0";
+		}
+
+		#outT::after {
+			counter-reset: ti round(to-zero, var(--ti));
+			content: "ti: " counter(ti);
+		}
+		.bar {
+			/* position: absolute; */
+			height: 1em;
+			width: calc(100% * var(--val));
+
+			background-color: oklch(0.375 0 0deg);
+		}
+		.bar::after {
+			position: absolute;
+			opacity: 0.6;
+			counter-reset: val round(to-zero, pow(10, var(--places)) * var(--val));
+		}
+		#rndBar {
+			--val: var(--rnd);
+		}
+		#rnd1Bar {
+			--val: var(--rnd1);
+		}
+		#rnd2Bar {
+			--val: var(--rnd2);
+		}
+		#rnd3Bar {
+			--val: var(--rnd3);
+		}
+		#interp {
+			/* --val: calc((1 - var(--tfrac)) * var(--rnd) + var(--tfrac) * var(--rnd1)); */
+			--val: var(--rnd-interp);
+		}
+		#rndBar::after {
+			content: "rnd: " counter(val, dec-frac);
+		}
+		#rnd1Bar::after {
+			content: "rnd1: " counter(val, dec-frac);
+		}
+		#rnd2Bar::after {
+			content: "rnd2: " counter(val, dec-frac);
+		}
+		#rnd3Bar::after {
+			content: "rnd3: " counter(val, dec-frac);
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<p>
+		<output id="outT"></output>
+	</p>
+	<p class="bar" id="rndBar"></p>
+	<p class="bar" id="rnd1Bar"></p>
+	<p class="bar" id="rnd2Bar"></p>
+	<p class="bar" id="rnd3Bar"></p>
+	<p class="bar" id="interp"></p>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS experiment: RNG</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			color-scheme: dark;
+			/* font-size: 3em; */
+
+			--start: 0;
+			--places: 6;
+		}
+
+		@counter-style dec-frac {
+			system: extends decimal;
+			/* pad: var(--places) "0"; */ /* not working in Chrome as of 2025-05-03 */
+			pad: 6 "0";
+		}
+		.bar {
+			/* --i: sibling-index(); */
+			--i: calc(attr(data-i type(<number>)) + var(--start));
+
+			--rnd-ratio1: mod(sqrt(7), 1);
+			--rnd-ratio2: mod(pow(349, 1 / 5), -1);
+			--rnd-ratio3: mod(pow(3181, 1 / 3), 1);
+			--rnd-exp1: calc(pi * 2 / 3);
+			--rnd-exp2: calc(20 / 7);
+			--rnd-exp3: calc(110 / 113);
+			--rnd-offset: mod(pow(1451, 1 / 7), 1);
+
+			/* --rnd: mod(pow(var(--i), var(--rnd-exp)) + var(--rnd-ratio) * var(--i) + e, 1); */
+			/* --rnd: mod(pow(var(--i), var(--rnd-exp)) + var(--rnd-ratio) * var(--i) * var(--i) + e, 1); */
+			/* --rnd: mod(
+				var(--rnd-ratio1) * var(--i) * var(--i) 
+				- var(--rnd-ratio2) * pow(var(--i), var(--rnd-exp)) 
+				+ var(--rnd-ratio3) / (var(--i) + pi) 
+				+ var(--rnd-offset), 
+				1); */
+			--ilog: log(var(--i) + pi);
+			--rnd: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ilog)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ilog)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ilog)) 
+				+ var(--rnd-offset), 
+				1);
+
+			height: 1em;
+			width: calc(100% * var(--rnd));
+			margin-block: 0;
+
+			background-color: oklch(0.375 0 0deg);
+		}
+		.bar::before {
+			position: absolute;
+			opacity: 0.6;
+
+			/* counter-reset: rnd round(to-zero, var(--rnd)); */
+			counter-reset: 
+				/* i var(--i) */ 
+				i round(to-zero, var(--i)) 
+				rnd round(to-zero, pow(10, var(--places)) * var(--rnd));
+			/* counter-reset: x var(--x); */
+			content: counter(i) ", " counter(rnd, dec-frac);
+		}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	function txtStartInput(event) {
+		document.documentElement.style.setProperty("--start", event.target.valueAsNumber);
+	}
+
+	const barCount = 64;
+	function pageReady(event) {
+		for(let i = 0; i < barCount; i++) {
+			const newBar = document.body.appendChild(document.createElement("p"));
+			newBar.classList.add("bar");
+			newBar.dataset.i = i.toString();
+		}
+
+		//trap UI changes
+		document.getElementById("txtStart").addEventListener("input", txtStartInput);
+	}
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<p><label for="txtStart">Starting index:</label> <input type="number" id="txtStart" value="0" step="1" /></p>
+</body>
+</html>
