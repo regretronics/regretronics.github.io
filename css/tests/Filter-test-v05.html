@@ -5,13 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>CSS/SVG filter experiment</title>
 	<style type="text/css">/*<![CDATA[*/
-		body, html, .blobSet {
-			height: 100%;
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
-		}
-
 		@property --t {
 			syntax: "\<number\>";
 			initial-value: 0.0;
@@ -33,7 +26,16 @@
 				--phase: 1turn;
 			}
 		}
+
 		:root {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+
+			color-scheme: dark;
 			background-color: black;
 			--dur: 43200;
 
@@ -59,27 +61,47 @@
 			--rnd-offset: mod(pow(1451, 1 / 7), 1);
 
 			animation-name: shuffle, rotate-rg;
-			animation-duration: calc(1s * var(--dur)), 12s;
+			animation-duration: calc(1s * var(--dur)), 4s;
 			animation-iteration-count: infinite, infinite;
 			animation-timing-function: linear, linear;
 			/* animation-composition: add; */
 		}
 		body {
-			background-color: color(srgb-linear 0.5 0.5 0.5);
-			filter: url(#warp);
-			/* filter: contrast(3) url(#warp) contrast(1.5); */
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+			/* background-color: color(srgb 0.5 0.5 0.5);
+			filter: url("#warp"); */
+			/* filter: contrast(3) url("#warp") contrast(1.5); */
 		}
 
 		#svg1 {
+			/* z-index: -1; */
 			/* position: absolute;
-			z-index: -1;
 			width: 100%;
-			height: 100%; */
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden; */
 			display: none;
 		}
 		.blobSet {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+			/* display: none; */
+
 			/* background-color: inherit; */
-			/* background-color: color(srgb-linear 0.5 0.5 0.5); */
+			background-color: color(srgb 0.5 0.5 0.5);
+			filter: url("#warp");
 
 			--blob-count: 8;
 		}
@@ -173,7 +195,7 @@
 
 			mix-blend-mode: hard-light;
 			--phase-blob: calc(var(--phase, 0turn) + 1turn * var(--i) / var(--blob-count));
-			background-color: color(srgb-linear 
+			background-color: color(srgb 
 				calc(0.5 * sin(var(--phase-blob, 0turn)) + 0.5) 
 				calc(0.5 * cos(var(--phase-blob, 0turn)) + 0.5) 
 				0);
@@ -194,31 +216,8 @@
 		}
 	/*]]>*/</style>
 </head>
-<body>
-	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid slice">
-		<defs>
-			<filter id="warp" filterUnits="objectBoundingBox" x="0" y="0" width="256" height="256" primitiveUnits="objectBoundingBox">
-				<feTurbulence
-					type="fractalNoise"
-					baseFrequency="0.0025"
-					numOctaves="8"
-					result="noise"
-					color-interpolation-filters="sRGB" />
-				<!-- <feOffset in="noise" result="translated" dx="512" dy="512" /> -->
-				<!-- <feImage xlink:href="#one" result="turbulence" /> -->
-				<feDisplacementMap
-					in2="SourceGraphic"
-					in="noise"
-					result="warped"
-					scale="0.5"
-					xChannelSelector="R"
-					yChannelSelector="G"
-					color-interpolation-filters="sRGB" />
-				<!-- <feOffset in="warped" result="translated" dx="-64" dy="-64" /> -->
-			</filter>
-		</defs>
-	</svg>
-	<div class="blobSet">
+<body id="b1">
+	<div id="divBlobs" class="blobSet">
 		<div class="blob" data-i="0"></div>
 		<div class="blob" data-i="1"></div>
 		<div class="blob" data-i="2"></div>
@@ -228,5 +227,36 @@
 		<div class="blob" data-i="6"></div>
 		<div class="blob" data-i="7"></div>
 	</div>
+	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid slice">
+		<!-- filter="url('#warp')" -->
+		<defs>
+			<filter id="warp" filterUnits="objectBoundingBox" x="-0.25" y="-0.25" width="1.5" height="1.5" primitiveUnits="objectBoundingBox">
+			<!-- <filter id="warp" filterUnits="objectBoundingBox" x="-25%" y="-25%" width="150%" height="150%" primitiveUnits="objectBoundingBox"> -->
+				<!-- <feImage href="url('#divBlobs')" result="map" color-interpolation-filters="sRGB" /> -->
+				<feTurbulence
+					type="fractalNoise"
+					baseFrequency="0.0025"
+					numOctaves="8"
+					result="noise"
+					color-interpolation-filters="sRGB" />
+				<!-- <feOffset in="noise" result="translated" dx="-0.25" dy="-0.25" color-interpolation-filters="sRGB" /> -->
+				<!-- <feImage xlink:href="#one" result="turbulence" color-interpolation-filters="sRGB" /> -->
+				<feDisplacementMap
+					in2="SourceGraphic"
+					in="noise"
+					result="warped"
+					scale="0.5"
+					xChannelSelector="R"
+					yChannelSelector="G"
+					color-interpolation-filters="sRGB" />
+				<!-- <feOffset in="warped" result="translated" dx="-64" dy="-64" color-interpolation-filters="sRGB" /> -->
+			</filter>
+		</defs>
+		<!-- <use style="filter: url('#warp');" /> -->
+		<!-- <use filter="url('#warp')" /> -->
+		<!-- <use fill="red" /> -->
+		<!-- <rect x="0%" y="0%" width="100%" height="100%" fill="red" /> -->
+		<!-- <rect x="0%" y="0%" width="100%" height="100%" fill="url('#divBlobs')" filter="url('#warp')" /> -->
+	</svg>
 </body>
 </html>
