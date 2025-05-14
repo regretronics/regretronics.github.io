@@ -31,11 +31,11 @@
 
 			--ti: round(down, var(--t));
 			/* --ti: round(down, 30000 + var(--t)); */
-			--ti1: calc(var(--ti) + 1);
+			/* --ti1: calc(var(--ti) + 1);
 			--ti2: calc(var(--ti) + 2);
 			--ti3: calc(var(--ti) + 3);
 			--tfrac: mod(var(--t), 1);
-			--tfrac1: calc(1 - var(--tfrac));
+			--tfrac1: calc(1 - var(--tfrac)); */
 
 			/* --interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
 			--interp-hermite-10: calc(0.735 * var(--tfrac) * var(--tfrac1) * var(--tfrac1));
@@ -89,29 +89,9 @@
 	/*]]>*/</style>
 </head>
 <body>
-	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice" filter="url(#noiseMix) url(#warp)">
+	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice" filter="url(#noiseMix) url(#warpDyn)">
 		<!-- filter="url('#warp')" -->
 		<defs>
-			<!-- <filter id="noise0" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
-				<feTurbulence
-					type="fractalNoise"
-					baseFrequency="4"
-					numOctaves="2"
-					result="noise"
-					color-interpolation-filters="sRGB">
-					<animate attributeName="seed" from="1" by="65536" dur="65536s" repeatCount="indefinite" />
-				</feTurbulence>
-			</filter>
-			<filter id="noise1" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
-				<feTurbulence
-					type="fractalNoise"
-					baseFrequency="4"
-					numOctaves="2"
-					result="noise"
-					color-interpolation-filters="sRGB">
-					<animate attributeName="seed" from="2" by="65536" dur="65536s" repeatCount="indefinite" />
-				</feTurbulence>
-			</filter> -->
 			<filter id="noiseMix" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
 				<feTurbulence
 					type="fractalNoise"
@@ -119,7 +99,7 @@
 					numOctaves="6"
 					result="noise_0"
 					color-interpolation-filters="sRGB">
-					<animate attributeName="seed" from="1" by="65536" dur="65536s" repeatCount="indefinite" />
+					<animate attributeName="seed" from="1" by="65536" dur="262144s" repeatCount="indefinite" />
 				</feTurbulence>
 				<feTurbulence
 					type="fractalNoise"
@@ -127,11 +107,33 @@
 					numOctaves="6"
 					result="noise_1"
 					color-interpolation-filters="sRGB">
+					<animate attributeName="seed" from="2" by="65536" dur="262144s" repeatCount="indefinite" />
+				</feTurbulence>
+				<feComposite in="noise_0" in2="noise_1" operator="arithmetic" k1="0" k4="0" color-interpolation-filters="sRGB">
+						<animate attributeName="k2" from="1" to="0" dur="4s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+						<animate attributeName="k3" from="0" to="1" dur="4s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+				</feComposite>
+			</filter>
+			<filter id="turbulenceMix" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+				<feTurbulence
+					type="turbulence"
+					baseFrequency="0.025"
+					numOctaves="6"
+					result="noise_0"
+					color-interpolation-filters="sRGB">
+					<animate attributeName="seed" from="1" by="65536" dur="65536s" repeatCount="indefinite" />
+				</feTurbulence>
+				<feTurbulence
+					type="turbulence"
+					baseFrequency="0.025"
+					numOctaves="6"
+					result="noise_1"
+					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="2" by="65536" dur="65536s" repeatCount="indefinite" />
-					</feTurbulence>
-				<feComposite in="noise_0" in2="noise_1" operator="arithmetic" k1="0" k4="0">
-						<animate attributeName="k2" from="1" to="0" dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
-						<animate attributeName="k3" from="0" to="1" dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+				</feTurbulence>
+				<feComposite in="noise_0" in2="noise_1" operator="arithmetic" k1="0" k4="0.5" color-interpolation-filters="sRGB">
+						<animate attributeName="k2" from="0.5" to="0" dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+						<animate attributeName="k3" from="0" to="0.5" dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
 				</feComposite>
 			</filter>
 			<filter id="warp" filterUnits="objectBoundingBox" x="-0.375" y="-0.375" width="1.75" height="1.75" primitiveUnits="objectBoundingBox">
@@ -145,7 +147,37 @@
 					in2="SourceGraphic"
 					in="noise"
 					result="warped"
-					scale="0.375"
+					scale="0.25"
+					xChannelSelector="R"
+					yChannelSelector="G"
+					color-interpolation-filters="sRGB" />
+			</filter>
+			<filter id="warpDyn" filterUnits="objectBoundingBox" x="-0.375" y="-0.375" width="1.75" height="1.75" primitiveUnits="objectBoundingBox">
+				<feTurbulence
+					type="fractalNoise"
+					baseFrequency="0.0025"
+					numOctaves="8"
+					result="noise_0"
+					color-interpolation-filters="sRGB">
+					<animate attributeName="seed" from="1" by="65536" dur="1048576s" repeatCount="indefinite" />
+				</feTurbulence>
+				<feTurbulence
+					type="fractalNoise"
+					baseFrequency="0.0025"
+					numOctaves="8"
+					result="noise_1"
+					color-interpolation-filters="sRGB">
+					<animate attributeName="seed" from="2" by="65536" dur="1048576s" repeatCount="indefinite" />
+				</feTurbulence>
+				<feComposite in="noise_0" in2="noise_1" result="noiseSum" operator="arithmetic" k1="0" k4="0" color-interpolation-filters="sRGB">
+						<animate attributeName="k2" from="1" to="0" dur="16s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+						<animate attributeName="k3" from="0" to="1" dur="16s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+				</feComposite>
+				<feDisplacementMap
+					in2="SourceGraphic"
+					in="noiseSum"
+					result="warped"
+					scale="0.25"
 					xChannelSelector="R"
 					yChannelSelector="G"
 					color-interpolation-filters="sRGB" />
