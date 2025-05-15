@@ -13,11 +13,11 @@
 			initial-value: 0.0;
 		}
 		@keyframes intensityRamp {
-			from {
+			/* from {
 				--intensity: 0.0;
-			}
+			} */
 			to {
-				--intensity: 1.0;
+				--intensity: 1;
 			}
 		}
 		:root {
@@ -71,6 +71,7 @@
 			background-color: black;
 			/* background-color: oklch(var(--intensity) 0 0deg); */
 			/* font-size: calc(1rem + 1rem * var(--intensity)); */
+
 			/* filter: url("#noiseSource"); */
 			/* filter: url("#warp"); */
 			/* filter: url("#noiseSource") url("#warp"); */
@@ -97,13 +98,7 @@
 		}
 		#noiseAnim {
 			/* display: none; */
-			/* display: block; */
-			/* display: inline-block; */
 
-			/* filter: url("#rg"); */
-			/* opacity: 1; */
-			/* mix-blend-mode: screen; */
-			/* mix-blend-mode: multiply; */
 			/* mix-blend-mode: plus-lighter; */
 			/* isolation: isolate; */
 		}
@@ -111,6 +106,7 @@
 			/* display: none; */
 			/* opacity: 0; */
 			opacity: calc(1 - var(--intensity));
+
 			/* background-color: color(srgb 1 1 0); */
 			background-color: color(srgb 0.5 0.5 -0.5);
 			/* background-color: color(srgb 0 0 1); */
@@ -148,44 +144,12 @@
 	</div>
 	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
 		<defs>
-			<filter id="noiseSource" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
-				<!-- <feColorMatrix in="SourceGraphic" result="newSource" type="luminanceToAlpha" /> -->
-				<feColorMatrix in="SourceGraphic" result="newSource" type="matrix" values="
-					0 0 0 0 0
-					0 0 0 0 0
-					0 0 1 0 0
-					0 0 0 1 0"
-					color-interpolation-filters="sRGB" />
-
-				<feImage href="https://technicore.bitbucket.io/css/tests/Noise-anim.svg" result="turbulence" preserveAspectRatio="xMidYMid slice" color-interpolation-filters="sRGB" />
-				<!--<feTurbulence
-					type="turbulence"
-					baseFrequency="3"
-					numOctaves="4"
-					result="turbulence"
-					stitchTiles="stitch"
-					color-interpolation-filters="sRGB" />-->
-				<!-- <feTile in="noise" result="noiseOffset" x="0.5" y="0.25" width="1" height="1" color-interpolation-filters="sRGB">
-					<animate attributeName="x" from="1" by="1" dur="1s" repeatCount="indefinite" />
-				</feTile>
-				<feTile in="off1" result="noiseOffset2" color-interpolation-filters="sRGB" /> -->
-				<!-- <feGaussianBlur stdDeviation="0.0625" color-interpolation-filters="sRGB" /> -->
-				<feColorMatrix in="turbulence" result="noiseRG" type="matrix" values="
-					1 0 0 0 0
-					0 1 0 0 0
-					0 0 0 0 0
-					0 0 0 0 1"
-					color-interpolation-filters="sRGB" />
-
-				<feComposite in="newSource" in2="noiseRG" result="noiseSum" operator="lighter" color-interpolation-filters="sRGB"></feComposite>
-			</filter>
 			<filter id="warp" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
-				<!-- <feImage href="Noise-anim.svg" result="turbulence" crossorigin="anonymous" preserveAspectRatio="xMidYMid slice" color-interpolation-filters="sRGB" /> -->
 				<feDisplacementMap
 					in2="SourceGraphic"
 					in="SourceGraphic"
 					result="warped"
-					scale="0.0625"
+					scale="0.125"
 					xChannelSelector="R"
 					yChannelSelector="G"
 					color-interpolation-filters="sRGB" />
@@ -196,18 +160,7 @@
 					0 0 0 1 0"
 					color-interpolation-filters="sRGB" />
 			</filter>
-			<filter id="rg" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
-				<feColorMatrix in="SourceGraphic" result="noiseRG" type="matrix" values="
-					1 0 0 0 0
-					0 1 0 0 0
-					0 0 0 0 0
-					0 0 0 0 1"
-					color-interpolation-filters="sRGB" />
-			</filter>
 		</defs>
-		
-		<!-- <image id="noiseImg" x="0" y="0" width="1" height="1" href="Noise-anim.svg" preserveAspectRatio="xMidYMid slice" filter="url('#rg')" /> -->
-
 		<!--
 			viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice"
 			filterUnits="objectBoundingBox"
