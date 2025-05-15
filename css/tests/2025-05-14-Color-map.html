@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>CSS/SVG filter experiment</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --t {
+			syntax: "\<number\>";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@keyframes shuffle {
+			to {
+				/* --t: var(--dur); */
+				--t: calc(0.25 * var(--dur));
+			}
+		}
+
+		:root {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+
+			color-scheme: dark;
+			background-color: black;
+			--dur: 43200;
+
+			--ti: round(down, var(--t));
+			/* --ti: round(down, 30000 + var(--t)); */
+			--ti1: calc(var(--ti) + 1);
+			--ti2: calc(var(--ti) + 2);
+			--ti3: calc(var(--ti) + 3);
+			--tfrac: mod(var(--t), 1);
+			--tfrac1: calc(1 - var(--tfrac));
+
+			--interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
+			--interp-hermite-10: calc(0.735 * var(--tfrac) * var(--tfrac1) * var(--tfrac1));
+			--interp-hermite-01: calc(var(--tfrac) * var(--tfrac) * (3 - 2 * var(--tfrac)));
+			--interp-hermite-11: calc(-0.735 * var(--tfrac) * var(--tfrac) * var(--tfrac1));
+
+			--rnd-ratio1: mod(sqrt(7), 1);
+			--rnd-ratio2: mod(pow(349, 1 / 5), -1);
+			--rnd-ratio3: mod(pow(3181, 1 / 3), 1);
+			--rnd-exp1: calc(pi * 2 / 3);
+			--rnd-exp2: calc(20 / 7);
+			--rnd-exp3: calc(110 / 113);
+			--rnd-offset: mod(pow(1451, 1 / 7), 1);
+
+			animation-name: shuffle;
+			animation-duration: calc(1s * var(--dur));
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+			/* animation-composition: add; */
+		}
+		body {
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+		}
+
+		#svg1 {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+			background-color: black;
+			/* filter: url("#warp"); */
+
+			--blob-count: 32;
+		}
+		#svg1 > circle {
+			/* --i: sibling-index(); */
+			--i: attr(data-i type(<number>));
+
+			--tilog-x: log(2 * (var(--ti) * var(--blob-count) + var(--i)) + pi);
+			--ti1log-x: log(2 * (var(--ti1) * var(--blob-count) + var(--i)) + pi);
+			--ti2log-x: log(2 * (var(--ti2) * var(--blob-count) + var(--i)) + pi);
+			--ti3log-x: log(2 * (var(--ti3) * var(--blob-count) + var(--i)) + pi);
+			--tilog-y: log(2 * (var(--ti) * var(--blob-count) + var(--i)) + 1 + pi);
+			--ti1log-y: log(2 * (var(--ti1) * var(--blob-count) + var(--i)) + 1 + pi);
+			--ti2log-y: log(2 * (var(--ti2) * var(--blob-count) + var(--i)) + 1 + pi);
+			--ti3log-y: log(2 * (var(--ti3) * var(--blob-count) + var(--i)) + 1 + pi);
+			--rnd-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--tilog-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd1-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti1log-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti1log-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti1log-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd2-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti2log-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti2log-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti2log-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd3-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti3log-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti3log-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti3log-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--tilog-y)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd1-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti1log-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti1log-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti1log-y)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd2-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti2log-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti2log-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti2log-y)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd3-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti3log-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti3log-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti3log-y)) 
+				+ var(--rnd-offset), 
+				1);
+
+			--rnd-interp-x: calc(
+				var(--interp-hermite-00) * var(--rnd1-x)
+				+ var(--interp-hermite-10) * (var(--rnd2-x) - var(--rnd-x))
+				+ var(--interp-hermite-01) * var(--rnd2-x)
+				+ var(--interp-hermite-11) * (var(--rnd3-x) - var(--rnd1-x))
+				/* - 0.5 */
+			);
+			--rnd-interp-y: calc(
+				var(--interp-hermite-00) * var(--rnd1-y)
+				+ var(--interp-hermite-10) * (var(--rnd2-y) - var(--rnd-y))
+				+ var(--interp-hermite-01) * var(--rnd2-y)
+				+ var(--interp-hermite-11) * (var(--rnd3-y) - var(--rnd1-y))
+				/* - 0.5 */
+			);
+
+			cx: var(--rnd-interp-x);
+			cy: var(--rnd-interp-y);
+			/* cx: calc(50% + 25vmin * var(--rnd-interp-x));
+			cy: calc(50% + 25vmin * var(--rnd-interp-y)); */
+			/* transform: translate(
+				calc(50vmin * (2 * var(--rnd-interp-x) - 1)), 
+				calc(50vmin * (2 * var(--rnd-interp-y) - 1))); */
+
+			/* mix-blend-mode: hard-light; */
+			/* fill: white; */
+			fill: url("#blobGrad");
+			opacity: 0.1875;
+			r: 0.25;
+			/* mask: url("#blobMask"); */
+		}
+		radialGradient#blobGrad stop {
+			/* --i: sibling-index(); */
+			/* --i: attr(data-i type(<number>)); */
+			stop-color: white;
+			/* stop-opacity: calc(1 - var(--i) / 6); */
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" filter="url('#colorMap')">
+		<!-- filter="url('#warp')" -->
+		<defs>
+			<radialGradient id="blobGrad">
+				<!--opacities based on binomial distribution-->
+				<!--<stop data-i="0" offset="0"       stop-opacity="calc(1 * 252 / 252)" />
+				<stop data-i="1" offset="0.16667" stop-opacity="calc(1 * 210 / 252)" />
+				<stop data-i="2" offset="0.33333" stop-opacity="calc(1 * 120 / 252)" />
+				<stop data-i="3" offset="0.5"     stop-opacity="calc(1 * 45 / 252)" />
+				<stop data-i="4" offset="0.66667" stop-opacity="calc(1 * 10 / 252)" />
+				<stop data-i="5" offset="0.83333" stop-opacity="calc(1 * 1 / 252)" />
+				<stop data-i="6" offset="1"       stop-opacity="calc(1 * 0 / 252)" />-->
+
+				<stop data-i="0" offset="0"       stop-opacity="calc(6 / 6)" />
+				<stop data-i="1" offset="0.16667" stop-opacity="calc(5 / 6)" />
+				<stop data-i="2" offset="0.33333" stop-opacity="calc(4 / 6)" />
+				<stop data-i="3" offset="0.5"     stop-opacity="calc(3 / 6)" />
+				<stop data-i="4" offset="0.66667" stop-opacity="calc(2 / 6)" />
+				<stop data-i="5" offset="0.83333" stop-opacity="calc(1 / 6)" />
+				<stop data-i="6" offset="1"       stop-opacity="calc(0 / 6)" />
+			</radialGradient>
+			<filter id="colorMap" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+				<feComponentTransfer color-interpolation-filters="sRGB">
+					<feFuncR type="table" tableValues="0.0 0.0018 0.0033 0.0046 0.0055 0.0062 0.0067 0.0069 0.0069 0.0067 0.0064 0.0059 0.0053 0.0046 0.0039 0.0032 0.0024 0.0017 0.0011 0.0006 0.0002 0.0 0.0 0.0003 0.0009 0.0019 0.0032 0.0049 0.007 0.0097 0.0129 0.0166 0.0209 0.0259 0.0314 0.0377 0.0447 0.0523 0.0607 0.0699 0.0798 0.0904 0.1019 0.114 0.127 0.1406 0.1549 0.17 0.1856 0.2019 0.2187 0.2361 0.2539 0.272 0.2905 0.3092 0.3281 0.3471 0.366 0.3848 0.4033 0.4215 0.4392 0.4564 0.4729 0.4886 0.5033 0.517 0.5296 0.5408 0.5507 0.559 0.5658 0.5708 0.574 0.5754 0.5748 0.5722 0.5676 0.5608 0.552 0.5412 0.5282 0.5133 0.4963 0.4775 0.457 0.4347 0.411 0.3859 0.3597 0.3325 0.3046 0.2762 0.2477 0.2192 0.1911 0.1637 0.1374 0.1124 0.089 0.0677 0.0488 0.0325 0.0192 0.0092 0.0027 0.0001 0.0014 0.007 0.017 0.0315 0.0505 0.074 0.1021 0.1346 0.1714 0.2121 0.2567 0.3046 0.3555 0.409 0.4645 0.5214 0.5791 0.6369 0.6941 0.75"></feFuncR>
+					<feFuncG type="table" tableValues="0.0 0.0021 0.0046 0.0074 0.0105 0.014 0.0179 0.0221 0.0268 0.0318 0.0373 0.0431 0.0494 0.056 0.063 0.0705 0.0783 0.0865 0.095 0.1039 0.1131 0.1226 0.1324 0.1425 0.1527 0.1632 0.1738 0.1846 0.1954 0.2063 0.2172 0.228 0.2387 0.2493 0.2597 0.2699 0.2797 0.2892 0.2983 0.3069 0.315 0.3225 0.3293 0.3355 0.3409 0.3456 0.3494 0.3523 0.3543 0.3553 0.3553 0.3543 0.3523 0.3491 0.3449 0.3396 0.3333 0.3258 0.3173 0.3078 0.2973 0.2858 0.2735 0.2603 0.2464 0.2318 0.2166 0.201 0.185 0.1688 0.1525 0.1361 0.12 0.1042 0.0889 0.0743 0.0605 0.0476 0.036 0.0257 0.0169 0.0097 0.0044 0.0011 0.0 0.0011 0.0047 0.0107 0.0194 0.0308 0.0448 0.0617 0.0813 0.1037 0.1288 0.1566 0.1869 0.2195 0.2544 0.2913 0.3301 0.3703 0.4118 0.4543 0.4973 0.5405 0.5835 0.6259 0.6673 0.7072 0.7452 0.7808 0.8136 0.8431 0.869 0.8908 0.9082 0.9208 0.9283 0.9306 0.9273 0.9185 0.904 0.8838 0.8581 0.8271 0.7909 0.75"></feFuncG>
+					<feFuncB type="table" tableValues="0.0 0.0079 0.0157 0.0235 0.0312 0.0388 0.0463 0.0537 0.0608 0.0678 0.0745 0.0809 0.0871 0.0929 0.0984 0.1035 0.1083 0.1126 0.1165 0.1199 0.1229 0.1254 0.1274 0.1288 0.1298 0.1302 0.1301 0.1294 0.1283 0.1265 0.1243 0.1216 0.1183 0.1146 0.1104 0.1058 0.1008 0.0955 0.0898 0.0839 0.0777 0.0713 0.0649 0.0583 0.0518 0.0453 0.039 0.0329 0.027 0.0215 0.0165 0.012 0.008 0.0048 0.0023 0.0007 0.0 0.0003 0.0017 0.0043 0.0081 0.0131 0.0195 0.0273 0.0366 0.0473 0.0595 0.0733 0.0886 0.1053 0.1236 0.1434 0.1646 0.1872 0.2111 0.2362 0.2624 0.2896 0.3177 0.3466 0.376 0.4058 0.4358 0.4659 0.4958 0.5253 0.5541 0.5821 0.609 0.6345 0.6585 0.6806 0.7007 0.7185 0.7337 0.7463 0.7559 0.7624 0.7657 0.7656 0.762 0.7548 0.7441 0.7298 0.7119 0.6905 0.6658 0.6378 0.6069 0.5732 0.537 0.4987 0.4588 0.4175 0.3753 0.3329 0.2906 0.249 0.2087 0.1704 0.1345 0.1016 0.0725 0.0475 0.0274 0.0124 0.0032 0.0"></feFuncB>
+					<!-- <feFuncR type="table" tableValues=""></feFuncR>
+					<feFuncG type="table" tableValues=""></feFuncG>
+					<feFuncB type="table" tableValues=""></feFuncB> -->
+				</feComponentTransfer>
+				<feComponentTransfer color-interpolation-filters="sRGB">
+					<feFuncR type="table" tableValues="0 0.90625"></feFuncR>
+					<feFuncG type="table" tableValues="0 0.59375"></feFuncG>
+					<feFuncB type="table" tableValues="0 1"></feFuncB>
+				</feComponentTransfer>
+			</filter>
+		</defs>
+		<mask id="blobMask" mask-type="alpha" maskContentUnits="objectBoundingBox">
+			<circle cx="0.5" cy="0.5" r="0.5" fill="url(#blobGrad)" />
+		</mask>
+		<circle data-i="0" />
+		<circle data-i="1" />
+		<circle data-i="2" />
+		<circle data-i="3" />
+		<circle data-i="4" />
+		<circle data-i="5" />
+		<circle data-i="6" />
+		<circle data-i="7" />
+		<circle data-i="8" />
+		<circle data-i="9" />
+		<circle data-i="10" />
+		<circle data-i="11" />
+		<circle data-i="12" />
+		<circle data-i="13" />
+		<circle data-i="14" />
+		<circle data-i="15" />
+		<circle data-i="16" />
+		<circle data-i="17" />
+		<circle data-i="18" />
+		<circle data-i="19" />
+		<circle data-i="20" />
+		<circle data-i="21" />
+		<circle data-i="22" />
+		<circle data-i="23" />
+		<circle data-i="24" />
+		<circle data-i="25" />
+		<circle data-i="26" />
+		<circle data-i="27" />
+		<circle data-i="28" />
+		<circle data-i="29" />
+		<circle data-i="30" />
+		<circle data-i="31" />
+	</svg>
+</body>
+</html>
