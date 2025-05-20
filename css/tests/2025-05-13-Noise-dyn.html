@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>CSS/SVG filter experiment</title>
+	<title>SVG dynamic noise animation</title>
 	<style type="text/css">/*<![CDATA[*/
 		:root {
 			width: 100%;
@@ -75,7 +75,7 @@
 				<feColorMatrix result="noise_0" type="matrix" values="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
+					0 0 0 0 0
 					0 0 0 0 1"
 					color-interpolation-filters="sRGB" />
 				<feTurbulence
@@ -89,18 +89,18 @@
 				<feColorMatrix result="noise_1" type="matrix" values="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
-					0 0 0 0 1"
+					0 0 0 0 0
+					0 0 0 0 0"
 					color-interpolation-filters="sRGB">
 					<animate attributeName="values" from="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
+					0 0 0 0 0
 					0 0 0 0 0"
 					to="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
+					0 0 0 0 0
 					0 0 0 0 1"
 					dur="4s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
 				</feColorMatrix>
@@ -125,7 +125,7 @@
 				<feColorMatrix result="noise_0" type="matrix" values="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
+					0 0 0 0 0
 					0 0 0 0 1"
 					color-interpolation-filters="sRGB" />
 				<feTurbulence
@@ -139,18 +139,18 @@
 				<feColorMatrix result="noise_1" type="matrix" values="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
-					0 0 0 0 1"
+					0 0 0 0 0
+					0 0 0 0 0"
 					color-interpolation-filters="sRGB">
 					<animate attributeName="values" from="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
+					0 0 0 0 0
 					0 0 0 0 0"
 					to="
 					1 0 0 0 0
 					0 1 0 0 0
-					0 0 1 0 0
+					0 0 0 0 0
 					0 0 0 0 1"
 					dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
 				</feColorMatrix>
@@ -212,7 +212,7 @@
 					1 0 0 0 0
 					0 1 0 0 0
 					0 0 1 0 0
-					0 0 0 0 1"
+					0 0 0 0 0"
 					color-interpolation-filters="sRGB">
 					<animate attributeName="values" from="
 					1 0 0 0 0

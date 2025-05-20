@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en" data-val="12321" data-x="var(--x)" data-x-str="attr(data-val)" data-cnt="counter(cnt-z)">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en"
+	data-val="12321" data-x="var(--x)" data-x-str="attr(data-val)" data-cnt="counter(cnt-z)">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -54,11 +55,11 @@
 			/* counter-reset: cnt round(to-zero, var(--c-round3), 1) cnt-frac round(to-zero, 1000 * mod(var(--c-round3), 1), 1) cnt-y round(nearest, var(--y), 1) cnt-z 789; */
 			counter-reset: cnt round(to-zero, var(--c-round), 1) cnt-frac round(to-zero, pow(10, var(--places)) * mod(var(--c-round), 1), 1) cnt-y round(nearest, var(--y), 1) cnt-z 789;
 
-			/* animation-name: anim1;
+			animation-name: anim1;
 			animation-duration: 20s;
-			animation-iteration-count: infinite;
-			animation-timing-function: linear; */
-			/* animation-timeline: scroll(block nearest); */
+			/* animation-iteration-count: infinite; */
+			animation-timing-function: linear;
+			animation-timeline: scroll(block nearest);
 		}
 		/* body {
 			height: 100%;
@@ -73,8 +74,8 @@
 		}
 		@counter-style dec-frac {
 			system: extends decimal;
-			/* pad: 3 "0"; */
-			pad: var(--places) "0";
+			pad: 2 "0";
+			/* pad: var(--places) "0"; */
 		}
 		#l2Container::after {
 			position: fixed;
