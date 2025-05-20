@@ -2,11 +2,11 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice" style="background: black; color-scheme: dark;">
 	<defs>
-		<filter id="noise" filterUnits="objectBoundingBox" x="0" y="0" width="4" height="1" primitiveUnits="objectBoundingBox">
+		<filter id="noise" filterUnits="objectBoundingBox" x="-0.25" y="0" width="4" height="1" primitiveUnits="objectBoundingBox">
 			<feTurbulence
 				type="fractalNoise"
 				baseFrequency="2"
-				numOctaves="5"
+				numOctaves="6"
 				result="noise0"
 				stitchTiles="stitch"
 				color-interpolation-filters="sRGB" />
@@ -31,13 +31,13 @@
 					dur="4s" repeatCount="indefinite" />
 			</feOffset>
 			<feComposite in="off1" in2="off2" result="offSum" operator="lighter" color-interpolation-filters="sRGB" />
-			<!-- <feGaussianBlur stdDeviation="0.015625" color-interpolation-filters="sRGB" /> -->
 			<feColorMatrix result="noiseRG" type="matrix" values="
 				1 0 0 0 0
-				0 1 0 0 0
+				0 0.5 0 0 0.25
 				0 0 0 0 0
 				0 0 0 0 1"
 				color-interpolation-filters="sRGB" />
+			<feGaussianBlur stdDeviation="0 0.125" color-interpolation-filters="sRGB" />
 		</filter>
 	</defs>
 	<rect x="0" y="0" height="100%" width="100%" fill="black" filter="url(#noise)" />

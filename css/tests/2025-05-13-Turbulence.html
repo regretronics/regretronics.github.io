@@ -29,7 +29,7 @@
 
 			timeline-scope: --container-block;
 
-			filter: url("#warp");
+			filter: url("#warp") blur(calc(6.25vmin * 0.03125 * var(--intensity)));
 
 			animation-name: intensityRamp;
 			animation-duration: 1ms;
@@ -140,6 +140,36 @@
 			<source srcset="Noise-anim.svg" type="image/svg+xml" />
 			<img src="Noise-anim.svg" type="image/svg+xml" alt="" id="noiseAnimImg" />
 		</picture>
+		<svg id="svgVignette" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="none">
+			<style type="text/css">
+				linearGradient * {
+					stop-color: color(srgb 0.5 0.5 -0.5);
+				}
+			</style>
+			<defs>
+				<linearGradient id="xVignette">
+					<!--<stop offset="0" stop-opacity="1" />
+					<stop offset="0.125" stop-opacity="0" />
+					<stop offset="0.875" stop-opacity="0" />
+					<stop offset="1" stop-opacity="1" />-->
+
+					<stop offset="0" stop-opacity="1" />
+					<stop offset="0.03125" stop-opacity="0.875" />
+					<stop offset="0.0625" stop-opacity="0.5" />
+					<stop offset="0.09375" stop-opacity="0.125" />
+					<stop offset="0.125" stop-opacity="0" />
+
+					<stop offset="0.875" stop-opacity="0" />
+					<stop offset="0.90625" stop-opacity="0.125" />
+					<stop offset="0.9375" stop-opacity="0.5" />
+					<stop offset="0.96875" stop-opacity="0.875" />
+					<stop offset="1" stop-opacity="1" />
+				</linearGradient>
+				<linearGradient id="yVignette" href="#xVignette" x1="0" x2="0" y1="0" y2="1" />
+			</defs>
+			<rect x="0" y="0" height="100%" width="100%" fill="url(#xVignette)" />
+			<rect x="0" y="0" height="100%" width="100%" fill="url(#yVignette)" />
+		</svg>
 		<div id="noiseFilter"></div>
 	</div>
 	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
@@ -149,7 +179,7 @@
 					in2="SourceGraphic"
 					in="SourceGraphic"
 					result="warped"
-					scale="0.125"
+					scale="0.1875"
 					xChannelSelector="R"
 					yChannelSelector="G"
 					color-interpolation-filters="sRGB" />
@@ -163,16 +193,12 @@
 		</defs>
 		<!--
 			viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice"
+
 			filterUnits="objectBoundingBox"
 			x="0" y="0" width="1" height="1"
 			primitiveUnits="objectBoundingBox"
+
 			color-interpolation-filters="sRGB"
-			
-			in="SourceGraphic"
-			type="turbulence"
-			type="fractalNoise"
-			stitchTiles="stitch"
-			stitchTiles="noStitch"
 
 			<feImage href="#noiseRect" result="turbulence" crossorigin="use-credentials" preserveAspectRatio="xMidYMid slice" />
 			crossorigin="use-credentials"
