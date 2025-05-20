@@ -9,16 +9,15 @@
 	<style type="text/css">/*<![CDATA[*/
 		:root {
 			color-scheme: dark;
-			/* font-size: 3em; */
 
 			--start: 0;
-			--places: 6;
+			--places: 8;
 		}
 
 		@counter-style dec-frac {
 			system: extends decimal;
 			/* pad: var(--places) "0"; */ /* not working in Chrome as of 2025-05-03 */
-			pad: 6 "0";
+			pad: 8 "0";
 		}
 		.bar {
 			/* --i: sibling-index(); */
@@ -47,6 +46,12 @@
 				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ilog)) 
 				+ var(--rnd-offset), 
 				1);
+			/* --rnd: mod(
+				mod(var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ilog)), 1) 
+				+ mod(var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ilog)), 1) 
+				+ mod(var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ilog)), 1) 
+				+ var(--rnd-offset), 
+				1); */
 
 			height: 1em;
 			width: calc(100% * var(--rnd));
@@ -57,15 +62,19 @@
 		.bar::before {
 			position: absolute;
 			opacity: 0.6;
+			text-align: end;
+			right: 0em;
 
-			/* counter-reset: rnd round(to-zero, var(--rnd)); */
 			counter-reset: 
-				/* i var(--i) */ 
 				i round(to-zero, var(--i)) 
 				rnd round(to-zero, pow(10, var(--places)) * var(--rnd));
-			/* counter-reset: x var(--x); */
 			content: counter(i) ", " counter(rnd, dec-frac);
+			user-select: text;
 		}
+		/* .bar::before::selection {
+			background-color: white;
+			color: black;
+		} */
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
