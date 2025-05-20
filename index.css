@@ -1,7 +1,7 @@
 :root {
 	/* --hue1-ang: 0deg; */
 
-	font-size: 2em;
+	font-size: 1.5em;
 	
 	color-scheme: dark;
 	
@@ -11,8 +11,8 @@
 	/* background-color: oklch(0.125 0.0625 60deg);
 	color: oklch(0.875 0.0625 60deg);
 	accent-color: oklch(0.375 0.125 60deg); */
-	background-color: Canvas;
-	color: CanvasText;
+	/* background-color: Canvas;
+	color: CanvasText; */
 }
 body {
 	font-variant: slashed-zero;
@@ -59,6 +59,8 @@ a:any-link {
 	touch-action: none;
 
 	&::before {
+		left: 0px;
+		right: 0px;
 		overflow-wrap: break-word;
 		/* display: none; */
 		/* visibility: hidden; */
@@ -88,8 +90,6 @@ a:any-link {
 			/* top: 0px; */
 			/* margin-top: -1lh;
 			height: 1lh; */
-			left: 0px;
-			right: 0px;
 			margin-top: 1lh;
 
 			display: inline-block;
@@ -106,8 +106,8 @@ a:any-link {
 			/* opacity: 0.9; */
 			backdrop-filter: blur(0.09375em);
 			/* background-color: blueviolet; */
-			background-color: oklch(0.25 0 0deg / 0.5);
-			color: red;
+			background-color: light-dark(oklch(0.75 0 0deg / 0.5), oklch(0.25 0 0deg / 0.5));
+			color: light-dark(oklch(0.25 0.125 0deg), oklch(0.75 0.125 0deg));
 
 			/* content: attr(href); */
 			transition-delay: 0s;
@@ -130,7 +130,7 @@ a:any-link {
 			top: 0px;
 
 			display: block;
-			transition-delay: 0.25s;
+			transition-delay: 0s;
 		}
 		&:hover::before, &:active::before/* , &:focus::before */ {
 			/* display: inline-block; */
@@ -143,9 +143,16 @@ a:any-link {
 			/* opacity: 0.9; */
 			backdrop-filter: blur(0.09375em);
 			/* background-color: blueviolet; */
-			background-color: oklch(0.25 0 0deg / 0.5);
-			color: red;
+			background-color: light-dark(oklch(0.75 0 0deg / 0.5), oklch(0.25 0 0deg / 0.5));
+			color: light-dark(oklch(0.25 0.125 0deg), oklch(0.75 0.125 0deg));
 			user-select: all;
+
+			@starting-style {
+				display: inline-block;
+				backdrop-filter: none;
+				background-color: transparent;
+				color: transparent;
+			}
 		}
 	}
 }
