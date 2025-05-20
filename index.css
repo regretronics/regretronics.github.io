@@ -148,7 +148,7 @@ a:any-link {
 			user-select: all;
 
 			@starting-style {
-				display: inline-block;
+				display: block;
 				backdrop-filter: none;
 				background-color: transparent;
 				color: transparent;
