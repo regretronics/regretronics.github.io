@@ -24,13 +24,12 @@
 
 			color-scheme: dark;
 			background-color: black;
-			--dur: 43200;
+			--dur: 1800;
 
 			--ti: round(down, var(--t));
-			/* --ti: round(down, 30000 + var(--t)); */
-			--ti1: calc(var(--ti) + 1);
-			--ti2: calc(var(--ti) + 2);
-			--ti3: calc(var(--ti) + 3);
+			--ti1: mod(var(--ti) + 1, 1800);
+			--ti2: mod(var(--ti) + 2, 1800);
+			--ti3: mod(var(--ti) + 3, 1800);
 			--tfrac: mod(var(--t), 1);
 			--tfrac1: calc(1 - var(--tfrac));
 
@@ -187,13 +186,8 @@
 				<stop data-i="5" offset="0.83333" stop-opacity="calc(1 * 1 / 252)" />
 				<stop data-i="6" offset="1"       stop-opacity="calc(1 * 0 / 252)" />-->
 
-				<stop data-i="0" offset="0"       stop-opacity="calc(6 / 6)" />
-				<stop data-i="1" offset="0.16667" stop-opacity="calc(5 / 6)" />
-				<stop data-i="2" offset="0.33333" stop-opacity="calc(4 / 6)" />
-				<stop data-i="3" offset="0.5"     stop-opacity="calc(3 / 6)" />
-				<stop data-i="4" offset="0.66667" stop-opacity="calc(2 / 6)" />
-				<stop data-i="5" offset="0.83333" stop-opacity="calc(1 / 6)" />
-				<stop data-i="6" offset="1"       stop-opacity="calc(0 / 6)" />
+				<stop data-i="0" offset="0"       stop-opacity="1" />
+				<stop data-i="1" offset="1"       stop-opacity="0" />
 			</radialGradient>
 			<filter id="colorMap" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
 				<feComponentTransfer color-interpolation-filters="sRGB">
