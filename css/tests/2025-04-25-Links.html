@@ -31,7 +31,6 @@
 				content: attr(href);
 				transition-property: backdrop-filter, background-color, color, visibility, content-visibility;
 				transition-duration: 0.5s;
-				transition-delay: 1s;
 				transition-behavior: allow-discrete;
 				/* pointer-events: none; */
 			}
@@ -52,6 +51,7 @@
 
 					display: inline-block;
 					/* user-select: all; */
+					transition-delay: 1s;
 				}
 				&:hover::before, &:focus::before {
 					/* display: inline-block; */
@@ -87,6 +87,7 @@
 					top: 0px;
 
 					display: block;
+					transition-delay: 0.25s;
 				}
 				&:hover::before, &:active::before/* , &:focus::before */ {
 					/* display: inline-block; */

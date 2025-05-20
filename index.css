@@ -11,6 +11,8 @@
 	/* background-color: oklch(0.125 0.0625 60deg);
 	color: oklch(0.875 0.0625 60deg);
 	accent-color: oklch(0.375 0.125 60deg); */
+	background-color: Canvas;
+	color: CanvasText;
 }
 body {
 	font-variant: slashed-zero;
