@@ -219,6 +219,12 @@
 					numOctaves="8"
 					result="noise"
 					color-interpolation-filters="sRGB" />
+				<feColorMatrix result="noise" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB" />
 				<!-- <feImage xlink:href="#one" result="turbulence" color-interpolation-filters="sRGB" /> -->
 				<feDisplacementMap
 					in2="SourceGraphic"

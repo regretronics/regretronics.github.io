@@ -5,18 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>CSS/SVG filter experiment</title>
 	<style type="text/css">/*<![CDATA[*/
-		@property --t {
-			syntax: "\<number\>";
-			initial-value: 0.0;
-			inherits: true;
-		}
-		@keyframes shuffle {
-			to {
-				--t: var(--dur);
-				/* --t: calc(0.25 * var(--dur)); */
-			}
-		}
-
 		:root {
 			width: 100%;
 			height: 100%;
@@ -27,26 +15,11 @@
 
 			color-scheme: dark;
 			background-color: black;
-			--dur: 43200;
-
-			--ti: round(down, var(--t));
-			/* --ti: round(down, 30000 + var(--t)); */
-			/* --ti1: calc(var(--ti) + 1);
-			--ti2: calc(var(--ti) + 2);
-			--ti3: calc(var(--ti) + 3);
-			--tfrac: mod(var(--t), 1);
-			--tfrac1: calc(1 - var(--tfrac)); */
 
 			/* --interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
 			--interp-hermite-10: calc(0.735 * var(--tfrac) * var(--tfrac1) * var(--tfrac1));
 			--interp-hermite-01: calc(var(--tfrac) * var(--tfrac) * (3 - 2 * var(--tfrac)));
 			--interp-hermite-11: calc(-0.735 * var(--tfrac) * var(--tfrac) * var(--tfrac1)); */
-
-			/* animation-name: shuffle;
-			animation-duration: calc(1s * var(--dur));
-			animation-iteration-count: infinite;
-			animation-timing-function: linear; */
-			/* animation-composition: add; */
 		}
 		body {
 			width: 100%;
@@ -101,6 +74,12 @@
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="1" by="65536" dur="262144s" repeatCount="indefinite" />
 				</feTurbulence>
+				<feColorMatrix result="noise_0" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB" />
 				<feTurbulence
 					type="fractalNoise"
 					baseFrequency="0.0025"
@@ -109,32 +88,82 @@
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="2" by="65536" dur="262144s" repeatCount="indefinite" />
 				</feTurbulence>
-				<feComposite in="noise_0" in2="noise_1" operator="arithmetic" k1="0" k4="0" color-interpolation-filters="sRGB">
+				<feColorMatrix result="noise_1" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB">
+					<animate attributeName="values" from="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 0"
+					to="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					dur="4s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+				</feColorMatrix>
+				<!-- <feComposite in="noise_0" in2="noise_1" operator="arithmetic" k1="0" k4="0" color-interpolation-filters="sRGB">
 						<animate attributeName="k2" from="1" to="0" dur="4s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
 						<animate attributeName="k3" from="0" to="1" dur="4s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
-				</feComposite>
+				</feComposite> -->
+				<feMerge color-interpolation-filters="sRGB">
+					<feMergeNode in="noise_0" />
+					<feMergeNode in="noise_1" />
+				</feMerge>
 			</filter>
 			<filter id="turbulenceMix" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
 				<feTurbulence
 					type="turbulence"
-					baseFrequency="0.025"
+					baseFrequency="0.0025"
 					numOctaves="6"
 					result="noise_0"
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="1" by="65536" dur="65536s" repeatCount="indefinite" />
 				</feTurbulence>
+				<feColorMatrix result="noise_0" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB" />
 				<feTurbulence
 					type="turbulence"
-					baseFrequency="0.025"
+					baseFrequency="0.0025"
 					numOctaves="6"
 					result="noise_1"
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="2" by="65536" dur="65536s" repeatCount="indefinite" />
 				</feTurbulence>
-				<feComposite in="noise_0" in2="noise_1" operator="arithmetic" k1="0" k4="0.5" color-interpolation-filters="sRGB">
+				<feColorMatrix result="noise_1" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB">
+					<animate attributeName="values" from="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 0"
+					to="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+				</feColorMatrix>
+				<!-- <feComposite in="noise_0" in2="noise_1" operator="arithmetic" k1="0" k4="0.5" color-interpolation-filters="sRGB">
 						<animate attributeName="k2" from="0.5" to="0" dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
 						<animate attributeName="k3" from="0" to="0.5" dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
-				</feComposite>
+				</feComposite> -->
+				<feMerge color-interpolation-filters="sRGB">
+					<feMergeNode in="noise_0" />
+					<feMergeNode in="noise_1" />
+				</feMerge>
 			</filter>
 			<filter id="warp" filterUnits="objectBoundingBox" x="-0.25" y="-0.25" width="1.5" height="1.5" primitiveUnits="objectBoundingBox">
 				<feTurbulence
@@ -142,6 +171,12 @@
 					baseFrequency="0.0025"
 					numOctaves="8"
 					result="noise"
+					color-interpolation-filters="sRGB" />
+				<feColorMatrix result="noise" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
 					color-interpolation-filters="sRGB" />
 				<feDisplacementMap
 					in2="SourceGraphic"
@@ -161,6 +196,12 @@
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="1" by="65536" dur="1048576s" repeatCount="indefinite" />
 				</feTurbulence>
+				<feColorMatrix result="noise_0" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB" />
 				<feTurbulence
 					type="fractalNoise"
 					baseFrequency="0.0025"
@@ -169,10 +210,32 @@
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="2" by="65536" dur="1048576s" repeatCount="indefinite" />
 				</feTurbulence>
-				<feComposite in="noise_0" in2="noise_1" result="noiseSum" operator="arithmetic" k1="0" k4="0" color-interpolation-filters="sRGB">
+				<feColorMatrix result="noise_1" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB">
+					<animate attributeName="values" from="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 0"
+					to="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					dur="16s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+				</feColorMatrix>
+				<!-- <feComposite in="noise_0" in2="noise_1" result="noiseSum" operator="arithmetic" k1="0" k4="0" color-interpolation-filters="sRGB">
 						<animate attributeName="k2" from="1" to="0" dur="16s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
 						<animate attributeName="k3" from="0" to="1" dur="16s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
-				</feComposite>
+				</feComposite> -->
+				<feMerge result="noiseSum" color-interpolation-filters="sRGB">
+					<feMergeNode in="noise_0" />
+					<feMergeNode in="noise_1" />
+				</feMerge>
 				<feDisplacementMap
 					in2="SourceGraphic"
 					in="noiseSum"
