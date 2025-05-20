@@ -1,0 +1,54 @@
+:root {
+	/* --hue1-ang: 0deg; */
+
+	font-size: 2em;
+	
+	color-scheme: dark;
+	
+	/* background-color: color(from oklch(0.125 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	accent-color: color(from oklch(0.375 0.125 var(--hue1-ang, 0deg)) var(--gain-balance)); */
+	/* background-color: oklch(0.125 0.0625 60deg);
+	color: oklch(0.875 0.0625 60deg);
+	accent-color: oklch(0.375 0.125 60deg); */
+}
+body {
+	font-variant: slashed-zero;
+	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+}
+
+/* ::selection {
+	background-color: color(from oklch(0.875 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: color(from oklch(0.125 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
+}
+::marker {
+	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+} */
+
+/* h1 {
+	font-size: 3em;
+	line-height: 0.8;
+	text-align: center;
+	color: color(from oklch(0.875 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
+
+	& small {
+		font-size: 0.6em;
+		font-variant: small-caps;
+	}
+}
+h1:first-of-type + p {
+	font-variant: small-caps;
+} */
+
+/* a:link {
+	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+}
+a:visited {
+	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+}
+a:hover {
+	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+}
+a:active, a:focus {
+	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+} */
