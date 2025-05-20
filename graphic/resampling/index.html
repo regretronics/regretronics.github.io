@@ -7,9 +7,6 @@
 	<title>Image resampling test</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
-		background-color: revert !important; /*Dark Reader workaround*/
-	}
-	body {
 		background-color: canvas;
 		color: canvastext;
 		color-scheme: dark;
@@ -384,18 +381,18 @@
 <body>
 	<p><strong>Input image:</strong> 
 		<input type="file" id="inImage" accept="image/*" /> 
-		<label for="txtImgURL">URL:</label> <input type="text" id="txtImgURL" value="https://technicore.bitbucket.io/gresampling/images-240px/Gabel_--_2021_--_7220_240_160.png" /><button id="btnImgLoad">Load</button>
+		<label for="txtImgURL">URL:</label> <input type="text" id="txtImgURL" value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Gabel_--_2021_--_7220_240_160.png" /><button id="btnImgLoad">Load</button>
 		<!-- <input type="checkbox" id="chkSourceCORS" /><label for="chkSourceCORS">Cross-origin (remote)</label> -->
 		<br /><label for="cbxURLPreset1">Presets (gaussian-downscaled):</label> <select id="cbxURLPreset1" data-remote="false">
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Gabel_--_2021_--_7220_240_160.png">images-240px/Gabel_--_2021_--_7220_240_160.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Ambigram_Fun_Nut_240_160.png">images-240px/Ambigram_Fun_Nut_240_160.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Blue_Marble_2022_240_240.png">images-240px/Blue_Marble_2022_240_240.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Marriott's_Grand_Chateau_160_240.png">images-240px/Marriott's_Grand_Chateau_160_240.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png">images-240px/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png">images-240px/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Webb's_First_Deep_Field_235_240.png">images-240px/Webb's_First_Deep_Field_235_240.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Roc_de_la_Vache_-_juillet_2022_240_135.png">images-240px/Roc_de_la_Vache_-_juillet_2022_240_135.png</option>
-			<option value="https://technicore.bitbucket.io/gresampling/images-240px/Crater_of_Mount_Bromo,_Java,_Indonesia,_20220820_0558_9456_240_160.png">images-240px/Crater_of_Mount_Bromo,_Java,_Indonesia,_20220820_0558_9456_240_160.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Gabel_--_2021_--_7220_240_160.png">images-240px/Gabel_--_2021_--_7220_240_160.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Ambigram_Fun_Nut_240_160.png">images-240px/Ambigram_Fun_Nut_240_160.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Blue_Marble_2022_240_240.png">images-240px/Blue_Marble_2022_240_240.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Marriott's_Grand_Chateau_160_240.png">images-240px/Marriott's_Grand_Chateau_160_240.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png">images-240px/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png">images-240px/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Webb's_First_Deep_Field_235_240.png">images-240px/Webb's_First_Deep_Field_235_240.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Roc_de_la_Vache_-_juillet_2022_240_135.png">images-240px/Roc_de_la_Vache_-_juillet_2022_240_135.png</option>
+			<option value="https://technicore.bitbucket.io/graphic/resampling/images-240px/Crater_of_Mount_Bromo,_Java,_Indonesia,_20220820_0558_9456_240_160.png">images-240px/Crater_of_Mount_Bromo,_Java,_Indonesia,_20220820_0558_9456_240_160.png</option>
 		</select>
 		<br /><label for="cbxURLPreset2">Presets from WM Commons:</label> <select id="cbxURLPreset2" data-remote="true">
 			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gabel_--_2021_--_7220.jpg/320px-Gabel_--_2021_--_7220.png">320px-Gabel_--_2021_--_7220.png</option>

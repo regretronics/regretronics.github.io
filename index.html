@@ -4,19 +4,65 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Technicore</title>
-	<style type="text/css">
-	/*<![CDATA[*/
+	<title>Technicore repository root</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			font-size: 2em;
 
-	/*]]>*/
-	</style>
+			color-scheme: dark;
+
+			/* background-color: oklch(0.125 0.0625 60deg);
+			color: oklch(0.875 0.0625 60deg);
+			accent-color: oklch(0.375 0.125 60deg); */
+		}
+		body {
+			font-variant: slashed-zero;
+			overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+		}
+	/*]]>*/</style>
 </head>
 <body>
-	<h1>Technicore site</h1>
+	<h1>Technicore repository</h1>
+	<p><a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/">Browse sources at bitbucket.org</a></p>
 	<ul>
-		<li><a href="json-player/">HTML5/JSON music format, player and generator</a></li>
-		<li><a href="gcanvas-misc/test-01/">Graphics: canvas test</a></li>
-		<li><a href="gvoxels/">Graphics, 3d: voxels with volumetric raycasting/ray marching</a></li>
+		<li>Graphical:
+			<ul>
+				<li><a href="gvoxels-gpu/">3d: voxels with volumetric raycasting/ray marching</a></li>
+				<li><a href="graphic/canvas-misc/test-01/">Canvas test</a></li>
+				<li><a href="graphic/canvas-misc/noise-gen/">Infinite texture</a></li>
+				<li><a href="graphic/resampling/">Resampling experiment</a></li>
+				<li>
+					three.js:
+					<ul>
+						<li><a href="graphic/threejs/tests/test-05.html">test-05</a></li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+		<li>Sound:
+			<ul>
+				<li><a href="json-player/">HTML5/JSON music format, player and generator</a></li>
+				<li><a href="sound/formants/">Formants experiment</a></li>
+			</ul>
+		</li>
+		<li>CSS experiments:
+			<ul>
+				<li><a href="css/3d/gcss-3d/">gcss-3d</a> (CSS 3-D test)</li>
+				<li><a href="css/particles/">particles</a> (Particles test)</li>
+				<li><a href="css/tests/">Tests directory</a></li>
+			</ul>
+		</li>
+		<li>Applied:
+			<ul>
+				<li><a href="applied/game-idle/">Game: Idol machine</a></li>
+			</ul>
+		</li>
+		<li>Other tests:
+			<ul>
+				<li><a href="tests/webhid-explorer/">webhid-explorer/</a>: fork from <a href="https://github.com/nondebug/webhid-explorer">https://github.com/nondebug/webhid-explorer</a></li>
+				<li><a href="tests/2025-03-10-Hues.html">2025-03-10-Hues.html</a> (Runs on Chrome, not on Firefox, as of 2025-05.)</li>
+			</ul>
+		</li>
 	</ul>
 </body>
 </html>
