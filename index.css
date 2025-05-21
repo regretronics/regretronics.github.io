@@ -1,16 +1,13 @@
 :root {
-	/* --hue1-ang: 0deg; */
+	--hue1-ang: 71deg;
 
 	font-size: 1.5em;
 	
 	color-scheme: dark;
 	
-	/* background-color: color(from oklch(0.125 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
-	color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
-	accent-color: color(from oklch(0.375 0.125 var(--hue1-ang, 0deg)) var(--gain-balance)); */
-	/* background-color: oklch(0.125 0.0625 60deg);
-	color: oklch(0.875 0.0625 60deg);
-	accent-color: oklch(0.375 0.125 60deg); */
+	/* background-color: oklch(0.125 0.0625 var(--hue1-ang, 0deg));
+	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
+	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg)); */
 	/* background-color: Canvas;
 	color: CanvasText; */
 }
@@ -20,18 +17,30 @@ body {
 }
 
 /* ::selection {
-	background-color: color(from oklch(0.875 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
-	color: color(from oklch(0.125 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
+	background-color: oklch(0.875 0.1875 var(--hue1-ang, 0deg));
+	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 }
 ::marker {
-	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 } */
 
+h1 {
+	/* line-height: 0.8; */
+	/* text-align: center; */
+	color: oklch(0.875 0.125 var(--hue1-ang, 0deg) / 0.85);
+
+	&:has( + p.sub) {
+		margin-block-end: 0.25em;
+	}
+	& + p.sub {
+		margin-block-start: 0.25em;
+	}
+}
 /* h1 {
 	font-size: 3em;
 	line-height: 0.8;
 	text-align: center;
-	color: color(from oklch(0.875 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: oklch(0.875 0.125 var(--hue1-ang, 0deg));
 
 	& small {
 		font-size: 0.6em;
@@ -42,18 +51,18 @@ h1:first-of-type + p {
 	font-variant: small-caps;
 } */
 
-/* a:link {
-	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+a:link {
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 a:visited {
-	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 a:hover {
-	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 a:active, a:focus {
-	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
-} */
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg));
+}
 
 a:any-link {
 	touch-action: none;
@@ -106,8 +115,8 @@ a:any-link {
 			/* opacity: 0.9; */
 			backdrop-filter: blur(0.09375em);
 			/* background-color: blueviolet; */
-			background-color: light-dark(oklch(0.75 0 0deg / 0.5), oklch(0.25 0 0deg / 0.5));
-			color: light-dark(oklch(0.25 0.125 0deg), oklch(0.75 0.125 0deg));
+			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
+			color: light-dark(oklch(0.25 0.125 var(--hue1-ang, 0deg)), oklch(0.75 0.125 var(--hue1-ang, 0deg)));
 
 			/* content: attr(href); */
 			transition-delay: 0s;
@@ -143,8 +152,8 @@ a:any-link {
 			/* opacity: 0.9; */
 			backdrop-filter: blur(0.09375em);
 			/* background-color: blueviolet; */
-			background-color: light-dark(oklch(0.75 0 0deg / 0.5), oklch(0.25 0 0deg / 0.5));
-			color: light-dark(oklch(0.25 0.125 0deg), oklch(0.75 0.125 0deg));
+			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
+			color: light-dark(oklch(0.25 0.125 var(--hue1-ang, 0deg)), oklch(0.75 0.125 var(--hue1-ang, 0deg)));
 			user-select: all;
 
 			@starting-style {
