@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS experiment: vars, animation, math functions, etc.</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --t {
+			syntax: "\3cnumber\3e";
+			inherits: true;
+			initial-value: 0.0;
+		}
+		/* @property --t2 {
+			syntax: "\3cnumber\3e";
+			inherits: true;
+			initial-value: 0.0;
+		} */
+		@property --t3 {
+			syntax: "\3cnumber\3e";
+			inherits: true;
+			initial-value: 0.0;
+		}
+		/* @keyframes anim1 {
+			to {
+				--t: 1;
+			}
+		} */
+		:root {
+			color-scheme: dark;
+			font-size: 3em;
+
+			/* animation-name: anim1;
+			animation-duration: 9s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear; */
+			/* animation-timeline: scroll(block nearest); */
+
+			--t: 0.0;
+			--t2: mod(4 * var(--t), 1);
+			--t3: round(nearest, var(--t), 0.0625);
+			--t4: calc(0.5 * sin(4turn * var(--t)) + 0.5);
+			/* --t3: var(--t); */
+
+			transition-property: --t/* , --t2, --t3 */;
+			transition-duration: 3s;
+			/* transition-timing-function: linear; */
+			/* transition-behavior: allow-discrete; */
+			/* transition-delay: 1s; */
+		}
+		:root:hover {
+			--t: 1.0;
+		}
+
+		.gauge {
+			width: 80%;
+			background-color: oklch(0.5 0 0deg / 0.5);
+			margin-block-end: 0.5em;
+			& > div:nth-child(1) {
+				background-color: orange;
+				text-wrap-mode: nowrap;
+				overflow-inline: visible;
+			}
+
+			&:nth-of-type(1) {
+				& > div:nth-child(1) {
+					width: calc(100% * var(--t));
+				}
+			}
+			&:nth-of-type(2) {
+				& > div:nth-child(1) {
+					width: calc(100% * var(--t2));
+				}
+			}
+			&:nth-of-type(3) {
+				& > div:nth-child(1) {
+					width: calc(100% * var(--t3));
+				}
+			}
+			&:nth-of-type(4) {
+				& > div:nth-child(1) {
+					width: calc(100% * var(--t4));
+				}
+			}
+		}
+
+		@keyframes anim-rotate {
+			to {
+				rotate: 1turn;
+			}
+		}
+		.spinner {
+			width: 4em;
+			height: 4em;
+			background-color: green;
+
+			animation-name: anim-rotate;
+			animation-duration: 4s;
+			/* animation-duration: calc(4s / var(--t3)); */
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+			/* animation-fill-mode: both; */
+			/* animation-play-state: paused; */
+			/* animation-composition: ; */
+
+			/* animation-delay: 0s; */
+			/* animation-delay: calc(-4s * round(nearest, var(--t), 0.0625)); */ /*doesn't work*/
+			animation-delay: calc(-4s * var(--t3)); /*animation-delay still not animatable, surprisingly*/
+			/* animation-delay: calc(-1s * var(--t4)); */
+
+			/*doesn't work properly*/
+			/* transition-property: animation-delay;
+			transition-duration: 1s; */
+			/* :root:hover & {
+				animation-delay: -3s;
+			} */
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<p>(Move the cursor in and out of the page.)</p>
+	<div class="gauge"><div>--t (under transition)</div></div>
+	<div class="gauge"><div>mod(4 * var(--t), 1)</div></div>
+	<div class="gauge"><div>round(nearest, var(--t), 0.0625)</div></div>
+	<div class="gauge"><div>calc(0.5 * sin(4turn * var(--t)) + 0.5)</div></div>
+	<div class="spinner">asfd</div>
+</body>
+</html>
