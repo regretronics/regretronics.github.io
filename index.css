@@ -36,20 +36,6 @@ h1 {
 		margin-block-start: 0.25em;
 	}
 }
-/* h1 {
-	font-size: 3em;
-	line-height: 0.8;
-	text-align: center;
-	color: oklch(0.875 0.125 var(--hue1-ang, 0deg));
-
-	& small {
-		font-size: 0.6em;
-		font-variant: small-caps;
-	}
-}
-h1:first-of-type + p {
-	font-variant: small-caps;
-} */
 
 a:link {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
@@ -114,7 +100,6 @@ a:any-link {
 
 			/* opacity: 0.9; */
 			backdrop-filter: blur(0.09375em);
-			/* background-color: blueviolet; */
 			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
 			color: light-dark(oklch(0.25 0.125 var(--hue1-ang, 0deg)), oklch(0.75 0.125 var(--hue1-ang, 0deg)));
 
@@ -133,8 +118,6 @@ a:any-link {
 	}
 	@media not all and (hover: hover) {
 		&::before {
-			/* position: relative; */
-			/* position: absolute; */
 			position: fixed;
 			top: 0px;
 
@@ -151,7 +134,6 @@ a:any-link {
 
 			/* opacity: 0.9; */
 			backdrop-filter: blur(0.09375em);
-			/* background-color: blueviolet; */
 			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
 			color: light-dark(oklch(0.25 0.125 var(--hue1-ang, 0deg)), oklch(0.75 0.125 var(--hue1-ang, 0deg)));
 			user-select: all;
