@@ -65,12 +65,25 @@
 	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice" filter="url(#noiseMix) url(#warp)">
 		<!-- filter="url('#warp')" -->
 		<defs>
+			<filter id="noiseMixStill" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+				<feTurbulence
+					type="fractalNoise"
+					baseFrequency="0.0025"
+					numOctaves="6"
+					color-interpolation-filters="sRGB">
+				</feTurbulence>
+				<feColorMatrix result="noise_0" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 0 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB" />
+			</filter>
 			<filter id="noiseMix" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
 				<feTurbulence
 					type="fractalNoise"
 					baseFrequency="0.0025"
 					numOctaves="6"
-					result="noise_0"
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="1" by="65536" dur="262144s" repeatCount="indefinite" />
 				</feTurbulence>
@@ -84,9 +97,8 @@
 					type="fractalNoise"
 					baseFrequency="0.0025"
 					numOctaves="6"
-					result="noise_1"
 					color-interpolation-filters="sRGB">
-					<animate attributeName="seed" from="2" by="65536" dur="262144s" repeatCount="indefinite" />
+					<animate attributeName="seed" from="1" by="65536" begin="-4s" dur="262144s" repeatCount="indefinite" />
 				</feTurbulence>
 				<feColorMatrix result="noise_1" type="matrix" values="
 					1 0 0 0 0
@@ -120,7 +132,6 @@
 					type="turbulence"
 					baseFrequency="0.0025"
 					numOctaves="6"
-					result="noise_0"
 					color-interpolation-filters="sRGB">
 					<animate attributeName="seed" from="1" by="65536" dur="65536s" repeatCount="indefinite" />
 				</feTurbulence>
@@ -134,9 +145,8 @@
 					type="turbulence"
 					baseFrequency="0.0025"
 					numOctaves="6"
-					result="noise_1"
 					color-interpolation-filters="sRGB">
-					<animate attributeName="seed" from="2" by="65536" dur="65536s" repeatCount="indefinite" />
+					<animate attributeName="seed" from="1" by="65536" begin="-1s" dur="65536s" repeatCount="indefinite" />
 				</feTurbulence>
 				<feColorMatrix result="noise_1" type="matrix" values="
 					1 0 0 0 0
@@ -168,9 +178,9 @@
 			<filter id="warp" filterUnits="objectBoundingBox" x="-0.25" y="-0.25" width="1.5" height="1.5" primitiveUnits="objectBoundingBox">
 				<feTurbulence
 					type="fractalNoise"
+					seed="65537"
 					baseFrequency="0.0025"
 					numOctaves="8"
-					result="noise"
 					color-interpolation-filters="sRGB" />
 				<feColorMatrix result="noise" type="matrix" values="
 					1 0 0 0 0
@@ -192,9 +202,8 @@
 					type="fractalNoise"
 					baseFrequency="0.0025"
 					numOctaves="8"
-					result="noise_0"
 					color-interpolation-filters="sRGB">
-					<animate attributeName="seed" from="1" by="65536" dur="1048576s" repeatCount="indefinite" />
+					<animate attributeName="seed" from="65537" by="4096" dur="65536s" repeatCount="indefinite" />
 				</feTurbulence>
 				<feColorMatrix result="noise_0" type="matrix" values="
 					1 0 0 0 0
@@ -206,9 +215,8 @@
 					type="fractalNoise"
 					baseFrequency="0.0025"
 					numOctaves="8"
-					result="noise_1"
 					color-interpolation-filters="sRGB">
-					<animate attributeName="seed" from="2" by="65536" dur="1048576s" repeatCount="indefinite" />
+					<animate attributeName="seed" from="65537" by="4096" begin="-16s" dur="65536s" repeatCount="indefinite" />
 				</feTurbulence>
 				<feColorMatrix result="noise_1" type="matrix" values="
 					1 0 0 0 0

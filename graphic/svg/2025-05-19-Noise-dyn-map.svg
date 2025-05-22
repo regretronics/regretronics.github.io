@@ -23,7 +23,7 @@
 				numOctaves="8"
 				result="noise_1"
 				color-interpolation-filters="sRGB">
-				<animate attributeName="seed" from="2" by="65536" dur="262144s" repeatCount="indefinite" />
+				<animate attributeName="seed" from="1" by="65536" begin="-4s" dur="262144s" repeatCount="indefinite" />
 			</feTurbulence>
 			<feColorMatrix result="noise_1" type="matrix" values="
 				1 0 0 0 0
