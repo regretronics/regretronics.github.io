@@ -29,7 +29,7 @@ h1 {
 	/* text-align: center; */
 	color: oklch(0.875 0.125 var(--hue1-ang, 0deg) / 0.85);
 
-	&:has( + p.sub) {
+	&:has(+ p.sub) {
 		margin-block-end: 0.25em;
 	}
 	& + p.sub {
