@@ -2,10 +2,10 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice" style="background: black; color-scheme: dark;">
 	<defs>
-		<filter id="noise" filterUnits="objectBoundingBox" x="-0.25" y="0" width="4" height="1" primitiveUnits="objectBoundingBox">
+		<filter id="noise" filterUnits="objectBoundingBox" x="0" y="0" width="4" height="1" primitiveUnits="objectBoundingBox">
 			<feTurbulence
 				type="fractalNoise"
-				baseFrequency="2"
+				baseFrequency="1 4"
 				numOctaves="6"
 				result="noise0"
 				stitchTiles="stitch"
@@ -14,6 +14,7 @@
 				in="noise0"
 				result="off1"
 				dy="0"
+				x="0" y="0" width="1" height="1"
 				color-interpolation-filters="sRGB">
 				<animate
 					attributeName="dx" attributeType="XML"
@@ -24,20 +25,22 @@
 				in="noise0"
 				result="off2"
 				dy="0"
+				x="0" y="0" width="1" height="1"
 				color-interpolation-filters="sRGB">
 				<animate
 					attributeName="dx" attributeType="XML"
 					from="0" to="4"
 					dur="4s" repeatCount="indefinite" />
 			</feOffset>
-			<feComposite in="off1" in2="off2" result="offSum" operator="lighter" color-interpolation-filters="sRGB" />
+			<feComposite in="off1" in2="off2" result="offSum" operator="lighter" width="1" height="1" color-interpolation-filters="sRGB" />
 			<feColorMatrix result="noiseRG" type="matrix" values="
 				1 0 0 0 0
 				0 0.5 0 0 0.25
 				0 0 0 0 0
 				0 0 0 0 1"
+				width="1" height="1"
 				color-interpolation-filters="sRGB" />
-			<feGaussianBlur stdDeviation="0 0.125" color-interpolation-filters="sRGB" />
+			<!-- <feGaussianBlur stdDeviation="0 0.125" width="1" height="1" color-interpolation-filters="sRGB" /> -->
 		</filter>
 	</defs>
 	<rect x="0" y="0" height="100%" width="100%" fill="black" filter="url(#noise)" />
