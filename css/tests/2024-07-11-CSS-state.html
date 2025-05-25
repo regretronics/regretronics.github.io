@@ -8,15 +8,16 @@
 		:root {
 			font-size: 2em;
 			color-scheme: dark;
-		}
-		:root:has(#test1:target) p {
-			font-weight: bold;
-		}
-		:root:has(#test2:target) p {
-			font-style: italic;
-		}
-		:root:has(meta[charset="utf-8"]) p:last-child {
-			color: red;
+
+			&:has(#test1:target) p {
+				font-weight: bold;
+			}
+			&:has(#test2:target) p {
+				font-style: italic;
+			}
+			&:has(meta[charset="utf-8"]) p:last-child {
+				color: red;
+			}
 		}
 
 		/* p:checked, p:active, p:focus, p:focus-visible, p:focus-within {
@@ -30,65 +31,67 @@
 		#frame1 {
 			width: 50%;
 			height: 50vh;
-		}
-		/* #frame1:has(#test2:target) {
-			border-color: red;
-		}
-		#frame1 p {
-			color: red;
-		} */
-		#frame1[src="2024-06-25-CSS-state.html"] {
-			border-color: red;
-		}
-		#frame1[src="2024-07-11-CSS-state.html"] {
-			border-radius: 1em;
+
+			/* &:has(#test2:target) {
+				border-color: red;
+			}
+			& p {
+				color: red;
+			} */
+			&[src="2024-06-25-CSS-state.html"] {
+				border-color: red;
+			}
+			&[src="2024-07-11-CSS-state.html"] {
+				border-radius: 1em;
+			}
 		}
 
-		[contenteditable] {
+		[contenteditable="true"] {
 			background-color: dimgray;
 			border-style: solid;
 			border-color: lightgray;
 			counter-reset: edit;
-		}
-		[contenteditable]:focus-within {
-			border-style: dashed;
-		}
-		/* [contenteditable]:has(:nth-child(4)) {
-			background-color: green;
-		} */
-		[contenteditable]:has(div:nth-child(odd):last-child) {
-			background-color: green;
-		}
-		[contenteditable] div {
-			counter-increment: edit;
-		}
-		/* [contenteditable] div:nth-child(odd) {
-			background-color: red;
-		}
-		[contenteditable] div:last-child {
-			background-color: blue;
-		} */
-		/* [contenteditable] div:active, [contenteditable] div:focus, [contenteditable] div:focus-visible, [contenteditable] div:focus-within { */
-		/* [contenteditable] div:has(::selection) { */
-		[contenteditable]:has(::selection) {
-			/* font-size: 2em;
-			text-align: right; */
-			background-color: purple;
-		}
-		[contenteditable] div:hover::after {
-			float: right;
-			content: counter(edit) " ";
-		}
-		/* [contenteditable] ::selection { */
-		[contenteditable] *:has(::selection) {
-			/* font-family: sans-serif; */
-			background-color: purple;
-		}
-		[contenteditable] :focus-within {
-			border-style: dashed;
-			border-width: 4px;
-			border-color: purple;
-			background-color: black;
+
+			&:focus-within {
+				border-style: dashed;
+			}
+			/* &:has(:nth-child(4)) {
+				background-color: green;
+			} */
+			&:has(div:nth-child(odd):last-child) {
+				background-color: green;
+			}
+			div {
+				counter-increment: edit;
+			}
+			/* div:nth-child(odd) {
+				background-color: red;
+			}
+			div:last-child {
+				background-color: blue;
+			} */
+			/* div:active, div:focus, div:focus-visible, div:focus-within { */
+			/* div:has(::selection) { */
+			&:has(::selection) {
+				/* font-size: 2em;
+				text-align: right; */
+				background-color: purple;
+			}
+			div:hover::after {
+				float: right;
+				content: counter(edit) " ";
+			}
+			/* ::selection { */
+			*:has(::selection) {
+				/* font-family: sans-serif; */
+				background-color: purple;
+			}
+			:focus-within {
+				border-style: dashed;
+				border-width: 4px;
+				border-color: purple;
+				background-color: black;
+			}
 		}
 
 		input[type="checkbox"] {
@@ -110,17 +113,19 @@
 		#checkBoxes {
 			counter-reset: chkTest 10 chkParity 0;
 			/* counter-reset: reversed(chkTest) 10; */
-		}
-		#checkBoxes input[type="checkbox"]:checked {
-			counter-increment: chkTest -2;
-		}
-		#checkBoxes input[type="checkbox"]:nth-of-type(odd):checked {
-			counter-increment: chkTest -2 chkParity -1;
-			/* counter-increment: inherit chkParity -1; */
-		}
-		#checkBoxes input[type="checkbox"]:nth-of-type(even):checked {
-			counter-increment: chkTest -2 chkParity 1;
-			/* counter-increment: inherit chkParity 1; */
+
+			input[type="checkbox"]:checked {
+				counter-increment: chkTest -2;
+
+				&:nth-of-type(odd) {
+					counter-increment: chkTest -2 chkParity -1;
+					/* counter-increment: inherit chkParity -1; */
+				}
+				&:nth-of-type(even) {
+					counter-increment: chkTest -2 chkParity 1;
+					/* counter-increment: inherit chkParity 1; */
+				}
+			}
 		}
 		#outCounter::after {
 			content: counter(chkTest);
