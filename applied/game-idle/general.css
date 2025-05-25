@@ -16,17 +16,14 @@
 	--hue1-ang: 0deg;
 	--hue1-ang: calc(60deg * var(--hue1, 0) + var(--hue-phase, 0deg));
 
-	/* --gain-balance: rec2020 calc(r*30/32) calc(g*27/32) b; */
-	--gain-balance: rec2020 r g b;
-
 	--page-scale: 1.25;
 	font-size: calc(var(--page-scale, 1) * 1em);
 
 	color-scheme: dark;
 
-	background-color: color(from oklch(0.125 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
-	color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
-	accent-color: color(from oklch(0.375 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
+	background-color: oklch(0.125 0.0625 var(--hue1-ang, 0deg));
+	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
+	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
 
 	animation-name: hueShift;
 	animation-duration: 90s;
@@ -39,18 +36,18 @@ body {
 }
 
 ::selection {
-	background-color: color(from oklch(0.875 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
-	color: color(from oklch(0.125 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
+	background-color: oklch(0.875 0.1875 var(--hue1-ang, 0deg));
+	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 }
 ::marker {
-	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 }
 
 h1 {
 	font-size: 3em;
 	line-height: 0.8;
 	text-align: center;
-	color: color(from oklch(0.875 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: oklch(0.875 0.125 var(--hue1-ang, 0deg));
 
 	& small {
 		font-size: 0.6em;
@@ -62,16 +59,16 @@ h1:first-of-type + p {
 }
 
 a:link {
-	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 a:visited {
-	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg)) var(--gain-balance));
+	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 a:hover {
-	color: color(from oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 a:active, a:focus {
-	color: color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance));
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 
 details {
@@ -79,7 +76,7 @@ details {
 	margin-inline: 0.5em;
 
 	&[open] {
-		background-color: color(from oklch(0.375 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+		background-color: oklch(0.375 0.0625 var(--hue1-ang, 0deg));
 		border-radius: 0em 0.75em 0.25em 0.25em;
 
 		/* & > :not(summary:first-of-type) {
@@ -122,7 +119,7 @@ summary:has(.marker) {
 	text-align: end;
 
 	user-select: none;
-	color: color(from oklch(0.625 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
 }
 .marker::after {
 	/* content: "▸"; */
@@ -133,7 +130,7 @@ summary:has(.marker) {
 	content: "x";
 } */
 details[open] > summary:first-of-type > .marker {
-	color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	rotate: -0.75turn;
 	/* transform: rotateZ(-0.75turn); */
 }
@@ -156,8 +153,8 @@ input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, button, s
 
 	/* background-color: oklch(0.25 0.0625 var(--hue1-ang, 0deg));
 	color: oklch(0.75 0.0625 var(--hue1-ang, 0deg)); */
-	background-color: color(from oklch(0.25 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
-	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	background-color: oklch(0.25 0.0625 var(--hue1-ang, 0deg));
+	color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 }
 input:is([type=checkbox], input[type=radio]) {
 	/* block-size: 1em; */
@@ -174,14 +171,14 @@ input:is([type=checkbox], input[type=radio]) {
 		/* margin-inline: 0.125em; */
 		padding-inline: 0.25em;
 		/* @starting-style {
-			color: color(from oklch(0.75 0.03125 var(--hue1-ang, 0deg)) var(--gain-balance));
+			color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
 		} */
 	}
 	&:not(:checked) + label {
-		color: color(from oklch(0.75 0.03125 var(--hue1-ang, 0deg)) var(--gain-balance));
+		color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
 	}
 	&:checked + label {
-		color: color(from oklch(0.875 0.1875 var(--hue1-ang, 0deg)) var(--gain-balance));
+		color: oklch(0.875 0.1875 var(--hue1-ang, 0deg));
 	}
 }
 input[type=number] {
@@ -204,18 +201,18 @@ input[type=range] {
 }
 
 input:is([type=button], [type=submit], [type=reset]), button {
-	border-color: color(from oklch(0.5 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	border-color: oklch(0.5 0.0625 var(--hue1-ang, 0deg));
 	/* padding: 0.25em; */
 	font-size: 0.9rem;
 	font-variant: small-caps;
 
 	&:is(:hover, :focus) {
-		border-color: color(from oklch(0.5 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
-		background-color: color(from oklch(0.25 0.125 var(--hue1-ang, 0deg)) var(--gain-balance));
-		color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+		border-color: oklch(0.5 0.125 var(--hue1-ang, 0deg));
+		background-color: oklch(0.25 0.125 var(--hue1-ang, 0deg));
+		color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	}
 	&:active:hover {
-		color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+		color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 	}
 }
 
@@ -224,7 +221,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	user-select: all;
 }
 .fields-list > li > .value, .trade-features-list > li > .value, .article-description {
-	color: color(from oklch(0.75 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+	color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 }
 .trades-list > li > .trade-title {
 	font-weight: bolder;
@@ -246,7 +243,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	pointer-events: none;
 
 	&:empty, &.stalled {
-		color: color(from oklch(0.5 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+		color: oklch(0.5 0.0625 var(--hue1-ang, 0deg));
 	}
 	&:empty::before, &.stalled::before {
 		font-variant: small-caps;
@@ -261,7 +258,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	font-size: 0.8em;
 
 	&:empty::before {
-		color: color(from oklch(0.5 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance));
+		color: oklch(0.5 0.0625 var(--hue1-ang, 0deg));
 		font-variant: small-caps;
 		content: "(empty)";
 	}
@@ -304,20 +301,20 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	}
 	h1 {
 		opacity: 0.8;
-		text-shadow: 0 0 0.125em color(from oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg)) var(--gain-balance) / 1);
+		text-shadow: 0 0 0.125em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg) / 1);
 	}
 	details[open] {
-		background-color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.25);
+		background-color: oklch(0.875 0.0625 var(--hue1-ang, 0deg) / 0.25);
 	
 		outline-style: solid;
 		outline-width: 0.25em;
-		outline-color: color(from oklch(0.5 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.375);
+		outline-color: oklch(0.5 0.0625 var(--hue1-ang, 0deg) / 0.375);
 	}
 	details[open] > summary:first-of-type {
-		/* text-shadow: 0 0 0.5em color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance)); */
+		/* text-shadow: 0 0 0.5em oklch(0.875 0.0625 var(--hue1-ang, 0deg)); */
 		text-shadow:
-			0 0 0.125em color(from oklch(0.0 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 1),
-			0 0 0.5em color(from oklch(0.0 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 1);
+			0 0 0.125em oklch(0.0 0.0625 var(--hue1-ang, 0deg) / 1),
+			0 0 0.5em oklch(0.0 0.0625 var(--hue1-ang, 0deg) / 1);
 	}
 	.marker {
 		color: revert;
@@ -335,7 +332,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 		padding: 0.1875em;
 	}
 	input:is([type=checkbox], input[type=radio]):not(:checked) + label {
-		color: color(from oklch(0.875 0.0625 var(--hue1-ang, 0deg)) var(--gain-balance) / 0.8);
+		color: oklch(0.875 0.0625 var(--hue1-ang, 0deg) / 0.8);
 	}
 	input:is([type=button], [type=submit], [type=reset]), button {
 		box-shadow:
