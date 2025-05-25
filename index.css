@@ -56,23 +56,42 @@ a:any-link {
 	&::before {
 		left: 0px;
 		right: 0px;
-		overflow-wrap: break-word;
+
 		/* display: none; */
 		/* visibility: hidden; */
 		visibility: collapse;
 		content-visibility: hidden;
+
+		word-break: break-all;
+
+		overflow-wrap: break-word;
+		/* overflow-wrap: anywhere; */
+
 		text-align: center;
+		text-wrap-style: balance;
 
 		backdrop-filter: none;
 		/* backdrop-filter: blur(0em); */
 		background-color: transparent;
 		color: transparent;
 
-		content: attr(href);
+		content: attr(data-href, attr(href));
+		hyphens: auto;
+		hyphenate-character: "";
+
 		transition-property: backdrop-filter, background-color, color, visibility, content-visibility;
 		transition-duration: 0.5s;
 		transition-behavior: allow-discrete;
 		/* pointer-events: none; */
+	}
+	&[data-href]::before {
+		/*everything but word-break: break-all;*/
+		/* word-break: break-word; */
+		word-break: normal;
+		/* word-break: keep-all; */
+
+		/* overflow-wrap: break-word; */
+		overflow-wrap: anywhere;
 	}
 
 	@media (hover: hover) {
