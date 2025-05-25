@@ -57,6 +57,36 @@
 			--sh-thin: 0.0625em -0.0625em;
 			--sh-thick: 0.125em -0.0625em;
 
+			/* --sh-sunken:
+				inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-w, white); */
+			/* --sh-sunken:
+				var(--sh-tl) var(--sh-thin) var(--shade-b, black),
+				var(--sh-br) var(--sh-thin) var(--shade-w, white); */
+			--sh-sunken:
+				inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-w, white),
+				var(--sh-tl) var(--sh-thick) var(--shade-b, black),
+				var(--sh-br) var(--sh-thick) var(--shade-w, white);
+
+			--sh-neutral:
+				inset var(--sh-br) var(--sh-thin) var(--shade-b0, transparent),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-w0, transparent),
+				var(--sh-tl) var(--sh-thick) var(--shade-b0, transparent),
+				var(--sh-br) var(--sh-thick) var(--shade-w0, transparent);
+
+			/* --sh-raised:
+				inset var(--sh-br) var(--sh-thin) var(--shade-w, white),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-b, black); */
+			/* --sh-raised:
+				var(--sh-tl) var(--sh-thin) var(--shade-w, white),
+				var(--sh-br) var(--sh-thin) var(--shade-b, black); */
+			--sh-raised:
+				inset var(--sh-br) var(--sh-thin) var(--shade-w, white),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-b, black),
+				var(--sh-tl) var(--sh-thin) var(--shade-w, white),
+				var(--sh-br) var(--sh-thin) var(--shade-b, black);
+
 			/* height: 100%; */
 			/* height: 100vh; */
 		}
@@ -168,53 +198,22 @@
 			vertical-align: baseline;
 		}
 		input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, select {
-			/* box-shadow:
-				inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
-				inset var(--sh-tl) var(--sh-thin) var(--shade-w, white); */
-			/* box-shadow:
-				var(--sh-tl) var(--sh-thin) var(--shade-b, black),
-				var(--sh-br) var(--sh-thin) var(--shade-w, white); */
-			box-shadow:
-				inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
-				inset var(--sh-tl) var(--sh-thin) var(--shade-w, white),
-				var(--sh-tl) var(--sh-thick) var(--shade-b, black),
-				var(--sh-br) var(--sh-thick) var(--shade-w, white);
+			box-shadow: var(--sh-sunken);
 		}
 		select:focus {
 			/* box-shadow: none; */
-			box-shadow:
-				inset var(--sh-br) var(--sh-thin) var(--shade-b0, transparent),
-				inset var(--sh-tl) var(--sh-thin) var(--shade-w0, transparent),
-				var(--sh-tl) var(--sh-thick) var(--shade-b0, transparent),
-				var(--sh-br) var(--sh-thick) var(--shade-w0, transparent);
+			box-shadow: var(--sh-neutral);
 		}
 		button, input[type=button] { /* to do: active or focus? */
 			padding: 0.25em;
 
-			/* box-shadow:
-				inset var(--sh-br) var(--sh-thin) var(--shade-w, white),
-				inset var(--sh-tl) var(--sh-thin) var(--shade-b, black); */
-			/* box-shadow:
-				var(--sh-tl) var(--sh-thin) var(--shade-w, white),
-				var(--sh-br) var(--sh-thin) var(--shade-b, black); */
-			box-shadow:
-				inset var(--sh-br) var(--sh-thin) var(--shade-w, white),
-				inset var(--sh-tl) var(--sh-thin) var(--shade-b, black),
-				var(--sh-tl) var(--sh-thin) var(--shade-w, white),
-				var(--sh-br) var(--sh-thin) var(--shade-b, black);
+			box-shadow: var(--sh-raised);
 
 			&:active:hover {
 				/* box-shadow: inherit; */
 				/* box-shadow: initial; */
 				/* box-shadow: revert; */
-				/* box-shadow:
-					inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
-					inset var(--sh-tl) var(--sh-thin) var(--shade-w, white); */
-				box-shadow:
-					inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
-					inset var(--sh-tl) var(--sh-thin) var(--shade-w, white),
-					var(--sh-tl) var(--sh-thick) var(--shade-b, black),
-					var(--sh-br) var(--sh-thick) var(--shade-w, white);
+				box-shadow: var(--sh-sunken);
 			}
 		}
 		select {
