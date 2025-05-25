@@ -25,19 +25,39 @@
 			--lum1-m0-375: -0.375 * var(--contrast-drive, 1); */
 			/* --lum1-p0-25: calc(atan(0.25 * var(--contrast-drive, 1)) / 180deg);
 			--lum1-m0-375: calc(atan(-0.375 * var(--contrast-drive, 1)) / 180deg); */
+			--lum2-m0-25: calc(-0.25 * var(--contrast-drive, 1));
 			--lum2-p0-25: calc(0.25 * var(--contrast-drive, 1));
 			--lum2-m0-375: calc(-0.375 * var(--contrast-drive, 1));
 			--lum2-p0-375: calc(0.375 * var(--contrast-drive, 1));
+
+			--lum1-m0-25: calc(var(--lum2-m0-25, 0) / sqrt(1 + pow(var(--lum2-m0-25, 0), 2)));
 			--lum1-p0-25: calc(var(--lum2-p0-25, 0) / sqrt(1 + pow(var(--lum2-p0-25, 0), 2)));
 			--lum1-m0-375: calc(var(--lum2-m0-375, 0) / sqrt(1 + pow(var(--lum2-m0-375, 0), 2)));
 			--lum1-p0-375: calc(var(--lum2-p0-375, 0) / sqrt(1 + pow(var(--lum2-p0-375, 0), 2)));
+
+			--lum-m0-25: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-m0-25, 0)));
 			--lum-p0-25: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-p0-25, 0)));
 			--lum-m0-375: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-m0-375, 0)));
 			--lum-p0-375: calc(100% * (0.5 + var(--luma-scale, 1) * var(--lum1-p0-375, 0)));
 
 			--color-back: hsl(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%));
 
-			height: 100%;
+			/* --shade-b: color(rec2020 0 0 0 / 0.5);
+			--shade-w: color(rec2020 1 1 1 / 0.5); */
+			--shade-b: color(rec2020 0 0 0 / 0.75);
+			/* --shade-w: color(rec2020 calc(30/32) calc(27/32) 1 / 0.75); */
+			--shade-w: color(rec2020 1 1 1 / 0.75);
+			--shade-b0: color(rec2020 0 0 0 / 0);
+			--shade-w0: color(rec2020 1 1 1 / 0);
+
+			/*box-shadow values: bottom-right, top-left, etc.*/
+			--sh-br: 0.0625em 0.0625em;
+			--sh-tl: -0.0625em -0.0625em;
+			/* --sh-thin: 0.0625em 0em; */
+			--sh-thin: 0.0625em -0.0625em;
+			--sh-thick: 0.125em -0.0625em;
+
+			/* height: 100%; */
 			/* height: 100vh; */
 		}
 		#chkAnimations:checked {
@@ -74,6 +94,8 @@
 
 			background-color: var(--color-back);
 			color: hsl(var(--hue1, 0deg), 25%, var(--lum-m0-375, 50%));
+			accent-color: hsl(var(--hue1, 0deg), 25%, var(--lum-m0-25, 50%));
+
 			/* background-image: url("https://upload.wikimedia.org/wikipedia/commons/6/64/KLIK59b.jpg"); */
 			/* background-image: cross-fade(25% linear-gradient(hsl(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%)) 0% 100%), url("https://upload.wikimedia.org/wikipedia/commons/6/64/KLIK59b.jpg")); */
 			/* background-image: linear-gradient(hsla(var(--hue1, 0deg), 25%, var(--lum-p0-25, 50%), 0.5) 0% 100%), url("https://upload.wikimedia.org/wikipedia/commons/6/64/KLIK59b.jpg"); */
@@ -147,52 +169,52 @@
 		}
 		input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, select {
 			/* box-shadow:
-				inset 0.0625em 0.0625em 0.0625em 0em rgba(0, 0, 0, 0.5),
-				inset -0.0625em -0.0625em 0.0625em 0em rgba(255, 255, 255, 0.5); */
+				inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-w, white); */
 			/* box-shadow:
-				-0.0625em -0.0625em 0.0625em 0em rgba(0, 0, 0, 0.5),
-				0.0625em 0.0625em 0.0625em 0em rgba(255, 255, 255, 0.5); */
+				var(--sh-tl) var(--sh-thin) var(--shade-b, black),
+				var(--sh-br) var(--sh-thin) var(--shade-w, white); */
 			box-shadow:
-				inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
-				inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
-				-0.0625em -0.0625em 0.125em -0.0625em rgba(0, 0, 0, 0.75),
-				0.0625em 0.0625em 0.125em -0.0625em rgba(255, 255, 255, 0.75);
+				inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-w, white),
+				var(--sh-tl) var(--sh-thick) var(--shade-b, black),
+				var(--sh-br) var(--sh-thick) var(--shade-w, white);
 		}
 		select:focus {
 			/* box-shadow: none; */
 			box-shadow:
-				inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0),
-				inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0),
-				-0.0625em -0.0625em 0.125em -0.0625em rgba(0, 0, 0, 0),
-				0.0625em 0.0625em 0.125em -0.0625em rgba(255, 255, 255, 0);
+				inset var(--sh-br) var(--sh-thin) var(--shade-b0, transparent),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-w0, transparent),
+				var(--sh-tl) var(--sh-thick) var(--shade-b0, transparent),
+				var(--sh-br) var(--sh-thick) var(--shade-w0, transparent);
 		}
 		button, input[type=button] { /* to do: active or focus? */
 			padding: 0.25em;
 
 			/* box-shadow:
-				inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.5),
-				inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.5); */
+				inset var(--sh-br) var(--sh-thin) var(--shade-w, white),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-b, black); */
 			/* box-shadow:
-				-0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.5),
-				0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.5); */
+				var(--sh-tl) var(--sh-thin) var(--shade-w, white),
+				var(--sh-br) var(--sh-thin) var(--shade-b, black); */
 			box-shadow:
-				inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
-				inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
-				-0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
-				0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75);
+				inset var(--sh-br) var(--sh-thin) var(--shade-w, white),
+				inset var(--sh-tl) var(--sh-thin) var(--shade-b, black),
+				var(--sh-tl) var(--sh-thin) var(--shade-w, white),
+				var(--sh-br) var(--sh-thin) var(--shade-b, black);
 
 			&:active:hover {
 				/* box-shadow: inherit; */
 				/* box-shadow: initial; */
 				/* box-shadow: revert; */
 				/* box-shadow:
-					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
-					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75); */
+					inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
+					inset var(--sh-tl) var(--sh-thin) var(--shade-w, white); */
 				box-shadow:
-					inset 0.0625em 0.0625em 0.0625em -0.0625em rgba(0, 0, 0, 0.75),
-					inset -0.0625em -0.0625em 0.0625em -0.0625em rgba(255, 255, 255, 0.75),
-					-0.0625em -0.0625em 0.125em -0.0625em rgba(0, 0, 0, 0.75),
-					0.0625em 0.0625em 0.125em -0.0625em rgba(255, 255, 255, 0.75);
+					inset var(--sh-br) var(--sh-thin) var(--shade-b, black),
+					inset var(--sh-tl) var(--sh-thin) var(--shade-w, white),
+					var(--sh-tl) var(--sh-thick) var(--shade-b, black),
+					var(--sh-br) var(--sh-thick) var(--shade-w, white);
 			}
 		}
 		select {
@@ -339,10 +361,17 @@
 			}
 		}
 
+		.shade-group {
+			display: flex;
+			max-width: 24em;
+			flex-direction: row;
+			user-select: none;
+		}
 		.shade-group > span {
-			float: left;
 			block-size: 2em;
 			inline-size: 2em;
+			flex-grow: 1;
+			flex-shrink: 1;
 
 			--lum2-back: calc(((var(--index, 0) + 0.5) / 12 - 0.5) * var(--contrast-drive, 1));
 			--lum1-back: calc(var(--lum2-back, 0) / sqrt(1 + pow(var(--lum2-back, 0), 2)));
