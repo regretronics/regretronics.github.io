@@ -7,7 +7,7 @@
 
 	<title>CSS experiment: vars, animation, math functions, etc.</title>
 	<style type="text/css">/*<![CDATA[*/
-		@property --t {
+		@property --t1 {
 			syntax: "\3c number\3e";
 			inherits: true;
 			initial-value: 0.0;
@@ -17,18 +17,29 @@
 			inherits: true;
 			initial-value: 0.0;
 		}
-		@property --t-anim {
-			/* syntax: "\3c \3e"; */
-			syntax: "*";
+		@property --t3 {
+			syntax: "\3c number\3e";
 			inherits: true;
 			initial-value: 0.0;
+		}
+
+		@property --t1-anim {
+			syntax: "\3c time\3e";
+			/* syntax: "dimension-unit"; */
+			inherits: true;
+			initial-value: 0.0s;
 		}
 		@property --t2-anim {
-			/* syntax: "\3c \3e"; */
-			syntax: "*";
+			syntax: "\3c time\3e";
 			inherits: true;
-			initial-value: 0.0;
+			initial-value: 0.0s;
 		}
+		@property --t3-anim {
+			syntax: "\3c time\3e";
+			inherits: true;
+			initial-value: 0.0s;
+		}
+
 		/* @keyframes anim1 {
 			to {
 				--t: 1;
@@ -36,6 +47,8 @@
 		} */
 		:root {
 			color-scheme: dark;
+			background-color: Canvas;
+			color: CanvasText;
 			font-size: 3em;
 
 			/* animation-name: anim1;
@@ -44,18 +57,24 @@
 			animation-timing-function: linear; */
 			/* animation-timeline: scroll(block nearest); */
 
-			--t: 0.0;
-			--t2: 0.0;
+			--t-main: 0.0;
 			/* --t2: var(--t); */
-			--t-anim: calc(-1s * var(--t));
-			--t2-anim: calc(-1s * var(--t2));
+			--t1: var(--t-main);
+			--t2: var(--t-main);
+			--t3: var(--t-main);
 
-			transition-property: --t, --t2;
-			transition-duration: 1s, 4s;
+			/*for the technique that works in Chrome, a second level of reference in necessary for whatever reason, although it doesn't have to have a time type.*/
+			--t1-anim: calc(-1s * var(--t1));
+			--t2-anim: calc(-1s * var(--t2));
+			--t3-anim: calc(-1s * var(--t3));
+
+			transition-property: --t1, --t2, --t3;
+			transition-duration: 1s, 1s, 4s;
 			/* transition-timing-function: linear; */
 			/* transition-timing-function: ease-out; */
 			/* transition-timing-function: cubic-bezier(1,0,0,1); */
-			transition-timing-function: cubic-bezier(0,0,0.5,1);
+			transition-timing-function: linear, cubic-bezier(0,0,0,1), cubic-bezier(0,0,0,1);
+			/* transition-timing-function: cubic-bezier(0,0,0.5,1); */
 			/* transition-timing-function: cubic-bezier(.5, -0.5, 1, 1.5); */
 			/* transition-timing-function: linear(0, 0.5 25% 75%, 1); */
 			/* transition-timing-function: linear(0, 0.25 45%, 0.75 55%, 0.5 70%, 1); */
@@ -63,8 +82,9 @@
 			/* transition-delay: 1s; */
 		}
 		:root:hover {
-			--t: 1.0;
-			--t2: 1.0;
+			--t-main: 1.0;
+			/* --t: 1.0;
+			--t2: 1.0; */
 		}
 
 		.gauge {
@@ -77,51 +97,109 @@
 				overflow-inline: visible;
 			}
 
-			&:nth-of-type(1) {
+			:nth-child(1 of &) { /*works better than :nth-of-type() (more specialized)*/
 				& > div:nth-child(1) {
-					width: calc(100% * var(--t));
+					width: calc(100% * var(--t1));
 				}
 			}
-			&:nth-of-type(2) {
+			:nth-child(2 of &) {
 				& > div:nth-child(1) {
 					width: calc(100% * var(--t2));
 				}
 			}
+			:nth-child(3 of &) {
+				& > div:nth-child(1) {
+					width: calc(100% * var(--t3));
+				}
+			}
 		}
 
+		/* @keyframes anim-color {
+			to {
+				background-color: oklch(0.25 0.125 60deg);
+			}
+		}
 		@keyframes anim-rotate {
 			to {
 				rotate: 1turn;
 			}
-		}
+		} */
 		@keyframes anim-color {
-			to {
-				background-color: black;
+			50% {
+				color: oklch(1 0 60deg);
+				background-color: revert-layer;
+			}
+			100% {
+				color: oklch(1 0 60deg);
+				background-color: oklch(0.25 0.125 60deg);
+			}
+		}
+		@keyframes anim-rotate {
+			50% {
+				left: 1em;
+				rotate: revert-layer;
+			}
+			100% {
+				left: 1em;
+				rotate: 1turn;
 			}
 		}
 		.spinner {
+			float: left;
+			margin-inline: 1em;
+			position: relative;
+			left: 0em;
 			width: 4em;
 			height: 4em;
-			background-color: green;
 
-			animation-name: anim-color, anim-rotate;
-			animation-duration: 1s;
-			/* animation-duration: calc(4s / var(--t3)); */
-			animation-play-state: paused;
-			animation-fill-mode: both;
-			animation-timing-function: linear;
-			/* animation-timing-function: cubic-bezier(.5, -0.5, 1, 1.5); */
-			/* animation-composition: ; */
+			background-color: oklch(0.5 0 0deg);
+			color: oklch(0.75 0 60deg);
 
-			animation-delay: var(--t-anim), var(--t2-anim); /*animation-delay still not animatable, surprisingly*/
-			/* animation-delay: calc(-1s * var(--t4)); */
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			:nth-child(1 of &) {
+				animation-name: anim-color, anim-rotate;
+				animation-duration: 1s;
+				/* animation-duration: calc(4s / var(--t3)); */
+				animation-play-state: paused;
+				animation-fill-mode: both;
+				animation-timing-function: linear;
+				/* animation-timing-function: cubic-bezier(.5, -0.5, 1, 1.5); */
+				/* animation-composition: ; */
+
+				/*note: animation-delay is documented as not animatable.*/
+				/*doesn't work in Firefox, as of 2025-05.*/
+				animation-delay: var(--t2-anim), var(--t3-anim);
+				/* animation-delay: calc(-1s * var(--t2, 0.0)), calc(-1s * var(--t3, 0.0)); */
+			}
+			/* :nth-child(2 of &) {
+				background-color: color-mix(in oklab, 
+					oklch(0.5 0 0deg), 
+					oklch(0.25 0.125 60deg) calc(100% * var(--t2)));
+				rotate: calc(1turn * var(--t3));
+			} */
+			:nth-child(2 of &) {
+				color: color-mix(in oklab, 
+					oklch(0.75 0 60deg), 
+					oklch(1 0 60deg) calc(100% * clamp(0, var(--t2), 0.5) / 0.5));
+				background-color: color-mix(in oklab, 
+					oklch(0.5 0 0deg), 
+					oklch(0.25 0.125 60deg) calc(100% * clamp(0, var(--t2) - 0.5, 0.5) / 0.5));
+
+				left: calc(1em * clamp(0, var(--t3), 0.5) / 0.5);
+				rotate: calc(1turn * clamp(0, var(--t3) - 0.5, 0.5) / 0.5);
+			}
 		}
 	/*]]>*/</style>
 </head>
 <body>
 	<p>(Move the cursor in and out of the page.)</p>
-	<div class="gauge"><div>--t (transition, 1s)</div></div>
-	<div class="gauge"><div>--t2 (transition, 4s)</div></div>
+	<div class="gauge"><div>--t1 (transition, 1s, linear)</div></div>
+	<div class="gauge"><div>--t2 (transition, 1s)</div></div>
+	<div class="gauge"><div>--t3 (transition, 4s)</div></div>
+	<div class="spinner">asfd</div>
 	<div class="spinner">asfd</div>
 </body>
 </html>
