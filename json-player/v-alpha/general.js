@@ -309,7 +309,8 @@ function pageLoaded() {
 	new Promise((resolve, reject) => {
 	//setTimeout(() => {
 		//control separators
-		for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+		//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+		for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
 			const separator = document.createElement("span");
 			separator.classList.add("separator");
 

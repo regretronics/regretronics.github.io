@@ -117,7 +117,7 @@ input:is([type=checkbox], [type=radio]) + label {
 	.cell + & {
 		margin-inline-start: 0em;
 	}
-	/* &:not(:first-of-type)::before {
+	/* :nth-child(n + 2 of &)::before {
 		content: "\A0";
 		background-color: GrayText;
 	} */
@@ -135,11 +135,12 @@ input:is([type=checkbox], [type=radio]) + label {
 	border-inline-end-style: solid;
 	border-inline-end-color: transparent; */
 	margin-inline-end: 0.375em;
+
+	&::after {
+		content: "\A0";
+	}
 }
-.separator::after {
-	content: "\A0";
-}
-/* wbr:has(+ .cell:not(:first-of-type)) {
+/* wbr:has(+ :nth-child(n + 2 of .cell)) {
 	border-inline-start-style: groove;
 	border-inline-start-width: 0.125em;
 } */
@@ -152,18 +153,24 @@ input:is([type=checkbox], [type=radio]) + label {
 	outline-offset: 0.125em;
 } */
 /* #ctlStructuredScript:empty::after, #ctlStructuredScript:has(> br:only-child)::after { */
-#ctlStructuredScript:empty::before, #ctlStructuredScript:has(> br:only-child)::before {
-	content: '{"property": 123}';
-	opacity: 0.5;
-	/* display: block;
-	justify-self: center; */
-	/* text-align: center; */
-	/* vertical-align: middle; */
-}
-#ctlFlatScript:empty::before, #ctlFlatScript:has(> br:only-child)::before {
-	content: '[{"property": 123}]';
-	opacity: 0.5;
-}
+:empty, :has(> br:only-child) {
+	#ctlStructuredScript& {
+		&::before{
+			content: '{"property": 123}';
+			opacity: 0.5;
+			/* display: block;
+			justify-self: center; */
+			/* text-align: center; */
+			/* vertical-align: middle; */
+		}
+	}
+	#ctlFlatScript& {
+		&::before{
+			content: '[{"property": 123}]';
+			opacity: 0.5;
+		}
+	}
+)
 #outAudioT {
 	display: inline-block;
 	min-width: 6ch;
