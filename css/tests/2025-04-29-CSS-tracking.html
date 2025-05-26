@@ -1,508 +1,508 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>CSS experiment</title>
-		<style type="text/css">/*<![CDATA[*/
-		@property --x {
-			syntax: "\3cnumber\3e";
-			initial-value: 0.0;
-			inherits: true;
-		}
-		@property --y {
-			syntax: "\3cnumber\3e";
-			initial-value: 0.0;
-			inherits: true;
-		}
-		:root {
-			color-scheme: dark;
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>CSS experiment</title>
+	<style type="text/css">/*<![CDATA[*/
+	@property --x {
+		syntax: "\3cnumber\3e";
+		initial-value: 0.0;
+		inherits: true;
+	}
+	@property --y {
+		syntax: "\3cnumber\3e";
+		initial-value: 0.0;
+		inherits: true;
+	}
+	:root {
+		color-scheme: dark;
 
-			--x-b03: 0;
-			--x-b02: 0;
-			--x-b01: 0;
-			--x-b00: 0;
-			--x: calc(8 * var(--x-b03) + 4 * var(--x-b02) + 2 * var(--x-b01) + var(--x-b00));
+		--x-b03: 0;
+		--x-b02: 0;
+		--x-b01: 0;
+		--x-b00: 0;
+		--x: calc(8 * var(--x-b03) + 4 * var(--x-b02) + 2 * var(--x-b01) + var(--x-b00));
 
-			--y-b03: 0;
-			--y-b02: 0;
-			--y-b01: 0;
-			--y-b00: 0;
-			--y: calc(8 * var(--y-b03) + 4 * var(--y-b02) + 2 * var(--y-b01) + var(--y-b00));
+		--y-b03: 0;
+		--y-b02: 0;
+		--y-b01: 0;
+		--y-b00: 0;
+		--y: calc(8 * var(--y-b03) + 4 * var(--y-b02) + 2 * var(--y-b01) + var(--y-b00));
 
-			transition-property: --x, --y;
-			/* transition-delay: 0.25s; */
-			transition-duration: 0.5s;
-			/* transition-timing-function: linear; */
-		}
+		transition-property: --x, --y;
+		/* transition-delay: 0.25s; */
+		transition-duration: 0.5s;
+		/* transition-timing-function: linear; */
+	}
 
-		:root:has(#t1 tr:nth-child(16n + 9):hover),
-		:root:has(#t1 tr:nth-child(16n + 10):hover),
-		:root:has(#t1 tr:nth-child(16n + 11):hover),
-		:root:has(#t1 tr:nth-child(16n + 12):hover),
-		:root:has(#t1 tr:nth-child(16n + 13):hover),
-		:root:has(#t1 tr:nth-child(16n + 14):hover),
-		:root:has(#t1 tr:nth-child(16n + 15):hover),
-		:root:has(#t1 tr:nth-child(16n + 16):hover) {
-			--y-b03: 1;
-		}
-		:root:has(#t1 tr:nth-child(8n + 5):hover),
-		:root:has(#t1 tr:nth-child(8n + 6):hover),
-		:root:has(#t1 tr:nth-child(8n + 7):hover),
-		:root:has(#t1 tr:nth-child(8n + 8):hover) {
-			--y-b02: 1;
-		}
-		:root:has(#t1 tr:nth-child(4n + 3):hover),
-		:root:has(#t1 tr:nth-child(4n + 4):hover) {
-			--y-b01: 1;
-		}
-		:root:has(#t1 tr:nth-child(2n):hover) {
-			--y-b00: 1;
-		}
+	:root:has(#t1 tr:nth-child(16n + 9):hover),
+	:root:has(#t1 tr:nth-child(16n + 10):hover),
+	:root:has(#t1 tr:nth-child(16n + 11):hover),
+	:root:has(#t1 tr:nth-child(16n + 12):hover),
+	:root:has(#t1 tr:nth-child(16n + 13):hover),
+	:root:has(#t1 tr:nth-child(16n + 14):hover),
+	:root:has(#t1 tr:nth-child(16n + 15):hover),
+	:root:has(#t1 tr:nth-child(16n + 16):hover) {
+		--y-b03: 1;
+	}
+	:root:has(#t1 tr:nth-child(8n + 5):hover),
+	:root:has(#t1 tr:nth-child(8n + 6):hover),
+	:root:has(#t1 tr:nth-child(8n + 7):hover),
+	:root:has(#t1 tr:nth-child(8n + 8):hover) {
+		--y-b02: 1;
+	}
+	:root:has(#t1 tr:nth-child(4n + 3):hover),
+	:root:has(#t1 tr:nth-child(4n + 4):hover) {
+		--y-b01: 1;
+	}
+	:root:has(#t1 tr:nth-child(2n):hover) {
+		--y-b00: 1;
+	}
 
-		:root:has(#t1 td:nth-child(16n + 9):hover),
-		:root:has(#t1 td:nth-child(16n + 10):hover),
-		:root:has(#t1 td:nth-child(16n + 11):hover),
-		:root:has(#t1 td:nth-child(16n + 12):hover),
-		:root:has(#t1 td:nth-child(16n + 13):hover),
-		:root:has(#t1 td:nth-child(16n + 14):hover),
-		:root:has(#t1 td:nth-child(16n + 15):hover),
-		:root:has(#t1 td:nth-child(16n + 16):hover) {
-			--x-b03: 1;
-		}
-		:root:has(#t1 td:nth-child(8n + 5):hover),
-		:root:has(#t1 td:nth-child(8n + 6):hover),
-		:root:has(#t1 td:nth-child(8n + 7):hover),
-		:root:has(#t1 td:nth-child(8n + 8):hover) {
-			--x-b02: 1;
-		}
-		:root:has(#t1 td:nth-child(4n + 3):hover),
-		:root:has(#t1 td:nth-child(4n + 4):hover) {
-			--x-b01: 1;
-		}
-		:root:has(#t1 td:nth-child(2n):hover) {
-			--x-b00: 1;
-		}
+	:root:has(#t1 td:nth-child(16n + 9):hover),
+	:root:has(#t1 td:nth-child(16n + 10):hover),
+	:root:has(#t1 td:nth-child(16n + 11):hover),
+	:root:has(#t1 td:nth-child(16n + 12):hover),
+	:root:has(#t1 td:nth-child(16n + 13):hover),
+	:root:has(#t1 td:nth-child(16n + 14):hover),
+	:root:has(#t1 td:nth-child(16n + 15):hover),
+	:root:has(#t1 td:nth-child(16n + 16):hover) {
+		--x-b03: 1;
+	}
+	:root:has(#t1 td:nth-child(8n + 5):hover),
+	:root:has(#t1 td:nth-child(8n + 6):hover),
+	:root:has(#t1 td:nth-child(8n + 7):hover),
+	:root:has(#t1 td:nth-child(8n + 8):hover) {
+		--x-b02: 1;
+	}
+	:root:has(#t1 td:nth-child(4n + 3):hover),
+	:root:has(#t1 td:nth-child(4n + 4):hover) {
+		--x-b01: 1;
+	}
+	:root:has(#t1 td:nth-child(2n):hover) {
+		--x-b00: 1;
+	}
 
-		table {
-			background-color: oklch(0.5 0.0 0deg);
-			border-spacing: 0;
-		}
-		#t1:not(:has(td:hover)) {
-			anchor-name: --hover;
-		}
-		/* table tr {
-			--row: sibling-index();
-		} */
-		table td {
-			/* padding: 0; */
-			/* background-color: transparent; */
-			width: 2em;
-			height: 2em;
-			
-			/* --col: sibling-index(); */
-			--row: calc(8 * var(--row-b03) + 4 * var(--row-b02) + 2 * var(--row-b01) + var(--row-b00));
-			--col: calc(8 * var(--col-b03) + 4 * var(--col-b02) + 2 * var(--col-b01) + var(--col-b00));
-			/* background-color: oklch(calc(var(--row) / 16) 0 0deg); */
-			/* background-color: oklch(calc(var(--x) / 16) 0 0deg); */
-			/* background-color: oklch(calc(0.5 + (var(--x) - var(--col)) / 16) 0 0deg); */
-			background-color: oklch(0.5 0.125 calc(hypot(var(--x) - var(--col), var(--y) - var(--row)) * 0.0625turn));
-		}
-		/* td:active { */
-		td:hover {
-			anchor-name: --hover;
-			/* background-color: oklch(0.75 0.15625 210deg); */
-		}
-		/* td:not(:hover) {
-		} */
+	table {
+		background-color: oklch(0.5 0.0 0deg);
+		border-spacing: 0;
+	}
+	#t1:not(:has(td:hover)) {
+		anchor-name: --hover;
+	}
+	/* table tr {
+		--row: sibling-index();
+	} */
+	table td {
+		/* padding: 0; */
+		/* background-color: transparent; */
+		width: 2em;
+		height: 2em;
+		
+		/* --col: sibling-index(); */
+		--row: calc(8 * var(--row-b03) + 4 * var(--row-b02) + 2 * var(--row-b01) + var(--row-b00));
+		--col: calc(8 * var(--col-b03) + 4 * var(--col-b02) + 2 * var(--col-b01) + var(--col-b00));
+		/* background-color: oklch(calc(var(--row) / 16) 0 0deg); */
+		/* background-color: oklch(calc(var(--x) / 16) 0 0deg); */
+		/* background-color: oklch(calc(0.5 + (var(--x) - var(--col)) / 16) 0 0deg); */
+		background-color: oklch(0.5 0.125 calc(hypot(var(--x) - var(--col), var(--y) - var(--row)) * 0.0625turn));
+	}
+	/* td:active { */
+	td:hover {
+		anchor-name: --hover;
+		/* background-color: oklch(0.75 0.15625 210deg); */
+	}
+	/* td:not(:hover) {
+	} */
 
-		#tracker {
-			position: absolute;
-			position-anchor: --hover;
-			top: anchor(top);
-			left: anchor(left);
-			right: anchor(right);
-			bottom: anchor(bottom);
+	#tracker {
+		position: absolute;
+		position-anchor: --hover;
+		top: anchor(top);
+		left: anchor(left);
+		right: anchor(right);
+		bottom: anchor(bottom);
 
-			background-color: transparent;
-			pointer-events: none;
-			
-			transition-property: top, left, right, bottom, background-color;
-			/* transition-delay: 0.25s; */
-			/* transition-duration: 0.25s; */
-			transition-duration: 0.25s, 0.25s, 0.25s, 0.25s, 0.0625s;
-			/* transition-timing-function: linear; */
-		}
-		:root:has(td:hover) #tracker {
-			background-color: oklch(0.75 0.15625 30deg / 0.5);
-		}
+		background-color: transparent;
+		pointer-events: none;
+		
+		transition-property: top, left, right, bottom, background-color;
+		/* transition-delay: 0.25s; */
+		/* transition-duration: 0.25s; */
+		transition-duration: 0.25s, 0.25s, 0.25s, 0.25s, 0.0625s;
+		/* transition-timing-function: linear; */
+	}
+	:root:has(td:hover) #tracker {
+		background-color: oklch(0.75 0.15625 30deg / 0.5);
+	}
 
-		#t1 {
-			--row-b03: 0;
-			--row-b02: 0;
-			--row-b01: 0;
-			--row-b00: 0;
+	#t1 {
+		--row-b03: 0;
+		--row-b02: 0;
+		--row-b01: 0;
+		--row-b00: 0;
 
-			--col-b03: 0;
-			--col-b02: 0;
-			--col-b01: 0;
-			--col-b00: 0;
-		}
-		#t1 tr:nth-child(16n + 9),
-		#t1 tr:nth-child(16n + 10),
-		#t1 tr:nth-child(16n + 11),
-		#t1 tr:nth-child(16n + 12),
-		#t1 tr:nth-child(16n + 13),
-		#t1 tr:nth-child(16n + 14),
-		#t1 tr:nth-child(16n + 15),
-		#t1 tr:nth-child(16n + 16) {
-			--row-b03: 1;
-		}
-		#t1 tr:nth-child(8n + 5),
-		#t1 tr:nth-child(8n + 6),
-		#t1 tr:nth-child(8n + 7),
-		#t1 tr:nth-child(8n + 8) {
-			--row-b02: 1;
-		}
-		#t1 tr:nth-child(4n + 3),
-		#t1 tr:nth-child(4n + 4) {
-			--row-b01: 1;
-		}
-		#t1 tr:nth-child(2n) {
-			--row-b00: 1;
-		}
+		--col-b03: 0;
+		--col-b02: 0;
+		--col-b01: 0;
+		--col-b00: 0;
+	}
+	#t1 tr:nth-child(16n + 9),
+	#t1 tr:nth-child(16n + 10),
+	#t1 tr:nth-child(16n + 11),
+	#t1 tr:nth-child(16n + 12),
+	#t1 tr:nth-child(16n + 13),
+	#t1 tr:nth-child(16n + 14),
+	#t1 tr:nth-child(16n + 15),
+	#t1 tr:nth-child(16n + 16) {
+		--row-b03: 1;
+	}
+	#t1 tr:nth-child(8n + 5),
+	#t1 tr:nth-child(8n + 6),
+	#t1 tr:nth-child(8n + 7),
+	#t1 tr:nth-child(8n + 8) {
+		--row-b02: 1;
+	}
+	#t1 tr:nth-child(4n + 3),
+	#t1 tr:nth-child(4n + 4) {
+		--row-b01: 1;
+	}
+	#t1 tr:nth-child(2n) {
+		--row-b00: 1;
+	}
 
-		#t1 td:nth-child(16n + 9),
-		#t1 td:nth-child(16n + 10),
-		#t1 td:nth-child(16n + 11),
-		#t1 td:nth-child(16n + 12),
-		#t1 td:nth-child(16n + 13),
-		#t1 td:nth-child(16n + 14),
-		#t1 td:nth-child(16n + 15),
-		#t1 td:nth-child(16n + 16) {
-			--col-b03: 1;
-		}
-		#t1 td:nth-child(8n + 5),
-		#t1 td:nth-child(8n + 6),
-		#t1 td:nth-child(8n + 7),
-		#t1 td:nth-child(8n + 8) {
-			--col-b02: 1;
-		}
-		#t1 td:nth-child(4n + 3),
-		#t1 td:nth-child(4n + 4) {
-			--col-b01: 1;
-		}
-		#t1 td:nth-child(2n) {
-			--col-b00: 1;
-		}
+	#t1 td:nth-child(16n + 9),
+	#t1 td:nth-child(16n + 10),
+	#t1 td:nth-child(16n + 11),
+	#t1 td:nth-child(16n + 12),
+	#t1 td:nth-child(16n + 13),
+	#t1 td:nth-child(16n + 14),
+	#t1 td:nth-child(16n + 15),
+	#t1 td:nth-child(16n + 16) {
+		--col-b03: 1;
+	}
+	#t1 td:nth-child(8n + 5),
+	#t1 td:nth-child(8n + 6),
+	#t1 td:nth-child(8n + 7),
+	#t1 td:nth-child(8n + 8) {
+		--col-b02: 1;
+	}
+	#t1 td:nth-child(4n + 3),
+	#t1 td:nth-child(4n + 4) {
+		--col-b01: 1;
+	}
+	#t1 td:nth-child(2n) {
+		--col-b00: 1;
+	}
 
-		#outX::after {
-			/* counter-reset: x round(to-zero, var(--x), 1); */
-			counter-reset: x calc(8 * var(--x-b03) + 4 * var(--x-b02) + 2 * var(--x-b01) + var(--x-b00));
-			content: counter(x);
-		}
-		#outY::after {
-			/* counter-reset: y round(to-zero, var(--y), 1); */
-			counter-reset: y calc(8 * var(--y-b03) + 4 * var(--y-b02) + 2 * var(--y-b01) + var(--y-b00));
-			content: counter(y);
-		}
-		/*]]>*/</style>
-	</head>
-	<body>
-		<table id="t1">
-			<tbody>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
-			</tbody>
-		</table>
-		<div id="tracker"></div>
-		<p><output id="outX">x: </output><br />
-			<output id="outY">y: </output></p>
-	</body>
+	#outX::after {
+		/* counter-reset: x round(to-zero, var(--x), 1); */
+		counter-reset: x calc(8 * var(--x-b03) + 4 * var(--x-b02) + 2 * var(--x-b01) + var(--x-b00));
+		content: counter(x);
+	}
+	#outY::after {
+		/* counter-reset: y round(to-zero, var(--y), 1); */
+		counter-reset: y calc(8 * var(--y-b03) + 4 * var(--y-b02) + 2 * var(--y-b01) + var(--y-b00));
+		content: counter(y);
+	}
+	/*]]>*/</style>
+</head>
+<body>
+	<table id="t1">
+		<tbody>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	<div id="tracker"></div>
+	<p><output id="outX">x: </output><br />
+		<output id="outY">y: </output></p>
+</body>
 </html>

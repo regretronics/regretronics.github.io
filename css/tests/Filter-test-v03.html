@@ -1,158 +1,158 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>CSS/SVG filter experiment</title>
-		<style type="text/css">/*<![CDATA[*/
-			body, html, .wrap {
-				height: 100%;
-				margin: 0;
-				padding: 0;
-				overflow: hidden;
-			}
-			:root {
-				background-color: black;
-			}
-			body {
-				background-color: gray;
-				filter: contrast(3) url(#warp) contrast(1.5);
-			}
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>CSS/SVG filter experiment</title>
+	<style type="text/css">/*<![CDATA[*/
+		body, html, .wrap {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		:root {
+			background-color: black;
+		}
+		body {
+			background-color: gray;
+			filter: contrast(3) url(#warp) contrast(1.5);
+		}
 
-			#svg1 {
-				/* position: absolute;
-				z-index: -1; */
-				display: none;
-			}
-			.wrap {
-				/* background-color: inherit; */
-				/* background-color: gray; */
+		#svg1 {
+			/* position: absolute;
+			z-index: -1; */
+			display: none;
+		}
+		.wrap {
+			/* background-color: inherit; */
+			/* background-color: gray; */
 
-				width: 200%;
-				height: 200%;
-				margin: -50vh -50vw -50vh -50vw;
-				filter: saturate(2);
+			width: 200%;
+			height: 200%;
+			margin: -50vh -50vw -50vh -50vw;
+			filter: saturate(2);
 
-				animation: 7s spin ease-in-out infinite;
-				animation-composition: add;
+			animation: 7s spin ease-in-out infinite;
+			animation-composition: add;
+		}
+		@keyframes spin {
+			to {
+				transform: rotate(1turn);
+				filter: hue-rotate(5turn);
 			}
-			@keyframes spin {
-				to {
-					transform: rotate(1turn);
-					filter: hue-rotate(5turn);
-				}
-			}
+		}
 
-			.blob {
-				position: absolute;
-				width: 40vmin;
-				height: 40vmin;
-				left: 50%;
-				top: 50%;
-				margin: -20vmin;
+		.blob {
+			position: absolute;
+			width: 40vmin;
+			height: 40vmin;
+			left: 50%;
+			top: 50%;
+			margin: -20vmin;
 
-				/* opacities based on binomial distribution */
-				background-image: radial-gradient(
-					closest-side,
-					hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 252 / 252)),
-					hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 210 / 252)),
-					hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 120 / 252)),
-					hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 45 / 252)),
-					hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 10 / 252)),
-					hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 1 / 252)),
-					transparent);
-				/* background-blend-mode: screen; */
+			/* opacities based on binomial distribution */
+			background-image: radial-gradient(
+				closest-side,
+				hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 252 / 252)),
+				hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 210 / 252)),
+				hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 120 / 252)),
+				hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 45 / 252)),
+				hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 10 / 252)),
+				hsla(var(--hue, 0deg), 100%, 50%, calc(0.5 * 1 / 252)),
+				transparent);
+			/* background-blend-mode: screen; */
 
-				animation: move infinite alternate ease-in-out;
+			animation: move infinite alternate ease-in-out;
+		}
+		.blob:nth-child(1) {
+			--hue: 0deg;
+			animation-duration: 12s;
+			animation-delay: 0s;
+		}
+		.blob:nth-child(2) {
+			--hue: 90deg;
+			animation-duration: 19.3s;
+			animation-delay: -3.3s;
+		}
+		.blob:nth-child(3) {
+			--hue: 180deg;
+			animation-duration: 14.7s;
+			animation-delay: -2.7s;
+		}
+		.blob:nth-child(4) {
+			--hue: 270deg;
+			animation-duration: 8.7s;
+			animation-delay: -5.32s;
+		}
+		@keyframes move {
+			0% {
+				transform: translate(0%, 50%);
 			}
-			.blob:nth-child(1) {
-				--hue: 0deg;
-				animation-duration: 12s;
-				animation-delay: 0s;
+			15% {
+				transform: translate(-60%, 80%);
 			}
-			.blob:nth-child(2) {
-				--hue: 90deg;
-				animation-duration: 19.3s;
-				animation-delay: -3.3s;
+			30% {
+				transform: translate(50%, -40%);
 			}
-			.blob:nth-child(3) {
-				--hue: 180deg;
-				animation-duration: 14.7s;
-				animation-delay: -2.7s;
+			40% {
+				transform: translate(-70%, 0%);
 			}
-			.blob:nth-child(4) {
-				--hue: 270deg;
-				animation-duration: 8.7s;
-				animation-delay: -5.32s;
+			60% {
+				transform: translate(20%, -40%);
 			}
-			@keyframes move {
-				0% {
-					transform: translate(0%, 50%);
-				}
-				15% {
-					transform: translate(-60%, 80%);
-				}
-				30% {
-					transform: translate(50%, -40%);
-				}
-				40% {
-					transform: translate(-70%, 0%);
-				}
-				60% {
-					transform: translate(20%, -40%);
-				}
-				80% {
-					transform: translate(-80%, -10%);
-				}
-				100% {
-					transform: translate(20%, 30%);
-				}
+			80% {
+				transform: translate(-80%, -10%);
 			}
-		/*]]>*/</style>
-	</head>
-	<body>
-		<svg id="svg1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-			<defs>
-				<!-- <filter id="bg">
-					<feTurbulence
-						type="turbulence"
-						baseFrequency="0.01"
-						numOctaves="8"
-						result="noise" />
-					<feGaussianBlur in="noise" result="blurred" stdDeviation="2" />
-				</filter> -->
-				<filter id="warp">
-					<feTurbulence
-						type="fractalNoise"
-						baseFrequency="0.0025"
-						numOctaves="8"
-						result="noise" />
-					<!-- <feGaussianBlur in="noise" result="blurred" stdDeviation="2" /> -->
-					<!-- <feImage xlink:href="#one" result="turbulence" /> -->
-					<!-- <feDisplacementMap
-						in2="SourceGraphic"
-						in="blurred"
-						result="warped"
-						scale="64"
-						xChannelSelector="R"
-						yChannelSelector="G" /> -->
-					<feDisplacementMap
-						in2="SourceGraphic"
-						in="noise"
-						result="warped"
-						scale="64"
-						xChannelSelector="R"
-						yChannelSelector="G" />
-					<!-- <feOffset in="warped" result="translated" dx="-64" dy="-64" /> -->
-				</filter>
-			</defs>
-			<!-- <rect id="shape1" x="0%" y="0%" width="100%" height="100%" filter="url('#bg')" /> -->
-		</svg>
-		<div class="wrap">
-			<div class="blob"></div>
-			<div class="blob"></div>
-			<div class="blob"></div>
-			<div class="blob"></div>
-		</div>
-	</body>
+			100% {
+				transform: translate(20%, 30%);
+			}
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+		<defs>
+			<!-- <filter id="bg">
+				<feTurbulence
+					type="turbulence"
+					baseFrequency="0.01"
+					numOctaves="8"
+					result="noise" />
+				<feGaussianBlur in="noise" result="blurred" stdDeviation="2" />
+			</filter> -->
+			<filter id="warp">
+				<feTurbulence
+					type="fractalNoise"
+					baseFrequency="0.0025"
+					numOctaves="8"
+					result="noise" />
+				<!-- <feGaussianBlur in="noise" result="blurred" stdDeviation="2" /> -->
+				<!-- <feImage xlink:href="#one" result="turbulence" /> -->
+				<!-- <feDisplacementMap
+					in2="SourceGraphic"
+					in="blurred"
+					result="warped"
+					scale="64"
+					xChannelSelector="R"
+					yChannelSelector="G" /> -->
+				<feDisplacementMap
+					in2="SourceGraphic"
+					in="noise"
+					result="warped"
+					scale="64"
+					xChannelSelector="R"
+					yChannelSelector="G" />
+				<!-- <feOffset in="warped" result="translated" dx="-64" dy="-64" /> -->
+			</filter>
+		</defs>
+		<!-- <rect id="shape1" x="0%" y="0%" width="100%" height="100%" filter="url('#bg')" /> -->
+	</svg>
+	<div class="wrap">
+		<div class="blob"></div>
+		<div class="blob"></div>
+		<div class="blob"></div>
+		<div class="blob"></div>
+	</div>
+</body>
 </html>
