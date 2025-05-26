@@ -37,13 +37,13 @@ h1 {
 }
 
 a:link {
-	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
-}
-a:visited {
 	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg));
 }
+a:visited {
+	color: oklch(0.75 0.0625 calc(var(--hue1-ang, 0deg) - 30deg));
+}
 a:hover {
-	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 a:active, a:focus {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg));
@@ -82,7 +82,6 @@ a:any-link {
 		content-visibility: hidden;
 
 		word-break: break-all;
-
 		overflow-wrap: break-word;
 		/* overflow-wrap: anywhere; */
 
@@ -102,8 +101,9 @@ a:any-link {
 		pointer-events: none;
 
 		transition-property: visibility, content-visibility, pointer-events, backdrop-filter, background-color, color;
-		transition-duration: 2s;
-		transition-timing-function: cubic-bezier(0,0,0,1);
+		transition-duration: 1s;
+		transition-timing-function: /* linear */ cubic-bezier(0,0,0.25,1);
+		/* transition-timing-function: linear, linear, cubic-bezier(0,0,0,1), linear, cubic-bezier(0,0,0,1), linear; */
 		transition-behavior: allow-discrete;
 	}
 	&[data-href]::before {
@@ -168,15 +168,15 @@ a:any-link {
 			pointer-events: revert;
 			/* user-select: all; */
 
-			transition-duration: 0.5s;
+			/* transition-duration: 0.5s; */
 			transition-delay: 0s;
 
-			@starting-style {
+			/* @starting-style {
 				display: inline-block;
 				backdrop-filter: none;
 				background-color: transparent;
 				color: transparent;
-			}
+			} */
 		}
 	}
 	@media not all and (hover: hover) {
@@ -203,12 +203,12 @@ a:any-link {
 				oklch(0.75 0.125 var(--hue1-ang, 0deg)));
 			user-select: all;
 
-			@starting-style {
+			/* @starting-style {
 				display: block;
 				backdrop-filter: none;
 				background-color: transparent;
 				color: transparent;
-			}
+			} */
 		}
 	}
 }

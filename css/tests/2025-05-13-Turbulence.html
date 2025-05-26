@@ -14,10 +14,12 @@
 		}
 		@keyframes intensityRamp {
 			/* from {
-				--intensity: 0.0;
+				--intensity: 0;
+				filter: url("#warp");
 			} */
 			to {
 				--intensity: 1;
+				/* filter: url("#warp") url("#motionBlur"); */
 			}
 		}
 		:root {
@@ -41,7 +43,8 @@
 			animation-fill-mode: both;
 			/* animation-timeline: scroll(block self); */
 			animation-timeline: --container-block;
-			/* animation-composition: replace; */
+			/* animation-composition: add; */
+			/* animation-composition: accumulate; */
 		}
 		body {
 			margin: 0;
@@ -190,6 +193,12 @@
 					0 0 1 0 0
 					0 0 0 1 0"
 					color-interpolation-filters="sRGB" />
+			</filter>
+			<filter id="motionBlur0" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+				<feGaussianBlur stdDeviation="0 0" color-interpolation-filters="sRGB" />
+			</filter>
+			<filter id="motionBlur" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+				<feGaussianBlur stdDeviation="0.0078125 0" color-interpolation-filters="sRGB" />
 			</filter>
 		</defs>
 		<!--
