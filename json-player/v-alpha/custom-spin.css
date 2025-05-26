@@ -34,7 +34,7 @@
 		border-end-end-radius: inherit;
 	}
 
-	& input:first-of-type {
+	input:first-of-type {
 		box-sizing: border-box;
 		/* border-style: solid; */
 
@@ -46,70 +46,70 @@
 		flex-basis: ;
 		vertical-align: text-top;
 	} */
-}
 
-.spin-edit:has(.buttons-area) input:first-of-type {
-	appearance: textfield;
-
-	&::inner-spin-button, &::outer-spin-button {
-		-webkit-appearance: none;
-		appearance: none;
-		display: none;
-		opacity: 0;
-	}
-	&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
-		-webkit-appearance: none;
-		appearance: none;
-		display: none;
-		opacity: 0;
-	}
-}
-
-.spin-edit .buttons-area {
-	background-color: ButtonFace;
-	color: ButtonText;
-	/* background-color: Canvas;
-	color: CanvasText; */
-	opacity: 0.8;
-
-	user-select: none;
-	flex-basis: content;
-	flex-shrink: 0.25;
-	text-align: center;
-
-	@media screen {
-		display: flex;
-	}
-	@media print {
-		display: none;
-	}
-	flex-direction: row;
-	flex-wrap: nowrap; /* ? */
-	/* z-index: -1; */
-
-	& > * {
-		touch-action: none;
-		width: 1em;
-		/* flex-basis: 1em; */
-		/* flex-basis: auto; */
-		flex-grow: 1;
-		/* display: inline-block; */
-		align-content: center;
-
-		&:hover/* , &:active */, &.hover {
-			background-color: CanvasText;
-			color: Canvas;
-			opacity: 1;
-		}
-	}
-	&:active, &.active, &:has(:active) {
-		background-color: SelectedItem;
-		color: SelectedItemText;
+	&:has(.buttons-area) input:first-of-type {
+		appearance: textfield;
 	
-		& > *:hover, & > *.hover {
-			/* box-shadow: 0 0 0.25em CanvasText; */
-			box-shadow: 0 0 0.25em 0.125em CanvasText; /*question: restrict glow effect for cosmetic layers only? (currently no)*/
+		&::inner-spin-button, &::outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
+		}
+		&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
 		}
 	}
-	/* & > *:active { */
+
+	.buttons-area {
+		background-color: ButtonFace;
+		color: ButtonText;
+		/* background-color: Canvas;
+		color: CanvasText; */
+		opacity: 0.8;
+	
+		user-select: none;
+		flex-basis: content;
+		flex-shrink: 0.25;
+		text-align: center;
+	
+		@media screen {
+			display: flex;
+		}
+		@media print {
+			display: none;
+		}
+		flex-direction: row;
+		flex-wrap: nowrap; /* ? */
+		/* z-index: -1; */
+	
+		& > * {
+			touch-action: none;
+			width: 1em;
+			/* flex-basis: 1em; */
+			/* flex-basis: auto; */
+			flex-grow: 1;
+			/* display: inline-block; */
+			align-content: center;
+	
+			&:hover/* , &:active */, &.hover {
+				background-color: CanvasText;
+				color: Canvas;
+				opacity: 1;
+			}
+		}
+		&:active, &.active, &:has(:active) {
+			background-color: SelectedItem;
+			color: SelectedItemText;
+		
+			& > *:hover, & > *.hover {
+				/* box-shadow: 0 0 0.25em CanvasText; */
+				box-shadow: 0 0 0.25em 0.125em CanvasText; /*question: restrict glow effect for cosmetic layers only? (currently no)*/
+			}
+		}
+		/* & > *:active { */
+	}
 }
