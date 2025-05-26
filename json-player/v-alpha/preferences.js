@@ -74,7 +74,7 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("pageAppearance.hue");
 			if(s) {
-				document.documentElement.style.setProperty("--hue-accent", JSON.parse(s));
+				document.documentElement.style.setProperty("--hue-accent0", JSON.parse(s));
 			}
 		}
 
@@ -249,7 +249,7 @@ function savePreferences() {
 	//Page appearance
 	localStorage.setItem("pageAppearance.textSize", JSON.stringify(textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
 	localStorage.setItem("pageAppearance.theme", cboPageTheme.value);
-	localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent").toString());
+	localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
 	//Generator parameters
 	localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(rootFreq)?
 	localStorage.setItem("genParams.timeScale", txtTimeScale.value);
@@ -329,7 +329,7 @@ function btnHueClick(event) {
 	let delta = Number(elem.dataset["delta"]);
 
 	const root = document.documentElement;
-	let hue = getComputedStyle(root).getPropertyValue("--hue-accent");
+	let hue = getComputedStyle(root).getPropertyValue("--hue-accent0");
 
 	//if(hue == undefined) return;
 	if(typeof(hue) === "string") hue = parseFloat(hue);
@@ -341,7 +341,7 @@ function btnHueClick(event) {
 	/*hue %= 360; //this wrapping screws filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
 	if(hue < 0) hue += 360;*/
 
-	root.style.setProperty("--hue-accent", hue);
+	root.style.setProperty("--hue-accent0", hue);
 
 	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
 	for(const elem2 of metaElems) {
@@ -496,7 +496,7 @@ function btnResetPreferencesClick(event) {
 			document.documentElement.style.setProperty("--page-scale", textSize);
 			cboPageTheme.value = "Automatic";
 			cboPageTheme.dispatchEvent(new Event("input"));
-			document.documentElement.style.setProperty("--hue-accent", 120);
+			document.documentElement.style.setProperty("--hue-accent0", 120);
 		}
 		if(chkResetGenParams?.checked) {
 			localStorage.removeItem("genParams.baseFreq");
