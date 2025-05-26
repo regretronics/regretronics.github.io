@@ -119,10 +119,7 @@ let hasScriptChanged = true;
 function flattenStruct() {
 	if(!hasScriptChanged) return false;
 	try {
-		if(["INPUT", "TEXTAREA"].includes(ctlStructuredScript.tagName.toUpperCase()))
-			struct = JSON.parse(ctlStructuredScript.value);
-		else
-			struct = JSON.parse(ctlStructuredScript.innerText);
+		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
 		ctlStructuredScript.classList.remove("invalid");
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 
@@ -143,11 +140,11 @@ function flattenStruct() {
 		s = s.replace(regex, " ");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		s = s.replace(regex, "}");
-		ctlFlatScript.innerText = s;
+		codeEditorContentSet(ctlFlatScript, s);
 		ctlFlatScript.classList.remove("invalid");
 	} catch(error) {
-		//ctlFlatScript.innerText = error.name + ": " + error.message;
-		ctlFlatScript.innerText = error.toString();
+		//codeEditorContentSet(ctlFlatScript, error.name + ": " + error.message);
+		codeEditorContentSet(ctlFlatScript, error.toString());
 		ctlStructuredScript.classList.add("invalid");
 		//ctlStructuredScript.setCustomValidity(error.toString());
 	}
@@ -160,10 +157,7 @@ function setStructuredText(s) {
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 	if(window.ctlStructuredScript) {
-		if(["INPUT", "TEXTAREA"].includes(ctlStructuredScript.tagName.toUpperCase()))
-			ctlStructuredScript.value = s;
-		else
-			ctlStructuredScript.innerText = s;
+		codeEditorContentSet(ctlStructuredScript, s);
 		saveControlPreference(ctlStructuredScript);
 	}
 	if(autoFlatten) flattenStruct();

@@ -161,13 +161,13 @@ function loadPreferences() {
 				chkLineWrap1.checked = JSON.parse(s);
 				//chkLineWrap1.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
-					ctlStructuredScript.classList.add("lineWrapping");
+					ctlStructuredScript.classList.add("line-wrap");
 				else
-					ctlStructuredScript.classList.remove("lineWrapping");
+					ctlStructuredScript.classList.remove("line-wrap");
 			}
 			s = localStorage.getItem("structuredMusic.content");
 			if(s) {
-				ctlStructuredScript.textContent = s;
+				codeEditorContentSet(ctlStructuredScript, s);
 				ctlStructuredScript.dispatchEvent(new Event("input"));
 			}
 		}
@@ -193,13 +193,13 @@ function loadPreferences() {
 				chkLineWrap2.checked = JSON.parse(s);
 				//chkLineWrap2.dispatchEvent(new Event("input"));
 				if(JSON.parse(s))
-					ctlFlatScript.classList.add("lineWrapping");
+					ctlFlatScript.classList.add("line-wrap");
 				else
-					ctlFlatScript.classList.remove("lineWrapping");
+					ctlFlatScript.classList.remove("line-wrap");
 			}
 			s = localStorage.getItem("flatScript.content");
 			if(s) {
-				ctlFlatScript.textContent = s;
+				codeEditorContentSet(ctlFlatScript, s);
 				ctlFlatScript.dispatchEvent(new Event("input"));
 			}
 		}
@@ -266,13 +266,13 @@ function savePreferences() {
 	localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked));
 	//Structured music editor
 	localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
-	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("lineWrapping")));
-	localStorage.setItem("structuredMusic.content", ctlStructuredScript.textContent);
+	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("line-wrap")));
+	localStorage.setItem("structuredMusic.content", codeEditorContentGet(ctlStructuredScript));
 	//Flattened note list
 	localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
 	localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
-	localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("lineWrapping")));
-	localStorage.setItem("flatScript.content", ctlFlatScript.textContent);
+	localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("line-wrap")));
+	localStorage.setItem("flatScript.content", codeEditorContentGet(ctlFlatScript));
 	//Overall play controls
 	localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
 	localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(playVolScale)?
@@ -450,8 +450,9 @@ function saveControlPreference(elem) {
 			localStorage.setItem(prefKey, elem.value);
 		return true;
 	}
-	if(elem.contentEditable.toUpperCase() == "TRUE" || elem.classList.contains("codeEditor")) {
-		localStorage.setItem(prefKey, elem.innerText);
+	if(elem.contentEditable.toUpperCase() == "TRUE" || elem.classList.contains("code-editor")) {
+		//localStorage.setItem(prefKey, elem.innerText);
+		localStorage.setItem(prefKey, codeEditorContentGet(elem));
 		return true;
 	}
 	console.warn("Could not save a preference: exceptional control type.");
@@ -545,10 +546,11 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("structuredMusic.content");
 
 			ctlStructuredScript.classList.remove("expanded");
-			ctlStructuredScript.classList.remove("lineWrapping");
+			ctlStructuredScript.classList.remove("line-wrap");
 			chkOverflow1.checked = false;
 			chkLineWrap1.checked = false;
-			ctlStructuredScript.textContent = defStructuredCode;
+			codeEditorContentSet(ctlStructuredScript, defStructuredCode);
+			ctlStructuredScript.classList.remove("invalid");
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetFlatScript?.checked) {
@@ -560,10 +562,11 @@ function btnResetPreferencesClick(event) {
 			chkAutoFlatten.checked = true;
 			//chkAutoFlatten.dispatchEvent(new Event("click"));
 			ctlFlatScript.classList.remove("expanded");
-			ctlFlatScript.classList.remove("lineWrapping");
+			ctlFlatScript.classList.remove("line-wrap");
 			chkOverflow2.checked = false;
 			chkLineWrap2.checked = false;
-			ctlFlatScript.textContent = defFlattenedCode;
+			codeEditorContentSet(ctlFlatScript, defFlattenedCode);
+			ctlFlatScript.classList.remove("invalid");
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
 		if(chkResetClipParams?.checked) {

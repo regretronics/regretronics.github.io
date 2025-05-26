@@ -176,6 +176,18 @@ function parseNumber(n) {
 
 	return NaN;
 }
+function codeEditorContentGet(elem) {
+	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		return elem.value;
+	else
+		return elem.textContent;
+}
+function codeEditorContentSet(elem, text) {
+	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		elem.value = text;
+	else
+		elem.textContent = text;
+}
 
 const timeDisplPrecision = 2;
 
@@ -204,8 +216,10 @@ async function initCalculations() {
 	}
 }
 function loadEventHandlers() {
-	for(const elem of document.querySelectorAll("input.exp"))
+	for(const elem of document.querySelectorAll("input.exp")) {
 		elem.addEventListener("input", expSpinnerChanged);
+		//elem.addEventListener("invalid", expSpinnerInvalid);
+	}
 
 	btnTextShrink.addEventListener("click", rescaleText);
 	btnTextEnlarge.addEventListener("click", rescaleText);
@@ -258,9 +272,10 @@ function loadEventHandlers() {
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		elem.addEventListener("input", saveInputValue);
 
-	for(const elem of document.getElementsByClassName("codeEditor")) {
+	for(const elem of document.getElementsByClassName("code-editor")) {
 		elem.addEventListener("keydown", editorKeyDown);
 		elem.addEventListener("paste", editorPaste);
+		//elem.addEventListener("input", editorChanged);
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}
@@ -288,8 +303,8 @@ function pageLoaded() {
 
 	initCalculations();
 
-	ctlStructuredScript.innerText = defStructuredCode;
-	ctlFlatScript.innerText = defFlattenedCode;
+	codeEditorContentSet(ctlStructuredScript, defStructuredCode);
+	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
 
 	new Promise((resolve, reject) => {
 	//setTimeout(() => {
@@ -383,13 +398,13 @@ function lineWrapToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	//control.classList.toggle("lineWrapping");
+	//control.classList.toggle("line-wrap");
 	if(elem.checked)
-		control.classList.add("lineWrapping");
+		control.classList.add("line-wrap");
 	else
-		control.classList.remove("lineWrapping");
+		control.classList.remove("line-wrap");
 	if(elem.dataset["pref"])
-		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("lineWrapping")));
+		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("line-wrap")));
 }
 
 //to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
@@ -397,6 +412,7 @@ function expSpinnerChanged(event) {
 	//console.log(event);
 	const elem = event.target;
 	if(!elem) return false;
+
 	//let val = elem.valueAsNumber;
 	let val = parseNumber(elem.value);
 	if(isNaN(val)) {
@@ -407,18 +423,41 @@ function expSpinnerChanged(event) {
 		elem.classList.remove("invalid");
 		elem.setCustomValidity("");
 	}
-	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
-	const min = parseFloat(elem.dataset.min);
+
+	const magnitude = Math.round(Math.log2(Math.abs(val)));
+	const stepRatio = NaNToDefault(parseFloat(elem.dataset.stepRatio), 0.25);
+	const step = stepRatio * 2 ** magnitude;
+	const dynMin = val - 2 * Math.sign(val) * step, min = parseFloat(elem.dataset.min);
 	if(min === undefined || isNaN(min)) {
 		elem.step = step;
 		//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
-		elem.min = val - 2 * Math.sign(val) * step;
+		elem.min = dynMin;
 	} else {
 		elem.step = Math.max(min, step);
-		elem.min = Math.max(min, val - 2 * Math.sign(val) * step);
+		elem.min = Math.max(min, dynMin);
 	}
+	//console.log(event, elem.checkValidity());
+	//elem.checkValidity();
 	//elem.reportValidity();
+	//elem.setCustomValidity("");
+	//if(elem.validity.stepMismatch) {
+	//if(!elem.validity.valid) {
+	/* if(!elem.checkValidity()) {
+		elem.valieAsNumber = 1;
+		elem.setCustomValidity("");
+		//elem.checkValidity();
+		//elem.reportValidity();
+	} */
 }
+/* function expSpinnerInvalid(event) {
+	console.log(event);
+	event.target.setCustomValidity("");
+	event.preventDefault();
+	event.stopImmediatePropagation();
+	event.stopPropagation();
+	//return true;
+	return false;
+} */
 /*function textInvalid(event) { //not working for input type="number"
 	event.target.setCustomValidity("");
 	event.preventDefault();
@@ -553,6 +592,10 @@ function editorInput(event) {
 	if(!event || !event.target || !event.target.classList) return false;
 	event.target.classList.remove("invalid");
 }
+function editorChanged(event) {
+	if(!event || !event.target) return false;
+	event.target.normalize();
+}
 function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	const elem = event.target;
 	if(!elem) return false;
@@ -623,7 +666,7 @@ function setToolTip(event, outToolTip) {
 		sentences.push(description);
 
 	description = elem.validationMessage;
-	if(typeof(description) === "string" && description.length > 0)
+	if(typeof(description) === "string" && description.length > 0 && (!elem?.validity || !elem?.validity?.stepMismatch))
 		sentences.push(description);
 
 	if(sentences.length > 0) {
@@ -649,11 +692,7 @@ function structDownload(event) {
 	//for the future (as of 2024-08)?: window.showSaveFilePicker()
 	if(!window.ctlStructuredScript) return false;
 	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-	let data;
-	if(["INPUT", "TEXTAREA"].includes(ctlStructuredScript.tagName.toUpperCase()))
-		data = [ctlStructuredScript.value];
-	else
-		data = [ctlStructuredScript.innerText];
+	const data = codeEditorContentGet(ctlStructuredScript);
 	let file;
 	const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 	
@@ -749,7 +788,7 @@ function addIntervalSamples() {
 		cell.id = "colSoundSample";
 		cell.scope = "col";
 		//cell.innerHTML = "Sam&shy;ple"; //Sample
-		cell.innerHTML = '<span class="langStatic" translate="no">Sam&shy;ple</span><span class="langFlex" hidden="">Sample</span>';
+		cell.innerHTML = '<span class="lang-static" translate="no">Sam&shy;ple</span><span class="lang-flex" hidden="">Sample</span>';
 		row.insertBefore(cell, row.children[4]);
 	}
 }

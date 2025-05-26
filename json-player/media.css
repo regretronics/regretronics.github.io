@@ -20,33 +20,34 @@
 			margin: 0em;
 			height: 100%;
 			/*height: 100vh;*/
-		}
-		body > .major-section {
-			box-sizing: border-box;
-			height: 100%;
-			overflow-y: auto;
-			/* padding: 2vmin; */
-			padding: max(0em, calc(7.5vmin - 8ch));
-		}
-		body > main {
-			flex-basis: 96ch;
-			flex-grow: 1;
-		}
-		body > section {
-			/*min-width: 64ch;*/
-			flex-basis: 64ch;
-			flex-grow: 0.5;
-			max-width: 144ch;
-		}
-		body > hr, body > .bg {
-			display: none;
+
+			& > .major-section {
+				box-sizing: border-box;
+				height: 100%;
+				overflow-y: auto;
+				/* padding: 2vmin; */
+				padding: max(0em, calc(7.5vmin - 8ch));
+			}
+			& > main {
+				flex-basis: 96ch;
+				flex-grow: 1;
+			}
+			& > section {
+				/*min-width: 64ch;*/
+				flex-basis: 64ch;
+				flex-grow: 0.5;
+				max-width: 144ch;
+			}
+			& > hr, & > .bg {
+				display: none;
+			}
 		}
 		#outToolTip {
 			padding-inline: 1em;
 			max-width: 100%;
 		}
 	}
-	.codeEditor {
+	.code-editor {
 		height: 12em;
 		/*resize: both;*/
 	}
@@ -59,10 +60,10 @@
 		appearance: inner-spin-button;
 		opacity: 1;
 	}*/
-	input[type=number]::-webkit-inner-spin-button, 
+	/* input[type=number]::-webkit-inner-spin-button, 
 	input[type=number]::-webkit-outer-spin-button {
 		opacity: 1;
-	}
+	} */
 
 	/*@media screen and (not (prefers-reduced-motion: reduce)) {*/
 	@media not all and (prefers-reduced-motion: reduce) {
@@ -74,9 +75,11 @@
 			transition-property: background-color, color !important;
 			transition-duration: 0.25s !important;
 		}*/ /*introduces selection color bug in null theme in desktop browsers*/
-		:root, body, input, button, textarea, select, img, a:link, a:active {
-			/*transition-property: var(--hue-accent), var(--hue-accent2);*/ /*doesn't work as of 2022*/
-			transition-property: background-color, color, accent-color, border-color, /* scrollbar-color, border-image-source, */ stop-color, filter;
+		:root, body, img, svg, a:link, a:active, table, caption, td,
+		input, button, textarea, select, label, meter, progress,
+		.buttons-area, .buttons-area *, .code-editor, .tool-tip {
+			transition-property: --hue-accent, --hue-accent2, opacity;
+			/* transition-property: background-color, color, accent-color, border-color, scrollbar-color, stop-color, opacity, filter; */
 			transition-duration: 0.25s;
 		}
 		/*button {*/
@@ -102,27 +105,29 @@
 @media print {
 	input[type=number] {
 		appearance: textfield;
-	}
-	input[type=number]::-webkit-inner-spin-button, 
-	input[type=number]::-webkit-outer-spin-button {
-		-webkit-appearance: none;
-		appearance: none;
-		display: none;
-		opacity: 0;
-	}
-	input[type=number]::inner-spin-button, 
-	input[type=number]::outer-spin-button {
-		-webkit-appearance: none;
-		appearance: none;
-		display: none;
-		opacity: 0;
+
+		&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
+		}
+		&::inner-spin-button, &::outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
+		}
 	}
 	.print-dp-none, button/*, .cell:has(input[type=checkbox])*/ {
 		display: none;
 	}
-	.codeEditor {
+	.code-editor {
 		height: unset;
 		white-space: pre-wrap;
 		resize: none;
+		textarea& {
+			field-sizing: content;
+		}
 	}
 }

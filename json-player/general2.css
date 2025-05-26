@@ -1,7 +1,23 @@
 /*general cosmetic styles*/
+@property --hue-accent {
+	syntax: "<number>"; /*makes interpolation possible*/
+	inherits: true;
+	initial-value: 120;
+}
+/* @property --hue-anim {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 0;
+} */
+/* @property --hue-scroll {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 0;
+} */
+
 :root {
-	--hue-accent: 120; /*question: include deg unit for hues? (currently never)*/
-	--hue-accent2: calc(var(--hue-accent) + 180);
+	/* --hue-accent: 120; */ /*question: include deg unit for hues? (currently never)*/
+	--hue-accent2: calc(var(--hue-accent, 120) + 180);
 	/*--img-filter1: ;*/
 	/*--img-filter1: brightness(1);*/ /*placebo*/
 	/*--img-hue-shift: 0deg;*/
@@ -57,7 +73,7 @@ code:not(.long) { /*class "long" reserved for future use*/
 button, input:not([type=radio]), select {
 	font-size: 0.85em;
 }
-.spinEdit, :not(.spinEdit) > :is(button, input:not([type=checkbox]):not([type=radio]), select) {
+.spin-edit, :not(.spin-edit) > :is(button, input:not([type=checkbox]):not([type=radio]), select) {
 	margin-block: 0.125em;
 }
 button {
@@ -67,7 +83,7 @@ button {
 	padding-inline: 0.375em;
 	border-radius: 0.25em;
 }
-button, input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, select {
+button, input:not(:is([type=checkbox], [type=radio], [type=range])), textarea:not(.code-editor), select {
 	border-width: calc(5em/32);
 
 	&:not(:active):not(:focus):not(:hover) {
@@ -77,14 +93,14 @@ button, input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, s
 input[type=number] {
 	padding-inline: 0em;
 }
-input[type=text], textarea, select {
+:is(input[type=text], textarea, select, .code-editor):not(.right) {
 	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 }
 input[type=checkbox] {
 	vertical-align: bottom;
 	margin-inline: 0em;
 }
-input[type=number], #txtRhythmFactors {
+input[type=number], :is(input, button, textarea, .code-editor).right {
 	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
 }
 input:is([type=checkbox], [type=radio]) + label {
@@ -97,13 +113,16 @@ input:is([type=checkbox], [type=radio]) + label {
 	margin-inline: 0.375ch;
 	white-space: nowrap;
 	/* text-wrap-mode: nowrap; */
-}
-/* wbr:has(+ .cell:not(:first-of-type)) {
-	border-inline-start-style: groove;
-	border-inline-start-width: 0.125em;
-} */
-.cell + .cell {
-	margin-inline-start: 0em;
+
+	.cell + & {
+		margin-inline-start: 0em;
+	}
+	/* &:not(:first-of-type)::before {
+		content: "\A0";
+		background-color: GrayText;
+	} */
+	/* wbr + & {
+	} */
 }
 .separator {
 	display: inline-block;
@@ -120,20 +139,34 @@ input:is([type=checkbox], [type=radio]) + label {
 .separator::after {
 	content: "\A0";
 }
-/* .cell:not(:first-of-type)::before {
-	content: "\A0";
-	background-color: GrayText;
-} */
-/* wbr + .cell {
+/* wbr:has(+ .cell:not(:first-of-type)) {
+	border-inline-start-style: groove;
+	border-inline-start-width: 0.125em;
 } */
 /* wbr:has(+ .cell) {
 	display: contents;
 	margin-inline-start: 0.1875em;
 } */
+
+/* :focus-visible {
+	outline-offset: 0.125em;
+} */
+/* #ctlStructuredScript:empty::after, #ctlStructuredScript:has(> br:only-child)::after { */
+#ctlStructuredScript:empty::before, #ctlStructuredScript:has(> br:only-child)::before {
+	content: '{"property": 123}';
+	opacity: 0.5;
+	/* display: block;
+	justify-self: center; */
+	/* text-align: center; */
+	/* vertical-align: middle; */
+}
+#ctlFlatScript:empty::before, #ctlFlatScript:has(> br:only-child)::before {
+	content: '[{"property": 123}]';
+	opacity: 0.5;
+}
 #outAudioT {
 	display: inline-block;
 	min-width: 6ch;
-	text-align: right;
 }
 .tool-tip {
 	font-style: italic;
@@ -148,11 +181,11 @@ input:is([type=checkbox], [type=radio]) + label {
 
 	background-color: canvas;
 }
-code, .codeEditor {
+code, .code-editor {
 	font-size: 0.8em;
 }
 
-img:not(.trueColors) { /*class "trueColors" reserved for future use*/
+img:not(.true-colors) { /*class "true-colors" reserved for future use*/
 	/*filter: var(--img-filter, none);*/
 	/*filter: hue-rotate(var(--img-hue-shift, 0deg));*/
 	filter: var(--img-filter1, ) hue-rotate(var(--img-hue-shift, 0deg));
@@ -165,10 +198,11 @@ svg g {
 }
 td {
 	padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em);
-}
-/* td:has(.interval-sample) { */ /*:has not supported in Firefox 114*/
-td.sample-cell {
-	padding: 0em;
-	text-align: center;
-	cursor: pointer;
+
+	/* &:has(.interval-sample) { */
+	&.sample-cell {
+		padding: 0em;
+		text-align: center;
+		cursor: pointer;
+	}
 }

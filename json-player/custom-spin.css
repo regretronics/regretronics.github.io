@@ -1,4 +1,4 @@
-.spinEdit {
+.spin-edit {
 	display: inline-flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
@@ -16,96 +16,100 @@
 	border-start-end-radius: 0.125em;
 	border-end-end-radius: 0.125em;
 	/* clip-path: border-box; */
-}
-.spinEdit > :first-child {
-	border-start-start-radius: inherit;
-	border-end-start-radius: inherit;
-	@media screen {
-		border-start-end-radius: 0em;
-		border-end-end-radius: 0em;
+
+	& > :first-child {
+		border-start-start-radius: inherit;
+		border-end-start-radius: inherit;
+		@media screen {
+			border-start-end-radius: 0em;
+			border-end-end-radius: 0em;
+		}
+		@media print {
+			border-start-end-radius: inherit;
+			border-end-end-radius: inherit;
+		}
 	}
-	@media print {
+	& > :last-child, & > :last-child > :last-child {
 		border-start-end-radius: inherit;
 		border-end-end-radius: inherit;
 	}
-}
-.spinEdit > :last-child, .spinEdit > :last-child > :last-child {
-	border-start-end-radius: inherit;
-	border-end-end-radius: inherit;
-}
 
-.spinEdit input:first-of-type {
-	box-sizing: border-box;
-	/* border-style: solid; */
+	input:first-of-type {
+		box-sizing: border-box;
+		/* border-style: solid; */
 
-	text-align: right;
-	/* vertical-align: text-bottom; */
-	z-index: 1;
-}
-/* .spinEdit > input:first-of-type {
-	flex-basis: ;
-	vertical-align: text-top;
-} */
-
-.spinEdit:has(.buttonsArea) input:first-of-type {
-	appearance: textfield;
-
-	&::inner-spin-button, &::outer-spin-button {
-		-webkit-appearance: none;
-		appearance: none;
-		display: none;
-		opacity: 0;
+		text-align: right;
+		/* vertical-align: text-bottom; */
+		z-index: 1;
 	}
-	&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
-		-webkit-appearance: none;
-		appearance: none;
-		display: none;
-		opacity: 0;
-	}
-}
+	/* & > input:first-of-type {
+		flex-basis: ;
+		vertical-align: text-top;
+	} */
 
-.spinEdit .buttonsArea {
-	background-color: ButtonFace;
-	color: ButtonText;
-	/* background-color: Canvas;
-	color: CanvasText; */
-	opacity: 0.8;
+	&:has(.buttons-area) input:first-of-type {
+		appearance: textfield;
+	
+		&::inner-spin-button, &::outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
+		}
+		&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
+		}
+	}
 
-	user-select: none;
-	flex-basis: content;
-	flex-shrink: 0.25;
-	text-align: center;
-
-	@media screen {
-		display: flex;
-	}
-	@media print {
-		display: none;
-	}
-	flex-direction: row;
-	flex-wrap: nowrap; /* ? */
-	/* z-index: -1; */
-
-	&:active {
-		background-color: SelectedItem;
-		color: SelectedItemText;
-	}
-	& > * {
-		touch-action: none;
-		width: 1em;
-		/* flex-basis: 1em; */
-		/* flex-basis: auto; */
-		flex-grow: 1;
-		/* display: inline-block; */
-		align-content: center;
-	}
-	& > *:hover, & > *:active, & > *.hover {
-		background-color: CanvasText;
-		color: Canvas;
-		opacity: 1;
-	}
-	& > *:active {
-		/* box-shadow: 0 0 0.25em CanvasText; */
-		box-shadow: 0 0 0.25em 0.125em CanvasText;
+	.buttons-area {
+		background-color: ButtonFace;
+		color: ButtonText;
+		/* background-color: Canvas;
+		color: CanvasText; */
+		opacity: 0.8;
+	
+		user-select: none;
+		flex-basis: content;
+		flex-shrink: 0.25;
+		text-align: center;
+	
+		@media screen {
+			display: flex;
+		}
+		@media print {
+			display: none;
+		}
+		flex-direction: row;
+		flex-wrap: nowrap; /* ? */
+		/* z-index: -1; */
+	
+		& > * {
+			touch-action: none;
+			width: 1em;
+			/* flex-basis: 1em; */
+			/* flex-basis: auto; */
+			flex-grow: 1;
+			/* display: inline-block; */
+			align-content: center;
+	
+			&:hover/* , &:active */, &.hover {
+				background-color: CanvasText;
+				color: Canvas;
+				opacity: 1;
+			}
+		}
+		&:active, &.active, &:has(:active) {
+			background-color: SelectedItem;
+			color: SelectedItemText;
+		
+			& > *:hover, & > *.hover {
+				/* box-shadow: 0 0 0.25em CanvasText; */
+				box-shadow: 0 0 0.25em 0.125em CanvasText; /*question: restrict glow effect for cosmetic layers only? (currently no)*/
+			}
+		}
+		/* & > *:active { */
 	}
 }

@@ -473,7 +473,7 @@ function audioTimer(clip) {
 	//to do: allow skipping/fast forward/rewind?
 }
 
-//loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.innerText.
+//loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.
 function loadNewClip() {
 	if(!window.ctlFlatScript) return false;
 	if(playFreqScale == 0) return false;
@@ -486,7 +486,7 @@ function loadNewClip() {
 
 	let flatStruct;
 	try {
-		flatStruct = JSON.parse(ctlFlatScript.innerText);
+		flatStruct = JSON.parse(codeEditorContentGet(ctlFlatScript));
 	} catch(error) {
 		ctlFlatScript.classList.add("invalid");
 		ctlFlatScript.title = error.message;
