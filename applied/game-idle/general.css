@@ -120,11 +120,12 @@ summary:has(.marker) {
 
 	user-select: none;
 	color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
-}
-.marker::after {
-	/* content: "▸"; */
-	content: "▶";
-	/* content: "►"; */
+
+	&::after {
+		/* content: "▸"; */
+		content: "▶";
+		/* content: "►"; */
+	}
 }
 /* details[open] > summary:first-of-type::marker {
 	content: "x";
@@ -244,10 +245,11 @@ input:is([type=button], [type=submit], [type=reset]), button {
 
 	&:empty, &.stalled {
 		color: oklch(0.5 0.0625 var(--hue1-ang, 0deg));
-	}
-	&:empty::before, &.stalled::before {
-		font-variant: small-caps;
-		content: "uhm... Loading? ";
+
+		&::before {
+			font-variant: small-caps;
+			content: "uhm... Loading? ";
+		}
 	}
 }
 #wpRndInfoCard > .title-item > ul {
@@ -303,26 +305,28 @@ input:is([type=button], [type=submit], [type=reset]), button {
 		opacity: 0.8;
 		text-shadow: 0 0 0.125em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg) / 1);
 	}
+	.marker {
+		color: revert;
+		opacity: 0.6;
+	}
 	details[open] {
 		background-color: oklch(0.875 0.0625 var(--hue1-ang, 0deg) / 0.25);
 	
 		outline-style: solid;
 		outline-width: 0.25em;
 		outline-color: oklch(0.5 0.0625 var(--hue1-ang, 0deg) / 0.375);
-	}
-	details[open] > summary:first-of-type {
-		/* text-shadow: 0 0 0.5em oklch(0.875 0.0625 var(--hue1-ang, 0deg)); */
-		text-shadow:
-			0 0 0.125em oklch(0.0 0.0625 var(--hue1-ang, 0deg) / 1),
-			0 0 0.5em oklch(0.0 0.0625 var(--hue1-ang, 0deg) / 1);
-	}
-	.marker {
-		color: revert;
-		opacity: 0.6;
-	}
-	details[open] > summary:first-of-type > .marker {
-		color: revert;
-		opacity: 0.9;
+
+		& > summary:first-of-type {
+			/* text-shadow: 0 0 0.5em oklch(0.875 0.0625 var(--hue1-ang, 0deg)); */
+			text-shadow:
+				0 0 0.125em oklch(0.0 0.0625 var(--hue1-ang, 0deg) / 1),
+				0 0 0.5em oklch(0.0 0.0625 var(--hue1-ang, 0deg) / 1);
+
+				& > .marker {
+					color: revert;
+					opacity: 0.9;
+				}
+		}
 	}
 	input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, button, select {
 		border-width: 0em;
