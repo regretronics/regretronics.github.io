@@ -17,7 +17,7 @@
 				--t: 79900;
 			} */
 			to {
-				--t: var(--dur);
+				--t: var(--dur); /*var() here doesn't work in Firefox*/
 				/* --t: calc(80000 + var(--dur)); */
 				/* --t: calc(4 * var(--dur)); */
 			}
