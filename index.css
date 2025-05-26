@@ -6,7 +6,7 @@
 	color-scheme: dark;
 	/* background-color: Canvas;
 	color: CanvasText; */
-	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
+	background-color: oklch(0.125 0.015625 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
 }
@@ -28,6 +28,9 @@ h1 {
 	/* text-align: center; */
 	color: oklch(0.875 0.1875 var(--hue1-ang, 0deg) / 0.85);
 
+	hr + &, &:first-child {
+		margin-block-start: 0.25em;
+	}
 	&:has(+ p.sub) {
 		margin-block-end: 0.25em;
 	}

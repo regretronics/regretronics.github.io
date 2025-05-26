@@ -49,6 +49,9 @@ h1 {
 	text-align: center;
 	color: oklch(0.875 0.125 var(--hue1-ang, 0deg));
 
+	hr + &, &:first-child {
+		margin-block-start: 0.5em;
+	}
 	& small {
 		font-size: 0.6em;
 		font-variant: small-caps;
