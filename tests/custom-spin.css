@@ -1,0 +1,85 @@
+.spinEdit {
+	display: inline-flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+
+	/* height: 1em; */
+	/* width: auto; */
+	/* text-wrap: nowrap; */
+
+	background-color: dimgray;
+	border-start-start-radius: 0.375em;
+	border-end-start-radius: 0.375em;
+	border-start-end-radius: 0.25em;
+	border-end-end-radius: 0.25em;
+	clip-path: border-box;
+
+	& > :first-child {
+		border-start-start-radius: inherit;
+		border-end-start-radius: inherit;
+	}
+	& > :last-child, .spinEdit > :last-child > :last-child {
+		border-start-end-radius: inherit;
+		border-end-end-radius: inherit;
+	}
+
+	input:first-of-type {
+		box-sizing: border-box;
+		/* border-style: solid; */
+	
+		width: 100%;
+		height: 100%;
+		text-align: right;
+		/* vertical-align: text-bottom; */
+	}
+	& > input:first-of-type {
+		/* flex-shrink: 1;
+		flex-basis: auto; */
+		/* flex-basis: content; */
+		vertical-align: text-top;
+	}
+
+	&:has(.buttonsArea) input:first-of-type {
+		appearance: textfield;
+
+		::inner-spin-button, ::outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
+		}
+		::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			display: none;
+			opacity: 0;
+		}
+	}
+	
+	.buttonsArea {
+		user-select: none;
+		flex-basis: content;
+		flex-shrink: 0.25;
+		text-align: center;
+	
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap; /* ? */
+	
+		& > * {
+			touch-action: none;
+			width: 1em;
+			/* flex-basis: 1em; */
+			/* flex-basis: auto; */
+			flex-grow: 1;
+			/* display: inline-block; */
+		}
+		& > *:hover, & > *.hover {
+			background-color: canvastext;
+			color: canvas;
+		}
+		&:active {
+			background-color: darkgray;
+		}
+	}
+}
