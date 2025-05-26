@@ -1,4 +1,4 @@
-.spinEdit {
+.spin-edit {
 	display: inline-flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
@@ -18,7 +18,7 @@
 		border-start-start-radius: inherit;
 		border-end-start-radius: inherit;
 	}
-	& > :last-child, .spinEdit > :last-child > :last-child {
+	& > :last-child, .spin-edit > :last-child > :last-child {
 		border-start-end-radius: inherit;
 		border-end-end-radius: inherit;
 	}
@@ -39,7 +39,7 @@
 		vertical-align: text-top;
 	}
 
-	&:has(.buttonsArea) input:first-of-type {
+	&:has(.buttons-area) input:first-of-type {
 		appearance: textfield;
 
 		::inner-spin-button, ::outer-spin-button {
@@ -56,7 +56,7 @@
 		}
 	}
 	
-	.buttonsArea {
+	.buttons-area {
 		user-select: none;
 		flex-basis: content;
 		flex-shrink: 0.25;

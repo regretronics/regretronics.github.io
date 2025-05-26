@@ -4,7 +4,7 @@ const spinInterval = 250; //milliseconds.
 function spinEditTimer(spinEdit, pointerId) {
 	//console.log("spinEditTimer", spinEdit, pointerId);
 	if(!spinEdit) return;
-	const buttonsArea = spinEdit.querySelector(".buttonsArea");
+	const buttonsArea = spinEdit.querySelector(".buttons-area");
 	if(!buttonsArea) return;
 	buttonsArea.deltaTimer = 0;
 	//if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) return;
@@ -24,13 +24,13 @@ function spinEditTimer(spinEdit, pointerId) {
 
 	const txtControl = spinEdit.querySelector("input");
 	if(buttonsArea.hoverElem) {
-		if(buttonsArea.hoverElem.classList.contains("btnDec")) {
+		if(buttonsArea.hoverElem.classList.contains("btn-dec")) {
 			//if(txtControl) txtControl.valueAsNumber -= txtControl.step;
 			if(txtControl)
 				for(let i = 0; i < iterations; i++)
 					txtControl.stepDown();
 			buttonsArea.currentDelta--;
-		} else if(buttonsArea.hoverElem.classList.contains("btnInc")) {
+		} else if(buttonsArea.hoverElem.classList.contains("btn-inc")) {
 			//if(txtControl) txtControl.valueAsNumber += txtControl.step;
 			if(txtControl)
 				for(let i = 0; i < iterations; i++)
@@ -45,7 +45,7 @@ function spinEditTimer(spinEdit, pointerId) {
 
 function spinEditPointerDown(event) {
 	if(!event?.target) return;
-	const buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttonsArea") ?
+	const buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttons-area") ?
 	if(!buttonsArea) return;
 
 	buttonsArea.lastPointerEvent = event;
@@ -130,35 +130,35 @@ function spinEditTouchCancel(event) {
 } */
 
 function initSpinControls() {
-	for(const txtControl of document.querySelectorAll(".customSpin")) {
+	for(const txtControl of document.querySelectorAll(".custom-spin")) {
 		if(!txtControl) continue;
 		if(txtControl.step === "") txtControl.step = 1;
-		let spinEdit = txtControl.closest(".spinEdit");
+		let spinEdit = txtControl.closest(".spin-edit");
 		if(!spinEdit) {
 			spinEdit = document.createElement("span");
-			spinEdit.classList.add("spinEdit");
+			spinEdit.classList.add("spin-edit");
 			txtControl.parentElement.insertBefore(spinEdit, null);
 			spinEdit.insertBefore(txtControl, null);
 		}
 
-		let buttonsArea = spinEdit.querySelector(".buttonsArea");
+		let buttonsArea = spinEdit.querySelector(".buttons-area");
 		if(!buttonsArea) {
 			buttonsArea = document.createElement("span");
-			buttonsArea.classList.add("buttonsArea");
+			buttonsArea.classList.add("buttons-area");
 			spinEdit.insertBefore(buttonsArea, null);
 		}
 
-		let btnDec = spinEdit.querySelector(".btnDec");
+		let btnDec = spinEdit.querySelector(".btn-dec");
 		if(!btnDec) {
 			btnDec = document.createElement("span");
-			btnDec.classList.add("btnDec");
+			btnDec.classList.add("btn-dec");
 			btnDec.innerHTML = "&minus;";
 			buttonsArea.insertBefore(btnDec, null);
 		}
-		let btnInc = spinEdit.querySelector(".btnInc");
+		let btnInc = spinEdit.querySelector(".btn-inc");
 		if(!btnInc) {
 			let btnInc = document.createElement("span");
-			btnInc.classList.add("btnInc");
+			btnInc.classList.add("btn-inc");
 			btnInc.innerHTML = "&plus;";
 			buttonsArea.insertBefore(btnInc, null);
 		}

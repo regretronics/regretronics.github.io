@@ -34,7 +34,7 @@
 	#txtTest2 {
 		width: 10ch;
 	}
-	.spinEdit:has(.buttonsArea) {
+	.spin-edit:has(.buttons-area) {
 		#txtTest1 {
 			width: 4ch;
 		}
@@ -43,7 +43,7 @@
 		}
 	}
 
-	p > input[type=number]:not(.customSpin) {
+	p > input[type=number]:not(.custom-spin) {
 		appearance: textfield;
 
 		::inner-spin-button, ::outer-spin-button {
@@ -84,11 +84,11 @@
 	<p><input type="text" inputmode="numeric" pattern="\d*" value="0" /></p>
 
 	<p>
-		<span class="spinEdit"><input type="number" id="txtTest1" value="0" class="customSpin" /></span>
+		<span class="spin-edit"><input type="number" id="txtTest1" value="0" class="custom-spin" /></span>
 		<output id="outPressure">0</output>
 	</p>
 	<p>
-		<input type="number" id="txtTest2" value="0" class="customSpin" />
+		<input type="number" id="txtTest2" value="0" class="custom-spin" />
 	</p>
 </body>
 </html>
