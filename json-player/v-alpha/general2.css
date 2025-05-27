@@ -173,7 +173,7 @@ input:is([type=checkbox], [type=radio]) + label {
 			opacity: 0.5;
 		}
 	}
-)
+}
 #outAudioT {
 	display: inline-block;
 	min-width: 6ch;
