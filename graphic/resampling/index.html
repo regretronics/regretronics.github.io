@@ -348,7 +348,7 @@
 			cbxOutputScale.disabled = true;
 		}
 	}
-	function pageLoad() {
+	function pageLoaded() {
 		for(let s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 
@@ -372,7 +372,11 @@
 		btnResample.addEventListener("click", upscaleImage);
 	}
 
-	window.addEventListener("DOMContentLoaded", pageLoad);
+	//window.addEventListener("DOMContentLoaded", pageLoaded);
+	if(document.readyState === "loading")
+		document.addEventListener("DOMContentLoaded", pageLoaded);
+	else //DOMContentLoaded has already fired
+		pageLoaded();
 	window.addEventListener("load", pageReady);
 	/*]]>*/</script>
 	<!-- <link rel="prefetch" href="images-240px/Gabel_--_2021_--_7220_240_160.png" as="image" type="image/png" /> -->
