@@ -12,7 +12,7 @@
 	}
 }
 :root {
-	--hue-phase: 41deg; /*red = ~41deg*/
+	--hue-phase: 25deg; /*red = ~25deg*/
 	--hue1-ang: 0deg;
 	--hue1-ang: calc(60deg * var(--hue1, 0) + var(--hue-phase, 0deg));
 
@@ -20,7 +20,6 @@
 	font-size: calc(var(--page-scale, 1) * 1em);
 
 	color-scheme: dark;
-
 	background-color: oklch(0.125 0.0625 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));

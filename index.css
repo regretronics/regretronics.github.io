@@ -1,5 +1,5 @@
 :root {
-	--hue1-ang: 71deg;
+	--hue1-ang: 55deg;
 
 	font-size: 1.5em;
 
@@ -40,16 +40,16 @@ h1 {
 }
 
 a:link {
-	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg));
+	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 a:visited {
-	color: oklch(0.75 0.0625 calc(var(--hue1-ang, 0deg) - 30deg));
+	color: oklch(0.75 0.0625 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 a:hover {
-	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg));
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 a:active, a:focus {
-	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg));
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 
 p, ul, ol {

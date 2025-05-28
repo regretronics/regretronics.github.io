@@ -158,7 +158,7 @@ input:is([type=checkbox], [type=radio]) + label {
 /* #ctlStructuredScript:empty::after, #ctlStructuredScript:has(> br:only-child)::after { */
 :empty, :has(> br:only-child) {
 	#ctlStructuredScript& {
-		&::before{
+		&::before {
 			content: '{"property": 123}';
 			opacity: 0.5;
 			/* display: block;
@@ -168,7 +168,7 @@ input:is([type=checkbox], [type=radio]) + label {
 		}
 	}
 	#ctlFlatScript& {
-		&::before{
+		&::before {
 			content: '[{"property": 123}]';
 			opacity: 0.5;
 		}
