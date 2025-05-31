@@ -32,7 +32,11 @@
 					from="0" to="4"
 					dur="4s" repeatCount="indefinite" />
 			</feOffset>
-			<feComposite in="off1" in2="off2" result="offSum" operator="lighter" width="1" height="1" color-interpolation-filters="sRGB" />
+			<!-- <feComposite in="off1" in2="off2" result="offSum" operator="lighter" width="1" height="1" color-interpolation-filters="sRGB" /> -->
+			<feMerge color-interpolation-filters="sRGB">
+				<feMergeNode in="off1" />
+				<feMergeNode in="off2" />
+			</feMerge>
 			<feColorMatrix result="noiseRG" type="matrix" values="
 				1 0 0 0 0
 				0 0.5 0 0 0.25
