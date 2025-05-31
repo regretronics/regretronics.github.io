@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS/SVG experiment: 3-d walls.</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			color-scheme: dark;
+			background-color: Canvas;
+			color: CanvasText;
+			font-size: 3em;
+
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			display: flex;
+		}
+		body {
+			/* width: 100vmin;
+			height: 100vmin; */
+			width: 4in;
+			height: 4in;
+			overflow: hidden;
+			margin: auto;
+
+			scale: tan(atan2(100vmin, 4in));
+			perspective: 1in;
+
+			display: flex;
+			flex-wrap: nowrap;
+			align-items: center;
+			justify-content: center;
+		}
+		#svgDefs {
+			display: none;
+		}
+		div {
+			transform-style: preserve-3d;
+			display: contents;
+		}
+		.wall {
+			position: absolute;
+			/* width: 1in; */
+			height: 1in;
+			/* width: 50%;
+			height: 50%; */
+
+			/*prism: square*/
+			/* rotate: z calc(0.25turn * (sibling-index() - 1));
+			transform: translateY(-0.5in) rotateX(0.25turn); */
+			--sides: 4;
+			width: calc(1in * tan(0.5turn / var(--sides)));
+			rotate: z calc(1turn * (sibling-index() - 1) / var(--sides));
+			transform: translateY(-0.5in) rotateX(0.25turn);
+
+			/* background-color: gray; */
+			opacity: 0.75;
+
+			/* :nth-child(1 of &) {
+			} */
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<svg id="svgDefs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
+		<defs>
+			<filter id="noiseStill" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+			<!-- <filter id="noiseStill" filterUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse"> -->
+				<feTurbulence
+					type="fractalNoise"
+					baseFrequency="2"
+					numOctaves="1"
+					stitchTiles="stitch"
+					color-interpolation-filters="sRGB">
+				</feTurbulence>
+				<feColorMatrix result="noise_0" type="matrix" values="
+					1 0 0 0 0
+					0 1 0 0 0
+					0 0 1 0 0
+					0 0 0 0 1"
+					color-interpolation-filters="sRGB" />
+			</filter>
+			<!-- <rect id="wall1" x="0" y="0" width="1" height="1" filter="url(#noiseStill)" /> -->
+			<rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
+		</defs>
+	</svg>
+	<div class="tube">
+		<svg class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
+		<svg class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
+		<svg class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
+		<svg class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
+	</div>
+</body>
+</html>
