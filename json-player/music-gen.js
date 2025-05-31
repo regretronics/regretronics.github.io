@@ -16,7 +16,7 @@ function renormalizeOctave(refFreq, targetFreq) {
 }
 //makes a simple interval by introducing a random prime factor up or down one unit
 //to do: reuse this in melodySubNodes? (probably not)
-function addInterval(refFreq, targetFreq) {
+function addInterval(refFreq, targetFreq, primeCount) {
 	//question: weighted random on factor selection? (currently yes)
 	//const iPrime = Math.floor(primeCount * Math.random());
 	const iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
@@ -38,7 +38,7 @@ function addInterval(refFreq, targetFreq) {
 
 	//to do: limitFreq?
 }
-function newChord(voiceCount, polyphony) {
+function newChord(voiceCount, polyphony, primeCount) {
 	const chordStruct = {
 		0: {freq: {}}
 	};
@@ -56,7 +56,7 @@ function newChord(voiceCount, polyphony) {
 			while(true) { //duplicate prevention
 				note.freq = {};
 				//each note is based on a random previous note
-				addInterval(chordStruct[Math.floor(i * Math.random())].freq, note.freq);
+				addInterval(chordStruct[Math.floor(i * Math.random())].freq, note.freq, primeCount);
 				newPitch = parseNumber(note.freq);
 				if(!(pitches.indexOf(newPitch) >= 0)) break; //to do: possibly subject to rounding errors
 			}
@@ -87,7 +87,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
 	};
 
 	for(let i = 0; i < patCount; i++) {
-		rootStruct[i] = newChord(voiceCount, polyphony);
+		rootStruct[i] = newChord(voiceCount, polyphony, primeCount);
 		//to do: chord comparison to avoid duplicates?
 		//rootStruct[i].timeDelta = i * voiceCount;
 		rootStruct[i].timeDelta = i.toString() + "*" + (voiceCount - 1 + polyphony).toString(); //in this case, the last note extra time = polyphony
@@ -97,13 +97,13 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
 }
 
 //rhythm structure generator
-function makeRhythmFactors(rhythmScale) {
+function makeRhythmFactors(rhythmScale, primeCount) {
 	if(primeCount < 1) return false;
 	const rhythmFactors = [];
 	let scale = Math.abs(NaNToDefault(rhythmScale, 4));
 	//builds a (random) product of prime factors
 	//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
-	for(let i = primeCount - 1, factor, y; i >= 0; i--) {
+	for(let i = Math.floor(primeCount) - 1, factor, y; i >= 0; i--) {
 		factor = primes[i];
 		if(factor > scale) continue; //ignore primes that are too large
 		const maxExp = Math.log2(scale) / Math.log2(factor);
@@ -271,7 +271,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 //the melody generator also presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
 //done: option for rhythm pattern in both rhythm and melody generator
-function melodySubNodes(struct, level, tuning) {
+function melodySubNodes(struct, level, tuning, primeCount) {
 	if(level >= rhythmFactors.length) return false;
 	const beats = rhythmFactors[level - 1];
 	const scale = rhythmFactorsAccum[level];
@@ -327,7 +327,7 @@ function melodySubNodes(struct, level, tuning) {
 			//iPrime = Math.floor(primeCount * rnd ** level);
 			iPrime = Math.floor((primeCount - 0.5) * rnd ** (0.5 * Math.max(altLevel + 1, 1)) + 0.5);
 
-			//const factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[primeCount - 1]); //1 - rnd is to avoid division by zero
+			//const factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[Math.ceil(primeCount) - 1]); //1 - rnd is to avoid division by zero
 			//for(iPrime = 0; primes[iPrime + 1] <= factor; iPrime++) {}
 		}
 		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
@@ -353,7 +353,7 @@ function melodySubNodes(struct, level, tuning) {
 		//if(i === 0) newNode.freq[2]++; //first beat -> new voice level -> one octave up
 		limitFreq(tuning, newNode.freq); //not THAT high
 
-		melodySubNodes(newNode, level + 1, tuning);
+		melodySubNodes(newNode, level + 1, tuning, primeCount);
 	}
 }
 //to do: pattern variations
@@ -404,7 +404,7 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 			//to do: what is the best register (frequency range) for percussion?
 			//volRatio: 1,
 			volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
-			
+
 			duration: rhythmFactorsAccum[0],
 			timbre: "noise",
 			decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
@@ -412,7 +412,7 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 		rhythmSubNodes(percussivePattern, 1, 2 ** freqDummy[2] * tuning);
 		rootStruct["percussion"] = percussivePattern;
 	}
-	
+
 	//make various patterns of notes
 	for(let i = 0; i < patCount; i++) {
 		const pattern = {
@@ -435,9 +435,9 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 		//multiply the primes and balance factor 2 (octave normalization)
 		pattern.freq[2] = - Math.round(Math.log2(product));
 		limitFreq(rootStruct.freqRatio, pattern.freq);
-		
-		melodySubNodes(pattern, 1, parseNumber(rootStruct.freqRatio));
-		
+
+		melodySubNodes(pattern, 1, parseNumber(rootStruct.freqRatio), primeCount);
+
 		//rootStruct[i] = pattern;
 		rootStruct["pat" + i.toString()] = pattern;
 	}

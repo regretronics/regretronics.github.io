@@ -2,11 +2,6 @@
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
 /* @keyframes anim-hue {
 	0% { --hue-accent: 0.0; }
-	16.66667% { --hue-accent: 60.0; }
-	33.33333% { --hue-accent: 120.0; }
-	50% { --hue-accent: 180.0; }
-	66.66667% { --hue-accent: 240.0; }
-	83.33333% { --hue-accent: 300.0; }
 	100% { --hue-accent: 360.0; }
 } */
 :root {
