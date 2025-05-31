@@ -330,7 +330,7 @@
 							<td translate="no">2<sup>1</sup></td>
 							<td translate="no">12.000</td>
 							<td>(Perfect) octave</td>
-							<td headers="colNotes">So consonant it can be hard to tell the notes apart, depending on the instrument.</td>
+							<td headers="colNotes">So consonant it can be hard to tell the notes apart (when played <a href="https://en.wikipedia.org/wiki/Interval_(music)#Melodic_and_harmonic">harmonically</a>), depending on the instrument.</td>
 						</tr>
 						<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
 						<tr title="Just perfect fifth">
@@ -583,7 +583,7 @@
 				Their order can be arbitrary; the indices don't tell anything about note time. 
 				Not all blocks are notes, but all notes can also work as blocks; the presence of <code>noteStart</code>, <code>duration</code>, <code>freq</code> and/or <code>vol</code> properties define a note. 
 				You can observe about proper usage of the format by using the generators; otherwise, we suggest using a code editor for increased productivity. 
-				Currently there is no special circular reference prevention, so circular references may freeze parsing.</p>
+				Currently there is no circular reference checking or prevention, so a circular reference freezes parsing and the page.</p>
 			<hr />
 			<p>Block properties are (all inheritable except <code>remark</code>):</p>
 			<dl>

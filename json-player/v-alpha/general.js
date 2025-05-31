@@ -198,7 +198,7 @@ const releaseCurveSize = 8192;
 //variability per prime factor (2, 3, 5, 7, ...); array of numbers.
 var maxPitches = null;
 
-async function initCalculations() {
+async function initialCalculations() {
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 	//question: too simple? should it depend on primeCount?
 	maxPitches = new Array(primes.length);
@@ -301,7 +301,7 @@ function pageLoaded() {
 	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 
-	initCalculations();
+	initialCalculations();
 
 	codeEditorContentSet(ctlStructuredScript, defStructuredCode);
 	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
@@ -482,7 +482,7 @@ function rhythmAccumUpdate() {
 }
 
 function btnRhythmFactorsGenClick(event) {
-	rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value));
+	rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), primeCount);
 	if(window.txtRhythmFactors) {
 		txtRhythmFactors.value = rhythmFactors.join("*");
 		txtRhythmFactors.dispatchEvent(new Event("input"));
