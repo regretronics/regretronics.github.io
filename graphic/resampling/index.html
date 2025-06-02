@@ -58,7 +58,7 @@
 
 	//Upscaling parameters
 	var defV = 0.5; //Default color intensity for off-screen areas (0.5 = gray).
-	var dist = 3, distInv = 1 / dist; //Non-linear distortion
+	var dist = 1, distInv = 1 / dist; //Non-linear distortion
 	var dBlur = -0.25; //Influence among neighboring variations
 	var deltaScale = 4 / 16; //Sharpness
 	/*]]>*/</script>
@@ -138,7 +138,7 @@
 		<canvas id="cnvSource" hidden="true"></canvas>
 	</p>
 
-	<p>Upscaling parameters:
+	<p>Upscaling parameters: 
 		<label for="txtDistortion">distortion exponent</label> <input id="txtDistortion" type="number" value="1" min="0" step="0.5" />, 
 		<label for="txtDBlur">neigh. diff. influence</label> <input id="txtDBlur" type="number" value="-0.25" step="0.125" />, 
 		<label for="txtDeltaScale">sharpness coef.</label> <input id="txtDeltaScale" type="number" value="0.25" min="0" step="0.0625" />. 
@@ -201,7 +201,7 @@
 		<input type="checkbox" id="chkOutputShrink" data-image="cnvOutput" /><label for="chkOutputShrink">Shrink to fit.</label>
 	</p>
 	<p class="imageContainer"><canvas id="cnvOutput" width="384" height="256">
-		If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.
+		(Resampled image placeholder.) If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.
 	</canvas></p>
 	
 	<p>Upscaling time: <output id="outFrameRenderT">0</output> ms.</p>
