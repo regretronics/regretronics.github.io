@@ -7,16 +7,15 @@
 	<style type="text/css">
 	/*<![CDATA[*/
 	:root {
-		background-color: revert !important; /*Dark Reader workaround*/
-	}
-	body {
+		color-scheme: dark;
 		/* background-color: hsl(120, 25%, 12.5%); */
 		/* color: hsl(120, 0%, 87.5%); */
 		background-color: canvas;
 		color: canvastext;
-		color-scheme: dark;
-		/* margin: 0px; */
 	}
+	/* body {
+		margin: 0px;
+	} */
 	#mainCanvas {
 		max-width: 100%;
 		object-fit: contain;
@@ -91,7 +90,9 @@
 		"ArrowDown": {action: () => {cy += scale * posInc;}},
 
 		"ShiftLeft": {action: () => {scale /= scaleStep;}},
+		"ShiftRight": {action: () => {scale /= scaleStep;}},
 		"ControlLeft": {action: () => {scale *= scaleStep;}},
+		"ControlRight": {action: () => {scale *= scaleStep;}},
 	};
 	function navKeyDown(event) {
 		//console.log(event);
@@ -125,7 +126,7 @@
 </head>
 <body>
 	<canvas id="mainCanvas" width="512" height="512">
-		If you are reading this through a user agent, it does not support HTML Canvas. This page can't work without Canvas.
+		(Rendering placeholder.) If you are reading this through a user agent, it does not support HTML Canvas. This page can't work without Canvas.
 	</canvas>
 	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="512" step="4" list="resList" />, 
 	<label for="txtResH">height</label> <input id="txtResH" type="number" value="512" step="4" list="resList" />.
@@ -171,6 +172,10 @@
 	</p>
 	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
 	<p>Frame render time: <output id="outFrameRenderT">0</output> ms, avg <output id="outFrameRenderTAvg">0</output> ms. <output id="outFrameCount">0</output> frame(s) generated.</p>
-	<p>This page is a raster graphical test, requiring HTML Canvas to work. It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer. This page automatically starts an update cycle 1 second after loading, to ease performance testing.</p>
+	<p>This page is a raster graphical test, requiring HTML Canvas to work. 
+		It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer. 
+		This page automatically starts an update cycle 1 second after loading, to ease performance testing. 
+		Use the arrow keys or the WASD keys to translate, Shift to zoom in, Ctrl to zoom out.
+	</p>
 </body>
 </html>
