@@ -16,12 +16,22 @@
 		overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 	}
 
+	h1 {
+		margin-block-start: 0;
+	}
 	input {
 		font-size: 0.8em;
 	}
 	input[type="checkbox"], input[type="radio"] {
+		margin-inline: 0em;
+		vertical-align: middle;
+
 		width: 1em;
 		height: 1em;
+		/* block-size: 1cap;
+		inline-size: 1cap; */
+
+		color: inherit;
 	}
 	input[type="number"] {
 		width: 8ch;
@@ -44,12 +54,16 @@
 		width: 100%;
 		min-width: 32ch;
 		height: 16em;
-	}
-	#txtPhonSource.parsing {
-		background-color: hsl(60deg 50% 25%);
-	}
-	#txtPhonSource.invalid {
-		background-color: hsl(0deg 50% 25%);
+
+		white-space-collapse: preserve-breaks; /*didn't work*/
+		/* resize: vertical; */
+
+		&.parsing {
+			background-color: hsl(60deg 50% 25%);
+		}
+		&.invalid {
+			background-color: hsl(0deg 50% 25%);
+		}
 	}
 
 	#visualizer {
@@ -63,6 +77,7 @@
 	/*]]>*/</style>
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
+	//to do: perturbation theory
 
 	const noiseBufferTime = 86400 / 4096; //seconds
 	function createNoiseBuffer(audioCtx) {
@@ -125,10 +140,10 @@
 	const defFormant = {"freq": 100, "q": 10, "gain": 1};
 	var acousticList = [
 		[{"freq": 100, "q": 10, "gain": 8}, {"freq": 400, "q": 10, "gain": 4}]
-		];
+	];
 	var cnvVisualizer, visCtx;
 
-	function checkInitAudio() {
+	async function checkInitAudio() {
 		if(audioCtx) return true;
 
 		audioCtx = new AudioContext({latencyHint: "playback"});
@@ -153,7 +168,7 @@
 			audioCtx.sourceNode.start(0, Math.random() * noiseBuffer.duration); //random start point
 		} finally {
 			cnvVisualizer = visualizer;
-			visCtx = cnvVisualizer.getContext("2d");
+			visCtx = cnvVisualizer.getContext("2d", {willReadFrequently: true});
 		}
 
 		return true;
@@ -343,7 +358,7 @@
 		//visCtx.lineWidth = 3;
 		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
 		//visCtx.beginPath();
-		for (let i = 0; i <= maxFreq; i += 250.0) {
+		for(let i = 0; i <= maxFreq; i += 250.0) {
 			visCtx.beginPath();
 			if((i % 1000.0) === 0.0) {
 				visCtx.lineWidth = 3;
@@ -361,7 +376,7 @@
 
 		visBackground = visCtx.getImageData(0, 0, cw, ch);
 	}
-	function drawVisualizer() {
+	async function drawVisualizer() {
 		if(!audioCtx || !audioCtx.analyserNode) return false;
 		requestAnimationFrame(drawVisualizer);
 
@@ -387,7 +402,7 @@
 			const v = 1.0 - dataArray[i]; //waveform
 			const y = v * 0.5 * ch;
 
-			if (i === 0) {
+			if(i === 0) {
 				visCtx.moveTo(x, y);
 			} else {
 				visCtx.lineTo(x, y);
@@ -403,7 +418,7 @@
 			const v = 1.0 - 24.0 * Math.pow(10.0, dataArray[i] / 20.0); //spectrum, linear amplitude
 			const y = v * ch;
 
-			if (i === 0) {
+			if(i === 0) {
 				visCtx.moveTo(x, y);
 			} else {
 				visCtx.lineTo(x, y);
@@ -420,6 +435,29 @@
 		visCtx.lineTo(0, ch - 1); */
 		visCtx.closePath();
 		visCtx.fill();
+
+		//frequency labels (1k, 2k, etc.)
+		visCtx.font = "1em sans-serif";
+		visCtx.textBaseline = "top";
+		//visCtx.textBaseline = "bottom";
+		//visCtx.textAlign = "center";
+		//visCtx.fillStyle = "white";
+		visCtx.fillStyle = "color(srgb 0.8 0.8 0.8)";
+		for(let i = 0; i <= maxFreq; i += 1000.0) {
+			const x = i * cw / maxFreq;
+			const text = `${i / 1000}k`;
+			const metrics = visCtx.measureText(text), textWidth = metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
+			if(cw > textWidth) {
+				if(x < 0.5 * textWidth)
+					visCtx.textAlign = "start";
+				else if(cw - x < 0.5 * textWidth)
+					visCtx.textAlign = "end";
+				else
+					visCtx.textAlign = "center";
+			} else
+				visCtx.textAlign = "center";
+			visCtx.fillText(text, x, 0 /* ch */);
+		}
 	}
 
 	function expSpinnerChanged(event) {
@@ -431,15 +469,16 @@
 		elem.step = step;
 		elem.min = val - 2 * Math.sign(val) * step;
 	}
-	function audioStateChanged(event) {
+	/* async */ function audioStateChanged(event) {
 		if(!event.target || event.target.checked === undefined) return;
 		if(event.target.checked) {
-			checkInitAudio();
-			audioCtx.resume();
+			checkInitAudio().then(() => {
+				audioCtx.resume();
+			});
 			drawVisualizer();
 		} else
 			//audioCtx.suspend();
-			{
+		{
 			freeSoundNodes();
 			audioCtx?.close?.();
 			audioCtx = null;
@@ -528,7 +567,7 @@
 		<input type="radio" id="radNoiseViolet" name="noiseColor" />&nbsp;<label for="radNoiseViolet">Violet (derivative)</label></p>
 	<p>Tone filter (phonation gen.): 
 		<label for="txtToneFreq">fundamental (Hz)</label> <input type="number" id="txtToneFreq" value="120" step="5" /> 
-		<label for="txtToneDecay">decay factor</label> <input type="number" id="txtToneDecay" value="-0.8125" step="0.0625" min="-1" max="1" /></p>
+		<label for="txtToneDecay">persistence</label> <input type="number" id="txtToneDecay" value="-0.8125" step="0.0625" min="-1" max="1" /></p>
 	<p>Overall params.: 
 		<label for="txtQScale">Q</label> <input type="number" id="txtQScale" value="1" step="0.25" /> 
 		<label for="txtGainScale">gain</label> <input type="number" id="txtGainScale" value="1" step="0.25" /></p>
