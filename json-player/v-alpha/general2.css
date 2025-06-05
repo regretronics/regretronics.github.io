@@ -4,6 +4,11 @@
 	inherits: true;
 	initial-value: 120;
 }
+/* @property --hue-accent-init {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 120;
+} */
 /* @property --hue-anim {
 	syntax: "<number>";
 	inherits: true;

@@ -74,7 +74,9 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("pageAppearance.hue");
 			if(s) {
-				document.documentElement.style.setProperty("--hue-accent0", JSON.parse(s));
+				const hue = parseNumber(JSON.parse(s)), hueMod = ((hue % 360) + 360.0) % 360.0;
+				document.documentElement.style.setProperty("--hue-accent0", hueMod);
+				//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
 			}
 		}
 

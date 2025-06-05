@@ -4,10 +4,12 @@
 //to do: consider worker threads
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
-//to do: (structured) music file upload to page
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
 //to do: consider radically changing flattened format: events (more like midi), supporting named notes
 //to do: multitrack architecture for mixing and effect pipelines, with named tracks
+//to do: ...take query parameters (e.g. ?baseFreq=512&makeMelody)
+//to do: 	commands to generate, play, reset preferences
+//to do: 	take urls to import .mus.json files
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {

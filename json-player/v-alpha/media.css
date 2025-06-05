@@ -75,10 +75,19 @@
 			transition-property: background-color, color !important;
 			transition-duration: 0.25s !important;
 		}*/ /*introduces selection color bug in null theme in desktop browsers*/
-		:root, body, img, svg, a:link, a:active, table, caption, td,
+		:root {
+			transition-property: --hue-accent, --hue-accent2;
+			/* transition-property: background-color, color, accent-color, border-color, scrollbar-color, stop-color, opacity, filter; */
+			transition-duration: 0.5s;
+
+			/* @starting-style {
+				--hue-accent: var(--hue-accent-init, var(--hue-accent0, 120));
+			} */
+		}
+		img, svg, a:link, a:active, table, caption, td,
 		input, button, textarea, select, label, meter, progress,
 		.buttons-area, .buttons-area *, .code-editor, .tool-tip {
-			transition-property: --hue-accent, --hue-accent2, opacity;
+			transition-property: opacity;
 			/* transition-property: background-color, color, accent-color, border-color, scrollbar-color, stop-color, opacity, filter; */
 			transition-duration: 0.25s;
 		}

@@ -97,6 +97,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
 }
 
 //rhythm structure generator
+//to do: currently, rhythmScale is like a maximum. follow it more closely.
 function makeRhythmFactors(rhythmScale, primeCount) {
 	if(primeCount < 1) return false;
 	const rhythmFactors = [];
