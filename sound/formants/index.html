@@ -317,6 +317,7 @@
 		audioCtx.convolverNode = null;
 	}
 
+	//to do: svg for the background?
 	var visBackground = null;
 	//save all the background in an ImageData
 	function drawVisBackground(cw, ch, maxFreq) {
@@ -326,10 +327,13 @@
 		}
 
 		//clear frame.
+		//to do: colors responsive to color scheme?
 		visCtx.fillStyle = "canvastext";
 		visCtx.fillRect(0, 0, cw, ch);
 
 		//frequency guide lines.
+		//to do: consider also showing the relative gains of formants (maximum = 100% height)
+		//to do: consider gradient/fuzzy fill
 		if(acousticList.length >= 1 && acousticList[txtIPhon.valueAsNumber]) {
 			const formantList = acousticList[txtIPhon.valueAsNumber];
 			for(const formant of formantList) {
@@ -391,7 +395,8 @@
 		//draw content.
 		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
 		const sliceWidth = (cw + 1) / maxSpectrumIndex;
-		visCtx.fillStyle = "canvas";
+		//visCtx.fillStyle = "canvas";
+		visCtx.fillStyle = "color(srgb 1 1 1 / 0.7)";
 		//visCtx.lineWidth = 1;
 		//visCtx.strokeStyle = "canvas";
 		visCtx.beginPath();
@@ -443,6 +448,8 @@
 		//visCtx.textAlign = "center";
 		//visCtx.fillStyle = "white";
 		visCtx.fillStyle = "color(srgb 0.8 0.8 0.8)";
+		/* visCtx.shadowColor = "color(srgb 0 0 0 / 1)";
+		visCtx.shadowBlur = 3; */
 		for(let i = 0; i <= maxFreq; i += 1000.0) {
 			const x = i * cw / maxFreq;
 			const text = `${i / 1000}k`;
@@ -474,8 +481,9 @@
 		if(event.target.checked) {
 			checkInitAudio().then(() => {
 				audioCtx.resume();
+				//to do: variable canvas size, responsive to pixel density
+				drawVisualizer();
 			});
-			drawVisualizer();
 		} else
 			//audioCtx.suspend();
 		{

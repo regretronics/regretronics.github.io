@@ -1,5 +1,8 @@
 "use strict";
 //note: as of 2022-09 browsers only support 8 bits per channel in raster/bitmap images; deep color and hdr pixel formats are not yet available for script manipulation.
+//to do: multiple iterations of resampling at once.
+//to do: visualize in a chart a custom cross-section of color variation.
+//to do: hardware acceleration, probably through three.js and a shader.
 
 function imgSourceLoaded(event) {
 	imageScaleUpdate(cbxSourceScale, imgSource);
@@ -87,7 +90,7 @@ function upscaleImage() {
 	canvasSizeChanged();
 	if(!scalePixels[0]) return;
 	
-	let t = Date.now();
+	let t = Date.now(); //to do: use performance (more accurate)
 	//let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
 	let h2 = sh, w2 = sw;
 	//Anisotropic upscaling (vertically first)
