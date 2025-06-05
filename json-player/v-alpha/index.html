@@ -58,9 +58,10 @@
 </head>
 <body>
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
+	<!--to do: use id attribute for more points of interest, e.g. start of the documentation.-->
 	<main class="major-section" hidden="hidden">
 		<div class="flex-row align-top">
-			<h1 style="flex-basis: 24ch;">
+			<h1 style="flex-basis: 20ch;">
 				<picture id="title-icon">
 					<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
 					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
@@ -74,6 +75,7 @@
 				<!-- throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart. -->
 				<span class="lang-static" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="lang-flex" hidden="hidden">JSON-based music format, player and generator</span>
 			</h1><wbr />
+			<!-- <span class="right print-dp-none" style="flex-basis: 30ch;"> -->
 			<span class="right print-dp-none">
 				<span class="cell"><strong class="chunk">Text size:</strong> 
 					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
@@ -151,12 +153,13 @@
 			</span>
 		</p>
 		<p class="flex-row">
-			<span style="flex-basis: 52ch;"><strong class="chunk">Structured music:</strong> 
+			<span style="flex-basis: 28ch;"><strong class="chunk">Structured music:</strong> 
 				<button id="btnChordGen" accesskey="c" title="Chord generator"><span class="lang-static" translate="no">Make <u>c</u>hords</span><span class="lang-flex" hidden="hidden">Make chords (<u>c</u>)</span></button>
 				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator"><span class="lang-static" translate="no">Make <u>r</u>hythm</span><span class="lang-flex" hidden="hidden">Make rhythm (<u>r</u>)</span></button>
 				<button id="btnMelodyGen" accesskey="m" title="Melody generator"><span class="lang-static" translate="no">Make <u>m</u>elody</span><span class="lang-flex" hidden="hidden">Make melody (<u>m</u>)</span></button>
 			</span><wbr />
-			<span class="right" style="flex-basis: 40ch;">
+			<!-- <span class="right" style="flex-basis: 24ch;"> -->
+			<span class="right">
 				<span class="cell">
 					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="lang-static" translate="no"><u>O</u>pen file</span><span class="lang-flex" hidden="hidden">Open file (<u>o</u>)</span></button>
 					<a id="aStructDownload" href="" hidden="hidden"></a>
@@ -194,11 +197,12 @@
 		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
 		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true"></pre>
 		<p class="flex-row">
-			<span style="flex-basis: 40ch;"><strong class="chunk">Flattened note list:</strong> 
+			<span style="flex-basis: 24ch;"><strong class="chunk">Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
 			</span><wbr />
-			<span class="right">
+			<!-- <span class="right"> -->
+			<span class="right" style="flex-basis: 14ch;">
 				<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
 				<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
 			</span>
@@ -220,7 +224,7 @@
 			</span>
 		</p>
 		<p class="flex-row">
-			<span style="flex-basis: 48ch;"><strong class="chunk"><span class="lang-static" translate="no">Player</span><span class="lang-flex" hidden="hidden">Music player</span>:</strong> 
+			<span style="flex-basis: 44ch;"><strong class="chunk"><span class="lang-static" translate="no">Player</span><span class="lang-flex" hidden="hidden">Music player</span>:</strong> 
 				<span class="cell"><button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><span class="lang-static" translate="no"><u>L</u>oad and play</span><span class="lang-flex" hidden="hidden">Load and play (<u>l</u>)</span></button>
 				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><span class="lang-static" translate="no"><u>P</u>ause</span><span class="lang-flex" hidden="hidden">Pause (<u>p</u>)</span></button>
 				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><span class="lang-static" translate="no"><u>S</u>top and unload</span><span class="lang-flex" hidden="hidden">Stop and unload (<u>s</u>)</span></button>
@@ -230,13 +234,15 @@
 				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 				</span>
 			</span><wbr />
-			<span class="right" style="flex-basis: 12ch;">
+			<!-- <span class="right" style="flex-basis: 20ch;"> -->
+			<span class="right">
 				<span class="cell"><span class="chunk">Note count:</span> <span translate="no"><output id="outNoteCount">0</output>.</span></span>
 				<span class="cell"><span class="chunk">Loaded generators:</span> <span translate="no"><output id="outGenCount">0</output>.</span></span>
 			</span>
 		</p>
 
 		<p class="print-dp-none">
+			<!--to do: make the visualizer more configurable-->
 			<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
 			<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
 				<defs>

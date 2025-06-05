@@ -112,15 +112,18 @@ input[type=checkbox] {
 	justify-content: space-between;
 	align-items: center;
 
-	& > *:not(wbr) {
-		flex-grow: 1;
+	& > *:not(wbr):not(.right) {
+		flex-basis: calc-size(max-content, 0.5625 * size);
+		flex-grow: 2;
 		flex-shrink: 1;
 	}
 	& > wbr {
 		display: none;
 	}
 	& > .right {
-		flex-basis: 32ch;
+		/* flex-basis: 12ch; */
+		flex-basis: min-content;
+		flex-grow: 1;
 		flex-shrink: 2;
 	}
 	/*@media (min-width: 96ch) {
@@ -133,9 +136,9 @@ input[type=checkbox] {
 .cell, .chunk {
 	display: inline-block;
 }
-.chunk {
+/* .chunk {
 	text-wrap-mode: wrap;
-}
+} */
 input[type=number], .right {
 	text-align: right;
 }

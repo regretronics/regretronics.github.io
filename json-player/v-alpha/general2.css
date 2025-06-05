@@ -116,6 +116,7 @@ input:is([type=checkbox], [type=radio]) + label {
 	margin-inline: 0.375ch;
 	white-space: nowrap;
 	/* text-wrap-mode: nowrap; */
+	overflow-wrap: anywhere;
 
 	.cell + & {
 		margin-inline-start: 0em;
