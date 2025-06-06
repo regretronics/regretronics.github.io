@@ -1,0 +1,94 @@
+:root {
+	--hue1-ang: 55deg; /*red = ~25deg*/
+
+	font-size: 1.5em;
+
+	color-scheme: dark;
+	background-color: oklch(0.125 0.015625 var(--hue1-ang, 0deg));
+	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
+	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
+}
+::selection {
+	background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));
+	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
+}
+
+body {
+	font-variant: slashed-zero;
+	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+}
+h1 {
+	/* font-size: 3em; */
+	/* line-height: 0.8; */
+	/* text-align: center; */
+	color: oklch(0.875 0.1875 var(--hue1-ang, 0deg) / 0.85);
+
+	hr + &, &:first-child {
+		margin-block-start: 0.25em;
+	}
+	&:has(+ p.sub) {
+		margin-block-end: 0.25em;
+	}
+	& + p.sub {
+		margin-block-start: 0.25em;
+	}
+}
+
+/* a:link {
+	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
+}
+a:visited {
+	color: oklch(0.75 0.0625 calc(var(--hue1-ang, 0deg) + 30deg));
+}
+a:hover {
+	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg));
+}
+a:active, a:focus {
+	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
+} */
+
+pre {
+	tab-size: 2;
+	/* white-space: pre; */
+}
+
+label {
+	cursor: pointer;
+}
+input, textarea, button, select {
+	font-size: inherit;
+}
+
+#selRootCategory {
+	[value=random], &:has([value=random]:checked) {
+		font-style: italic;
+	}
+	option:not([value=random]) {
+		font-style: initial;
+	}
+}
+/* select, ::picker(select) {
+	appearance: base-select;
+} */
+/* ::picker(select) {
+	border: 4px red solid;
+	font-weight: bold;
+	background-color: blue;
+} */
+
+@media not all and (prefers-reduced-motion: reduce) {
+}
+
+/* @media not all and (prefers-reduced-transparency: reduce) { */
+@media all and (prefers-reduced-transparency: no-preference) {
+	:root {
+		/* --shade-b: color(rec2020 0 0 0 / 0.75);
+		--shade-w: color(rec2020 1 1 1 / 0.75); */
+	
+		/*box-shadow values: bottom-right, top-left, etc.*/
+		/* --sh-br: 0.0625em 0.0625em;
+		--sh-tl: -0.0625em -0.0625em;
+		--sh-thin: 0.0625em -0.0625em;
+		--sh-thick: 0.125em -0.0625em; */
+	}
+}
