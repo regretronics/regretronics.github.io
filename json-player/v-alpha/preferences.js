@@ -324,6 +324,7 @@ function themeChanged(event) {
 		sheet.disabled = sheet.title !== styleTitle;
 		sheet.rel = (sheet.disabled ? "alternate stylesheet" : "stylesheet");
 	}
+	updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
 }
 function updateThemeColor(hue) {
 	const hueStr = hue.toString();
@@ -331,10 +332,12 @@ function updateThemeColor(hue) {
 		["(prefers-color-scheme: light)", `hsl(${hueStr}, 37.5%, 75%)`],
 		["(prefers-color-scheme: dark)", `hsl(${hueStr}, 37.5%, 25%)`],
 		["(prefers-color-scheme: light) and (prefers-contrast: more)", `hsl(${hueStr}, 50%, 12.5%)`],
-		["(prefers-contrast: more)", `hsl(${hueStr}, 50%, 87.5%)`],
+		["(prefers-contrast: more)", `hsl(${hueStr}, 50%, 87.5%)`]
 	].forEach(medium => {
-		document.querySelector(`meta[name="theme-color"][media="${medium[0]}"]`).content = medium[1];
+		const metaElem = document.querySelector(`meta[name="theme-color"][media="${medium[0]}"]`);
+		if(metaElem) metaElem.content = medium[1];
 	});
+	//cboPageTheme.value
 }
 function btnHueClick(event) {
 	if(!document) return false;
