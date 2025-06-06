@@ -77,6 +77,7 @@ function loadPreferences() {
 				const hue = parseNumber(JSON.parse(s)), hueMod = ((hue % 360) + 360.0) % 360.0;
 				document.documentElement.style.setProperty("--hue-accent0", hueMod);
 				//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
+				updateThemeColor(hueMod);
 			}
 		}
 
@@ -324,6 +325,17 @@ function themeChanged(event) {
 		sheet.rel = (sheet.disabled ? "alternate stylesheet" : "stylesheet");
 	}
 }
+function updateThemeColor(hue) {
+	const hueStr = hue.toString();
+	[
+		["(prefers-color-scheme: light)", `hsl(${hueStr}, 37.5%, 75%)`],
+		["(prefers-color-scheme: dark)", `hsl(${hueStr}, 37.5%, 25%)`],
+		["(prefers-color-scheme: light) and (prefers-contrast: more)", `hsl(${hueStr}, 50%, 12.5%)`],
+		["(prefers-contrast: more)", `hsl(${hueStr}, 50%, 87.5%)`],
+	].forEach(medium => {
+		document.querySelector(`meta[name="theme-color"][media="${medium[0]}"]`).content = medium[1];
+	});
+}
 function btnHueClick(event) {
 	if(!document) return false;
 	const elem = event.target;
@@ -344,6 +356,7 @@ function btnHueClick(event) {
 	if(hue < 0) hue += 360;*/
 
 	root.style.setProperty("--hue-accent0", hue);
+	updateThemeColor(hue);
 
 	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
 	for(const elem2 of metaElems) {
@@ -500,6 +513,7 @@ function btnResetPreferencesClick(event) {
 			cboPageTheme.value = "Automatic";
 			cboPageTheme.dispatchEvent(new Event("input"));
 			document.documentElement.style.setProperty("--hue-accent0", 120);
+			updateThemeColor(120);
 		}
 		if(chkResetGenParams?.checked) {
 			localStorage.removeItem("genParams.baseFreq");
