@@ -197,9 +197,8 @@ function makeNewContent(rootCat, repeatDepth) {
 				if(!value) {
 					//if(catIndex > 0 && catIndex <= catCount)
 					if(catIndex >= 0)
-						//fieldCat = fieldInstances.category[catIndex + Math.floor((catCount - catIndex) * Math.random())];
 						fieldCat = fieldInstances.category[catIndex
-						 + Math.floor((catCount - catIndex - 1) * Math.random())];
+						 + Math.floor((catCount - catIndex) * Math.random())];
 					else
 						fieldCat = fieldInstances.category.at(-1);
 					value = makeNewContent(fieldCat, (fieldCat === rootCat) ? (repeatDepth - 1) : defaultRepeatDepth);
