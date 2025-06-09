@@ -1,55 +1,5 @@
 "use strict";
 
-const categoryValues = {
-	/* "analytical.bit": [0, 1], */
-	role: ["Mary", "John"],
-};
-const fieldInstances = {
-	category: ["conceptual", "practical", "material", "physical", "analytical"],
-	process: ["adolescence"],
-	entity: ["person", "object"],
-	property: ["age", "length", "matComposition"],
-	type: ["typeA", "typeB", "typeC"],
-	something1: ["fasf", 123, {asdf: 31234}],
-	"something1.string": ["asdf", "tert", "asdfdr"],
-};
-/* const ontolSubcategories = {
-	conceptual: ["process", "relation", "role", "agent"],
-	practical: ["entity", "property", "propValue"],
-	material: ["universe", "person", "time", "space", "density", "probability"],
-	physical: ["quantity", "unit", "measurement"],
-	analytical: ["set", "sequence", "vector", "number"],
-}; */
-
-const categoryFieldsReq = {
-	conceptual: ["type", "roles"],
-	practical: ["practical1", "practical2"],
-	material: ["material1", "material2"],
-	physical: ["physical1", "physical2"],
-	//analytical: [],
-
-	roles: ["protagonist", "antagonist"],
-	/* process: ["type", "roles"],
-	relation: ["type", ""],
-	role: ["type", "agent"],
-	agent: ["category", ""], */
-};
-const categoryFieldsOpt = {
-	process: ["type", "roles"],
-};
-
-const instanceFields = { //?
-	/* "adolescence": ["roles"], */
-};
-const fieldCategories = {
-	category: ["string"],
-	/* type: ["string", "analytical"], */
-	/* roles: ["list of agent"], */
-	roles: ["roles.role"],
-	/* role: ["agent"], */
-	physical1: ["analytical", "string"],
-};
-
 function randomFromList(list) {
 	if(!list || list.length < 1) return undefined;
 	return list[Math.floor(list.length * Math.random())];
@@ -110,7 +60,7 @@ function makeQuantitative(type) {
 	//	quantitative functions
 }
 //generator main routine
-function makeNewContent(rootCat, repeatDepth) {
+function makeNewContent(rootCat, repeatDepthLimit) {
 	/* let content = { //rejected format
 		conceptual: {
 			process: "adolescence"
@@ -174,24 +124,26 @@ function makeNewContent(rootCat, repeatDepth) {
 	//	references
 	//	functions
 
-	const defaultRepeatDepth = 3;
-	if(repeatDepth == undefined)
-		repeatDepth = defaultRepeatDepth;
+	const defaultRepeatDepthLimit = 2;
+	if(repeatDepthLimit == undefined)
+		repeatDepthLimit = defaultRepeatDepthLimit;
 	else
-		if(repeatDepth <= 0) return content;
+		if(repeatDepthLimit < 1) return content;
 
 	//composite object (map): field choice and filling
 	//required and primary (arbitrary, most independent) fields
 	let fieldList = categoryFieldsReq[rootCat] ?? categoryFieldsReq[cat1];
 	if(fieldList) {
-		const catIndex = fieldInstances.category.indexOf(rootCat) /* + 1 */;
+		//const catIndex = fieldInstances.category.indexOf(rootCat) /* + 1 */;
+		let catIndex = fieldInstances.category.indexOf(rootCat);
 		const catCount = fieldInstances.category.length;
+		if(catIndex + 1 < catCount && repeatDepthLimit < 2) catIndex++;
 		for(const field of fieldList) {
 			let fieldCat = cat2 ?? randomFromList(fieldCategories[field]), value;
 			if(fieldCat) {
 				value = randomFromList(fieldInstances[field + "." + fieldCat]);
 				if(!value)
-					value = makeNewContent(fieldCat, (fieldCat === rootCat) ? (repeatDepth - 1) : defaultRepeatDepth);
+					value = makeNewContent(fieldCat, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
 			} else {
 				value = randomFromList(fieldInstances[field]);
 				if(!value) {
@@ -201,16 +153,17 @@ function makeNewContent(rootCat, repeatDepth) {
 						 + Math.floor((catCount - catIndex) * Math.random())];
 					else
 						fieldCat = fieldInstances.category.at(-1);
-					value = makeNewContent(fieldCat, (fieldCat === rootCat) ? (repeatDepth - 1) : defaultRepeatDepth);
+					value = makeNewContent(fieldCat, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
 				}
 			}
 			content[field] = value;
 		}
 	}
+	//to do:
+	//categoryFieldsOpt
 	//optional and primary (arbitrary) fields
 	//required and dependent fields
 	//optional and dependent fields
-	//to do
 
 	//the explicit stack approach may become unnecessary, but I'm not sure yet.
 	/* const contentStack = {};
@@ -246,32 +199,70 @@ function btnGenerateContentClick(event) {
 	//outSummary.textContent = JSON.stringify(content, null, "\t");
 	outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
 }
+function editorKeyDown(event) {
+	if(event.key == "Tab") {
+		event.stopPropagation();
+		event.preventDefault();
 
-function pageLoaded(event) {
-	//load HTML element references (renders document.getElementById unnecessary)
-	for(const s of document.querySelectorAll("[id]"))
-		window[s.id] = s;
+		//tried to dispatch input or beforeinput events. didn't work.
+		//event.target.dispatchEvent(new InputEvent("beforeinput", {data: "\t", inputType: "insertText"}));
 
-	fieldInstances.category.forEach(element => {
+		event.target.focus(); //unnecessary?
+		/* if(event.shiftKey)
+			deletePrevTab();
+		else */
+			document.execCommand("insertText", false, "\t");
+	}
+	//to do: home key goes past initial indentation?
+}
+function inputDBBlur(event) {
+	//to do: load module
+}
+
+function loadCategoryList(/* clear */) {
+	/* if(clear) {
+		//to do
+		//selRootCategory.remove(1)
+		//selRootCategory.options.remove(1)
+	} */
+	/* fieldInstances.category.forEach(element => {
 		const optNewItem = document.createElement("option");
 		optNewItem.value = element;
 		optNewItem.text = element;
 
 		selRootCategory.add(optNewItem, null);
+	}); */
+
+	selRootCategory.options.length = 1 + fieldInstances.category.length;
+	fieldInstances.category.forEach((element, index) => {
+		const optItem = selRootCategory.item(index + 1);
+		if(!optItem) return;
+		optItem.text = element;
 	});
+}
+//to do: fetch default database
+//to do: db load/import
+function pageLoaded(event) {
+	//load HTML element references (renders document.getElementById unnecessary)
+	for(const s of document.querySelectorAll("[id]"))
+		window[s.id] = s;
+
+	loadCategoryList(false);
 }
 function pageReady(event) {
 	//trap UI changes
 	btnGenerateContent.addEventListener("click", btnGenerateContentClick);
+	for(const elem of document.getElementsByClassName("code-editor")) {
+		elem.addEventListener("keydown", editorKeyDown);
+		//elem.addEventListener("paste", editorPaste);
+		//elem.addEventListener("input", editorChanged);
+		//elem.addEventListener("keyup", recalcEditorCursorPos);
+		//elem.addEventListener("click", recalcEditorCursorPos);
+	}
+	if(inputDB) inputDB.addEventListener("blur", inputDBBlur);
 
 	const rootCat = randomFromList(fieldInstances.category);
 	const content = makeNewContent(rootCat);
 	//outSummary.textContent = JSON.stringify(content, null, "\t");
 	outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
 }
-
-if(document.readyState === "loading")
-	document.addEventListener("DOMContentLoaded", pageLoaded);
-else //DOMContentLoaded has already fired
-	pageLoaded();
-window.addEventListener("load", pageReady);

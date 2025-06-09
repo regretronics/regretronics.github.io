@@ -4,13 +4,16 @@
 	font-size: 1.5em;
 
 	color-scheme: dark;
-	background-color: oklch(0.125 0.015625 var(--hue1-ang, 0deg));
-	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
+	background-color: oklch(0.1875 0.015625 var(--hue1-ang, 0deg));
+	color: oklch(0.875 0.015625 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
 }
 ::selection {
 	background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));
 	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
+}
+::marker {
+	color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
 }
 
 body {
@@ -48,8 +51,8 @@ a:active, a:focus {
 } */
 
 pre {
-	tab-size: 2;
 	/* white-space: pre; */
+	tab-size: 2;
 }
 
 label {
@@ -59,6 +62,43 @@ input, textarea, button, select {
 	font-size: inherit;
 }
 
+details {
+	margin-block: 1em;
+
+	&[open] {
+		/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.5); */
+		background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.5);
+		border-radius: 0em 0.75em 0.25em 0.25em;
+
+		/* & > :not(summary:first-of-type) {
+			margin-inline: 1em;
+		}
+		& > :last-child {
+			border-block-end: solid transparent 1em;
+		} */
+	}
+	& > summary:first-of-type {
+		cursor: pointer;
+	}
+	& > *:nth-child(2):last-child {
+		margin-block: 0em;
+		padding: 0.5em;
+	}
+}
+
+#inputDB {
+	display: block;
+	max-height: 87.5svh;
+
+	/* background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75); */
+	background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75);
+	overflow: auto;
+
+	font-family: monospace;
+	white-space-collapse: preserve;
+	/* white-space-collapse: preserve-breaks; */
+	tab-size: 4;
+}
 #selRootCategory {
 	[value=random], &:has([value=random]:checked) {
 		font-style: italic;
