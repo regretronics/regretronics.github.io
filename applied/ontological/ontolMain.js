@@ -259,7 +259,7 @@ function pageReady(event) {
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}
-	if(inputDB) inputDB.addEventListener("blur", inputDBBlur);
+	if(window.inputDB) inputDB.addEventListener("blur", inputDBBlur);
 
 	const rootCat = randomFromList(fieldInstances.category);
 	const content = makeNewContent(rootCat);
