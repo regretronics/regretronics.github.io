@@ -96,7 +96,8 @@ details {
 
 	font-family: monospace;
 	white-space-collapse: preserve;
-	/* white-space-collapse: preserve-breaks; */
+	text-wrap-mode: wrap;
+	text-wrap-style: stable;
 	tab-size: 4;
 }
 #selRootCategory {
