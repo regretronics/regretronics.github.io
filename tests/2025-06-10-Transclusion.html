@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html dir="ltr" lang="en" xml:lang="en" xsl:version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>Test: transclusion</title>
+</head>
+<body>
+	<h1>Test</h1>
+	<p>"The future ain't what it used to be."</p>
+	<iframe loading="eager" src="about:blank" allow="" sandbox=""></iframe>
+	<xsl:transform>
+		<xsl:template match="/">asfasdfsad</xsl:template>
+	</xsl:transform>
+	<xsl:copy-of select="document('about:blank')"></xsl:copy-of>
+	<xsl:copy-of select="document('2025-06-10-Transclusion-target.html')"></xsl:copy-of>
+</body>
+</html>
