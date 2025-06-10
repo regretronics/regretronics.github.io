@@ -59,7 +59,11 @@ function makeQuantitative(type) {
 	//	vectors
 	//	quantitative functions
 }
+
+var modRules;
+
 //generator main routine
+//recursive function
 function makeNewContent(rootCat, repeatDepthLimit) {
 	/* let content = { //rejected format
 		conceptual: {
@@ -94,6 +98,7 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 
 	const content = {category: rootCat};
 	if(!rootCat) return content;
+	if(!modRules) return;
 
 	let cat1, cat2;
 	//specific content generators
@@ -111,10 +116,10 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 		//the value depends first on values for "roles.role", or else values for just "roles" (less specific).
 		//if(cat2 && categoryValues[cat2])
 		//	content.value = randomFromList(categoryValues[cat2]);
-		if(!content.value && categoryValues[rootCat])
-			content.value = randomFromList(categoryValues[rootCat]);
-		if(!content.value && cat1 && categoryValues[cat1])
-			content.value = randomFromList(categoryValues[cat1]);
+		if(!content.value && modRules.categoryValues[rootCat])
+			content.value = randomFromList(modRules.categoryValues[rootCat]);
+		if(!content.value && cat1 && modRules.categoryValues[cat1])
+			content.value = randomFromList(modRules.categoryValues[cat1]);
 	}
 	//to do:
 	//	strings
@@ -132,27 +137,27 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 
 	//composite object (map): field choice and filling
 	//required and primary (arbitrary, most independent) fields
-	let fieldList = categoryFieldsReq[rootCat] ?? categoryFieldsReq[cat1];
+	let fieldList = modRules.categoryFieldsReq[rootCat] ?? modRules.categoryFieldsReq[cat1];
 	if(fieldList) {
-		//const catIndex = fieldInstances.category.indexOf(rootCat) /* + 1 */;
-		let catIndex = fieldInstances.category.indexOf(rootCat);
-		const catCount = fieldInstances.category.length;
+		//const catIndex = modRules.fieldInstances.category.indexOf(rootCat) /* + 1 */;
+		let catIndex = modRules.fieldInstances.category.indexOf(rootCat);
+		const catCount = modRules.fieldInstances.category.length;
 		if(catIndex + 1 < catCount && repeatDepthLimit < 2) catIndex++;
 		for(const field of fieldList) {
-			let fieldCat = cat2 ?? randomFromList(fieldCategories[field]), value;
+			let fieldCat = cat2 ?? randomFromList(modRules.fieldCategories[field]), value;
 			if(fieldCat) {
-				value = randomFromList(fieldInstances[field + "." + fieldCat]);
+				value = randomFromList(modRules.fieldInstances[field + "." + fieldCat]);
 				if(!value)
 					value = makeNewContent(fieldCat, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
 			} else {
-				value = randomFromList(fieldInstances[field]);
+				value = randomFromList(modRules.fieldInstances[field]);
 				if(!value) {
 					//if(catIndex > 0 && catIndex <= catCount)
 					if(catIndex >= 0)
-						fieldCat = fieldInstances.category[catIndex
+						fieldCat = modRules.fieldInstances.category[catIndex
 						 + Math.floor((catCount - catIndex) * Math.random())];
 					else
-						fieldCat = fieldInstances.category.at(-1);
+						fieldCat = modRules.fieldInstances.category.at(-1);
 					value = makeNewContent(fieldCat, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
 				}
 			}
@@ -160,7 +165,7 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 		}
 	}
 	//to do:
-	//categoryFieldsOpt
+	//modRules.categoryFieldsOpt
 	//optional and primary (arbitrary) fields
 	//required and dependent fields
 	//optional and dependent fields
@@ -170,7 +175,7 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 	let field = "category";
 	content[field] = rootCat;
 	do {
-		content[field] = fieldInstances[field][0];
+		content[field] = modRules.fieldInstances[field][0];
 		//deepen
 		//iterate
 		//return
@@ -191,9 +196,9 @@ function jsonReplacer(key, value) {
 function btnGenerateContentClick(event) {
 	const selectedCat = selRootCategory.value;
 	let isCatRandom = selectedCat == "random";
-	if(!isCatRandom && !fieldInstances.category.includes(selectedCat))
+	if(!isCatRandom && !modRules.fieldInstances.category.includes(selectedCat))
 		isCatRandom = true;
-	const rootCat = (isCatRandom ? randomFromList(fieldInstances.category) : selectedCat);
+	const rootCat = (isCatRandom ? randomFromList(modRules.fieldInstances.category) : selectedCat);
 
 	const content = makeNewContent(rootCat);
 	//outSummary.textContent = JSON.stringify(content, null, "\t");
@@ -215,41 +220,49 @@ function editorKeyDown(event) {
 	}
 	//to do: home key goes past initial indentation?
 }
-function inputDBBlur(event) {
-	//to do: load module
+async function inputDBBlur(event) {
+	await loadRules(inputDB.textContent);
+	loadCategoryList();
 }
 
-function loadCategoryList(/* clear */) {
-	/* if(clear) {
-		//to do
-		//selRootCategory.remove(1)
-		//selRootCategory.options.remove(1)
-	} */
-	/* fieldInstances.category.forEach(element => {
-		const optNewItem = document.createElement("option");
-		optNewItem.value = element;
-		optNewItem.text = element;
-
-		selRootCategory.add(optNewItem, null);
-	}); */
-
-	selRootCategory.options.length = 1 + fieldInstances.category.length;
-	fieldInstances.category.forEach((element, index) => {
-		const optItem = selRootCategory.item(index + 1);
+async function loadDefaultRules() {
+	//if(!window.defaultRules) return false;
+	//const url = defaultRules.href;
+	const url = "ontolSource.js";
+	const response = await fetch(url, {mode: "same-origin"});
+	//const response = await fetch(url, {mode: "no-cors"});
+	//const response = await fetch(url, {mode: "cors"});
+	if(!response.ok) {
+		console.log(response);
+		throw new Error(`Response status: ${response.status}`);
+	}
+	return await response.text();
+}
+function loadCategoryList() {
+	selRootCategory.options.length = 1 + modRules.fieldInstances.category.length;
+	modRules.fieldInstances.category.forEach((element, index) => {
+		const optItem = selRootCategory.item(1 + index);
 		if(!optItem) return;
 		optItem.text = element;
 	});
 }
-//to do: fetch default database
-//to do: db load/import
+async function loadRules(scriptText) {
+	const blob = new Blob([scriptText], {type: "text/javascript"});
+	//const script = document.createElement("script");
+	const url = URL.createObjectURL(blob);
+	//script.onload = script.onerror = () => URL.revokeObjectURL(url);
+	//script.src = url;
+	//document.body.appendChild(script);
+	//modRules = await import(defaultRules.href);
+	//modRules = await import("ontolSource.js");
+	modRules = await import(url);
+	URL.revokeObjectURL(url);
+}
 function pageLoaded(event) {
 	//load HTML element references (renders document.getElementById unnecessary)
 	for(const s of document.querySelectorAll("[id]"))
 		window[s.id] = s;
 
-	loadCategoryList(false);
-}
-function pageReady(event) {
 	//trap UI changes
 	btnGenerateContent.addEventListener("click", btnGenerateContentClick);
 	for(const elem of document.getElementsByClassName("code-editor")) {
@@ -260,8 +273,20 @@ function pageReady(event) {
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}
 	if(window.inputDB) inputDB.addEventListener("blur", inputDBBlur);
+}
+async function pageReady(event) {
+	/* try {
+		const text = await loadDefaultRules();
+		inputDB.textContent = text;
+		await loadRules(text);
+	} catch(error) {
+		//await loadRules(inputDB.textContent);
+		inputDB.textContent = error.message;
+	} */
+	await loadRules(inputDB.textContent);
+	loadCategoryList();
 
-	const rootCat = randomFromList(fieldInstances.category);
+	const rootCat = randomFromList(modRules.fieldInstances.category);
 	const content = makeNewContent(rootCat);
 	//outSummary.textContent = JSON.stringify(content, null, "\t");
 	outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");

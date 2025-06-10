@@ -1,10 +1,10 @@
 "use strict";
 
-const categoryValues = {
+export const categoryValues = {
 	/* "analytical.bit": [0, 1], */
 	role: ["Mary", "John"],
 };
-const fieldInstances = {
+export const fieldInstances = {
 	category: ["conceptual", "practical", "material", "physical", "analytical"],
 	process: ["adolescence"],
 	entity: ["person", "object"],
@@ -13,7 +13,7 @@ const fieldInstances = {
 	something1: ["fasf", 123, {asdf: 31234}],
 	"something1.string": ["asdf", "tert", "asdfdr"],
 };
-/* const ontolSubcategories = {
+/* export const ontolSubcategories = {
 	conceptual: ["process", "relation", "role", "agent"],
 	practical: ["entity", "property", "propValue"],
 	material: ["universe", "person", "time", "space", "density", "probability"],
@@ -21,7 +21,7 @@ const fieldInstances = {
 	analytical: ["set", "sequence", "vector", "number"],
 }; */
 
-const categoryFieldsReq = {
+export const categoryFieldsReq = {
 	conceptual: ["type", "roles"],
 	practical: ["practical1", "practical2"],
 	material: ["material1", "material2"],
@@ -34,14 +34,11 @@ const categoryFieldsReq = {
 	role: ["type", "agent"],
 	agent: ["category", ""], */
 };
-const categoryFieldsOpt = {
+export const categoryFieldsOpt = {
 	process: ["type", "roles"],
 };
 
-const instanceFields = { //?
-	/* "adolescence": ["roles"], */
-};
-const fieldCategories = {
+export const fieldCategories = {
 	category: ["string"],
 	/* type: ["string", "analytical"], */
 	/* roles: ["list of agent"], */
