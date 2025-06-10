@@ -1,7 +1,7 @@
 :root {
 	--hue1-ang: 55deg; /*red = ~25deg*/
 
-	font-size: 1.5em;
+	font-size: 1.25em;
 
 	color-scheme: dark;
 	background-color: oklch(0.1875 0.015625 var(--hue1-ang, 0deg));
@@ -53,6 +53,9 @@ a:active, a:focus {
 pre {
 	/* white-space: pre; */
 	tab-size: 2;
+}
+.main-output, .code-editor {
+	font-size: 0.8rem;
 }
 
 label {
