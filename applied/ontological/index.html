@@ -13,62 +13,63 @@
 	<!-- <script src="ontolSource.js" type="text/javascript"></script> -->
 	<script src="ontolMain.js" type="text/javascript"></script>
 	<script type="text/javascript">/*<![CDATA[*/
-	"use strict";
+		"use strict";
 
-	if(document.readyState === "loading")
-		document.addEventListener("DOMContentLoaded", pageLoaded);
-	else //DOMContentLoaded has already fired
-		pageLoaded();
-	window.addEventListener("load", pageReady);
+		if(document.readyState === "loading")
+			document.addEventListener("DOMContentLoaded", pageLoaded);
+		else //DOMContentLoaded has already fired
+			pageLoaded();
+		window.addEventListener("load", pageReady);
 	/*]]>*/</script>
+	<script id="defaultRulesBody" type="text/plain">
+		export const categoryValues = {
+			/* "analytical.bit": [0, 1], */
+			role: ["Mary", "John"],
+		};
+		export const fieldInstances = {
+			category: ["conceptual", "practical", "material", "physical", "analytical"],
+			process: ["adolescence"],
+			entity: ["person", "object"],
+			property: ["age", "length", "matComposition"],
+			type: ["typeA", "typeB", "typeC"],
+			something1: ["fasf", 123, {asdf: 31234}],
+			"something1.string": ["asdf", "tert", "asdfdr"],
+		};
+
+		export const categoryFieldsReq = {
+			conceptual: ["type", "roles"],
+			practical: ["practical1", "practical2"],
+			material: ["material1", "material2"],
+			physical: ["physical1", "physical2"],
+			//analytical: [],
+
+			roles: ["protagonist", "antagonist"],
+			/* process: ["type", "roles"],
+			relation: ["type", ""],
+			role: ["type", "agent"],
+			agent: ["category", ""], */
+		};
+		export const categoryFieldsOpt = {
+			process: ["type", "roles"],
+		};
+
+		export const fieldCategories = {
+			category: ["string"],
+			/* type: ["string", "analytical"], */
+			/* roles: ["list of agent"], */
+			roles: ["roles.role"],
+			/* role: ["agent"], */
+			physical1: ["analytical", "string"],
+		};
+	</script>
 </head>
 <body>
 	<h1>Project ontological</h1>
 	<p>Currently a content generator. Work in progress.</p>
-	<!-- <iframe id="frmDefaultRules" loading="eager" src="ontolSource.js" allow="" sandbox=""></iframe> -->
 	<details>
 		<summary>Database:</summary>
-		<pre id="inputDB" class="code-editor" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true">
-export const categoryValues = {
-	/* "analytical.bit": [0, 1], */
-	role: ["Mary", "John"],
-};
-export const fieldInstances = {
-	category: ["conceptual", "practical", "material", "physical", "analytical"],
-	process: ["adolescence"],
-	entity: ["person", "object"],
-	property: ["age", "length", "matComposition"],
-	type: ["typeA", "typeB", "typeC"],
-	something1: ["fasf", 123, {asdf: 31234}],
-	"something1.string": ["asdf", "tert", "asdfdr"],
-};
-
-export const categoryFieldsReq = {
-	conceptual: ["type", "roles"],
-	practical: ["practical1", "practical2"],
-	material: ["material1", "material2"],
-	physical: ["physical1", "physical2"],
-	//analytical: [],
-
-	roles: ["protagonist", "antagonist"],
-	/* process: ["type", "roles"],
-	relation: ["type", ""],
-	role: ["type", "agent"],
-	agent: ["category", ""], */
-};
-export const categoryFieldsOpt = {
-	process: ["type", "roles"],
-};
-
-export const fieldCategories = {
-	category: ["string"],
-	/* type: ["string", "analytical"], */
-	/* roles: ["list of agent"], */
-	roles: ["roles.role"],
-	/* role: ["agent"], */
-	physical1: ["analytical", "string"],
-};
-</pre>
+		<p><button id="btnRulesReset">Reset</button></p>
+		<pre id="inputDB" class="code-editor" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
 	</details>
 	<p>
 		<label for="selRootCategory">Root category:</label> 

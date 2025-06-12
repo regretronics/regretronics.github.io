@@ -221,22 +221,58 @@ function editorKeyDown(event) {
 	//to do: home key goes past initial indentation?
 }
 async function inputDBBlur(event) {
-	await loadRules(inputDB.textContent);
+	await loadRulesModule(inputDB.textContent);
 	loadCategoryList();
 }
-
-async function loadDefaultRules() {
-	//if(!window.defaultRules) return false;
-	//const url = defaultRules.href;
-	const url = "ontolSource.js";
-	const response = await fetch(url, {mode: "same-origin"});
-	//const response = await fetch(url, {mode: "no-cors"});
-	//const response = await fetch(url, {mode: "cors"});
-	if(!response.ok) {
-		console.log(response);
-		throw new Error(`Response status: ${response.status}`);
+async function btnRulesResetClick(event) {
+	if(readDefaultRules()) {
+		await loadRulesModule(inputDB.textContent);
+		loadCategoryList();
 	}
-	return await response.text();
+}
+
+async function fetchDefaultRules() {
+	if(!window.defaultRules) return false;
+	try {
+		//const url = (window.defaultRules ? defaultRules.href : "ontolSource.js");
+		const url = defaultRules.href;
+		const response = await fetch(url);
+		//const response = await fetch(url, {mode: "same-origin"});
+		if(response.ok)
+			inputDB.textContent = await response.text();
+		else {
+			console.log(response);
+			//throw new Error(`Response status: ${response.status}`);
+		}
+		return response.ok;
+	} catch(error) {
+		console.error(error);
+		return false;
+	}
+}
+async function readDefaultRules() {
+	if(await fetchDefaultRules()) return true;
+	if(!window.defaultRulesBody) return false;
+	try {
+		//remove excess indentation
+		let rulesBody = defaultRulesBody.text.trimEnd().split("\n");
+		if(rulesBody[0].length < 1) rulesBody.shift();
+		//let rulesBody = defaultRulesBody.text.trim();
+		//const indent = rulesBody.at(-1) + "\t";
+
+		const regex = new RegExp(/^[ \t]*/, "");
+		const indent = rulesBody[0].match(regex)[0], indentSize = indent.length;
+		rulesBody = rulesBody.map(line => (
+			line.startsWith(indent) ? 
+				line.slice(indentSize) :
+				line.replace(regex, "")
+		));
+		inputDB.textContent = rulesBody.join("\n");
+	} catch(error) {
+		console.error(error);
+		return false;
+	}
+	return true;
 }
 function loadCategoryList() {
 	selRootCategory.options.length = 1 + modRules.fieldInstances.category.length;
@@ -246,7 +282,7 @@ function loadCategoryList() {
 		optItem.text = element;
 	});
 }
-async function loadRules(scriptText) {
+async function loadRulesModule(scriptText) {
 	const blob = new Blob([scriptText], {type: "text/javascript"});
 	//const script = document.createElement("script");
 	const url = URL.createObjectURL(blob);
@@ -275,19 +311,22 @@ function pageLoaded(event) {
 	if(window.inputDB) inputDB.addEventListener("blur", inputDBBlur);
 }
 async function pageReady(event) {
-	/* try {
-		const text = await loadDefaultRules();
-		inputDB.textContent = text;
-		await loadRules(text);
-	} catch(error) {
-		//await loadRules(inputDB.textContent);
-		inputDB.textContent = error.message;
-	} */
-	await loadRules(inputDB.textContent);
-	loadCategoryList();
+	if(!(await readDefaultRules())) {
+		outSummary.textContent = "Couldn't read default rules.";
+		return;
+	}
 
-	const rootCat = randomFromList(modRules.fieldInstances.category);
-	const content = makeNewContent(rootCat);
-	//outSummary.textContent = JSON.stringify(content, null, "\t");
-	outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
+	try {
+		btnRulesReset.addEventListener("click", btnRulesResetClick);
+		await loadRulesModule(inputDB.textContent);
+		loadCategoryList();
+
+		const rootCat = randomFromList(modRules.fieldInstances.category);
+		const content = makeNewContent(rootCat);
+		//outSummary.textContent = JSON.stringify(content, null, "\t");
+		outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
+	} catch(error) {
+		outSummary.textContent = "Couldn't load default rules module.";
+		//inputDB.textContent = error.message;
+	}
 }
