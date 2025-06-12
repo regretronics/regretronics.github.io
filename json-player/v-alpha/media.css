@@ -49,7 +49,6 @@
 	}
 	.code-editor {
 		height: 12em;
-		/*resize: both;*/
 	}
 	/*try to show spin buttons on numerical fields*/
 	/*input[type=number]::inner-spin-button, 
@@ -115,17 +114,21 @@
 	input[type=number] {
 		appearance: textfield;
 
-		&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
-			-webkit-appearance: none;
-			appearance: none;
-			display: none;
-			opacity: 0;
+		@supports selector(&::-webkit-inner-spin-button, &::-webkit-outer-spin-button) {
+			&::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				appearance: none;
+				display: none;
+				opacity: 0;
+			}
 		}
-		&::inner-spin-button, &::outer-spin-button {
-			-webkit-appearance: none;
-			appearance: none;
-			display: none;
-			opacity: 0;
+		@supports selector(&::inner-spin-button, &::outer-spin-button) {
+			&::inner-spin-button, &::outer-spin-button {
+				-webkit-appearance: none;
+				appearance: none;
+				display: none;
+				opacity: 0;
+			}
 		}
 	}
 	.print-dp-none, button/*, .cell:has(input[type=checkbox])*/ {
@@ -135,8 +138,10 @@
 		height: unset;
 		white-space: pre-wrap;
 		resize: none;
-		textarea& {
-			field-sizing: content;
+		@supports (field-sizing: content) {
+			textarea& {
+				field-sizing: content;
+			}
 		}
 	}
 }

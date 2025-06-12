@@ -161,22 +161,20 @@ input:is([type=checkbox], [type=radio]) + label {
 /* :focus-visible {
 	outline-offset: 0.125em;
 } */
-/* #ctlStructuredScript:empty::after, #ctlStructuredScript:has(> br:only-child)::after { */
-:empty, :has(> br:only-child) {
-	#ctlStructuredScript& {
-		&::before {
-			content: '{"property": 123}';
-			opacity: 0.5;
+[data-placeholder] {
+	&:empty, &:has(> br:only-child)/* , &:blank */ {
+		/* white-space-collapse: collapse; */
+
+		br {
+			display: none;
+		}
+		&::after {
 			/* display: block;
 			justify-self: center; */
 			/* text-align: center; */
 			/* vertical-align: middle; */
-		}
-	}
-	#ctlFlatScript& {
-		&::before {
-			content: '[{"property": 123}]';
 			opacity: 0.5;
+			content: attr(data-placeholder);
 		}
 	}
 }
