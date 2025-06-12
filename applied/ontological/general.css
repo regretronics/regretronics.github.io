@@ -60,6 +60,9 @@ pre {
 .code-editor {
 	padding: 0.5em;
 
+	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
+	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
+
 	font-family: monospace;
 	white-space-collapse: preserve;
 	text-wrap-mode: wrap;
@@ -93,6 +96,14 @@ details {
 			border-block-end: solid transparent 1em;
 		} */
 	}
+	&:not([open]) {
+		&:has(.invalid) {
+			background-color: oklch(0.5 0.125 0deg / 0.5);
+		}
+		&:not(:has(.invalid)):has(#outSourceStatus:not(:empty)) {
+			background-color: oklch(0.5 0.125 90deg / 0.5);
+		}
+	}
 	& > summary:first-of-type {
 		cursor: pointer;
 	}
@@ -106,8 +117,6 @@ details {
 	display: block;
 	max-height: 87.5svh;
 
-	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
-	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
 	overflow: auto;
 }
 #selRootCategory {

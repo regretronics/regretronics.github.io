@@ -234,14 +234,12 @@ async function txtRulesSourceBlur(event) {
 	try {
 		modRules = null;
 		await loadRulesModule(txtRulesSource.textContent);
-		if(!modRules) {
-			event.target?.classList?.add?.("invalid");
-			return;
-		}
+		if(!checkRulesModule(modRules)) return;
 		loadCategoryList();
-		event.target?.classList?.remove?.("invalid");
+		//outSourceStatus.innerText = "";
 	} catch(error) {
-		//to do: report error to UI
+		//report error to UI
+		outSourceStatus.innerText = error.message;
 		event.target?.classList?.add?.("invalid");
 	}
 }
@@ -270,6 +268,24 @@ async function loadRulesModule(scriptText) {
 	//modRules = await import("ontolSource.js");
 	modRules = await import(url);
 	URL.revokeObjectURL(url);
+}
+function checkRulesModule(modRules) {
+	if(!modRules) {
+		outSourceStatus.innerText = "Couldn't load module.";
+		txtRulesSource.classList?.add?.("invalid");
+		return false;
+	}
+	const requiredMembers = ["categoryValues", "fieldInstances", "categoryFieldsReq", /* "categoryFieldsOpt", */ "fieldCategories"];
+	for(const member of requiredMembers) {
+		if(!modRules[member]) {
+			outSourceStatus.innerHTML = `Member <code>${member}</code> is missing.`;
+			txtRulesSource.classList?.add?.("invalid");
+			return false;
+		}
+	}
+	outSourceStatus.innerText = "";
+	txtRulesSource.classList?.remove?.("invalid");
+	return true;
 }
 async function readRulesFromStorage() {
 	if(localStorage.length < 1) return false;
@@ -323,9 +339,11 @@ async function readDefaultRules() {
 		));
 		txtRulesSource.textContent = rulesBody.join("\n");
 		await loadRulesModule(txtRulesSource.textContent);
-		return true;
+		return checkRulesModule(modRules);
+		//outSourceStatus.innerText = "";
 	} catch(error) {
 		console.error(error);
+		outSourceStatus.innerText = error.message;
 		return false;
 	}
 }
@@ -370,9 +388,8 @@ async function pageReady(event) {
 		if(window.txtRulesSource) {
 			txtRulesSource.addEventListener("input", persistRules);
 			txtRulesSource.addEventListener("blur", txtRulesSourceBlur);
-			if(!modRules) txtRulesSource.classList?.add?.("invalid");
 		}
-		if(!modRules) return;
+		if(!checkRulesModule(modRules)) return;
 		loadCategoryList();
 
 		const rootCat = randomFromList(modRules.fieldInstances.category);
