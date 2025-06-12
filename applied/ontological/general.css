@@ -57,6 +57,19 @@ pre {
 .main-output, .code-editor {
 	font-size: 0.8rem;
 }
+.code-editor {
+	padding: 0.5em;
+
+	font-family: monospace;
+	white-space-collapse: preserve;
+	text-wrap-mode: wrap;
+	text-wrap-style: stable;
+	tab-size: 4;
+
+	&.invalid {
+		background-color: oklch(0.25 0.03125 0deg / 0.75);
+	}
+}
 
 label {
 	cursor: pointer;
@@ -89,19 +102,13 @@ details {
 	}
 }
 
-#inputDB {
+#txtRulesSource {
 	display: block;
 	max-height: 87.5svh;
 
 	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
 	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
 	overflow: auto;
-
-	font-family: monospace;
-	white-space-collapse: preserve;
-	text-wrap-mode: wrap;
-	text-wrap-style: stable;
-	tab-size: 4;
 }
 #selRootCategory {
 	[value=random], &:has([value=random]:checked) {
@@ -128,7 +135,7 @@ details {
 	:root {
 		/* --shade-b: color(rec2020 0 0 0 / 0.75);
 		--shade-w: color(rec2020 1 1 1 / 0.75); */
-	
+
 		/*box-shadow values: bottom-right, top-left, etc.*/
 		/* --sh-br: 0.0625em 0.0625em;
 		--sh-tl: -0.0625em -0.0625em;

@@ -220,27 +220,81 @@ function editorKeyDown(event) {
 	}
 	//to do: home key goes past initial indentation?
 }
-async function inputDBBlur(event) {
-	await loadRulesModule(inputDB.textContent);
-	loadCategoryList();
+function editorInput(event) {
+	if(!event || !event.target || !event.target.classList) return false;
+	event.target.classList.remove?.("invalid");
+	event.target.classList.add?.("changed");
+}
+function editorChanged(event) {
+	if(!event || !event.target) return false;
+	event.target.normalize();
+}
+async function txtRulesSourceBlur(event) {
+	if(!event || !event.target) return false;
+	try {
+		modRules = null;
+		await loadRulesModule(txtRulesSource.textContent);
+		if(!modRules) {
+			event.target?.classList?.add?.("invalid");
+			return;
+		}
+		loadCategoryList();
+		event.target?.classList?.remove?.("invalid");
+	} catch(error) {
+		//to do: report error to UI
+		event.target?.classList?.add?.("invalid");
+	}
 }
 async function btnRulesResetClick(event) {
 	if(readDefaultRules()) {
-		await loadRulesModule(inputDB.textContent);
-		loadCategoryList();
+		localStorage.removeItem("modRules.source");
+		event.target.classList?.remove?.("invalid");
+		/* modRules = null;
+		await loadRulesModule(txtRulesSource.textContent); */
+		if(modRules) loadCategoryList();
 	}
 }
 
+function persistRules(event) {
+	localStorage.setItem("modRules.source", txtRulesSource.textContent);
+	txtRulesSource.classList?.remove?.("changed");
+}
+async function loadRulesModule(scriptText) {
+	const blob = new Blob([scriptText], {type: "text/javascript"});
+	//const script = document.createElement("script");
+	const url = URL.createObjectURL(blob);
+	//script.onload = script.onerror = () => URL.revokeObjectURL(url);
+	//script.src = url;
+	//document.body.appendChild(script);
+	//modRules = await import(defaultRules.href);
+	//modRules = await import("ontolSource.js");
+	modRules = await import(url);
+	URL.revokeObjectURL(url);
+}
+async function readRulesFromStorage() {
+	if(localStorage.length < 1) return false;
+	try {
+		const src = localStorage.getItem("modRules.source");
+		if(!src || src.length < 1) return false;
+		txtRulesSource.textContent = src;
+		await loadRulesModule(txtRulesSource.textContent);
+		return true;
+	} catch(error) {
+		console.error(error);
+		return false;
+	}
+}
 async function fetchDefaultRules() {
-	if(!window.defaultRules) return false;
+	if(!window.defaultRules || origin === "null") return false;
 	try {
 		//const url = (window.defaultRules ? defaultRules.href : "ontolSource.js");
 		const url = defaultRules.href;
 		const response = await fetch(url);
 		//const response = await fetch(url, {mode: "same-origin"});
-		if(response.ok)
-			inputDB.textContent = await response.text();
-		else {
+		if(response.ok) {
+			txtRulesSource.textContent = await response.text();
+			await loadRulesModule(txtRulesSource.textContent);
+		} else {
 			console.log(response);
 			//throw new Error(`Response status: ${response.status}`);
 		}
@@ -267,14 +321,19 @@ async function readDefaultRules() {
 				line.slice(indentSize) :
 				line.replace(regex, "")
 		));
-		inputDB.textContent = rulesBody.join("\n");
+		txtRulesSource.textContent = rulesBody.join("\n");
+		await loadRulesModule(txtRulesSource.textContent);
+		return true;
 	} catch(error) {
 		console.error(error);
 		return false;
 	}
-	return true;
 }
 function loadCategoryList() {
+	if(!modRules || !modRules.fieldInstances?.category) {
+		selRootCategory.options.length = 1;
+		return;
+	}
 	selRootCategory.options.length = 1 + modRules.fieldInstances.category.length;
 	modRules.fieldInstances.category.forEach((element, index) => {
 		const optItem = selRootCategory.item(1 + index);
@@ -282,18 +341,7 @@ function loadCategoryList() {
 		optItem.text = element;
 	});
 }
-async function loadRulesModule(scriptText) {
-	const blob = new Blob([scriptText], {type: "text/javascript"});
-	//const script = document.createElement("script");
-	const url = URL.createObjectURL(blob);
-	//script.onload = script.onerror = () => URL.revokeObjectURL(url);
-	//script.src = url;
-	//document.body.appendChild(script);
-	//modRules = await import(defaultRules.href);
-	//modRules = await import("ontolSource.js");
-	modRules = await import(url);
-	URL.revokeObjectURL(url);
-}
+
 function pageLoaded(event) {
 	//load HTML element references (renders document.getElementById unnecessary)
 	for(const s of document.querySelectorAll("[id]"))
@@ -304,21 +352,27 @@ function pageLoaded(event) {
 	for(const elem of document.getElementsByClassName("code-editor")) {
 		elem.addEventListener("keydown", editorKeyDown);
 		//elem.addEventListener("paste", editorPaste);
+		elem.addEventListener("input", editorInput);
 		//elem.addEventListener("input", editorChanged);
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}
-	if(window.inputDB) inputDB.addEventListener("blur", inputDBBlur);
 }
 async function pageReady(event) {
-	if(!(await readDefaultRules())) {
+	if(!(await readRulesFromStorage()) && !(await readDefaultRules())) {
+		txtRulesSource.classList?.add?.("invalid");
 		outSummary.textContent = "Couldn't read default rules.";
 		return;
 	}
 
 	try {
 		btnRulesReset.addEventListener("click", btnRulesResetClick);
-		await loadRulesModule(inputDB.textContent);
+		if(window.txtRulesSource) {
+			txtRulesSource.addEventListener("input", persistRules);
+			txtRulesSource.addEventListener("blur", txtRulesSourceBlur);
+			if(!modRules) txtRulesSource.classList?.add?.("invalid");
+		}
+		if(!modRules) return;
 		loadCategoryList();
 
 		const rootCat = randomFromList(modRules.fieldInstances.category);
@@ -326,7 +380,6 @@ async function pageReady(event) {
 		//outSummary.textContent = JSON.stringify(content, null, "\t");
 		outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
 	} catch(error) {
-		outSummary.textContent = "Couldn't load default rules module.";
-		//inputDB.textContent = error.message;
+		outSummary.textContent = "Couldn't use rules module.\n" + error.message;
 	}
 }
