@@ -293,7 +293,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 		--shade-b: color(rec2020 0 0 0 / 0.75);
 		/* --shade-w: color(rec2020 calc(30/32) calc(27/32) 1 / 0.75); */
 		--shade-w: color(rec2020 1 1 1 / 0.75);
-	
+
 		/*box-shadow values: bottom-right, top-left, etc.*/
 		--sh-br: 0.0625em 0.0625em;
 		--sh-tl: -0.0625em -0.0625em;
@@ -313,7 +313,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 	}
 	details[open] {
 		background-color: oklch(0.875 0.0625 var(--hue1-ang, 0deg) / 0.25);
-	
+
 		outline-style: solid;
 		outline-width: 0.25em;
 		outline-color: oklch(0.5 0.0625 var(--hue1-ang, 0deg) / 0.375);

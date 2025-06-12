@@ -89,7 +89,7 @@ function WpRndNextArticle() {
 		descriptionItem.textContent = article.terms.description;
 		descriptionItem.classList.add("desc-item");
 	}
-	
+
 	//insertion in list
 	const historyNew = document.createElement("li");
 	historyNew.append(articleAnchor.cloneNode(true)); //reuse

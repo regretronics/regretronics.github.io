@@ -81,14 +81,14 @@ function viewUpdate() {
 	if(isNaN(timeout)) timeout = defTimeout;
 	let tNow = performance.now();
 	if(dynLastTime == undefined) dynLastTime = tNow;
-	
+
 	//frameRenderRaycasting(mainCanvas, timeout);
 	//frameRenderRaycasting(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_kernelMap(/* ch, cw, */ timeout);
 	//frameRenderRaycasting_combinedKernel(timeout);
 	///* let */ layerCount = txtMarchingLayers.valueAsNumber;
 	frameRenderRaycasting_mono(layerCount);
-	
+
 	if(dynLastTime != undefined) {
 		let tFrame = tNow - dynLastTime;
 		const dt = Math.min(0.001 * tFrame, 1.0 / 4.0);
@@ -125,10 +125,10 @@ function viewUpdate() {
 	let tRender = tNow2 - tNow;
 	if(dynLastTime == undefined) outFrameRenderT.innerText = tRender.toFixed(1);
 	dynLastTime = tNow;
-	
+
 	frameCount++;
 	outFrameCount.innerText = frameCount.toString();
-	
+
 	//layerCount = frameMaxLayers;
 	//outFrameSegs.innerText = segmentCount.toString();
 	//outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
@@ -139,7 +139,7 @@ function viewUpdate() {
 
 	renderTimeSum += segTime;
 	outSegTAvg.innerText = (renderTimeSum / frameCount).toPrecision(3);
-	
+
 	//window.requestAnimationFrame(viewUpdate);
 	if(animating) updateCycleId = setTimeout(viewUpdate, Math.max(timeout - tRender, 0));
 }

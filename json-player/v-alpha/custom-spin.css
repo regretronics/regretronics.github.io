@@ -49,7 +49,7 @@
 
 	&:has(.buttons-area) input:first-of-type {
 		appearance: textfield;
-	
+
 		&::inner-spin-button, &::outer-spin-button {
 			-webkit-appearance: none;
 			appearance: none;
@@ -70,12 +70,12 @@
 		/* background-color: Canvas;
 		color: CanvasText; */
 		opacity: 0.8;
-	
+
 		user-select: none;
 		flex-basis: content;
 		flex-shrink: 0.25;
 		text-align: center;
-	
+
 		@media screen {
 			display: flex;
 		}
@@ -85,7 +85,7 @@
 		flex-direction: row;
 		flex-wrap: nowrap; /* ? */
 		/* z-index: -1; */
-	
+
 		& > * {
 			touch-action: none;
 			width: 1em;
@@ -94,7 +94,7 @@
 			flex-grow: 1;
 			/* display: inline-block; */
 			align-content: center;
-	
+
 			&:hover/* , &:active */, &.hover {
 				background-color: CanvasText;
 				color: Canvas;
@@ -104,7 +104,7 @@
 		&:active, &.active, &:has(:active) {
 			background-color: SelectedItem;
 			color: SelectedItemText;
-		
+
 			& > *:hover, & > *.hover {
 				/* box-shadow: 0 0 0.25em CanvasText; */
 				box-shadow: 0 0 0.25em 0.125em CanvasText; /*question: restrict glow effect for cosmetic layers only? (currently no)*/

@@ -61,7 +61,7 @@ function frameRenderPolar(imgData) {
 			color[0] = 255 * r2;
 			color[1] = 191 * ((r3 + theta) % 2);
 			color[2] = 64 * r;*/
-			
+
 			//Math.hypot is terribly slow. Math.hypot requires ECMAScript 6/2015.
 			//r = 2 / bufh * Math.hypot(x2, y2);
 			//r = 2 / bufh * Math.sqrt(x2 * x2 + y2 * y2);
@@ -85,7 +85,7 @@ function frameRenderPolar(imgData) {
 			//striping
 			r2 = (r2 - 2 * Math.floor(0.5 * r2))|0;
 			theta2 = (theta2 - 2 * Math.floor(0.5 * theta2))|0;
-			
+
 			//to do: try Uint8Array, Uint8ClampedArray or ArrayBuffer?
 			//color = [(255 * r2)|0, (64 + 128 * ((r2 + theta2) % 2))|0, (255 * theta2)|0];
 			/*color[0] = 128 * r2;
@@ -94,7 +94,7 @@ function frameRenderPolar(imgData) {
 			/*data[i] = 64 + 128 * r2;
 			data[i + 1] = 255 * ((r2 + theta2) % 2);
 			data[i + 2] = 64 + 128 * theta2;*/
-			
+
 			//color write to pixel
 			//i = 4 * (bufw * y + x);
 			/*data[i] = color[0];

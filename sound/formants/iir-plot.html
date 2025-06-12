@@ -200,7 +200,7 @@
 
 		// get our frequency response
 		audioCtx.sourceFilterNode.getFrequencyResponse(myFrequencyArray, magResponseOutput, phaseResponseOutput);
-		
+
 		//draw content.
 		//const maxSpectrumIndex = totalArrayItems * maxFreq * 2 / audioCtx.sampleRate;
 		//const sliceWidth = (cw + 1) / maxSpectrumIndex;
@@ -313,7 +313,7 @@
 		btnFilterPrev.addEventListener("click", filterIdxIncrement);
 		btnFilterNext.addEventListener("click", filterIdxIncrement);
 		txtFilterIdx.addEventListener("input", refreshFilter);
-		
+
 		txtAmpRangeLow.addEventListener("input", refreshFilter);
 		txtAmpRangeHigh.addEventListener("input", refreshFilter);
 		txtFiltersSource.addEventListener("input", codeSourceChanged);

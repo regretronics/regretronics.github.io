@@ -280,7 +280,7 @@
 		const t = elem.valueAsNumber;
 		targetFrameTime = t;
 		localStorage.setItem("targetFrameTime", targetFrameTime);
-		
+
 		let fps = 1000 / t;
 		const magnitude = Math.floor(Math.log2(fps / 5)), mantissa = fps / 5 / 2 ** magnitude;
 		const mod = (mantissa >= 1.5) ? 1 : 0;
@@ -323,7 +323,7 @@
 			layerCount = JSON.parse(s);
 
 			txtMarchingLayers.valueAsNumber = layerCount;
-			
+
 			const magnitude = Math.floor(Math.log2(layerCount)), mantissa = layerCount / 2 ** magnitude;
 			const mod = (mantissa >= 1.5) ? 1 : 0;
 			rngMarchingLayers.valueAsNumber = (2 * magnitude + mod);

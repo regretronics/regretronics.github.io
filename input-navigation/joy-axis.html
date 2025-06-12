@@ -52,15 +52,15 @@
 		updateDynamics(dt);
 		inputCycle(newLastTime, dt);
 		dynLastTime = newLastTime; */
-		
+
 		try {
 			const gpList = navigator.getGamepads();
 			if(!gpList) return false;
 			if (controllerIndex >= gpList.length) return false;
-			
+
 			const gp = gpList[controllerIndex];
 			if(!gp) return false;
-			
+
 			let val = gp.axes[axisIndex];
 			if(val == undefined) return false;
 			valueHistory[valueHistoryIndex] = val;

@@ -36,7 +36,7 @@ function loadFromStorage() {
 			}
 			if(s) continuation(JSON.parse(s));
 		};
-		
+
 		//deprecated
 		retrieve("counter", v => {setStateField("counter", v);});
 		retrieve("counterInc", v => {setStateField("counterInc", v);});
@@ -44,7 +44,7 @@ function loadFromStorage() {
 		eraseData("counter");
 		eraseData("counterInc");
 		eraseData("cycleInterval");
-		
+
 		//take values from all stored game state fields
 		for(let i = 0; i < localStorage.length; i++) {
 			const field = localStorage.key(i);

@@ -116,7 +116,7 @@
 		const reverbCount = (decayFactorAbs == 0.0 ? 0 : Math.log(levelThreshold) / Math.log(decayFactorAbs));
 		const bufferTime = interval * reverbCount;
 		const sampleCount = 1 + bufferTime * audioCtx.sampleRate;
-		
+
 		const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
 		if(!buffer) return null;
 		const arr = buffer.getChannelData(0), sampleInc = interval * audioCtx.sampleRate;
@@ -237,7 +237,7 @@
 		});
 		delayNode.connect(delayGainNode);
 		delayNode.delayGainNode = delayGainNode; */
-		
+
 		//convolution/reverb
 		const convolverNode = new ConvolverNode(audioCtx, {
 			buffer: createFIRBuffer(audioCtx, txtToneDecay.valueAsNumber, 0.5 / txtToneFreq.valueAsNumber),
@@ -344,7 +344,7 @@
 				//range calculation, linear
 				/* visCtx.lineWidth = cw * formant.freq / (4096.0 * formant.q);
 				const x = formant.freq * cw / maxFreq; */
-				
+
 				//range calculation, exponential (more precise)
 				const centralFreq = formant.freq / maxFreq;
 				const bandwidthFactor = Math.exp(Math.LN2 / (1.0 * formant.q));

@@ -79,7 +79,7 @@
 		/* opacity: 0.5; */
 		background-image: url("layer.svg");
 		background-repeat: repeat;
-		
+
 		translate: 0 0 calc(var(--pos-z) * 1px);
 		/* --z-absolute: calc(var(--z0) - var(--pos-z)); */
 		/* --persp-scale: calc(var(--z-absolute) / var(--z0)); */
@@ -156,7 +156,7 @@
 		--d-x-abs: calc(max(0, var(--d-x)) - min(0, var(--d-x)) + 1e-3);
 		--d-y-abs: calc(max(0, var(--d-y)) - min(0, var(--d-y)) + 1e-3);
 		--d-z-abs: calc(max(0, var(--d-z)) - min(0, var(--d-z)) + 1e-3);
-		
+
 		/* This is for the lack of hypot() and sqrt() function support. */
 		/* --d-xy-hypot: calc(var(--d-y) / sin(atan2(var(--d-y), var(--d-x)))); */ /* Yeah, I tested. May yield division by zero. */
 		--xy-ornt: calc(atan2(var(--d-y), var(--d-x)));
@@ -204,7 +204,7 @@
 		let t = Date.now();
 		lastDT = (t - lastCycleTime) * 0.001;
 		lastCycleTime = t;
-		
+
 		requestAnimationFrame(animFrame);
 	}
 	function pageReady() {

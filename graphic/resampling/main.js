@@ -89,7 +89,7 @@ function upscaleImage() {
 	//canvasSizeUpdate();
 	canvasSizeChanged();
 	if(!scalePixels[0]) return;
-	
+
 	let t = Date.now(); //to do: use performance (more accurate)
 	//let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
 	let h2 = sh, w2 = sw;
@@ -300,7 +300,7 @@ function pageLoaded() {
 	imgSource.addEventListener("load", imgSourceLoaded);
 	cbxSourceScale.addEventListener("change", cbxScaleChanged);
 	chkSourceShrink.addEventListener("change", chkShrinkChanged);
-	
+
 	txtDistortion.addEventListener("input", txtParamsChanged);
 	txtDistortion.addEventListener("input", txtDistortionChanged);
 	txtDBlur.addEventListener("input", txtParamsChanged);

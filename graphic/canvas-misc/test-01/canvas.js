@@ -64,7 +64,7 @@ function viewUpdate() {
 	outFrameRenderT.innerText = t.toString();
 	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toFixed(2);
 	outFrameCount.innerText = frameCount.toString();
-	
+
 	//alert("breakpoint");
 	//window.requestAnimationFrame(viewUpdate);
 }

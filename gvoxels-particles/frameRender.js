@@ -272,7 +272,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 	newKernels.getDRay = gpu.createKernel(function(rayAlive, rayCrossingPoints, rayDirs, rayDirsSign) {
 	//getDRay = gpu.createKernel(function(rayAlive, rayCrossingPoints, rayDirsCol, rayDirsRow) {
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return [0.0, 0.0, 0.0, 0.0];
-		
+
 		let crossingPoint = rayCrossingPoints[this.thread.y][this.thread.x];
 		let coordProjection = [0.0, 0.0, 0.0/* , 0.0 */];
 		let rayDirSign = rayDirsSign[this.thread.y][this.thread.x];
@@ -286,7 +286,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 		coordProjection[0] = Math.floor(rayDirSign[0] * crossingPoint[0] + 1.0);
 		coordProjection[1] = Math.floor(rayDirSign[1] * crossingPoint[1] + 1.0);
 		coordProjection[2] = Math.floor(rayDirSign[2] * crossingPoint[2] + 1.0);
-		
+
 		let crossing = [0.0, 0.0, 0.0/* , 0.0 */];
 		let rayDir = rayDirs[this.thread.y][this.thread.x];
 		crossing[0] = (rayDirSign[0] * coordProjection[0] - crossingPoint[0]) / rayDir[0];
@@ -347,7 +347,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 	newKernels.nextCrossingPoints = gpu.createKernel(function(rayAlive, rayCrossingPoints, dRays) {
 		//if(rayAlive[this.thread.y][this.thread.x] < 1) return [-1.0, -1.0, -1.0, -1.0];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return [0.0, 0.0, 0.0, 0.0];
-		
+
 		let crossingPoint = rayCrossingPoints[this.thread.y][this.thread.x];
 		let dRay = dRays[this.thread.y][this.thread.x];
 		return [
@@ -368,7 +368,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 	newKernels.pVoxel = gpu.createKernel(function(rayAlive, rayCrossingPoints, dRays) {
 		//if(rayAlive[this.thread.y][this.thread.x] < 1) return [-1, -1, -1, -1];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return -1;
-		
+
 		let crossingPoint = rayCrossingPoints[this.thread.y][this.thread.x];
 		let dRay = dRays[this.thread.y][this.thread.x];
 		let discreteCube = [
@@ -399,7 +399,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 	newKernels.segTransp = gpu.createKernel(function(rayAlive, discreteCube, worldScanTransp, dRays) {
 		//if(rayAlive < 1) return [0.0, 0.0, 0.0, 0.0];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return [1.0, 1.0, 1.0, 1.0];
-		
+
 		let vxTransp = [0.5, 0.5, 0.5, 0.0];
 		let offset = discreteCube[this.thread.y][this.thread.x];
 		if(offset >= 0) vxTransp = worldScanTransp[offset];
@@ -431,7 +431,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 	newKernels.nextAccumEmission = gpu.createKernel(function(rayAlive, discreteCube, worldScanEmission, alphaNew, accumBufferEmission, accumBufferTransp) {
 		let accumEmission = accumBufferEmission[this.thread.y][this.thread.x];
 		if(rayAlive[this.thread.y][this.thread.x] < 1) return accumEmission;
-		
+
 		let vxEmission = [0.0, 0.5, 1.0, 0.0];
 		let offset = discreteCube[this.thread.y][this.thread.x];
 		if(offset >= 0) vxEmission = worldScanEmission[offset];
@@ -492,7 +492,7 @@ function registerRayCastingKernels(gpu, generalKernels) {
 		//dynamicArguments: true,
 		pipeline: true
 	});
-	
+
 	//to do: move resetState to registerKernels?
 	generalKernels.resetState = gpu.combineKernels(generalKernels.resetAccumBufferEmission, generalKernels.resetAccumBufferTransp, generalKernels.resetRayAlive, generalKernels.resetRayCrossingPoints,
 		//function(viewerOrigin) {
@@ -575,7 +575,7 @@ function registerRayCastingKernelMono() {
 				Math.exp(rayLen * vxTransp[1]),
 				Math.exp(rayLen * vxTransp[2])
 				/* 0.0 */];
-	
+
 			vecAccumEmission = [
 				vecAccumEmission[0] + vecAccumTransp[0] * (1.0 - vecSegTransp[0]) * vxEmission[0],
 				vecAccumEmission[1] + vecAccumTransp[1] * (1.0 - vecSegTransp[1]) * vxEmission[1],
@@ -652,7 +652,7 @@ function registerRayCastingKernelMono() {
 			Math.floor(rayDirSign[1] * crossingPoint[1] + 1.0),
 			Math.floor(rayDirSign[2] * crossingPoint[2] + 1.0)
 			/* , 0.0 */];
-		
+
 		let crossing = [
 			(rayDirSign[0] * coordProjection[0] - crossingPoint[0]) / rayDir[0],
 			(rayDirSign[1] * coordProjection[1] - crossingPoint[1]) / rayDir[1],
@@ -738,7 +738,7 @@ function registerRayCastingKernelMap(gpu) {
 		},
 		accumEmission: function nextAccumEmission(rayAlive, offset, texWorldScanEmission, segTransp, accumEmission, accumTransp) {
 			if(rayAlive < 1) return accumEmission;
-			
+
 			let vxEmission = [0.0, 0.5, 1.0, 0.0];
 			if(offset >= 0) vxEmission = texWorldScanEmission[offset];
 			return [
@@ -763,7 +763,7 @@ function registerRayCastingKernelMap(gpu) {
 		let vecAccumEmission = texAccumBufferEmission[this.thread.y][this.thread.x];
 		let vecAccumTransp = texAccumBufferTransp[this.thread.y][this.thread.x];
 		let vecZero = [0.0, 0.0, 0.0, 0.0];
-		
+
 		if(rayAlive2 < 1.0) {
 			nextCrossingPoints(rayAlive2, vecZero, vecZero);
 			nextAccumEmission(rayAlive2, -1, texWorldScanEmission, vecZero, vecAccumEmission, vecZero);
@@ -771,7 +771,7 @@ function registerRayCastingKernelMap(gpu) {
 			//return 0;
 			return vecZero;
 		}
-		
+
 		let vecRayDir = texRayDirs[this.thread.y][this.thread.x];
 		let vecRayDirSign = texRayDirsSign[this.thread.y][this.thread.x];
 		let vecCrossingPoint = texCrossingPoints[this.thread.y][this.thread.x];
@@ -806,7 +806,7 @@ function registerRayCastingKernelMap(gpu) {
 		pipeline: true
 		//graphical: true
 	});
-	
+
 	rayCastingCycle.addFunction(function getDRay(crossingPoint, rayDir, rayDirSign) {
 	//rayCastingCycle.addFunction(function getDRay(crossingPoint, rayDirsCol, rayDirsRow) {
 		let coordProjection = [0.0, 0.0, 0.0/* , 0.0 */];
@@ -820,7 +820,7 @@ function registerRayCastingKernelMap(gpu) {
 		coordProjection[0] = Math.floor(rayDirSign[0] * crossingPoint[0] + 1.0);
 		coordProjection[1] = Math.floor(rayDirSign[1] * crossingPoint[1] + 1.0);
 		coordProjection[2] = Math.floor(rayDirSign[2] * crossingPoint[2] + 1.0);
-		
+
 		let crossing = [0.0, 0.0, 0.0/* , 0.0 */];
 		crossing[0] = (rayDirSign[0] * coordProjection[0] - crossingPoint[0]) / rayDir[0];
 		crossing[1] = (rayDirSign[1] * coordProjection[1] - crossingPoint[1]) / rayDir[1];
@@ -977,7 +977,7 @@ function rcKernelsSetDimensions(rcKernels) {
 
 function viewRayDirsCompute_Rectilinear(ch, cw) {
 	let chInv = 1 / ch;
-	
+
 	rayDirsCol = new Float32Array(ch * 4);
 	let x, xf;
 	for(x = 0; x < ch; x++) {
@@ -986,7 +986,7 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirsCol[4 * x + 1] = clientSpcTransf[7] + clientSpcTransf[4] * xf;
 		rayDirsCol[4 * x + 2] = clientSpcTransf[8] + clientSpcTransf[5] * xf;
 	}
-	
+
 	rayDirsRow = new Float32Array(cw * 4);
 	for(x = 0; x < cw; x++) {
 		xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
@@ -1017,7 +1017,7 @@ function frameRenderRaycasting(/* bufH, bufW, */ timeout) {
 	//let bufH = canvas.height|0, bufW = canvas.width|0;
 	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now();
-	
+
 	//Some initialization
 	let newBuffer, prevBuffer;
 	prevBuffer = (isBufferSecond ? texBuffer0 : texBuffer1);
@@ -1091,7 +1091,7 @@ function frameRenderRaycasting(/* bufH, bufW, */ timeout) {
 function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) {
 	/* let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now(); */
-	
+
 	//prevBuffer.crossingPoints = generalKernels.resetRayCrossingPoints(clientPos[0], clientPos[1], clientPos[2]);
 	//let texCrossingPoints = generalKernels.resetRayCrossingPoints(new Float32Array(clientPos));
 
@@ -1115,7 +1115,7 @@ function frameRenderRaycasting_mono(/* bufH, bufW, */ /* timeout */ layerCount) 
 function frameRenderRaycasting_kernelMap(/* bufH, bufW, */ timeout) {
 	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now();
-	
+
 	//Some initialization
 	let newBuffer, prevBuffer;
 	prevBuffer = (isBufferSecond ? texBuffer0 : texBuffer1);
@@ -1180,7 +1180,7 @@ function frameRenderRaycasting_kernelMap(/* bufH, bufW, */ timeout) {
 	newBuffer.crossingPoints.delete(); */
 	/* gpu.context.deleteTexture(newBuffer.rayAlive?.texture);
 	gpu.context.deleteTexture(newBuffer.crossingPoints?.texture); */
-	
+
 	generalKernels.renderAccum(newBuffer.accumEmission, newBuffer.accumTransp);
 	/* newBuffer.accumEmission.texture._refs--;
 	newBuffer.accumTransp.texture._refs--; */
@@ -1193,7 +1193,7 @@ function frameRenderRaycasting_kernelMap(/* bufH, bufW, */ timeout) {
 	newBuffer.crossingPoints = null;
 	newBuffer.accumEmission = null;
 	newBuffer.accumTransp = null; */
-	
+
 	/* fieldMap.result.clear();
 	fieldMap.alpha.clear(); */
 	/* fieldMap.result.texture._refs--;
@@ -1208,7 +1208,7 @@ function frameRenderRaycasting_kernelMap(/* bufH, bufW, */ timeout) {
 function frameRenderRaycasting_combinedKernel(timeout) {
 	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	if(timeoutEnabled) tStart = performance.now();
-	
+
 	//Some initialization
 	//let texState = generalKernels.resetState(new Float32Array(clientPos));
 	let texState = generalKernels.resetState(clientPos[0], clientPos[1], clientPos[2]);

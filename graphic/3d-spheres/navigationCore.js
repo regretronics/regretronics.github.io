@@ -181,7 +181,7 @@ function navKeyDown(event) {
 	//console.log(event);
 	//const now = performance.now();
 	const now = event.timeStamp;
-	
+
 	for (const inputObj of inputKeyMap)
 		if (inputObj.keyCode == event.code) {
 			event.preventDefault();

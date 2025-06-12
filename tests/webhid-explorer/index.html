@@ -291,7 +291,7 @@
 			opt.textContent = `${device.productName}\t${hex16(device.vendorId)}\t${hex16(device.productId)}`;
 			select.appendChild(opt);
 		}
-		
+
 		updateDeviceInfo();
 	};
 
@@ -331,7 +331,7 @@
 		const bitWidth = item.reportCount * item.reportSize;
 		if (bitWidth == 1)
 			return `1 bit (bit ${startBit})`;
-		
+
 		const endBit = startBit + bitWidth - 1;
 		if (item.reportCount == 1)
 			return `${item.reportSize} bits (bits ${startBit} to ${endBit})`;
@@ -361,7 +361,7 @@
 		if (item.isBufferedBytes) bits.push('Buf'); */
 		return bits.join(', ');
 	};
-	
+
 	// Returns the top-level usage assigned to |collection| as a human-readable string.
 	const collectionUsageAsString = collection => {
 		return `Usage: ${usageName((collection.usagePage << 16) + collection.usage)}`;
@@ -504,7 +504,7 @@
 			textarea.textContent = '';
 			return;
 		}
-		
+
 		let deviceInfo =
 			`productName: ${selectedDevice.productName}\n` +
 			`vendorId:    0x${hex16(selectedDevice.vendorId)} (${selectedDevice.vendorId}) ${vendorName(selectedDevice.vendorId)}\n` +
@@ -536,7 +536,7 @@
 					deviceInfo += `  Feature reports: ${featureReports.join(', ')}\n`;
 			}
 			deviceInfo += '\n';
-			
+
 			for (let i = 0; i < selectedDevice.collections.length; ++i) {
 				const c = selectedDevice.collections[i];
 				deviceInfo += formatReportListInfo(c.inputReports, 'Input');

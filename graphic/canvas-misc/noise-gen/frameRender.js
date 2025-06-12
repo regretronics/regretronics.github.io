@@ -94,7 +94,7 @@ function frameRenderNoise1(imgData) {
 	const matW = Math.ceil(bufW * scale) + 6, matH = Math.ceil(bufH * scale) + 6;
 	const layer = genNoiseLayerArray(0, matW, matH, x0i - 3, y0i - 3);
 	//const layer = genNoiseLayerArray(0, matW, matH, cx - 0.5 * bufW * scale, cy - 0.5 * bufH * scale);
-	
+
 	//note: the alpha channel must be also set for the result to be visible.
 	//simplifying the loop condition is also a loop optimization.
 	/* for(let i = 0; i < l; i += 4) {
@@ -137,7 +137,7 @@ function frameRenderNoise1(imgData) {
 		for(let x = 0; x < bufW; x++) {
 			const sx = scale * (x + 0.5) + 1 + x0f + 0.5, sxi = Math.floor(sx), sxf = sx % 1;
 			const filterCacheX = [filterPieces[0](sxf), filterPieces[1](sxf), filterPieces[2](sxf), filterPieces[3](sxf)];
-			
+
 			if((syi != syiOld) || (sxi != sxiOld))
 				for(let y2 = 0; y2 < 4; y2++) {
 					for(let x2 = 0; x2 < 4; x2++)
@@ -176,7 +176,7 @@ function frameRenderNoise2(imgData, cx, cy, scale) {
 		const y0 = cy * layerScale - 0.5 * bufH * scale2 - 3, y0i = Math.floor(y0), y0f = y0 - y0i;
 		const matW = Math.ceil(bufW * scale2) + 6, matH = Math.ceil(bufH * scale2) + 6;
 		const layer = genNoiseLayerArray(layerI, matW, matH, x0i, y0i);
-		
+
 		const sourceFrags = new Float32Array(16);
 		for(let pFrag = 0, y = 0, syiOld = -1, sxiOld = -1; y < bufH; y++) {
 			const sy = scale2 * y + y0f + 1 + 0.5, syi = Math.floor(sy), syf = sy - syi;
@@ -184,7 +184,7 @@ function frameRenderNoise2(imgData, cx, cy, scale) {
 			for(let x = 0; x < bufW; x++) {
 				const sx = scale2 * x + x0f + 1 + 0.5, sxi = Math.floor(sx), sxf = sx - sxi;
 				const filterCacheX = [filterPieces[0](sxf), filterPieces[1](sxf), filterPieces[2](sxf), filterPieces[3](sxf)];
-				
+
 				if((syi != syiOld) || (sxi != sxiOld))
 					for(let y2 = 0; y2 < 4; y2++) {
 						for(let x2 = 0; x2 < 4; x2++)
@@ -192,7 +192,7 @@ function frameRenderNoise2(imgData, cx, cy, scale) {
 					}
 				syiOld = syi;
 				sxiOld = sxi;
-	
+
 				let v = 0;
 				for(let y2 = 0; y2 < 4; y2++) {
 					for(let x2 = 0; x2 < 4; x2++)

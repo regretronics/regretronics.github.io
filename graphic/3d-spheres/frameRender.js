@@ -192,11 +192,11 @@ function registerGeneralKernels(gpu) {
 
 		const partner = ((n + odd) ^ 1) - odd;
 		if(partner >= depth) return val0;
-		
+
 		//const val = [stopsArr[n][this.thread.y][this.thread.x], stopsArr[partner][this.thread.y][this.thread.x]];
 		//const val1 = stopsArr[partner][this.thread.y][this.thread.x];
 		const val1 = stopsArr[this.thread.z][this.thread.y][partner];
-		
+
 		//const c1 = (val[0][1] < val[1][1] ? 1 : 0);
 		const c1 = (val0[1] < val1[1] ? 1 : 0);
 		const c2 = (n < partner ? 1 : 0);
@@ -231,10 +231,10 @@ function registerGeneralKernels(gpu) {
 			}
 		}
 		//if(partner >= size) return val0;
-		
+
 		const val1 = stopList[p1 + partner];
 		if(i != val1[3]) return val0;
-		
+
 		const c1 = (val0[1] < val1[1] ? 1 : 0);
 		const c2 = (n < partner ? 1 : 0);
 		const c3 = c1 ^ c2;
@@ -273,7 +273,7 @@ function registerGeneralKernels(gpu) {
 				z2 = stop[1];
 				//if(z2 > 1e20) break;
 				if(z2 > z) break;
-				
+
 				const i = stop[0];
 				//if(i == -1) break;
 				if(i != -1) {
@@ -282,7 +282,7 @@ function registerGeneralKernels(gpu) {
 					const partAlpha1 = partAlpha[i];
 					const partAlpha2 = [sign * partAlpha1[0], sign * partAlpha1[1], sign * partAlpha1[2]/* , 0.0 */];
 					const partEmission1 = partEmission[i];
-					
+
 					//Accumulate (sum) colors of particles present in the segment
 					crossingParticles += sign;
 					//const partAlpha = [alphaArr[i], alphaArr[i + 1], alphaArr[i + 2]/* , 0.0 */];
@@ -354,7 +354,7 @@ function registerGeneralKernels(gpu) {
 		dynamicArguments: true,
 		graphical: true
 	});
-	
+
 	newKernels.drawPixels = gpu.createKernel(function(/* buf, */ cw, ch) {
 		//const pPixel = 4 * (this.thread.y * cw + this.thread.x);
 		//this.color(buf[pPixel], buf[pPixel + 1], buf[pPixel + 2]);
@@ -418,7 +418,7 @@ function rcKernelsSetDimensions(rcKernels) {
 
 function viewRayDirsCompute_Rectilinear(ch, cw) {
 	const chInv = 1.0 / ch;
-	
+
 	rayDirsCol = new Float32Array(ch * 4);
 	rowNormals = new Float32Array(ch * 4);
 	let x, xf/* , lenInv */;
@@ -428,13 +428,13 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirsCol[4 * x + 1] = xf;
 		rayDirsCol[4 * x + 2] = 1.0;
 		rayDirsCol[4 * x + 3] = 1.0 + xf * xf; //Partial sum of squares
-		
+
 		//lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
 		rowNormals[4 * x    ] = 0.0;
 		rowNormals[4 * x + 1] = -1.0 /* * lenInv */;
 		rowNormals[4 * x + 2] = xf /* * lenInv */;
 	}
-	
+
 	rayDirsRow = new Float32Array(cw * 4);
 	colNormals = new Float32Array(cw * 4);
 	for(x = 0; x < cw; x++) {
@@ -443,7 +443,7 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirsRow[4 * x + 1] = 0.0;
 		rayDirsRow[4 * x + 2] = 0.0;
 		rayDirsRow[4 * x + 3] = xf * xf; //Partial sum of squares
-		
+
 		//lenInv = 1.0 /* / Math.sqrt(1.0 + xf * xf) */;
 		colNormals[4 * x    ] = -1.0 /* * lenInv */;
 		colNormals[4 * x + 1] = 0.0;
@@ -523,7 +523,7 @@ function frameRenderRaycasting3(layerCount) {
 		const pos = vectorTransform_3(clientSpcTransfInv, posLocal);
 
 		if(pos[2] <= -r) continue; //Too far behind
-	
+
 		const posSq = [pos[0] * pos[0], pos[1] * pos[1], pos[2] * pos[2]], posSqSum = posSq[0] + posSq[1] + posSq[2];
 		const r2 = r * r, sqRemLength = r2 - posSqSum;
 		//const d2 = posSq[2] - r2, extremeLen = [Math.sqrt(posSq[0] + d2), Math.sqrt(posSq[1] + d2)];
@@ -532,7 +532,7 @@ function frameRenderRaycasting3(layerCount) {
 		if(!isNaN(extremeLen[0]) && !isNaN(extremeLen[1]) && sqRemLength < 0) {
 			const rx = pos[0] * r, ry = pos[1] * r, rz = pos[2] * r;
 			//const rx = pos[0] * r, ry = pos[1] * r, rz = Math.abs(pos[2]) * r;
-			
+
 			const aux1x = pos[0] * extremeLen[0], aux2zx = pos[2] * extremeLen[0];
 			const auxDivX1 = aux2zx + rx, auxDivX2 = aux2zx - rx;
 			if(auxDivX1 !== 0 && auxDivX2 !== 0) {
@@ -607,7 +607,7 @@ function frameRenderRaycasting3(layerCount) {
 			}
 		}
 	}
-	
+
 	let maxStopCount = 1;
 	const stopEntryPoints = new Int32Array(cw * ch + 1);
 	//const stopEntryPoints = new Float32Array(cw * ch + 1);

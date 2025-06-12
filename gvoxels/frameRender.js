@@ -48,7 +48,7 @@ function worldVoxelsInit() {
 	for(let i = 0; i < worldRes[0] * worldRes[1] * worldRes[2] * 3 * 2; i++) {
 		worldScan[i] = Math.random();
 	}
-	
+
 	/*for(let z = 0; z < worldRes[0]; z++) {
 		for(let y = 0; y < worldRes[1]; y++) {
 			for(let x = 0; x < worldRes[2]; x++) {
@@ -86,7 +86,7 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		//rayDirsSign = new Float32Array(ch * cw * 3);
 		rayDirsSign = new Int8Array(ch * cw * 4);
 		//rayDirsSign = new Int32Array(ch * cw * 3);
-	
+
 	let rayDirsRow = new Float32Array(cw * 4);
 	let x, xf;
 	for(x = 0; x < cw; x++) {
@@ -95,7 +95,7 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirsRow[4 * x + 1] = clientSpcTransf[1] * xf;
 		rayDirsRow[4 * x + 2] = clientSpcTransf[2] * xf;
 	}
-	
+
 	for(let rayDirs0 = new Float32Array(3), y = 0, yf, pRow = 0, pCol, pRayDirs = 0;//, pRayDirsSign = 0;
 	 y < ch;
 	 y++) {
@@ -103,7 +103,7 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 		rayDirs0[0] = clientSpcTransf[6] * 1.0 + clientSpcTransf[3] * yf;
 		rayDirs0[1] = clientSpcTransf[7] * 1.0 + clientSpcTransf[4] * yf;
 		rayDirs0[2] = clientSpcTransf[8] * 1.0 + clientSpcTransf[5] * yf;
-		
+
 		for(x = 0, pCol = 0; x < cw; x++) {
 			//xf = (clientFoVH * 2.0 * (x + 0.5 - 0.5 * cw)) * chInv;
 
@@ -115,7 +115,7 @@ function viewRayDirsCompute_Rectilinear(ch, cw) {
 			rayDirs[pRayDirs + 2] = rayDirs0[2] + rayDirsRow[pCol + 2];
 			rayDirsSign[pRayDirs + 2] = Math.sign(rayDirs[pRayDirs + 2]);
 			rayDirs[pRayDirs + 3] = opacityFactor * Math.sqrt(rayDirs[pRayDirs] * rayDirs[pRayDirs] + rayDirs[pRayDirs + 1] * rayDirs[pRayDirs + 1] + rayDirs[pRayDirs + 2] * rayDirs[pRayDirs + 2]);
-			
+
 			pCol += 4;
 			//pRayDirsSign += 3;
 		}
@@ -136,17 +136,17 @@ function frameRenderRaycasting(imgData, timeout) {
 	let timeoutEnabled = (typeof(timeout) === "number"), tStart;
 	//if(timeoutEnabled) tLimit = Date.now() + timeout;
 	if(timeoutEnabled) tStart = Date.now();
-	
+
 	//some initialization
 	for(let x = 0; x < bufH * bufW; x++)
 		rayCrossingPoints.set(clientPos, x * 4);
-	
+
 	for(let x = 0; x < bufH * bufW; x++)
 		accumBuffer.set(initialVoxel, x * 6);
-	
+
 	for(let x = 0; x < bufH * bufW; x++) rayDead[x] = 0;
 	for(let y = 0; y < bufH; y++) rowDead[y] = 0;
-	
+
 	//let pRayCrossingPoints = 0, pAccumBuffer = 0;
 	//let /*pRayPosColor = 0,*/ pRayDirs, pRayDirsSign;
 	let firstCrossing, rayCoordCrossing, depth;
@@ -174,12 +174,12 @@ function frameRenderRaycasting(imgData, timeout) {
 				if(rayDead[pPixel])
 				//if(rayDead[pPixel] !== 0)
 					continue;
-				
+
 				/*let pRayCrossingPoints = pPixel * 4;
 				let pRayDirs = pPixel * 4;
 				let pRayDirsSign = pPixel * 4;*/
 				let pPixel4 = pPixel * 4, coordProjection;
-				
+
 				//find the next crossing with the regular voxel grid in some axis
 				//per axis, finds the t parameter (of the line formula) for the first crossing with a voxel boundary
 				if(rayDirs[pPixel4] === 0)
@@ -201,7 +201,7 @@ function frameRenderRaycasting(imgData, timeout) {
 					rayCoordCrossing = (rayDirsSign[pPixel4 + 2] * coordProjection - rayCrossingPoints[pPixel4 + 2]) / rayDirs[pPixel4 + 2];
 					if(rayCoordCrossing < firstCrossing) firstCrossing = rayCoordCrossing;
 				}
-				
+
 				discreteCube[0] = Math.floor(rayCrossingPoints[pPixel4] + 0.5 * firstCrossing * rayDirs[pPixel4]);
 				discreteCube[1] = Math.floor(rayCrossingPoints[pPixel4 + 1] + 0.5 * firstCrossing * rayDirs[pPixel4 + 1]);
 				discreteCube[2] = Math.floor(rayCrossingPoints[pPixel4 + 2] + 0.5 * firstCrossing * rayDirs[pPixel4 + 2]);
@@ -236,16 +236,16 @@ function frameRenderRaycasting(imgData, timeout) {
 				alphaNew[0] = exp2_fast(depth * vx[3]);
 				alphaNew[1] = exp2_fast(depth * vx[4]);
 				alphaNew[2] = exp2_fast(depth * vx[5]);
-				
+
 				let pAccumBuffer = pPixel * 6;
 				accumBuffer[pAccumBuffer    ] += accumBuffer[pAccumBuffer + 3] * (1.0 - alphaNew[0]) * vx[0];
 				accumBuffer[pAccumBuffer + 1] += accumBuffer[pAccumBuffer + 4] * (1.0 - alphaNew[1]) * vx[1];
 				accumBuffer[pAccumBuffer + 2] += accumBuffer[pAccumBuffer + 5] * (1.0 - alphaNew[2]) * vx[2];
-				
+
 				accumBuffer[pAccumBuffer + 3] *= alphaNew[0];
 				accumBuffer[pAccumBuffer + 4] *= alphaNew[1];
 				accumBuffer[pAccumBuffer + 5] *= alphaNew[2];
-				
+
 				segmentCount++;
 				if(accumBuffer[pAccumBuffer + 3] <= rayTranspThreshold &&
 					accumBuffer[pAccumBuffer + 4] <= rayTranspThreshold &&

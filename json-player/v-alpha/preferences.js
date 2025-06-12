@@ -109,7 +109,7 @@ function loadPreferences() {
 				txtExpVariance.dispatchEvent(new Event("input"));
 			}
 		}
-		
+
 		//Rhythm parameters
 		if(!chkResetRhythmParams.checked) {
 			s = localStorage.getItem("rhythmParams.rhythmScale");
@@ -439,7 +439,7 @@ function rhythmFactorsChanged() {
 	try {
 		if(rhythmFactors.some(x => x == 0)) //has zeroes?
 			throw "Rhythm factors can't include zero.";
-		
+
 		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
 			throw "Unrecognized numerical expression in rhythm formula.";
 
@@ -595,7 +595,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("clipParams.volScale");
 			localStorage.removeItem("clipParams.timeScale");
 			localStorage.removeItem("clipParams.timeDelta");
-			
+
 			txtPlayFreqScale.value = "1";
 			txtPlayFreqScale.dispatchEvent(new Event("input"));
 			txtPlayVolScale.value = "1";
@@ -621,7 +621,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("reset.clipParams");
 			localStorage.removeItem("reset.player");
 			localStorage.removeItem("reset.reset");
-			
+
 			chkResetPageAppearance.checked = false;
 			chkResetGenParams.checked = false;
 			chkResetRhythmParams.checked = false;

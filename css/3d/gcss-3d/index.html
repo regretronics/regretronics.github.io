@@ -154,7 +154,7 @@
 		--d-x-abs: calc(max(0, var(--d-x)) - min(0, var(--d-x)) + 1e-3);
 		--d-y-abs: calc(max(0, var(--d-y)) - min(0, var(--d-y)) + 1e-3);
 		--d-z-abs: calc(max(0, var(--d-z)) - min(0, var(--d-z)) + 1e-3);
-		
+
 		/* This is for the lack of hypot() and sqrt() function support. */
 		/* --d-xy-hypot: calc(var(--d-y) / sin(atan2(var(--d-y), var(--d-x)))); */ /* Yeah, I tested. May yield division by zero. */
 		--xy-ornt: calc(atan2(var(--d-y), var(--d-x)));
@@ -202,7 +202,7 @@
 	function txtPointCoordChanged(event) {
 		let elem = event.target;
 		if(!elem || !elem.dataset) return;
-		
+
 		let pindex = elem.dataset["pindex"];
 		let coord = elem.dataset["coord"];
 		if(!pindex || !coord) return;
