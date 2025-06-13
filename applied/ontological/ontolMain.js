@@ -26,8 +26,12 @@ function makeQuantitative(type) {
 			value = Math.round(rnd); //also serves as logical value
 			break;
 
-		case type.startsWith("analytical.realpositive"):
-			value = - Math.log(rnd);
+		/* case type.startsWith("analytical.realpositive"):
+			value = - Math.log(rnd); //may yield infinity
+			break; */
+
+		case type.startsWith("analytical.realnonneg"):
+			value = - Math.log(1.0 - rnd);
 			break;
 
 		case type.startsWith("analytical.real"):
@@ -35,18 +39,25 @@ function makeQuantitative(type) {
 			break;
 
 		case type.startsWith("analytical.intnonneg"):
-			value = Math.trunc(- Math.log(rnd));
+			//value = Math.trunc(- Math.log(rnd)); //may yield infinity
+			value = Math.trunc(- Math.log(1.0 - rnd));
 			break;
 
 		case type.startsWith("analytical.int"):
 			value = Math.round(Math.log((1.0 - rnd) / rnd));
 			break;
 
+		/* case type.startsWith("analytical.list"):
+			//"analytical.list.4"
+			//"analytical.list/string"
+			//"analytical.list.4/string"
+			break; */
+
 		/* case type.startsWith("analytical"):
 			break; */
 
 		default:
-			value = - Math.log(- Math.log(Math.random())); //inverse sigmoid: real number (skewed towards positive numbers)
+			value = - Math.log(- Math.log(rnd)); //inverse sigmoid: real number (skewed towards positive numbers)
 			break;
 	}
 
@@ -56,8 +67,27 @@ function makeQuantitative(type) {
 	return value;
 
 	//to do:
-	//	vectors
+	//	vectors or lists
 	//	quantitative functions
+}
+function makeString(length) {
+	let lengthN = Number(length);
+	if(length === null || isNaN(lengthN)) {
+		//(1.0 - Math.random()) avoids 0 (might return 1).
+		//const rndPositive = -4 * Math.log(1.0 - Math.random());
+		//const rndPositive = - Math.E * Math.log(1.0 - Math.random());
+		const rndPositive = -2 * Math.log2(1.0 - Math.random());
+		lengthN = 1 + Math.trunc(rndPositive);
+	} else {
+		if(lengthN < 1) return "";
+	}
+
+	const fnLetterCode = () => (
+		"a".charCodeAt() + Math.trunc(26 * Math.random())
+	);
+	const charList = Array.from(Array(lengthN), fnLetterCode);
+	//const charList = Array(lengthN).map(fnLetterCode); //map doesn't work with an empty array.
+	return String.fromCodePoint(...charList);
 }
 
 var modRules;
@@ -100,16 +130,16 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 	if(!rootCat) return content;
 	if(!modRules) return;
 
-	let cat1, cat2;
+	let cat1, cat2; //to do: use an array, an split instead of indexOf?
 	//specific content generators
 	//primary (depending only of category/type description)
 	if(rootCat.startsWith("analytical"))
 		content.value = makeQuantitative(rootCat);
 	else {
-		const pointIdx = rootCat.indexOf(".");
-		if(pointIdx >= 0) {
-			cat1 = rootCat.substring(0, pointIdx);
-			cat2 = rootCat.slice(pointIdx + 1);
+		const separatorIdx = rootCat.indexOf(".");
+		if(separatorIdx >= 0) {
+			cat1 = rootCat.substring(0, separatorIdx);
+			cat2 = rootCat.slice(separatorIdx + 1);
 		}
 
 		//e.g. if rootCat is "roles.role", and it admits a "value":
@@ -120,12 +150,16 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 			content.value = randomFromList(modRules.categoryValues[rootCat]);
 		if(!content.value && cat1 && modRules.categoryValues[cat1])
 			content.value = randomFromList(modRules.categoryValues[cat1]);
+
+		if(!content.value && rootCat === "string")
+			content.value = makeString();
+		if(!content.value && cat1 === "string")
+			content.value = makeString(cat2);
 	}
 	//to do:
-	//	strings
-	//		names/pronounceable words
+	//	strings: names/pronounceable words
 	//	colors
-	//	variable-sized arrays
+	//	variable-sized arrays/lists
 	//	references
 	//	functions
 
@@ -136,14 +170,19 @@ function makeNewContent(rootCat, repeatDepthLimit) {
 		if(repeatDepthLimit < 1) return content;
 
 	//composite object (map): field choice and filling
-	//required and primary (arbitrary, most independent) fields
-	let fieldList = modRules.categoryFieldsReq[rootCat] ?? modRules.categoryFieldsReq[cat1];
-	if(fieldList) {
+	//required and primary (arbitrary, i.e. most independent) fields
+	//let fieldList = modRules.categoryFieldsReq[rootCat] ?? modRules.categoryFieldsReq[cat1];
+	//if both field lists exist (for rootCat and for cat1), merge them
+	let fieldList = [];
+	if(modRules.categoryFieldsReq[rootCat]) fieldList = fieldList.concat(modRules.categoryFieldsReq[rootCat]);
+	if(modRules.categoryFieldsReq[cat1]) fieldList = fieldList.concat(modRules.categoryFieldsReq[cat1]);
+	if(fieldList.length >= 1) {
 		//const catIndex = modRules.fieldInstances.category.indexOf(rootCat) /* + 1 */;
 		let catIndex = modRules.fieldInstances.category.indexOf(rootCat);
 		const catCount = modRules.fieldInstances.category.length;
 		if(catIndex + 1 < catCount && repeatDepthLimit < 2) catIndex++;
 		for(const field of fieldList) {
+			if(content[field]) continue;
 			let fieldCat = cat2 ?? randomFromList(modRules.fieldCategories[field]), value;
 			if(fieldCat) {
 				value = randomFromList(modRules.fieldInstances[field + "." + fieldCat]);
