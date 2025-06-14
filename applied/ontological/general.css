@@ -50,21 +50,27 @@ a:visited {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 } */
 
-pre {
-	/* white-space: pre; */
-	tab-size: 2;
+/* output[contenteditable]:not([contenteditable="false"]) { */
+output:read-write {
+	outline-offset: 0.125em;
 }
 .main-output, .code-editor {
-	font-size: 0.8rem;
-}
-.code-editor {
 	padding: 0.5em;
 
+	font-size: 0.8rem;
+	font-family: monospace;
+
+	white-space-collapse: preserve;
+}
+.main-output {
+	overflow-x: auto;
+	text-wrap-mode: nowrap;
+	tab-size: 2;
+}
+.code-editor {
 	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
 	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
 
-	font-family: monospace;
-	white-space-collapse: preserve;
 	text-wrap-mode: wrap;
 	text-wrap-style: stable;
 	tab-size: 4;
