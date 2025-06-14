@@ -268,6 +268,7 @@ function btnGenerateContentClick(event) {
 	const content = makeNewContent(rootCat);
 	//outSummary.textContent = JSON.stringify(content, null, "\t");
 	outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
+	localStorage.setItem("rootCategory", selRootCategory.value);
 }
 function editorKeyDown(event) {
 	if(event.key == "Tab") {
@@ -311,7 +312,8 @@ async function txtRulesSourceBlur(event) {
 async function btnRulesResetClick(event) {
 	if(readDefaultRules()) {
 		localStorage.removeItem("modRules.source");
-		event.target.classList?.remove?.("invalid");
+		localStorage.removeItem("rootCategory");
+		txtRulesSource.classList?.remove?.("invalid");
 		/* modRules = null;
 		await loadRulesModule(txtRulesSource.textContent); */
 		if(modRules) loadCategoryList();
@@ -456,11 +458,15 @@ async function pageReady(event) {
 		}
 		if(!checkRulesModule(modRules)) return;
 		loadCategoryList();
+		const cat = localStorage.getItem("rootCategory");
+		if(cat) selRootCategory.value = cat;
+		selRootCategory.addEventListener("input", btnGenerateContentClick);
 
-		const rootCat = randomFromList(modRules.fieldInstances.category);
+		/* const rootCat = randomFromList(modRules.fieldInstances.category);
 		const content = makeNewContent(rootCat);
 		//outSummary.textContent = JSON.stringify(content, null, "\t");
-		outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
+		outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t"); */
+		btnGenerateContentClick(null);
 	} catch(error) {
 		outSummary.textContent = "Couldn't use rules module.\n" + error.message;
 	}
