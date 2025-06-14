@@ -292,8 +292,8 @@ function editorInput(event) {
 	event.target.classList.add?.("changed");
 }
 function editorChanged(event) {
-	if(!event || !event.target) return false;
-	event.target.normalize();
+	if(!event) return false;
+	event.target?.normalize?.();
 }
 async function txtRulesSourceBlur(event) {
 	if(!event || !event.target) return false;
@@ -314,9 +314,7 @@ async function btnRulesResetClick(event) {
 		localStorage.removeItem("modRules.source");
 		localStorage.removeItem("rootCategory");
 		txtRulesSource.classList?.remove?.("invalid");
-		/* modRules = null;
-		await loadRulesModule(txtRulesSource.textContent); */
-		if(modRules) loadCategoryList();
+		loadCategoryList();
 	}
 }
 
