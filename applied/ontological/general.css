@@ -104,12 +104,30 @@ details {
 	}
 	&:not([open]) {
 		border-radius: 0em 0.75em 0.75em 0em;
+		& > summary:first-of-type {
+			border-radius: 0em 0.75em 0.75em 0em;
+		}
 
+		&:hover, &:active, &:focus-visible, 
+		&:has(> summary:first-of-type:is(:hover, :active, :focus-visible)) {
+			outline-style: solid;
+			outline-width: 0.25em;
+			outline-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.3);
+			background-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.5);
+		}
+		/* & > summary:first-of-type {
+			&:hover, &:active, &:focus {
+				outline-style: solid;
+				outline-width: 0.25em;
+				outline-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.5);
+				background-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.5);
+			}
+		} */
 		&:has(.invalid) {
-			background-color: oklch(0.5 0.125 0deg / 0.5);
+			background-color: oklch(0.5 0.125 0deg / 0.5) !important;
 		}
 		&:not(:has(.invalid)):has(#outSourceStatus:not(:empty)) {
-			background-color: oklch(0.5 0.125 90deg / 0.5);
+			background-color: oklch(0.5 0.125 90deg / 0.5) !important;
 		}
 	}
 	& > summary:first-of-type {
