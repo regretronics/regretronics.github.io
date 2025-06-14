@@ -24,7 +24,7 @@
 	<script id="defaultRulesBody" type="text/plain">
 		export const categoryValues = {
 			/* "analytical.bit": [0, 1], */
-			role: ["Mary", "John"],
+			"name.personal": ["Mary", "John"],
 		};
 		export const fieldInstances = {
 			category: ["conceptual", "practical", "material", "physical", "analytical"],
@@ -34,6 +34,9 @@
 			type: ["typeA", "typeB", "typeC"],
 			something1: ["fasf", 123, {asdf: 31234}],
 			"something1.string": ["asdf", "tert", "asdfdr"],
+			"name.personal": ["Mary", "John"],
+			"protagonist/name": ["Mr. Important"],
+			"unit.time": ["decade", "year", "month", "day"],
 		};
 
 		export const categoryFieldsReq = {
@@ -41,9 +44,17 @@
 			practical: ["practical1", "practical2"],
 			material: ["material1", "material2"],
 			physical: ["physical1", "physical2"],
+			"physical.quantity": ["scale"],
 			//analytical: [],
 
 			roles: ["protagonist", "antagonist"],
+			//"roles/agent": ["protagonist", "antagonist"],
+			//"roles/agent": ["agent.protagonist", "agent.antagonist"],
+			agent: ["name.personal", "age"],
+			"protagonist/agent": ["why.protagonist"],
+			"antagonist/agent": ["why.antagonist"],
+			"physical.quantity.time": ["measure"],
+			"measure.time": ["unit.time", "scale.time"],
 			/* process: ["type", "roles"],
 			relation: ["type", ""],
 			role: ["type", "agent"],
@@ -55,11 +66,14 @@
 
 		export const fieldCategories = {
 			category: ["string"],
-			/* type: ["string", "analytical"], */
-			/* roles: ["list of agent"], */
-			roles: ["roles.role"],
-			/* role: ["agent"], */
+			roles: ["roles/agent"],
+			//"conceptual/roles": ["roles/agent"],
 			physical1: ["analytical", "string"],
+			age: ["physical.quantity.time"],
+			//age: ["physical.quantity.time/analytical.realnonneg"],
+			//"agent/name": ["name.personal"],
+			//"protagonist": ["agent.person"],
+			"physical.quantity.time/measure": ["measure.time"],
 		};
 	</script>
 </head>
