@@ -90,7 +90,8 @@ details {
 	}
 	& > summary:first-of-type {
 		cursor: pointer;
-		padding-inline: 0.5em;
+		padding-inline-start: 0.25em;
+		padding-inline-end: 0.375em;
 	}
 	& > .details-main {
 		/* border-block-end-style: solid;
@@ -113,7 +114,7 @@ summary:has(.marker) {
 	list-style-type: none;
 }
 .marker {
-	margin-inline-end: 0.5em;
+	margin-inline-end: 0.25em;
 	/* vertical-align: middle; */
 	/* vertical-align: top; */
 	display: inline-block;
@@ -145,9 +146,9 @@ input, textarea, button, select {
 	font-size: inherit;
 }
 input:is(/* [type=date], [type=datetime-local], */ [type=email], [type=file], [type=hidden], [type=month], [type=password], [type=search], [type=tel], [type=text], [type=url], [type=week], [type=datetime]), textarea, button, select { /*left-aligned stuff*/
-	border-start-start-radius: 0.125em;
+	border-start-start-radius: 0.1875em;
 	border-start-end-radius: 0.3125em;
-	border-end-start-radius: 0.125em;
+	border-end-start-radius: 0.1875em;
 	border-end-end-radius: 0.3125em;
 }
 input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, button, select {
@@ -188,9 +189,9 @@ input[type=number] {
 	width: 8ch;
 	text-align: right;
 	border-start-start-radius: 0.3125em;
-	border-start-end-radius: 0.125em;
+	border-start-end-radius: 0.1875em;
 	border-end-start-radius: 0.3125em;
-	border-end-end-radius: 0.125em;
+	border-end-end-radius: 0.1875em;
 }
 input[type=range] {
 	vertical-align: middle;
