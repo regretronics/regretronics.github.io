@@ -1,17 +1,25 @@
 "use strict";
 
 var modRules;
+const categories = {
+	all: [],
+	standard: [],
+	bottomLevel: ["analytical.fractionary", "analytical.bit", "analytical.realnonneg", "analytical.real", "analytical.intnonneg", "analytical.int", "analytical.list", "string"],
+};
 
 function btnGenerateContentClick(event) {
-	const selectedCat = selRootCategory.value;
+	/* const selectedCat = selRootCategory.value;
 	let isCatRandom = selectedCat == "random";
-	if(!isCatRandom && !modRules.fieldInstances.category.includes(selectedCat))
+	if(!isCatRandom && !modRules.fieldValues.category.includes(selectedCat))
 		isCatRandom = true;
-	const rootCat = (isCatRandom ? randomFromList(modRules.fieldInstances.category) : selectedCat);
+	const rootCat = (isCatRandom ? randomFromList(modRules.fieldValues.category) : selectedCat); */
+	const isCatRandom = selRootCategory.selectedIndex === 0;
+	const rootCat = (isCatRandom ? randomFromList(categories[selRootCategoryGroup.value]) : selRootCategory.value);
 
 	const content = makeNewContent(rootCat);
 	//outSummary.textContent = JSON.stringify(content, null, "\t");
 	outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
+	localStorage.setItem("rootCategoryGroup", selRootCategoryGroup.value);
 	localStorage.setItem("rootCategory", selRootCategory.value);
 }
 function editorKeyDown(event) {
@@ -45,7 +53,7 @@ async function txtRulesSourceBlur(event) {
 		modRules = null;
 		await loadRulesModule(txtRulesSource.textContent);
 		if(!checkRulesModule(modRules)) return;
-		loadCategoryList();
+		loadCategoryGroups();
 		//outSourceStatus.innerText = "";
 	} catch(error) {
 		//report error to UI
@@ -57,8 +65,7 @@ async function btnRulesResetClick(event) {
 	if(readDefaultRules()) {
 		localStorage.removeItem("modRules.source");
 		localStorage.removeItem("rootCategory");
-		txtRulesSource.classList?.remove?.("invalid");
-		loadCategoryList();
+		loadCategoryGroups();
 	}
 }
 
@@ -84,7 +91,7 @@ function checkRulesModule(modRules) {
 		txtRulesSource.classList?.add?.("invalid");
 		return false;
 	}
-	const requiredMembers = ["categoryValues", "fieldInstances", "categoryFieldsReq", /* "categoryFieldsOpt", */ "fieldCategories"];
+	const requiredMembers = ["categoryValues", "fieldValues", "categoryFieldsReq", /* "categoryFieldsOpt", */ "fieldCategories"];
 	for(const member of requiredMembers) {
 		if(!modRules[member]) {
 			outSourceStatus.innerHTML = `Member <code>${member}</code> is missing.`;
@@ -103,9 +110,13 @@ async function readRulesFromStorage() {
 		if(!src || src.length < 1) return false;
 		txtRulesSource.textContent = src;
 		await loadRulesModule(txtRulesSource.textContent);
+
+		outSourceStatus.innerText = "";
+		txtRulesSource.classList?.remove?.("invalid");
 		return true;
 	} catch(error) {
-		console.error(error);
+		outSourceStatus.innerText = error.message;
+		txtRulesSource.classList?.add?.("invalid");
 		return false;
 	}
 }
@@ -119,13 +130,16 @@ async function fetchDefaultRules() {
 		if(response.ok) {
 			txtRulesSource.textContent = await response.text();
 			await loadRulesModule(txtRulesSource.textContent);
+			outSourceStatus.innerText = "";
+			txtRulesSource.classList?.remove?.("invalid");
 		} else {
 			console.log(response);
 			//throw new Error(`Response status: ${response.status}`);
 		}
 		return response.ok;
 	} catch(error) {
-		console.error(error);
+		outSourceStatus.innerText = error.message;
+		txtRulesSource.classList?.add?.("invalid");
 		return false;
 	}
 }
@@ -156,13 +170,37 @@ async function readDefaultRules() {
 		return false;
 	}
 }
-function loadCategoryList() {
-	if(!modRules || !modRules.fieldInstances?.category) {
+
+function loadCategoryGroups() {
+	if(!modRules) return false;
+	categories.standard = modRules.fieldValues?.category;
+	const setOfKeys = (obj) => {
+		const arr = Object.keys(obj).map((elem) => {
+			const lastSeparatorIdx = elem.lastIndexOf("/");
+			if(lastSeparatorIdx >= 0)
+				return elem.slice(lastSeparatorIdx + 1);
+			else
+				return elem;
+		});
+		return new Set(arr);
+	};
+	const allCategories = [
+		setOfKeys(modRules.categoryValues),
+		setOfKeys(modRules.categoryFieldsReq),
+	];
+	categories.all = Array.from(allCategories[0].union(allCategories[1]));
+	//categories.all = [];
+	//categories.bottomLevel = modRules.fieldValues?.["analytical/category2"];
+	loadCategories();
+}
+function loadCategories() {
+	const group = categories[selRootCategoryGroup.value];
+	if(!group) {
 		selRootCategory.options.length = 1;
 		return;
 	}
-	selRootCategory.options.length = 1 + modRules.fieldInstances.category.length;
-	modRules.fieldInstances.category.forEach((element, index) => {
+	selRootCategory.options.length = 1 + group.length;
+	group.forEach((element, index) => {
 		const optItem = selRootCategory.item(1 + index);
 		if(!optItem) return;
 		optItem.text = element;
@@ -199,15 +237,15 @@ async function pageReady(event) {
 			txtRulesSource.addEventListener("blur", txtRulesSourceBlur);
 		}
 		if(!checkRulesModule(modRules)) return;
-		loadCategoryList();
+
+		const catGroup = localStorage.getItem("rootCategoryGroup");
+		if(catGroup) selRootCategoryGroup.value = catGroup;
+		loadCategoryGroups();
+		selRootCategoryGroup.addEventListener("input", loadCategories);
+
 		const cat = localStorage.getItem("rootCategory");
 		if(cat) selRootCategory.value = cat;
 		selRootCategory.addEventListener("input", btnGenerateContentClick);
-
-		/* const rootCat = randomFromList(modRules.fieldInstances.category);
-		const content = makeNewContent(rootCat);
-		//outSummary.textContent = JSON.stringify(content, null, "\t");
-		outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t"); */
 		btnGenerateContentClick(null);
 	} catch(error) {
 		outSummary.textContent = "Couldn't use rules module.\n" + error.message;

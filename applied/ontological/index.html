@@ -23,11 +23,23 @@
 	/*]]>*/</script>
 	<script id="defaultRulesBody" type="text/plain">
 		export const categoryValues = {
+			//category or "field/category" as key
+			//one from the list is used
 			/* "analytical.bit": [0, 1], */
 			"name.personal": ["Mary", "John"],
+			"0/name.personal": ["Mr. First"],
+			"0/string": ["First"],
 		};
-		export const fieldInstances = {
+		export const fieldValues = {
+			//field or "category/field" as key
+			//one from the list is used
 			category: ["conceptual", "practical", "material", "physical", "analytical"],
+			"conceptual/category2": ["process", "relation", "role", "agent"],
+			"practical/category2": ["entity", "property", "propValue"],
+			"material/category2": ["universe", "person", "time", "space", "density", "probability"],
+			"physical/category2": ["quantity", "unit", "measurement"],
+			"analytical/category2": ["set", "sequence", "vector", "number"],
+
 			process: ["adolescence"],
 			entity: ["person", "object"],
 			property: ["age", "length", "matComposition"],
@@ -35,15 +47,18 @@
 			something1: ["fasf", 123, {asdf: 31234}],
 			"something1.string": ["asdf", "tert", "asdfdr"],
 			"name.personal": ["Mary", "John"],
-			"protagonist/name": ["Mr. Important"],
-			"unit.time": ["decade", "year", "month", "day"],
+			//"agent/name.personal": ["Mr. Important"],
+			//"unit.time": ["decade", "year", "month", "day"],
+			"measure.time/unit": ["decade", "year", "month", "day"],
 		};
 
 		export const categoryFieldsReq = {
-			conceptual: ["type", "roles"],
-			practical: ["practical1", "practical2"],
-			material: ["material1", "material2"],
-			physical: ["physical1", "physical2"],
+			//category or "field/category" as key
+			//all from the list are used
+			conceptual: ["category2", "type", "roles"],
+			practical: ["category2", "practical1", "practical2"],
+			material: ["category2", "material1", "material2"],
+			physical: ["category2", "physical1", "physical2"],
 			"physical.quantity": ["scale"],
 			//analytical: [],
 
@@ -54,7 +69,8 @@
 			"protagonist/agent": ["why.protagonist"],
 			"antagonist/agent": ["why.antagonist"],
 			"physical.quantity.time": ["measure"],
-			"measure.time": ["unit.time", "scale.time"],
+			//"measure.time": ["unit.time", "scale.time"],
+			"measure.time": ["unit", "scale"],
 			/* process: ["type", "roles"],
 			relation: ["type", ""],
 			role: ["type", "agent"], */
@@ -64,15 +80,18 @@
 		}; */
 
 		export const fieldCategories = {
+			//field or "category/field" as key
+			//one from the list is used
 			category: ["string"],
+			//category2: ["string"],
 			roles: ["roles/agent"],
 			//"conceptual/roles": ["roles/agent"],
 			physical1: ["analytical", "string"],
 			age: ["physical.quantity.time"],
 			//"agent/name": ["name.personal"],
 			"physical.quantity.time/measure": ["measure.time"],
-			"scale.time": ["analytical.realnonneg"],
-			//"measure.time/scale": ["analytical.realnonneg"],
+			//"scale.time": ["analytical.realnonneg"],
+			"measure.time/scale": ["analytical.realnonneg"],
 		};
 	</script>
 </head>
@@ -87,13 +106,18 @@
 		<pre id="txtRulesSource" class="code-editor" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
 	</details>
 	<p>
-		<label for="selRootCategory">Root category:</label> 
+		<label for="selRootCategoryGroup">Root category:</label> 
+		<select id="selRootCategoryGroup">
+			<option value="all">All</option>
+			<option value="standard">Standard</option>
+			<option value="bottomLevel">Bottom-level</option>
+		</select>
 		<select id="selRootCategory">
 			<option value="random">random</option>
 		</select>
 		<button id="btnGenerateContent">Generate</button>
 	</p>
-	<!-- <pre class="main-output"><output id="outSummary" for="selRootCategory" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></output></pre> -->
-	<pre class="main-output" id="outSummary" for="selRootCategory" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
+	<!-- <pre class="main-output"><output id="outSummary" for="selRootCategoryGroup selRootCategory" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></output></pre> -->
+	<pre class="main-output" id="outSummary" for="selRootCategoryGroup selRootCategory" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
 </body>
 </html>

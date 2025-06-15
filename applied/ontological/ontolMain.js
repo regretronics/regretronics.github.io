@@ -47,12 +47,6 @@ function makeQuantitative(type) {
 			value = Math.round(Math.log((1.0 - rnd) / rnd));
 			break;
 
-		/* case type.startsWith("analytical.list"):
-			//"analytical.list.4"
-			//"analytical.list/string"
-			//"analytical.list.4/string"
-			break; */
-
 		/* case type.startsWith("analytical"):
 			break; */
 
@@ -70,14 +64,17 @@ function makeQuantitative(type) {
 	//	vectors or lists
 	//	quantitative functions
 }
+function randomLength() {
+	//(1.0 - Math.random()) avoids 0 (might return 1).
+	//const rndPositive = -4 * Math.log(1.0 - Math.random());
+	//const rndPositive = - Math.E * Math.log(1.0 - Math.random());
+	const rndPositive = -2 * Math.log2(1.0 - Math.random());
+	return 1 + Math.trunc(rndPositive);
+}
 function makeString(length) {
 	let lengthN = Number(length);
 	if(length === null || isNaN(lengthN)) {
-		//(1.0 - Math.random()) avoids 0 (might return 1).
-		//const rndPositive = -4 * Math.log(1.0 - Math.random());
-		//const rndPositive = - Math.E * Math.log(1.0 - Math.random());
-		const rndPositive = -2 * Math.log2(1.0 - Math.random());
-		lengthN = 1 + Math.trunc(rndPositive);
+		lengthN = randomLength();
 	} else {
 		if(lengthN < 1) return "";
 	}
@@ -89,6 +86,21 @@ function makeString(length) {
 	//const charList = Array(lengthN).map(fnLetterCode); //map doesn't work with an empty array.
 	return String.fromCodePoint(...charList);
 }
+/* function makeList(length, elemCategory) {
+	let lengthN = Number(length);
+	if(length === null || isNaN(lengthN)) {
+		lengthN = randomLength();
+	} else {
+		if(lengthN < 1) return [];
+	}
+
+	const fnContent = (elem, index) => (
+		makeNewContent(elemCategory)
+	);
+	const list = Array.from(Array(lengthN), fnContent);
+	//const list = Array(lengthN).map(fnContent); //map doesn't work with an empty array.
+	return list;
+} */
 
 var modRules;
 
@@ -126,9 +138,18 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 		},
 	}; */
 
-	const content = {category: rootCat};
+	/* const content = {category: rootCat};
+	if(!rootCat) return content; */
+	let content = {category: rootCat};
 	if(!rootCat) return content;
-	if(!modRules) return;
+	if(!modRules) return content;
+
+	let cat1, cat2; //to do: use an array, and split instead of indexOf?
+	const separatorIdx = rootCat.indexOf("/");
+	if(separatorIdx >= 0) {
+		cat1 = rootCat.substring(0, separatorIdx);
+		cat2 = rootCat.slice(separatorIdx + 1);
+	}
 
 	if(parentContext == undefined) parentContext = "";
 	//for the moment, only take the last part of the parent context.
@@ -136,18 +157,66 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	const lastSeparatorIdx = parentContext.lastIndexOf("/");
 	if(lastSeparatorIdx >= 0) parentContext = parentContext.slice(lastSeparatorIdx + 1);
 
-	let cat1, cat2; //to do: use an array, and split instead of indexOf?
+	//const catIndex = modRules.fieldValues.category.indexOf(rootCat) /* + 1 */;
+	let catIndex = modRules.fieldValues.category.indexOf(rootCat);
+	const catCount = modRules.fieldValues.category.length;
+	if(catIndex + 1 < catCount && repeatDepthLimit < 2) catIndex++;
+
+	const defaultRepeatDepthLimit = 2;
+	if(repeatDepthLimit == undefined)
+		repeatDepthLimit = defaultRepeatDepthLimit;
+	else
+		if(repeatDepthLimit < 1) return content;
+
+	const fieldValue = (field) => {
+		//try to define category first
+		let fieldCat = cat2 
+			?? randomFromList(modRules.fieldCategories[rootCat + "/" + field]) 
+			?? randomFromList(modRules.fieldCategories[field]);
+		let value;
+		if(fieldCat) { //value later
+			//question: direct value generation here, or in the sub-call?
+			value = randomFromList(modRules.categoryValues[field + "/" + fieldCat]); //currently: here if the selector is more specific
+			//value = randomFromList(modRules.categoryValues[field + "/" + fieldCat]) ?? randomFromList(modRules.categoryValues[fieldCat]); //here, as much as possible
+			if(!value)
+				value = makeNewContent(fieldCat, parentContext + "/" + field, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
+		} else {
+			//ok, try value first then
+			value = randomFromList(modRules.fieldValues[rootCat + "/" + field]) ?? randomFromList(modRules.fieldValues[field]);
+			if(!value) {
+				//ok, category first again
+				//if(catIndex > 0 && catIndex <= catCount)
+				if(catIndex >= 0)
+					fieldCat = modRules.fieldValues.category[catIndex
+					+ Math.floor((catCount - catIndex) * Math.random())];
+				else
+					fieldCat = modRules.fieldValues.category.at(-1);
+				value = makeNewContent(fieldCat, parentContext + "/" + field, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
+			}
+		}
+		return value;
+	};
+
 	//specific content generators
 	//primary (depending only of category/type description)
-	if(rootCat.startsWith("analytical"))
-		content.value = makeQuantitative(rootCat);
-	else {
-		const separatorIdx = rootCat.indexOf("/");
-		if(separatorIdx >= 0) {
-			cat1 = rootCat.substring(0, separatorIdx);
-			cat2 = rootCat.slice(separatorIdx + 1);
-		}
-
+	if(rootCat.startsWith("analytical")) {
+		if(rootCat.startsWith("analytical.list")) {
+			const length = (cat1 ?? rootCat).split(".", 3).at(2);
+			let lengthN = Number(length);
+			if(length === null || isNaN(lengthN)) {
+				lengthN = randomLength();
+			}
+			//content = makeList(length, cat2);
+			//content = Array.from(Array(lengthN), fnContent);
+			content = [];
+			for(let index = 0; index < lengthN; index++) {
+				const field = index.toString();
+				content[index] = fieldValue(field);
+			}
+		} else
+			content.value = makeQuantitative(rootCat);
+	} else {
+		//if(!modRules) return content;
 		//e.g. if rootCat is "roles/agent", and it admits a "value":
 		//the value depends first on values for "roles/agent", or else values for just "roles" (less specific).
 		//including parent field name makes the selector more specific, which goes first.
@@ -176,12 +245,8 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	//	references
 	//	functions
 
-	const defaultRepeatDepthLimit = 2;
-	if(repeatDepthLimit == undefined)
-		repeatDepthLimit = defaultRepeatDepthLimit;
-	else
-		if(repeatDepthLimit < 1) return content;
-
+	if(Array.isArray(content)) return content; //properties wouldn't survive the serialization of an array
+	//if(!modRules) return content;
 	//composite object (map): field choice and filling
 	//required and primary (arbitrary, i.e. most independent) fields
 	//let fieldList = modRules.categoryFieldsReq[rootCat] ?? modRules.categoryFieldsReq[cat1];
@@ -199,36 +264,12 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	tryIncludeFieldList(rootCat);
 	tryIncludeFieldList(cat1);
 
-	if(fieldList.length >= 1) {
-		//const catIndex = modRules.fieldInstances.category.indexOf(rootCat) /* + 1 */;
-		let catIndex = modRules.fieldInstances.category.indexOf(rootCat);
-		const catCount = modRules.fieldInstances.category.length;
-		if(catIndex + 1 < catCount && repeatDepthLimit < 2) catIndex++;
+	if(fieldList.length >= 1)
 		for(const field of fieldList) {
-			if(content[field]) continue; //avoid duplicates (I could have used a set of fields instead)
-			let fieldCat = cat2 
-				?? randomFromList(modRules.fieldCategories[rootCat + "/" + field]) 
-				?? randomFromList(modRules.fieldCategories[field]);
-			let value;
-			if(fieldCat) {
-				value = randomFromList(modRules.fieldInstances[field + "/" + fieldCat]);
-				if(!value)
-					value = makeNewContent(fieldCat, parentContext + "/" + field, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
-			} else {
-				value = randomFromList(modRules.fieldInstances[rootCat + "/" + field]) ?? randomFromList(modRules.fieldInstances[field]);
-				if(!value) {
-					//if(catIndex > 0 && catIndex <= catCount)
-					if(catIndex >= 0)
-						fieldCat = modRules.fieldInstances.category[catIndex
-						 + Math.floor((catCount - catIndex) * Math.random())];
-					else
-						fieldCat = modRules.fieldInstances.category.at(-1);
-					value = makeNewContent(fieldCat, parentContext + "/" + field, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
-				}
-			}
-			content[field] = value;
+			if(content[field]) continue; //avoid superposition/duplicate generation (I could have used a set of fields instead)
+			content[field] = fieldValue(field);
 		}
-	}
+
 	//to do:
 	//modRules.categoryFieldsOpt
 	//optional and primary (arbitrary) fields
@@ -240,7 +281,7 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	let field = "category";
 	content[field] = rootCat;
 	do {
-		content[field] = modRules.fieldInstances[field][0];
+		content[field] = modRules.fieldValues[field][0];
 		//deepen
 		//iterate
 		//return
