@@ -67,42 +67,20 @@
 			/* animation-composition: add; */
 		}
 
-		#selBodySpeed {
-			& > [value="0"]:checked {
-				:root:has(&) {animation-play-state: paused;}
-			}
-			& > [value="1"]:checked {
-				:root:has(&) {animation-play-state: running, paused, paused, paused, paused;}
-			}
-			& > [value="2"]:checked {
-				:root:has(&) {animation-play-state: paused, running, paused, paused, paused;}
-			}
-			& > [value="4"]:checked {
-				:root:has(&) {animation-play-state: paused, paused, running, paused, paused;}
-			}
-			& > [value="8"]:checked {
-				:root:has(&) {animation-play-state: paused, paused, paused, running, paused;}
-			}
-			& > [value="16"]:checked {
-				:root:has(&) {animation-play-state: paused, paused, paused, paused, running;}
-			}
+		#selBodySpeed > :checked {
+			:root:has(&[value="0"]) {animation-play-state: paused;}
+			:root:has(&[value="1"]) {animation-play-state: running, paused, paused, paused, paused;}
+			:root:has(&[value="2"]) {animation-play-state: paused, running, paused, paused, paused;}
+			:root:has(&[value="4"]) {animation-play-state: paused, paused, running, paused, paused;}
+			:root:has(&[value="8"]) {animation-play-state: paused, paused, paused, running, paused;}
+			:root:has(&[value="16"]) {animation-play-state: paused, paused, paused, paused, running;}
 		}
-		#selBlurIntensity {
-			& > [value="0"]:checked {
-				:root:has(&) {--filter-blur: none;}
-			}
-			& > [value="1"]:checked {
-				:root:has(&) {--filter-blur: url("#blur1");}
-			}
-			& > [value="2"]:checked {
-				:root:has(&) {--filter-blur: url("#blur2");}
-			}
-			& > [value="4"]:checked {
-				:root:has(&) {--filter-blur: url("#blur4");}
-			}
-			& > [value="8"]:checked {
-				:root:has(&) {--filter-blur: url("#blur8");}
-			}
+		#selBlurIntensity > :checked {
+			:root:has(&[value="0"]) {--filter-blur: none;}
+			:root:has(&[value="1"]) {--filter-blur: url("#blur1");}
+			:root:has(&[value="2"]) {--filter-blur: url("#blur2");}
+			:root:has(&[value="4"]) {--filter-blur: url("#blur4");}
+			:root:has(&[value="8"]) {--filter-blur: url("#blur8");}
 		}
 
 		body {
