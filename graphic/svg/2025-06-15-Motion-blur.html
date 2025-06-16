@@ -10,11 +10,20 @@
 			initial-value: 0.0;
 			inherits: true;
 		}
-		@keyframes shuffle {
-			to {
-				/* --t: var(--dur); */
-				--t: calc(0.5 * var(--dur));
-			}
+		@keyframes shuffle1 {
+			to {--t: calc(0.375 * var(--dur));}
+		}
+		@keyframes shuffle2 {
+			to {--t: calc(0.75 * var(--dur));}
+		}
+		@keyframes shuffle4 {
+			to {--t: calc(1.5 * var(--dur));}
+		}
+		@keyframes shuffle8 {
+			to {--t: calc(3 * var(--dur));}
+		}
+		@keyframes shuffle16 {
+			to {--t: calc(6 * var(--dur));}
 		}
 
 		:root {
@@ -50,25 +59,89 @@
 			--rnd-exp3: calc(110 / 113);
 			--rnd-offset: mod(pow(1451, 1 / 7), 1);
 
-			animation-name: shuffle;
+			animation-name: shuffle1, shuffle2, shuffle4, shuffle8, shuffle16;
 			animation-duration: calc(1s * var(--dur));
 			animation-iteration-count: infinite;
 			animation-timing-function: linear;
+			/* animation-play-state: paused; */
+			/* animation-composition: add; */
 		}
+
+		#selBodySpeed {
+			& > [value="0"]:checked {
+				:root:has(&) {animation-play-state: paused;}
+			}
+			& > [value="1"]:checked {
+				:root:has(&) {animation-play-state: running, paused, paused, paused, paused;}
+			}
+			& > [value="2"]:checked {
+				:root:has(&) {animation-play-state: paused, running, paused, paused, paused;}
+			}
+			& > [value="4"]:checked {
+				:root:has(&) {animation-play-state: paused, paused, running, paused, paused;}
+			}
+			& > [value="8"]:checked {
+				:root:has(&) {animation-play-state: paused, paused, paused, running, paused;}
+			}
+			& > [value="16"]:checked {
+				:root:has(&) {animation-play-state: paused, paused, paused, paused, running;}
+			}
+		}
+		#selBlurIntensity {
+			& > [value="0"]:checked {
+				:root:has(&) {--filter-blur: none;}
+			}
+			& > [value="1"]:checked {
+				:root:has(&) {--filter-blur: url("#blur1");}
+			}
+			& > [value="2"]:checked {
+				:root:has(&) {--filter-blur: url("#blur2");}
+			}
+			& > [value="4"]:checked {
+				:root:has(&) {--filter-blur: url("#blur4");}
+			}
+			& > [value="8"]:checked {
+				:root:has(&) {--filter-blur: url("#blur8");}
+			}
+		}
+
 		body {
 			margin: 0;
-			padding: 0;
 			border: none;
+			padding: 0;
+			height: 100%;
 			overflow: hidden;
+
+			display: flex;
+			flex-direction: column;
+			flex-wrap: nowrap;
+			justify-content: center;
+			align-items: stretch;
+		}
+		body, body > * {
+			box-sizing: border-box;
+		}
+		body > :nth-child(1) {
+			flex-basis: auto;
+			flex-grow: 1;
+			flex-shrink: 1;
+		}
+		body > :nth-child(2) {
+			flex-grow: 0;
+			flex-shrink: 0;
+			padding-inline: min(1em, 2cqi);
+			background-color: oklch(0.25 0 0deg);
 		}
 
 		#svg1 {
-			position: absolute;
 			width: 100%;
 			height: 100%;
-			overflow: hidden;
+			/* overflow: hidden; */
+			/* aspect-ratio: auto; */
 		}
 		#spriteContainer {
+			filter: var(--filter-blur, url("#blur1"));
+
 			--elem-count: 1;
 			--i: 0;
 			--tilog-x: log(2 * (var(--ti) * var(--elem-count) + var(--i)) + pi);
@@ -175,18 +248,48 @@
 <body>
 	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet">
 		<defs>
-			<filter id="blur" filterUnits="objectBoundingBox" x="-0.25" y="-0.125" width="1.5" height="1.25" primitiveUnits="userSpaceOnUse">
+			<filter id="blur1" filterUnits="objectBoundingBox" x="-0.0625" y="-0.125" width="1.125" height="1.25" primitiveUnits="userSpaceOnUse">
+				<feGaussianBlur stdDeviation="0.0078125 0" color-interpolation-filters="sRGB" />
+			</filter>
+			<filter id="blur2" filterUnits="objectBoundingBox" x="-0.125" y="-0.125" width="1.25" height="1.25" primitiveUnits="userSpaceOnUse">
 				<feGaussianBlur stdDeviation="0.015625 0" color-interpolation-filters="sRGB" />
-				<!--<feGaussianBlur stdDeviation="0.03125 0" color-interpolation-filters="sRGB" />-->
+			</filter>
+			<filter id="blur4" filterUnits="objectBoundingBox" x="-0.25" y="-0.125" width="1.5" height="1.25" primitiveUnits="userSpaceOnUse">
+				<feGaussianBlur stdDeviation="0.03125 0" color-interpolation-filters="sRGB" />
+			</filter>
+			<filter id="blur8" filterUnits="objectBoundingBox" x="-0.5" y="-0.125" width="2" height="1.25" primitiveUnits="userSpaceOnUse">
+				<feGaussianBlur stdDeviation="0.0625 0" color-interpolation-filters="sRGB" />
 			</filter>
 			<!--<path id="smiley"
 				d="M0.50,0.10 A0.40,0.40,1,1,1,0.50,0.90 A0.40,0.40,1,1,1,0.50,0.10 M0.30,0.40 Q0.36,0.35,0.42,0.40 M0.58,0.40 Q0.64,0.35,0.70,0.40 M0.30,0.60 Q0.50,0.75,0.70,0.60 Q0.50,0.75,0.30,0.60" fill="white" stroke="orange" stroke-width="0.03" />-->
 		</defs>
 		<!--<use id="spriteContainer" href="#smiley" filter="url('#blur')" />-->
-		<g id="spriteContainer" filter="url('#blur')">
+		<!--<g id="spriteContainer" filter="url('#blur')">-->
+		<g id="spriteContainer">
 			<path id="smiley"
 				d="M0.50,0.10 A0.40,0.40,1,1,1,0.50,0.90 A0.40,0.40,1,1,1,0.50,0.10 M0.30,0.40 Q0.36,0.35,0.42,0.40 M0.58,0.40 Q0.64,0.35,0.70,0.40 M0.30,0.60 Q0.50,0.75,0.70,0.60 Q0.50,0.75,0.30,0.60" fill="white" stroke="orange" stroke-width="0.03" />
 		</g>
 	</svg>
+	<div>
+		<p><label for="selBodySpeed">Speed:</label> 
+			<select id="selBodySpeed">
+				<option value="0">0x</option>
+				<option value="1">1x</option>
+				<option value="2" selected="selected">2x</option>
+				<option value="4">4x</option>
+				<option value="8">8x</option>
+				<option value="16">16x</option>
+			</select>
+		</p>
+		<p><label for="selBlurIntensity">Blur intensity:</label> 
+			<select id="selBlurIntensity">
+				<option value="0">0x</option>
+				<option value="1">1x</option>
+				<option value="2" selected="selected">2x</option>
+				<option value="4">4x</option>
+				<option value="8">8x</option>
+			</select>
+		</p>
+	</div>
 </body>
 </html>
