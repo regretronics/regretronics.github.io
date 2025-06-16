@@ -10,20 +10,8 @@
 			initial-value: 0.0;
 			inherits: true;
 		}
-		@keyframes shuffle1 {
-			to {--t: calc(0.375 * var(--dur));}
-		}
-		@keyframes shuffle2 {
-			to {--t: calc(0.75 * var(--dur));}
-		}
-		@keyframes shuffle4 {
-			to {--t: calc(1.5 * var(--dur));}
-		}
-		@keyframes shuffle8 {
-			to {--t: calc(3 * var(--dur));}
-		}
-		@keyframes shuffle16 {
-			to {--t: calc(6 * var(--dur));}
+		@keyframes shuffle {
+			to {--t: var(--range);}
 		}
 
 		:root {
@@ -33,24 +21,27 @@
 
 			color-scheme: dark;
 			background-color: black;
-			--dur: 1800;
+			--range: 1800;
 
 			--ti: round(down, var(--t));
-			--ti1: mod(var(--ti) + 1, 1800);
-			--ti2: mod(var(--ti) + 2, 1800);
-			--ti3: mod(var(--ti) + 3, 1800);
+			--ti1: mod(var(--ti) + 1, var(--range));
+			--ti2: mod(var(--ti) + 2, var(--range));
+			--ti3: mod(var(--ti) + 3, var(--range));
 			--tfrac: mod(var(--t), 1);
 			--tfrac1: calc(1 - var(--tfrac));
 
+			/*cubic spline piecewise functions*/
 			--interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
 			--interp-hermite-10: calc(0.735 * var(--tfrac) * var(--tfrac1) * var(--tfrac1));
 			--interp-hermite-01: calc(var(--tfrac) * var(--tfrac) * (3 - 2 * var(--tfrac)));
 			--interp-hermite-11: calc(-0.735 * var(--tfrac) * var(--tfrac) * var(--tfrac1));
+			/*their derivatives, to quantify motion*/
 			--interp-hermite-d00: calc(-6 * var(--tfrac) * var(--tfrac1));
 			--interp-hermite-d10: calc(0.735 * (1 - 3 * var(--tfrac)) * var(--tfrac1));
 			--interp-hermite-d01: calc(6 * var(--tfrac) * var(--tfrac1));
 			--interp-hermite-d11: calc(0.735 * var(--tfrac) * (3 * var(--tfrac) - 2));
 
+			/*PRNG parameters*/
 			--rnd-ratio1: mod(sqrt(7), 1);
 			--rnd-ratio2: mod(pow(349, 1 / 5), -1);
 			--rnd-ratio3: mod(pow(3181, 1 / 3), 1);
@@ -59,16 +50,22 @@
 			--rnd-exp3: calc(110 / 113);
 			--rnd-offset: mod(pow(1451, 1 / 7), 1);
 
-			animation-name: shuffle1, shuffle2, shuffle4, shuffle8, shuffle16;
-			animation-duration: calc(1s * var(--dur));
+			/*why having several animations, instead of varying the duration? to switch continuously between them.*/
+			animation-name: shuffle, shuffle, shuffle, shuffle, shuffle;
+			animation-duration: 
+				calc(3s * var(--range)), 
+				calc(1.5s * var(--range)), 
+				calc(0.75s * var(--range)), 
+				calc(0.375s * var(--range)), 
+				calc(0.1875s * var(--range));
 			animation-iteration-count: infinite;
 			animation-timing-function: linear;
-			/* animation-play-state: paused; */
+			animation-play-state: paused;
 			/* animation-composition: add; */
 		}
 
 		#selBodySpeed > :checked {
-			:root:has(&[value="0"]) {animation-play-state: paused;}
+			:root:has(&[value="0"]) {animation-play-state: paused, paused, paused, paused, paused;}
 			:root:has(&[value="1"]) {animation-play-state: running, paused, paused, paused, paused;}
 			:root:has(&[value="2"]) {animation-play-state: paused, running, paused, paused, paused;}
 			:root:has(&[value="4"]) {animation-play-state: paused, paused, running, paused, paused;}
@@ -122,6 +119,7 @@
 
 			--elem-count: 1;
 			--i: 0;
+			/*intermediate values*/
 			--tilog-x: log(2 * (var(--ti) * var(--elem-count) + var(--i)) + pi);
 			--ti1log-x: log(2 * (var(--ti1) * var(--elem-count) + var(--i)) + pi);
 			--ti2log-x: log(2 * (var(--ti2) * var(--elem-count) + var(--i)) + pi);
@@ -131,6 +129,7 @@
 			--ti2log-y: log(2 * (var(--ti2) * var(--elem-count) + var(--i)) + 1 + pi);
 			--ti3log-y: log(2 * (var(--ti3) * var(--elem-count) + var(--i)) + 1 + pi);
 
+			/*PRNG application*/
 			--rnd-x: mod(
 				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog-x)) 
 				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog-x)) 
