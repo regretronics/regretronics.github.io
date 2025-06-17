@@ -1,6 +1,6 @@
 # Technicore repository (and site) #
 
-* https://technicore.bitbucket.io/
+* [https://technicore.bitbucket.io/](https://technicore.bitbucket.io/)
 * https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/
 
 ### What is this repository for? ###
