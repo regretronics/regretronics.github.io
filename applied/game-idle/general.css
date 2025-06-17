@@ -64,7 +64,10 @@ a:link {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 a:visited {
-	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg));
+	/* color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) - 30deg)); */ /*custom property not allowed for :visited*/
+	/* color: oklch(0.75 0 0deg); */
+	/* color: color(from currentColor rec2020 calc(0.75*r) calc(0.75*g) calc(0.75*b)); */
+	color: oklch(from currentColor 0.75 0.0625 calc(h - 30));
 }
 a:hover {
 	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
