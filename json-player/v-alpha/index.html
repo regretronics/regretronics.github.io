@@ -29,11 +29,11 @@
 	<link rel="icon" href="icon/Musical-science-simple-white.svg" type="image/svg+xml" sizes="16x16 64x64" id="favicon" />
 
 	<meta name="color-scheme" content="dark light" />
+	<meta name="theme-color" media="all" content="hsl(120, 25%, 50%)" />
 	<meta name="theme-color" media="(prefers-color-scheme: light)" content="hsl(120, 37.5%, 75%)" />
 	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="hsl(120, 37.5%, 25%)" />
 	<meta name="theme-color" media="(prefers-color-scheme: light) and (prefers-contrast: more)" content="hsl(120, 50%, 12.5%)" />
 	<meta name="theme-color" media="(prefers-contrast: more)" content="hsl(120, 50%, 87.5%)" />
-	<meta name="theme-color" media="äll" content="hsl(120, 25%, 50%)" />
 
 	<script type="text/javascript" src="preferences.js"></script>
 	<script type="text/javascript" src="general.js"></script>
@@ -210,7 +210,7 @@
 			<option value="vol" />
 		</datalist> -->
 		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
-		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" data-placeholder="{&quot;property&quot;: 123}"></pre>
+		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
 		<p class="flex-row">
 			<span style="flex-basis: 24ch;"><strong class="chunk">Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
@@ -222,7 +222,7 @@
 				<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
 			</span>
 		</p>
-		<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" data-placeholder="[{&quot;property&quot;: 123}]"></pre>
+		<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" aria-placeholder="[{&quot;property&quot;: 123}]"></pre>
 		<p><strong class="chunk">Overall controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
 			<span class="cell"><label for="txtPlayFreqScale"><span class="lang-static" translate="no">freq./tuning</span><span class="lang-flex" hidden="hidden">frequency and tuning</span></label>

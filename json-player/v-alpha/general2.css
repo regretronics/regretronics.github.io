@@ -161,7 +161,7 @@ input:is([type=checkbox], [type=radio]) + label {
 /* :focus-visible {
 	outline-offset: 0.125em;
 } */
-[data-placeholder] {
+[aria-placeholder] {
 	&:empty, &:has(> br:only-child)/* , &:blank */ {
 		/* white-space-collapse: collapse; */
 
@@ -174,7 +174,7 @@ input:is([type=checkbox], [type=radio]) + label {
 			/* text-align: center; */
 			/* vertical-align: middle; */
 			opacity: 0.5;
-			content: attr(data-placeholder);
+			content: attr(aria-placeholder);
 		}
 	}
 }

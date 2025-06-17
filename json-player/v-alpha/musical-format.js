@@ -140,6 +140,8 @@ function flattenStruct() {
 		s = s.replace(regex, " ");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		s = s.replace(regex, "}");
+
+		saveControlPreference(ctlStructuredScript);
 		codeEditorContentSet(ctlFlatScript, s);
 		ctlFlatScript.classList.remove("invalid");
 	} catch(error) {
