@@ -9,7 +9,7 @@
 				numOctaves="8"
 				result="noise_0"
 				color-interpolation-filters="sRGB">
-				<animate attributeName="seed" from="1" by="65536" dur="262144s" repeatCount="indefinite" />
+				<animate attributeName="seed" from="1" by="1" dur="4s" accumulate="sum" repeatCount="indefinite" />
 			</feTurbulence>
 			<feColorMatrix result="noise_0" type="matrix" values="
 				1 0 0 0 0
@@ -23,7 +23,7 @@
 				numOctaves="8"
 				result="noise_1"
 				color-interpolation-filters="sRGB">
-				<animate attributeName="seed" from="1" by="65536" begin="-4s" dur="262144s" repeatCount="indefinite" />
+				<animate attributeName="seed" from="1" by="1" begin="-4s" dur="4s" accumulate="sum" repeatCount="indefinite" />
 			</feTurbulence>
 			<feColorMatrix result="noise_1" type="matrix" values="
 				1 0 0 0 0
