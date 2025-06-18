@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="2025-06-10-Transclusion-style.xslt" type="application/xslt+xml"?>
-<persons>
+<!-- <?xml-stylesheet href="2025-06-10-Transclusion-style.xslt" type="application/xslt+xml"?> -->
+<persons xsl:version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<person username="JS1">
 		<name>John</name>
 		<family-name>Smith</family-name>
@@ -9,4 +9,24 @@
 		<name>Morka</name>
 		<family-name>Ismincius</family-name>
 	</person>
+	<xsl:transform>
+		<xsl:template match="/">asfasdfsad</xsl:template>
+	</xsl:transform>
+	<xsl:copy-of select="document('about:blank')"></xsl:copy-of>
+	<xsl:copy-of select="document('2025-06-10-Transclusion-target.html')"></xsl:copy-of>
+	<xsl:stylesheet version="1.0">
+		<xsl:output method="xml" indent="yes"/>
+
+		<xsl:template match="/persons">
+			<root>
+				<xsl:apply-templates select="person"/>
+			</root>
+		</xsl:template>
+
+		<xsl:template match="person">
+			<name username="{@username}">
+				<xsl:value-of select="name" />
+			</name>
+		</xsl:template>
+	</xsl:stylesheet>
 </persons>

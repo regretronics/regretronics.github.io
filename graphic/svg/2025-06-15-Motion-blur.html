@@ -64,7 +64,7 @@
 			/* animation-composition: add; */
 		}
 
-		#selBodySpeed > :checked {
+		#selBodySpeed :checked {
 			:root:has(&[value="0"]) {animation-play-state: paused, paused, paused, paused, paused;}
 			:root:has(&[value="1"]) {animation-play-state: running, paused, paused, paused, paused;}
 			:root:has(&[value="2"]) {animation-play-state: paused, running, paused, paused, paused;}
@@ -72,7 +72,7 @@
 			:root:has(&[value="8"]) {animation-play-state: paused, paused, paused, running, paused;}
 			:root:has(&[value="16"]) {animation-play-state: paused, paused, paused, paused, running;}
 		}
-		#selBlurIntensity > :checked {
+		#selBlurIntensity :checked {
 			:root:has(&[value="0"]) {--filter-blur: none;}
 			:root:has(&[value="1"]) {--filter-blur: url("#blur1");}
 			:root:has(&[value="2"]) {--filter-blur: url("#blur2");}
