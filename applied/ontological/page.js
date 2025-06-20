@@ -188,6 +188,7 @@ function loadCategoryGroups() {
 		setOfKeys(modRules.categoryValues),
 		setOfKeys(modRules.categoryFieldsReq),
 	];
+	//to do: consider including categories from the right-hand side of fieldCategories.
 	categories.all = Array.from(allCategories[0].union(allCategories[1]));
 	//categories.all = [];
 	//categories.bottomLevel = modRules.fieldValues?.["analytical/category2"];
