@@ -61,7 +61,6 @@ function makeQuantitative(type) {
 	return value;
 
 	//to do:
-	//	vectors or lists
 	//	quantitative functions
 }
 function randomLength() {
@@ -107,37 +106,6 @@ var modRules;
 //generator main routine
 //recursive function
 function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
-	/* let content = { //rejected format
-		conceptual: {
-			process: "adolescence"
-		}
-	}; */
-	/* let content = {
-		"conceptual.process": "adolescence"
-	}; */
-	/* let content = {
-		category: "conceptual",
-		category2: "process",
-		type: "adolescence",
-		roles: {
-			father: {
-				category: "material",
-				category2: "person",
-				name: "Paul",
-			},
-			mother: {
-				category: "material",
-				category2: "person",
-				name: "Mary",
-			},
-			firstPerson: {
-				category: "material",
-				category2: "person",
-				name: "George",
-			},
-		},
-	}; */
-
 	/* const content = {category: rootCat};
 	if(!rootCat) return content; */
 	let content = {category: rootCat};
@@ -241,7 +209,6 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	//to do:
 	//	strings: names/pronounceable words
 	//	colors
-	//	variable-sized arrays/lists
 	//	references
 	//	functions
 
