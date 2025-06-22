@@ -69,10 +69,10 @@ a:visited {
 	/* color: color(from currentColor srgb-linear calc(0.75*r) calc(0.75*g) calc(0.75*b)); */
 	color: oklch(from currentColor 0.75 0.0625 calc(h - 30));
 }
-a:hover {
+:any-link:hover {
 	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
 }
-a:active, a:focus {
+:any-link:active, :any-link:focus {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 

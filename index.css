@@ -46,10 +46,10 @@ a:link {
 a:visited {
 	color: oklch(0.75 0.0625 calc(var(--hue1-ang, 0deg) + 30deg));
 }
-a:hover {
+:any-link:hover {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
-a:active, a:focus {
+:any-link:active, :any-link:focus {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 
