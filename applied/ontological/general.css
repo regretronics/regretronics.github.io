@@ -50,47 +50,6 @@ a:visited {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 
-/* to do: move this hunk down */
-/* output[contenteditable]:not([contenteditable="false"]) { */
-output:read-write {
-	outline-offset: 0.125em;
-}
-.code-box {
-	display: block;
-	min-block-size: 4em;
-	max-block-size: 75svb;
-	padding: 0.5em;
-
-	overflow-block: auto;
-	overflow-inline: auto;
-	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
-	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
-	font-size: 0.8rem;
-	font-family: monospace;
-
-	white-space-collapse: preserve;
-	&:read-write {
-		text-wrap-style: stable;
-	}
-	&:focus {
-		max-block-size: revert-layer;
-		overflow-block: auto;
-		/* block-size: unset !important; */
-	}
-}
-.main-output {
-	text-wrap-mode: nowrap;
-	tab-size: 2;
-}
-.code-editor {
-	text-wrap-mode: wrap;
-	tab-size: 4;
-
-	&.invalid {
-		background-color: oklch(0.25 0.03125 0deg / 0.75);
-	}
-}
-
 label {
 	cursor: pointer;
 }
@@ -115,8 +74,8 @@ details {
 		&:has(> summary:first-of-type:is(:hover, :active, :focus-visible)) {
 			outline-style: solid;
 			outline-width: 0.25em;
-			outline-color: oklch(0.5 0.09375 var(--hue1-ang, 0deg) / 0.3);
-			background-color: oklch(0.5 0.09375 var(--hue1-ang, 0deg) / 0.5);
+			outline-color: oklch(0.375 0.09375 var(--hue1-ang, 0deg) / 0.3);
+			background-color: oklch(0.375 0.09375 var(--hue1-ang, 0deg) / 0.5);
 		}
 		/* & > summary:first-of-type {
 			&:hover, &:active, &:focus {
@@ -161,10 +120,6 @@ details {
 		margin-inline-start: 2ch;
 		padding-inline-start: 0.5ch;
 	}
-	& > *:nth-child(2):last-child {
-		margin-block: 0em;
-		padding: 0.5em;
-	}
 	& > .details-main {
 		padding: 1em;
 		hyphens: auto;
@@ -176,8 +131,11 @@ details {
 			margin-block-end: 0em;
 		}
 	}
+	& > :not(.details-main):nth-child(2):last-child {
+		margin-block: 0em;
+		padding: 0.5em;
+	}
 }
-
 /* #btnRulesReset {
 	float: inline-end;
 	vertical-align: baseline;
@@ -217,6 +175,47 @@ details {
 		border-color: oklch(0.5 0.0625 var(--hue1-ang, 0deg) / 0.7);
 	}
 }
+
+/* output[contenteditable]:not([contenteditable="false"]) { */
+output:read-write {
+	outline-offset: 0.125em;
+}
+.code-box {
+	display: block;
+	min-block-size: 4em;
+	max-block-size: 75svb;
+	padding: 0.5em;
+
+	overflow-block: auto;
+	overflow-inline: auto;
+	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
+	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
+	font-size: 0.8rem;
+	font-family: monospace;
+
+	white-space-collapse: preserve;
+	&:read-write {
+		text-wrap-style: stable;
+	}
+	&:focus {
+		max-block-size: revert-layer;
+		overflow-block: auto;
+		/* block-size: unset !important; */
+	}
+}
+.main-output {
+	text-wrap-mode: nowrap;
+	tab-size: 2;
+}
+.code-editor {
+	text-wrap-mode: wrap;
+	tab-size: 4;
+
+	&.invalid {
+		background-color: oklch(0.25 0.03125 0deg / 0.75);
+	}
+}
+
 /*to do: .code-editor vs. #txtRulesSource?*/
 /* #txtRulesSource {
 } */
