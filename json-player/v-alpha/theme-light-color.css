@@ -103,7 +103,7 @@ a:link {
 a:visited {
 	color: hsla(30, 75%, 25%, 0.875);
 }
-a:active {
+:any-link:active {
 	color: hsl(var(--hue-accent, 120), 100%, 12.5%);
 }
 

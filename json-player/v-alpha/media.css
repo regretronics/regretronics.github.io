@@ -83,7 +83,7 @@
 				--hue-accent: var(--hue-accent-init, var(--hue-accent0, 120));
 			} */
 		}
-		img, svg, a:link, a:active, table, caption, td,
+		img, svg, a:link, :any-link, table, caption, td,
 		input, button, textarea, select, label, meter, progress,
 		.buttons-area, .buttons-area *, .code-editor, .tool-tip {
 			transition-property: opacity;
