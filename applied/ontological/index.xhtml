@@ -26,7 +26,7 @@
 
 		export const categoryValues = {
 			//category or "field/category" as key
-			//one from the list is used
+			//one from the list is used each time
 			/* "analytical.bit": [0, 1], */
 			"name.personal": ["Mary", "John"],
 			"0/name.personal": ["Mr. First"],
@@ -34,7 +34,7 @@
 		};
 		export const fieldValues = {
 			//field or "category/field" as key
-			//one from the list is used
+			//one from the list is used each time
 			category: ["conceptual", "practical", "material", "physical", "analytical"],
 			"conceptual/category2": ["process", "relation", "role", "agent"],
 			"practical/category2": ["entity", "property", "propValue"],
@@ -45,7 +45,6 @@
 			process: ["adolescence"],
 			entity: ["person", "object"],
 			property: ["age", "length", "matComposition"],
-			"conceptual/type": ["typeA", "typeB", "typeC"],
 			something1: ["fasf", 123, {asdf: 31234}],
 			"name.personal": ["Mary", "John"],
 			//"agent/name.personal": ["Mr. Important"],
@@ -54,8 +53,8 @@
 
 		export const categoryFieldsReq = {
 			//category or "field/category" as key
-			//all from the list are used
-			conceptual: ["category2", "type", "roles"],
+			//all from the list are used each time
+			conceptual: ["category2", /*"type",*/ "roles"],
 			practical: ["category2", "practical1", "practical2"],
 			material: ["category2", "material1", "material2"],
 			physical: ["category2", "physical1", "physical2"],
@@ -82,7 +81,7 @@
 
 		export const fieldCategories = {
 			//field or "category/field" as key
-			//one from the list is used
+			//one from the list is used each time
 			category: ["string"],
 			//category2: ["string"],
 			roles: ["roles/agent"],

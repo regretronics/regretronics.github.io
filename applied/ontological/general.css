@@ -60,6 +60,9 @@ input, textarea, button, select {
 details {
 	margin-block: 1em;
 
+	&:is(:focus-within/* , :has(::selection) */) > summary:first-of-type::marker {
+		color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
+	}
 	&:not([open]) {
 		border-start-start-radius: 0rem;
 		border-end-start-radius: 0rem;
