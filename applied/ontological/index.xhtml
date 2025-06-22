@@ -97,13 +97,20 @@
 </head>
 <body>
 	<h1>Project ontological</h1>
-	<p>Currently a content generator. Work in progress.</p>
+	<details>
+		<summary>Explanation:</summary>
+		<div class="details-main">
+			<p>Currently a content generator. Work in progress.</p>
+			<p>This project is inspired by a range of concepts, including <a href="https://en.wikipedia.org/wiki/Formal_grammar">formal grammars</a>, <a href="https://en.wikipedia.org/wiki/Dependency_grammar">dependency syntax</a>, <a href="https://en.wikipedia.org/wiki/Knowledge_representation_and_reasoning">knowledge representation</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_artificial_intelligence">symbolic artificial intelligence</a>, <a href="https://en.wikipedia.org/wiki/Wide_and_narrow_data">narrow data</a>, <a href="https://en.wikipedia.org/wiki/Theory_of_categories">ontological categories</a>.</p>
+			<p>The objective is to build an autonomous fiction generator or an "imaginator", generating a virtual world (more or less following the real one) with the due parts. But in this case, the approach is very abstract and analytical (unlike generating pixels, for example). This can have some creative and ludical applications, like increased replay value and flexibility from variable artificial situations in computer games.</p>
+		</div>
+	</details>
 	<details>
 		<!-- <summary>Rules source:</summary>
 		<p><button id="btnRulesReset">Reset</button> <output id="outSourceStatus" for="txtRulesSource"></output></p> -->
 		<summary>Rules source: <span class="align-end"><button id="btnRulesReset">Reset</button></span></summary>
 		<p><output id="outSourceStatus" for="txtRulesSource"></output></p>
-		<pre id="txtRulesSource" class="code-editor" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
+		<pre id="txtRulesSource" class="code-box code-editor" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
 	</details>
 	<p>
 		<label for="selRootCategoryGroup">Root category:</label> 
@@ -118,6 +125,6 @@
 		<button id="btnGenerateContent">Generate</button>
 	</p>
 	<!-- <pre class="main-output"><output id="outSummary" for="selRootCategoryGroup selRootCategory" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></output></pre> -->
-	<pre class="main-output" id="outSummary" for="selRootCategoryGroup selRootCategory" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
+	<pre class="code-box main-output" id="outSummary" for="selRootCategoryGroup selRootCategory" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
 </body>
 </html>

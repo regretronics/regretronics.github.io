@@ -4,7 +4,7 @@ var modRules;
 const categories = {
 	all: [],
 	standard: [],
-	bottomLevel: ["analytical.fractionary", "analytical.bit", "analytical.realnonneg", "analytical.real", "analytical.intnonneg", "analytical.int", "analytical.list", "string"],
+	bottomLevel: ["analytical", "analytical.fractionary", "analytical.bit", "analytical.realnonneg", "analytical.real", "analytical.intnonneg", "analytical.int", "analytical.list", "string"],
 };
 
 function btnGenerateContentClick(event) {

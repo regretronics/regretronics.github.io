@@ -37,7 +37,7 @@ h1 {
 	}
 }
 
-/* a:link {
+a:link {
 	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 a:visited {
@@ -48,31 +48,42 @@ a:visited {
 }
 :any-link:active, :any-link:focus {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
-} */
+}
 
+/* to do: move this hunk down */
 /* output[contenteditable]:not([contenteditable="false"]) { */
 output:read-write {
 	outline-offset: 0.125em;
 }
-.main-output, .code-editor {
+.code-box {
+	display: block;
+	min-block-size: 4em;
+	max-block-size: 75svb;
 	padding: 0.5em;
 
+	overflow-block: auto;
+	overflow-inline: auto;
+	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
+	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
 	font-size: 0.8rem;
 	font-family: monospace;
 
 	white-space-collapse: preserve;
+	&:read-write {
+		text-wrap-style: stable;
+	}
+	&:focus {
+		max-block-size: revert-layer;
+		overflow-block: auto;
+		/* block-size: unset !important; */
+	}
 }
 .main-output {
-	overflow-x: auto;
 	text-wrap-mode: nowrap;
 	tab-size: 2;
 }
 .code-editor {
-	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg) / 0.75);
-	/* background-color: oklch(0.25 0 var(--hue1-ang, 0deg) / 0.75); */
-
 	text-wrap-mode: wrap;
-	text-wrap-style: stable;
 	tab-size: 4;
 
 	&.invalid {
@@ -91,23 +102,21 @@ details {
 	margin-block: 1em;
 
 	&:not([open]) {
-		/* border-radius: 0rem 0.75rem 0.75rem 0rem; */
 		border-start-start-radius: 0rem;
 		border-end-start-radius: 0rem;
 		border-start-end-radius: 0.75rem;
 		border-end-end-radius: 0.75rem;
 
 		& > summary:first-of-type {
-			/* border-radius: inherit; */ /*not working in Chrome*/
-			border-start-end-radius: 0.75rem;
+			border-start-end-radius: 0.75rem; /*inheritance from details to summary not working in Chrome (apparently details is a shadow host)*/
 			border-end-end-radius: 0.75rem;
 		}
 		&:hover, &:active, &:focus-visible, 
 		&:has(> summary:first-of-type:is(:hover, :active, :focus-visible)) {
 			outline-style: solid;
 			outline-width: 0.25em;
-			outline-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.3);
-			background-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.5);
+			outline-color: oklch(0.5 0.09375 var(--hue1-ang, 0deg) / 0.3);
+			background-color: oklch(0.5 0.09375 var(--hue1-ang, 0deg) / 0.5);
 		}
 		/* & > summary:first-of-type {
 			&:hover, &:active, &:focus {
@@ -125,7 +134,6 @@ details {
 		}
 	}
 	&[open] {
-		/* border-radius: 0rem 0.75rem 0.25rem 0.25rem; */
 		border-start-start-radius: 0rem;
 		border-end-start-radius: 0.25rem;
 		border-start-end-radius: 0.75rem;
@@ -142,12 +150,6 @@ details {
 			border-end-start-radius: 0rem;
 			border-end-end-radius: 0rem;
 		}
-		/* & > :not(summary:first-of-type) {
-			margin-inline: 1em;
-		}
-		& > :last-child {
-			border-block-end: solid transparent 1em;
-		} */
 	}
 	& > summary:first-of-type {
 		cursor: pointer;
@@ -162,6 +164,17 @@ details {
 	& > *:nth-child(2):last-child {
 		margin-block: 0em;
 		padding: 0.5em;
+	}
+	& > .details-main {
+		padding: 1em;
+		hyphens: auto;
+
+		& > :first-child {
+			margin-block-start: 0em;
+		}
+		& > :last-child {
+			margin-block-end: 0em;
+		}
 	}
 }
 
@@ -204,12 +217,9 @@ details {
 		border-color: oklch(0.5 0.0625 var(--hue1-ang, 0deg) / 0.7);
 	}
 }
-#txtRulesSource {
-	display: block;
-	max-height: 87.5svh;
-
-	overflow: auto;
-}
+/*to do: .code-editor vs. #txtRulesSource?*/
+/* #txtRulesSource {
+} */
 #selRootCategory {
 	[value=random], &:has([value=random]:checked) {
 		font-style: italic;
