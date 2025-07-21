@@ -4,6 +4,11 @@
 	inherits: true;
 	initial-value: 120;
 }
+/* @property --hue-accent-init {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 120;
+} */
 /* @property --hue-anim {
 	syntax: "<number>";
 	inherits: true;
@@ -18,6 +23,7 @@
 :root {
 	/*question: include deg unit for hues? (currently never)*/
 	--hue-accent0: 120;
+	/*0deg hsl -> red; ~25deg oklch -> red*/
 	--hue-accent: var(--hue-accent0, 120);
 	--hue-accent2: calc(var(--hue-accent, 120) + 180);
 	/*--img-filter1: ;*/
@@ -34,7 +40,7 @@
 	box-sizing: border-box;
 	margin: 0px;
 	border-width: 0px;
-	
+
 	width: 100%;
 	height: 100%;
 	min-height: 100%;
@@ -44,7 +50,7 @@
 	box-sizing: border-box;
 	margin: 0px;
 	border-width: 0px;
-	
+
 	width: 100%;
 	height: 100%;
 	padding: 0px;
@@ -53,7 +59,7 @@
 	box-sizing: border-box;
 	margin: 0px;
 	border-width: 0px;
-	
+
 	width: 100%;
 	height: 100%;
 	overflow-x: hidden;
@@ -116,6 +122,7 @@ input:is([type=checkbox], [type=radio]) + label {
 	margin-inline: 0.375ch;
 	white-space: nowrap;
 	/* text-wrap-mode: nowrap; */
+	overflow-wrap: anywhere;
 
 	.cell + & {
 		margin-inline-start: 0em;
@@ -155,22 +162,20 @@ input:is([type=checkbox], [type=radio]) + label {
 /* :focus-visible {
 	outline-offset: 0.125em;
 } */
-/* #ctlStructuredScript:empty::after, #ctlStructuredScript:has(> br:only-child)::after { */
-:empty, :has(> br:only-child) {
-	#ctlStructuredScript& {
-		&::before {
-			content: '{"property": 123}';
-			opacity: 0.5;
+[aria-placeholder] {
+	&:empty, &:has(> br:only-child)/* , &:blank */ {
+		/* white-space-collapse: collapse; */
+
+		br {
+			display: none;
+		}
+		&::after {
 			/* display: block;
 			justify-self: center; */
 			/* text-align: center; */
 			/* vertical-align: middle; */
-		}
-	}
-	#ctlFlatScript& {
-		&::before {
-			content: '[{"property": 123}]';
 			opacity: 0.5;
+			content: attr(aria-placeholder);
 		}
 	}
 }

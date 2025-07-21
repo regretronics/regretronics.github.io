@@ -4,10 +4,12 @@
 //to do: consider worker threads
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
-//to do: (structured) music file upload to page
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
 //to do: consider radically changing flattened format: events (more like midi), supporting named notes
 //to do: multitrack architecture for mixing and effect pipelines, with named tracks
+//to do: ...take query parameters (e.g. ?baseFreq=512&makeMelody)
+//to do: 	commands to generate, play, reset preferences
+//to do: 	take urls to import .mus.json files
 
 //to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -105,7 +107,7 @@ function parseNumber(n) {
 
 	if(t === "string") {
 		if(n.length == 0) return NaN;
-		
+
 		try {
 			//can be an object
 			n = JSON.parse(n);
@@ -542,7 +544,7 @@ function deletePrevTab() {
 		node = node.previousSibling;
 		if(!node) return false; //"end" of text?
 		if(node.nodeName.toUpperCase() == "BR") return false; //line break attacks again
-		
+
 		txt = node.textContent;
 		pos = txt.length;
 	}
@@ -601,13 +603,13 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	const elem = event.target;
 	if(!elem) return false;
 	elem.normalize();
-	
+
 	const rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
 	if(!rng) return false;
 	let pos = rng.endOffset;
 	let node = rng.endContainer;
 	let txt = node.textContent;
-	
+
 	let i, count = 1;
 	//const iArr = [];
 	while(true) {
@@ -696,10 +698,10 @@ function structDownload(event) {
 	const data = codeEditorContentGet(ctlStructuredScript);
 	let file;
 	const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
-	
+
 	//date for file name
 	const fileName = getDateTimeCode(5) + ".mus.json";
-	
+
 	try {
 		//specify the filename using the File constructor, but...
 		file = new File(data, fileName, properties);
@@ -709,11 +711,11 @@ function structDownload(event) {
 	}
 	if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 	lastCodeObjURL = URL.createObjectURL(file);
-	
+
 	if(!aStructDownload) return false;
 	aStructDownload.setAttribute('href', lastCodeObjURL);
 	aStructDownload.setAttribute('download', fileName);
-	
+
 	/*const newEvent = new MouseEvent('click');
 	aStructDownload.dispatchEvent(newEvent);*/
 	aStructDownload.click();

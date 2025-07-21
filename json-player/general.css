@@ -112,30 +112,40 @@ input[type=checkbox] {
 	justify-content: space-between;
 	align-items: center;
 
-	& > *:not(wbr) {
-		flex-grow: 1;
+	& > *:not(wbr):not(.right) {
+		@supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
+			flex-basis: calc-size(max-content, 0.5625 * size);
+		}
+		flex-grow: 2;
 		flex-shrink: 1;
 	}
 	& > wbr {
 		display: none;
 	}
 	& > .right {
-		flex-basis: 32ch;
+		/* flex-basis: 12ch; */
+		flex-basis: min-content;
+		flex-grow: 1;
 		flex-shrink: 2;
 	}
 	/*@media (min-width: 96ch) {
 		flex-wrap: nowrap;
 	}*/
 }
+/* @supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
+	.flex-row > *:not(wbr):not(.right) {
+		flex-basis: calc-size(max-content, 0.5625 * size);
+	}
+} */
 .align-top {
 	align-items: flex-start;
 }
 .cell, .chunk {
 	display: inline-block;
 }
-.chunk {
+/* .chunk {
 	text-wrap-mode: wrap;
-}
+} */
 input[type=number], .right {
 	text-align: right;
 }
@@ -169,8 +179,10 @@ input[type=number], .right {
 		resize: none;
 		height: unset !important;
 
-		textarea& {
-			field-sizing: content;
+		@supports (field-sizing: content) {
+			textarea& {
+				field-sizing: content;
+			}
 		}
 	}
 	&.line-wrap {

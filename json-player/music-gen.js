@@ -76,7 +76,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
 	expVariance = NaNToDefault(_expVariance, 2);
 	if(expVariance <= 0) return false; //to do: set to < 0.5?
 	if(rootFreq == 0) return false;
-	
+
 	const polyphony = voiceCount - 1; //partial superposition
 	_timeScale = NaNToDefault(_timeScale, defaultBlockNode.timeScale);
 	const rootStruct = {
@@ -97,6 +97,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
 }
 
 //rhythm structure generator
+//to do: currently, rhythmScale is like a maximum. follow it more closely.
 function makeRhythmFactors(rhythmScale, primeCount) {
 	if(primeCount < 1) return false;
 	const rhythmFactors = [];
@@ -162,7 +163,7 @@ function rhythmSubNodes(struct, level, tuning) {
 	limitFreq(tuning, freqDummy); //not THAT high
 	const subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling
-		
+
 		freqRatio: beats,
 		volRatio: "1/" + beats.toString(),
 
@@ -186,7 +187,7 @@ function rhythmSubNodes(struct, level, tuning) {
 		newNode.duration = scale * crumb;
 		//if(crumb !== 1) newNode.freq = "1/" + crumb.toString();
 		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString(); //to do: include this in tuning calculation
-		
+
 		rhythmSubNodes(newNode, level + 1, tuning);
 	}
 }
@@ -212,7 +213,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 			//to do: what is the best register (frequency range) for percussion?
 			//volRatio: 1,
 			volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
-			
+
 			duration: rhythmFactorsAccum[0],
 			timbre: "noise",
 			decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()

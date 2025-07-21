@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en" prefix="og: https://ogp.me/ns#">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,11 +28,12 @@
 	<link rel="icon" href="icon/Musical-science-white.svg" type="image/svg+xml" sizes="any" />
 	<link rel="icon" href="icon/Musical-science-simple-white.svg" type="image/svg+xml" sizes="16x16 64x64" id="favicon" />
 
-	<meta name="theme-color" content="hsl(var(--hue-accent, 120), 37.5%, 50%)" />
-	<meta name="theme-color" media="(prefers-color-scheme: light)" content="hsl(var(--hue-accent, 120), 37.5%, 75%)" />
-	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="hsl(var(--hue-accent, 120), 37.5%, 25%)" />
-	<meta name="theme-color" media="(prefers-color-scheme: light) and (prefers-contrast: more)" content="hsl(var(--hue-accent, 120), 50%, 12.5%)" />
-	<meta name="theme-color" media="(prefers-contrast: more)" content="hsl(var(--hue-accent, 120), 50%, 87.5%)" />
+	<meta name="color-scheme" content="dark light" />
+	<meta name="theme-color" media="(prefers-color-scheme: light) and (prefers-contrast: more)" content="hsl(120, 50%, 12.5%)" />
+	<meta name="theme-color" media="(prefers-contrast: more)" content="hsl(120, 50%, 87.5%)" />
+	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="hsl(120, 37.5%, 25%)" />
+	<meta name="theme-color" media="(prefers-color-scheme: light)" content="hsl(120, 37.5%, 75%)" />
+	<meta name="theme-color" media="all" content="hsl(120, 25%, 50%)" />
 
 	<script type="text/javascript" src="preferences.js"></script>
 	<script type="text/javascript" src="general.js"></script>
@@ -53,27 +54,43 @@
 	//window.addEventListener("load", evt => {new Promise((resolve, reject) => {pageReady(evt);});});
 	//window.addEventListener("load", evt => {setTimeout(() => {pageReady();}, 1);});
 
-	if(location.pathname.split("/").slice(-2)[0] != "json-player") document.title = "JSON music (unstable)";
+	if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON music (unstable)";
 	/*]]>*/</script>
+
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="JSON musical format" />
+	<meta property="og:description" content="Musical format based on JavaScript Object Notation; player and basic generators for it; documentation." />
+	<meta property="og:url" content="https://technicore.bitbucket.io/json-player/v-alpha/" />
+	<meta property="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-white-4096.png" />
+	<!-- <meta property="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-simple-white-256.png" /> --><!-- this one is used in WhatsApp (and sometimes Facebook?) as of 2025-06. -->
+	<meta property="og:image:type" content="image/png" />
+	<meta property="og:image:alt" content="The &quot;Musical science&quot; emblem." />
+	<meta property="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-white.svg" />
+	<meta property="og:image:type" content="image/svg+xml" />
+	<meta property="og:image:alt" content="The &quot;Musical science&quot; emblem." />
+	<!-- <meta name="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-simple-white-256.png" />
+	<meta name="og:image:src" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-simple-white-256.png" /> -->
 </head>
 <body>
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
+	<!--to do: use id attribute for more points of interest, e.g. start of the documentation.-->
 	<main class="major-section" hidden="hidden">
 		<div class="flex-row align-top">
-			<h1 style="flex-basis: 24ch;">
+			<h1 style="flex-basis: 20ch;">
 				<picture id="title-icon">
 					<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
 					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
 					<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
 					<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
 					<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
-					<!--<img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" />-->
-					<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" />
+					<!-- <img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" /> -->
+					<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" role="img" /><!-- this one is possibly used in Facebook as of 2025-06. -->
 				</picture>
 				<!-- "chunks" below are for organizing a line break hierarchy (mostly for aesthetic reasons) -->
 				<!-- throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart. -->
 				<span class="lang-static" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="lang-flex" hidden="hidden">JSON-based music format, player and generator</span>
 			</h1><wbr />
+			<!-- <span class="right print-dp-none" style="flex-basis: 30ch;"> -->
 			<span class="right print-dp-none">
 				<span class="cell"><strong class="chunk">Text size:</strong> 
 					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
@@ -151,12 +168,13 @@
 			</span>
 		</p>
 		<p class="flex-row">
-			<span style="flex-basis: 52ch;"><strong class="chunk">Structured music:</strong> 
+			<span style="flex-basis: 28ch;"><strong class="chunk">Structured music:</strong> 
 				<button id="btnChordGen" accesskey="c" title="Chord generator"><span class="lang-static" translate="no">Make <u>c</u>hords</span><span class="lang-flex" hidden="hidden">Make chords (<u>c</u>)</span></button>
 				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator"><span class="lang-static" translate="no">Make <u>r</u>hythm</span><span class="lang-flex" hidden="hidden">Make rhythm (<u>r</u>)</span></button>
 				<button id="btnMelodyGen" accesskey="m" title="Melody generator"><span class="lang-static" translate="no">Make <u>m</u>elody</span><span class="lang-flex" hidden="hidden">Make melody (<u>m</u>)</span></button>
 			</span><wbr />
-			<span class="right" style="flex-basis: 40ch;">
+			<!-- <span class="right" style="flex-basis: 24ch;"> -->
+			<span class="right">
 				<span class="cell">
 					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="lang-static" translate="no"><u>O</u>pen file</span><span class="lang-flex" hidden="hidden">Open file (<u>o</u>)</span></button>
 					<a id="aStructDownload" href="" hidden="hidden"></a>
@@ -192,18 +210,19 @@
 			<option value="vol" />
 		</datalist> -->
 		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
-		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true"></pre>
+		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
 		<p class="flex-row">
-			<span style="flex-basis: 40ch;"><strong class="chunk">Flattened note list:</strong> 
+			<span style="flex-basis: 24ch;"><strong class="chunk">Flattened note list:</strong> 
 				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
 			</span><wbr />
-			<span class="right">
+			<!-- <span class="right"> -->
+			<span class="right" style="flex-basis: 14ch;">
 				<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
 				<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
 			</span>
 		</p>
-		<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true"></pre>
+		<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" aria-placeholder="[{&quot;property&quot;: 123}]"></pre>
 		<p><strong class="chunk">Overall controls:</strong> 
 			<!--question: switch input elems to type="range"?-->
 			<span class="cell"><label for="txtPlayFreqScale"><span class="lang-static" translate="no">freq./tuning</span><span class="lang-flex" hidden="hidden">frequency and tuning</span></label>
@@ -220,7 +239,7 @@
 			</span>
 		</p>
 		<p class="flex-row">
-			<span style="flex-basis: 48ch;"><strong class="chunk"><span class="lang-static" translate="no">Player</span><span class="lang-flex" hidden="hidden">Music player</span>:</strong> 
+			<span style="flex-basis: 44ch;"><strong class="chunk"><span class="lang-static" translate="no">Player</span><span class="lang-flex" hidden="hidden">Music player</span>:</strong> 
 				<span class="cell"><button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><span class="lang-static" translate="no"><u>L</u>oad and play</span><span class="lang-flex" hidden="hidden">Load and play (<u>l</u>)</span></button>
 				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><span class="lang-static" translate="no"><u>P</u>ause</span><span class="lang-flex" hidden="hidden">Pause (<u>p</u>)</span></button>
 				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><span class="lang-static" translate="no"><u>S</u>top and unload</span><span class="lang-flex" hidden="hidden">Stop and unload (<u>s</u>)</span></button>
@@ -230,13 +249,15 @@
 				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
 				</span>
 			</span><wbr />
-			<span class="right" style="flex-basis: 12ch;">
+			<!-- <span class="right" style="flex-basis: 20ch;"> -->
+			<span class="right">
 				<span class="cell"><span class="chunk">Note count:</span> <span translate="no"><output id="outNoteCount">0</output>.</span></span>
 				<span class="cell"><span class="chunk">Loaded generators:</span> <span translate="no"><output id="outGenCount">0</output>.</span></span>
 			</span>
 		</p>
 
 		<p class="print-dp-none">
+			<!--to do: make the visualizer more configurable-->
 			<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
 			<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
 				<defs>
@@ -296,7 +317,7 @@
 				Here we try to bypass the <a href="https://en.wikipedia.org/wiki/Arbitrariness">unreasoning</a> junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
 				This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
 			<h3>Pitch and harmony: intervals and consonance</h3>
-			<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval">intervals</a>) are actually frequency ratios (proportions). 
+			<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval_(Music)">intervals</a>) are actually frequency ratios (proportions). 
 				Chords are made of intervals, and both things inspire interpretations for listeners. 
 				The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. 
 				This can be mathematically represented by using rational numbers, and in more consonant intervals these numbers correspond to fractions made out of small integers, such as 3/2. 
@@ -645,7 +666,7 @@
 				<dt><strong><code>attack</code></strong> (default <code>"1/64"</code>)</dt>
 				<dd>Amplitude envelope attack half-life (how slowly the note amplitude comes at its beginning).</dd>
 				<dd>Absolute override when present.</dd>
-				
+
 				<dt><strong><code>portamento</code></strong> (default <code>0</code>)</dt>
 				<dd>When different from zero, it is the half-life of the initial pitch transition into the actual note pitch (portamento). 
 					When zero, portamento is disabled and pitches are abrupt.</dd>
@@ -656,19 +677,19 @@
 					A <code>0</code> value disables portamento. 
 					If freq0 is not present, the default portamento behavior is to start from the (estimated) current pitch of the last note.</dd>
 				<dd>Note-only property, not retained by blocks.</dd>
-				
+
 				<dt><strong><code>vibratoFreq</code></strong> (default <code>"2^18 / 86400"</code> = ~<code>3.034</code>)</dt>
 				<dd>Frequency for pitch modulation.</dd>
 				<dd>Absolute override when present.</dd>
-				
+
 				<dt><strong><code>vibratoDepth</code></strong> (default <code>0</code>)</dt>
 				<dd>Variation scale for pitch modulation: between -vibratoDepth and +vibratoDepth octaves.</dd>
 				<dd>Absolute override when present.</dd>
-				
+
 				<dt><strong><code>vibratoAttack</code></strong> (default <code>3</code>)</dt>
 				<dd>Half-life of the onset of pitch modulation effect (how slowly the effect fades in).</dd>
 				<dd>Absolute override when present.</dd>
-				
+
 				<dt><strong><code>remark</code></strong> (default <code>""</code>)</dt>
 				<dd>Non-inheritable property meant to be ignored by the computer (works like comments in a programming language). Can store a string or other things in its value.</dd>
 
@@ -761,7 +782,7 @@
 			<p>Project page (including source code): <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/">https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/</a></p>
 			<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), custom filtering, custom effects, multiple tracks/custom mixing pipeline or multiple channels/spatialization.</p>
 			<p>By regretronics; licensed under the <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
-			<p>I'm still waiting for your feedback! Thanks.</p>
+			<p>I'm still <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/README.md">waiting for your feedback</a>! Thanks.</p>
 		</footer>
 	</section>
 </body>

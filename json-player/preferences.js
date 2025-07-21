@@ -74,7 +74,10 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("pageAppearance.hue");
 			if(s) {
-				document.documentElement.style.setProperty("--hue-accent0", JSON.parse(s));
+				const hue = parseNumber(JSON.parse(s)), hueMod = ((hue % 360) + 360.0) % 360.0;
+				document.documentElement.style.setProperty("--hue-accent0", hueMod);
+				//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
+				updateThemeColor(hueMod);
 			}
 		}
 
@@ -106,7 +109,7 @@ function loadPreferences() {
 				txtExpVariance.dispatchEvent(new Event("input"));
 			}
 		}
-		
+
 		//Rhythm parameters
 		if(!chkResetRhythmParams.checked) {
 			s = localStorage.getItem("rhythmParams.rhythmScale");
@@ -321,6 +324,21 @@ function themeChanged(event) {
 		sheet.disabled = sheet.title !== styleTitle;
 		sheet.rel = (sheet.disabled ? "alternate stylesheet" : "stylesheet");
 	}
+	updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
+}
+function updateThemeColor(hue) {
+	const hueStr = hue.toString();
+	[
+		["(prefers-color-scheme: light)", `hsl(${hueStr}, 37.5%, 75%)`],
+		["(prefers-color-scheme: dark)", `hsl(${hueStr}, 37.5%, 25%)`],
+		["(prefers-color-scheme: light) and (prefers-contrast: more)", `hsl(${hueStr}, 50%, 12.5%)`],
+		["(prefers-contrast: more)", `hsl(${hueStr}, 50%, 87.5%)`],
+		["all", `hsl(${hueStr}, 25%, 50%)`]
+	].forEach(medium => {
+		const metaElem = document.querySelector(`meta[name="theme-color"][media="${medium[0]}"]`);
+		if(metaElem) metaElem.content = medium[1];
+	});
+	//cboPageTheme.value
 }
 function btnHueClick(event) {
 	if(!document) return false;
@@ -342,6 +360,7 @@ function btnHueClick(event) {
 	if(hue < 0) hue += 360;*/
 
 	root.style.setProperty("--hue-accent0", hue);
+	updateThemeColor(hue);
 
 	/*const metaElems = document.querySelectorAll("head meta[name=theme-color]");
 	for(const elem2 of metaElems) {
@@ -420,7 +439,7 @@ function rhythmFactorsChanged() {
 	try {
 		if(rhythmFactors.some(x => x == 0)) //has zeroes?
 			throw "Rhythm factors can't include zero.";
-		
+
 		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
 			throw "Unrecognized numerical expression in rhythm formula.";
 
@@ -498,6 +517,7 @@ function btnResetPreferencesClick(event) {
 			cboPageTheme.value = "Automatic";
 			cboPageTheme.dispatchEvent(new Event("input"));
 			document.documentElement.style.setProperty("--hue-accent0", 120);
+			updateThemeColor(120);
 		}
 		if(chkResetGenParams?.checked) {
 			localStorage.removeItem("genParams.baseFreq");
@@ -575,7 +595,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("clipParams.volScale");
 			localStorage.removeItem("clipParams.timeScale");
 			localStorage.removeItem("clipParams.timeDelta");
-			
+
 			txtPlayFreqScale.value = "1";
 			txtPlayFreqScale.dispatchEvent(new Event("input"));
 			txtPlayVolScale.value = "1";
@@ -601,7 +621,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("reset.clipParams");
 			localStorage.removeItem("reset.player");
 			localStorage.removeItem("reset.reset");
-			
+
 			chkResetPageAppearance.checked = false;
 			chkResetGenParams.checked = false;
 			chkResetRhythmParams.checked = false;

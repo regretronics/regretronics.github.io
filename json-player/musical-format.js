@@ -16,7 +16,7 @@ function parseNode(flatStruct, node, blockContext) {
 	const newContext = Object.assign({}, blockContext);
 	//to do: bounds check and node elimination? (e.g. when freqRatio or freq or volRatio or vol or timeScale = 0)
 	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), 0); //additive
-	
+
 	//multiplicative
 	newContext.timeScale *= NaNToDefault(parseNumber(node.timeScale), 1);
 	newContext.volRatio *= NaNToDefault(parseNumber(node.volRatio), 1);
@@ -57,7 +57,7 @@ function parseNode(flatStruct, node, blockContext) {
 				node.noteStop = node.noteStart + node.duration;
 			} else
 				node.noteStop = NaNToDefault(parseNumber(node.noteStop), node.noteStart + defaultNoteNode.duration);
-			
+
 			const newNote = { //preferred order...
 				noteStart: newContext.timeDelta + newContext.timeScale * node.noteStart,
 				noteStop: newContext.timeDelta + newContext.timeScale * node.noteStop
@@ -129,7 +129,7 @@ function flattenStruct() {
 				parseNode(flatStruct, elem, defaultBlockNode);
 		} else
 			parseNode(flatStruct, struct, defaultBlockNode);
-		
+
 		//finally, yield the flattened version
 		let s = JSON.stringify(flatStruct, null, "\t");
 		struct = null; //frees memory, hopefully
@@ -140,6 +140,8 @@ function flattenStruct() {
 		s = s.replace(regex, " ");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		s = s.replace(regex, "}");
+
+		saveControlPreference(ctlStructuredScript);
 		codeEditorContentSet(ctlFlatScript, s);
 		ctlFlatScript.classList.remove("invalid");
 	} catch(error) {
@@ -168,7 +170,7 @@ const flattenInterval = 1.5; //seconds
 function scriptChanged() {
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
-	
+
 	if(flattenTimeoutID) {
 		window.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;

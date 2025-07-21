@@ -44,7 +44,7 @@ function createNoiseBuffer(audioCtx) {
 	const sampleCount = noiseBufferTime * audioCtx.sampleRate;
 	const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
 	const arr = buffer.getChannelData(0);
-	
+
 	for(let i = 0; i < sampleCount; i++) {
 		//noise
 		//arr[i] = 2 * Math.random() - 1; //non-gaussian
@@ -186,7 +186,7 @@ function renderNote(clip, note) {
 	if(!noteTimbre) noteTimbre = defaultNoteNode.timbre;
 	const isNoise = noteTimbre.toLowerCase() === "noise";
 	const minStart = Math.max(clip.t0 + noteStart, clip.audioCtx.currentTime);
-	
+
 	let sourceNode, oscVibrato = null;
 	if(isNoise)
 		sourceNode = new AudioBufferSourceNode(clip.audioCtx, {buffer: clip.noiseBuffer, loop: true});
@@ -196,7 +196,7 @@ function renderNote(clip, note) {
 	sourceNode.onended = defNodeEnded;
 	clip.generators.push(sourceNode);
 	let terminalNode = sourceNode;
-	
+
 	try {
 		if(isNoise) {
 			const fltBandPass = new BiquadFilterNode(clip.audioCtx, {
@@ -242,7 +242,7 @@ function renderNote(clip, note) {
 		terminalNode = gainDecay;
 		sourceNode.modGainDecay = gainDecay;
 		clip.auxNodes.push(gainDecay);
-		
+
 		//volume attack (from 0 to 1)
 		const attack = NaNToDefault(note.attack, defaultNoteNode.attack);
 		if(attack > 0) {
@@ -255,7 +255,7 @@ function renderNote(clip, note) {
 			sourceNode.modGainAttack = gainAttack;
 			clip.auxNodes.push(gainAttack);
 		}
-		
+
 		if(releaseCurve) {
 			//volume decay within note time
 			const gainRelease = new GainNode(clip.audioCtx);
@@ -354,7 +354,7 @@ function drawNote(group, sourceNode) {
 	if(sourceNode.modGainAttack) vol *= sourceNode.modGainAttack.gain.value;
 	if(sourceNode.modGainRelease) vol *= sourceNode.modGainRelease.gain.value;
 	noteShape.setAttributeNS(null, "opacity", Math.sqrt(Math.abs(vol)).toString());
-	
+
 	group.appendChild(noteShape);
 	//group.append(noteShape);
 }
@@ -407,7 +407,7 @@ function audioTimer(clip) {
 		}
 		return;
 	}
-	
+
 	//if(clip.audioCtx.state === 'closed') return;
 	//console.log("audioTimer: clip.audioCtx.state: " + clip.audioCtx.state.toString());
 	if(clip.audioCtx.state !== 'running') {
@@ -419,7 +419,7 @@ function audioTimer(clip) {
 		}
 		return;
 	}
-	
+
 	//to do: move this upwards?
 	//if(noEnqueue === undefined) noEnqueue = false;
 	const currT = clip.audioCtx.currentTime;
@@ -428,7 +428,7 @@ function audioTimer(clip) {
 	lastT = currT;
 
 	//to do: catch clause that suspends audioCtx on error?
-	
+
 	//if(clip.audioCtx.state === 'suspended') return;
 	if(clip === playerClip) {
 		if(window.imgVisualizer) {
@@ -464,7 +464,7 @@ function audioTimer(clip) {
 			visT++;
 		}
 	}
-	
+
 	//window.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
 	//if(clip.audioCtx.currentTime - clip.t0 >= clip.duration - 1)
 	//if(clip.audioCtx.currentTime - clip.t0 >= 0.1)
@@ -529,7 +529,7 @@ function loadNewClip() {
 		if(diff === 0) diff = a.noteStop - b.noteStop; //earlier stop
 		return diff;
 	});
-	
+
 	return new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
 }
 function beforePlay() {
