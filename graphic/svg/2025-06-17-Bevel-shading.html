@@ -9,6 +9,7 @@
 			/* width: 100%;
 			height: 100%;
 			overflow: hidden; */
+			/* padding-block-end: 10em; */
 
 			color-scheme: dark;
 			background-color: oklch(0.25 0 0deg);
@@ -35,18 +36,21 @@
 			:root:has(&[value="bumpMap"]) {
 				--btn-filter: url("#bumpMap");
 			}
-			:root:has(&[value="bumpMap turbulence"]) {
+			/* :root:has(&[value="bumpMap turbulence"]) {
 				--btn-filter: url("#bumpMap") url("#turbulence");
+			} */
+			:root:has(&[value="bumpMap diffuse"]) {
+				--btn-filter: url("#bumpMap") url("#diffuse");
 			}
-			:root:has(&[value="bumpMap turbulence diffuse"]) {
-				--btn-filter: url("#bumpMap") url("#turbulence") url("#diffuse");
-			}
-			:root:has(&[value="bumpMap turbulence specular"]) {
-				--btn-filter: url("#bumpMap") url("#turbulence") url("#specular");
+			:root:has(&[value="bumpMap specular"]) {
+				--btn-filter: url("#bumpMap") url("#specular");
 			}
 			:root:has(&[value="bevel"]) {
 				--btn-filter: url("#bevel");
 			}
+			/* :root:has(&[value="bevelMap"]) {
+				--btn-filter: url("#bevelMap");
+			} */
 		}
 
 		/* body {
@@ -72,6 +76,17 @@
 			color-interpolation-filters: sRGB;
 			/* color-interpolation-filters: linearRGB; */
 		}
+		div:has(> #svgBtnMap) {
+			height: 5em;
+			width: 10em;
+			overflow: hidden;
+			resize: both;
+			background-color: gray;
+		}
+		#svgBtnMap {
+			width: 100%;
+			height: 100%;
+		}
 
 		/* p:first-of-type {
 			z-index: -256;
@@ -79,18 +94,38 @@
 		p:not(:first-of-type) {
 			z-index: 256;
 		} */
-		p:has(button) {
+		/* p:has(button) {
 			height: calc(1.25em * var(--scale, 1));
-		}
-		button {
-			/* zoom: var(--scale, 1); */
+		} */
+		p:has(> button) {
+			height: 2em;
+			width: fit-content;
+			overflow: hidden;
+			resize: both;
+			background-color: gray;
 			scale: var(--scale, 1);
 			transform-origin: top left;
+			/* padding: 4px; */
+			/* border-block-end: 1em solid transparent; */
+			/* margin-block-end: 1em; */
+		}
+		button {
+			/* width: 100%;
+			height: 100%; */
+			margin: 4px;
+			width: calc(100% - 8px);
+			height: calc(100% - 8px);
+			/* zoom: var(--scale, 1); */
+			/* scale: var(--scale, 1); */
+			/* transform-origin: top left; */
 
 			appearance: none;
 			background-color: chocolate;
 			border: none;
-			border-radius: 0.25em;
+			/* border-radius: 0.25em; */
+			/* border-radius: 1.75px; */
+			border-radius: 4.5px;
+			overflow: hidden;
 
 			filter: var(--btn-filter);
 			&:hover, &:focus {
@@ -110,13 +145,33 @@
 <body>
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg1" viewBox="0 0 1 1">
 		<defs>
-			<filter id="bumpMap" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse">
-				<feMorphology in="SourceAlpha" operator="erode" radius="1" />
-				<feGaussianBlur stdDeviation="0.75" />
-				<feComponentTransfer result="bumpMap">
-					<!-- <feFuncA type="gamma" amplitude="1" exponent="0.333" offset="0" /> -->
-					<feFuncA type="gamma" amplitude="1.25" exponent="0.333" offset="-0.25" />
-				</feComponentTransfer>
+			<!-- <filter id="bevelMap" filterUnits="userSpaceOnUse" x="0%" y="0%" width="calc(75% - 0.5px)" height="100%" primitiveUnits="objectBoundingBox"> -->
+			<filter id="bevelMap" 
+				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
+				primitiveUnits="userSpaceOnUse">
+				<!-- <feImage href="#g1" /> -->
+				<!-- <feImage href="#g1" preserveAspectRatio="none" /> -->
+				<!-- <feImage href="#g1" preserveAspectRatio="xMidYMid meet" /> -->
+				<!-- <feImage href="#g1" x="0%" y="0%" width="100%" height="100%" /> -->
+
+				<!-- <feImage href="#dummy1" /> -->
+				<!-- <feImage href="#dummy1" preserveAspectRatio="none" /> -->
+				<!-- <feImage href="#dummy1" preserveAspectRatio="xMidYMid meet" /> -->
+				<!-- <feImage href="#dummy1" x="0%" y="0%" width="100%" height="100%" /> -->
+				<!-- <feImage href="#dummy1" x="0%" y="0%" width="100%" height="100%" /> -->
+
+				<feImage href="Bevel-map.svg" />
+				<!-- <feImage href="Bevel-map.svg" preserveAspectRatio="none" /> -->
+				<!-- <feImage href="Bevel-map.svg" preserveAspectRatio="xMidYMid meet" /> -->
+				<!-- <feImage href="Bevel-map.svg" preserveAspectRatio="xMidYMid slice" /> -->
+				<!-- <feImage href="Bevel-map.svg" x="0%" y="0%" width="100%" height="100%" /> -->
+				<!-- <feImage href="Bevel-map.svg" x="0" y="0" width="1" height="1" /> -->
+			</filter>
+			<filter id="bumpMap" 
+				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
+				primitiveUnits="userSpaceOnUse">
+
+				<feImage href="Bevel-map.svg" />
 				<!--alpha to color (grayscale)-->
 				<feColorMatrix type="matrix" values="
 					0 0 0 1 0
@@ -124,31 +179,11 @@
 					0 0 0 1 0
 					0 0 0 0 1" />
 			</filter>
-			<filter id="turbulence" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse">
-				<!--color to alpha-->
-				<feColorMatrix type="matrix" values="
-					0 0 0 0 0
-					0 0 0 0 0
-					0 0 0 0 0
-					1 0 0 0 0" 
-					result="alpha" />
-				<feTurbulence 
-					type="fractalNoise" 
-					baseFrequency="0.0625 0.25" 
-					numOctaves="1" 
-					stitchTiles="noStitch" />
-				<feComposite 
-					in2="alpha" 
-					operator="arithmetic" 
-					k1="0.375" k2="0" k3="0.625" k4="0" />
-				<!--alpha to color (grayscale)-->
-				<feColorMatrix type="matrix" values="
-					0 0 0 1 0
-					0 0 0 1 0
-					0 0 0 1 0
-					0 0 0 0 1" />
-			</filter>
-			<filter id="diffuse" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse">
+
+			<filter id="diffuse" 
+				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
+				primitiveUnits="userSpaceOnUse">
+
 				<!--color to alpha-->
 				<feColorMatrix type="matrix" values="
 					0 0 0 0 0
@@ -156,13 +191,17 @@
 					0 0 0 0 0
 					1 0 0 0 0" />
 				<feDiffuseLighting 
-					surfaceScale="4" diffuseConstant="1" kernelUnitLength="1" lighting-color="white">
+					lighting-color="white" diffuseConstant="1" 
+					surfaceScale="4" kernelUnitLength="1">
 					<!-- <fePointLight x="0.25" y="0" z="0.5" /> -->
-					<feDistantLight azimuth="240" elevation="60" />
+					<feDistantLight azimuth="240" elevation="45" />
 				</feDiffuseLighting>
-				<feGaussianBlur stdDeviation="0.25" />
+				<feGaussianBlur stdDeviation="0.5" />
 			</filter>
-			<filter id="specular" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse">
+			<filter id="specular" 
+				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
+				primitiveUnits="userSpaceOnUse">
+
 				<!--color to alpha-->
 				<feColorMatrix type="matrix" values="
 					0 0 0 0 0
@@ -170,51 +209,58 @@
 					0 0 0 0 0
 					1 0 0 0 0" />
 				<feSpecularLighting 
-					surfaceScale="4" specularConstant="1" specularExponent="8" kernelUnitLength="1" lighting-color="white" 
+					lighting-color="white" specularConstant="1" 
+					surfaceScale="4" specularExponent="8" kernelUnitLength="1" 
 					result="specular">
 					<feDistantLight azimuth="240" elevation="5" />
 				</feSpecularLighting>
-				<feGaussianBlur stdDeviation="0.25" />
+				<!--alpha to color (grayscale)-->
+				<feColorMatrix type="matrix" values="
+					0 0 0 1 0
+					0 0 0 1 0
+					0 0 0 1 0
+					0 0 0 0 1" />
+				<feGaussianBlur stdDeviation="0.5" />
+				<!-- <feComponentTransfer>
+					<feFuncR type="linear" slope="0.375" intercept="-0.125" />
+					<feFuncG type="linear" slope="0.375" intercept="-0.125" />
+					<feFuncB type="linear" slope="0.375" intercept="-0.125" />
+				</feComponentTransfer> -->
 			</filter>
 
-			<filter id="bevel" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse">
+			<filter id="bevel" 
+				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
+				primitiveUnits="userSpaceOnUse">
 				<!-- primitiveUnits="objectBoundingBox" -->
-				<feMorphology in="SourceAlpha" operator="erode" radius="1" />
-				<feGaussianBlur stdDeviation="0.75" />
-				<feComponentTransfer result="bumpMap">
-					<!-- <feFuncA type="gamma" amplitude="1" exponent="0.333" offset="0" /> -->
-					<feFuncA type="gamma" amplitude="1.25" exponent="0.333" offset="-0.25" />
-				</feComponentTransfer>
 
-				<feTurbulence 
-					type="fractalNoise" 
-					baseFrequency="0.0625 0.25" 
-					numOctaves="1" 
-					stitchTiles="noStitch" />
-				<feComposite 
-					in2="bumpMap" 
-					operator="arithmetic" 
-					k1="0.375" k2="0" k3="0.625" k4="0" 
-					result="bumpMap" />
+				<feImage href="Bevel-map.svg" result="bumpMap" />
 
 				<feDiffuseLighting 
-					surfaceScale="4" diffuseConstant="1" kernelUnitLength="1" lighting-color="white">
+					lighting-color="white" diffuseConstant="1" 
+					surfaceScale="4" kernelUnitLength="1">
 					<!-- <fePointLight x="0.25" y="0" z="0.5" /> -->
-					<feDistantLight azimuth="240" elevation="60" />
+					<feDistantLight azimuth="240" elevation="45" />
 				</feDiffuseLighting>
-				<feGaussianBlur stdDeviation="0.25" />
+				<feGaussianBlur stdDeviation="0.5" />
 				<feComposite 
 					in2="SourceGraphic" 
 					operator="arithmetic" 
-					k1="0.625" k2="0" k3="0.375" k4="0" 
+					k1="0.875" k2="0" k3="0.125" k4="0" 
 					result="shaded" />
 
 				<feSpecularLighting 
-					surfaceScale="4" specularConstant="1" specularExponent="8" kernelUnitLength="1" lighting-color="white" 
+					lighting-color="white" specularConstant="1" 
+					surfaceScale="4" specularExponent="8" kernelUnitLength="1" 
 					in="bumpMap" result="specular">
 					<feDistantLight azimuth="240" elevation="5" />
 				</feSpecularLighting>
-				<feGaussianBlur stdDeviation="0.25" />
+				<!--alpha to color (grayscale)-->
+				<feColorMatrix type="matrix" values="
+					0 0 0 1 0
+					0 0 0 1 0
+					0 0 0 1 0
+					0 0 0 0 1" />
+				<feGaussianBlur stdDeviation="0.5" />
 				<feComposite 
 					in2="SourceAlpha" 
 					operator="in" />
@@ -222,16 +268,26 @@
 				<feComposite 
 					in2="shaded" 
 					operator="arithmetic" 
-					k1="0" k2="0.375" k3="0.75" k4="0" />
+					k1="0" k2="0.625" k3="0.625" k4="0" />
 			</filter>
 		</defs>
 		<!-- <rect id="dummy1" x="0" y="0" width="1" height="1" fill="white">
 			<set to-do="" />
 		</rect> -->
 	</svg>
-	<p>
-		<button>Test</button>
-	</p>
+	<div>
+		<!-- <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svgBtnMap" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet">
+			<g id="g1"> -->
+				<!-- <rect id="dummy1" x="0" y="0" width="1" height="1" fill="red" /> -->
+				<!-- <rect id="dummy1" x="0%" y="0%" width="100%" height="100%" fill="red" />
+				<rect id="dummy2" x="0" y="0.5" width="0.5" height="0.5" fill="yellow" /> -->
+				<!-- <svg viewBox="0 0 1 1" x="0" width="0.1vmin">
+					<rect id="dummy2" x="0" y="0" width="1" height="1" fill="yellow" />
+				</svg> -->
+			<!-- </g>
+		</svg> -->
+		<img id="svgBtnMap" src="Bevel-map.svg" type="image/svg+xml" alt="" />
+	</div>
 	<p><label for="selScale">Scale:</label> 
 		<select id="selScale">
 			<option value="0.5">0.5x</option>
@@ -251,15 +307,15 @@
 	<p><label for="selFilter">Filter:</label> 
 		<select id="selFilter">
 			<option value="none">none</option>
-			<option value="bumpMap">bumpMap</option>
-			<option value="bumpMap turbulence">bumpMap turbulence</option>
-			<option value="bumpMap turbulence diffuse">bumpMap turbulence diffuse</option>
-			<option value="bumpMap turbulence specular">bumpMap turbulence specular</option>
-			<option value="bevel" selected="selected">bevel</option>
+			<!-- <option value="bevelMap">bevelMap</option> -->
+			<option value="bumpMap" selected="selected">bumpMap</option>
+			<option value="bumpMap diffuse">bumpMap diffuse</option>
+			<option value="bumpMap specular">bumpMap specular</option>
+			<option value="bevel">bevel</option>
 		</select>
 	</p>
-	<!-- <p>
-		<input type="checkbox" id="chkFilter" checked="checked" /> <label for="chkFilter">Enable filter</label>
-	</p> -->
+	<p>
+		<button>Test</button>
+	</p>
 </body>
 </html>

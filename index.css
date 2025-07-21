@@ -4,8 +4,6 @@
 	font-size: 1.5em;
 
 	color-scheme: dark;
-	/* background-color: Canvas;
-	color: CanvasText; */
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
@@ -22,6 +20,9 @@ body {
 ::marker {
 	/* color: oklch(0.625 0.0625 var(--hue1-ang, 0deg)); */
 	color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
+}
+:is(:active, :has(:active), :focus-within/* , :has(::selection) */)::marker {
+	color: oklch(0.75 0.125 var(--hue1-ang, 0deg));
 }
 
 h1 {

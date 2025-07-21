@@ -38,14 +38,14 @@ function editorKeyDown(event) {
 	}
 	//to do: home key goes past initial indentation?
 }
+function editorChanged(event) {
+	if(!event) return false;
+	event.target?.normalize?.();
+}
 function editorInput(event) {
 	if(!event || !event.target || !event.target.classList) return false;
 	event.target.classList.remove?.("invalid");
 	event.target.classList.add?.("changed");
-}
-function editorChanged(event) {
-	if(!event) return false;
-	event.target?.normalize?.();
 }
 async function txtRulesSourceBlur(event) {
 	if(!event || !event.target) return false;
@@ -215,11 +215,13 @@ function pageLoaded(event) {
 
 	//trap UI changes
 	btnGenerateContent.addEventListener("click", btnGenerateContentClick);
-	for(const elem of document.getElementsByClassName("code-editor")) {
+	for(const elem of document.getElementsByClassName("code-box")) {
 		elem.addEventListener("keydown", editorKeyDown);
 		//elem.addEventListener("paste", editorPaste);
-		elem.addEventListener("input", editorInput);
 		//elem.addEventListener("input", editorChanged);
+	}
+	for(const elem of document.getElementsByClassName("code-editor")) {
+		elem.addEventListener("input", editorInput);
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY gradMargin "0">
+]>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" width="100vw" height="100vh" filter="url(#bevel)">
+	<!-- viewBox="0 0 1 1" -->
+	<!-- preserveAspectRatio="xMidYMid slice" -->
+	<!-- preserveAspectRatio="xMinYMin slice" -->
+	<!-- preserveAspectRatio="none" -->
+	<defs>
+		<style>/*<![CDATA[*/
+			:root {
+				/*background: white;*/
+				/*fill: black;*/
+				/*color-scheme: dark;*/
+
+				/*--outer-margin: calc(6.25% - 1px);*/
+				/*--outer-margin: calc(50%*(1 - 1/1.125) - 0.75px);*/
+				--outer-margin: 1px;
+				/*--grad-margin: 0.125;*/
+				/*--grad-width: 12px;*/
+				--grad-width: clamp(0px, 50vmin - var(--outer-margin), 6px);
+				--interior-dilation: 0px;
+			}
+			stop {
+				stop-color: black;
+				stop-opacity: calc(1 - pow(attr(offset type(<number>)), 2));
+				/*stop-opacity: calc(1 - sqrt(1 - pow(1 - attr(offset type(<number>)), 2)));*/
+			}
+
+			.horiz {
+				x: calc(var(--outer-margin) + var(--grad-width) - var(--interior-dilation));
+				width: calc(100% - 2*var(--outer-margin) - 2*var(--grad-width) + 2*var(--interior-dilation));
+			}
+			.vert {
+				y: calc(var(--outer-margin) + var(--grad-width) - var(--interior-dilation));
+				height: calc(100% - 2*var(--outer-margin) - 2*var(--grad-width) + 2*var(--interior-dilation));
+			}
+
+			.edge.vert {
+				width: var(--grad-width);
+			}
+			.edge.horiz {
+				height: var(--grad-width);
+			}
+			.corner {
+				width: var(--grad-width);
+				height: var(--grad-width);
+			}
+
+			.x1 {
+				x: var(--outer-margin);
+			}
+			.x2 {
+				x: calc(100% - var(--outer-margin) - var(--grad-width));
+			}
+			.y1 {
+				y: var(--outer-margin);
+			}
+			.y2 {
+				y: calc(100% - var(--outer-margin) - var(--grad-width));
+			}
+		/*]]>*/</style>
+		<linearGradient id="gradEdgeX1" x1="1" x2="&gradMargin;">
+			<!-- <stop offset="0" stop-opacity="1" />
+			<stop offset="1" stop-opacity="0" /> -->
+			<!-- <stop offset="0" stop-opacity="1" />
+			<stop offset="0.25" stop-opacity="0.875" />
+			<stop offset="0.5" stop-opacity="0.5" />
+			<stop offset="0.75" stop-opacity="0.125" />
+			<stop offset="1" stop-opacity="0" /> -->
+			<stop offset="0" />
+			<stop offset="0.0625" />
+			<stop offset="0.125" />
+			<stop offset="0.1875" />
+			<stop offset="0.25" />
+			<stop offset="0.3125" />
+			<stop offset="0.375" />
+			<stop offset="0.4375" />
+			<stop offset="0.5" />
+			<stop offset="0.5625" />
+			<stop offset="0.625" />
+			<stop offset="0.6875" />
+			<stop offset="0.75" />
+			<stop offset="0.8125" />
+			<stop offset="0.875" />
+			<stop offset="0.9375" />
+			<stop offset="1" />
+		</linearGradient>
+		<linearGradient id="gradEdgeX2" href="#gradEdgeX1" x1="0" x2="calc(1 - &gradMargin;)" />
+		<linearGradient id="gradEdgeY1" href="#gradEdgeX1" x1="0" x2="0" y1="1" y2="&gradMargin;" />
+		<linearGradient id="gradEdgeY2" href="#gradEdgeX1" x1="0" x2="0" y1="0" y2="calc(1 - &gradMargin;)" />
+
+		<radialGradient id="gradCornerX1Y1" href="#gradEdgeX1" cx="1" cy="1" r="calc(1 - &gradMargin;)" />
+		<radialGradient id="gradCornerX2Y1" href="#gradCornerX1Y1" cx="0" cy="1" />
+		<radialGradient id="gradCornerX1Y2" href="#gradCornerX1Y1" cx="1" cy="0" />
+		<radialGradient id="gradCornerX2Y2" href="#gradCornerX1Y1" cx="0" cy="0" />
+
+		<!-- <filter id="bumpMapOld" 
+			filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" 
+			primitiveUnits="userSpaceOnUse">
+			<feMorphology in="SourceAlpha" operator="erode" radius="1" />
+			<feGaussianBlur stdDeviation="0.75" />
+			<feComponentTransfer result="bumpMap">
+				<feFuncA type="gamma" amplitude="1.25" exponent="0.333" offset="-0.25" />
+			</feComponentTransfer>
+		</filter> -->
+		<filter id="bevel" 
+			filterUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%" 
+			primitiveUnits="userSpaceOnUse">
+			<!-- primitiveUnits="objectBoundingBox" -->
+
+			<feGaussianBlur stdDeviation="0.375" edgeMode="duplicate" result="map" />
+			<!-- <feComponentTransfer>
+				<feFuncR type="linear" slope="-1" intercept="1" />
+				<feFuncG type="linear" slope="-1" intercept="1" />
+				<feFuncB type="linear" slope="-1" intercept="1" />
+			</feComponentTransfer> -->
+			<feComponentTransfer result="bumpMap">
+				<feFuncA type="gamma" amplitude="1" exponent="0.5" offset="0" />
+				<!-- <feFuncA type="gamma" amplitude="-1" exponent="2" offset="1" /> -->
+			</feComponentTransfer>
+
+			<feTurbulence 
+				type="fractalNoise" 
+				baseFrequency="0.0625 0.25" 
+				numOctaves="1" 
+				stitchTiles="noStitch" />
+			<feComposite 
+				in2="bumpMap" 
+				operator="arithmetic" 
+				k1="0.125" k2="0" k3="0.875" k4="0" />
+		</filter>
+	</defs>
+	<rect id="interior" class="horiz vert" />
+	<rect id="rectEdgeX1" class="edge vert x1" fill="url(#gradEdgeX1)" />
+	<rect id="rectEdgeX2" class="edge vert x2" fill="url(#gradEdgeX2)" />
+	<rect id="rectEdgeY1" class="edge horiz y1" fill="url(#gradEdgeY1)" />
+	<rect id="rectEdgeY2" class="edge horiz y2" fill="url(#gradEdgeY2)" />
+	<rect id="rectCornerX1Y1" class="corner x1 y1" fill="url(#gradCornerX1Y1)" />
+	<rect id="rectCornerX2Y1" class="corner x2 y1" fill="url(#gradCornerX2Y1)" />
+	<rect id="rectCornerX1Y2" class="corner x1 y2" fill="url(#gradCornerX1Y2)" />
+	<rect id="rectCornerX2Y2" class="corner x2 y2" fill="url(#gradCornerX2Y2)" />
+</svg>
