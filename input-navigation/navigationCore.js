@@ -55,7 +55,7 @@ function deadZone(v, thres) {
 
 function getControllerInput(controller, kind, path) {
 	if (!controller) return undefined;
-	var val = controller[kind];
+	let val = controller[kind];
 	//if (val == null) return val;
 	if (path == undefined) return val;
 	val = val[path];
@@ -91,8 +91,8 @@ function updateDynamics(dt) {
 	pos[2] += (dPos[0] * clientSpcTransf[2] + dPos[1] * clientSpcTransf[5] + dPos[2] * clientSpcTransf[8]) * dt;
 
 	const tau = 2 * Math.PI;
-	//let newTransform = Object.create(IdentityMatrix3);
-	let r0Transform = [ //yaw
+	//const newTransform = Object.create(IdentityMatrix3);
+	const r0Transform = [ //yaw
 		Math.cos(tau * rot[0]), 0.0, Math.sin(tau * rot[0]),
 		0.0, 1.0, 0.0,
 		-Math.sin(tau * rot[0]), 0.0, Math.cos(tau * rot[0])

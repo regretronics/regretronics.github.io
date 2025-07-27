@@ -56,7 +56,7 @@ function deadZone(v, thres) {
 
 function getControllerInput(controller, kind, path, transfer) {
 	if (!controller) return undefined;
-	var val = controller[kind];
+	let val = controller[kind];
 	//if (val == null) return val;
 	if (path == undefined) return val;
 	val = val[path];
@@ -95,7 +95,7 @@ function updateDynamics(dt) {
 	/* clientPos[0] += dPos[0] * dt;
 	clientPos[1] += dPos[1] * dt;
 	clientPos[2] += dPos[2] * dt; */
-	let dPosAligned = vectorTransform_3(clientSpcTransf, dPos);
+	const dPosAligned = vectorTransform_3(clientSpcTransf, dPos);
 	clientPos[0] += dPosAligned[0] * dt;
 	clientPos[1] += dPosAligned[1] * dt;
 	clientPos[2] += dPosAligned[2] * dt;
@@ -103,9 +103,9 @@ function updateDynamics(dt) {
 	const tau = 2 * Math.PI;
 	//let newTransform = Object.create(IdentityMatrix3);
 
-	let frac = tau * dt; //precalculation optimizations
-	let rotAngle = [frac * dRot[0], frac * dRot[1], frac * dRot[2]];
-	let catheti = [[Math.cos(rotAngle[0]), Math.sin(rotAngle[0])],
+	const frac = tau * dt; //precalculation optimizations
+	const rotAngle = [frac * dRot[0], frac * dRot[1], frac * dRot[2]];
+	const catheti = [[Math.cos(rotAngle[0]), Math.sin(rotAngle[0])],
 		[Math.cos(rotAngle[1]), Math.sin(rotAngle[1])],
 		[Math.cos(rotAngle[2]), Math.sin(rotAngle[2])]];
 	let r0Transform = [ //yaw

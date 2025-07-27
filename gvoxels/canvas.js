@@ -10,7 +10,7 @@ var firstTimeout, updateCycleId, animating;
 
 function canvasScaleChanged() {
 	if(!c2d) {return;}
-	var newCanvasScale = cbxCanvasScale.value.split("_");
+	let newCanvasScale = cbxCanvasScale.value.split("_");
 	newCanvasScale = [parseInt(newCanvasScale[0]), parseInt(newCanvasScale[1])];
 	//isNaN and isFinite require ECMAScript 6/2015.
 	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) return;

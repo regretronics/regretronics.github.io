@@ -79,7 +79,7 @@ function viewUpdate() {
 	//timeout = parseFloat(txtFrameTimeout.value);
 	timeout = targetFrameTime;
 	if(isNaN(timeout)) timeout = defTimeout;
-	let tNow = performance.now();
+	const tNow = performance.now();
 	if(dynLastTime == undefined) dynLastTime = tNow;
 
 	//frameRenderRaycasting(mainCanvas, timeout);
@@ -90,16 +90,16 @@ function viewUpdate() {
 	frameRenderRaycasting_mono(layerCount);
 
 	if(dynLastTime != undefined) {
-		let tFrame = tNow - dynLastTime;
+		const tFrame = tNow - dynLastTime;
 		const dt = Math.min(0.001 * tFrame, 1.0 / 4.0);
 		if(chkNavDrift.checked) {
 			//Update virtual parameters
-			let i = Math.floor(2 * Math.random());
+			const i = Math.floor(2 * Math.random());
 			/* clientPos[i] = (clientPos[i] + 0.5 * (Math.random() - 0.5)) % worldRes[i];
 			clientPos[2] = (clientPos[2] + 2.0 / 16.0) % worldRes[2]; */
 			clientSpeed[i] += 16.0 / 64.0 * (Math.random() - 0.5);
 			clientSpeed[2] = (chkNavFwd.checked ? 16.0 / 16.0 : 0.0);
-			let dPosAligned = vectorTransform_3(clientSpcTransf, clientSpeed);
+			const dPosAligned = vectorTransform_3(clientSpcTransf, clientSpeed);
 
 			//const dt = 1.0 / 4.0;
 			clientPos[0] += dt * dPosAligned[0];
@@ -121,8 +121,8 @@ function viewUpdate() {
 		clientPos[2] = uRemainder(clientPos[2], worldRes[2]);
 	}
 
-	let tNow2 = performance.now();
-	let tRender = tNow2 - tNow;
+	const tNow2 = performance.now();
+	const tRender = tNow2 - tNow;
 	if(dynLastTime == undefined) outFrameRenderT.innerText = tRender.toFixed(1);
 	dynLastTime = tNow;
 
@@ -133,8 +133,8 @@ function viewUpdate() {
 	//outFrameSegs.innerText = segmentCount.toString();
 	//outFrameLayers.innerText = (segmentCount / ch / cw).toPrecision(4);
 	//outFrameLayers.innerText = layerCount.toString();
-	//let segTime = 1000000.0 * t / segmentCount; //milliseconds to nanoseconds
-	let segTime = 1000000.0 * tRender / (layerCount * ch * cw); //milliseconds to nanoseconds
+	//const segTime = 1000000.0 * t / segmentCount; //milliseconds to nanoseconds
+	const segTime = 1000000.0 * tRender / (layerCount * ch * cw); //milliseconds to nanoseconds
 	outSegTime.innerText = segTime.toPrecision(3);
 
 	renderTimeSum += segTime;
