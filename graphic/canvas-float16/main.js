@@ -179,12 +179,31 @@ function pageReady() {
 	canUpdate = true;
 	viewUpdate();
 
+	//const boolToStrArr = ["no", "yes"];
+	const boolToStr = {false: "no", true: "yes"};
+	outFeatureSupport.innerText = `Canvas supported: ${boolToStr[Boolean(ctx) || Boolean(CanvasRenderingContext2D)]}.`;
+	if(ctx) {
+		const attributes = ctx.getContextAttributes();
+		if(attributes.colorSpace)
+			outFeatureSupport.innerText += `\nCustom color space: ${boolToStr[attributes.colorSpace !== "srgb"]} (${attributes.colorSpace}).`;
+		else
+			outFeatureSupport.innerText += `\nCustom color space: ${boolToStr[false]}.`;
+		if(attributes.colorType)
+			outFeatureSupport.innerText += `\nCustom color type: ${boolToStr[attributes.colorType !== "unorm8"]} (${attributes.colorType}).`;
+		else
+			outFeatureSupport.innerText += `\nCustom color type: ${boolToStr[false]}.`;
+	}
+
 	const screenClone = cloneObject(screen);
 	screenClone.devicePixelRatio = window.devicePixelRatio;
 	outScreenInfo.innerText = JSON.stringify(screenClone, null, '\t');
 
-	if(!("getScreenDetails" in window))
-		btnScreenDetails.parentElement.hidden = true;
+	/* if(!("getScreenDetails" in window))
+		btnScreenDetails.parentElement.hidden = true; */
+	if("getScreenDetails" in window) {
+		btnScreenDetails.innerText = "Get current screen details";
+		btnScreenDetails.disabled = false;
+	}
 }
 
 //window.addEventListener("DOMContentLoaded", pageLoaded);

@@ -135,9 +135,9 @@
 			<option value="3_1">3:1</option>
 			<option value="2_1">2:1</option>
 			<option value="3_2">3:2</option>
-			<option value="1_1">1:1</option>
+			<option value="1_1" selected="true">1:1</option>
 			<option value="2_3">2:3</option>
-			<option value="1_2" selected="true">1:2</option>
+			<option value="1_2">1:2</option>
 			<option value="1_3">1:3</option>
 			<option value="1_4">1:4</option>
 			<option value="1_6">1:6</option>
@@ -165,8 +165,8 @@
 			<option>xyz-d65</option>
 		</select>, 
 		<label for="txtBackgroundIntensity">background intensity</label> <input type="number" id="txtBackgroundIntensity" value="0.0625" step="0.25" min="0" max="65536" class="exp" />, 
-		<label for="txtSpotIntensity">spot intensity</label> <input type="number" id="txtSpotIntensity" value="1" step="0.25" min="0" max="65536" class="exp" />, 
-		<label for="rngSpotSize">spot radius</label> <input type="range" id="rngSpotSize" value="-4" step="0.0625" min="-12" max="0" /> 
+		<label for="txtSpotIntensity">spot intensity</label> <input type="number" id="txtSpotIntensity" value="2" step="0.25" min="0" max="65536" class="exp" />, 
+		<label for="rngSpotSize">spot radius</label> <input type="range" id="rngSpotSize" value="-6" step="0.0625" min="-12" max="0" /> 
 		<output id="outSpotSize">0</output>.
 	</p>
 	<p>
@@ -176,8 +176,11 @@
 	<p>
 		This page is a canvas pixel format and HDR test.
 	</p>
+	<p id="outFeatureSupport">
+		Canvas supported: no.
+	</p>
 	<p>
-		<button id="btnScreenDetails">Get current screen details</button>
+		<button id="btnScreenDetails" disabled="disabled">Get current screen details (unsupported)</button>
 	</p>
 	<pre id="outScreenInfo"></pre>
 </body>
