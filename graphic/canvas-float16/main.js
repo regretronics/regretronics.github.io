@@ -1,6 +1,7 @@
 "use strict";
 
 //var cw, ch, mainCanvas, ctx;
+var canUpdate = false;
 var aspectRatio, resMagnitude; //, canvasScale = 1;
 var colorSpace, bgIntensity, spotIntensity, spotSize;
 
@@ -175,6 +176,7 @@ function pageLoaded() {
 	btnScreenDetails.addEventListener("click", btnScreenDetailsClick);
 }
 function pageReady() {
+	canUpdate = true;
 	viewUpdate();
 
 	const screenClone = cloneObject(screen);

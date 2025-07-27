@@ -1,6 +1,6 @@
 "use strict";
 
-var cw, ch, mainCanvas, ctx;
+var cw, ch, mainCanvas, ctx, canUpdate;
 var newCW, newCH;
 var aspectRatio, resMagnitude, canvasScale;
 var colorSpace, bgIntensity, spotIntensity, spotSize;
@@ -65,13 +65,14 @@ function canvasSizeCheck() {
 	return true;
 }
 
-function uRemainder(x, y) { //When x % y is not enough.
+/* function uRemainder(x, y) { //When x % y is not enough.
 	let rem = x % y;
 	if(rem < 0) rem += Math.abs(y);
 	return rem;
-}
+} */
 function viewUpdate() {
 	canvasSizeCheck();
+	if(!canUpdate) return false;
 	if(!ctx) ctx = mainCanvas.getContext("2d", {
 		alpha: false,
 		colorSpace: "display-p3",
@@ -79,13 +80,10 @@ function viewUpdate() {
 		/* desynchronized: true */
 	});
 
-	let tNow = performance.now();
+	const tNow = performance.now();
 
-	let bgColor = `color(${colorSpace} ${bgIntensity} ${bgIntensity} ${bgIntensity})`;
-	let spotColor = `color(${colorSpace} ${spotIntensity} ${spotIntensity} ${spotIntensity})`;
-	drawFrame(ctx, cw, ch, bgColor, spotColor, spotSize);
+	drawFrame(ctx, cw, ch, colorSpace, bgIntensity, spotIntensity, spotSize);
 
-	let tNow2 = performance.now();
-	let tRender = tNow2 - tNow;
+	const tRender = performance.now() - tNow;
 	outFrameRenderT.innerText = tRender.toFixed(2);
 }
