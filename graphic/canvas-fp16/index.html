@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Canvas, floating point/HDR</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		/* background-color: hsl(120, 25%, 12.5%); */
+		/* color: hsl(120, 0%, 87.5%); */
+		background-color: canvas;
+		color: canvastext;
+		color-scheme: dark;
+	}
+	body {
+		margin: 0px;
+	}
+
+	#canvasContainer {
+		text-align: center;
+	}
+	#canvasContainer canvas {
+		object-fit: contain;
+	}
+	#canvasContainer canvas/*:not(:fullscreen)*/ {
+		/* max-width: 98%;
+		max-height: 98vh; */
+		max-width: 100%;
+		max-height: 100vh;
+	}
+	/* #canvasContainer canvas:fullscreen, :fullscreen #canvasContainer canvas {
+		max-width: 100%;
+		max-height: 100vh;
+	} */
+	p, body > pre {
+		max-width: min(120ch, 100% - 3ch);
+		margin-inline: auto;
+	}
+	input[type="number"] {
+		/* width: 5em; */
+		text-align: right;
+		--step: attr(step type(<number>), 1);
+		--digits: max(log(var(--step, 1), 0.5), log(var(--step, 1), 10));
+		width: calc(5em/16 + 3ch + var(--digits, 0)*1ch);
+	}
+	input[type="range"] {
+		vertical-align: middle;
+	}
+	#outScreenInfo {
+		font-size: 0.8rem;
+		font-family: monospace;
+
+		white-space-collapse: preserve;
+		text-wrap-mode: wrap;
+		tab-size: 4;
+
+		&:empty {
+			display: none;
+		}
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+	//to do: use defer="true" or async in any script tag?
+	var cw, ch, mainCanvas, ctx;
+	var aspectRatio, resMagnitude, canvasScale = 1;
+	var bgIntensity, spotIntensity, spotSize;
+	/*]]>*/</script>
+	<script type="text/javascript" src="frameRender.js"></script>
+	<script type="text/javascript" src="canvas.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+</head>
+<body>
+	<div id="canvasContainer">
+		<canvas id="mainCanvas">
+			If you are reading this through a user agent, it does not support HTML canvas. This page can't work without canvas.
+		</canvas>
+	</div>
+	<p>
+		Canvas: 
+		<label for="cbxCanvasRatio">aspect ratio</label> <select id="cbxCanvasRatio">
+			<option value="3_1">3:1</option>
+			<option value="8_3">8:3</option>
+			<option value="5_2">5:2</option>
+			<option value="12_5">12:5</option>
+			<option value="9_4">9:4</option>
+			<option value="32_15">32:15</option>
+
+			<option value="2_1">2:1</option>
+			<option value="15_8">15:8</option>
+			<option value="16_9">16:9</option>
+			<option value="5_3">5:3</option>
+			<option value="8_5">8:5</option>
+
+			<option value="3_2" selected="true">3:2</option>
+			<option value="4_3">4:3</option>
+			<option value="6_5">6:5</option>
+			<option value="5_4">5:4</option>
+			<option value="9_8">9:8</option>
+			<option value="16_15">16:15</option>
+
+			<option value="1_1">1:1</option>
+			<option value="15_16">15:16</option>
+			<option value="8_9">8:9</option>
+			<option value="4_5">4:5</option>
+			<option value="5_6">5:6</option>
+			<option value="3_4">3:4</option>
+
+			<option value="2_3">2:3</option>
+			<option value="5_8">5:8</option>
+			<option value="3_5">3:5</option>
+			<option value="9_16">9:16</option>
+			<option value="8_15">8:15</option>
+
+			<option value="1_2">1:2</option>
+			<option value="15_32">15:32</option>
+			<option value="4_9">4:9</option>
+			<option value="5_12">5:12</option>
+			<option value="2_5">2:5</option>
+			<option value="3_8">3:8</option>
+
+			<option value="1_3">1:3</option>
+		</select>, 
+		<label for="rngCanvasResolution">resolution</label> <input id="rngCanvasResolution" type="range" min="12" max="24" step="1" value="19" />
+		<output id="outCanvasResW">0</output>x<output id="outCanvasResH">0</output>.
+		<button id="btnResDiv2" data-delta="-2">Half res.</button> 
+		<button id="btnResMul2" data-delta="2">Double res.</button> 
+		<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
+			<option value="16_1">16:1</option>
+			<option value="12_1">12:1</option>
+			<option value="8_1">8:1</option>
+			<option value="6_1">6:1</option>
+			<option value="4_1">4:1</option>
+			<option value="3_1">3:1</option>
+			<option value="2_1">2:1</option>
+			<option value="3_2">3:2</option>
+			<option value="1_1">1:1</option>
+			<option value="2_3">2:3</option>
+			<option value="1_2" selected="true">1:2</option>
+			<option value="1_3">1:3</option>
+			<option value="1_4">1:4</option>
+			<option value="1_6">1:6</option>
+			<option value="1_8">1:8</option>
+			<option value="1_12">1:12</option>
+			<option value="1_16">1:16</option>
+		</select>.
+	</p>
+	<p>
+		<label for="txtBackgroundIntensity">Background intensity</label> <input type="number" id="txtBackgroundIntensity" value="0.0625" step="0.25" min="0" max="65536" class="exp" />
+		<label for="txtSpotIntensity">Spot intensity</label> <input type="number" id="txtSpotIntensity" value="1" step="0.25" min="0" max="65536" class="exp" />
+		<label for="rngSpotSize">Spot radius</label> <input type="range" id="rngSpotSize" value="-4" step="0.0625" min="-12" max="0" /> 
+		<output id="outSpotSize">0</output>.
+	</p>
+	<p>
+		Frame: <!-- render time -->interval 
+		<output id="outFrameRenderT">0</output> ms.
+	</p>
+	<p>
+		This page is a canvas pixel format and HDR test.
+	</p>
+	<p>
+		<button id="btnScreenDetails">Get current screen details</button>
+	</p>
+	<pre id="outScreenInfo"></pre>
+</body>
+</html>
