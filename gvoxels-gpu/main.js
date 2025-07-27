@@ -1,5 +1,11 @@
 "use strict";
 
+var /* ch, cw, */ gpu, mainCanvas;
+var aspectRatio, resMagnitude; //, canvasScale;
+var layerCount;
+var targetFrameTime, firstTimeout, /* updateCycleId, */ animating;
+var particles;
+
 //var pos = [0.0, 0.0, 0.0];
 var dPos = [0.0, 0.0, 0.0];
 var rot = [0.0, 0.0, 0.0]; //currently out of use
