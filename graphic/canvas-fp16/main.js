@@ -2,8 +2,7 @@
 
 //var cw, ch, mainCanvas, ctx;
 var aspectRatio, resMagnitude; //, canvasScale = 1;
-var bgIntensity, spotIntensity, spotSize;
-var newCW, newCH;
+var colorSpace, bgIntensity, spotIntensity, spotSize;
 
 function log2WithFactor3(x) {
 	const
@@ -38,6 +37,12 @@ function btnResClick(event) {
 	recalcResolution();
 }
 
+function selColorSpaceInput(event) {
+	if(!event || !event.target) return;
+	const elem = event.target;
+	colorSpace = elem.value;
+	viewUpdate();
+}
 function expSpinnerChanged(event) {
 	//console.log(event);
 	const elem = event.target;
@@ -88,15 +93,21 @@ function rngSpotSizeInput(event) {
 	outSpotSize.innerText = spotSize.toPrecision(3);
 	viewUpdate();
 }
-async function screenDetailed(ctl) {
-	let scr = (await window.getScreenDetails()).currentScreen;
-	const screenClone = {};
-	for(const key in scr) {
+//recursive function
+function cloneObject(obj) {
+	if(!obj || typeof obj !== "object") return obj;
+	const objClone = {};
+	for(const key in obj) {
 		//if(Object.prototype.hasOwnProperty.call(scr, key)) {
-			const element = scr[key];
-			screenClone[key] = element;
+			const element = obj[key];
+			objClone[key] = (typeof obj === "object") ? cloneObject(element) : element;
 		//}
 	}
+	return objClone;
+}
+async function screenDetailed(ctl) {
+	const scr = (await window.getScreenDetails()).currentScreen;
+	const screenClone = cloneObject(scr);
 	ctl.innerText = JSON.stringify(screenClone, null, '\t');
 }
 function btnScreenDetailsClick(event) {
@@ -116,9 +127,6 @@ function pageLoaded() {
 		//elem.addEventListener("invalid", expSpinnerInvalid);
 		elem.dispatchEvent(evt);
 	}
-	/* const evt = new Event("input");
-	for(const elem of document.querySelectorAll("input.exp"))
-		elem.dispatchEvent(evt); */
 
 	cbxCanvasRatio.addEventListener("change", cbxCanvasRatioChanged);
 	rngCanvasResolution.addEventListener("input", rngCanvasResolutionInput);
@@ -155,9 +163,11 @@ function pageLoaded() {
 		} else
 			layerCount = txtMarchingLayers.valueAsNumber; */
 
+	selColorSpace.addEventListener("input", selColorSpaceInput);
 	txtBackgroundIntensity.addEventListener("input", txtBackgroundIntensityInput);
 	txtSpotIntensity.addEventListener("input", txtSpotIntensityInput);
 	rngSpotSize.addEventListener("input", rngSpotSizeInput);
+	selColorSpaceInput({target: selColorSpace});
 	txtBackgroundIntensityInput({target: txtBackgroundIntensity});
 	txtSpotIntensityInput({target: txtSpotIntensity});
 	rngSpotSizeInput({target: rngSpotSize});
@@ -167,15 +177,12 @@ function pageLoaded() {
 function pageReady() {
 	viewUpdate();
 
-	const screenClone = {};
-	for(const key in screen) {
-		//if(Object.prototype.hasOwnProperty.call(screen, key)) {
-			const element = screen[key];
-			screenClone[key] = element;
-		//}
-	}
+	const screenClone = cloneObject(screen);
 	screenClone.devicePixelRatio = window.devicePixelRatio;
 	outScreenInfo.innerText = JSON.stringify(screenClone, null, '\t');
+
+	if(!("getScreenDetails" in window))
+		btnScreenDetails.parentElement.hidden = true;
 }
 
 //window.addEventListener("DOMContentLoaded", pageLoaded);

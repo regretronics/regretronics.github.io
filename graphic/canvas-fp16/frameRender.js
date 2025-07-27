@@ -3,9 +3,6 @@
 function drawFrame(ctx, cw, ch, bgColor, spotColor, spotSize) {
 	if(!ctx || !cw || !ch) return;
 
-	//ctx.fillStyle = "color(rec2020 1 1 1)";
-	//ctx.fillStyle = "color(rec2020 2 2 2)";
-	//ctx.fillStyle = "color(srgb-linear 1 1 1)";
 	//ctx.fillStyle = "color(srgb-linear 2 2 2)";
 	ctx.fillStyle = bgColor;
 	ctx.fillRect(0, 0, cw, ch);

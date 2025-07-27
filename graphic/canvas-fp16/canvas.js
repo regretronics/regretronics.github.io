@@ -3,7 +3,7 @@
 var cw, ch, mainCanvas, ctx;
 var newCW, newCH;
 var aspectRatio, resMagnitude, canvasScale;
-var bgIntensity, spotIntensity, spotSize;
+var colorSpace, bgIntensity, spotIntensity, spotSize;
 
 //const scaleValues = {"1_1": 1; };
 
@@ -81,8 +81,8 @@ function viewUpdate() {
 
 	let tNow = performance.now();
 
-	let bgColor = `color(srgb-linear ${bgIntensity} ${bgIntensity} ${bgIntensity})`;
-	let spotColor = `color(srgb-linear ${spotIntensity} ${spotIntensity} ${spotIntensity})`;
+	let bgColor = `color(${colorSpace} ${bgIntensity} ${bgIntensity} ${bgIntensity})`;
+	let spotColor = `color(${colorSpace} ${spotIntensity} ${spotIntensity} ${spotIntensity})`;
 	drawFrame(ctx, cw, ch, bgColor, spotColor, spotSize);
 
 	let tNow2 = performance.now();

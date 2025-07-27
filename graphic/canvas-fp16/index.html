@@ -67,9 +67,9 @@
 	var aspectRatio, resMagnitude, canvasScale = 1;
 	var bgIntensity, spotIntensity, spotSize;
 	/*]]>*/</script>
-	<script type="text/javascript" src="frameRender.js"></script>
-	<script type="text/javascript" src="canvas.js"></script>
-	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript" src="frameRender.js" defer="defer"></script>
+	<script type="text/javascript" src="canvas.js" defer="defer"></script>
+	<script type="text/javascript" src="main.js" defer="defer"></script>
 </head>
 <body>
 	<div id="canvasContainer">
@@ -147,9 +147,26 @@
 		</select>.
 	</p>
 	<p>
-		<label for="txtBackgroundIntensity">Background intensity</label> <input type="number" id="txtBackgroundIntensity" value="0.0625" step="0.25" min="0" max="65536" class="exp" />
-		<label for="txtSpotIntensity">Spot intensity</label> <input type="number" id="txtSpotIntensity" value="1" step="0.25" min="0" max="65536" class="exp" />
-		<label for="rngSpotSize">Spot radius</label> <input type="range" id="rngSpotSize" value="-4" step="0.0625" min="-12" max="0" /> 
+		<label for="selColorSpace">Target color space</label> 
+		<select id="selColorSpace" data-property="--cl-space">
+			<option>srgb</option>
+			<option selected="selected">srgb-linear</option>
+			<option>a98-rgb</option>
+			<option>display-p3</option>
+			<option>prophoto-rgb</option>
+			<option>rec2020</option>
+			<option>rec2100</option>
+			<option>rec2100-linear</option>
+			<option>rec2100-display-linear</option>
+			<option>rec2100-pq</option>
+			<option>rec2100-hlg</option>
+			<option>xyz</option>
+			<option>xyz-d50</option>
+			<option>xyz-d65</option>
+		</select>, 
+		<label for="txtBackgroundIntensity">background intensity</label> <input type="number" id="txtBackgroundIntensity" value="0.0625" step="0.25" min="0" max="65536" class="exp" />, 
+		<label for="txtSpotIntensity">spot intensity</label> <input type="number" id="txtSpotIntensity" value="1" step="0.25" min="0" max="65536" class="exp" />, 
+		<label for="rngSpotSize">spot radius</label> <input type="range" id="rngSpotSize" value="-4" step="0.0625" min="-12" max="0" /> 
 		<output id="outSpotSize">0</output>.
 	</p>
 	<p>
