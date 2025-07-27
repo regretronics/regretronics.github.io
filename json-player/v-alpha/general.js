@@ -294,7 +294,7 @@ function loadEventHandlers() {
 }
 function pageLoaded() {
 	//load HTML element references (renders document.getElementById unnecessary)
-	for(let s of document.querySelectorAll('[id]'))
+	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
 	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
@@ -446,7 +446,7 @@ function expSpinnerChanged(event) {
 	//if(elem.validity.stepMismatch) {
 	//if(!elem.validity.valid) {
 	/* if(!elem.checkValidity()) {
-		elem.valieAsNumber = 1;
+		elem.valueAsNumber = 1;
 		elem.setCustomValidity("");
 		//elem.checkValidity();
 		//elem.reportValidity();

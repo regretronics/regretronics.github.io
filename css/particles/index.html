@@ -234,7 +234,7 @@
 		mainContainer.style.setProperty("--z0", parseFloat(txtPerspZ.value));
 	}
 	function pageLoaded() {
-		for(let s of document.querySelectorAll('[id]'))
+		for(const s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 
 		txtPixelScale.addEventListener("input", txtPixelScaleChanged);

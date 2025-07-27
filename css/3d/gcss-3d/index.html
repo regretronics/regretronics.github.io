@@ -219,7 +219,7 @@
 		elem.scrollIntoView(scrollOptions);
 	}
 	function pageLoaded() {
-		for(let s of document.querySelectorAll('[id]'))
+		for(const s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 
 		let evt = new Event("input");

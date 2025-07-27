@@ -288,7 +288,7 @@ function pageReady() {
 	}
 }
 function pageLoaded() {
-	for(let s of document.querySelectorAll('[id]'))
+	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
 	//cbxOutputScale.innerHTML = cbxSourceScale.innerHTML; //clone list.

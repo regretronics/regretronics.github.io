@@ -213,7 +213,7 @@
 	}
 
 	function pageLoaded() {
-		for(let s of document.querySelectorAll('[id]'))
+		for(const s of document.querySelectorAll('[id]'))
 			window[s.id] = s;
 
 		btnResDiv2.addEventListener("click", event => {txtResW.valueAsNumber *= 0.5; txtResH.valueAsNumber *= 0.5;});

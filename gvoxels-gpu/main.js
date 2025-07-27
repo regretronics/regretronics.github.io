@@ -205,7 +205,7 @@ function frameTimeoutInput(event) {
 }
 
 function pageLoaded() {
-	for(let s of document.querySelectorAll('[id]'))
+	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
 	cbxCanvasRatio.addEventListener("change", cbxCanvasRatioChanged);

@@ -294,7 +294,7 @@ function loadEventHandlers() {
 }
 function pageLoaded() {
 	//load HTML element references (renders document.getElementById unnecessary)
-	for(let s of document.querySelectorAll('[id]'))
+	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
 	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
