@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>CSS experiment</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+		background-color: oklch(0.25 0 0deg);
+		color: oklch(0.875 0 0deg);
+		font-size: 1.5em;
+	}
+	style[contenteditable] {
+		display: block;
+		white-space: pre-wrap;
+		font-family: monospace;
+		background-color: oklch(0 0 0deg);
+		padding: 0.25em;
+	}
+
+	/* &:nth-child(n + 9):nth-child(-n + 16) {
+		--row-b03: 1;
+
+		:root:has(&:hover) {
+			--y-b03: 1;
+		}
+	}
+	&:nth-child(8n + 5),
+	&:nth-child(8n + 6),
+	&:nth-child(8n + 7),
+	&:nth-child(8n + 8) {
+		--row-b02: 1;
+
+		:root:has(&:hover) {
+			--y-b02: 1;
+		}
+	}
+	&:nth-child(4n + 3),
+	&:nth-child(4n + 4) {
+		--row-b01: 1;
+
+		:root:has(&:hover) {
+			--y-b01: 1;
+		}
+	}
+	&:nth-child(2n) {
+		--row-b00: 1;
+
+		:root:has(&:hover) {
+			--y-b00: 1;
+		}
+	} */
+	/*]]>*/</style>
+</head>
+<body>
+	<ol>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+		<li>test</li>
+	</ol>
+	<style contenteditable="plaintext-only">
+	/*li:nth-child(even of :nth-child(odd)),
+	li:nth-child(even of :nth-child(even)) {
+		color: red;
+		font-weight: bolder;
+	}*/
+	li:nth-child(even of :nth-child(odd of :nth-child(odd))),
+	li:nth-child(even of :nth-child(odd of :nth-child(even))),
+	li:nth-child(even of :nth-child(even of :nth-child(odd))),
+	li:nth-child(even of :nth-child(even of :nth-child(even)))
+	{
+		color: red;
+		font-weight: bolder;
+	}
+	</style>
+</body>
+</html>
