@@ -154,22 +154,17 @@ function valuesFromTaxonomy(taxRoot, refValues, inclusive) {
 //rootCat should be an array, that might include the categories of its fields
 function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	console.log("makeNewContent", ...arguments);
-	/* const content = {category: rootCat};
-	if(!rootCat) return content; */
 	let content = {category: rootCat};
 	if(!rootCat) return content;
 	if(!modRules) return content;
 
 	if(!Array.isArray(rootCat)) rootCat = rootCat.split("/");
-	let cat1, cat2; //to do: use just an array?
-	/* const separatorIdx = rootCat.indexOf("/");
-	if(separatorIdx >= 0) {
-		cat1 = rootCat.substring(0, separatorIdx);
-		cat2 = rootCat.slice(separatorIdx + 1);
-	} */
-	cat1 = rootCat[0];
-	if(Array.isArray(cat1)) cat1 = cat1.join("."); //necessary?
-	cat2 = rootCat.slice(1);
+	let cat1Arr = rootCat[0];
+	if(Array.isArray(cat1Arr)) {
+		rootCat[0] = rootCat[0].join(".");
+	} else
+		cat1Arr = cat1Arr.split(".");
+	const cat1 = rootCat[0], cat2 = rootCat.slice(1);
 
 	if(parentContext == undefined) parentContext = "";
 	//for the moment, only take the last part of the parent context.
@@ -177,20 +172,20 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	const lastSeparatorIdx = parentContext.lastIndexOf("/");
 	if(lastSeparatorIdx >= 0) parentContext = parentContext.slice(lastSeparatorIdx + 1);
 
-	//to do: add a parentCat parameter, and maybe an inclusive boolean?
+	//to do: add a parentCat parameter and maybe an inclusive boolean?
 
 	const defaultRepeatDepthLimit = 2;
 	if(repeatDepthLimit == undefined)
 		repeatDepthLimit = defaultRepeatDepthLimit;
 	else
-		if(repeatDepthLimit < 1) return content; //?
+		if(repeatDepthLimit < 1) return content; //to do: no value?
 
 	const fieldValue = (field) => {
 		let newContext = (parentContext.length > 0) ? parentContext + "/" + field : field;
 		let fieldCat;
 		const newContent = (fieldCat) => makeNewContent(fieldCat, newContext, repeatDepthLimit - Number(fieldCat[0] === cat1));
 
-		//try to define category first
+		//try to define category first, by restrictions
 		if(cat2.length >= 1) {
 			fieldCat = cat2;
 		} else {
@@ -209,19 +204,18 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 			if(!value)
 				value = newContent(fieldCat);
 		} else {
-			//ok, try value first then
+			//no category preferences? try value first then
 			value = randomFromList(modRules.fieldValues[cat1 + "/" + field])
 			 ?? randomFromList(modRules.fieldValues[field]);
 			if(value) {
 				if(value.startsWith("taxonomy:"))
 					value = valuesFromTaxonomy(value.slice(value.indexOf(":") + 1)).join("."); //to do: potential starting point (refValue)?
 			} else {
-				//ok, category first again
-				if(modRules.taxonomy.category.includes(cat1.split(".")[0]))
-					fieldCat = [valuesFromTaxonomy("category", cat1.split("."), repeatDepthLimit > 1).join(".")];
+				//no thoughts? category first again
+				if(modRules.taxonomy.category.includes(cat1Arr[0]))
+					fieldCat = [valuesFromTaxonomy("category", cat1Arr, repeatDepthLimit > 1).join(".")];
 				else
 					//something from the last category (analytical)
-					//fieldCat = modRules.fieldValues.category.at(-1);
 					fieldCat = valuesFromTaxonomy("category", [modRules.taxonomy.category.at(-1)], true);
 				value = newContent(fieldCat);
 			}
@@ -231,7 +225,6 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 
 	//specific content generators
 	//primary (depending only of category/type description)
-	const cat1Arr = cat1.split(".");
 	if(cat1Arr[0] == "analytical") {
 		if(cat1Arr[1] == "list") {
 			const length = cat1Arr[2];
@@ -254,7 +247,7 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 		//e.g. if rootCat is ["roles", "agent"] ("roles/agent" in the rule-set), and it admits a "value":
 		//the value depends first on values for "roles/agent", or else values for just "roles" (less specific).
 		//including parent field name makes the selector more specific, which goes first.
-		const tryTakeFromList = (selector) => { //to do: rename "take" to "get" of "fill"
+		const tryFillFromList = (selector) => {
 			if(content.value) return;
 			const list = modRules.categoryValues[selector];
 
@@ -266,13 +259,13 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 
 			content.value = value;
 		};
-		//if(cat2) tryTakeFromList(cat2);
+		//if(cat2) tryFillFromList(cat2);
 		if(parentContext.length > 0) {
-			tryTakeFromList(parentContext + "/" + rootCat.join("/"));
-			if(rootCat.length > 1) tryTakeFromList(parentContext + "/" + cat1);
+			tryFillFromList(parentContext + "/" + rootCat.join("/"));
+			if(rootCat.length > 1) tryFillFromList(parentContext + "/" + cat1);
 		}
-		tryTakeFromList(rootCat.join("/"));
-		if(rootCat.length > 1) tryTakeFromList(cat1);
+		tryFillFromList(rootCat.join("/"));
+		if(rootCat.length > 1) tryFillFromList(cat1);
 
 		/* if(!content.value && rootCat === "string")
 			content.value = makeString(); */
@@ -287,9 +280,9 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 
 	if(Array.isArray(content)) return content; //properties wouldn't survive the serialization of an array
 	//if(!modRules) return content;
+
 	//composite object (map): field choice and filling
 	//required and primary (arbitrary, i.e. most independent) fields
-	//let fieldList = modRules.categoryFieldsReq[rootCat] ?? modRules.categoryFieldsReq[cat1];
 	//looks under multiple selection criteria. if multiple field lists exist, merge them.
 	let fieldList = [];
 	const tryIncludeFieldList = (selector) => {

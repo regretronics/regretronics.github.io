@@ -65,13 +65,6 @@
 			//one from the list is used each time
 			category: ["taxonomy:category"],
 
-			/*category: ["conceptual", "practical", "material", "physical", "analytical"],
-			"conceptual/category2": ["process", "relation", "role", "agent"],
-			"practical/category2": ["entity", "property", "propValue"],
-			"material/category2": ["universe", "person", "time", "space", "density", "probability"],
-			"physical/category2": ["quantity", "unit", "measurement"],
-			"analytical/category2": ["set", "sequence", "vector", "number"],*/
-
 			process: ["adolescence"],
 			entity: ["person", "object"],
 			property: ["age", "length", "matComposition"],
@@ -84,10 +77,10 @@
 		export const categoryFieldsReq = {
 			//category or "field/category" as key
 			//all from the list are used each time
-			conceptual: [/*"category2",*/ /*"type",*/ "roles"],
-			practical: [/*"category2",*/ "practical1", "practical2"],
-			material: [/*"category2",*/ "material1", "material2"],
-			physical: [/*"category2",*/ "physical1", "physical2"],
+			conceptual: [/*"type",*/ "roles"],
+			practical: ["practical1", "practical2"],
+			material: ["material1", "material2"],
+			physical: ["physical1", "physical2"],
 			"physical.quantity": ["scale"],
 			//analytical: [],
 
@@ -134,10 +127,12 @@
 			<p>The objective is to build an autonomous fiction generator or an "imaginator", generating a virtual world (more or less following the real one) with its due parts. But in this case, the approach is very abstract and analytical (unlike generating pixels, for example). This could have some creative and ludic applications, like increased replay value and flexibility from variable artificial situations in computer games.</p>
 		</div>
 	</details>
+	<div class="align-end"><button id="btnRulesReset">Reset</button></div>
 	<details>
 		<!-- <summary>Rules source:</summary>
 		<p><button id="btnRulesReset">Reset</button> <output id="outSourceStatus" for="txtRulesSource"></output></p> -->
-		<summary>Rules source: <span class="align-end"><button id="btnRulesReset">Reset</button></span></summary>
+		<!-- <summary>Rules source: <span class="align-end"><button id="btnRulesReset">Reset</button></span></summary> -->
+		<summary>Rules source:</summary>
 		<p><output id="outSourceStatus" for="txtRulesSource"></output></p>
 		<pre id="txtRulesSource" class="code-box code-editor" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
 	</details>

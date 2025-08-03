@@ -8,11 +8,6 @@ const categories = {
 };
 
 function btnGenerateContentClick(event) {
-	/* const selectedCat = selRootCategory.value;
-	let isCatRandom = selectedCat == "random";
-	if(!isCatRandom && !modRules.fieldValues.category.includes(selectedCat))
-		isCatRandom = true;
-	const rootCat = (isCatRandom ? randomFromList(modRules.fieldValues.category) : selectedCat); */
 	const isCatRandom = selRootCategory.selectedIndex === 0;
 	const rootCat = (isCatRandom ? randomFromList(categories[selRootCategoryGroup.value]) : selRootCategory.value);
 
@@ -23,7 +18,8 @@ function btnGenerateContentClick(event) {
 	localStorage.setItem("rootCategory", selRootCategory.value);
 }
 function editorKeyDown(event) {
-	if(event.key == "Tab") {
+	//if(event.key == "Tab") {
+	if(event.key == "Tab" && !event.shiftKey) {
 		event.stopPropagation();
 		event.preventDefault();
 
@@ -75,13 +71,7 @@ function persistRules(event) {
 }
 async function loadRulesModule(scriptText) {
 	const blob = new Blob([scriptText], {type: "text/javascript"});
-	//const script = document.createElement("script");
 	const url = URL.createObjectURL(blob);
-	//script.onload = script.onerror = () => URL.revokeObjectURL(url);
-	//script.src = url;
-	//document.body.appendChild(script);
-	//modRules = await import(defaultRules.href);
-	//modRules = await import("ontolSource.js");
 	modRules = await import(url);
 	URL.revokeObjectURL(url);
 }
@@ -91,7 +81,7 @@ function checkRulesModule(modRules) {
 		txtRulesSource.classList?.add?.("invalid");
 		return false;
 	}
-	const requiredMembers = ["categoryValues", "fieldValues", "categoryFieldsReq", /* "categoryFieldsOpt", */ "fieldCategories"];
+	const requiredMembers = ["categoryValues", "fieldValues", "categoryFieldsReq", /* "categoryFieldsOpt", */ "fieldCategories"]; //question: include taxonomy?
 	for(const member of requiredMembers) {
 		if(!modRules[member]) {
 			outSourceStatus.innerHTML = `Member <code>${member}</code> is missing.`;
@@ -123,7 +113,6 @@ async function readRulesFromStorage() {
 async function fetchDefaultRules() {
 	if(!window.defaultRules || origin === "null") return false;
 	try {
-		//const url = (window.defaultRules ? defaultRules.href : "ontolSource.js");
 		const url = defaultRules.href;
 		const response = await fetch(url);
 		//const response = await fetch(url, {mode: "same-origin"});
@@ -149,7 +138,7 @@ async function readDefaultRules() {
 	try {
 		//remove excess indentation
 		let rulesBody = defaultRulesBody.text.trimEnd().split("\n");
-		if(rulesBody[0].length < 1) rulesBody.shift();
+		if(rulesBody[0].trim().length < 1) rulesBody.shift(); //initial blank line?
 		//let rulesBody = defaultRulesBody.text.trim();
 		//const indent = rulesBody.at(-1) + "\t";
 
@@ -199,7 +188,6 @@ function loadCategoryGroups() {
 	//to do: consider including categories from the right-hand side of fieldCategories.
 	categories.all = Array.from(allCategories[0].union(allCategories[1]));
 	//categories.all = [];
-	//categories.bottomLevel = modRules.fieldValues?.["analytical/category2"];
 	//categories.bottomLevel = modRules.taxonomy?.analytical;
 	loadCategories();
 }
