@@ -35,15 +35,42 @@
 			"0/name.personal": ["Mr. First"],
 			"0/string": ["First"],
 		};
+		export const taxonomy = {
+			/*"category:unit of time": ["instance:decade", "instance:year", "instance:month", "instance:day"],
+			"category:animal": ["category:mammal"],
+			"category:mammal": ["category:feline"],
+			"category:small cat": []*/
+
+			category: ["conceptual", "practical", "material", "physical", "analytical"],
+
+			"conceptual": ["process", "relation", "role", "item"],
+			"process": ["life"],
+			"relation": ["family"],
+			"role": ["creator", "participant", "witness"],
+			"item": ["time", "situation", "place", "object"],
+
+			"practical": ["entity", "property", "propValue"],
+			"entity": ["living being", "material object", "material"],
+			"property": ["temperature"],
+			"propValue": ["low", "medium", "high", "negative", "zero", "positive"],
+
+			"material": ["universe", "person", "time", "space", "density", "probability"],
+
+			"physical": ["quantity", "unit", "measurement"],
+
+			"analytical": ["set", "sequence", "vector", "number"],
+		};
 		export const fieldValues = {
 			//field or "category/field" as key
 			//one from the list is used each time
-			category: ["conceptual", "practical", "material", "physical", "analytical"],
+			category: ["taxonomy:category"],
+
+			/*category: ["conceptual", "practical", "material", "physical", "analytical"],
 			"conceptual/category2": ["process", "relation", "role", "agent"],
 			"practical/category2": ["entity", "property", "propValue"],
 			"material/category2": ["universe", "person", "time", "space", "density", "probability"],
 			"physical/category2": ["quantity", "unit", "measurement"],
-			"analytical/category2": ["set", "sequence", "vector", "number"],
+			"analytical/category2": ["set", "sequence", "vector", "number"],*/
 
 			process: ["adolescence"],
 			entity: ["person", "object"],
@@ -57,10 +84,10 @@
 		export const categoryFieldsReq = {
 			//category or "field/category" as key
 			//all from the list are used each time
-			conceptual: ["category2", /*"type",*/ "roles"],
-			practical: ["category2", "practical1", "practical2"],
-			material: ["category2", "material1", "material2"],
-			physical: ["category2", "physical1", "physical2"],
+			conceptual: [/*"category2",*/ /*"type",*/ "roles"],
+			practical: [/*"category2",*/ "practical1", "practical2"],
+			material: [/*"category2",*/ "material1", "material2"],
+			physical: [/*"category2",*/ "physical1", "physical2"],
 			"physical.quantity": ["scale"],
 			//analytical: [],
 

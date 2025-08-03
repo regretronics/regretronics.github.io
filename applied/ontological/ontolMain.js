@@ -1,8 +1,12 @@
 "use strict";
 
-function randomFromList(list) {
+function randomFromList(list, refValue, inclusive) {
 	if(!list || list.length < 1) return undefined;
-	return list[Math.floor(list.length * Math.random())];
+	if(refValue) {
+		let itemIndex = Math.max(list.indexOf(refValue) + Number(!inclusive), 0);
+		return list[itemIndex + Math.floor((list.length - itemIndex) * Math.random())];
+	} else
+		return list[Math.floor(list.length * Math.random())];
 }
 function makeQuantitative(type) {
 	const rnd = Math.random(); //uniform distribution: between 0 and 1 (0 <= rnd < 1, precisely)
@@ -103,21 +107,69 @@ function makeString(length) {
 
 var modRules;
 
+//returns a (hierarchical) list of subtypes
+//accepts a starting point, with refValues
+function valuesFromTaxonomy(taxRoot, refValues, inclusive) {
+	const value = [];
+	let checkRef = Boolean(refValues) && refValues.length > 0;
+	if(checkRef && !inclusive) { //transforms a non-inclusive path into an inclusive one
+		for(let i = refValues.length - 1, parentList, pos; i >= 0; i--) {
+			let parent = (i < 1) ? taxRoot : refValues[i - 1];
+			parentList = modRules.taxonomy[parent];
+			pos = parentList.indexOf(refValues[i]);
+			if(pos < parentList.length - 1) { //is it the last in its list?
+				refValues[i] = parentList[pos + 1];
+				inclusive = true;
+				break;
+			} else {
+				refValues.pop();
+				if(refValues.length < 1) return value;
+			}
+		}
+	}
+	let i = 0, subValue;
+	do {
+		const rootList = modRules.taxonomy[taxRoot];
+		if(checkRef) { //has starting point to check
+			if(inclusive || i < refValues.length - 1)
+				subValue = randomFromList(rootList, refValues[i], true);
+			else
+				subValue = randomFromList(rootList, refValues[i], false)
+				 ?? randomFromList(rootList, refValues[i], true);
+
+			checkRef = subValue === refValues[i] && ++i < refValues.length;
+		} else
+			subValue = randomFromList(rootList);
+
+		if(subValue) { //add to list, if there is something, and move forward
+			value.push(subValue);
+			taxRoot = subValue;
+		}
+	} while(subValue);
+	return value;
+};
+
 //generator main routine
 //recursive function
+//rootCat should be an array, that might include the categories of its fields
 function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
+	console.log("makeNewContent", ...arguments);
 	/* const content = {category: rootCat};
 	if(!rootCat) return content; */
 	let content = {category: rootCat};
 	if(!rootCat) return content;
 	if(!modRules) return content;
 
-	let cat1, cat2; //to do: use an array, and split instead of indexOf?
-	const separatorIdx = rootCat.indexOf("/");
+	if(!Array.isArray(rootCat)) rootCat = rootCat.split("/");
+	let cat1, cat2; //to do: use just an array?
+	/* const separatorIdx = rootCat.indexOf("/");
 	if(separatorIdx >= 0) {
 		cat1 = rootCat.substring(0, separatorIdx);
 		cat2 = rootCat.slice(separatorIdx + 1);
-	}
+	} */
+	cat1 = rootCat[0];
+	if(Array.isArray(cat1)) cat1 = cat1.join("."); //necessary?
+	cat2 = rootCat.slice(1);
 
 	if(parentContext == undefined) parentContext = "";
 	//for the moment, only take the last part of the parent context.
@@ -125,41 +177,53 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	const lastSeparatorIdx = parentContext.lastIndexOf("/");
 	if(lastSeparatorIdx >= 0) parentContext = parentContext.slice(lastSeparatorIdx + 1);
 
-	//const catIndex = modRules.fieldValues.category.indexOf(rootCat) /* + 1 */;
-	let catIndex = modRules.fieldValues.category.indexOf(rootCat);
-	const catCount = modRules.fieldValues.category.length;
-	if(catIndex + 1 < catCount && repeatDepthLimit < 2) catIndex++;
+	//to do: add a parentCat parameter, and maybe an inclusive boolean?
 
 	const defaultRepeatDepthLimit = 2;
 	if(repeatDepthLimit == undefined)
 		repeatDepthLimit = defaultRepeatDepthLimit;
 	else
-		if(repeatDepthLimit < 1) return content;
+		if(repeatDepthLimit < 1) return content; //?
 
 	const fieldValue = (field) => {
+		let newContext = (parentContext.length > 0) ? parentContext + "/" + field : field;
+		let fieldCat;
+		const newContent = (fieldCat) => makeNewContent(fieldCat, newContext, repeatDepthLimit - Number(fieldCat[0] === cat1));
+
 		//try to define category first
-		let fieldCat = cat2 
-			?? randomFromList(modRules.fieldCategories[rootCat + "/" + field]) 
-			?? randomFromList(modRules.fieldCategories[field]);
+		if(cat2.length >= 1) {
+			fieldCat = cat2;
+		} else {
+			const newCat = randomFromList(modRules.fieldCategories[cat1 + "/" + field]) 
+			 ?? randomFromList(modRules.fieldCategories[field]);
+			if(newCat)
+				fieldCat = newCat.split("/");
+			else
+				fieldCat = [];
+		}
 		let value;
-		if(fieldCat) { //value later
+		if(fieldCat[0]) { //value later
 			//question: direct value generation here, or in the sub-call?
-			value = randomFromList(modRules.categoryValues[field + "/" + fieldCat]); //currently: here if the selector is more specific
-			//value = randomFromList(modRules.categoryValues[field + "/" + fieldCat]) ?? randomFromList(modRules.categoryValues[fieldCat]); //here, as much as possible
+			value = randomFromList(modRules.categoryValues[field + "/" + fieldCat[0]]); //currently: here if the selector is more specific
+			//value = randomFromList(modRules.categoryValues[field + "/" + fieldCat[0]]) ?? randomFromList(modRules.categoryValues[fieldCat[0]]); //here, as much as possible
 			if(!value)
-				value = makeNewContent(fieldCat, parentContext + "/" + field, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
+				value = newContent(fieldCat);
 		} else {
 			//ok, try value first then
-			value = randomFromList(modRules.fieldValues[rootCat + "/" + field]) ?? randomFromList(modRules.fieldValues[field]);
-			if(!value) {
+			value = randomFromList(modRules.fieldValues[cat1 + "/" + field])
+			 ?? randomFromList(modRules.fieldValues[field]);
+			if(value) {
+				if(value.startsWith("taxonomy:"))
+					value = valuesFromTaxonomy(value.slice(value.indexOf(":") + 1)).join("."); //to do: potential starting point (refValue)?
+			} else {
 				//ok, category first again
-				//if(catIndex > 0 && catIndex <= catCount)
-				if(catIndex >= 0)
-					fieldCat = modRules.fieldValues.category[catIndex
-					+ Math.floor((catCount - catIndex) * Math.random())];
+				if(modRules.taxonomy.category.includes(cat1.split(".")[0]))
+					fieldCat = [valuesFromTaxonomy("category", cat1.split("."), repeatDepthLimit > 1).join(".")];
 				else
-					fieldCat = modRules.fieldValues.category.at(-1);
-				value = makeNewContent(fieldCat, parentContext + "/" + field, (fieldCat === rootCat) ? (repeatDepthLimit - 1) : defaultRepeatDepthLimit);
+					//something from the last category (analytical)
+					//fieldCat = modRules.fieldValues.category.at(-1);
+					fieldCat = valuesFromTaxonomy("category", [modRules.taxonomy.category.at(-1)], true);
+				value = newContent(fieldCat);
 			}
 		}
 		return value;
@@ -167,9 +231,10 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 
 	//specific content generators
 	//primary (depending only of category/type description)
-	if(rootCat.startsWith("analytical")) {
-		if(rootCat.startsWith("analytical.list")) {
-			const length = (cat1 ?? rootCat).split(".", 3).at(2);
+	const cat1Arr = cat1.split(".");
+	if(cat1Arr[0] == "analytical") {
+		if(cat1Arr[1] == "list") {
+			const length = cat1Arr[2];
 			let lengthN = Number(length);
 			if(length === null || isNaN(lengthN)) {
 				lengthN = randomLength();
@@ -182,29 +247,37 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 				content[index] = fieldValue(field);
 			}
 		} else
-			content.value = makeQuantitative(rootCat);
+			content.value = makeQuantitative(cat1);
 	} else {
 		//if(!modRules) return content;
-		//e.g. if rootCat is "roles/agent", and it admits a "value":
+
+		//e.g. if rootCat is ["roles", "agent"] ("roles/agent" in the rule-set), and it admits a "value":
 		//the value depends first on values for "roles/agent", or else values for just "roles" (less specific).
 		//including parent field name makes the selector more specific, which goes first.
-		const tryTakeFromList = (selector) => {
+		const tryTakeFromList = (selector) => { //to do: rename "take" to "get" of "fill"
 			if(content.value) return;
 			const list = modRules.categoryValues[selector];
-			if(list) content.value = randomFromList(list);
+
+			if(!list) return;
+			let value = randomFromList(list);
+
+			if(value.startsWith("taxonomy:"))
+				value = valuesFromTaxonomy(value.slice(value.indexOf(":") + 1)).join("."); //to do: potential starting point (refValue)?
+
+			content.value = value;
 		};
 		//if(cat2) tryTakeFromList(cat2);
 		if(parentContext.length > 0) {
-			tryTakeFromList(parentContext + "/" + rootCat);
-			if(cat1) tryTakeFromList(parentContext + "/" + cat1);
+			tryTakeFromList(parentContext + "/" + rootCat.join("/"));
+			if(rootCat.length > 1) tryTakeFromList(parentContext + "/" + cat1);
 		}
-		tryTakeFromList(rootCat);
-		if(cat1) tryTakeFromList(cat1);
+		tryTakeFromList(rootCat.join("/"));
+		if(rootCat.length > 1) tryTakeFromList(cat1);
 
-		if(!content.value && rootCat === "string")
-			content.value = makeString();
-		if(!content.value && cat1 === "string")
-			content.value = makeString(cat2);
+		/* if(!content.value && rootCat === "string")
+			content.value = makeString(); */
+		if(!content.value && cat1Arr[0] === "string")
+			content.value = makeString(...cat1Arr.slice(1));
 	}
 	//to do:
 	//	strings: names/pronounceable words
@@ -225,10 +298,10 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 	};
 	//including parent field name makes the selector more specific, which goes first.
 	if(parentContext.length > 0) {
-		tryIncludeFieldList(parentContext + "/" + rootCat);
+		tryIncludeFieldList(parentContext + "/" + rootCat.join("/"));
 		tryIncludeFieldList(parentContext + "/" + cat1);
 	}
-	tryIncludeFieldList(rootCat);
+	tryIncludeFieldList(rootCat.join("/"));
 	tryIncludeFieldList(cat1);
 
 	if(fieldList.length >= 1)

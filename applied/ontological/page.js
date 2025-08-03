@@ -16,7 +16,7 @@ function btnGenerateContentClick(event) {
 	const isCatRandom = selRootCategory.selectedIndex === 0;
 	const rootCat = (isCatRandom ? randomFromList(categories[selRootCategoryGroup.value]) : selRootCategory.value);
 
-	const content = makeNewContent(rootCat);
+	const content = makeNewContent(rootCat.split("/"));
 	//outSummary.textContent = JSON.stringify(content, null, "\t");
 	outSummary.textContent = JSON.stringify(content, jsonReplacer, "\t");
 	localStorage.setItem("rootCategoryGroup", selRootCategoryGroup.value);
@@ -173,7 +173,15 @@ async function readDefaultRules() {
 
 function loadCategoryGroups() {
 	if(!modRules) return false;
-	categories.standard = modRules.fieldValues?.category;
+	categories.standard = [];
+	const catValues = modRules.fieldValues?.category;
+	for(const value of catValues) {
+		if(value.startsWith("taxonomy:")) {
+			const taxRoot = value.slice(value.indexOf(":") + 1);
+			categories.standard.push(...modRules.taxonomy[taxRoot]);
+		} else
+			categories.standard.push(value);
+	}
 	const setOfKeys = (obj) => {
 		const arr = Object.keys(obj).map((elem) => {
 			const lastSeparatorIdx = elem.lastIndexOf("/");
@@ -192,6 +200,7 @@ function loadCategoryGroups() {
 	categories.all = Array.from(allCategories[0].union(allCategories[1]));
 	//categories.all = [];
 	//categories.bottomLevel = modRules.fieldValues?.["analytical/category2"];
+	//categories.bottomLevel = modRules.taxonomy?.analytical;
 	loadCategories();
 }
 function loadCategories() {
