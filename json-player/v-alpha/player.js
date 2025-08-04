@@ -6,7 +6,6 @@ var playFreqScale, playVolScale;
 
 //to do: iterative self-filtering for subtractive synthesis?
 
-//note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting.
 //done: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
 //to do: review audioTimer(), playerClipEnd(), exportClipEnd().
