@@ -130,8 +130,47 @@
 
 			background-color: oklch(0.25 0 0deg);
 		}
-		#scrollBar1 {
-			scroll-timeline: --scrollBar1-position inline;
+		@supports (animation-timeline: --scrollBar1-position) {
+			.no-scroll-bar {display: none;}
+			#scrollBar1 {
+				scroll-timeline: --scrollBar1-position inline;
+			}
+		}
+		@supports not (animation-timeline: --scrollBar1-position) {
+			.scroll-bar, #outMagn {display: none;}
+			#selMagn :checked {
+				:root:has(&[value="0"]) {--magnitude: 0;}
+				:root:has(&[value="1"]) {--magnitude: 1;}
+				:root:has(&[value="2"]) {--magnitude: 2;}
+				:root:has(&[value="3"]) {--magnitude: 3;}
+				:root:has(&[value="4"]) {--magnitude: 4;}
+				:root:has(&[value="5"]) {--magnitude: 5;}
+				:root:has(&[value="6"]) {--magnitude: 6;}
+				:root:has(&[value="7"]) {--magnitude: 7;}
+				:root:has(&[value="8"]) {--magnitude: 8;}
+				:root:has(&[value="9"]) {--magnitude: 9;}
+				:root:has(&[value="10"]) {--magnitude: 10;}
+				:root:has(&[value="11"]) {--magnitude: 11;}
+				:root:has(&[value="12"]) {--magnitude: 12;}
+				:root:has(&[value="13"]) {--magnitude: 13;}
+				:root:has(&[value="14"]) {--magnitude: 14;}
+				:root:has(&[value="15"]) {--magnitude: 15;}
+				:root:has(&[value="16"]) {--magnitude: 16;}
+				:root:has(&[value="17"]) {--magnitude: 17;}
+				:root:has(&[value="18"]) {--magnitude: 18;}
+				:root:has(&[value="19"]) {--magnitude: 19;}
+				:root:has(&[value="20"]) {--magnitude: 20;}
+				:root:has(&[value="21"]) {--magnitude: 21;}
+				:root:has(&[value="22"]) {--magnitude: 22;}
+				:root:has(&[value="23"]) {--magnitude: 23;}
+				:root:has(&[value="24"]) {--magnitude: 24;}
+				:root:has(&[value="25"]) {--magnitude: 25;}
+				:root:has(&[value="26"]) {--magnitude: 26;}
+				:root:has(&[value="27"]) {--magnitude: 27;}
+				:root:has(&[value="28"]) {--magnitude: 28;}
+				:root:has(&[value="29"]) {--magnitude: 29;}
+				:root:has(&[value="30"]) {--magnitude: 30;}
+			}
 		}
 		.scroll-area {
 			width: 1600%;
@@ -247,6 +286,39 @@
 				<span class="label max">maximum</span>
 			</div>
 		</div>
+		<select id="selMagn" class="no-scroll-bar">
+			<option value="0" selected="selected">0</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+			<option value="15">15</option>
+			<option value="16">16</option>
+			<option value="17">17</option>
+			<option value="18">18</option>
+			<option value="19">19</option>
+			<option value="20">20</option>
+			<option value="21">21</option>
+			<option value="22">22</option>
+			<option value="23">23</option>
+			<option value="24">24</option>
+			<option value="25">25</option>
+			<option value="26">26</option>
+			<option value="27">27</option>
+			<option value="28">28</option>
+			<option value="29">29</option>
+			<option value="30">30</option>
+		</select>
 	</div>
 	<div>Overhead: <output id="outOverhead" data-width="10"></output></div>
 	<div>Starting value: <output id="outStart" data-width="4"></output></div>

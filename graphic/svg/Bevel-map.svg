@@ -124,7 +124,7 @@
 			<feTurbulence 
 				type="fractalNoise" 
 				baseFrequency="0.0625 0.25" 
-				numOctaves="1" 
+				numOctaves="3" 
 				stitchTiles="noStitch" />
 			<feComposite 
 				in2="bumpMap" 
