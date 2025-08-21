@@ -36,15 +36,12 @@
 			"0/string": ["First"],
 		};
 		export const taxonomy = {
-			/*"category:unit of time": ["instance:decade", "instance:year", "instance:month", "instance:day"],
-			"category:animal": ["category:mammal"],
-			"category:mammal": ["category:feline"],
-			"category:small cat": []*/
+			/*"category:unit of time": ["instance:decade", "instance:year", "instance:month", "instance:day"],*/
 
 			category: ["conceptual", "practical", "material", "physical", "analytical"],
 
 			"conceptual": ["process", "relation", "role", "item"],
-			"process": ["life"],
+			"process": ["life", "event"],
 			"relation": ["family"],
 			"role": ["creator", "participant", "witness"],
 			"item": ["time", "situation", "place", "object"],
@@ -59,6 +56,21 @@
 			"physical": ["quantity", "unit", "measurement"],
 
 			"analytical": ["set", "sequence", "vector", "number"],
+
+			"living being": ["animal", "plant"],
+			"animal": ["vertebrate"],
+			"vertebrate": ["mammal"],
+			"mammal": ["feline", "canine"],
+			"feline": ["cat"],
+			"canine": ["dog"],
+
+			"unit.time": ["decade", "year", "month", "day"],
+			"unit.length": ["kilometer", "meter", "foot", "millimiter"],
+			"unit.volume": ["litre", "cubic meter"],
+			"unit.mass": ["kilogram", "pound"],
+			"unit.temperature": ["degree kelvin"],
+			"unit.electric charge": ["coulomb"],
+			"unit.logarithmic": ["bit", "decibel", "byte"],
 		};
 		export const fieldValues = {
 			//field or "category/field" as key
@@ -72,13 +84,17 @@
 			"name.personal": ["Mary", "John"],
 			//"agent/name.personal": ["Mr. Important"],
 			"measure.time/unit": ["decade", "year", "month", "day"],
+			"practical.property/name": ["temperature"],
 		};
 
 		export const categoryFieldsReq = {
 			//category or "field/category" as key
 			//all from the list are used each time
 			conceptual: [/*"type",*/ "roles"],
+			"conceptual.process.event": ["date", "place"],
+			"conceptual.relation.family": ["father", "mother", "children"],
 			practical: ["practical1", "practical2"],
+			"practical.property": ["name", "value"],
 			material: ["material1", "material2"],
 			physical: ["physical1", "physical2"],
 			"physical.quantity": ["scale"],
@@ -109,6 +125,8 @@
 			//category2: ["string"],
 			roles: ["roles/agent"],
 			//"conceptual/roles": ["roles/agent"],
+			//"practical.property/name": ["string"],
+			"practical.property/value": ["practical.propValue"],
 			age: ["physical.quantity.time"],
 			//"agent/name": ["name.personal"],
 			"physical.quantity.time/measure": ["measure.time"],
@@ -132,7 +150,7 @@
 		<!-- <summary>Rules source:</summary>
 		<p><button id="btnRulesReset">Reset</button> <output id="outSourceStatus" for="txtRulesSource"></output></p> -->
 		<!-- <summary>Rules source: <span class="align-end"><button id="btnRulesReset">Reset</button></span></summary> -->
-		<summary>Rules source:</summary>
+		<summary>Rules source (JavaScript module):</summary>
 		<p><output id="outSourceStatus" for="txtRulesSource"></output></p>
 		<pre id="txtRulesSource" class="code-box code-editor" contenteditable="plaintext-only" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" role="textbox" aria-multiline="true"></pre>
 	</details>
