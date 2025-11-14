@@ -156,39 +156,41 @@ input::selection {
 	background-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.75);
 	color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);
 }
-button {
-	/*background-color: hsl(var(--hue-accent, 120), 0%, 75%);
-	color: hsl(var(--hue-accent, 120), 0%, 25%);*/
-	background-color: hsl(var(--hue-accent, 120), 37.5%, 18.75%);
-	color: hsl(var(--hue-accent, 120), 50%, 75%);
+:not(.custom) {
+	button& {
+		/*background-color: hsl(var(--hue-accent, 120), 0%, 75%);
+		color: hsl(var(--hue-accent, 120), 0%, 25%);*/
+		background-color: hsl(var(--hue-accent, 120), 37.5%, 18.75%);
+		color: hsl(var(--hue-accent, 120), 50%, 75%);
 
-	border-style: solid;
-	border-top-color: hsla(var(--hue-accent, 120), 25%, 75%, 0.75);
-	border-right-color: hsla(var(--hue-accent, 120), 25%, 37.5%, 0.5);
-	border-left-color: hsla(var(--hue-accent, 120), 25%, 37.5%, 0.5);
-	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.75);
+		border-style: solid;
+		border-top-color: hsla(var(--hue-accent, 120), 25%, 75%, 0.75);
+		border-right-color: hsla(var(--hue-accent, 120), 25%, 37.5%, 0.5);
+		border-left-color: hsla(var(--hue-accent, 120), 25%, 37.5%, 0.5);
+		border-bottom-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.75);
 
-	&:active {
-		border-top-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.25);
-		border-bottom-color: hsla(var(--hue-accent, 120), 25%, 75%, 0.25);
+		&:active {
+			border-top-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.25);
+			border-bottom-color: hsla(var(--hue-accent, 120), 25%, 75%, 0.25);
+		}
 	}
-}
-input[type=number], input[type=text], textarea, select {
-	background-color: hsl(var(--hue-accent, 120), 50%, 12.5%);
-	color: hsl(var(--hue-accent, 120), 50%, 87.5%);
+	&:is(input[type=number], input[type=text], textarea, select) {
+		background-color: hsl(var(--hue-accent, 120), 50%, 12.5%);
+		color: hsl(var(--hue-accent, 120), 50%, 87.5%);
 
-	border-style: solid;
-	border-top-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.625);
-	border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
-	border-left-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
-	border-bottom-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.625);
+		border-style: solid;
+		border-top-color: hsla(var(--hue-accent, 120), 25%, 12.5%, 0.625);
+		border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
+		border-left-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
+		border-bottom-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.625);
 
-	/*border-image-source: linear-gradient(to bottom,
-		hsla(var(--hue-accent, 120), 25%, 25%, 0.75),
-		hsla(var(--hue-accent, 120), 25%, 50%, 0.5),
-		hsla(var(--hue-accent, 120), 25%, 75%, 0.75));
-	border-image-repeat: stretch;
-	border-image-slice: 15%;*/
+		/*border-image-source: linear-gradient(to bottom,
+			hsla(var(--hue-accent, 120), 25%, 25%, 0.75),
+			hsla(var(--hue-accent, 120), 25%, 50%, 0.5),
+			hsla(var(--hue-accent, 120), 25%, 75%, 0.75));
+		border-image-repeat: stretch;
+		border-image-slice: 15%;*/
+	}
 }
 /*input[type=checkbox] {
 }*/ /*question!*/

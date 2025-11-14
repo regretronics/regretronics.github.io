@@ -715,10 +715,10 @@ function structDownload(event) {
 
 	try {
 		//specify the filename using the File constructor, but...
-		file = new File(data, fileName, properties);
+		file = new File([data], fileName, properties);
 	} catch(error) {
 		//...fall back to the Blob constructor if that isn't supported.
-		file = new Blob(data, properties);
+		file = new Blob([data], properties);
 	}
 	if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 	lastCodeObjURL = URL.createObjectURL(file);
@@ -795,7 +795,7 @@ function addIntervalSamples() {
 		sampleBtn.dataset["fraction"] = firstChild.innerText;
 		sampleBtn.innerText = "\u{1F442}"; //ear
 		//sampleBtn.innerText = "\u{1F50A}"; //speaker
-		//sampleBtn.classList.add("custom");
+		sampleBtn.classList.add("custom");
 		cell.appendChild(sampleBtn);
 	}
 
