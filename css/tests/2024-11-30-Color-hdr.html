@@ -5,13 +5,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>CSS HDR color experiment</title>
 	<style type="text/css">/*<![CDATA[*/
-		body {
-			dynamic-range-limit: high;
+		:root {
+			dynamic-range-limit: no-limit;
 			background-color: gray;
 		}
-		.wrap {
+		/* .wrap {
 
-		}
+		} */
 		.blob {
 			width: 8em;
 			height: 8em;
@@ -23,10 +23,10 @@
 			border-color: black;
 		}
 		.blob:nth-child(1) {
-			background-color: color(rec2100 1 1 1);
+			background-color: color(rec2100 10 10 10);
 		}
 		.blob:nth-child(2) {
-			background-color: color(rec2100-linear 1 1 1);
+			background-color: color(rec2100-linear 10 10 10);
 		}
 		.blob:nth-child(3) {
 			/* background-color: color(rec2100-linear 9.852 9.852 9.852); */

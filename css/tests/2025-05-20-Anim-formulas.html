@@ -49,9 +49,11 @@
 			/* transition-timing-function: linear; */
 			/* transition-behavior: allow-discrete; */
 			/* transition-delay: 1s; */
-		}
-		:root:hover {
-			--t: 1.0;
+
+			/* &:hover { */
+			&:has(#chkState:checked) {
+				--t: 1.0;
+			}
 		}
 
 		.gauge {
@@ -142,10 +144,42 @@
 				rotate: calc(1turn * (var(--phase) + var(--t3)));
 			}
 		}
+
+		input, textarea, button, select {
+			font-size: inherit;
+		}
+		input:is([type=checkbox], input[type=radio]) {
+			/* block-size: 1em; */
+			/* inline-size: 1em; */
+			/* vertical-align: baseline; */
+			vertical-align: middle;
+			block-size: 1cap;
+			inline-size: 1cap;
+			margin-inline: 0em;
+			color: inherit;
+
+			& + label {
+				/* vertical-align: middle; */
+				/* margin-inline: 0.125em; */
+				padding-inline: 0.25em;
+				/* @starting-style {
+					color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
+				} */
+			}
+			&:not(:checked) + label {
+				color: oklch(0.75 0.03125 55deg / 0.8);
+			}
+			&:checked + label {
+				color: oklch(0.875 0.1875 55deg);
+			}
+		}
 	/*]]>*/</style>
 </head>
 <body>
-	<p>(Move the cursor in and out of the page.)</p>
+	<p>
+		<input type="checkbox" id="chkState" />
+		<label for="chkState">State</label>
+	</p>
 	<div class="gauge"><div>--t (under transition)</div></div>
 	<div class="gauge"><div>mod(4 * var(--t), 1)</div></div>
 	<div class="gauge"><div>round(nearest, var(--t), 0.0625)</div></div>
