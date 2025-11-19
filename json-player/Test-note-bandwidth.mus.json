@@ -1,0 +1,13 @@
+{
+	"freqRatio": 440,
+	"volRatio": 1,
+	"timeDelta": 0,
+	"timeScale": 1,
+	"decayFactor": 128,
+	"attack": "1/64",
+	"0": {"timbre": "sine", "freqRatio": 1, "timeDelta": 0, "duration": 2},
+	"1": {"timbre": "noise", "volRatio": 24, "q": 64, "freqRatio": 1, "timeDelta": 2, "duration": 2},
+	"2": {"timbre": "noise", "volRatio": 12, "q": 16, "freqRatio": 1, "timeDelta": 4, "duration": 2},
+	"3": {"timbre": "noise", "volRatio": 6, "q": 4, "freqRatio": 1, "timeDelta": 6, "duration": 2},
+	"4": {"timbre": "noise", "volRatio": 3, "q": 1, "freqRatio": 1, "timeDelta": 8, "duration": 2}
+}

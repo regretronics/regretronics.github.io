@@ -205,11 +205,13 @@ input[type=number], .right {
 		/*vertical-align: middle;*/
 	}
 }
-html[lang|=en] .lang-static, html:not([lang|=en]) .lang-flex {
-	display: revert;
-}
-html[lang|=en] .lang-flex, html:not([lang|=en]) .lang-static {
-	display: none;
+[lang|=en] {
+	html& .lang-static, html:not(&) .lang-flex {
+		display: revert;
+	}
+	html& .lang-flex, html:not(&) .lang-static {
+		display: none;
+	}
 }
 
 #tblFractionIntervals {
@@ -231,10 +233,11 @@ html[lang|=en] .lang-flex, html:not([lang|=en]) .lang-static {
 	/* & thead tr th:nth-child(4), & tbody tr td:nth-child(4) { */
 		max-width: 16ch;
 	}
-	& #colSoundSample/* , & td[headers=colSoundSample] */ {
+	/*apparently Chrome (as of 2025-08) has a bug that fails to deactivate comments in the middle of the selector.*/
+	& #colSoundSample, & td[headers=colSoundSample] {
 		max-width: 6ch;
 	}
-	& #colNotes/* , & td[headers=colNotes] */ {
+	& #colNotes, & td[headers=colNotes] {
 		min-width: 10ch;
 	}
 

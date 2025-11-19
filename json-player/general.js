@@ -292,6 +292,7 @@ function loadEventHandlers() {
 	addToolTipHandler("body>main", event => setToolTip(event, outToolTip));
 	addToolTipHandler("#tblFractionIntervals", event => setToolTip(event, outToolTip2));
 }
+//to do: rigorous review of load routine order
 function pageLoaded() {
 	//load HTML element references (renders document.getElementById unnecessary)
 	for(const s of document.querySelectorAll('[id]'))
@@ -340,7 +341,7 @@ function pageReady(event) {
 	//new Promise((resolve, reject) => {
 	//setTimeout(() => {
 		loadEventHandlers();
-		window.loadPreferences?.();
+		window.loadPreferences?.(); //preferences.js
 		adjustingPreferences = true;
 		try {
 			const evt = new Event("input");
@@ -382,6 +383,16 @@ function pageReady(event) {
 		}, 200);*/
 	//}
 }
+if(document.readyState === "loading")
+	document.addEventListener("DOMContentLoaded", pageLoaded);
+else //DOMContentLoaded has already fired
+	pageLoaded();
+window.addEventListener("load", pageReady);
+//window.addEventListener("load", async evt => {pageReady(evt);});
+//window.addEventListener("load", evt => {new Promise((resolve, reject) => {pageReady(evt);});});
+//window.addEventListener("load", evt => {setTimeout(() => {pageReady();}, 1);});
+
+if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON music (unstable)";
 
 function overflowToggle(event) {
 	const elem = event.target;
@@ -446,7 +457,7 @@ function expSpinnerChanged(event) {
 	//if(elem.validity.stepMismatch) {
 	//if(!elem.validity.valid) {
 	/* if(!elem.checkValidity()) {
-		elem.valieAsNumber = 1;
+		elem.valueAsNumber = 1;
 		elem.setCustomValidity("");
 		//elem.checkValidity();
 		//elem.reportValidity();
@@ -704,10 +715,10 @@ function structDownload(event) {
 
 	try {
 		//specify the filename using the File constructor, but...
-		file = new File(data, fileName, properties);
+		file = new File([data], fileName, properties);
 	} catch(error) {
 		//...fall back to the Blob constructor if that isn't supported.
-		file = new Blob(data, properties);
+		file = new Blob([data], properties);
 	}
 	if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 	lastCodeObjURL = URL.createObjectURL(file);
@@ -776,23 +787,27 @@ function addIntervalSamples() {
 
 		const cell = row.insertCell(4);
 		cell.headers = "colSoundSample";
-		cell.classList.add("sample-cell");
+		//cell.classList.add("sample-cell");
 		cell.translate = false;
-		cell.addEventListener("click", playIntervalHandler);
-		cell.dataset["fraction"] = firstChild.innerText;
-		cell.innerText = "\u{1F442}"; //ear
-		//cell.innerText = "\u{1F50A}"; //speaker
+
+		const sampleBtn = document.createElement("button");
+		sampleBtn.addEventListener("click", playIntervalHandler);
+		sampleBtn.dataset["fraction"] = firstChild.innerText;
+		sampleBtn.innerText = "\u{1F442}"; //ear
+		//sampleBtn.innerText = "\u{1F50A}"; //speaker
+		sampleBtn.classList.add("custom");
+		cell.appendChild(sampleBtn);
 	}
 
 	{
-		//add cell to row in table header
+		//add header cell to row in table header
 		const row = document.querySelector("#tblFractionIntervals thead tr");
 		const cell = document.createElement("th"); //insertCell would make a td element.
 		cell.id = "colSoundSample";
 		cell.scope = "col";
 		//cell.innerHTML = "Sam&shy;ple"; //Sample
 		cell.innerHTML = '<span class="lang-static" translate="no">Sam&shy;ple</span><span class="lang-flex" hidden="">Sample</span>';
-		row.insertBefore(cell, row.children[4]);
+		row.insertBefore(cell, row.children[4]); //to do: use neighboring header id as reference?
 	}
 }
 //to do: review this code

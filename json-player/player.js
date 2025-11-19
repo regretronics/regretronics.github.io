@@ -6,7 +6,6 @@ var playFreqScale, playVolScale;
 
 //to do: iterative self-filtering for subtractive synthesis?
 
-//note: some procedures here would be technically unnecessary (called only once), but are dedicated for the sake of readability and maintenance, and to avoid deep levels of statement nesting.
 //done: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
 //to do: review audioTimer(), playerClipEnd(), exportClipEnd().
@@ -314,9 +313,9 @@ function audioTUpdate() {
 const visSliceCount = 48;
 const svgNS = "http://www.w3.org/2000/svg";
 function drawNote(group, sourceNode) {
-	const noteVisWidth = 1 / 128; //arbitrary size
 	const freqMin = 20, freqMax = 14000; //20000;
 	const octaveScale = 1 / Math.log2(freqMax / freqMin);
+	const noteVisWidth = 1 / 16; //bandwidth in octaves; hand-tuned, partially arbitrary scale
 
 	let freq, isNoise;
 	if(sourceNode.frequency) {
@@ -331,10 +330,11 @@ function drawNote(group, sourceNode) {
 
 	//to do: alternative blend modes such as lighten or hue?
 	const noteShape = document.createElementNS(svgNS, "rect");
-	let wid = noteVisWidth;
-	if(isNoise)
-		wid *= 16 / sourceNode.fltBandPass.Q.value; //arbitrary factor
-	else
+	let wid = octaveScale * (isNoise ? 8 * sourceNode.fltBandPass.Q.value ** (-1 / 3) : noteVisWidth); //hand-tuned parameters
+	/* if(isNoise)
+		wid *= 128 * sourceNode.fltBandPass.Q.value ** (-0.5);
+	else */
+	if(!isNoise)
 		if(sourceNode.modGainVibrato) {
 			const vibratoGain = sourceNode.modGainVibrato.gain.value / 1200;
 			if(sourceNode.oscVibrato) //question: precisely estimate vibrato oscillation? (currently yes)
@@ -349,11 +349,11 @@ function drawNote(group, sourceNode) {
 	noteShape.setAttributeNS(null, "height", (1 / visSliceCount).toString());
 	noteShape.setAttributeNS(null, "y", "0");
 
-	let vol = 1;
+	let vol = (isNoise ? 0.125 * sourceNode.fltBandPass.Q.value ** (-1 / 3) : 1); //hand-tuned parameters
 	if(sourceNode.modGainDecay) vol *= sourceNode.modGainDecay.gain.value;
 	if(sourceNode.modGainAttack) vol *= sourceNode.modGainAttack.gain.value;
 	if(sourceNode.modGainRelease) vol *= sourceNode.modGainRelease.gain.value;
-	noteShape.setAttributeNS(null, "opacity", Math.sqrt(Math.abs(vol)).toString());
+	noteShape.setAttributeNS(null, "opacity", /* Math.sqrt */(Math.abs(vol)).toString());
 
 	group.appendChild(noteShape);
 	//group.append(noteShape);

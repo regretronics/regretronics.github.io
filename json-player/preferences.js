@@ -379,9 +379,10 @@ function btnHueClick(event) {
 function primeCountChanged() {
 	if(!window.txtPrimeCount) return false;
 	primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
-	if(primeCount < 2) primeCount = 2;
-	//question: for fractional values, represent the prime list in a different way? (currently no)
-	if(window.outPrimeList) outPrimeList.innerText = "[" + primes.slice(0, primeCount).join(" ") + "]";
+	if(primeCount < 1.25) primeCount = 1.25;
+	if(primeCount > primes.length) primeCount = primes.length;
+	//question: for fractional values, represent the prime list in a different way? (currently yes)
+	if(window.outPrimeList) outPrimeList.innerText = "[" + primes.slice(0, Math.ceil(primeCount)).join(" ") + "]";
 }
 
 const defaultRootFreq = 440;

@@ -28,7 +28,8 @@ function addInterval(refFreq, targetFreq, primeCount) {
 	//question: should + 1 be + 0.5?
 	//for chords with a fixed first note, the exponents should vary in a bilateral way
 	const maxExp = expVariance * maxPitches[iPrime] + 1;
-	if(Math.abs(newExp) > 1 * maxExp && sign === Math.sign(newExp)) sign *= -1;
+	//if(Math.abs(newExp) > 1 * maxExp && sign === Math.sign(newExp)) sign *= -1;
+	if((newExp > maxExp || - newExp < 0.5 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
 	targetFreq[primes[iPrime]] += sign;
 
 	//pitch normalization into factor 2, i.e. octave normalization, except when changing the very octave on purpose
@@ -70,7 +71,7 @@ function newChord(voiceCount, polyphony, primeCount) {
 	return chordStruct;
 }
 function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
-	if(primeCount < 2) return false;
+	if(primeCount <= 1) return false;
 	if(patCount <= 0) return false;
 	if(voiceCount < 2) return false;
 	expVariance = NaNToDefault(_expVariance, 2);
@@ -209,7 +210,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 		const tuning = rootFreq / rhythmFactorsAccum[0];
 		limitFreq(tuning, freqDummy); //not THAT low
 		pattern.push({ //rhythm formula root block and note
-			freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
+			freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain too
 			//to do: what is the best register (frequency range) for percussion?
 			//volRatio: 1,
 			volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
@@ -359,7 +360,7 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 }
 //to do: pattern variations
 function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
-	if(primeCount < 2) return false;
+	if(primeCount <= 1) return false;
 	if(patCount <= 0) return false;
 	if(reptPeriod <= 0) return false;
 	if(repeatCount <= 0) return false;
@@ -400,8 +401,8 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 		limitFreq(tuning, freqDummy); //not THAT low
 		percussivePattern = { //rhythm formula root block and note
 			//to do: readjust these parameters below
-			//freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain also
-			freqRatio: (2 ** freqDummy[2]).toString() + "/" +  (barDuration / partialScaleOffset).toString(), //lengthier bars -> lower pitch -> more sustain also
+			//freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain too
+			freqRatio: (2 ** freqDummy[2]).toString() + "/" +  (barDuration / partialScaleOffset).toString(), //lengthier bars -> lower pitch -> more sustain too
 			//to do: what is the best register (frequency range) for percussion?
 			//volRatio: 1,
 			volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
@@ -425,11 +426,10 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 		//randomize an initial note
 		let product = 1;
 		for(let p = 1; p < primeCount; p++) {
-			//currently the factors can only go upwards
-			//question: signed (bipolar) random is possibly better
-			//	question: in such case, use round() instead of floor() or trunc()?
-			const exp = Math.trunc((expVariance * maxPitches[p] + 1) * Math.random());
-			//const exp = Math.round((expVariance * maxPitches[p] + 1) * (Math.random() - 0.5));
+			//question: can the factors only go upwards? is signed (bipolar) random better?
+			//	question: in the last case, use round() instead of floor() or trunc()?
+			//const exp = Math.trunc((expVariance * maxPitches[p] + 1) * Math.random());
+			const exp = Math.round((expVariance * maxPitches[p] + 1) * (Math.random() - 1 / 3));
 			pattern.freq[primes[p]] = exp;
 			product *= primes[p] ** exp;
 		}

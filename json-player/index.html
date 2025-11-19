@@ -25,8 +25,8 @@
 	<link rel="icon" href="icon/Musical-science-white-256.png" type="image/png" sizes="256x256" />
 	<link rel="icon" href="icon/Musical-science-simple-white-64.png" type="image/png" sizes="64x64" />
 	<link rel="icon" href="icon/Musical-science-simple-white-16.png" type="image/png" sizes="16x16" />
-	<link rel="icon" href="icon/Musical-science-white.svg" type="image/svg+xml" sizes="any" />
-	<link rel="icon" href="icon/Musical-science-simple-white.svg" type="image/svg+xml" sizes="16x16 64x64" id="favicon" />
+	<link rel="icon" href="icon/Musical-science-white-optim.svg" type="image/svg+xml" sizes="any" />
+	<link rel="icon" href="icon/Musical-science-simple-white-optim.svg" type="image/svg+xml" sizes="16x16 64x64" id="favicon" />
 
 	<meta name="color-scheme" content="dark light" />
 	<meta name="theme-color" media="(prefers-color-scheme: light) and (prefers-contrast: more)" content="hsl(120, 50%, 12.5%)" />
@@ -35,27 +35,12 @@
 	<meta name="theme-color" media="(prefers-color-scheme: light)" content="hsl(120, 37.5%, 75%)" />
 	<meta name="theme-color" media="all" content="hsl(120, 25%, 50%)" />
 
-	<script type="text/javascript" src="preferences.js"></script>
-	<script type="text/javascript" src="general.js"></script>
-	<script type="text/javascript" src="custom-spin.js"></script>
-	<script type="text/javascript" src="player.js"></script>
-	<script type="text/javascript" src="musical-format.js"></script>
-	<script type="text/javascript" src="music-gen.js"></script>
-	<script type="text/javascript">/*<![CDATA[*/
-	//to do: use defer="true" or async in any script tag?
-	"use strict";
-
-	if(document.readyState === "loading")
-		document.addEventListener("DOMContentLoaded", pageLoaded);
-	else //DOMContentLoaded has already fired
-		pageLoaded();
-	window.addEventListener("load", pageReady);
-	//window.addEventListener("load", async evt => {pageReady(evt);});
-	//window.addEventListener("load", evt => {new Promise((resolve, reject) => {pageReady(evt);});});
-	//window.addEventListener("load", evt => {setTimeout(() => {pageReady();}, 1);});
-
-	if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON music (unstable)";
-	/*]]>*/</script>
+	<script type="text/javascript" defer="defer" src="preferences.js"></script>
+	<script type="text/javascript" defer="defer" src="general.js"></script>
+	<script type="text/javascript" defer="defer" src="custom-spin.js"></script>
+	<script type="text/javascript" defer="defer" src="player.js"></script>
+	<script type="text/javascript" defer="defer" src="musical-format.js"></script>
+	<script type="text/javascript" defer="defer" src="music-gen.js"></script>
 
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="JSON musical format" />
@@ -65,7 +50,7 @@
 	<!-- <meta property="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-simple-white-256.png" /> --><!-- this one is used in WhatsApp (and sometimes Facebook?) as of 2025-06. -->
 	<meta property="og:image:type" content="image/png" />
 	<meta property="og:image:alt" content="The &quot;Musical science&quot; emblem." />
-	<meta property="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-white.svg" />
+	<meta property="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-white-optim.svg" />
 	<meta property="og:image:type" content="image/svg+xml" />
 	<meta property="og:image:alt" content="The &quot;Musical science&quot; emblem." />
 	<!-- <meta name="og:image" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-simple-white-256.png" />
@@ -76,15 +61,15 @@
 	<!--to do: use id attribute for more points of interest, e.g. start of the documentation.-->
 	<main class="major-section" hidden="hidden">
 		<div class="flex-row align-top">
-			<h1 style="flex-basis: 20ch;">
+			<h1 style="flex-basis: 16ch;">
 				<picture id="title-icon">
-					<source srcset="icon/Musical-science-white.svg" type="image/svg+xml" width="192" height="192" />
+					<!-- <source srcset="icon/Musical-science-white-optim.svg" type="image/svg+xml" width="192" height="192" /> -->
 					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
 					<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
 					<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
 					<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
 					<!-- <img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" /> -->
-					<img src="icon/Musical-science-white.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" role="img" /><!-- this one is possibly used in Facebook as of 2025-06. -->
+					<img src="icon/Musical-science-white-optim.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" role="img" /><!-- this one is possibly used in Facebook as of 2025-06. -->
 				</picture>
 				<!-- "chunks" below are for organizing a line break hierarchy (mostly for aesthetic reasons) -->
 				<!-- throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart. -->
@@ -137,11 +122,11 @@
 				<input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" />
 			</span>
 			<span class="cell"><label for="txtPrimeCount"><span class="lang-static" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label>
-				<input type="number" id="txtPrimeCount" value="3" required="required" min="2" step="0.5" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" />
+				<input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" />
 				<output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output>
 			</span>
 			<span class="cell"><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth (exponent variance)</span></label>
-				<input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators." size="5" />
+				<input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators. Higher values produce more atonality. Low values may freeze the generator due to lack of choices." size="5" />
 			</span>
 		</p>
 		<p><strong class="chunk">Rhythm:</strong> 
@@ -159,7 +144,7 @@
 				<input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" />
 			</span>
 			<span class="cell"><label for="txtReptCount"><span class="lang-static" translate="no">rept.&nbsp;count</span><span class="lang-flex" hidden="hidden">repeat count</span></label>
-				<input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators." size="4" />
+				<input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" />
 			</span>
 			<span class="cell"><label for="txtReptPeriod"><span class="lang-static" translate="no">rept.&nbsp;period</span><span class="lang-flex" hidden="hidden">repeat period</span></label>
 				<input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" />
@@ -280,7 +265,7 @@
 		<details>
 			<summary><strong>Audio export to file:</strong></summary>
 			<!--to do: format selector, sample rate-->
-			<!--to do: ...use WebCodecs (not yet supported in Firefox as of version 114)-->
+			<!--to do: use OfflineAudioContext with Wav or WebCodecs-->
 			<p>
 				<a id="aAudioDownload" href="" hidden="hidden"></a>
 				<button id="btnAudioExport">Export</button>
