@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS experiment: scroll-driven effects</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --scroll {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@property --scroll-int {
+			syntax: "\3c integer\3e";
+			initial-value: 0;
+			inherits: true;
+		}
+		@property --scroll1 {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@property --scroll2 {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		/* @property --state {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		} */
+		@property --loop1 {
+			syntax: "\3c angle\3e";
+			initial-value: 0turn;
+			inherits: true;
+		}
+
+		@keyframes scrollRamp {
+			/* from {
+				--scroll: 0.0;
+				--scroll-int: 0;
+			} */
+			to {
+				--scroll: 1.0;
+				--scroll-int: 10;
+			}
+		}
+		@keyframes loop1 {
+			to {--loop1: 1turn;}
+		}
+
+		:root {
+			width: 100%;
+			height: 100%;
+
+			color-scheme: dark;
+			font-size: 4vmax;
+
+			/* timeline-scope: --container-block; */
+			/* --scroll: 0; */
+
+			animation-name: scrollRamp;
+			/* animation-timing-function: linear; */
+			animation-duration: 1ms;
+			/* animation-iteration-count: infinite; */
+			animation-timeline: scroll(block self);
+			/* animation-timeline: --container-block; */
+			/* animation-composition: add; */
+			/* animation-composition: accumulate; */
+
+			/* --scroll2: round(down, var(--scroll), 0.25); */
+			/* --scroll2: calc(var(--scroll-int) * 0.1 + var(--state)); */
+			--scroll2: calc(var(--scroll) + cos(6turn * var(--scroll)) / pi / 6);
+			/* --state2: var(--state); */
+			/* transition-property: --state;
+			transition-duration: 1.5s;
+			transition-delay: 0.1s; */
+			/* transition-timing-function: linear; */
+			/* --scroll-after1: 0.0; */
+			/* --scroll-after1: var(--scroll); */
+			/* --scroll-after1: if(style(--scroll > 0.5): 1.0; else: 0.0;); */
+
+			/* background-color: oklch(calc(var(--scroll2)) 0 0deg); */
+			background-color: oklch(0.25 0.125 calc(1turn * var(--scroll)));
+
+			/* --state: 0.0; */
+			/* --test: blue;
+			container-type: size; */
+			&:has(#chkState:checked) {
+				/* --state: 1.0; */
+				animation-play-state: paused;
+			}
+		}
+		/* @container style(--state > 0.5) { */
+		@container style(--scroll > 0.5) {
+			body { /* they don't work on :root or html */
+				/* color: oklch(0.75 0.125 0deg / 0.6); */
+				color: color(from currentColor xyz x y z / 0.4);
+				/* --scroll-after1: 1.0; */
+			}
+		}
+		/* body {
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+		} */
+
+		/* #container {
+			position: absolute;
+			box-sizing: border-box;
+			width: 100%;
+			height: 100%;
+
+			margin: 0;
+			padding: 0;
+			border: none;
+		}
+		#container {
+			padding-block: 0;
+			padding-inline: 1em;
+
+			overflow-y: scroll;
+			scroll-timeline: --container-block block;
+		} */
+		#svgDefs {
+			display: none;
+		}
+		#background {
+			position: fixed;
+			inset: 0;
+			z-index: -1;
+			perspective: 100vmax;
+
+			display: flex;
+			flex-wrap: nowrap;
+			align-items: center;
+			justify-content: center;
+		}
+		.wall {
+			width: 50vmin;
+			height: 50vmin;
+			rotate: y calc(1.5turn * var(--scroll2));
+			/* transform: rotate(calc(1turn * var(--state))); */
+
+			animation-name: loop1;
+			animation-duration: 1s;
+			animation-timing-function: linear;
+			animation-iteration-count: infinite;
+
+			--scroll1: var(--scroll);
+			transition-property: --scroll1;
+			transition-duration: 3s;
+			transition-timing-function: cubic-bezier(0.25, 0.88, 0.5, 1);
+			/* transform: rotate(calc(1turn * var(--scroll1))); */
+			transform: rotate(calc(1turn * (var(--scroll1) + 2 * (var(--scroll) - var(--scroll1)) * sin(var(--loop1)))));
+		}
+
+		input, textarea, button, select {
+			font-size: inherit;
+		}
+		input:is([type=checkbox], input[type=radio]) {
+			vertical-align: middle;
+			block-size: 1cap;
+			inline-size: 1cap;
+			margin-inline: 0em;
+			color: inherit;
+
+			& + label {
+				padding-inline: 0.25em;
+			}
+			&:not(:checked) + label {
+				color: oklch(0.875 0.03125 55deg / 0.6);
+			}
+			&:checked + label {
+				color: oklch(0.875 0.1875 55deg);
+			}
+		}
+
+		#outScrollPos::after {
+			counter-reset: val round(down, 1000 * var(--scroll));
+			content: counter(val);
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<p>
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+	</p>
+	<p>
+		<input type="checkbox" id="chkState" />
+		<label for="chkState">Pause scroll response</label>
+		<output id="outScrollPos"></output>
+	</p>
+	<p>
+		Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
+	</p>
+	<div id="background">
+		<svg id="svgDefs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
+			<defs>
+				<filter id="noiseStill" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+					<feTurbulence
+						type="fractalNoise"
+						baseFrequency="1"
+						numOctaves="3"
+						stitchTiles="noStitch"
+						color-interpolation-filters="sRGB">
+					</feTurbulence>
+					<!--<feColorMatrix result="noise_0" type="matrix" values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 0 1"
+						color-interpolation-filters="sRGB" />-->
+					<!--<feColorMatrix result="noise_0" type="matrix" values="
+						0 0 0 0 1
+						0 0 0 0 1
+						0 0 0 0 1
+						0 0 0 1 0"
+						color-interpolation-filters="sRGB" />-->
+				</filter>
+				<rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
+			</defs>
+		</svg>
+		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
+	</div>
+</body>
+</html>

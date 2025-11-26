@@ -207,7 +207,7 @@
 			/* pad: var(--places) "0"; */ /* not working in Chrome as of 2025-05-03 */
 			pad: 9 "0";
 		}
-		@supports (min-width: calc(1ch * attr(data-width type(<number>), 4))) {
+		@supports (min-width: calc(1ch * attr(data-width type(\<number\>), 4))) {
 			output[data-width] {
 				display: inline-block;
 				min-width: calc(1ch * attr(data-width type(<number>), 4));
@@ -239,7 +239,7 @@
 			--places: 9;
 			--fmt: dec-frac9;
 		}
-		output::after {
+		output {
 			text-align: end;
 		}
 		output:not(.exp)::after {

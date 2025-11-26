@@ -5,7 +5,7 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-	<title>CSS experiment: PRNG, interpolation</title>
+	<title>CSS experiment: squares PRNG</title>
 	<style type="text/css">/*<![CDATA[*/
 		@property --t {
 			syntax: "<number>";
@@ -20,46 +20,50 @@
 		}
 		:root {
 			color-scheme: dark;
-			font-size: 3em;
+			font-size: 2em;
 
 			--dur: 86400;
 
 			/* Firefox (as of v142) seems to use single-precision (float32) numbers. */
 			--ti: round(down, var(--start) + var(--t)); 
-			--ti1: calc(var(--ti) + 1);
+			/* --ti1: calc(var(--ti) + 1);
 			--ti2: calc(var(--ti) + 2);
-			--ti3: calc(var(--ti) + 3);
+			--ti3: calc(var(--ti) + 3); */
 
-			--tfrac: mod(var(--t), 1);
+			/* --tfrac: mod(var(--t), 1);
 			--tfrac1: calc(1 - var(--tfrac));
 			--interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
 			--interp-hermite-10: calc(var(--tfrac) * var(--tfrac1) * var(--tfrac1));
 			--interp-hermite-01: calc(var(--tfrac) * var(--tfrac) * (3 - 2 * var(--tfrac)));
-			--interp-hermite-11: calc(-1 * var(--tfrac) * var(--tfrac) * var(--tfrac1));
+			--interp-hermite-11: calc(-1 * var(--tfrac) * var(--tfrac) * var(--tfrac1)); */
 
-			--key: 1443; /* 0x5a3 */
-			--ti-seg1: mod(var(--ti), 4096);
-			--ti-seg2: round(down, var(--ti) / 4096);
-			/* --ti1-seg1: mod(var(--ti1), 4096);
-			--ti1-seg2: round(down, var(--ti1) / 4096);
-			--ti2-seg1: mod(var(--ti2), 4096);
-			--ti2-seg2: round(down, var(--ti2) / 4096);
-			--ti3-seg1: mod(var(--ti3), 4096);
-			--ti3-seg2: round(down, var(--ti3) / 4096); */
+			/* https://arxiv.org/abs/2004.06278 */
+			/* --key: 1443; */ /* 0x5a3 */
+			--key: 11703715; /* 0xb295a3 */
 
-			--ti-seg1-y: calc(var(--ti-seg1) * var(--key));
-			--ti-seg1-z: calc(var(--ti-seg1-y) + var(--key));
+			--ti-weyl-y: mod(var(--ti) * var(--key), 16777216);
+			--ti-weyl-z: mod(var(--ti-weyl-y) + var(--key), 16777216);
 
-			--ti-seg1-s1: mod(var(--ti-seg1-y) * var(--ti-seg1-y) + var(--ti-seg1-y), 16777216);
-			--ti-seg1-s1b: calc(round(down, var(--ti-seg1-s1) / 4096) + 4096 * mod(var(--ti-seg1-s1), 4096));
+			--rnd-r0-sq: mod(pow(mod(var(--ti-weyl-y), 4096), 2) + var(--ti-weyl-y), 16777216);
+			--rnd-r0-rot: calc(round(down, var(--rnd-r0-sq) / 4096) + 4096 * mod(var(--rnd-r0-sq), 4096));
+			--rnd-r0f: calc(var(--rnd-r0-rot) / 16777216);
 
-			--rnd: mod(
-				0, 
-				1);
-			--rnd1: 0;
+			--rnd-r1-sq: mod(pow(mod(var(--rnd-r0-rot), 4096), 2) + var(--ti-weyl-z), 16777216);
+			--rnd-r1-rot: calc(round(down, var(--rnd-r1-sq) / 4096) + 4096 * mod(var(--rnd-r1-sq), 4096));
+			--rnd-r1f: calc(var(--rnd-r1-rot) / 16777216);
+
+			--rnd-r2-sq: mod(pow(mod(var(--rnd-r1-rot), 4096), 2) + var(--ti-weyl-y), 16777216);
+			--rnd-r2-rot: calc(round(down, var(--rnd-r2-sq) / 4096) + 4096 * mod(var(--rnd-r2-sq), 4096));
+			--rnd-r2f: calc(var(--rnd-r2-rot) / 16777216);
+
+			--rnd-r3-sq: mod(pow(mod(var(--rnd-r2-rot), 4096), 2) + var(--ti-weyl-z), 16777216);
+			--rnd-r3-rot: calc(round(down, var(--rnd-r3-sq) / 4096) + 4096 * mod(var(--rnd-r3-sq), 4096));
+			--rnd-r3f: calc(var(--rnd-r3-sq) / 16777216);
+			--rnd-final: calc(round(down, var(--rnd-r3-sq) / 4096));
+
+			/* --rnd1: 0;
 			--rnd2: 0;
-			--rnd3: 0;
-
+			--rnd3: 0; */
 			/* --rnd-interp: calc(
 				var(--interp-hermite-00) * var(--rnd1)
 				+ var(--interp-hermite-10) * 0.5 * (var(--rnd2) - var(--rnd))
@@ -77,6 +81,10 @@
 			animation-duration: calc(1s * var(--dur));
 			animation-iteration-count: infinite;
 			animation-timing-function: linear;
+
+			&:not(:has(#chkCounterRun:checked)) {
+				animation-play-state: paused;
+			}
 		}
 		#selStart :checked {
 			:root:has(&[value="0"]) {--start: 0;}
@@ -106,9 +114,6 @@
 			:root:has(&[value="8388608"]) {--start: 8388608;}
 			:root:has(&[value="16777216"]) {--start: 16777216;}
 		}
-		select {
-			font-size: inherit;
-		}
 
 		@counter-style dec-frac3-sign {
 			system: extends decimal;
@@ -136,6 +141,7 @@
 		}
 		.show-number::after {
 			--val-round: calc(var(--val) + sign(var(--val)) * 0.5 * pow(0.1, var(--places)));
+			opacity: 0.6;
 		}
 		.show-number.int::after {
 			counter-reset: val round(to-zero, var(--val));
@@ -172,20 +178,53 @@
 			opacity: 0.6;
 		}
 		#outT {--val: var(--ti);}
-		#rndParcel1 {--val: var(--ti-seg1);}
-		#rndParcel2 {--val: var(--ti-seg2);}
-		#rndParcel3 {--val: var(--ti-seg1-y);}
-		#rndParcel4 {--val: var(--ti-seg1-z);}
-		#rndParcel5 {--val: var(--ti-seg1-s1);}
-		#rndParcel6 {--val: var(--ti-seg1-s1b);}
-		#rndBar {--val: var(--rnd);}
-		#rnd1Bar {--val: var(--rnd1);}
+		#rndParcel1 {--val: var(--ti-weyl-y);}
+		#rndParcel2 {--val: var(--ti-weyl-z);}
+		#rndParcel3 {--val: var(--rnd-r0-sq);}
+		#rndParcel4 {--val: var(--rnd-r0-rot);}
+		#rndParcel5 {--val: var(--rnd-r1-sq);}
+		#rndParcel6 {--val: var(--rnd-r1-rot);}
+		#rndParcel7 {--val: var(--rnd-r2-sq);}
+		#rndParcel8 {--val: var(--rnd-r2-rot);}
+		#rndParcel9 {--val: var(--rnd-r3-sq);}
+		#rndParcel10 {--val: var(--rnd-r3-rot);}
+		#rndBar {--val: var(--rnd-r0f);}
+		#rnd1Bar {--val: var(--rnd-r1f);}
+		#rnd2Bar {--val: var(--rnd-r2f);}
+		#rnd3Bar {--val: var(--rnd-r3f);}
+		#rndFinal {--val: var(--rnd-final);}
+		/* #rnd1Bar {--val: var(--rnd1);}
 		#rnd2Bar {--val: var(--rnd2);}
 		#rnd3Bar {--val: var(--rnd3);}
-		#interp {--val: var(--rnd-interp);}
+		#interp {--val: var(--rnd-interp);} */
+
+		input, textarea, button, select {
+			font-size: inherit;
+		}
+		input:is([type=checkbox], input[type=radio]) {
+			vertical-align: middle;
+			block-size: 1cap;
+			inline-size: 1cap;
+			margin-inline: 0em;
+			color: inherit;
+
+			& + label {
+				padding-inline: 0.25em;
+			}
+			&:not(:checked) + label {
+				color: oklch(0.75 0.03125 55deg / 0.8);
+			}
+			&:checked + label {
+				color: oklch(0.875 0.1875 55deg);
+			}
+		}
 	/*]]>*/</style>
 </head>
 <body>
+	<p>
+		<input type="checkbox" id="chkCounterRun" />
+		<label for="chkCounterRun">Run increment</label>
+	</p>
 	<p>
 		<label for="selStart">Start:</label> <select id="selStart">
 			<option value="0" selected="selected">0</option>
@@ -215,15 +254,33 @@
 			<option value="8388608">8388608</option>
 			<option value="16777216">16777216</option>
 		</select>
-		<output class="show-number int" id="outT">ti: </output>
 	</p>
-	<p class="show-number int" id="rndParcel1">ti-seg1: </p>
-	<p class="show-number int" id="rndParcel2">ti-seg2: </p>
-	<p class="show-number int" id="rndParcel3">ti-seg1-y: </p>
-	<p class="show-number int" id="rndParcel4">ti-seg1-z: </p>
-	<p class="show-number int" id="rndParcel5">ti-seg1-s1: </p>
-	<p class="show-number int" id="rndParcel6">ti-seg1-s1b: </p>
-	<p class="show-number frac" id="rndBar">rnd0: </p>
+	<p>
+		<div class="show-number int" id="outT">ti: </div>
+		<div class="show-number int" id="rndParcel1">ti-weyl-y: </div>
+		<div class="show-number int" id="rndParcel2">ti-weyl-z: </div>
+	</p>
+	<p>
+		<div class="show-number int" id="rndParcel3">rnd-r0-sq: </div>
+		<div class="show-number int" id="rndParcel4">rnd-r0-rot: </div>
+		<div class="show-number frac" id="rndBar">rnd-r0f (decimal): </div>
+	</p>
+	<p>
+		<div class="show-number int" id="rndParcel5">rnd-r1-sq: </div>
+		<div class="show-number int" id="rndParcel6">rnd-r1-rot: </div>
+		<div class="show-number frac" id="rnd1Bar">rnd-r1f (decimal): </div>
+	</p>
+	<p>
+		<div class="show-number int" id="rndParcel7">rnd-r2-sq: </div>
+		<div class="show-number int" id="rndParcel8">rnd-r2-rot: </div>
+		<div class="show-number frac" id="rnd2Bar">rnd-r2f (decimal): </div>
+	</p>
+	<p>
+		<div class="show-number int" id="rndParcel9">rnd-r3-sq: </div>
+		<div class="show-number int" id="rndParcel10">rnd-r3-rot: </div>
+		<div class="show-number frac" id="rnd3Bar">rnd-r3f (decimal): </div>
+		<div class="show-number int" id="rndFinal">rnd-final: </div>
+	</p>
 	<!-- <p class="bar show-number frac" id="rnd1Bar">rnd1: </p>
 	<p class="bar show-number frac" id="rnd2Bar">rnd2: </p>
 	<p class="bar show-number frac" id="rnd3Bar">rnd3: </p>
