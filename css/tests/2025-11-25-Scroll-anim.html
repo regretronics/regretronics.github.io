@@ -12,11 +12,11 @@
 			initial-value: 0.0;
 			inherits: true;
 		}
-		@property --scroll-int {
+		/* @property --scroll-int {
 			syntax: "\3c integer\3e";
 			initial-value: 0;
 			inherits: true;
-		}
+		} */
 		@property --scroll1 {
 			syntax: "\3c number\3e";
 			initial-value: 0.0;
@@ -45,7 +45,7 @@
 			} */
 			to {
 				--scroll: 1.0;
-				--scroll-int: 10;
+				/* --scroll-int: 10; */
 			}
 		}
 		@keyframes loop1 {
@@ -73,7 +73,7 @@
 
 			/* --scroll2: round(down, var(--scroll), 0.25); */
 			/* --scroll2: calc(var(--scroll-int) * 0.1 + var(--state)); */
-			--scroll2: calc(var(--scroll) + cos(6turn * var(--scroll)) / pi / 6);
+			--scroll2: calc(var(--scroll) + cos(6turn * var(--scroll)) / pi / 12);
 			/* --state2: var(--state); */
 			/* transition-property: --state;
 			transition-duration: 1.5s;
@@ -83,8 +83,9 @@
 			/* --scroll-after1: var(--scroll); */
 			/* --scroll-after1: if(style(--scroll > 0.5): 1.0; else: 0.0;); */
 
-			/* background-color: oklch(calc(var(--scroll2)) 0 0deg); */
 			background-color: oklch(0.25 0.125 calc(1turn * var(--scroll)));
+			/* background-color: oklch(0.25 0.0 0deg); */
+			color: oklch(0.75 0.0 0deg / 0.7);
 
 			/* --state: 0.0; */
 			/* --test: blue;
@@ -126,9 +127,6 @@
 			overflow-y: scroll;
 			scroll-timeline: --container-block block;
 		} */
-		#svgDefs {
-			display: none;
-		}
 		#background {
 			position: fixed;
 			inset: 0;
@@ -140,23 +138,38 @@
 			align-items: center;
 			justify-content: center;
 		}
+		#svgBackground {
+			display: none;
+			/* position: fixed;
+			inset: 0;
+			filter: hue-rotate(calc(1.5turn * var(--scroll))); */
+		}
 		.wall {
 			width: 50vmin;
 			height: 50vmin;
 			rotate: y calc(1.5turn * var(--scroll2));
+			/* rotate: y calc(1turn * (var(--scroll1) + 2 * (var(--scroll) - var(--scroll1)) * sin(var(--loop1)))); */
 			/* transform: rotate(calc(1turn * var(--state))); */
 
 			animation-name: loop1;
-			animation-duration: 1s;
+			animation-duration: 0.5s;
 			animation-timing-function: linear;
 			animation-iteration-count: infinite;
 
 			--scroll1: var(--scroll);
 			transition-property: --scroll1;
-			transition-duration: 3s;
-			transition-timing-function: cubic-bezier(0.25, 0.88, 0.5, 1);
+			transition-duration: 6s;
+			/* transition-delay: 1s; */ /* funky */
+			/* transition-timing-function: cubic-bezier(0.1875, 1, 0.5, 1); */
+			transition-timing-function: cubic-bezier(0.15625, 1, 0.4375, 1);
+
 			/* transform: rotate(calc(1turn * var(--scroll1))); */
-			transform: rotate(calc(1turn * (var(--scroll1) + 2 * (var(--scroll) - var(--scroll1)) * sin(var(--loop1)))));
+			transform: rotate(calc(1turn * (var(--scroll1) + 1 * (var(--scroll) - var(--scroll1)) * sin(var(--loop1)))));
+			/* transform: rotate(calc(1.5turn * var(--scroll2))); */
+
+			/* backdrop-filter: blur(0.25em); */
+			backdrop-filter: hue-rotate(calc(1.5turn * var(--scroll)));
+			/* background-color: oklch(0.75 0.0 0deg / 0.25); */
 		}
 
 		input, textarea, button, select {
@@ -199,7 +212,7 @@
 		Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
 	</p>
 	<div id="background">
-		<svg id="svgDefs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
+		<svg id="svgBackground" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
 			<defs>
 				<filter id="noiseStill" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
 					<feTurbulence
@@ -222,10 +235,14 @@
 						0 0 0 1 0"
 						color-interpolation-filters="sRGB" />-->
 				</filter>
-				<rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
 			</defs>
+			<!--<rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />-->
 		</svg>
-		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
+		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svgWall" class="wall" viewBox="0 0 1 1" preserveAspectRatio="none">
+			<rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
+			<!--<rect id="wall2" x="0%" y="0%" width="100%" height="100%" fill="red" />-->
+		</svg>
+		<!--<div class="wall"></div>-->
 	</div>
 </body>
 </html>

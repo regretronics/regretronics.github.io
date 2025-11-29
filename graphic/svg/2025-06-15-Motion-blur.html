@@ -50,7 +50,7 @@
 			--rnd-exp3: calc(110 / 113);
 			--rnd-offset: mod(pow(1451, 1 / 7), 1);
 
-			/*why having several animations, instead of varying the duration? to switch continuously between them.*/
+			/*why having several animations, instead of varying the duration? to switch continuously between them, without resetting their timing.*/
 			animation-name: shuffle, shuffle, shuffle, shuffle, shuffle;
 			animation-duration: 
 				calc(3s * var(--range)), 

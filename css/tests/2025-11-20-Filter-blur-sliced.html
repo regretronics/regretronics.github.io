@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>CSS experiment</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+
+		--x-b03: 0;
+		--x-b02: 0;
+		--x-b01: 0;
+		--x-b00: 0;
+		--x: calc(8 * var(--x-b03) + 4 * var(--x-b02) + 2 * var(--x-b01) + var(--x-b00));
+
+		--y-b03: 0;
+		--y-b02: 0;
+		--y-b01: 0;
+		--y-b00: 0;
+		--y: calc(8 * var(--y-b03) + 4 * var(--y-b02) + 2 * var(--y-b01) + var(--y-b00));
+	}
+
+	#t1 {
+		--row-b03: 0;
+		--row-b02: 0;
+		--row-b01: 0;
+		--row-b00: 0;
+
+		--col-b03: 0;
+		--col-b02: 0;
+		--col-b01: 0;
+		--col-b00: 0;
+
+		tr {
+			&:nth-child(n + 9):nth-child(-n + 16) {
+				--row-b03: 1;
+
+				:root:has(&:hover) {
+					--y-b03: 1;
+				}
+			}
+			&:nth-child(8n + 5),
+			&:nth-child(8n + 6),
+			&:nth-child(8n + 7),
+			&:nth-child(8n + 8) {
+				--row-b02: 1;
+
+				:root:has(&:hover) {
+					--y-b02: 1;
+				}
+			}
+			&:nth-child(4n + 3),
+			&:nth-child(4n + 4) {
+				--row-b01: 1;
+
+				:root:has(&:hover) {
+					--y-b01: 1;
+				}
+			}
+			&:nth-child(2n) {
+				--row-b00: 1;
+
+				:root:has(&:hover) {
+					--y-b00: 1;
+				}
+			}
+		}
+
+		td {
+			&:nth-child(n + 9):nth-child(-n + 16) {
+				--col-b03: 1;
+
+				:root:has(&:hover) {
+					--x-b03: 1;
+				}
+			}
+			&:nth-child(8n + 5),
+			&:nth-child(8n + 6),
+			&:nth-child(8n + 7),
+			&:nth-child(8n + 8) {
+				--col-b02: 1;
+
+				:root:has(&:hover) {
+					--x-b02: 1;
+				}
+			}
+			&:nth-child(4n + 3),
+			&:nth-child(4n + 4) {
+				--col-b01: 1;
+
+				:root:has(&:hover) {
+					--x-b01: 1;
+				}
+			}
+			&:nth-child(2n) {
+				--col-b00: 1;
+
+				:root:has(&:hover) {
+					--x-b00: 1;
+				}
+			}
+		}
+	}
+
+	table {
+		border-spacing: 0;
+	}
+	/* table tr {
+		--row: sibling-index();
+	} */
+	#t1 td {
+		/* padding: 0; */
+		/* background-color: transparent; */
+
+		/* --col: sibling-index(); */
+		--row: calc(8 * var(--row-b03) + 4 * var(--row-b02) + 2 * var(--row-b01) + var(--row-b00));
+		--col: calc(8 * var(--col-b03) + 4 * var(--col-b02) + 2 * var(--col-b01) + var(--col-b00));
+		/* background-color: oklch(calc(var(--row) / 16) 0 0deg); */
+		/* background-color: oklch(calc(var(--x) / 16) 0 0deg); */
+		/* background-color: oklch(calc(0.5 + (var(--x) - var(--col)) / 16) 0 0deg); */
+		/* background-color: oklch(
+			0.5 
+			0.125 
+			calc(hypot(var(--x) - var(--col), var(--y) - var(--row)) * 0.0625turn)); */
+	}
+
+	#outX::after {
+		/* counter-reset: x round(to-zero, var(--x), 1); */
+		counter-reset: x var(--x);
+		content: counter(x);
+	}
+	#outY::after {
+		/* counter-reset: y round(to-zero, var(--y), 1); */
+		counter-reset: y var(--y);
+		content: counter(y);
+	}
+
+	.bg-image {
+		/* background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/1024px-Blue_Marble_2022.jpg'); */
+		background-size: cover;
+	}
+	#refImg, #t1 {
+		float: left;
+		width: 32em;
+		height: 32em;
+		margin: 1em;
+		background-color: oklch(0.5 0.0 0deg);
+	}
+	#refImg > :only-child {
+		width: 100%;
+		height: 100%;
+		/* filter: blur(1em); */
+		backdrop-filter: blur(calc(0.015625em * var(--blur1)));
+	}
+	#t1 td {
+		/* backdrop-filter: blur(0.25em); */
+		backdrop-filter: blur(calc(0.015625em * var(--blur2) * var(--row) / 16));
+	}
+
+	#controlPanel {
+		clear: both;
+	}
+	#selBgImage :checked {
+		:root:has(&[label="File:Blue Marble 2022.jpg"]) .bg-image {
+			background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/1024px-Blue_Marble_2022.jpg');
+		}
+		:root:has(&[label="File:Webb's First Deep Field.jpg"]) .bg-image {
+			background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Webb%27s_First_Deep_Field.jpg/1003px-Webb%27s_First_Deep_Field.jpg');
+		}
+	}
+	/* :root:has(#chkPostBlur:checked) #t1 {
+		filter: blur(0.25em);
+	} */
+	#t1 {
+		filter: blur(calc(0.015625em * var(--blur3)));
+	}
+	#selBlur1 :checked {
+		:root:has(&[value="0"]) {--blur1: 0;}
+		:root:has(&[value="1"]) {--blur1: 1;}
+		:root:has(&[value="2"]) {--blur1: 2;}
+		:root:has(&[value="4"]) {--blur1: 4;}
+		:root:has(&[value="8"]) {--blur1: 8;}
+		:root:has(&[value="16"]) {--blur1: 16;}
+		:root:has(&[value="32"]) {--blur1: 32;}
+		:root:has(&[value="64"]) {--blur1: 64;}
+		:root:has(&[value="128"]) {--blur1: 128;}
+		:root:has(&[value="256"]) {--blur1: 256;}
+	}
+	#selBlur2 :checked {
+		:root:has(&[value="0"]) {--blur2: 0;}
+		:root:has(&[value="1"]) {--blur2: 1;}
+		:root:has(&[value="2"]) {--blur2: 2;}
+		:root:has(&[value="4"]) {--blur2: 4;}
+		:root:has(&[value="8"]) {--blur2: 8;}
+		:root:has(&[value="16"]) {--blur2: 16;}
+		:root:has(&[value="32"]) {--blur2: 32;}
+		:root:has(&[value="64"]) {--blur2: 64;}
+		:root:has(&[value="128"]) {--blur2: 128;}
+		:root:has(&[value="256"]) {--blur2: 256;}
+	}
+	#selBlur3 :checked {
+		:root:has(&[value="0"]) {--blur3: 0;}
+		:root:has(&[value="1"]) {--blur3: 1;}
+		:root:has(&[value="2"]) {--blur3: 2;}
+		:root:has(&[value="4"]) {--blur3: 4;}
+		:root:has(&[value="8"]) {--blur3: 8;}
+		:root:has(&[value="16"]) {--blur3: 16;}
+		:root:has(&[value="32"]) {--blur3: 32;}
+		:root:has(&[value="64"]) {--blur3: 64;}
+		:root:has(&[value="128"]) {--blur3: 128;}
+		:root:has(&[value="256"]) {--blur3: 256;}
+	}
+
+	input, textarea, button, select {
+		font-size: inherit;
+	}
+	input:is([type=checkbox], input[type=radio]) {
+		/* block-size: 1em; */
+		/* inline-size: 1em; */
+		/* vertical-align: baseline; */
+		vertical-align: middle;
+		block-size: 1cap;
+		inline-size: 1cap;
+		margin-inline: 0em;
+		color: inherit;
+
+		& + label {
+			/* vertical-align: middle; */
+			/* margin-inline: 0.125em; */
+			padding-inline: 0.25em;
+			/* @starting-style {
+				color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
+			} */
+		}
+		&:not(:checked) + label {
+			color: oklch(0.75 0.03125 55deg / 0.8);
+		}
+		&:checked + label {
+			color: oklch(0.875 0.1875 55deg);
+		}
+	}
+	/*]]>*/</style>
+</head>
+<body>
+	<div id="refImg" class="bg-image"><div></div></div>
+	<table id="t1" class="bg-image">
+		<tbody>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	<p id="controlPanel">
+		<label for="selBgImage">Background image:</label> <select id="selBgImage">
+			<option label="File:Blue Marble 2022.jpg" selected="selected"></option>
+			<option label="File:Webb's First Deep Field.jpg"></option>
+		</select><br />
+		<label for="selBlur1">Blur 1:</label> <select id="selBlur1">
+			<option value="0">0x</option>
+			<option value="1">1x</option>
+			<option value="2">2x</option>
+			<option value="4" selected="selected">4x</option>
+			<option value="8">8x</option>
+			<option value="16">16x</option>
+			<option value="32">32x</option>
+			<option value="64">64x</option>
+			<option value="128">128x</option>
+			<option value="256">256x</option>
+		</select><br />
+		<label for="selBlur2">Blur 2:</label> <select id="selBlur2">
+			<option value="0">0x</option>
+			<option value="1">1x</option>
+			<option value="2">2x</option>
+			<option value="4" selected="selected">4x</option>
+			<option value="8">8x</option>
+			<option value="16">16x</option>
+			<option value="32">32x</option>
+			<option value="64">64x</option>
+			<option value="128">128x</option>
+			<option value="256">256x</option>
+		</select><br />
+		<label for="selBlur3">Blur 3:</label> <select id="selBlur3">
+			<option value="0">0x</option>
+			<option value="1">1x</option>
+			<option value="2">2x</option>
+			<option value="4" selected="selected">4x</option>
+			<option value="8">8x</option>
+			<option value="16">16x</option>
+			<option value="32">32x</option>
+			<option value="64">64x</option>
+			<option value="128">128x</option>
+			<option value="256">256x</option>
+		</select><br />
+		<!-- <input type="checkbox" id="chkPostBlur" /><label for="chkPostBlur">Post-blur</label><br /> -->
+		<output id="outX">x: </output><br />
+		<output id="outY">y: </output>
+	</p>
+</body>
+</html>

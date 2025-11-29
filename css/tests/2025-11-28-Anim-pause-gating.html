@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<title>CSS experiment: animation pausing</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --ramp1 {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@property --ramp2 {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+
+		@keyframes ramp1 {
+			/* from {--ramp1: 0.0;} */
+			to {--ramp1: 0.5;}
+		}
+		@keyframes ramp2 {
+			/* from {--ramp2: 0.0;} */
+			to {--ramp2: 1.0;}
+		}
+
+		:root {
+			font-size: 4vmax;
+			color-scheme: dark;
+			background-color: oklch(0.25 0.0 0deg);
+			color: oklch(0.75 0.0 0deg);
+
+			animation-name: ramp1;
+			animation-timing-function: linear;
+			/* animation-timing-function: steps(64); */
+			animation-duration: 5s;
+			/* animation-iteration-count: infinite; */
+			/* animation-fill-mode: both; */
+			/* animation-composition: accumulate; */
+
+			--ramp1b: mod(var(--ramp1) * 1000 + 1, 2);
+			/* animation-play-state: running; */
+		}
+		body {
+			animation-name: ramp2;
+			animation-timing-function: linear;
+			/* animation-timing-function: steps(64); */
+			animation-duration: 5s;
+			animation-iteration-count: infinite;
+			/* animation-composition: accumulate; */
+
+			/* --ramp1b: var(--ramp1); */
+			/* animation-play-state: running; */
+			/* animation-play-state: 
+				if(style(--ramp1 > 0.25): paused; else: running;); */ /* doesn't work as of Chrome 144 (2025-11) */
+				/* if(style(--ramp2 > var(--ramp1)): paused; else: running;); */
+		}
+		/* @container style(--ramp1 > 0.25) { */
+		@container style(--ramp1b > 0.5) {
+			body { /* they don't work on :root or html */
+				animation-play-state: paused;
+			}
+		}
+
+		.gauge {
+			width: 80%;
+			background-color: oklch(0.5 0 0deg / 0.5);
+			margin-block-end: 0.5em;
+			& > :nth-child(1) {
+				font-family: monospace;
+				background-color: oklch(0.5 0.15625 55deg);
+				text-wrap-mode: nowrap;
+				overflow-inline: visible;
+			}
+
+			:nth-child(1 of &) { /*works better than :nth-of-type() (more specialized)*/
+				& > :nth-child(1) { width: calc(100% * var(--ramp1) / 1.0); }
+			}
+			:nth-child(2 of &) {
+				& > :nth-child(1) { width: calc(100% * var(--ramp2) / 1.0); }
+			}
+		}
+
+		.show-number::after {
+			content: counter(val);
+		}
+		#outRamp1 {
+			counter-reset: val round(down, 1000 * var(--ramp1));
+		}
+		#outRamp2 {
+			counter-reset: val round(down, 1000 * var(--ramp2));
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<div class="gauge">
+		<div>--ramp1: <output class="show-number" id="outRamp1"></output></div>
+	</div>
+	<div class="gauge">
+		<div>--ramp2: <output class="show-number" id="outRamp2"></output></div>
+	</div>
+</body>
+</html>
