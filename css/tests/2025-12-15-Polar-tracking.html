@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+	<title>CSS experiment</title>
+	<style type="text/css">/*<![CDATA[*/
+	@property --x0 {
+		syntax: "\3c number\3e";
+		initial-value: 0.0;
+		inherits: true;
+	}
+	@property --y0 {
+		syntax: "\3c number\3e";
+		initial-value: 0.0;
+		inherits: true;
+	}
+	/* @property --track-module {
+		syntax: "\3c number\3e";
+		initial-value: 0.0;
+		inherits: true;
+	}
+	@property --track-argument {
+		syntax: "\3c angle\3e";
+		initial-value: 0turn;
+		inherits: true;
+	} */
+	:root {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+
+		--x-b03: 0;
+		--x-b02: 0;
+		--x-b01: 0;
+		--x-b00: 0;
+
+		--y-b03: 0;
+		--y-b02: 0;
+		--y-b01: 0;
+		--y-b00: 0;
+
+		--cols: 16;
+		--rows: 16;
+		--x: calc(0.5 * var(--cols) - 0.5);
+		--y: calc(0.5 * var(--rows) - 0.5);
+
+		--x0: calc(var(--x) - 0.5 * var(--cols) + 0.5);
+		--y0: calc(var(--y) - 0.5 * var(--rows) + 0.5);
+		--track-module: hypot(var(--x0), var(--y0));
+		--track-argument: atan2(var(--y0), var(--x0));
+
+		transition-property: --x0, --y0;
+		/* transition-property: --track-module, --track-argument; */
+		transition-duration: 0.5s;
+		&:has(#t1:hover) {
+			--x: calc(8 * var(--x-b03) + 4 * var(--x-b02) + 2 * var(--x-b01) + var(--x-b00));
+			--y: calc(8 * var(--y-b03) + 4 * var(--y-b02) + 2 * var(--y-b01) + var(--y-b00));
+			/* transition-delay: 0.25s; */
+		}
+	}
+
+	body {
+		margin: 0;
+		border: none;
+		padding: 0;
+		height: 100%;
+		/* max-height: 100%; */
+		overflow: hidden;
+
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		justify-content: center;
+		/* align-items: stretch; */
+	}
+	body, body > * {
+		box-sizing: border-box;
+	}
+
+	body > :nth-child(1) {
+		flex-basis: auto;
+		flex-grow: 1;
+		flex-shrink: 1;
+		/* contain: size; */
+		container-type: size;
+
+		display: flex;
+	}
+	#t1 {
+		--row-b03: 0;
+		--row-b02: 0;
+		--row-b01: 0;
+		--row-b00: 0;
+
+		--col-b03: 0;
+		--col-b02: 0;
+		--col-b01: 0;
+		--col-b00: 0;
+
+		tr {
+			&:nth-child(n + 9):nth-child(-n + 16) {
+				--row-b03: 1;
+
+				:root:has(&:hover) {
+					--y-b03: 1;
+				}
+			}
+			&:nth-child(8n + 5),
+			&:nth-child(8n + 6),
+			&:nth-child(8n + 7),
+			&:nth-child(8n + 8) {
+				--row-b02: 1;
+
+				:root:has(&:hover) {
+					--y-b02: 1;
+				}
+			}
+			&:nth-child(4n + 3),
+			&:nth-child(4n + 4) {
+				--row-b01: 1;
+
+				:root:has(&:hover) {
+					--y-b01: 1;
+				}
+			}
+			&:nth-child(2n) {
+				--row-b00: 1;
+
+				:root:has(&:hover) {
+					--y-b00: 1;
+				}
+			}
+		}
+
+		td {
+			&:nth-child(n + 9):nth-child(-n + 16) {
+				--col-b03: 1;
+
+				:root:has(&:hover) {
+					--x-b03: 1;
+				}
+			}
+			&:nth-child(8n + 5),
+			&:nth-child(8n + 6),
+			&:nth-child(8n + 7),
+			&:nth-child(8n + 8) {
+				--col-b02: 1;
+
+				:root:has(&:hover) {
+					--x-b02: 1;
+				}
+			}
+			&:nth-child(4n + 3),
+			&:nth-child(4n + 4) {
+				--col-b01: 1;
+
+				:root:has(&:hover) {
+					--x-b01: 1;
+				}
+			}
+			&:nth-child(2n) {
+				--col-b00: 1;
+
+				:root:has(&:hover) {
+					--x-b00: 1;
+				}
+			}
+		}
+	}
+	#t1 {
+		margin: auto;
+		aspect-ratio: 1;
+
+		min-width: 100cqmin;
+		max-width: 100%;
+
+		min-height: 100cqmin;
+		max-height: 100%;
+
+		border-spacing: 0;
+		background-color: oklch(0 0.0 0deg);
+		--radius-pos: calc(var(--track-module) / var(--rows) * sqrt(2));
+		--conic-margin: calc(0.78125% / var(--radius-pos));
+		--clr-highlight: oklch(1 0.0 0deg / 0.5);
+		background-image: /* if(
+			style(--hover: 1): */ radial-gradient(
+					circle at center, 
+					transparent max(calc(100% * var(--radius-pos) - 6.25%), 0%), 
+					var(--clr-highlight) max(calc(100% * var(--radius-pos) - 3.125%), 0%), 
+					var(--clr-highlight) calc(100% * var(--radius-pos) + 3.125%), 
+					transparent calc(100% * var(--radius-pos) + 6.25%)), 
+				conic-gradient(
+					from calc(var(--track-argument) - 0.25turn) at center, 
+					transparent calc(50% - 2.0 * var(--conic-margin)), 
+					var(--clr-highlight) calc(50% - var(--conic-margin)), 
+					var(--clr-highlight) calc(50% + var(--conic-margin)), 
+					transparent calc(50% + 2.0 * var(--conic-margin)));
+			/* else: none;
+		); */
+
+		--hover: 0;
+		&:hover {--hover: 1;}
+	}
+
+	/* table tr {
+		--row: sibling-index();
+	} */
+	#t1 td {
+		/* padding: 0; */
+		/* background-color: transparent; */
+
+		/* --col: sibling-index(); */
+		--row: calc(8 * var(--row-b03) + 4 * var(--row-b02) + 2 * var(--row-b01) + var(--row-b00));
+		--col: calc(8 * var(--col-b03) + 4 * var(--col-b02) + 2 * var(--col-b01) + var(--col-b00));
+		background-color: if(
+			style(--hover: 1) and style(--row: var(--y)) and style(--col: var(--x)): oklch(1 0.0 0deg / 0.5);
+			else: transparent;
+		);
+	}
+
+	/* #controlPanel {
+		clear: both;
+	} */
+	body > :nth-child(2) {
+		/* flex-basis: auto;
+		flex-grow: 0;
+		flex-shrink: 0; */
+		padding-inline: min(1em, 2cqi);
+	}
+	#outX::after {
+		/* counter-reset: x round(to-zero, var(--x), 1); */
+		counter-reset: x var(--x);
+		content: counter(x);
+	}
+	#outY::after {
+		/* counter-reset: y round(to-zero, var(--y), 1); */
+		counter-reset: y var(--y);
+		content: counter(y);
+	}
+
+	input, textarea, button, select {
+		font-size: inherit;
+	}
+	input:is([type=checkbox], input[type=radio]) {
+		vertical-align: middle;
+		block-size: 1cap;
+		inline-size: 1cap;
+		margin-inline: 0em;
+		color: inherit;
+
+		& + label {
+			padding-inline: 0.25em;
+			/* @starting-style {
+				color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
+			} */
+		}
+		&:not(:checked) + label {
+			color: oklch(0.75 0.03125 55deg / 0.8);
+		}
+		&:checked + label {
+			color: oklch(0.875 0.1875 55deg);
+		}
+	}
+	/*]]>*/</style>
+</head>
+<body>
+	<div>
+	<table id="t1">
+		<tbody>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+	<p id="controlPanel">
+		<output id="outX">x: </output><br />
+		<output id="outY">y: </output>
+	</p>
+</body>
+</html>

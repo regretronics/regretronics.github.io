@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- <meta name="color-scheme" content="normal" /> -->
+	<!-- <meta name="color-scheme" content="dark" /> -->
+	<!-- <meta name="color-scheme" content="light" /> -->
+	<!-- <meta name="color-scheme" content="only light" /> -->
+	<!-- <meta name="color-scheme" content="dark light" /> -->
+	<!-- <meta name="color-scheme" content="light dark" /> -->
+
+	<title>CSS experiment: color schemes</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --scheme {
+			syntax: "*";
+			initial-value: normal;
+			inherits: true;
+		}
+
+		:root {
+			font-size: 4vmax;
+
+			@media (prefers-color-scheme: no-preference) {--scheme: normal;} /* deprecated */
+			@media (prefers-color-scheme: dark) {--scheme: dark;}
+			@media (prefers-color-scheme: light) {--scheme: light;}
+
+			/* color-scheme: normal; */
+			/* color-scheme: dark; */
+			/* color-scheme: only dark; */
+			/* color-scheme: light; */
+			/* color-scheme: only light; */
+			/* color-scheme: light dark; */
+			/* color-scheme: dark light; */
+
+			/* background-color: oklch(0.25 0.0 0deg);
+			color: oklch(0.75 0.0 0deg); */
+			background-color: if(
+				style(--scheme: dark): oklch(0.25 0.0 0deg);
+				style(--scheme: light): oklch(0.75 0.0 0deg);
+				else: red;
+			);
+			color: if(
+				style(--scheme: dark): oklch(0.75 0.0 0deg);
+				style(--scheme: light): oklch(0.25 0.0 0deg);
+				else: cyan;
+			);
+
+			/* --theme: light-dark(-1, 1); */ /* didn't work */
+		}
+		/* @container style(--var > 0.5) {
+			body { */ /* they don't work on :root or html */
+				/* animation-play-state: paused;
+			}
+		} */
+
+		/* .show-number::after {
+			content: counter(val);
+		}
+		#outTheme {
+			counter-reset: val round(down, var(--theme));
+		} */
+
+		.dark {
+			--scheme: dark;
+			/* background-color: oklch(0.25 0.0 0deg);
+			color: oklch(0.75 0.0 0deg); */
+		}
+		.light {
+			--scheme: light;
+			/* background-color: oklch(0.75 0.0 0deg);
+			color: oklch(0.25 0.0 0deg); */
+		}
+		/* .dark, .light { */
+		* {
+			color-scheme: var(--scheme);
+		}
+
+		/* p.themed { */
+		/* *:not(body) { */
+		body * {
+			/* background-color: light-dark(oklch(0.75 0.0 0deg), oklch(0.25 0.0 0deg));
+			color: light-dark(oklch(0.25 0.0 0deg), oklch(0.75 0.0 0deg)); */
+			/* background-color: if(
+				media(prefers-color-scheme: dark): oklch(0.25 0.0 0deg);
+				media(prefers-color-scheme: light): oklch(0.75 0.0 0deg);
+				media(prefers-color-scheme: no-preference): blue;
+				else: red;
+			);
+			color: if(
+				media(prefers-color-scheme: dark): oklch(0.75 0.0 0deg);
+				media(prefers-color-scheme: light): oklch(0.25 0.0 0deg);
+				media(prefers-color-scheme: no-preference): yellow;
+				else: cyan;
+			); */
+			background-color: if(
+				style(--scheme: dark): oklch(0 0.0 0deg / 0.5);
+				style(--scheme: light): oklch(1 0.0 0deg / 0.5);
+				else: red;
+			);
+			color: if(
+				style(--scheme: dark): oklch(0.75 0.0 0deg);
+				style(--scheme: light): oklch(0.25 0.0 0deg);
+				else: cyan;
+			);
+		}
+		/* .themed::before { */
+		p::before {
+			font-variant: small-caps;
+			/* font-variant-caps: all-small-caps; */
+			/* content: if(
+				media(prefers-color-scheme: dark): "dark";
+				media(prefers-color-scheme: light): "light";
+				media(prefers-color-scheme: no-preference): "no-preference";
+				else: "other";
+			); */
+			content: if(
+				style(--scheme: normal): "normal";
+				style(--scheme: dark): "dark";
+				style(--scheme: light): "light";
+				style((--scheme: only dark) or (--scheme: dark only)): "only dark";
+				style((--scheme: only light) or (--scheme: light only)): "only light";
+				style(--scheme: dark light): "dark light";
+				style(--scheme: light dark): "light dark";
+				else: "other";
+			);
+			display: block;
+			opacity: 0.7;
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<!-- <div>--theme: <output class="show-number" id="outTheme"></output></div> -->
+	<p class="themed dark">
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+	</p>
+	<p class="themed light">
+		Rrow itself, let it be sorrow; let him love it; let him pursue it, ishing for its acquisitiendum. Because he will ab hold, uniess but through concer, and also of those who resist. Now a pure snore disturbeded sum dust. He ejjnoyes, in order that somewon, also with a severe one, unless of life. May a cusstums offficer somewon nothing of a poison-filled. Until, from a twho, twho chaffinch may also pursue it, not even a lump. But as twho, as a tank; a proverb, yeast; or else they tinscribe nor. Yet yet dewlap bed. Twho may be, let him love fellows of a polecat. Now amour, the, twhose being, drunk, yet twhitch and, an enclosed valley's always a laugh. In acquisitiendum the Furies are Earth; in (he takes up) a lump vehicles bien.
+	</p>
+	<p class="">
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu.
+	</p>
+</body>
+</html>

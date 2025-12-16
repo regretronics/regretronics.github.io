@@ -1,0 +1,172 @@
+/* @property --con-sign {
+	syntax: "\3c number\3e";
+	initial-value: -1.0;
+	inherits: true;
+}
+@property --con-drive {
+	syntax: "\3c number\3e";
+	initial-value: 0.875;
+	inherits: true;
+} */
+/* @property --con-factor {
+	syntax: "\3c number\3e";
+	initial-value: -0.375;
+	inherits: true;
+} */
+@property --hue-accent {
+	syntax: "\3c angle\3e";
+	initial-value: 145deg;
+	inherits: true;
+}
+/* @property --clr-space {
+	syntax: "*";
+	initial-value: srgb-linear;
+	inherits: true;
+} */
+@property --luma-test {
+	syntax: "\3c color\3e";
+	initial-value: gray;
+	inherits: true;
+}
+@function --clr-chn-transfer(--x <number>) returns <number> {
+	/* result: pow((2 * sign(var(--x)) * pow(abs(var(--x)), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(var(--x)), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3); */
+	--x-dec: --clr-chn-decompress(var(--x));
+	result: --clr-chn-compress(
+		var(--x-dec) * pow(
+			var(--clr-distortion-expinv) + sign(var(--x-dec)) * pow(abs(var(--x-dec)), var(--clr-distortion-expinv)), 
+			var(--clr-distortion-exp)));
+	/* result: var(--x); */
+}
+@function --clr-chn-decompress(--x <number>) returns <number> {
+	result: calc(2 * sign(var(--x)) * pow(abs(var(--x)), 1 / 3) - 1);
+	/* result: calc(2 * var(--x) - 1); */
+	/* result: 0.0; */
+}
+@function --clr-chn-compress(--x <number>) returns <number> {
+	result: pow(0.5 * var(--x) + 0.5, 3);
+	/* result: calc(0.5 * var(--x) + 0.5); */
+	/* result: 0.0; */
+}
+@function --scheme-clr(--l <number>: 0.0, --s <number>: 0.0, --a <number>: 1.0) returns <color> {
+	result: color(
+		from oklch(
+			calc(var(--l) * var(--con-factor, -0.375) + 0.5) 
+			calc(abs(var(--s)) * var(--sat-scale)) 
+			calc(var(--hue-accent, 145deg) + 0.25turn * (sign(var(--s)) - 1))) 
+		var(--clr-transfer) / var(--a));
+	/* result: black; */
+}
+* {
+	--con-sign: var(--con-sign-root, -1.0);
+	--con-factor: calc(0.5 * var(--con-sign, -1.0) * var(--con-drive, 0.875));
+
+	/* --clr-transfer: var(--clr-space, srgb-linear) r g b; */
+	/* lower distortion parameter tends to produce proportional results with hard clipping (distorting the extremes in the domain range). higher values tend to produce an s-shaped curve that is steep around 0 (gray), and ultimately an all-or-nothing range compression. */
+	--clr-distortion: -2.0;
+	--clr-distortion-exp: calc(-1 * exp(var(--clr-distortion, 0)));
+	--clr-distortion-expinv: exp(-1 * var(--clr-distortion, 0));
+
+	/* --clr-transfer: var(--clr-space, srgb-linear) 
+		calc((2 * r - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * r - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5) 
+		calc((2 * g - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * g - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5) 
+		calc((2 * b - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * b - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5); */
+	--clr-transfer: var(--clr-space, srgb-linear) 
+		pow((2 * sign(r) * pow(abs(r), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(r), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
+		pow((2 * sign(g) * pow(abs(g), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(g), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
+		pow((2 * sign(b) * pow(abs(b), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(b), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3);
+	/* --clr-transfer: var(--clr-space, srgb-linear) 
+		--clr-chn-compress((2 * sign(r) * pow(abs(r), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(r), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp))) 
+		--clr-chn-compress((2 * sign(g) * pow(abs(g), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(g), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp))) 
+		--clr-chn-compress((2 * sign(b) * pow(abs(b), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(b), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp))); */
+	/* --clr-transfer: var(--clr-space, srgb-linear) 
+		pow(--clr-chn-decompress(r) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(r), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
+		pow(--clr-chn-decompress(g) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(g), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
+		pow(--clr-chn-decompress(b) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(b), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3); */
+	/* --clr-transfer: var(--clr-space, srgb-linear) --clr-chn-transfer(r) --clr-chn-transfer(g) --clr-chn-transfer(b); */
+	/* --clr-transfer: var(--clr-space, srgb-linear) --clr-chn-decompress(0.0) --clr-chn-decompress(1.0) --clr-chn-decompress(1.0); */
+
+	--luma-test: light-dark(white, black);
+	/* --luma-test: */ /* white */ /* black; */
+	/* --con-sign: if(
+		style(--luma-test: white): 1.0;
+		style(--luma-test: black): -1.0;
+		style(--luma-test: gray): -0.5;
+		else: var(--con-sign-root, -1.0);
+	); */
+}
+:root {
+	/* --con-sign-root: -1; */
+	@media (prefers-color-scheme: no-preference) {--con-sign-root: -0.5;} /* no-preference is deprecated */
+	/* @media (prefers-color-scheme: normal) {--con-sign-root: -0.5;} */
+	@media (prefers-color-scheme: dark) {--con-sign-root: -1.0;}
+	@media (prefers-color-scheme: light) {--con-sign-root: 1.0;}
+	/* @media (prefers-color-scheme: only dark) {--con-sign-root: -1.0;}
+	@media (prefers-color-scheme: only light) {--con-sign-root: 1.0;} */
+	/* @media (prefers-color-scheme: dark only) {--con-sign-root: -1.0;}
+	@media (prefers-color-scheme: light only) {--con-sign-root: 1.0;} */
+	/* @media (prefers-color-scheme: dark light) {--con-sign-root: -0.75;}
+	@media (prefers-color-scheme: light dark) {--con-sign-root: 0.75;} */
+
+	/* --con-drive: 0.875; */
+	@media (prefers-contrast: less) {--con-drive: 0.75;}
+	@media (prefers-contrast: no-preference) {--con-drive: 0.875;}
+	@media (prefers-contrast: more) {--con-drive: 1.0;}
+	/* @media (prefers-contrast: custom) {--: ;} */
+
+	/* --sat-drive: 1; */
+	--sat-scale: 0.125;
+	/* --sat-scale: 0.15625; */
+	/* --sat-scale: 0.1875; */
+	/* --sat-scale: 0.25; */
+
+	/* --clr-space: srgb-linear; */
+	@media (color-gamut: srgb) {--clr-space: srgb-linear;}
+	@media (color-gamut: p3) {--clr-space: display-p3-linear;}
+	@media (color-gamut: rec2020) {--clr-space: rec2100-linear;}
+
+	/* @media (prefers-reduced-transparency: no-preference) {--: ;}
+	@media (prefers-reduced-transparency: reduce) {--: ;} */
+}
+/* @media (prefers-color-scheme: dark) {:root {--con-sign-root: -1.0;}}
+@media (prefers-color-scheme: light) {:root {--con-sign-root: 1.0;}} */
+meta[name="color-scheme"] {
+	/* &[content="normal"] {
+		:root:has(&) {--con-sign-root: 1;}
+	} */
+	&[content="dark"] {
+		:root:has(&) {--con-sign-root: -1;}
+	}
+	&[content="light"] {
+		:root:has(&) {--con-sign-root: 1;}
+	}
+	&[content="only light"] {
+		:root:has(&) {--con-sign-root: 1;}
+	}
+}
+
+:root {
+	/* background-color: oklch(0.75 0.375 var(--hue-accent, 120));
+	color: oklch(0 0 var(--hue-accent, 120) / 0.875);
+	accent-color: oklch(0.375 0.5 var(--hue-accent, 120)); */
+	background-color: color(
+		from oklch(
+			calc(0.25 * var(--con-factor, -0.375) + 0.5) 
+			calc(0.5 * var(--sat-scale)) 
+			var(--hue-accent, 145deg)) 
+		var(--clr-transfer));
+	color: color(
+		from oklch(
+			calc(-1 * var(--con-factor, -0.375) + 0.5) 
+			0 
+			var(--hue-accent, 145deg)) 
+		var(--clr-transfer) / 0.875);
+	accent-color: color(
+		from oklch(
+			calc(-0.25 * var(--con-factor, -0.375) + 0.5) 
+			calc(0.75 * var(--sat-scale)) 
+			var(--hue-accent, 145deg)) 
+		var(--clr-transfer));
+	/* background-color: --scheme-clr(0.25, 0.5);
+	color: --scheme-clr(-1, 0, 0.875);
+	accent-color: --scheme-clr(-0.25, 0.75); */
+}
