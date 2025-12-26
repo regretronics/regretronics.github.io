@@ -1,0 +1,13 @@
+@function --f1() {
+	result: red;
+}
+:root {
+	@media (prefers-color-scheme: dark) {}
+}
+body {
+	p {
+	}
+}
+:root {
+	color: --f1();
+}

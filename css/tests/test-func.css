@@ -1,0 +1,75 @@
+/* @property --scheme {
+	syntax: "*";
+	initial-value: normal;
+	inherits: true;
+} */
+
+@function --f1(--s <string>: "asdfsa") returns <string> {
+	/* result: "black"; */
+	result: var(--s);
+}
+@function --scheme-clr(--l <number>: 0.0, --s <number>: 0.0, --a <number>: 1.0) returns <color> {
+	/* result: red; */
+	/* result: oklch(var(--x) 0.125 0deg); */
+	result: color(
+		from oklch(
+			calc(var(--l) * var(--con-factor, -0.375) + 0.5) 
+			calc(var(--s) * var(--sat-scale, 0.125)) 
+			var(--hue-accent, 145)) 
+		var(--clr-transfer) / var(--a, 1));
+	/* result: var(--s); */
+}
+
+* {
+	/* --clr-transfer: var(--clr-space, srgb-linear) r g b; */
+	--clr-distortion: -2.0;
+	--clr-distortion-exp: calc(-1 * exp(var(--clr-distortion, 0)));
+	--clr-distortion-expinv: exp(-1 * var(--clr-distortion, 0));
+	/* --clr-transfer: var(--clr-space, srgb-linear) 
+		calc((2 * r - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * r - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5) 
+		calc((2 * g - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * g - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5) 
+		calc((2 * b - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * b - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5); */
+	--clr-transfer: var(--clr-space, srgb-linear) 
+		pow((2 * sign(r) * pow(abs(r), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(r), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
+		pow((2 * sign(g) * pow(abs(g), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(g), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
+		pow((2 * sign(b) * pow(abs(b), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(b), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3);
+}
+:root {
+	/* --con-sign: -1; */
+	/* @media (prefers-color-scheme: no-preference) {--con-sign: -0.5;} */ /* no-preference is deprecated */
+	/* @media (prefers-color-scheme: normal) {--con-sign: -0.5;} */
+	@media (prefers-color-scheme: dark) {& {--con-sign: -1.0;}}
+	@media (prefers-color-scheme: light) {& {--con-sign: 1.0;}}
+}
+/* @media (prefers-color-scheme: dark) {:root {--con-sign: -1.0;}}
+@media (prefers-color-scheme: light) {:root {--con-sign: 1.0;}} */
+meta[name="color-scheme"] {
+	/* &[content="normal"] {
+		:root:has(&) {--con-sign: 1;}
+	} */
+	&[content="dark"] {
+		:root:has(&) {--con-sign: -1;}
+	}
+	&[content="light"] {
+		:root:has(&) {--con-sign: 1;}
+	}
+	/* &[content="dark light"] {
+		:root:has(&) {--con-sign: -1;}
+	}
+	&[content="light dark"] {
+		:root:has(&) {--con-sign: 1;}
+	} */
+	/* &[content="only light"] {
+		:root:has(&) {--con-sign: 1;}
+	} */
+}
+
+#outA::after {
+	/* content: "asdf"; */
+	content: --f1("asefewwv");
+	color: --scheme-clr(0.25, 0.5);
+}
+
+:root {
+	color: --scheme-clr(0.25, 0.5);
+}

@@ -48,14 +48,14 @@
 		max-width: 100%;
 	}
 	/*]]>*/</style>
+
 	<script type="text/javascript">/*<![CDATA[*/
-	//to do: check performance difference of strict mode.
 	"use strict";
 	//to do: use defer="true" or async in any script tag?
 	//  idea: have a "reload script" button?
 
 	var sourceC2d, outputC2d;
-	//detail: I'm putting height before width, because x is subordinate to y.
+	//detail: I'm putting height before width, because x is subordinate to y in raster scan.
 	var sh, sw, imageSourceData;
 	var ch, cw, imageData;
 	var frameCount = 0, renderTimeSum = 0;
@@ -206,11 +206,11 @@
 		<input type="checkbox" id="chkOutputShrink" data-image="cnvOutput" /><label for="chkOutputShrink">Shrink to fit.</label>
 	</p>
 	<p class="imageContainer"><canvas id="cnvOutput" width="384" height="256">
-		(Resampled image placeholder.) If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.
+		Resampled image placeholder. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.)
 	</canvas></p>
 
 	<p>Upscaling time: <output id="outFrameRenderT">0</output> ms.</p>
-	<p>This page is an image resampling test, requiring HTML Canvas to work. It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer.</p>
+	<p>This page is an image resampling test, requiring HTML Canvas to work.</p>
 	<!-- to do: explain the resampling algorithm and its parameters -->
 </body>
 </html>
