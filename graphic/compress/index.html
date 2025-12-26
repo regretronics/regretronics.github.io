@@ -4,16 +4,14 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Image compression, test 01</title>
+	<meta name="color-scheme" content="dark" />
+	<title>Image transform, quantization and compression test</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
-		background-color: revert !important; /*dark reader workaround*/
-	}
-	body {
 		/* background-color: hsl(120, 25%, 12.5%); */
 		/* color: hsl(120, 0%, 87.5%); */
-		background-color: canvas;
-		color: canvastext;
+		background-color: Canvas;
+		color: CanvasText;
 		color-scheme: dark;
 	}
 
@@ -38,221 +36,11 @@
 		max-width: 90%;
 	}
 	/*]]>*/</style>
-	<script type="text/javascript">/*<![CDATA[*/
-	//to do: check performance difference of strict mode.
-	"use strict";
-	//this page uses several features known to be unsupported in any version of Internet Explorer. Use MS Edge at least.
-	//to do: use defer="true" or async in any script tag?
-	//  idea: have a "reload script" button?
 
-	var sourceC2d, outputC2d;
-	//detail: I'm putting height before width, because x is subordinate to y.
-	var sh, sw, imgSourceData;
-	var ch, cw, imgData;
-	var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
-	var scalePixels = [];
-
-	var sinc_size, sinc_filter1Float = null;
-	const sinc_r = 3;
-	/*]]>*/</script>
-	<!-- <script type="text/javascript" src="numerics.js"></script> -->
-	<!-- <script type="text/javascript" src="frameRender.js"></script> -->
-	<script type="text/javascript" src="canvas.js"></script>
-	<script type="text/javascript">/*<![CDATA[*/
-	"use strict";
-	//note: as of 2022-09 browsers only support 8 bits per channel in raster/bitmap images; deep color and hdr pixel formats are not yet available for script manipulation.
-
-	function imgSourceLoaded(event) {
-		imageScaleUpdate(cbxSourceScale, imgSource);
-		sh = event.target.naturalHeight;
-		sw = event.target.naturalWidth;
-
-		outSourceRes.textContent = `${sw}x${sh}`;
-		window.setTimeout(compEncode, 100, event.target);
-	}
-	const factor = 4, factorInv = 1 / factor, factorInv2 = factorInv * factorInv;
-	function compEncode(image) {
-		//to do: ...OffscreenCanvas (not supported in Firefox as of 2022-09)
-		//const offscreen = new OffscreenCanvas(sw, sh);
-		if(!cnvSource || !cnvSource.getContext) return;
-		cnvSource.height = sh;
-		cnvSource.width = sw;
-
-		//sourceC2d = cnvSource.getContext('2d');
-		//sourceC2d = cnvSource.getContext('2d', {colorSpace: "display-p3", storageFormat: 'float16'});
-		sourceC2d = cnvSource.getContext('2d', {alpha: false});
-		//sourceC2d.globalAlpha = 1;
-		//sourceC2d.imageSmoothingEnabled = false;
-
-		sourceC2d.drawImage(image, 0, 0);
-		imgSourceData = sourceC2d.getImageData(0, 0, sw, sh);
-
-		scalePixels = [];
-		//scalePixels.push(new Float32Array()); //question: change push() for unshift() (reverses the array order)?
-		const b8ToFloatScale = 1 / 255;
-		scalePixels.push({h: sh, w: sw, dataFloat: Float32Array.from(imgSourceData.data, x => x * b8ToFloatScale)}); //question: change push() for unshift() (reverses the array order)?
-		//question: subtract 0.5 from color values? (currently no)
-
-		txtOutputResH.value = sh;
-		txtOutputResW.value = sw;
-
-		//subsampling (first round)
-		let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-		let buf1 = scalePixels[0].dataFloat, buf2 = new Float32Array(4 * h2 * w2);
-		let i = scalePixels.push({h: h2, w: w2, dataFloat: buf2});
-		for(let sy = 0, sy2, y2, sx, sx2, x2; sy < sh; sy++) {
-			sy2 = sw * sy;
-			y2 = w2 * ((sy * factorInv)|0);
-			for(sx = 0; sx < sw; sx++) {
-				x2 = 4 * (y2 + (sx * factorInv)|0);
-				sx2 = 4 * (sy2 + sx);
-				buf2[x2++] += buf1[sx2++];
-				buf2[x2++] += buf1[sx2++];
-				buf2[x2++] += buf1[sx2++];
-				buf2[x2] += buf1[sx2];
-			}
-		}
-		for(let sy = 0; sy < 4 * h2 * w2; sy++)
-			buf2[sy] *= factorInv2;
-
-		compDecode();
-	}
-	function compDecode() {
-		/*ch = sh;
-		cw = sw;
-		cnvOutput.height = ch;
-		cnvOutput.width = cw;
-		imageScaleUpdate(cbxOutputScale, cnvOutput);*/
-		canvasSizeUpdate();
-
-		scalePixels[0].dataFloat = new Float32Array(scalePixels[0].dataFloat.length);
-		let buf1 = scalePixels[0].dataFloat, buf2 = scalePixels[1].dataFloat;
-		let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-		/*for(let sy = 0, yRow, y2, sx, x2, sx2; sy < sh; sy++) {
-			yRow = sw * sy;
-			y2 = w2 * ((sy * factorInv)|0);
-			for(sx = 0; sx < sw; sx++) {
-				x2 = 4 * (y2 + (sx * factorInv)|0);
-				sx2 = 4 * (yRow + sx);
-				buf1[sx2] = buf2[x2];
-				buf1[sx2 + 1] = buf2[x2 + 1];
-				buf1[sx2 + 2] = buf2[x2 + 2];
-				buf1[sx2 + 3] = buf2[x2 + 3];
-			}
-		}*/
-		for(let y = 0, yRow, syRow, x, x2, sx2; y < h2; y++) {
-			yRow = w2 * y;
-			syRow = sw * y * factor;
-			for(x = 0; x < w2; x++) {
-				x2 = 4 * (yRow + x);
-				sx2 = 4 * (syRow + x * factor);
-				for(let dy = -sinc_r * factor, fy, dx, fx, sx3; dy < (1 + sinc_r) * factor; dy++) {
-					fy = sinc_filter1Float[dy + sinc_r * factor];
-					for(dx = -sinc_r * factor; dx < (1 + sinc_r) * factor; dx++) {
-						fx = fy * sinc_filter1Float[dx + sinc_r * factor];
-						sx3 = sx2 + 4 * (sw * dy + dx);
-						buf1[sx3] += buf2[x2] * fx;
-						buf1[sx3 + 1] += buf2[x2 + 1] * fx;
-						buf1[sx3 + 2] += buf2[x2 + 2] * fx;
-						buf1[sx3 + 3] += buf2[x2 + 3] * fx;
-					}
-				}
-			}
-		}
-
-		//imgData = outputC2d.createImageData(cw, ch);
-		let imgArray = Uint8ClampedArray.from(scalePixels[0].dataFloat, x => x * 255);
-		//var imgArray = new Uint8ClampedArray(4 * ch * cw);
-		imgData = new ImageData(imgArray, cw, ch);
-		outputC2d.putImageData(imgData, 0, 0);
-	}
-
-	function inImageChange(event) {
-		const fileList = this.files;
-		if(fileList.length < 1) return;
-		const file = fileList[0];
-		imgSource.src = URL.createObjectURL(file);
-		imgSource.addEventListener("load", (event) => {
-			URL.revokeObjectURL(this.src);
-		}, {once: true});
-	}
-	function loadURL(event) {
-		imgSource.src = txtImgURL.value;
-	}
-	function chkShrinkChanged(event) {
-		let elem = event.target;
-		if(!elem || !elem.dataset) return;
-		let id = elem.dataset["image"];
-		if(!id) return;
-		let image = document.getElementById(id);
-		let parent = image.parentElement;
-		if(elem.checked) {
-			image.classList.add("shrink");
-			//parent.style.;
-		} else {
-			image.classList.remove("shrink");
-		}
-	}
-
-	function pageReady() {
-		if(cnvOutput.getContext) {
-			outputC2d = cnvOutput.getContext('2d');
-			//outputC2d = cnvOutput.getContext('2d', {colorSpace: "display-p3", storageFormat: 'float16'});
-			//outputC2d = cnvOutput.getContext('2d', {alpha: false});
-			//outputC2d.globalAlpha = 1;
-			//outputC2d.imageSmoothingEnabled = false;
-
-			ch = cnvOutput.height;
-			cw = cnvOutput.width;
-
-			//imageScaleUpdate(cbxSourceScale, imgSource);
-			imageScaleUpdate(cbxOutputScale, cnvOutput);
-		} else {
-			/* btnViewUpdate.disabled = true;
-			btnStartUpdating.disabled = true; */
-			cbxOutputScale.disabled = true;
-		}
-
-		sinc_size = factor * (1 + 2 * sinc_r);
-		let dx = -0.5 * (sinc_size - 1);
-		sinc_filter1Float = new Float32Array(sinc_size);
-		const normalFactor = -(0.25 ** 2);
-		for(let x = 0, x2; x < sinc_size; x++) {
-			x2 = (x + dx) * factorInv * Math.PI;
-			//sinc_filter1Float[x] = Math.sin(x2) / x2; //rectangular window
-			sinc_filter1Float[x] = Math.exp(normalFactor * x2 * x2) * Math.sin(x2) / x2; //gaussian window
-		}
-	}
-	function pageLoaded() {
-		for(const s of document.querySelectorAll('[id]'))
-			window[s.id] = s;
-
-		cbxOutputScale.innerHTML = cbxSourceScale.innerHTML; //clone list.
-		inImage.addEventListener("change", inImageChange);
-		btnImgLoad.addEventListener("click", loadURL);
-		imgSource.addEventListener("load", imgSourceLoaded);
-		cbxSourceScale.addEventListener("change", cbxScaleChanged);
-		chkSourceShrink.addEventListener("change", chkShrinkChanged);
-
-		cbxOutputScale.addEventListener("change", cbxScaleChanged);
-		chkOutputShrink.addEventListener("change", chkShrinkChanged);
-
-		/*btnViewUpdate.addEventListener("click", viewUpdate);
-		btnStartUpdating.addEventListener("click", startUpdating);
-		btnStopUpdating.addEventListener("click", stopUpdating);*/
-
-		let evt = new Event("change");
-		chkSourceShrink.dispatchEvent(evt);
-		chkOutputShrink.dispatchEvent(evt);
-	}
-
-	//window.addEventListener("DOMContentLoaded", pageLoaded);
-	if(document.readyState === "loading")
-		document.addEventListener("DOMContentLoaded", pageLoaded);
-	else //DOMContentLoaded has already fired
-		pageLoaded();
-	window.addEventListener("load", pageReady);
-	/*]]>*/</script>
+	<!-- <script type="text/javascript" src="numerics.js" defer="defer">></script> -->
+	<!-- <script type="text/javascript" src="frameRender.js" defer="defer">></script> -->
+	<script type="text/javascript" src="canvas.js" defer="defer"></script>
+	<script type="text/javascript" src="main.js" defer="defer"></script>
 </head>
 <body>
 	<p><strong>Input image:</strong> 
@@ -294,12 +82,16 @@
 		<option value="https://upload.wikimedia.org/wikipedia/commons/b/bf/Webb%27s_First_Deep_Field.jpg" />
 		<option value="https://upload.wikimedia.org/wikipedia/commons/b/b5/Webb%27s_First_Deep_Field.tif" />
 	</datalist>
+
 	<p class="imgContainer">
-		<img id="imgSource" alt="(Original image placeholder)" crossorigin="anonymous" />
+		<img id="imgSource" alt="Original image placeholder" crossorigin="anonymous" />
 		<canvas id="cnvSource" hidden="true"></canvas>
 	</p>
+	<p class="imgContainer"><canvas id="cnvOutput" width="768" height="512">
+		Reconstructed image. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.)
+	</canvas></p>
 
-	<p>Canvas resolution: 
+	<!-- <p>Canvas resolution: 
 		<datalist id="resList">
 			<option value="64" />
 			<option value="80" />
@@ -336,19 +128,12 @@
 		<label for="cbxOutputScale">Scale</label> 
 		<select id="cbxOutputScale" data-image="cnvOutput"></select>. 
 		<input type="checkbox" id="chkOutputShrink" checked="true" data-image="cnvOutput" /><label for="chkOutputShrink">Shrink to fit.</label>
-	</p>
-	<p class="imgContainer"><canvas id="cnvOutput" width="768" height="512">
-		If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.
-	</canvas></p>
-	<!-- <p>
-		<button id="btnViewUpdate">Update view</button>
-		<button id="btnStartUpdating">Start updating</button>
-		<button id="btnStopUpdating">Stop updating</button></p>
-	<p>Frame render time: 
-		<output id="outFrameRenderT">0</output> ms, 
-		avg <output id="outFrameRenderTAvg">0</output> ms. 
-		<output id="outFrameCount">0</output> frame(s) generated.
 	</p> -->
-	<p>This page is an image compression test, requiring HTML Canvas to work. It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer.</p>
+	<p><button id="btnTransform">Transform</button></p><!-- to do: implement click handler -->
+	<p>Performance stats: 
+		encode <output id="outMediaEncode">0</output> ms, 
+		decode <output id="outMediaDecode">0</output> ms.
+	</p>
+	<p>This page is an image compression test, not yet complete, requiring HTML Canvas to work.</p>
 </body>
 </html>
