@@ -3,7 +3,7 @@
 function randomFromList(list, refValue, inclusive) {
 	if(!list || list.length < 1) return undefined;
 	if(refValue) {
-		let itemIndex = Math.max(list.indexOf(refValue) + Number(!inclusive), 0);
+		const itemIndex = Math.max(list.indexOf(refValue) + Number(!inclusive), 0);
 		return list[itemIndex + Math.floor((list.length - itemIndex) * Math.random())];
 	} else
 		return list[Math.floor(list.length * Math.random())];
@@ -113,10 +113,10 @@ function valuesFromTaxonomy(taxRoot, refValues, inclusive) {
 	const value = [];
 	let checkRef = Boolean(refValues) && refValues.length > 0;
 	if(checkRef && !inclusive) { //transforms a non-inclusive path into an inclusive one
-		for(let i = refValues.length - 1, parentList, pos; i >= 0; i--) {
-			let parent = (i < 1) ? taxRoot : refValues[i - 1];
-			parentList = modRules.taxonomy[parent];
-			pos = parentList.indexOf(refValues[i]);
+		for(let i = refValues.length - 1; i >= 0; i--) {
+			const parent = (i < 1) ? taxRoot : refValues[i - 1];
+			const parentList = modRules.taxonomy[parent];
+			const pos = parentList.indexOf(refValues[i]);
 			if(pos < parentList.length - 1) { //is it the last in its list?
 				refValues[i] = parentList[pos + 1];
 				inclusive = true;
@@ -181,7 +181,7 @@ function makeNewContent(rootCat, parentContext, repeatDepthLimit) {
 		if(repeatDepthLimit < 1) return content; //to do: no value?
 
 	const fieldValue = (field) => {
-		let newContext = (parentContext.length > 0) ? parentContext + "/" + field : field;
+		const newContext = (parentContext.length > 0) ? parentContext + "/" + field : field;
 		let fieldCat;
 		const newContent = (fieldCat) => makeNewContent(fieldCat, newContext, repeatDepthLimit - Number(fieldCat[0] === cat1));
 

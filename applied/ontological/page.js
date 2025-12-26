@@ -251,3 +251,9 @@ async function pageReady(event) {
 		outSummary.textContent = "Couldn't use rules module.\n" + error.message;
 	}
 }
+
+if(document.readyState === "loading")
+	document.addEventListener("DOMContentLoaded", pageLoaded);
+else //DOMContentLoaded has already fired
+	pageLoaded();
+window.addEventListener("load", pageReady);

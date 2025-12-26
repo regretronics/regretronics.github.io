@@ -3,6 +3,20 @@
 //to do: multiple iterations of resampling at once.
 //to do: visualize in a chart a custom cross-section of color variation.
 //to do: hardware acceleration, probably through three.js and a shader.
+//idea: have a "reload script" button?
+
+var sourceC2d, outputC2d;
+//detail: I'm putting height before width, because x is subordinate to y in raster scan.
+var sh, sw, imageSourceData;
+var ch, cw, imageData;
+var frameCount = 0, renderTimeSum = 0;
+var scalePixels = [];
+
+//Upscaling parameters
+var defV = 0.5; //Default color intensity for off-screen areas (0.5 = gray).
+var dist = 1, distInv = 1 / dist; //Non-linear distortion
+var dBlur = -0.25; //Influence among neighboring variations
+var deltaScale = 4 / 16; //Sharpness
 
 function imgSourceLoaded(event) {
 	imageScaleUpdate(cbxSourceScale, imgSource);
