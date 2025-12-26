@@ -15,7 +15,7 @@ function drawFrame(ctx, cw, ch, colorSpace, bgIntensity, spotIntensity, spotSize
 	ctx.beginPath();
 	const spotColor = colorStr(spotIntensity);
 	ctx.fillStyle = spotColor;
-	let spotSizeAbs = spotSize * Math.max(cw, ch);
+	const spotSizeAbs = spotSize * Math.max(cw, ch);
 	ctx.ellipse(0.5 * cw - 0.5, 0.5 * ch - 0.5, spotSizeAbs, spotSizeAbs, 0, 0, 2 * Math.PI);
 	ctx.fill();
 

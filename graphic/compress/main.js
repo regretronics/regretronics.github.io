@@ -1,12 +1,11 @@
 "use strict";
-//to do: use defer="true" or async in any script tag?
-//  idea: have a "reload script" button?
+//idea: have a "reload script" button?
 
 var sourceC2d, outputC2d;
 //detail: I'm putting height before width, because x is subordinate to y in raster scan.
 var sh, sw, imgSourceData;
 var ch, cw, imgData;
-var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
+var transformPerf = {};
 var scalePixels = [];
 
 var sinc_size, sinc_filter1Float = null;
@@ -27,10 +26,10 @@ const factor = 4, factorInv = 1 / factor, factorInv2 = factorInv * factorInv;
 function encodeFrame(bufIn, sw, sh, h2, w2) {
 	//subsampling (first round)
 	const bufOut = new Float32Array(4 * h2 * w2);
-	for(let sy = 0, sy2, y2, sx, sx2, x2; sy < sh; sy++) {
-		sy2 = sw * sy;
-		y2 = w2 * ((sy * factorInv)|0);
-		for(sx = 0; sx < sw; sx++) {
+	for(let sy = 0; sy < sh; sy++) {
+		const sy2 = sw * sy;
+		const y2 = w2 * ((sy * factorInv)|0);
+		for(let sx = 0, sx2, x2; sx < sw; sx++) {
 			x2 = 4 * (y2 + (sx * factorInv)|0);
 			sx2 = 4 * (sy2 + sx);
 			bufOut[x2++] += bufIn[sx2++];
@@ -70,44 +69,46 @@ function compEncode(image) {
 	}); //question: change push() for unshift() (reverses the array order)?
 	//question: subtract 0.5 from color values? (currently no)
 
-	//txtOutputResH.value = sh;
-	//txtOutputResW.value = sw;
+	const tNow = performance.now();
 	const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
 	/* const i = */ scalePixels.push({
 		h: h2, 
 		w: w2, 
 		dataFloat: encodeFrame(scalePixels[0].dataFloat, sh, sw, h2, w2)
 	});
+	transformPerf.encode = performance.now() - tNow;
 
 	compDecode(sh, sw, cnvOutput, outputC2d);
+	outMediaEncodeT.innerText = transformPerf.encode.toFixed(2);
+	outMediaDecodeT.innerText = transformPerf.decode.toFixed(2);
 }
 
 function decodeFrame(scalePixels, sh, sw) {
 	const bufOut = new Float32Array(scalePixels[0].dataFloat.length), bufIn = scalePixels[1].dataFloat;
 	const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-	/*for(let sy = 0, yRow, y2, sx, x2, sx2; sy < sh; sy++) {
-		yRow = sw * sy;
-		y2 = w2 * ((sy * factorInv)|0);
+	/*for(let sy = 0, sx; sy < sh; sy++) {
+		const yRow = sw * sy;
+		const y2 = w2 * ((sy * factorInv)|0);
 		for(sx = 0; sx < sw; sx++) {
-			x2 = 4 * (y2 + (sx * factorInv)|0);
-			sx2 = 4 * (yRow + sx);
+			const x2 = 4 * (y2 + (sx * factorInv)|0);
+			const sx2 = 4 * (yRow + sx);
 			bufOut[sx2] = bufIn[x2];
 			bufOut[sx2 + 1] = bufIn[x2 + 1];
 			bufOut[sx2 + 2] = bufIn[x2 + 2];
 			bufOut[sx2 + 3] = bufIn[x2 + 3];
 		}
 	}*/
-	for(let y = 0, yRow, syRow, x, x2, sx2; y < h2; y++) {
-		yRow = w2 * y;
-		syRow = sw * y * factor;
+	for(let y = 0, x; y < h2; y++) {
+		const yRow = w2 * y;
+		const syRow = sw * y * factor;
 		for(x = 0; x < w2; x++) {
-			x2 = 4 * (yRow + x);
-			sx2 = 4 * (syRow + x * factor);
-			for(let dy = -sinc_r * factor, fy, dx, fx, sx3; dy < (1 + sinc_r) * factor; dy++) {
-				fy = sinc_filter1Float[dy + sinc_r * factor];
+			const x2 = 4 * (yRow + x);
+			const sx2 = 4 * (syRow + x * factor);
+			for(let dy = -sinc_r * factor, dx; dy < (1 + sinc_r) * factor; dy++) {
+				const fy = sinc_filter1Float[dy + sinc_r * factor];
 				for(dx = -sinc_r * factor; dx < (1 + sinc_r) * factor; dx++) {
-					fx = fy * sinc_filter1Float[dx + sinc_r * factor];
-					sx3 = sx2 + 4 * (sw * dy + dx);
+					const fx = fy * sinc_filter1Float[dx + sinc_r * factor];
+					const sx3 = sx2 + 4 * (sw * dy + dx);
 					bufOut[sx3] += bufIn[x2] * fx;
 					bufOut[sx3 + 1] += bufIn[x2 + 1] * fx;
 					bufOut[sx3 + 2] += bufIn[x2 + 2] * fx;
@@ -124,11 +125,13 @@ function compDecode(sh, sw, cnvOutput, outputC2d) {
 	cw = sw;
 	cnvOutput.height = ch;
 	cnvOutput.width = cw;
-	//imageScaleUpdate(cbxOutputScale, cnvOutput);
 	imageScaleUpdate(cbxSourceScale, cnvOutput);
 	//canvasSizeUpdate();
 
+	const tNow = performance.now();
 	scalePixels[0].dataFloat = decodeFrame(scalePixels, sh, sw);
+	transformPerf.decode = performance.now() - tNow;
+
 	//imgData = outputC2d.createImageData(cw, ch);
 	const imgArray = Uint8ClampedArray.from(scalePixels[0].dataFloat, x => x * 255);
 	//var imgArray = new Uint8ClampedArray(4 * ch * cw);
@@ -149,12 +152,12 @@ function loadURL(event) {
 	imgSource.src = txtImgURL.value;
 }
 function chkShrinkChanged(event) {
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem || !elem.dataset) return;
-	let id = elem.dataset.image;
+	const id = elem.dataset.image;
 	if(!id) return;
-	let image = document.getElementById(id);
-	let parent = image.parentElement;
+	const image = document.getElementById(id);
+	const parent = image.parentElement;
 	if(elem.checked) {
 		image.classList.add("shrink");
 		//parent.style.;
@@ -178,16 +181,15 @@ function pageReady() {
 		//imageScaleUpdate(cbxOutputScale, cnvOutput);
 	} else {
 		btnTransform.disabled = true;
-		//cbxOutputScale.disabled = true;
 	}
 
 	//precomputation
 	sinc_size = factor * (1 + 2 * sinc_r);
-	let dx = -0.5 * (sinc_size - 1);
+	const dx = -0.5 * (sinc_size - 1);
 	sinc_filter1Float = new Float32Array(sinc_size);
 	const normalFactor = -(0.25 ** 2);
-	for(let x = 0, x2; x < sinc_size; x++) {
-		x2 = (x + dx) * factorInv * Math.PI;
+	for(let x = 0; x < sinc_size; x++) {
+		const x2 = (x + dx) * factorInv * Math.PI;
 		//sinc_filter1Float[x] = Math.sin(x2) / x2; //rectangular window
 		sinc_filter1Float[x] = Math.exp(normalFactor * x2 * x2) * Math.sin(x2) / x2; //gaussian window
 	}
@@ -199,21 +201,16 @@ function pageLoaded() {
 	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
-	//cbxOutputScale.innerHTML = cbxSourceScale.innerHTML; //clone list.
 	inImage.addEventListener("change", inImageChange);
 	btnImgLoad.addEventListener("click", loadURL);
 	imgSource.addEventListener("load", imgSourceLoaded);
 	cbxSourceScale.addEventListener("change", cbxScaleChanged);
 	chkSourceShrink.addEventListener("change", chkShrinkChanged);
 
-	//cbxOutputScale.addEventListener("change", cbxScaleChanged);
-	//chkOutputShrink.addEventListener("change", chkShrinkChanged);
-
 	btnTransform.addEventListener("click", transformClick);
 
-	let evt = new Event("change");
+	const evt = new Event("change");
 	chkSourceShrink.dispatchEvent(evt);
-	//chkOutputShrink.dispatchEvent(evt);
 }
 
 //window.addEventListener("DOMContentLoaded", pageLoaded);

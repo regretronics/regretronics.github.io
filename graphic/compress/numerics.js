@@ -1,7 +1,6 @@
 "use strict";
 
 //arctan look-up table.
-//const requires ECMAScript 6/2015.
 const atanLUTScale = 256, atanLUTSize = atanLUTScale + 1;
 const Tau = 2 * Math.PI, Tau_4 = 0.25 * Tau, Tau_8 = 0.125 * Tau;
 const atanLUT = new Float32Array(atanLUTSize);
@@ -30,14 +29,12 @@ function atan2_LUT_0(y, x) {
 	//No interpolation at the moment.
 	const ang2 = atanLUT[(atanLUTScale * Math.abs(y) / x)|0];
 	//ang += Math.atan(y / x);
-	//Math.sign requires ECMAScript 6/2015.
 	ang += ang2 * Math.sign(y);
 	//if(ang < 0) {ang += Tau;}
 	return ang;
 }
 
 function atan2_LUT(y, x) {
-	//Math.sign requires ECMAScript 6/2015.
 	const xSgn = Math.sign(x);
 	let ang = 0, ySgn = Math.sign(y);
 	if(ySgn == 0) {ySgn = 1;}
@@ -94,7 +91,6 @@ const _2to30 = 1 << 30, _2toNeg30 = 1 / _2to30;
 
 function log2LUTInit() {
 	for(let i = 0; i < log2LUTSize; i++) {
-		//Math.log2 requires ECMAScript 6/2015.
 		log2LUT[i] = Math.log2((i + log2LUTScale) / log2LUTScale);
 	}
 }
@@ -113,7 +109,6 @@ function log2_LUT(x) {
 			logI = -30;
 		}
 	}
-	//Math.clz32 requires ECMAScript 6/2015.
 	const logI2 = 31 - Math.clz32(x), pow = 1 << logI2;
 	//No interpolation at the moment.
 	x = ((x / pow - 1) * log2LUTScale)|0;

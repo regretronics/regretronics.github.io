@@ -36,27 +36,33 @@ function encodeImage(image) {
 	//scalePixels.push(new Float32Array());
 	//question: change push() for unshift() (reverses the array order)?
 	const b8ToFloatScale = 1 / 255;
-	scalePixels.push({h: sh, w: sw, dataFloat: Float32Array.from(imageSourceData.data, x => x * b8ToFloatScale)});
+	scalePixels.push({
+		h: sh, 
+		w: sw, 
+		dataFloat: Float32Array.from(imageSourceData.data, x => x * b8ToFloatScale)
+	});
 	//question: subtract 0.5 from color values? (currently no)
 
 	//Convert to gray
-	let buf = scalePixels[0].dataFloat;
-	for(let sy = 0, sy2, sx, sx2; sy < sh; sy++) {
-		sy2 = sw * sy;
-		for(sx = 0; sx < sw; sx++) {
-			sx2 = 4 * (sy2 + sx);
-			let gray = (buf[sx2] + buf[sx2 + 1] + buf[sx2 + 2]) / 3;
-			buf[sx2++] = gray;
-			buf[sx2++] = gray;
-			buf[sx2] = gray;
+	{
+		const buf = scalePixels[0].dataFloat;
+		for(let sy = 0, sy2, sx, sx2; sy < sh; sy++) {
+			sy2 = sw * sy;
+			for(sx = 0; sx < sw; sx++) {
+				sx2 = 4 * (sy2 + sx);
+				const gray = (buf[sx2] + buf[sx2 + 1] + buf[sx2 + 2]) / 3;
+				buf[sx2++] = gray;
+				buf[sx2++] = gray;
+				buf[sx2] = gray;
+			}
 		}
 	}
 
 	//subsampling (first round)
 	//h * w: number of pixels; 4 * h * w: number of color values (real number each value)
-	/* let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-	let buf1 = scalePixels[0].dataFloat, buf2 = new Float32Array(4 * h2 * w2);
-	let i = scalePixels.push({h: h2, w: w2, dataFloat: buf2});
+	/* const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+	const buf1 = scalePixels[0].dataFloat, buf2 = new Float32Array(4 * h2 * w2);
+	const i = scalePixels.push({h: h2, w: w2, dataFloat: buf2});
 	for(let sy = 0, sy2, y2, sx, sx2, x2; sy < sh; sy++) {
 		sy2 = sw * sy;
 		y2 = w2 * ((sy * factorInv)|0);
@@ -66,7 +72,7 @@ function encodeImage(image) {
 			/* buf2[x2++] += buf1[sx2++];
 			buf2[x2++] += buf1[sx2++];
 			buf2[x2++] += buf1[sx2++]; */
-			/* let gray = (buf1[sx2++] + buf1[sx2++] + buf1[sx2++]) / 3;
+			/* const gray = (buf1[sx2++] + buf1[sx2++] + buf1[sx2++]) / 3;
 			buf2[x2++] += gray;
 			buf2[x2++] += gray;
 			buf2[x2++] += gray;
@@ -91,36 +97,36 @@ function upscaleImage() {
 	if(!scalePixels[0]) return;
 
 	let t = Date.now(); //to do: use performance (more accurate)
-	//let h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-	let h2 = sh, w2 = sw;
+	//const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+	const h2 = sh, w2 = sw;
 	//Anisotropic upscaling (vertically first)
-	let stretchedArr = new Float32Array(4 * w2 * ch);
+	const stretchedArr = new Float32Array(4 * w2 * ch);
 	let buf1 = stretchedArr, buf2 = scalePixels[0].dataFloat;
-	for(let y = 0, yRow, syRow, x, x2, sx2; y < h2; y++) {
+	for(let y = 0, yRow, syRow, x; y < h2; y++) {
 		yRow = w2 * y;
 		syRow = w2 * y * factor;
 		for(x = 0; x < w2; x++) {
-			x2 = 4 * (yRow + x);
-			sx2 = 4 * (syRow + x);
+			const x2 = 4 * (yRow + x);
+			let sx2 = 4 * (syRow + x);
 
 			//Interpolation
 			//to do: Currently grayscale/monochromatic.
-			let y2a = defV, y2b = defV, y2a2 = defV, y2b2 = defV, y2m;
-			let rowPitch = 4 * w2;
+			let y2a = defV, y2b = defV, y2a2 = defV, y2b2 = defV;
+			const rowPitch = 4 * w2;
 			if(y > 1) y2a2 = buf2[x2 - 2 * rowPitch];
 			if(y > 0) y2a = buf2[x2 - rowPitch];
-			y2m = buf2[x2];
+			const y2m = buf2[x2];
 			if(y < h2 - 1) y2b = buf2[x2 + rowPitch];
 			if(y < h2 - 2) y2b2 = buf2[x2 + 2 * rowPitch];
-			//let vdy = 0.125 * (y2b - y2a);
-			//let vdy = 0.25 * ((y2b - y2a) - 0.25 * (y2a - y2a2) - 0.25 * (y2b2 - y2b));
+			//const vdy = 0.125 * (y2b - y2a);
+			//const vdy = 0.25 * ((y2b - y2a) - 0.25 * (y2a - y2a2) - 0.25 * (y2b2 - y2b));
 			let dy = y2b - y2a, dya = y2m - y2a2, dyb = y2b2 - y2m;
-			//let vdy = 0.25 * (dy - 0.25 * dya - 0.25 * dyb);
+			//const vdy = 0.25 * (dy - 0.25 * dya - 0.25 * dyb);
 
 			dy = Math.abs(dy) ** distInv * Math.sign(dy), dya = Math.abs(dya) ** distInv * Math.sign(dya), dyb = Math.abs(dyb) ** distInv * Math.sign(dyb);
 			dy = dy + dBlur * (dya + dyb);
 			dy = Math.abs(dy) ** dist * Math.sign(dy);
-			let vdy = deltaScale * dy;
+			const vdy = deltaScale * dy;
 
 			buf1[sx2] += buf2[x2] - vdy;
 			buf1[sx2 + 1] += buf2[x2 + 1] - vdy;
@@ -141,40 +147,40 @@ function upscaleImage() {
 	if(!scalePixels[1]) scalePixels.push({});
 	scalePixels[1] = {h: ch, w: cw, dataFloat: new Float32Array(4 * ch * cw)};
 	buf1 = scalePixels[1].dataFloat; buf2 = stretchedArr;
-	/*for(let sy = 0, yRow, y2, sx, x2, sx2; sy < ch; sy++) { //Loop over the expanded image.
-		yRow = cw * sy;
-		y2 = w2 * ((sy * factorInv)|0);
+	/*for(let sy = 0, sx; sy < ch; sy++) { //Loop over the expanded image.
+		const yRow = cw * sy;
+		const y2 = w2 * ((sy * factorInv)|0);
 		for(sx = 0; sx < cw; sx++) {
-			x2 = 4 * (y2 + (sx * factorInv)|0);
-			sx2 = 4 * (yRow + sx);
+			const x2 = 4 * (y2 + (sx * factorInv)|0);
+			const sx2 = 4 * (yRow + sx);
 			buf1[sx2] = buf2[x2];
 			buf1[sx2 + 1] = buf2[x2 + 1];
 			buf1[sx2 + 2] = buf2[x2 + 2];
 			buf1[sx2 + 3] = buf2[x2 + 3];
 		}
 	}*/
-	for(let y = 0, yRow, syRow, x, x2, sx2; y < ch; y++) {
-		yRow = w2 * y;
-		syRow = cw * y;
+	for(let y = 0, x; y < ch; y++) {
+		const yRow = w2 * y;
+		const syRow = cw * y;
 		for(x = 0; x < w2; x++) {
-			x2 = 4 * (yRow + x);
-			sx2 = 4 * (syRow + x * factor);
+			const x2 = 4 * (yRow + x);
+			const sx2 = 4 * (syRow + x * factor);
 
 			//Interpolation
 			//to do: Currently grayscale/monochromatic.
-			let x2a = defV, x2b = defV, x2a2 = defV, x2b2 = defV, x2m;
+			let x2a = defV, x2b = defV, x2a2 = defV, x2b2 = defV;
 			if(x > 0) x2a = buf2[x2 - 4];
 			if(x > 1) x2a2 = buf2[x2 - 4 * 2];
-			x2m = buf2[x2];
+			const x2m = buf2[x2];
 			if(x < w2 - 1) x2b = buf2[x2 + 4];
 			if(x < w2 - 2) x2b2 = buf2[x2 + 4 * 2];
-			//let vdx = 0.125 * (x2b - x2a);
-			//let vdx = 0.25 * ((x2b - x2a) - 0.25 * (x2a - x2a2) - 0.25 * (x2b2 - x2b));
+			//const vdx = 0.125 * (x2b - x2a);
+			//const vdx = 0.25 * ((x2b - x2a) - 0.25 * (x2a - x2a2) - 0.25 * (x2b2 - x2b));
 			let dx = x2b - x2a, dxa = x2m - x2a2, dxb = x2b2 - x2m;
 			dx = Math.abs(dx) ** distInv * Math.sign(dx), dxa = Math.abs(dxa) ** distInv * Math.sign(dxa), dxb = Math.abs(dxb) ** distInv * Math.sign(dxb);
 			dx = dx + dBlur * (dxa + dxb);
 			dx = Math.abs(dx) ** dist * Math.sign(dx);
-			let vdx = deltaScale * dx;
+			const vdx = deltaScale * dx;
 
 			//sx3 = sx2 + 4 * cw * dy;
 			buf1[sx2] += buf2[x2] - vdx;
@@ -190,7 +196,7 @@ function upscaleImage() {
 	}
 
 	//imageData = outputC2d.createImageData(cw, ch);
-	let imageArray = Uint8ClampedArray.from(scalePixels[1].dataFloat, x => x * 255);
+	const imageArray = Uint8ClampedArray.from(scalePixels[1].dataFloat, x => x * 255);
 	t = Date.now() - t;
 	//console.debug(`Upsampling done in ${t.toString()} ms.`);
 	//renderTime = t;
@@ -215,21 +221,21 @@ function loadURL(event) {
 	imgSource.src = txtImgURL.value;
 }
 function cbxURLPresetChanged(event) {
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem) return;
 	txtImgURL.value = elem.value;
 	/* if(!elem.dataset) return;
-	let id = elem.dataset["remote"];
+	const id = elem.dataset["remote"];
 	if(!id) return;
 	chkSourceCORS.checked = id.toLowerCase() == "true"; */
 }
 function chkShrinkChanged(event) {
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem || !elem.dataset) return;
-	let id = elem.dataset["image"];
+	const id = elem.dataset["image"];
 	if(!id) return;
-	let image = document.getElementById(id);
-	let parent = image.parentElement;
+	const image = document.getElementById(id);
+	const parent = image.parentElement;
 	if(elem.checked) {
 		image.classList.add("shrink");
 		//parent.style.;
@@ -244,7 +250,7 @@ function txtParamsChanged(event) {
 	deltaScale = txtDeltaScale.value;
 }
 function txtDistortionChanged(event) {
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem) return false;
 	//let val = elem.valueAsNumber;
 	let val = parseFloat(elem.value);
@@ -256,7 +262,7 @@ function txtDistortionChanged(event) {
 		elem.classList.remove("invalid");
 		elem.setCustomValidity("");
 	}
-	let magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
+	const magnitude = Math.round(Math.log2(Math.abs(val))), step = 0.25 * 2 ** magnitude;
 	elem.step = step;
 	//if(elem == txtDistortion) {elem.min = val - 2 * step;}
 	//elem.min = val - 2 * Math.sign(val) * step;
@@ -264,7 +270,7 @@ function txtDistortionChanged(event) {
 }
 
 function pageReady() {
-	let evt = new Event("change");
+	const evt = new Event("change");
 	chkSourceShrink.dispatchEvent(evt);
 	chkOutputShrink.dispatchEvent(evt);
 	txtParamsChanged();

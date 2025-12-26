@@ -21,7 +21,7 @@ function exp2WithFactor3(x) {
 
 function cbxCanvasRatioChanged(event) {
 	const elem = event.target;
-	let newAspectRatio = elem.value.split("_");
+	const newAspectRatio = elem.value.split("_");
 	aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	recalcResolution();
 }
@@ -138,7 +138,7 @@ function pageLoaded() {
 		cbxCanvasRatio.value = aspectRatio.join("_");
 		//+?
 	} else {
-		let newAspectRatio = cbxCanvasRatio.value.split("_");
+		const newAspectRatio = cbxCanvasRatio.value.split("_");
 		aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	}
 	if(s = localStorage.getItem("canvas.resMagnitude")) {
@@ -147,7 +147,7 @@ function pageLoaded() {
 	} else {
 		resMagnitude = rngCanvasResolution.valueAsNumber;
 	} */
-	let newAspectRatio = cbxCanvasRatio.value.split("_");
+	const newAspectRatio = cbxCanvasRatio.value.split("_");
 	aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	resMagnitude = rngCanvasResolution.valueAsNumber;
 	recalcResolution();

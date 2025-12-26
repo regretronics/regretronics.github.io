@@ -22,7 +22,8 @@ function canvasScaleChanged(event) {
 function recalcResolution() {
 	let rem = 2 ** resMagnitude / aspectRatio[0] / aspectRatio[1];
 	rem = 0.5 * Math.log2(rem);
-	let rem2 = rem - Math.log2(1.5), mantissa;
+	const rem2 = rem - Math.log2(1.5);
+	let mantissa;
 	if(Math.abs(rem - Math.round(rem)) <= Math.abs(rem2 - Math.round(rem2))) {
 		mantissa = 1;
 		rem = Math.round(rem);

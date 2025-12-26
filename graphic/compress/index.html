@@ -16,24 +16,37 @@
 	}
 
 	.imgContainer {
+		box-sizing: border-box;
 		max-width: 100%;
 		max-height: 100vh;
 		overflow: auto;
 	}
 	#imgSource, #cnvOutput {
+		box-sizing: border-box;
 		object-fit: contain;
+		image-rendering: pixelated; /* to do: user control for this (upscaling profile?) */
 	}
 	#imgSource.shrink, #cnvOutput.shrink {
 		max-width: 100%;
 		max-height: 95vh;
 	}
-	input#txtOutputResW, input#txtOutputResH {
-		width: 7ch;
+	input[type="file"]:hover {
+		background-color: oklch(1.0 0.0 0deg / 0.25);
+	}
+	input[type="number"] {
+		width: 10ch;
 		text-align: right;
 	}
 	#txtImgURL {
+		box-sizing: border-box;
 		width: 90ch;
 		max-width: 90%;
+		/* width: 100%; */
+		resize: vertical;
+	}
+	select {
+		box-sizing: border-box;
+		max-width: 100%;
 	}
 	/*]]>*/</style>
 
@@ -91,48 +104,10 @@
 		Reconstructed image. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.)
 	</canvas></p>
 
-	<!-- <p>Canvas resolution: 
-		<datalist id="resList">
-			<option value="64" />
-			<option value="80" />
-			<option value="96" />
-
-			<option value="128" />
-			<option value="160" />
-			<option value="192" />
-
-			<option value="256" />
-			<option value="320" />
-			<option value="384" />
-
-			<option value="512" />
-			<option value="640" />
-			<option value="768" />
-
-			<option value="1024" />
-			<option value="1280" />
-			<option value="1536" />
-
-			<option value="2048" />
-			<option value="2560" />
-			<option value="3072" />
-
-			<option value="4096" />
-			<option value="5120" />
-			<option value="6144" />
-
-			<option value="8192" />
-		</datalist>
-		<label for="txtOutputResW">width</label> <input id="txtOutputResW" type="text" value="768" list="resList" />, 
-		<label for="txtOutputResH">height</label> <input id="txtOutputResH" type="text" value="512" list="resList" />.
-		<label for="cbxOutputScale">Scale</label> 
-		<select id="cbxOutputScale" data-image="cnvOutput"></select>. 
-		<input type="checkbox" id="chkOutputShrink" checked="true" data-image="cnvOutput" /><label for="chkOutputShrink">Shrink to fit.</label>
-	</p> -->
-	<p><button id="btnTransform">Transform</button></p><!-- to do: implement click handler -->
+	<p><button id="btnTransform">Transform</button></p>
 	<p>Performance stats: 
-		encode <output id="outMediaEncode">0</output> ms, 
-		decode <output id="outMediaDecode">0</output> ms.
+		encode <output id="outMediaEncodeT">0</output> ms, 
+		decode <output id="outMediaDecodeT">0</output> ms.
 	</p>
 	<p>This page is an image compression test, not yet complete, requiring HTML Canvas to work.</p>
 </body>

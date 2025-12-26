@@ -1,11 +1,10 @@
 "use strict";
-//const requires ECMAScript 6/2015.
 //const scaleValues = {"1_1": 1; };
 
 function cbxScaleChanged(event) {
-	let elem = event.target;
+	const elem = event.target;
 	if(!elem || !elem.dataset) return;
-	let id = elem.dataset["image"];
+	const id = elem.dataset["image"];
 	if(!id) return;
 	imageScaleUpdate(elem, document.getElementById(id));
 }
@@ -14,14 +13,13 @@ function imageScaleUpdate(cbx, cnv) {
 
 	let ratio = cbx.value.split("_");
 	ratio = [parseInt(ratio[0]), parseInt(ratio[1])];
-	//isNaN and isFinite require ECMAScript 6/2015.
 	if(isNaN(ratio[0]) || isNaN(ratio[1])) {return;}
 
-	let newScale = ratio[1] / ratio[0];
+	const newScale = ratio[1] / ratio[0];
 	if(!isFinite(newScale) || newScale == 0) {return;}
 
 	cnv.imageScale = newScale;
-	let w = (cnv.tagName.toLowerCase() == "img" ? cnv.naturalWidth : cnv.width);
+	const w = (cnv.tagName.toLowerCase() == "img" ? cnv.naturalWidth : cnv.width);
 	//cnv.style.height = (newScale * cnv.height).toString() + "px";
 	cnv.style.width = (newScale * w).toString() + "px";
 }
@@ -42,7 +40,6 @@ function canvasSizeChanged() { //delete?
 function canvasSizeUpdate() {
 	let newCH = parseInt(txtOutputResH.value);
 	let newCW = parseInt(txtOutputResW.value);
-	//isNaN requires ECMAScript 6/2015.
 	if(isNaN(newCH) || isNaN(newCW)) {return;}
 	newCH |= 0;
 	newCW |= 0;

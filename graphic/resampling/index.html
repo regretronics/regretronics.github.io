@@ -9,8 +9,8 @@
 	<style type="text/css">/*<![CDATA[*/
 	:root {
 		color-scheme: dark;
-		background-color: canvas;
-		color: canvastext;
+		background-color: Canvas;
+		color: CanvasText;
 	}
 
 	.imageContainer {
@@ -27,6 +27,9 @@
 	#imgSource.shrink, #cnvOutput.shrink {
 		max-width: 100%;
 		max-height: 95vh;
+	}
+	input[type="file"]:hover {
+		background-color: oklch(1.0 0.0 0deg / 0.25);
 	}
 	input#txtOutputResW, input#txtOutputResH {
 		width: 7ch;
@@ -139,7 +142,7 @@
 		<input type="checkbox" id="chkSourceShrink" data-image="imgSource" /><label for="chkSourceShrink">Shrink to fit.</label>
 	</p>
 	<p class="imageContainer">
-		<img id="imgSource" alt="(Original image placeholder)" crossorigin="anonymous" />
+		<img id="imgSource" alt="Original image placeholder" crossorigin="anonymous" />
 		<canvas id="cnvSource" hidden="true"></canvas>
 	</p>
 
