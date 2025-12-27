@@ -52,9 +52,9 @@
 	}
 	#txtImgURL {
 		box-sizing: border-box;
-		width: 90ch;
-		max-width: 90%;
-		/* width: 100%; */
+		/* width: 90ch;
+		max-width: 90%; */
+		width: 100%;
 		resize: vertical;
 	}
 	select {
@@ -69,7 +69,6 @@
 <body>
 	<p><strong>Input image:</strong> 
 		<input type="file" id="inImage" accept="image/*" /> 
-		<input type="text" id="txtImgURL" list="sampleImgURLs" value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.png" /><button id="btnImgLoad">Load</button>
 	</p>
 	<p><label for="cbxURLPreset1">Presets (by size and filter):</label> <select id="cbxURLPreset1" data-remote="false">
 			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png">images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png</option>

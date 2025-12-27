@@ -23,25 +23,30 @@ function imgSourceLoaded(event) {
 }
 
 const factor = 4, factorInv = 1 / factor, factorInv2 = factorInv * factorInv;
-function encodeFrame_decimate(bufIn, sw, sh, h2, w2) {
+function encodeFrame_decimate(imgObj, resNewH, resNewW) {
 	//subsampling (one round)
-	const bufOut = new Float32Array(4 * h2 * w2);
-	for(let sy = 0; sy < sh; sy++) {
-		const sy2 = sw * sy;
-		const y2 = w2 * ((sy * factorInv)|0);
-		for(let sx = 0, sx2, x2; sx < sw; sx++) {
-			x2 = 4 * (y2 + (sx * factorInv)|0);
-			sx2 = 4 * (sy2 + sx);
-			bufOut[x2++] += bufIn[sx2++];
-			bufOut[x2++] += bufIn[sx2++];
-			bufOut[x2++] += bufIn[sx2++];
-			bufOut[x2] += bufIn[sx2];
+	const resOldH = imgObj.h, resOldW = imgObj.w;
+	const bufIn = imgObj.dataFloat, bufOut = new Float32Array(4 * resNewH * resNewW);
+	for(let oldY = 0; oldY < resOldH; oldY++) {
+		const oldY2 = resOldW * oldY;
+		const newY2 = resNewW * ((oldY * factorInv)|0);
+		for(let oldX = 0, oldX2, newX2; oldX < resOldW; oldX++) {
+			newX2 = 4 * (newY2 + (oldX * factorInv)|0);
+			oldX2 = 4 * (oldY2 + oldX);
+			bufOut[newX2++] += bufIn[oldX2++];
+			bufOut[newX2++] += bufIn[oldX2++];
+			bufOut[newX2++] += bufIn[oldX2++];
+			bufOut[newX2] += bufIn[oldX2];
 		}
 	}
-	for(let sy = 0; sy < 4 * h2 * w2; sy++)
-		bufOut[sy] *= factorInv2;
+	for(let i = 0; i < 4 * resNewH * resNewW; i++)
+		bufOut[i] *= factorInv2;
 
-	return bufOut;
+	return {
+		h: resNewH, 
+		w: resNewW, 
+		dataFloat: bufOut
+	};
 }
 function compEncode(image) {
 	//to do: ...OffscreenCanvas (not supported in Firefox as of 2022-09)
@@ -73,11 +78,7 @@ function compEncode(image) {
 		case "downsampling-sinc":
 		case "blocksBasic":
 			const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-			/* const i = */ scalePixels.push({
-				h: h2, 
-				w: w2, 
-				dataFloat: encodeFrame_decimate(scalePixels[0].dataFloat, sh, sw, h2, w2)
-			});
+			/* const i = */ scalePixels.push(encodeFrame_decimate(scalePixels[0], h2, w2));
 			if(selTransformType.value == "blocksBasic") {
 				//;
 			}
@@ -99,79 +100,58 @@ function compEncode(image) {
 	outMediaDecodeT.innerText = transformPerf.decode.toFixed(2);
 }
 
-function decodeFrame_filterSinc(scalePixels, sh, sw) {
-	const bufOut = new Float32Array(scalePixels[0].dataFloat.length), bufIn = scalePixels[1].dataFloat;
-	const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-	/*for(let sy = 0, sx; sy < sh; sy++) {
-		const yRow = sw * sy;
-		const y2 = w2 * ((sy * factorInv)|0);
-		for(sx = 0; sx < sw; sx++) {
-			const x2 = 4 * (y2 + (sx * factorInv)|0);
-			const sx2 = 4 * (yRow + sx);
-			bufOut[sx2] = bufIn[x2];
-			bufOut[sx2 + 1] = bufIn[x2 + 1];
-			bufOut[sx2 + 2] = bufIn[x2 + 2];
-			bufOut[sx2 + 3] = bufIn[x2 + 3];
-		}
-	}*/
-	for(let y = 0, x; y < h2; y++) {
-		const yRow = w2 * y;
-		const syRow = sw * y * factor;
-		for(x = 0; x < w2; x++) {
-			const x2 = 4 * (yRow + x);
-			const sx2 = 4 * (syRow + x * factor);
+function decodeFrame_filterSinc(imgObj) {
+	const oldResH = imgObj.h, oldResW = imgObj.w;
+	const newResH = Math.ceil(factor * oldResH), newResW = Math.ceil(factor * oldResW);
+	const bufIn = imgObj.dataFloat, bufOut = new Float32Array(4 * newResH * newResW);
+	for(let y = 0; y < oldResH; y++) {
+		const oldYRow = oldResW * y;
+		const newYRow = newResW * y * factor;
+		for(let x = 0; x < oldResW; x++) {
+			const oldX2 = 4 * (oldYRow + x);
+			const newX2 = 4 * (newYRow + x * factor);
 			for(let dy = -sinc_r * factor, dx; dy < (1 + sinc_r) * factor; dy++) {
 				const fy = sinc_filter1Float[dy + sinc_r * factor];
 				for(dx = -sinc_r * factor; dx < (1 + sinc_r) * factor; dx++) {
 					const fx = fy * sinc_filter1Float[dx + sinc_r * factor];
-					const sx3 = sx2 + 4 * (sw * dy + dx);
-					bufOut[sx3] += bufIn[x2] * fx;
-					bufOut[sx3 + 1] += bufIn[x2 + 1] * fx;
-					bufOut[sx3 + 2] += bufIn[x2 + 2] * fx;
-					bufOut[sx3 + 3] += bufIn[x2 + 3] * fx;
+					const newX3 = newX2 + 4 * (newResW * dy + dx);
+					bufOut[newX3] += bufIn[oldX2] * fx;
+					bufOut[newX3 + 1] += bufIn[oldX2 + 1] * fx;
+					bufOut[newX3 + 2] += bufIn[oldX2 + 2] * fx;
+					bufOut[newX3 + 3] += bufIn[oldX2 + 3] * fx;
 				}
 			}
 		}
 	}
 
-	return bufOut;
+	return {
+		h: newResH, 
+		w: newResW, 
+		dataFloat: bufOut
+	};
 }
-function decodeFrame_blocksBasic(scalePixels, sh, sw) {
-	const bufOut = new Float32Array(scalePixels[0].dataFloat.length), bufIn = scalePixels[1].dataFloat;
-	const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-	for(let sy = 0, sx; sy < sh; sy++) {
-		const yRow = sw * sy;
-		const y2 = w2 * ((sy * factorInv)|0);
-		for(sx = 0; sx < sw; sx++) {
-			const x2 = 4 * (y2 + (sx * factorInv)|0);
-			const sx2 = 4 * (yRow + sx);
-			bufOut[sx2] = bufIn[x2];
-			bufOut[sx2 + 1] = bufIn[x2 + 1];
-			bufOut[sx2 + 2] = bufIn[x2 + 2];
-			bufOut[sx2 + 3] = bufIn[x2 + 3];
+function decodeFrame_blocksBasic(imgObj) {
+	const resOldH = imgObj.h, resOldW = imgObj.w;
+	const resNewH = Math.ceil(factor * resOldH), resNewW = Math.ceil(factor * resOldW);
+	const bufIn = imgObj.dataFloat, bufOut = new Float32Array(4 * resNewH * resNewW);
+	for(let newY = 0; newY < resNewH; newY++) {
+		const newYRow = resNewW * newY;
+		const oldYRow = resOldW * ((newY * factorInv)|0);
+		for(let newX = 0; newX < resNewW; newX++) {
+			const oldX2 = 4 * (oldYRow + (newX * factorInv)|0);
+			const newX2 = 4 * (newYRow + newX);
+			bufOut[newX2] = bufIn[oldX2];
+			bufOut[newX2 + 1] = bufIn[oldX2 + 1];
+			bufOut[newX2 + 2] = bufIn[oldX2 + 2];
+			bufOut[newX2 + 3] = bufIn[oldX2 + 3];
 		}
 	}
-	/* for(let y = 0, x; y < h2; y++) {
-		const yRow = w2 * y;
-		const syRow = sw * y * factor;
-		for(x = 0; x < w2; x++) {
-			const x2 = 4 * (yRow + x);
-			const sx2 = 4 * (syRow + x * factor);
-			for(let dy = -sinc_r * factor, dx; dy < (1 + sinc_r) * factor; dy++) {
-				const fy = sinc_filter1Float[dy + sinc_r * factor];
-				for(dx = -sinc_r * factor; dx < (1 + sinc_r) * factor; dx++) {
-					const fx = fy * sinc_filter1Float[dx + sinc_r * factor];
-					const sx3 = sx2 + 4 * (sw * dy + dx);
-					bufOut[sx3] += bufIn[x2] * fx;
-					bufOut[sx3 + 1] += bufIn[x2 + 1] * fx;
-					bufOut[sx3 + 2] += bufIn[x2 + 2] * fx;
-					bufOut[sx3 + 3] += bufIn[x2 + 3] * fx;
-				}
-			}
-		}
-	} */
 
-	return bufOut;
+	return {
+		h: resNewH, 
+		w: resNewW, 
+		dataFloat: bufOut
+	};
 }
 function compDecode(sh, sw, cnvOutput, outputC2d) {
 	canvasSizeUpdate(cnvOutput, sh, sw);
@@ -179,10 +159,10 @@ function compDecode(sh, sw, cnvOutput, outputC2d) {
 	const tNow = performance.now();
 	switch(selTransformType.value) {
 		case "downsampling-sinc":
-			scalePixels[0].dataFloat = decodeFrame_filterSinc(scalePixels, sh, sw);
+			scalePixels[0] = decodeFrame_filterSinc(scalePixels[1]);
 			break;
-			case "blocksBasic":
-			scalePixels[0].dataFloat = decodeFrame_blocksBasic(scalePixels, sh, sw);
+		case "blocksBasic":
+			scalePixels[0] = decodeFrame_blocksBasic(scalePixels[1]);
 			break;
 		case "posterization":
 			//to do
@@ -196,7 +176,7 @@ function compDecode(sh, sw, cnvOutput, outputC2d) {
 	//imgData = outputC2d.createImageData(cw, ch);
 	const imgArray = Uint8ClampedArray.from(scalePixels[0].dataFloat, x => x * 255);
 	//var imgArray = new Uint8ClampedArray(4 * ch * cw);
-	imgData = new ImageData(imgArray, cw, ch);
+	imgData = new ImageData(imgArray, scalePixels[0].w, scalePixels[0].h);
 	outputC2d.putImageData(imgData, 0, 0);
 }
 
