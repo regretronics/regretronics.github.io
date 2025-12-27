@@ -14,7 +14,7 @@ const sinc_r = 3;
 //note: as of 2022-09 browsers only support 8 bits per channel in raster/bitmap images; deep color and hdr pixel formats are not yet available for script manipulation.
 
 function imgSourceLoaded(event) {
-	imageScaleUpdate(cbxSourceScale, imgSource);
+	imageScaleUpdate(selSourceScale.value, imgSource);
 	sh = event.target.naturalHeight;
 	sw = event.target.naturalWidth;
 
@@ -23,8 +23,8 @@ function imgSourceLoaded(event) {
 }
 
 const factor = 4, factorInv = 1 / factor, factorInv2 = factorInv * factorInv;
-function encodeFrame(bufIn, sw, sh, h2, w2) {
-	//subsampling (first round)
+function encodeFrame_decimate(bufIn, sw, sh, h2, w2) {
+	//subsampling (one round)
 	const bufOut = new Float32Array(4 * h2 * w2);
 	for(let sy = 0; sy < sh; sy++) {
 		const sy2 = sw * sy;
@@ -52,7 +52,7 @@ function compEncode(image) {
 
 	//sourceC2d = cnvSource.getContext('2d');
 	//sourceC2d = cnvSource.getContext('2d', {colorSpace: "display-p3", storageFormat: 'float16'});
-	sourceC2d = cnvSource.getContext('2d', {alpha: false});
+	sourceC2d = cnvSource.getContext('2d', {alpha: false, willReadFrequently: true});
 	//sourceC2d.globalAlpha = 1;
 	//sourceC2d.imageSmoothingEnabled = false;
 
@@ -60,7 +60,6 @@ function compEncode(image) {
 	imgSourceData = sourceC2d.getImageData(0, 0, sw, sh);
 
 	scalePixels = [];
-	//scalePixels.push(new Float32Array()); //question: change push() for unshift() (reverses the array order)?
 	const b8ToFloatScale = 1 / 255;
 	scalePixels.push({
 		h: sh, 
@@ -70,12 +69,29 @@ function compEncode(image) {
 	//question: subtract 0.5 from color values? (currently no)
 
 	const tNow = performance.now();
-	const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
-	/* const i = */ scalePixels.push({
-		h: h2, 
-		w: w2, 
-		dataFloat: encodeFrame(scalePixels[0].dataFloat, sh, sw, h2, w2)
-	});
+	switch(selTransformType.value) {
+		case "downsampling-sinc":
+		case "blocksBasic":
+			const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+			/* const i = */ scalePixels.push({
+				h: h2, 
+				w: w2, 
+				dataFloat: encodeFrame_decimate(scalePixels[0].dataFloat, sh, sw, h2, w2)
+			});
+			if(selTransformType.value == "blocksBasic") {
+				//;
+			}
+			break;
+		case "posterization":
+			//to do
+			scalePixels.push(scalePixels[0]);
+			break;
+		/* default:
+			transformPerf = {encode: 0, decode: 0};
+			outMediaEncodeT.innerText = transformPerf.encode.toFixed(2);
+			outMediaDecodeT.innerText = transformPerf.decode.toFixed(2);
+			return; */
+	}
 	transformPerf.encode = performance.now() - tNow;
 
 	compDecode(sh, sw, cnvOutput, outputC2d);
@@ -83,7 +99,7 @@ function compEncode(image) {
 	outMediaDecodeT.innerText = transformPerf.decode.toFixed(2);
 }
 
-function decodeFrame(scalePixels, sh, sw) {
+function decodeFrame_filterSinc(scalePixels, sh, sw) {
 	const bufOut = new Float32Array(scalePixels[0].dataFloat.length), bufIn = scalePixels[1].dataFloat;
 	const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
 	/*for(let sy = 0, sx; sy < sh; sy++) {
@@ -120,16 +136,61 @@ function decodeFrame(scalePixels, sh, sw) {
 
 	return bufOut;
 }
+function decodeFrame_blocksBasic(scalePixels, sh, sw) {
+	const bufOut = new Float32Array(scalePixels[0].dataFloat.length), bufIn = scalePixels[1].dataFloat;
+	const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
+	for(let sy = 0, sx; sy < sh; sy++) {
+		const yRow = sw * sy;
+		const y2 = w2 * ((sy * factorInv)|0);
+		for(sx = 0; sx < sw; sx++) {
+			const x2 = 4 * (y2 + (sx * factorInv)|0);
+			const sx2 = 4 * (yRow + sx);
+			bufOut[sx2] = bufIn[x2];
+			bufOut[sx2 + 1] = bufIn[x2 + 1];
+			bufOut[sx2 + 2] = bufIn[x2 + 2];
+			bufOut[sx2 + 3] = bufIn[x2 + 3];
+		}
+	}
+	/* for(let y = 0, x; y < h2; y++) {
+		const yRow = w2 * y;
+		const syRow = sw * y * factor;
+		for(x = 0; x < w2; x++) {
+			const x2 = 4 * (yRow + x);
+			const sx2 = 4 * (syRow + x * factor);
+			for(let dy = -sinc_r * factor, dx; dy < (1 + sinc_r) * factor; dy++) {
+				const fy = sinc_filter1Float[dy + sinc_r * factor];
+				for(dx = -sinc_r * factor; dx < (1 + sinc_r) * factor; dx++) {
+					const fx = fy * sinc_filter1Float[dx + sinc_r * factor];
+					const sx3 = sx2 + 4 * (sw * dy + dx);
+					bufOut[sx3] += bufIn[x2] * fx;
+					bufOut[sx3 + 1] += bufIn[x2 + 1] * fx;
+					bufOut[sx3 + 2] += bufIn[x2 + 2] * fx;
+					bufOut[sx3 + 3] += bufIn[x2 + 3] * fx;
+				}
+			}
+		}
+	} */
+
+	return bufOut;
+}
 function compDecode(sh, sw, cnvOutput, outputC2d) {
-	ch = sh;
-	cw = sw;
-	cnvOutput.height = ch;
-	cnvOutput.width = cw;
-	imageScaleUpdate(cbxSourceScale, cnvOutput);
-	//canvasSizeUpdate();
+	canvasSizeUpdate(cnvOutput, sh, sw);
 
 	const tNow = performance.now();
-	scalePixels[0].dataFloat = decodeFrame(scalePixels, sh, sw);
+	switch(selTransformType.value) {
+		case "downsampling-sinc":
+			scalePixels[0].dataFloat = decodeFrame_filterSinc(scalePixels, sh, sw);
+			break;
+			case "blocksBasic":
+			scalePixels[0].dataFloat = decodeFrame_blocksBasic(scalePixels, sh, sw);
+			break;
+		case "posterization":
+			//to do
+			scalePixels[0] = scalePixels[1];
+			break;
+		/* default:
+			return; */
+	}
 	transformPerf.decode = performance.now() - tNow;
 
 	//imgData = outputC2d.createImageData(cw, ch);
@@ -149,24 +210,35 @@ function inImageChange(event) {
 	}, {once: true});
 }
 function loadURL(event) {
+	//imgSource.src = "";
+	//imgSource.crossOrigin = (chkSourceCORS.checked ? "anonymous" : null);
 	imgSource.src = txtImgURL.value;
+}
+function cbxURLPresetChanged(event) {
+	const elem = event.target;
+	if(!elem) return;
+	txtImgURL.value = elem.value;
+	/* if(!elem.dataset) return;
+	const id = elem.dataset["remote"];
+	if(!id) return;
+	chkSourceCORS.checked = id.toLowerCase() == "true"; */
 }
 function chkShrinkChanged(event) {
 	const elem = event.target;
-	if(!elem || !elem.dataset) return;
-	const id = elem.dataset.image;
-	if(!id) return;
-	const image = document.getElementById(id);
-	const parent = image.parentElement;
+	if(!elem) return;
+	//const image = imgSource;
+	//const parent = image.parentElement;
 	if(elem.checked) {
-		image.classList.add("shrink");
+		imgSource.classList.add("shrink");
+		cnvOutput.classList.add("shrink");
 		//parent.style.;
 	} else {
-		image.classList.remove("shrink");
+		imgSource.classList.remove("shrink");
+		cnvOutput.classList.remove("shrink");
 	}
 }
 
-function pageReady() {
+function pageReady(event) {
 	if(cnvOutput.getContext) {
 		outputC2d = cnvOutput.getContext('2d');
 		//outputC2d = cnvOutput.getContext('2d', {colorSpace: "display-p3", storageFormat: 'float16'});
@@ -177,8 +249,8 @@ function pageReady() {
 		ch = cnvOutput.height;
 		cw = cnvOutput.width;
 
-		//imageScaleUpdate(cbxSourceScale, imgSource);
-		//imageScaleUpdate(cbxOutputScale, cnvOutput);
+		//imageScaleUpdate(selSourceScale.value, imgSource);
+		//imageScaleUpdate(selSourceScale.value, cnvOutput);
 	} else {
 		btnTransform.disabled = true;
 	}
@@ -194,20 +266,23 @@ function pageReady() {
 		sinc_filter1Float[x] = Math.exp(normalFactor * x2 * x2) * Math.sin(x2) / x2; //gaussian window
 	}
 }
-function transformClick(event) {
+function btnTransformClick(event) {
 	compEncode(imgSource);
 }
-function pageLoaded() {
+function pageLoaded(event) {
 	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
 	inImage.addEventListener("change", inImageChange);
 	btnImgLoad.addEventListener("click", loadURL);
+	cbxURLPreset1.addEventListener("change", cbxURLPresetChanged);
+	cbxURLPreset2.addEventListener("change", cbxURLPresetChanged);
+	//chkSourceCORS.addEventListener("change", (event) => {imgSource.crossOrigin = (chkSourceCORS.checked ? "anonymous" : null)});
 	imgSource.addEventListener("load", imgSourceLoaded);
-	cbxSourceScale.addEventListener("change", cbxScaleChanged);
+	selSourceScale.addEventListener("change", selScaleChanged);
 	chkSourceShrink.addEventListener("change", chkShrinkChanged);
 
-	btnTransform.addEventListener("click", transformClick);
+	btnTransform.addEventListener("click", btnTransformClick);
 
 	const evt = new Event("change");
 	chkSourceShrink.dispatchEvent(evt);

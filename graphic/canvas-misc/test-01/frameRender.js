@@ -1,24 +1,24 @@
 "use strict";
 
 function frameRenderSimple(imgData) {
-	let data = imgData.data, i;
+	const data = imgData.data;
 	//note: the alpha channel must be also set for the result to be visible.
 
 	//fill the whole buffer with the same color.
-	let l = data.length;
+	const l = data.length;
 	//simplifying the loop condition is also a loop optimization.
-	for(i = 0; i < l; i += 4) {
+	for(let i = 0; i < l; i += 4) {
 		data[i] = 191;
 		data[i + 1] = 191;
 		data[i + 2] = 191;
 		//data[i + 3] = 128;
 	}
 
-	//let bufh = imgData.height, bufw = imgData.width;
+	//const bufh = imgData.height, bufw = imgData.width;
 	//rectangular fill (opaque)
 	/*for(let y = 0; y < 256; y++) {
 		for(let x = 64; x < 64 + 256; x++) {
-			i = 4 * (bufw * y + x);
+			const i = 4 * (bufw * y + x);
 			data[i] = 255;
 			data[i + 1] = 128;
 			data[i + 2] = 0;
@@ -29,22 +29,21 @@ function frameRenderSimple(imgData) {
 
 function frameRenderPolar(imgData) {
 	//the x|0 pattern is (hopefully) an asm.js-inspired optimization for marking an expression as integer. this imposes a Math.trunc(x) (not floor) and conversion to a 32-bit signed integer.
-	let data = imgData.data, i;
-	let bufh = imgData.height|0, bufw = imgData.width|0;
+	const data = imgData.data;
+	const bufh = imgData.height|0, bufw = imgData.width|0;
 
 	//polar-based drawing
-	i = 0;
+	let i = 0;
 	//let color = new Array(3);
 	//Object.preventExtensions(color); //these two break the code.
 	//Object.seal(color);
 	//apparently, let is marginally faster than var.
-	//let requires ECMAScript 6/2015.
 	//optimization: precompute things outside the loops.
-	for(let y = 0, x, y2 = 0.5 - 0.5 * bufh, y2sqr, x20 = 0.5 - 0.5 * bufw, x2, r, theta, r2, theta2; y < bufh; y++, y2++) {
+	for(let y = 0, y2 = 0.5 - 0.5 * bufh; y < bufh; y++, y2++) {
 		//y2 = y + 0.5 - 0.5 * bufh;
-		y2sqr = y2 * y2;
-		x2 = x20;
-		for(x = 0; x < bufw; x++, x2++) {
+		const y2sqr = y2 * y2;
+		const x20 = 0.5 - 0.5 * bufw;
+		for(let x = 0, x2 = x20, r, theta, r2, theta2; x < bufw; x++, x2++) {
 			//x2 = x + 0.5 - 0.5 * bufw;
 
 			//optimization: scale only the radius, not y2 and x2
@@ -62,13 +61,12 @@ function frameRenderPolar(imgData) {
 			color[1] = 191 * ((r3 + theta) % 2);
 			color[2] = 64 * r;*/
 
-			//Math.hypot is terribly slow. Math.hypot requires ECMAScript 6/2015.
+			//Math.hypot is terribly slow.
 			//r = 2 / bufh * Math.hypot(x2, y2);
 			//r = 2 / bufh * Math.sqrt(x2 * x2 + y2 * y2);
 			r = 2 / bufh * Math.sqrt(x2 * x2 + y2sqr);
 			//r = (r == 0) ? 0 : (Math.log(r) / Math.LN2);
 			//r = (r == 0) ? 0 : (Math.log(r) * Math.LOG2E);
-			//Math.log2 requires ECMAScript 6/2015.
 			//r = (r == 0) ? 0 : Math.log2(r);
 			//r = (r == 0) ? 0 : (Math.log2(r) + 0.25 * frameCount);
 			r = (r == 0) ? 0 : (log2_LUT(r) + 0.25 * frameCount);
@@ -76,7 +74,7 @@ function frameRenderPolar(imgData) {
 			//theta = 12 * (Math.atan2(y2, x2) / (2 * Math.PI) + 0.5) /*+ 0.25 * frameCount*/;
 			theta = 12 * (atan2_LUT(y2, x2) / (2 * Math.PI) + 0.5) /*+ 0.25 * frameCount*/;
 			r2 = r + theta; theta2 = - r + theta;
-			//destructuring assignment turns out to be slow. it requires ECMAScript 6/2015.
+			//destructuring assignment turns out to be slow.
 			//[r2, theta2] = [r + theta, - r + theta];
 			/*r2 = r2 - Math.floor(r2);
 			theta2 = theta2 - Math.floor(theta2);*/

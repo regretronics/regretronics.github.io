@@ -21,14 +21,27 @@
 		max-height: 100vh;
 		overflow: auto;
 	}
+	#selSourceScalingMode {
+		font-family: monospace;
+
+		option:checked {
+			&[label="auto"] {
+				:root:has(&) {--scaling-mode: auto;}
+			}
+			&[label="pixelated"] {
+				:root:has(&) {--scaling-mode: pixelated;}
+			}
+		}
+	}
 	#imgSource, #cnvOutput {
 		box-sizing: border-box;
 		object-fit: contain;
-		image-rendering: pixelated; /* to do: user control for this (upscaling profile?) */
-	}
-	#imgSource.shrink, #cnvOutput.shrink {
-		max-width: 100%;
-		max-height: 95vh;
+		image-rendering: var(--scaling-mode, auto);
+
+		&.shrink {
+			max-width: 100%;
+			max-height: 95vh;
+		}
 	}
 	input[type="file"]:hover {
 		background-color: oklch(1.0 0.0 0deg / 0.25);
@@ -50,8 +63,6 @@
 	}
 	/*]]>*/</style>
 
-	<!-- <script type="text/javascript" src="numerics.js" defer="defer"></script> -->
-	<!-- <script type="text/javascript" src="frameRender.js" defer="defer"></script> -->
 	<script type="text/javascript" src="canvas.js" defer="defer"></script>
 	<script type="text/javascript" src="main.js" defer="defer"></script>
 </head>
@@ -60,9 +71,46 @@
 		<input type="file" id="inImage" accept="image/*" /> 
 		<input type="text" id="txtImgURL" list="sampleImgURLs" value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.png" /><button id="btnImgLoad">Load</button>
 	</p>
+	<p><label for="cbxURLPreset1">Presets (by size and filter):</label> <select id="cbxURLPreset1" data-remote="false">
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png">images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Ambigram_Fun_Nut_240_160.png">images-wmcommons/max240px-gaussian/Ambigram_Fun_Nut_240_160.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Blue_Marble_2022_240_240.png">images-wmcommons/max240px-gaussian/Blue_Marble_2022_240_240.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Marriott's_Grand_Chateau_160_240.png">images-wmcommons/max240px-gaussian/Marriott's_Grand_Chateau_160_240.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png">images-wmcommons/max240px-gaussian/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png">images-wmcommons/max240px-gaussian/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Webb's_First_Deep_Field_235_240.png">images-wmcommons/max240px-gaussian/Webb's_First_Deep_Field_235_240.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Roc_de_la_Vache_-_juillet_2022_240_135.png">images-wmcommons/max240px-gaussian/Roc_de_la_Vache_-_juillet_2022_240_135.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Crater_of_Mount_Bromo,_Java,_Indonesia,_20220820_0558_9456_240_160.png">images-wmcommons/max240px-gaussian/Crater_of_Mount_Bromo,_Java,_Indonesia,_20220820_0558_9456_240_160.png</option>
+		</select>
+		<br /><label for="cbxURLPreset2">Presets from WM Commons:</label> <select id="cbxURLPreset2" data-remote="true">
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gabel_--_2021_--_7220.jpg/320px-Gabel_--_2021_--_7220.png">320px-Gabel_--_2021_--_7220.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/d/dd/Gabel_--_2021_--_7220.jpg">Gabel_--_2021_--_7220.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Ambigram_Fun_Nut.png/320px-Ambigram_Fun_Nut.png">320px-Ambigram_Fun_Nut.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/2/24/Ambigram_Fun_Nut.png">Ambigram_Fun_Nut.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/240px-Blue_Marble_2022.png">240px-Blue_Marble_2022.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.png">768px-Blue_Marble_2022.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/4/4d/Blue_Marble_2022.jpg">Blue_Marble_2022.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Marriott%27s_Grand_Chateau.jpg/159px-Marriott%27s_Grand_Chateau.png">159px-Marriott%27s_Grand_Chateau.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/a/aa/Marriott%27s_Grand_Chateau.jpg">Marriott%27s_Grand_Chateau.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg/199px-Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.png">199px-Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/c/c1/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg">Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St_Philip_Neri_church_in_Vicenza_%283%29.jpg/320px-St_Philip_Neri_church_in_Vicenza_%283%29.png">320px-St_Philip_Neri_church_in_Vicenza_%283%29.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/4/43/St_Philip_Neri_church_in_Vicenza_%283%29.jpg">St_Philip_Neri_church_in_Vicenza_%283%29.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Webb%27s_First_Deep_Field.tif/235px-Webb%27s_First_Deep_Field.png">235px-Webb%27s_First_Deep_Field.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/b/bf/Webb%27s_First_Deep_Field.jpg">Webb%27s_First_Deep_Field.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/b/b5/Webb%27s_First_Deep_Field.tif">Webb%27s_First_Deep_Field.tif</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Roc_de_la_Vache_-_juillet_2022.jpg/320px-Roc_de_la_Vache_-_juillet_2022.png">320px-Roc_de_la_Vache_-_juillet_2022.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/7/7a/Roc_de_la_Vache_-_juillet_2022.jpg">Roc_de_la_Vache_-_juillet_2022.jpg</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg/320px-Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.png">320px-Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.png</option>
+			<option value="https://upload.wikimedia.org/wikipedia/commons/2/2b/Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg">Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg</option>
+		</select>
+		<br /><label for="txtImgURL">URL:</label> <button id="btnImgLoad">Load</button>
+		<!-- <input type="checkbox" id="chkSourceCORS" /><label for="chkSourceCORS">Cross-origin (remote)</label> -->
+		<br /><textarea id="txtImgURL">https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png</textarea>
+	</p>
 	<p>Original size: 
 		<output id="outSourceRes">0x0</output>. 
-		<label for="cbxSourceScale">Scale</label> <select id="cbxSourceScale" data-image="imgSource">
+		<label for="selSourceScale">Scale:</label> <select id="selSourceScale">
 			<option value="16_1">16:1</option>
 			<option value="12_1">12:1</option>
 			<option value="8_1">8:1</option>
@@ -81,20 +129,12 @@
 			<option value="1_12">1:12</option>
 			<option value="1_16">1:16</option>
 		</select>. 
-		<input type="checkbox" id="chkSourceShrink" checked="true" data-image="imgSource" /><label for="chkSourceShrink">Shrink to fit.</label>
+		<label for="selSourceScalingMode">Scaling mode:</label> <select id="selSourceScalingMode">
+			<option label="auto" selected="true"></option>
+			<option label="pixelated"></option>
+		</select>. 
+		<input type="checkbox" id="chkSourceShrink" checked="true" /><label for="chkSourceShrink">Shrink to fit.</label>
 	</p>
-	<datalist id="sampleImgURLs">
-		<option value="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Blue_Marble_2022.jpg/768px-Blue_Marble_2022.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/a/aa/Marriott%27s_Grand_Chateau.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/2/24/Ambigram_Fun_Nut.png" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/c/c1/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/7/7a/Roc_de_la_Vache_-_juillet_2022.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/2/2b/Crater_of_Mount_Bromo%2C_Java%2C_Indonesia%2C_20220820_0558_9456.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/4/43/St_Philip_Neri_church_in_Vicenza_%283%29.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/d/dd/Gabel_--_2021_--_7220.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/b/bf/Webb%27s_First_Deep_Field.jpg" />
-		<option value="https://upload.wikimedia.org/wikipedia/commons/b/b5/Webb%27s_First_Deep_Field.tif" />
-	</datalist>
 
 	<p class="imgContainer">
 		<img id="imgSource" alt="Original image placeholder" crossorigin="anonymous" />
@@ -104,7 +144,15 @@
 		Reconstructed image. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.)
 	</canvas></p>
 
-	<p><button id="btnTransform">Transform</button></p>
+	<p>
+		<label for="selTransformType">Operation:</label> 
+		<select id="selTransformType">
+			<option value="downsampling-sinc" label="downsampling (sinc filter)"></option>
+			<option value="blocksBasic" label="block coding, basic"></option>
+			<option value="posterization" label="posterization"></option>
+		</select> 
+		<button id="btnTransform">Transform</button>
+	</p>
 	<p>Performance stats: 
 		encode <output id="outMediaEncodeT">0</output> ms, 
 		decode <output id="outMediaDecodeT">0</output> ms.

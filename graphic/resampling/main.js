@@ -98,7 +98,7 @@ function encodeImage(image) {
 
 	//upscaleImage();
 }
-function upscaleImage() {
+function upscaleImage(event) {
 	ch = factor * sh;
 	cw = factor * sw;
 	txtOutputResH.value = ch;
@@ -283,7 +283,7 @@ function txtDistortionChanged(event) {
 	//elem.reportValidity();
 }
 
-function pageReady() {
+function pageReady(event) {
 	const evt = new Event("change");
 	chkSourceShrink.dispatchEvent(evt);
 	chkOutputShrink.dispatchEvent(evt);
@@ -307,7 +307,7 @@ function pageReady() {
 		cbxOutputScale.disabled = true;
 	}
 }
-function pageLoaded() {
+function pageLoaded(event) {
 	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
