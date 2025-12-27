@@ -3,16 +3,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
 <head>
 	<meta charset="UTF-8" />
-	<title>Canvas, noise procedural generation</title>
 	<meta name="color-scheme" content="dark" />
-	<style type="text/css">
-	/*<![CDATA[*/
+	<title>Canvas, noise procedural generation</title>
+	<style type="text/css">/*<![CDATA[*/
 	:root {
-		color-scheme: dark;
 		/* background-color: hsl(120, 25%, 12.5%); */
 		/* color: hsl(120, 0%, 87.5%); */
-		background-color: canvas;
-		color: canvastext;
+		background-color: Canvas;
+		color: CanvasText;
+		color-scheme: dark;
 	}
 	/* body {
 		margin: 0px;
@@ -24,18 +23,15 @@
 	input#txtResW, input#txtResH {
 		width: 5em;
 	}
-	/*]]>*/
-	</style>
+	/*]]>*/</style>
 	<script type="text/javascript">
 	//<![CDATA[
-	//to do: check performance difference of strict mode.
 	"use strict";
-	//this page uses several features known to be unsupported in any version of Internet Explorer. Use MS Edge at least.
 	//as of 2018-11-27, this page has been only tested on Firefox 63 beta.
 	//to do: use defer="true" or async in any script tag?
 	//  idea: have a "reload script" button?
 	var mainCanvas, c2d;
-	//I'm putting height before width, because x is subordinate to y.
+	//I'm putting height before width, because x is subordinate to y in raster scan.
 	var ch, cw, imgData;
 	var canvasScale = 1;
 	var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
@@ -127,7 +123,7 @@
 </head>
 <body>
 	<canvas id="mainCanvas" width="512" height="512">
-		(Rendering placeholder.) If you are reading this through a user agent, it does not support HTML Canvas. This page can't work without Canvas.
+		Rendering placeholder. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't work without Canvas.)
 	</canvas>
 	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="512" step="4" list="resList" />, 
 	<label for="txtResH">height</label> <input id="txtResH" type="number" value="512" step="4" list="resList" />.
@@ -174,7 +170,6 @@
 	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
 	<p>Frame render time: <output id="outFrameRenderT">0</output> ms, avg <output id="outFrameRenderTAvg">0</output> ms. <output id="outFrameCount">0</output> frame(s) generated.</p>
 	<p>This page is a raster graphical test, requiring HTML Canvas to work. 
-		It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer. 
 		This page automatically starts an update cycle 1 second after loading, to ease performance testing. 
 		Use the arrow keys or the WASD keys to translate, Shift to zoom in, Ctrl to zoom out.
 	</p>
