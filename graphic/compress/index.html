@@ -15,10 +15,15 @@
 		color-scheme: dark;
 	}
 
-	.imgContainer {
+	.imgWrap {
 		box-sizing: border-box;
 		max-width: 100%;
-		max-height: 100vh;
+	}
+	.imgContainer {
+		display: inline-block;
+		box-sizing: border-box;
+		max-width: 100%;
+		max-height: 95vh;
 		overflow: auto;
 	}
 	#selSourceScalingMode {
@@ -73,7 +78,7 @@
 	<p><label for="cbxURLPreset1">Presets (by size and filter):</label> <select id="cbxURLPreset1" data-remote="false">
 			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png">images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png</option>
 			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Ambigram_Fun_Nut_240_160.png">images-wmcommons/max240px-gaussian/Ambigram_Fun_Nut_240_160.png</option>
-			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Blue_Marble_2022_240_240.png">images-wmcommons/max240px-gaussian/Blue_Marble_2022_240_240.png</option>
+			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Blue_Marble_2022_240_240.png" selected="true">images-wmcommons/max240px-gaussian/Blue_Marble_2022_240_240.png</option>
 			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Marriott's_Grand_Chateau_160_240.png">images-wmcommons/max240px-gaussian/Marriott's_Grand_Chateau_160_240.png</option>
 			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png">images-wmcommons/max240px-gaussian/Sharon_Tate_Valley_of_the_Dolls_1967_-_Restoration_200_240.png</option>
 			<option value="https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png">images-wmcommons/max240px-gaussian/St_Philip_Neri_church_in_Vicenza_(3)_240_154.png</option>
@@ -105,7 +110,7 @@
 		</select>
 		<br /><label for="txtImgURL">URL:</label> <button id="btnImgLoad">Load</button>
 		<!-- <input type="checkbox" id="chkSourceCORS" /><label for="chkSourceCORS">Cross-origin (remote)</label> -->
-		<br /><textarea id="txtImgURL">https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Gabel_--_2021_--_7220_240_160.png</textarea>
+		<br /><textarea id="txtImgURL">https://technicore.bitbucket.io/assets/images-wmcommons/max240px-gaussian/Blue_Marble_2022_240_240.png</textarea>
 	</p>
 	<p>Original size: 
 		<output id="outSourceRes">0x0</output>. 
@@ -118,9 +123,9 @@
 			<option value="3_1">3:1</option>
 			<option value="2_1">2:1</option>
 			<option value="3_2">3:2</option>
-			<option value="1_1" selected="true">1:1</option>
+			<option value="1_1">1:1</option>
 			<option value="2_3">2:3</option>
-			<option value="1_2">1:2</option>
+			<option value="1_2" selected="true">1:2</option>
 			<option value="1_3">1:3</option>
 			<option value="1_4">1:4</option>
 			<option value="1_6">1:6</option>
@@ -129,26 +134,33 @@
 			<option value="1_16">1:16</option>
 		</select>. 
 		<label for="selSourceScalingMode">Scaling mode:</label> <select id="selSourceScalingMode">
-			<option label="auto" selected="true"></option>
-			<option label="pixelated"></option>
+			<option label="auto"></option>
+			<option label="pixelated" selected="true"></option>
 		</select>. 
 		<input type="checkbox" id="chkSourceShrink" checked="true" /><label for="chkSourceShrink">Shrink to fit.</label>
 	</p>
 
-	<p class="imgContainer">
-		<img id="imgSource" alt="Original image placeholder" crossorigin="anonymous" />
-		<canvas id="cnvSource" hidden="true"></canvas>
+	<p class="imgWrap">
+		<span class="imgContainer">
+			<img id="imgSource" alt="Original image placeholder" crossorigin="anonymous" />
+			<canvas id="cnvSource" hidden="true"></canvas>
+		</span>
+		<span class="imgContainer">
+			<canvas id="cnvOutput" width="256" height="256">
+				Reconstructed image. 
+				(If you are reading this through a user agent, it does not support HTML Canvas. 
+				This page can't manipulate images without Canvas.)</canvas>
+		</span>
 	</p>
-	<p class="imgContainer"><canvas id="cnvOutput" width="768" height="512">
-		Reconstructed image. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't manipulate images without Canvas.)
-	</canvas></p>
 
 	<p>
 		<label for="selTransformType">Operation:</label> 
 		<select id="selTransformType">
 			<option value="downsampling-sinc" label="downsampling (sinc filter)"></option>
-			<option value="blocksBasic" label="block coding, basic"></option>
-			<option value="posterization" label="posterization"></option>
+			<option value="blocksBasic" label="block coding, basic" selected="true"></option>
+			<option value="posterization" label="posterization (color quantization)"></option>
+			<option value="luma posterization" label="luma encoding, posterization"></option>
+			<option value="luma downsampling" label="luma encoding, spatial subsampling"></option>
 		</select> 
 		<button id="btnTransform">Transform</button>
 	</p>
