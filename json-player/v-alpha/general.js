@@ -1,4 +1,3 @@
-//to do: check performance difference of strict mode?
 "use strict";
 
 //to do: consider worker threads
@@ -364,16 +363,6 @@ function pageReady(event) {
 
 	//just eye candy
 	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-		/* const evt = new Event("scroll");
-		document.addEventListener("scroll", scrollUpdate);
-		//document.addEventListener("resize", resizeUpdate);
-		document.dispatchEvent(evt);
-		//for(const elem of document.querySelectorAll("body>.major-section")) {
-		for(const elem of document.getElementsByClassName("major-section")) {
-			elem.addEventListener("scroll", scrollUpdate);
-			//elem.addEventListener("resize", resizeUpdate);
-			elem.dispatchEvent(evt);
-		} */
 		//window.setInterval(hueAnimation, 150);
 		/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
 			const bars = "▁▂▃▄▅▆▇█";
@@ -731,37 +720,6 @@ function structDownload(event) {
 	aStructDownload.dispatchEvent(newEvent);*/
 	aStructDownload.click();
 	return true;
-}
-
-function scrollUpdate(event) {
-	//console.log(event);
-	//let elem = document.scrollingElement;
-	let elem = event.target ?? event.currentTarget;
-	if(elem.documentElement) elem = elem.documentElement;
-	//console.log(elem);
-	if(!elem || !elem.style) return;
-	//const root = document.documentElement;
-	//root.style.setProperty("--hue-accent", (360 * elem.scrollTop / elem.scrollTopMax)); //cool
-	//root.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
-	elem.style.setProperty("--hue-scroll", (360 * elem.scrollTop / elem.scrollTopMax));
-
-	/*const scrollYPages = elem.scrollTop / elem.clientHeight;
-	const setTranslate = (id, dy) => {id.style.translate = "0% " + (- 100 * dy).toString() + "%";};
-	for(let i = 1; i <= 2; i++) {
-		//const y = scrollYPages / i;
-		//const y = scrollYPages / (5 - i);
-		//const y = 4 * scrollYPages / i;
-		const y = scrollYPages * 0.5 ** i;
-		//const y = scrollYPages * 0.5 ** (5 - i);
-		setTranslate(document.getElementById(`noise${i}rect1`), (y + 1) % 2 - 1);
-		setTranslate(document.getElementById(`noise${i}rect2`), (y + 0) % 2 - 0);
-	}*/
-}
-function resizeUpdate(event) {
-	//imgBgLayer1.style.height = document.body.children[0].scrollHeight;
-	document.documentElement.style.setProperty("--scroll-height", wrapper2.scrollHeight);
-	//for(let i = 1; i <= 3; i++)
-	//	document.getElementById(`imgBgLayer${i}`).style.height = wrapper2.scrollHeight.toString() + "px";
 }
 
 let animHue = 0;
