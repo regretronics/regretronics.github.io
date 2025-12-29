@@ -13,25 +13,25 @@
 	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 25%, 87.5%);*/
 	/*scrollbar-color: hsl(var(--hue-accent, 120), 12.5%, 87.5%) hsl(var(--hue-accent, 120), 12.5%, 6.25%);*/
 	scrollbar-color:
-		hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 87.5%)
-		hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
+		hsl(var(--hue-accent, 120), 12.5%, 87.5%)
+		hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 
 }
 *::-webkit-scrollbar {
-	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
-	/* color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%); */
+	background-color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
+	/* color: hsla(var(--hue-accent, 120), 25%, 75%); */
 }
 *::-webkit-scrollbar-thumb {
-	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 87.5%);
+	background-color: hsl(var(--hue-accent, 120), 12.5%, 87.5%);
 }
 *::-webkit-scrollbar-track {
-	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
+	background-color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 }
 /* *::-webkit-scrollbar-track-piece {
 	background-color: black;
 } */
 *::-webkit-scrollbar-corner {
-	background-color: hsl(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 12.5%, 6.25%);
+	background-color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
 }
 /* *::-webkit-resizer {
 	background-color: black;
@@ -48,25 +48,31 @@ body {
 		transition-duration: 0.25s !important;
 	}
 }
-/*::selection {*/
-/* :not(code, code *, .code-editor, .code-editor *)::selection { */
-:is(.code-editor, code) {
+.code-editor, code {
 	:not(&, & *)::selection { /*the exclusions are a workaround for Blink*/
 		/*background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
 		color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);*/
 		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 100%, 0.9375);
 		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 0%, 0.875);
 	}
+	:is(&, & *)::selection {
+		background-color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1) !important;
+		color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375) !important;
+	}
 }
 
 strong {
 	color: white;
 }
-/* :is(h1, h1 *, h2, h2 *, h3, h3 *, strong, strong *, em, em *)::selection { */
-:is(h1, h2, h3, strong, em) {
+h1, h2, h3, strong, em {
 	:is(&, & *)::selection {
 		background-color: hsl(var(--hue-accent, 120), 0%, 100%) !important;
 		color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
+	}
+	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
+		:is(&, & *)::selection {
+			color: hsl(var(--hue-accent2, 300), 100%, 93.75%) !important;
+		}
 	}
 }
 
@@ -84,20 +90,6 @@ table, caption {
 }
 td {
 	background-color: hsla(0, 0%, 0%, 0.5);
-}
-
-/* :is(.code-editor, .code-editor *, code, code *)::selection { */
-:is(.code-editor, code) {
-	:is(&, & *)::selection {
-		background-color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1) !important;
-		color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375) !important;
-	}
-}
-/* :is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection { */
-:is(strong code, em code, code strong, code em, .code-editor strong, .code-editor em) {
-	:is(&, & *)::selection {
-		color: hsl(var(--hue-accent2, 300), 100%, 93.75%) !important;
-	}
 }
 
 a:link {
@@ -140,13 +132,6 @@ input[type=number], input[type=text], textarea, select {
 	border-right-color: hsla(var(--hue-accent, 120), 0%, 37.5%, 0.25);
 	border-left-color: hsla(var(--hue-accent, 120), 0%, 37.5%, 0.25);
 	border-bottom-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.625);
-
-	/*border-image-source: linear-gradient(to bottom,
-		hsla(var(--hue-accent, 120), 0%, 25%, 0.75),
-		hsla(var(--hue-accent, 120), 0%, 50%, 0.5),
-		hsla(var(--hue-accent, 120), 0%, 75%, 0.75));
-	border-image-repeat: stretch;
-	border-image-slice: 15%;*/
 }
 /*input:invalid {*/
 input.invalid {
@@ -157,15 +142,15 @@ input.invalid {
 	background-color: hsl(var(--hue-accent, 120), 25%, 6.25%);
 	color: hsl(var(--hue-accent, 120), 100%, 93.75%);
 
-	& > *:hover, & > *.hover {
+	& > *:is(:hover, .hover) {
 		background-color: hsl(var(--hue-accent, 120), 100%, 93.75%);
 		color: hsl(var(--hue-accent, 120), 100%, 0%);
 	}
-	&:active, &.active, &:has(:active) {
+	&:is(:active, .active, :has(:active)) {
 		background-color: hsl(var(--hue-accent, 120), 50%, 12.5%);
 		color: hsl(var(--hue-accent, 120), 100%, 100%);
 
-		& > *:hover, & > *.hover {
+		& > *:is(:hover, .hover) {
 			/* box-shadow: 0 0 0.25em hsl(var(--hue-accent, 120), 100%, 93.75%); */
 			box-shadow: 0 0 0.25em 0.125em hsl(var(--hue-accent, 120), 100%, 93.75%);
 		}

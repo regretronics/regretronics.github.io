@@ -96,7 +96,7 @@
 			transition-duration: 0.25s, 0.25s, 0.25s, 0.1s;
 			transition-timing-function: initial, initial, initial, ease-out;
 		}*/
-		button:active, button:focus, button:hover {
+		button:is(:active, :focus, :hover) {
 			transition-property: background-color, color, /*accent-color,*/ border-color;
 			transition-duration: 0.1s;
 			transition-timing-function: ease-out;

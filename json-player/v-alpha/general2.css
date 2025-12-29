@@ -14,11 +14,6 @@
 	inherits: true;
 	initial-value: 0;
 } */
-/* @property --hue-scroll {
-	syntax: "<number>";
-	inherits: true;
-	initial-value: 0;
-} */
 
 :root {
 	/*question: include deg unit for hues? (currently never)*/
