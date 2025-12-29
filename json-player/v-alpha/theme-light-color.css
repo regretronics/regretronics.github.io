@@ -48,9 +48,9 @@
 	}
 }
 /*::selection {*/
-/* :not(code):not(code *):not(.code-editor):not(.code-editor *)::selection { */
+/* :not(code, code *, .code-editor, .code-editor *)::selection { */
 :is(.code-editor, code) {
-	:not(:is(&, & *))::selection { /*the exclusions are a workaround for Blink*/
+	:not(&, & *)::selection { /*the exclusions are a workaround for Blink*/
 		/*background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
 		color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);*/
 		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.625);

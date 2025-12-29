@@ -154,7 +154,7 @@ input:is(/* [type=date], [type=datetime-local], */ [type=email], [type=file], [t
 	border-end-start-radius: 0.1875em;
 	border-end-end-radius: 0.3125em;
 }
-input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, button, select {
+input:not([type=checkbox], [type=radio], [type=range]), textarea, button, select {
 	border-width: 0.0625em;
 	padding: 0.125em;
 
@@ -334,7 +334,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 				}
 		}
 	}
-	input:not(:is([type=checkbox], [type=radio], [type=range])), textarea, button, select {
+	input:not([type=checkbox], [type=radio], [type=range]), textarea, button, select {
 		border-width: 0em;
 		/* border-style: solid;
 		border-color: transparent; */

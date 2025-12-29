@@ -112,7 +112,7 @@ input[type=checkbox] {
 	justify-content: space-between;
 	align-items: center;
 
-	& > *:not(wbr):not(.right) {
+	& > *:not(wbr, .right) {
 		@supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
 			flex-basis: calc-size(max-content, 0.5625 * size);
 		}
@@ -133,7 +133,7 @@ input[type=checkbox] {
 	}*/
 }
 /* @supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
-	.flex-row > *:not(wbr):not(.right) {
+	.flex-row > *:not(wbr, .right) {
 		flex-basis: calc-size(max-content, 0.5625 * size);
 	}
 } */
