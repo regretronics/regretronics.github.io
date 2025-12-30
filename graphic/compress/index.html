@@ -48,8 +48,16 @@
 			max-height: 95vh;
 		}
 	}
-	input[type="file"]:hover {
-		background-color: oklch(1.0 0.0 0deg / 0.25);
+	input[type="file"] {
+		max-width: 100%;
+		padding-inline-end: 0.5ch;
+		@supports (field-sizing: content) {
+			field-sizing: content;
+		}
+
+		&:hover {
+			background-color: oklch(1.0 0.0 0deg / 0.25);
+		}
 	}
 	input[type="number"] {
 		width: 10ch;

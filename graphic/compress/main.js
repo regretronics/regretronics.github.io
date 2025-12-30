@@ -147,15 +147,15 @@ function encodeFrame_luma(imgObj, hue0) {
 		dataFloat: bufOut
 	};
 }
-function encodeFrame_chromaPosterize(imgObj, quantStep) {
+function encodeFrame_chromaPosterize(imgObj, quantStep1, quantStep2) {
 	const resOldH = imgObj.h, resOldW = imgObj.w;
 	const bufIn = imgObj.dataFloat, bufOut = new Float32Array(4 * resOldH * resOldW);
-	const quantStepInv = 1 / quantStep;
+	const quantStepInv1 = 1 / quantStep1, quantStepInv2 = 1 / quantStep2;
 
 	for(let i = 0; i < 4 * resOldH * resOldW; i += 4) {
 		bufOut[i] = bufIn[i];
-		bufOut[i + 1] = quantStep * Math.round(quantStepInv * bufIn[i + 1]);
-		bufOut[i + 2] = quantStep * Math.round(quantStepInv * bufIn[i + 2]);
+		bufOut[i + 1] = quantStep1 * Math.round(quantStepInv1 * bufIn[i + 1]);
+		bufOut[i + 2] = quantStep2 * Math.round(quantStepInv2 * bufIn[i + 2]);
 		bufOut[i + 3] = bufIn[i + 3];
 	}
 
@@ -244,9 +244,8 @@ function compEncode(image) {
 		case "blocksBasic":
 			const h2 = Math.ceil(factorInv * sh), w2 = Math.ceil(factorInv * sw);
 			encObj = encodeFrame_decimate(scalePixels[0], h2, w2, factorInv);
-			if(selTransformType.value == "blocksBasic") {
+			if(selTransformType.value == "blocksBasic")
 				encObj = encodeFrame_difference(scalePixels[0], encObj, factorInv);
-			}
 			scalePixels.push(encObj);
 			break;
 		case "posterization":
@@ -254,7 +253,7 @@ function compEncode(image) {
 			break;
 		case "luma posterization":
 			encObj = encodeFrame_luma(scalePixels[0], 0.0);
-			encObj = encodeFrame_chromaPosterize(encObj, 0.0625);
+			encObj = encodeFrame_chromaPosterize(encObj, 0.0625, 0.0625);
 			scalePixels.push(encObj);
 			break;
 		case "luma downsampling":
