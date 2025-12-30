@@ -1,14 +1,13 @@
 "use strict";
 
-//arctan look-up table.
+//arctangent look-up table.
 const atanLUTScale = 256, atanLUTSize = atanLUTScale + 1;
 const Tau = 2 * Math.PI, Tau_4 = 0.25 * Tau, Tau_8 = 0.125 * Tau;
 const atanLUT = new Float32Array(atanLUTSize);
 
 function atanLUTInit() {
-	for(let i = 0; i < atanLUTSize; i++) {
+	for(let i = 0; i < atanLUTSize; i++)
 		atanLUT[i] = Math.atan(i / atanLUTScale);
-	}
 }
 atanLUTInit();
 
@@ -37,7 +36,7 @@ function atan2_LUT_0(y, x) {
 function atan2_LUT(y, x) {
 	const xSgn = Math.sign(x);
 	let ang = 0, ySgn = Math.sign(y);
-	if(ySgn == 0) {ySgn = 1;}
+	if(ySgn == 0) ySgn = 1;
 	y = Math.abs(y);
 	if(xSgn != 1) {
 		//x not positive: rotate a straight angle back.
@@ -90,25 +89,23 @@ const log2LUT = new Float32Array(log2LUTSize);
 const _2to30 = 1 << 30, _2toNeg30 = 1 / _2to30;
 
 function log2LUTInit() {
-	for(let i = 0; i < log2LUTSize; i++) {
+	for(let i = 0; i < log2LUTSize; i++)
 		log2LUT[i] = Math.log2((i + log2LUTScale) / log2LUTScale);
-	}
 }
 log2LUTInit();
 
 function log2_LUT(x) {
-	//if(x <= 0) {return NaN;}
+	//if(x <= 0) return NaN;
 	let logI = 0;
 	//Remember clz32 only works with 32-bit integers. This below extends the range a little.
 	if(x >= _2to30) {
 		x *= _2toNeg30;
 		logI = 30;
-	} else {
+	} else
 		if(x < 1) {
 			x *= _2to30;
 			logI = -30;
 		}
-	}
 	const logI2 = 31 - Math.clz32(x), pow = 1 << logI2;
 	//No interpolation at the moment.
 	x = ((x / pow - 1) * log2LUTScale)|0;

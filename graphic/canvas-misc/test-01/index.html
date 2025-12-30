@@ -3,9 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
 <head>
 	<meta charset="UTF-8" />
+	<meta name="color-scheme" content="dark" />
 	<title>Canvas, test 01</title>
-	<style type="text/css">
-	/*<![CDATA[*/
+	<style type="text/css">/*<![CDATA[*/
 	body {
 		background-color: hsl(120, 25%, 12.5%);
 		color: hsl(120, 0%, 87.5%);
@@ -17,122 +17,76 @@
 	input#txtResW, input#txtResH {
 		width: 5em;
 	}
-	/*]]>*/
-	</style>
-	<script type="text/javascript">
-	//<![CDATA[
-	//to do: check performance difference of strict mode.
-	"use strict";
-	//this page uses several features known to be unsupported in any version of Internet Explorer. Use MS Edge at least.
-	//as of 2018-11-27, this page has been only tested on Firefox 63 beta.
-	//to do: use defer="true" or async in any script tag?
-	//  idea: have a "reload script" button?
-	var mainCanvas, c2d;
-	//I'm putting height before width, because x is subordinate to y.
-	var ch, cw, imgData;
-	var canvasScale = 1;
-	var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
-	var outFrameRenderT, outFrameRenderTAvg, outFrameCount;
-	var txtResW, txtResH, cbxCanvasScale;
-	//]]>
-	</script>
-	<script type="text/javascript" src="numerics.js"></script>
-	<script type="text/javascript" src="frameRender.js"></script>
-	<script type="text/javascript" src="canvas.js"></script>
-	<script type="text/javascript">
-	//<![CDATA[
-	"use strict";
-
-	function drawInit() {
-		if (mainCanvas.getContext) {
-			//c2d = mainCanvas.getContext('2d');
-			c2d = mainCanvas.getContext('2d', {alpha: false});
-			//c2d.globalAlpha = 1;
-			//c2d.imageSmoothingEnabled = false;
-
-			ch = mainCanvas.height;
-			cw = mainCanvas.width;
-
-			canvasSizeChanged();
-			viewUpdate();
-			setTimeout(startUpdating, 5000);
-		} else {
-			document.getElementById('btnViewUpdate').disabled = true;
-			document.getElementById('btnStartUpdating').disabled = true;
-			document.getElementById('cbxCanvasScale').disabled = true;
-		}
-	}
-	function pageLoaded() {
-		mainCanvas = document.getElementById('mainCanvas');
-
-		outFrameRenderT = document.getElementById('outFrameRenderT');
-		outFrameRenderTAvg = document.getElementById('outFrameRenderTAvg');
-		outFrameCount = document.getElementById('outFrameCount');
-
-		txtResW = document.getElementById('txtResW');
-		txtResH = document.getElementById('txtResH');
-		cbxCanvasScale = document.getElementById('cbxCanvasScale');
-
-		cbxCanvasScale.addEventListener("change", canvasScaleChanged);
-		btnViewUpdate.addEventListener("click", viewUpdate);
-		btnStartUpdating.addEventListener("click", startUpdating);
-		document.getElementById('btnStopUpdating').addEventListener("click", stopUpdating);
-
-		drawInit();
-	}
-
-	window.addEventListener("load", pageLoaded);
-	//]]>
-	</script>
+	/*]]>*/</style>
+	<script type="text/javascript" src="numerics.js" defer="defer"></script>
+	<script type="text/javascript" src="frameRender.js" defer="defer"></script>
+	<script type="text/javascript" src="canvas.js" defer="defer"></script>
+	<script type="text/javascript" src="main.js" defer="defer"></script>
 </head>
 <body>
 	<canvas id="mainCanvas" width="768" height="512">
 		If you are reading this through a user agent, it does not support HTML Canvas. This page can't work without Canvas.
 	</canvas>
-	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="text" value="768" list="resList" />, 
-	<label for="txtResH">height</label> <input id="txtResH" type="text" value="512" list="resList" />.
-	<datalist id="resList">
-		<option value="64">
-		<option value="80">
-		<option value="96">
-		<option value="128">
-		<option value="160">
-		<option value="192">
-		<option value="256">
-		<option value="320">
-		<option value="384">
-		<option value="512">
-		<option value="640">
-		<option value="768">
-		<option value="1024">
-		<option value="1280">
-		<option value="1536">
-		<option value="2048">
-		<option value="2560">
-		<option value="3072">
-	</datalist>
-	<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
-		<option value="16_1">16:1</option>
-		<option value="12_1">12:1</option>
-		<option value="8_1">8:1</option>
-		<option value="6_1">6:1</option>
-		<option value="4_1">4:1</option>
-		<option value="3_1">3:1</option>
-		<option value="2_1">2:1</option>
-		<option value="3_2">3:2</option>
-		<option value="1_1" selected="true">1:1</option>
-		<option value="2_3">2:3</option>
-		<option value="1_2">1:2</option>
-		<option value="1_3">1:3</option>
-		<option value="1_4">1:4</option>
-		<option value="1_6">1:6</option>
-		<option value="1_8">1:8</option>
-		<option value="1_12">1:12</option>
-		<option value="1_16">1:16</option>
-	</select>.
+	<p>
+		Canvas resolution: 
+		<label for="txtResW">width</label> <input id="txtResW" type="text" value="768" list="resList" />, 
+		<label for="txtResH">height</label> <input id="txtResH" type="text" value="512" list="resList" />.
+		<datalist id="resList">
+			<option value="64">
+			<option value="80">
+			<option value="96">
+			<option value="128">
+			<option value="160">
+			<option value="192">
+			<option value="256">
+			<option value="320">
+			<option value="384">
+			<option value="512">
+			<option value="640">
+			<option value="768">
+			<option value="1024">
+			<option value="1280">
+			<option value="1536">
+			<option value="2048">
+			<option value="2560">
+			<option value="3072">
+		</datalist>
+		<label for="cbxCanvasScale">Scale</label> 
+		<select id="cbxCanvasScale">
+			<option value="16_1">16:1</option>
+			<option value="12_1">12:1</option>
+			<option value="8_1">8:1</option>
+			<option value="6_1">6:1</option>
+			<option value="4_1">4:1</option>
+			<option value="3_1">3:1</option>
+			<option value="2_1">2:1</option>
+			<option value="3_2">3:2</option>
+			<option value="1_1" selected="true">1:1</option>
+			<option value="2_3">2:3</option>
+			<option value="1_2">1:2</option>
+			<option value="1_3">1:3</option>
+			<option value="1_4">1:4</option>
+			<option value="1_6">1:6</option>
+			<option value="1_8">1:8</option>
+			<option value="1_12">1:12</option>
+			<option value="1_16">1:16</option>
+		</select>.
 	</p>
-	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
-	<p>Frame render time: <output id="outFrameRenderT">0</output> ms, avg <output id="outFrameRenderTAvg">0</output> ms. <output id="outFrameCount">0</output> frame(s) generated.</p>
-	<p>This page is a raster graphical test, requiring HTML Canvas to work. It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer. This page automatically starts an update cycle 5 seconds after loading, to ease performance testing.</p>
+	<p>
+		<button id="btnViewUpdate">Update view</button>
+		<button id="btnStartUpdating">Start updating</button>
+		<button id="btnStopUpdating">Stop updating</button>
+	</p>
+	<p>
+		Frame render time: 
+		<output id="outFrameRenderT">0</output> ms, 
+		avg <output id="outFrameRenderTAvg">0</output> ms. 
+		<output id="outFrameCount">0</output> frame(s) generated.
+	</p>
+	<p>
+		This page is a raster graphical test, requiring HTML Canvas to work. 
+		It also requires ECMAScript 2015 (a.k.a. 6) support, which is not found in any version of Internet Explorer. 
+		This page automatically starts an update cycle 5 seconds after loading, to facilitate performance testing.
+	</p>
 </body>
 </html>

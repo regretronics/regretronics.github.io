@@ -27,7 +27,7 @@ function frameRenderSimple(imgData) {
 	}*/
 }
 
-function frameRenderPolar(imgData) {
+function frameRenderPolar(imgData, frameIndex) {
 	//the x|0 pattern is (hopefully) an asm.js-inspired optimization for marking an expression as integer. this imposes a Math.trunc(x) (not floor) and conversion to a 32-bit signed integer.
 	const data = imgData.data;
 	const bufh = imgData.height|0, bufw = imgData.width|0;
@@ -68,11 +68,11 @@ function frameRenderPolar(imgData) {
 			//r = (r == 0) ? 0 : (Math.log(r) / Math.LN2);
 			//r = (r == 0) ? 0 : (Math.log(r) * Math.LOG2E);
 			//r = (r == 0) ? 0 : Math.log2(r);
-			//r = (r == 0) ? 0 : (Math.log2(r) + 0.25 * frameCount);
-			r = (r == 0) ? 0 : (log2_LUT(r) + 0.25 * frameCount);
+			//r = (r == 0) ? 0 : (Math.log2(r) + 0.25 * frameIndex);
+			r = (r == 0) ? 0 : (log2_LUT(r) + 0.25 * frameIndex);
 			//to do: there may be a way to avoid the atan2 (but maybe requiring sin and cos).
-			//theta = 12 * (Math.atan2(y2, x2) / (2 * Math.PI) + 0.5) /*+ 0.25 * frameCount*/;
-			theta = 12 * (atan2_LUT(y2, x2) / (2 * Math.PI) + 0.5) /*+ 0.25 * frameCount*/;
+			//theta = 12 * (Math.atan2(y2, x2) / (2 * Math.PI) + 0.5) /*+ 0.25 * frameIndex*/;
+			theta = 12 * (atan2_LUT(y2, x2) / (2 * Math.PI) + 0.5) /*+ 0.25 * frameIndex*/;
 			r2 = r + theta; theta2 = - r + theta;
 			//destructuring assignment turns out to be slow.
 			//[r2, theta2] = [r + theta, - r + theta];
