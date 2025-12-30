@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+	<title>CSS Support: colors</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --test-color {
+			syntax: "\3c color\3e | auto";
+			inherits: true;
+			initial-value: auto;
+		}
+		.notice.error {
+			color: red;
+		}
+		@supports (color: attr(data-test type(<color>))) {
+			.notice.error.feature-attr {
+				display: none;
+			}
+		}
+		.test {
+			--test-color: attr(data-test type(<color>));
+		}
+		.test::after {
+			content: attr(data-test);
+		}
+		@container style(--test-color: auto) {
+			.test::after, .test::marker {
+				color: red;
+			}
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<h1>CSS Support: color values</h1>
+	<p class="notice error feature-attr">Your browser does not support the necessary feature for this test (if you are reading this through your user agent).</p>
+
+	<ul class="test-group">
+		<li class="test" data-test="rebeccapurple"></li>
+		<li class="test" data-test="aliceblue"></li>
+		<li class="test" data-test="transparent"></li>
+		<li class="test" data-test="arbitraryname"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="AccentColor"></li>
+		<li class="test" data-test="AccentColorText"></li>
+		<li class="test" data-test="Mark"></li>
+		<li class="test" data-test="MarkText"></li>
+		<li class="test" data-test="ButtonBorder"></li>
+		<li class="test" data-test="currentColor"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="#f09"></li>
+		<li class="test" data-test="#ff0099"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="rgb(255 0 153)"></li>
+		<li class="test" data-test="rgb(255 0 153 / 80%)"></li>
+		<li class="test" data-test="rgb(50% 70% 30%)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="rgba(0%, 0%, 0%, 0)"></li>
+		<li class="test" data-test="rgba(0, 0, 0, 0%)"></li>
+		<li class="test" data-test="rgba(none none none / none)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="hsl(150 30% 60%)"></li>
+		<li class="test" data-test="hsl(150 30% 60% / 80%)"></li>
+		<li class="test" data-test="hsl(0deg 100% 80%)"></li>
+		<li class="test" data-test="hsl(from red 240deg s l)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="hsla(0, 0%, 0%, 0)"></li>
+		<li class="test" data-test="hsla(none none none / none)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="hwb(12 50% 0%)"></li>
+		<li class="test" data-test="hwb(194 0% 0% / 0.5)"></li>
+		<li class="test" data-test="hwb(from green h w b / 0.5)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="lab(50% 40 59.5)"></li>
+		<li class="test" data-test="lab(50% 40 59.5 / 0.5)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="lch(52.2% 72.2 50deg)"></li>
+		<li class="test" data-test="lch(52.2% 72.2 50 / 0.5)"></li>
+		<li class="test" data-test="lch(80% 30 none)"></li>
+		<li class="test" data-test="lch(from blue calc(l + 20) c h)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="oklab(59% 0.1 0.1)"></li>
+		<li class="test" data-test="oklab(59% 0.1 0.1 / 0.5)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="oklch(60% 0.15 50)"></li>
+		<li class="test" data-test="oklch(60% 0.15 50 / 0.5)"></li>
+		<li class="test" data-test="oklch(80% 0.1 140deg)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="ictcp(0 0 0)"></li>
+		<li class="test" data-test="ictcp(0 0 0 / 0)"></li>
+		<li class="test" data-test="ictcp(none none none / none)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="jzazbz(0 0 0)"></li>
+		<li class="test" data-test="jzazbz(0 0 0 / 0)"></li>
+		<li class="test" data-test="jzazbz(none none none / none)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="jzczhz(0 0 0)"></li>
+		<li class="test" data-test="jzczhz(0 0 0 / 0)"></li>
+		<li class="test" data-test="jzczhz(none none none / none)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="light-dark(white, black)"></li>
+		<li class="test" data-test="light-dark(rgb(255 255 255), rgb(0 0 0))"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="device-cmyk(0, 0, 0, 0)"></li>
+		<li class="test" data-test="device-cmyk(0 0% none 0)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="contrast-color(red)"></li>
+		<li class="test" data-test="contrast-color(red tbd-fg)"></li>
+		<li class="test" data-test="contrast-color(red tbd-bg wcag2)"></li>
+		<li class="test" data-test="contrast-color(red tbd-bg wcag2(0))"></li>
+		<li class="test" data-test="contrast-color(red tbd-bg wcag2(aa large))"></li>
+		<li class="test" data-test="contrast-color(red tbd-bg wcag2(aaa))"></li>
+		<li class="test" data-test="contrast-color(red tbd-bg wcag2, pink, orange)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color-mix(in oklch, oklch(none 0.2 10), oklch(60% none 30))"></li>
+		<li class="test" data-test="color-mix(in oklch, oklch(60% 0.2 10), oklch(60% 0.2 30))"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="alpha(from gray)"></li>
+		<li class="test" data-test="alpha(from gray / 0)"></li>
+		<li class="test" data-test="alpha(from gray / none)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(srgb -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(srgb 0 0 0)"></li>
+		<li class="test" data-test="color(srgb 2 2 2)"></li>
+		<li class="test" data-test="color(srgb 0.7 0.5 none)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(srgb-linear -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(srgb-linear 0 0 0)"></li>
+		<li class="test" data-test="color(srgb-linear 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(display-p3 -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(display-p3 0 0 0)"></li>
+		<li class="test" data-test="color(display-p3 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(display-p3-linear -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(display-p3-linear 0 0 0)"></li>
+		<li class="test" data-test="color(display-p3-linear 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(a98-rgb -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(a98-rgb 0 0 0)"></li>
+		<li class="test" data-test="color(a98-rgb 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(prophoto-rgb -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(prophoto-rgb 0 0 0)"></li>
+		<li class="test" data-test="color(prophoto-rgb 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(rec2020 -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(rec2020 0 0 0)"></li>
+		<li class="test" data-test="color(rec2020 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(rec2100 -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(rec2100 0 0 0)"></li>
+		<li class="test" data-test="color(rec2100 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(rec2100-linear -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(rec2100-linear 0 0 0)"></li>
+		<li class="test" data-test="color(rec2100-linear 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(rec2100-display-linear -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(rec2100-display-linear 0 0 0)"></li>
+		<li class="test" data-test="color(rec2100-display-linear 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(rec2100-pq -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(rec2100-pq 0 0 0)"></li>
+		<li class="test" data-test="color(rec2100-pq 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(rec2100-hlg -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(rec2100-hlg 0 0 0)"></li>
+		<li class="test" data-test="color(rec2100-hlg 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(xyz -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(xyz 0 0 0)"></li>
+		<li class="test" data-test="color(xyz 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(xyz-d50 -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(xyz-d50 0 0 0)"></li>
+		<li class="test" data-test="color(xyz-d50 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(xyz-d65 -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(xyz-d65 0 0 0)"></li>
+		<li class="test" data-test="color(xyz-d65 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(lms -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(lms 0 0 0)"></li>
+		<li class="test" data-test="color(lms 2 2 2)"></li>
+	</ul>
+	<ul class="test-group">
+		<li class="test" data-test="color(lms-linear -0.5 -0.5 -0.5)"></li>
+		<li class="test" data-test="color(lms-linear 0 0 0)"></li>
+		<li class="test" data-test="color(lms-linear 2 2 2)"></li>
+	</ul>
+</body>
+</html>
