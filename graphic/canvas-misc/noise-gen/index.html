@@ -7,171 +7,102 @@
 	<title>Canvas, noise procedural generation</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
-		/* background-color: hsl(120, 25%, 12.5%); */
-		/* color: hsl(120, 0%, 87.5%); */
-		background-color: Canvas;
-		color: CanvasText;
+		background-color: oklch(0.25 0.0 0deg);
+		color: oklch(0.875 0.0 0deg);
 		color-scheme: dark;
 	}
-	/* body {
-		margin: 0px;
-	} */
 	#mainCanvas {
 		max-width: 100%;
+		max-height: 100svh; /* small viewport height */
 		object-fit: contain;
 	}
 	input#txtResW, input#txtResH {
 		width: 5em;
 	}
 	/*]]>*/</style>
-	<script type="text/javascript">
-	//<![CDATA[
-	"use strict";
-	//as of 2018-11-27, this page has been only tested on Firefox 63 beta.
-	//to do: use defer="true" or async in any script tag?
-	//  idea: have a "reload script" button?
-	var mainCanvas, c2d;
-	//I'm putting height before width, because x is subordinate to y in raster scan.
-	var ch, cw, imgData;
-	var canvasScale = 1;
-	var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
-	//]]>
-	</script>
-	<!-- <script type="text/javascript" src="numerics.js"></script> -->
-	<script type="text/javascript" src="frameRender.js"></script>
-	<script type="text/javascript" src="canvas.js"></script>
-	<script type="text/javascript">
-	//<![CDATA[
-	"use strict";
-
-	function drawInit() {
-		if (mainCanvas.getContext) {
-			//c2d = mainCanvas.getContext('2d');
-			c2d = mainCanvas.getContext('2d', {alpha: false});
-			//c2d.globalAlpha = 1;
-			//c2d.imageSmoothingEnabled = false;
-
-			ch = mainCanvas.height;
-			cw = mainCanvas.width;
-
-			canvasSizeChanged();
-			viewUpdate();
-			setTimeout(startUpdating, 1000);
-		} else {
-			btnViewUpdate.disabled = true;
-			btnStartUpdating.disabled = true;
-			cbxCanvasScale.disabled = true;
-		}
-	}
-	function pageLoaded() {
-		for(const s of document.querySelectorAll('[id]'))
-			window[s.id] = s;
-
-		cbxCanvasScale.addEventListener("change", canvasScaleChanged);
-		btnViewUpdate.addEventListener("click", viewUpdate);
-		btnStartUpdating.addEventListener("click", startUpdating);
-		btnStopUpdating.addEventListener("click", stopUpdating);
-	}
-	const posInc = 16;
-	//const scaleStep = 1.25;
-	const scaleStep = 2 ** 0.0625;
-	const inputKeyMap = {
-		"KeyA": {action: () => {cx -= scale * posInc;}},
-		"KeyD": {action: () => {cx += scale * posInc;}},
-		"KeyW": {action: () => {cy -= scale * posInc;}},
-		"KeyS": {action: () => {cy += scale * posInc;}},
-
-		"ArrowLeft": {action: () => {cx -= scale * posInc;}},
-		"ArrowRight": {action: () => {cx += scale * posInc;}},
-		"ArrowUp": {action: () => {cy -= scale * posInc;}},
-		"ArrowDown": {action: () => {cy += scale * posInc;}},
-
-		"ShiftLeft": {action: () => {scale /= scaleStep;}},
-		"ShiftRight": {action: () => {scale /= scaleStep;}},
-		"ControlLeft": {action: () => {scale *= scaleStep;}},
-		"ControlRight": {action: () => {scale *= scaleStep;}},
-	};
-	function navKeyDown(event) {
-		//console.log(event);
-		const keyRec = inputKeyMap[event.code];
-		if(keyRec)
-			//keyRec.action();
-			keyRec.value = 1;
-	}
-	function navKeyUp(event) {
-		const keyRec = inputKeyMap[event.code];
-		if(keyRec)
-			//keyRec.action();
-			keyRec.value = 0;
-	}
-	function pageReady() {
-		drawInit();
-		document.addEventListener("keydown", navKeyDown);
-		document.addEventListener("keyup", navKeyUp);
-		window.addEventListener("blur", stopUpdating);
-	}
-
-	//window.addEventListener("load", pageLoaded);
-	//window.addEventListener("DOMContentLoaded", pageLoaded);
-	if(document.readyState === "loading")
-		document.addEventListener("DOMContentLoaded", pageLoaded);
-	else //DOMContentLoaded has already fired
-		pageLoaded();
-	window.addEventListener("load", pageReady);
-	//]]>
-	</script>
+	<!-- <script type="text/javascript" src="numerics.js" defer="defer"></script> -->
+	<script type="text/javascript" src="frameRender.js" defer="defer"></script>
+	<script type="text/javascript" src="canvas.js" defer="defer"></script>
+	<script type="text/javascript" src="main.js" defer="defer"></script>
 </head>
 <body>
 	<canvas id="mainCanvas" width="512" height="512">
-		Rendering placeholder. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't work without Canvas.)
+		Rendering placeholder. 
+		(If you are reading this through a user agent, it does not support HTML Canvas. 
+		This page can't work without Canvas.)
 	</canvas>
-	<p>Canvas resolution: <label for="txtResW">width</label> <input id="txtResW" type="number" value="512" step="4" list="resList" />, 
-	<label for="txtResH">height</label> <input id="txtResH" type="number" value="512" step="4" list="resList" />.
-	<datalist id="resList">
-		<option value="64">
-		<option value="80">
-		<option value="96">
-		<option value="128">
-		<option value="160">
-		<option value="192">
-		<option value="256">
-		<option value="320">
-		<option value="384">
-		<option value="512">
-		<option value="640">
-		<option value="768">
-		<option value="1024">
-		<option value="1280">
-		<option value="1536">
-		<option value="2048">
-		<option value="2560">
-		<option value="3072">
-	</datalist>
-	<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
-		<option value="16_1">16:1</option>
-		<option value="12_1">12:1</option>
-		<option value="8_1">8:1</option>
-		<option value="6_1">6:1</option>
-		<option value="4_1">4:1</option>
-		<option value="3_1">3:1</option>
-		<option value="2_1">2:1</option>
-		<option value="3_2">3:2</option>
-		<option value="1_1" selected="true">1:1</option>
-		<option value="2_3">2:3</option>
-		<option value="1_2">1:2</option>
-		<option value="1_3">1:3</option>
-		<option value="1_4">1:4</option>
-		<option value="1_6">1:6</option>
-		<option value="1_8">1:8</option>
-		<option value="1_12">1:12</option>
-		<option value="1_16">1:16</option>
-	</select>.
+	<p>
+		cx: <output id="outCX">0</output>; 
+		cy: <output id="outCY">0</output>; 
+		scale: <output id="outScale">0</output> (<output id="outScaleLog">0</output> bits).
 	</p>
-	<p><button id="btnViewUpdate">Update view</button><button id="btnStartUpdating">Start updating</button><button id="btnStopUpdating">Stop updating</button></p>
-	<p>Frame render time: <output id="outFrameRenderT">0</output> ms, avg <output id="outFrameRenderTAvg">0</output> ms. <output id="outFrameCount">0</output> frame(s) generated.</p>
-	<p>This page is a raster graphical test, requiring HTML Canvas to work. 
-		This page automatically starts an update cycle 1 second after loading, to ease performance testing. 
-		Use the arrow keys or the WASD keys to translate, Shift to zoom in, Ctrl to zoom out.
+	<p>
+		Canvas resolution: 
+		<label for="txtResW">width</label> <input id="txtResW" type="number" value="512" step="4" list="resList" />, 
+		<label for="txtResH">height</label> <input id="txtResH" type="number" value="512" step="4" list="resList" />.
+		<datalist id="resList">
+			<option value="64">
+			<option value="80">
+			<option value="96">
+			<option value="128">
+			<option value="160">
+			<option value="192">
+			<option value="256">
+			<option value="320">
+			<option value="384">
+			<option value="512">
+			<option value="640">
+			<option value="768">
+			<option value="1024">
+			<option value="1280">
+			<option value="1536">
+			<option value="2048">
+			<option value="2560">
+			<option value="3072">
+		</datalist>
+		<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
+			<option value="16_1">16:1</option>
+			<option value="12_1">12:1</option>
+			<option value="8_1">8:1</option>
+			<option value="6_1">6:1</option>
+			<option value="4_1">4:1</option>
+			<option value="3_1">3:1</option>
+			<option value="2_1">2:1</option>
+			<option value="3_2">3:2</option>
+			<option value="1_1" selected="true">1:1</option>
+			<option value="2_3">2:3</option>
+			<option value="1_2">1:2</option>
+			<option value="1_3">1:3</option>
+			<option value="1_4">1:4</option>
+			<option value="1_6">1:6</option>
+			<option value="1_8">1:8</option>
+			<option value="1_12">1:12</option>
+			<option value="1_16">1:16</option>
+		</select>.
 	</p>
+	<p>
+		<button id="btnViewUpdate">Update view</button>
+		<button id="btnStartUpdating">Start updating</button>
+		<button id="btnStopUpdating">Stop updating</button>
+	</p>
+	<p>
+		Frame render time: 
+		<output id="outFrameRenderT">0</output> ms, 
+		avg <output id="outFrameRenderTAvg">0</output> ms. 
+		<output id="outFrameCount">0</output> frame(s) generated.
+	</p>
+	<p>
+		This page is a raster graphical test, requiring HTML Canvas to work. 
+		This page automatically starts an update cycle 1 second after loading, to facilitate performance testing. 
+		It stops updating when it loses UI focus.
+	</p>
+	<p>
+		This page currently requires a keyboard for navigation:
+	</p>
+	<ul>
+		<li>Use the arrow keys or the WASD keys to translate.</li>
+		<li>Use Shift to zoom in, Ctrl to zoom out (in small steps).</li>
+		<li>Use PageUp to zoom an octave in, PageDown to zoom an octave out.</li>
+	</ul>
 </body>
 </html>

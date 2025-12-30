@@ -1,9 +1,8 @@
 "use strict";
 
 //idea: have a "reload script" button?
-var c2d;
 //I'm putting height before width, because x is subordinate to y in raster scan.
-var ch, cw, imgData;
+var c2d, ch, cw, imgData;
 var canvasScale = 1;
 var frameCount = 0, renderTimeSum = 0, updateCycleId = 0;
 

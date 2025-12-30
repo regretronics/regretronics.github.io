@@ -1,13 +1,14 @@
 "use strict";
-//const requires ECMAScript 6/2015.
+
 //const scaleValues = {"1_1": 1; };
 
-function canvasScaleChanged() {
+function canvasScaleChanged(event) {
 	if(!c2d) return;
+
 	let newCanvasScale = cbxCanvasScale.value.split("_");
 	newCanvasScale = [parseInt(newCanvasScale[0]), parseInt(newCanvasScale[1])];
-	//isNaN and isFinite requires ECMAScript 6/2015.
 	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) return;
+
 	newCanvasScale = newCanvasScale[1] / newCanvasScale[0];
 	if(!isFinite(newCanvasScale) || (newCanvasScale == 0)) return;
 
@@ -15,7 +16,6 @@ function canvasScaleChanged() {
 	//mainCanvas.style.height = canvasScale * ch + "px";
 	mainCanvas.style.width = canvasScale * cw + "px";
 }
-
 function canvasSizeChanged() {
 	if(!c2d) return;
 	canvasScaleChanged();
@@ -28,11 +28,9 @@ function canvasSizeChanged() {
 	for(let i = 0; i < l; i += 4)
 		data[i + 3] = 255;
 }
-
 function canvasSizeUpdate() {
 	let newCH = parseInt(txtResH.value);
 	let newCW = parseInt(txtResW.value);
-	//isNaN requires ECMAScript 6/2015.
 	if(isNaN(newCH) || isNaN(newCW)) return;
 	newCH |= 0;
 	newCW |= 0;
@@ -48,7 +46,7 @@ function canvasSizeUpdate() {
 }
 
 var cx = 0, cy = 0, scale = 0.0625;
-function viewUpdate() {
+function viewUpdate(event) {
 	if(!c2d) return;
 	canvasSizeUpdate();
 	if(!imgData) return;
@@ -58,16 +56,19 @@ function viewUpdate() {
 		const inputObj = inputKeyMap[inputKey];
 		if(inputObj.value >= 1) inputObj.action();
 	}
+	outCX.innerText = cx.toPrecision(4);
+	outCY.innerText = cy.toPrecision(4);
+	outScale.innerText = scale.toPrecision(4);
+	outScaleLog.innerText = Math.log2(scale).toFixed(3);
 
-	let t = Date.now();
-	//frameRenderSimple(imgData);
+	let t = performance.now();
 	frameRenderNoise2(imgData, cx, cy, scale);
-	//frameRender(imgData);
 	c2d.putImageData(imgData, 0, 0);
-	t = Date.now() - t;
+	t = performance.now() - t;
+
 	frameCount++;
 	renderTimeSum += t;
-	outFrameRenderT.innerText = t.toString();
+	outFrameRenderT.innerText = t.toFixed(2);
 	outFrameRenderTAvg.innerText = (renderTimeSum / frameCount).toFixed(2);
 	outFrameCount.innerText = frameCount.toString();
 
@@ -75,13 +76,13 @@ function viewUpdate() {
 	//window.requestAnimationFrame(viewUpdate);
 }
 
-function startUpdating() {
+function startUpdating(event) {
 	if(updateCycleId) return;
 	if(!(c2d && imgData)) return;
 	updateCycleId = setInterval(viewUpdate, 200);
 }
 
-function stopUpdating() {
+function stopUpdating(event) {
 	if(!updateCycleId) return;
 	clearInterval(updateCycleId);
 	updateCycleId = 0;
