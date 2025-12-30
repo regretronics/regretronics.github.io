@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
 	<title>CSS experiment</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
@@ -11,7 +12,7 @@
 		color: oklch(0.875 0 0deg);
 		font-size: 1.5em;
 	}
-	style[contenteditable] {
+	body style[contenteditable] {
 		display: block;
 		white-space: pre-wrap;
 		font-family: monospace;
@@ -73,6 +74,9 @@
 		<li>test</li>
 	</ol>
 	<style contenteditable="plaintext-only">
+	/* li {
+		display: inline-block;
+	} */
 	/*li:nth-child(even of :nth-child(odd)),
 	li:nth-child(even of :nth-child(even)) {
 		color: red;
