@@ -33,15 +33,37 @@
 			width: calc(5em/16 + 3ch + var(--digits, 0)*1ch);
 		}
 
+		@property --test-color {
+			syntax: "\3c color\3e | auto";
+			inherits: true;
+			initial-value: auto;
+		}
+		#selColorSpace option {
+			--test-color: color(attr(label type(*)) 0 0 0);
+			background-color: if(
+				style(--test-color: auto): oklch(0.25 0.125 25deg); 
+				else: Canvas;);
+			color: if(
+				style(--test-color: auto): oklch(0.75 0.125 25deg); 
+				else: CanvasText;);
+		}
+		/* didn't work */
+		/* @container style(--test-color: auto) {
+			option {
+				background-color: rosybrown;
+				color: brown;
+			}
+		} */
+
 		/* @property --hue-int {
-			syntax: "<number>";
+			syntax: "\3c number\3e";
 			inherits: true;
 			initial-value: 0;
 		} */
 		@property --c {
 		/* @property sh-hue { */
-			syntax: "<number>";
-			/* syntax: "<integer>"; */
+			syntax: "\3c number\3e";
+			/* syntax: "\3c integer\3e"; */
 			inherits: true;
 			initial-value: 1;
 			/* initial-value: sh-hue; */
@@ -144,8 +166,10 @@
 	function selColorSpaceInput(event) {
 		if(!event || !event.target) return;
 		const elem = event.target;
-		document.documentElement.style.setProperty(elem.dataset.property, elem.value);
-		document.documentElement.style.setProperty("--gain-balance", elem.value.toLowerCase().startsWith("xyz") ?
+		//const cSpace = elem.value;
+		const cSpace = elem.selectedOptions[0].label;
+		document.documentElement.style.setProperty(elem.dataset.property, cSpace);
+		document.documentElement.style.setProperty("--gain-balance", cSpace.toLowerCase().startsWith("xyz") ?
 			"var(--cl-space, xyz) calc(x * var(--fr)) calc(y * var(--fg)) calc(z * var(--fb))":
 			"var(--cl-space, srgb) calc(r * var(--fr)) calc(g * var(--fg)) calc(b * var(--fb))");
 		updateColorList();
@@ -184,21 +208,21 @@
 		<input type="number" id="txtSaturation" value="0.125" step="0.03125" data-property="--sat" /> 
 		<label for="selColorSpace">Target color space</label> 
 		<select id="selColorSpace" data-property="--cl-space">
-			<option>srgb</option>
-			<option>srgb-linear</option>
-			<option>a98-rgb</option>
-			<option>display-p3</option>
-			<option>display-p3-linear</option>
-			<option>prophoto-rgb</option>
-			<option selected="selected">rec2020</option>
-			<option>rec2100</option>
-			<option>rec2100-linear</option>
-			<option>rec2100-display-linear</option>
-			<option>rec2100-pq</option>
-			<option>rec2100-hlg</option>
-			<option>xyz</option>
-			<option>xyz-d50</option>
-			<option>xyz-d65</option>
+			<option label="srgb"></option>
+			<option label="srgb-linear"></option>
+			<option label="a98-rgb"></option>
+			<option label="display-p3"></option>
+			<option label="display-p3-linear"></option>
+			<option label="prophoto-rgb"></option>
+			<option label="rec2020" selected="selected"></option>
+			<option label="rec2100"></option>
+			<option label="rec2100-linear"></option>
+			<option label="rec2100-display-linear"></option>
+			<option label="rec2100-pq"></option>
+			<option label="rec2100-hlg"></option>
+			<option label="xyz"></option>
+			<option label="xyz-d50"></option>
+			<option label="xyz-d65"></option>
 		</select>
 	</p>
 	<p>

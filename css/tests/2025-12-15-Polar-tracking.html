@@ -4,7 +4,7 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
-	<title>CSS experiment</title>
+	<title>CSS polar tracker</title>
 	<style type="text/css">/*<![CDATA[*/
 	@property --x0 {
 		syntax: "\3c number\3e";
@@ -214,10 +214,13 @@
 		/* --col: sibling-index(); */
 		--row: calc(8 * var(--row-b03) + 4 * var(--row-b02) + 2 * var(--row-b01) + var(--row-b00));
 		--col: calc(8 * var(--col-b03) + 4 * var(--col-b02) + 2 * var(--col-b01) + var(--col-b00));
-		background-color: if(
+		/* background-color: if(
 			style(--hover: 1) and style(--row: var(--y)) and style(--col: var(--x)): oklch(1 0.0 0deg / 0.5);
 			else: transparent;
-		);
+		); */
+		background-color: transparent;
+
+		&:hover {background-color: oklch(1 0.0 0deg / 0.5);}
 	}
 
 	/* #controlPanel {
