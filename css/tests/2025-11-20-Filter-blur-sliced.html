@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
 	<title>CSS experiment</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
@@ -176,40 +177,40 @@
 		filter: blur(calc(0.015625em * var(--blur3)));
 	}
 	#selBlur1 :checked {
-		:root:has(&[value="0"]) {--blur1: 0;}
-		:root:has(&[value="1"]) {--blur1: 1;}
-		:root:has(&[value="2"]) {--blur1: 2;}
-		:root:has(&[value="4"]) {--blur1: 4;}
-		:root:has(&[value="8"]) {--blur1: 8;}
-		:root:has(&[value="16"]) {--blur1: 16;}
-		:root:has(&[value="32"]) {--blur1: 32;}
-		:root:has(&[value="64"]) {--blur1: 64;}
-		:root:has(&[value="128"]) {--blur1: 128;}
-		:root:has(&[value="256"]) {--blur1: 256;}
+		:root:has(&[label="0x"]) {--blur1: 0;}
+		:root:has(&[label="1x"]) {--blur1: 1;}
+		:root:has(&[label="2x"]) {--blur1: 2;}
+		:root:has(&[label="4x"]) {--blur1: 4;}
+		:root:has(&[label="8x"]) {--blur1: 8;}
+		:root:has(&[label="16x"]) {--blur1: 16;}
+		:root:has(&[label="32x"]) {--blur1: 32;}
+		:root:has(&[label="64x"]) {--blur1: 64;}
+		:root:has(&[label="128x"]) {--blur1: 128;}
+		:root:has(&[label="256x"]) {--blur1: 256;}
 	}
 	#selBlur2 :checked {
-		:root:has(&[value="0"]) {--blur2: 0;}
-		:root:has(&[value="1"]) {--blur2: 1;}
-		:root:has(&[value="2"]) {--blur2: 2;}
-		:root:has(&[value="4"]) {--blur2: 4;}
-		:root:has(&[value="8"]) {--blur2: 8;}
-		:root:has(&[value="16"]) {--blur2: 16;}
-		:root:has(&[value="32"]) {--blur2: 32;}
-		:root:has(&[value="64"]) {--blur2: 64;}
-		:root:has(&[value="128"]) {--blur2: 128;}
-		:root:has(&[value="256"]) {--blur2: 256;}
+		:root:has(&[label="0x"]) {--blur2: 0;}
+		:root:has(&[label="1x"]) {--blur2: 1;}
+		:root:has(&[label="2x"]) {--blur2: 2;}
+		:root:has(&[label="4x"]) {--blur2: 4;}
+		:root:has(&[label="8x"]) {--blur2: 8;}
+		:root:has(&[label="16x"]) {--blur2: 16;}
+		:root:has(&[label="32x"]) {--blur2: 32;}
+		:root:has(&[label="64x"]) {--blur2: 64;}
+		:root:has(&[label="128x"]) {--blur2: 128;}
+		:root:has(&[label="256x"]) {--blur2: 256;}
 	}
 	#selBlur3 :checked {
-		:root:has(&[value="0"]) {--blur3: 0;}
-		:root:has(&[value="1"]) {--blur3: 1;}
-		:root:has(&[value="2"]) {--blur3: 2;}
-		:root:has(&[value="4"]) {--blur3: 4;}
-		:root:has(&[value="8"]) {--blur3: 8;}
-		:root:has(&[value="16"]) {--blur3: 16;}
-		:root:has(&[value="32"]) {--blur3: 32;}
-		:root:has(&[value="64"]) {--blur3: 64;}
-		:root:has(&[value="128"]) {--blur3: 128;}
-		:root:has(&[value="256"]) {--blur3: 256;}
+		:root:has(&[label="0x"]) {--blur3: 0;}
+		:root:has(&[label="1x"]) {--blur3: 1;}
+		:root:has(&[label="2x"]) {--blur3: 2;}
+		:root:has(&[label="4x"]) {--blur3: 4;}
+		:root:has(&[label="8x"]) {--blur3: 8;}
+		:root:has(&[label="16x"]) {--blur3: 16;}
+		:root:has(&[label="32x"]) {--blur3: 32;}
+		:root:has(&[label="64x"]) {--blur3: 64;}
+		:root:has(&[label="128x"]) {--blur3: 128;}
+		:root:has(&[label="256x"]) {--blur3: 256;}
 	}
 
 	input, textarea, button, select {
@@ -542,40 +543,40 @@
 			<option label="File:Webb's First Deep Field.jpg"></option>
 		</select><br />
 		<label for="selBlur1">Blur 1:</label> <select id="selBlur1">
-			<option value="0">0x</option>
-			<option value="1">1x</option>
-			<option value="2">2x</option>
-			<option value="4" selected="selected">4x</option>
-			<option value="8">8x</option>
-			<option value="16">16x</option>
-			<option value="32">32x</option>
-			<option value="64">64x</option>
-			<option value="128">128x</option>
-			<option value="256">256x</option>
+			<option label="0x"></option>
+			<option label="1x"></option>
+			<option label="2x"></option>
+			<option label="4x" selected="selected"></option>
+			<option label="8x"></option>
+			<option label="16x"></option>
+			<option label="32x"></option>
+			<option label="64x"></option>
+			<option label="128x"></option>
+			<option label="256x"></option>
 		</select><br />
 		<label for="selBlur2">Blur 2:</label> <select id="selBlur2">
-			<option value="0">0x</option>
-			<option value="1">1x</option>
-			<option value="2">2x</option>
-			<option value="4" selected="selected">4x</option>
-			<option value="8">8x</option>
-			<option value="16">16x</option>
-			<option value="32">32x</option>
-			<option value="64">64x</option>
-			<option value="128">128x</option>
-			<option value="256">256x</option>
+			<option label="0x"></option>
+			<option label="1x"></option>
+			<option label="2x"></option>
+			<option label="4x" selected="selected"></option>
+			<option label="8x"></option>
+			<option label="16x"></option>
+			<option label="32x"></option>
+			<option label="64x"></option>
+			<option label="128x"></option>
+			<option label="256x"></option>
 		</select><br />
 		<label for="selBlur3">Blur 3:</label> <select id="selBlur3">
-			<option value="0">0x</option>
-			<option value="1">1x</option>
-			<option value="2">2x</option>
-			<option value="4" selected="selected">4x</option>
-			<option value="8">8x</option>
-			<option value="16">16x</option>
-			<option value="32">32x</option>
-			<option value="64">64x</option>
-			<option value="128">128x</option>
-			<option value="256">256x</option>
+			<option label="0x"></option>
+			<option label="1x"></option>
+			<option label="2x"></option>
+			<option label="4x" selected="selected"></option>
+			<option label="8x"></option>
+			<option label="16x"></option>
+			<option label="32x"></option>
+			<option label="64x"></option>
+			<option label="128x"></option>
+			<option label="256x"></option>
 		</select><br />
 		<!-- <input type="checkbox" id="chkPostBlur" /><label for="chkPostBlur">Post-blur</label><br /> -->
 		<output id="outX">x: </output><br />

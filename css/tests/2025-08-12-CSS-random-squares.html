@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
 
 	<title>CSS experiment: squares PRNG</title>
 	<style type="text/css">/*<![CDATA[*/
@@ -87,32 +88,32 @@
 			}
 		}
 		#selStart :checked {
-			:root:has(&[value="0"]) {--start: 0;}
-			:root:has(&[value="1"]) {--start: 1;}
-			:root:has(&[value="2"]) {--start: 2;}
-			:root:has(&[value="4"]) {--start: 4;}
-			:root:has(&[value="8"]) {--start: 8;}
-			:root:has(&[value="16"]) {--start: 16;}
-			:root:has(&[value="32"]) {--start: 32;}
-			:root:has(&[value="64"]) {--start: 64;}
-			:root:has(&[value="128"]) {--start: 128;}
-			:root:has(&[value="256"]) {--start: 256;}
-			:root:has(&[value="512"]) {--start: 512;}
-			:root:has(&[value="1024"]) {--start: 1024;}
-			:root:has(&[value="2048"]) {--start: 2048;}
-			:root:has(&[value="4096"]) {--start: 4096;}
-			:root:has(&[value="8192"]) {--start: 8192;}
-			:root:has(&[value="16384"]) {--start: 16384;}
-			:root:has(&[value="32768"]) {--start: 32768;}
-			:root:has(&[value="65536"]) {--start: 65536;}
-			:root:has(&[value="131072"]) {--start: 131072;}
-			:root:has(&[value="262144"]) {--start: 262144;}
-			:root:has(&[value="524288"]) {--start: 524288;}
-			:root:has(&[value="1048576"]) {--start: 1048576;}
-			:root:has(&[value="2097152"]) {--start: 2097152;}
-			:root:has(&[value="4194304"]) {--start: 4194304;}
-			:root:has(&[value="8388608"]) {--start: 8388608;}
-			:root:has(&[value="16777216"]) {--start: 16777216;}
+			:root:has(&[label="0"]) {--start: 0;}
+			:root:has(&[label="1"]) {--start: 1;}
+			:root:has(&[label="2"]) {--start: 2;}
+			:root:has(&[label="4"]) {--start: 4;}
+			:root:has(&[label="8"]) {--start: 8;}
+			:root:has(&[label="16"]) {--start: 16;}
+			:root:has(&[label="32"]) {--start: 32;}
+			:root:has(&[label="64"]) {--start: 64;}
+			:root:has(&[label="128"]) {--start: 128;}
+			:root:has(&[label="256"]) {--start: 256;}
+			:root:has(&[label="512"]) {--start: 512;}
+			:root:has(&[label="1024"]) {--start: 1024;}
+			:root:has(&[label="2048"]) {--start: 2048;}
+			:root:has(&[label="4096"]) {--start: 4096;}
+			:root:has(&[label="8192"]) {--start: 8192;}
+			:root:has(&[label="16384"]) {--start: 16384;}
+			:root:has(&[label="32768"]) {--start: 32768;}
+			:root:has(&[label="65536"]) {--start: 65536;}
+			:root:has(&[label="131072"]) {--start: 131072;}
+			:root:has(&[label="262144"]) {--start: 262144;}
+			:root:has(&[label="524288"]) {--start: 524288;}
+			:root:has(&[label="1048576"]) {--start: 1048576;}
+			:root:has(&[label="2097152"]) {--start: 2097152;}
+			:root:has(&[label="4194304"]) {--start: 4194304;}
+			:root:has(&[label="8388608"]) {--start: 8388608;}
+			:root:has(&[label="16777216"]) {--start: 16777216;}
 		}
 
 		@counter-style dec-frac3-sign {
@@ -227,32 +228,32 @@
 	</p>
 	<p>
 		<label for="selStart">Start:</label> <select id="selStart">
-			<option value="0" selected="selected">0</option>
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="4">4</option>
-			<option value="8">8</option>
-			<option value="16">16</option>
-			<option value="32">32</option>
-			<option value="64">64</option>
-			<option value="128">128</option>
-			<option value="256">256</option>
-			<option value="512">512</option>
-			<option value="1024">1024</option>
-			<option value="2048">2048</option>
-			<option value="4096">4096</option>
-			<option value="8192">8192</option>
-			<option value="16384">16384</option>
-			<option value="32768">32768</option>
-			<option value="65536">65536</option>
-			<option value="131072">131072</option>
-			<option value="262144">262144</option>
-			<option value="524288">524288</option>
-			<option value="1048576">1048576</option>
-			<option value="2097152">2097152</option>
-			<option value="4194304">4194304</option>
-			<option value="8388608">8388608</option>
-			<option value="16777216">16777216</option>
+			<option label="0" selected="selected"></option>
+			<option label="1"></option>
+			<option label="2"></option>
+			<option label="4"></option>
+			<option label="8"></option>
+			<option label="16"></option>
+			<option label="32"></option>
+			<option label="64"></option>
+			<option label="128"></option>
+			<option label="256"></option>
+			<option label="512"></option>
+			<option label="1024"></option>
+			<option label="2048"></option>
+			<option label="4096"></option>
+			<option label="8192"></option>
+			<option label="16384"></option>
+			<option label="32768"></option>
+			<option label="65536"></option>
+			<option label="131072"></option>
+			<option label="262144"></option>
+			<option label="524288"></option>
+			<option label="1048576"></option>
+			<option label="2097152"></option>
+			<option label="4194304"></option>
+			<option label="8388608"></option>
+			<option label="16777216"></option>
 		</select>
 	</p>
 	<p>

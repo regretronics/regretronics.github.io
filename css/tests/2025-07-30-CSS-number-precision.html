@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
 
 	<title>CSS experiment: number precision</title>
 	<style type="text/css">/*<![CDATA[*/
@@ -61,47 +62,47 @@
 			}
 		}
 		#selN :checked {
-			:root:has(&[value="-512"]) {--n: -512;}
-			:root:has(&[value="-256"]) {--n: -256;}
-			:root:has(&[value="-128"]) {--n: -128;}
-			:root:has(&[value="-64"]) {--n: -64;}
-			:root:has(&[value="-32"]) {--n: -32;}
-			:root:has(&[value="-16"]) {--n: -16;}
-			:root:has(&[value="-8"]) {--n: -8;}
-			:root:has(&[value="-4"]) {--n: -4;}
-			:root:has(&[value="-2"]) {--n: -2;}
-			:root:has(&[value="-1"]) {--n: -1;}
-			:root:has(&[value="0"]) {--n: 0;}
-			:root:has(&[value="1"]) {--n: 1;}
-			:root:has(&[value="2"]) {--n: 2;}
-			:root:has(&[value="4"]) {--n: 4;}
-			:root:has(&[value="8"]) {--n: 8;}
-			:root:has(&[value="16"]) {--n: 16;}
-			:root:has(&[value="32"]) {--n: 32;}
-			:root:has(&[value="64"]) {--n: 64;}
-			:root:has(&[value="128"]) {--n: 128;}
-			:root:has(&[value="256"]) {--n: 256;}
-			:root:has(&[value="512"]) {--n: 512;}
+			:root:has(&[label="-512"]) {--n: -512;}
+			:root:has(&[label="-256"]) {--n: -256;}
+			:root:has(&[label="-128"]) {--n: -128;}
+			:root:has(&[label="-64"]) {--n: -64;}
+			:root:has(&[label="-32"]) {--n: -32;}
+			:root:has(&[label="-16"]) {--n: -16;}
+			:root:has(&[label="-8"]) {--n: -8;}
+			:root:has(&[label="-4"]) {--n: -4;}
+			:root:has(&[label="-2"]) {--n: -2;}
+			:root:has(&[label="-1"]) {--n: -1;}
+			:root:has(&[label="0"]) {--n: 0;}
+			:root:has(&[label="1"]) {--n: 1;}
+			:root:has(&[label="2"]) {--n: 2;}
+			:root:has(&[label="4"]) {--n: 4;}
+			:root:has(&[label="8"]) {--n: 8;}
+			:root:has(&[label="16"]) {--n: 16;}
+			:root:has(&[label="32"]) {--n: 32;}
+			:root:has(&[label="64"]) {--n: 64;}
+			:root:has(&[label="128"]) {--n: 128;}
+			:root:has(&[label="256"]) {--n: 256;}
+			:root:has(&[label="512"]) {--n: 512;}
 		}
 		#selBase :checked {
-			:root:has(&[value="0"]) {--b: 0;}
-			:root:has(&[value="0.5"]) {--b: 0.5;}
-			:root:has(&[value="1"]) {--b: 1;}
-			:root:has(&[value="1.0625"]) {--b: 1.0625;}
-			:root:has(&[value="1.125"]) {--b: 1.125;}
-			:root:has(&[value="1.25"]) {--b: 1.25;}
-			:root:has(&[value="1.5"]) {--b: 1.5;}
-			:root:has(&[value="2"]) {--b: 2;}
-			:root:has(&[value="e"]) {--b: e;}
-			:root:has(&[value="4"]) {--b: 4;}
-			:root:has(&[value="8"]) {--b: 8;}
-			:root:has(&[value="10"]) {--b: 10;}
-			:root:has(&[value="16"]) {--b: 16;}
-			:root:has(&[value="32"]) {--b: 32;}
-			:root:has(&[value="64"]) {--b: 64;}
-			:root:has(&[value="128"]) {--b: 128;}
-			:root:has(&[value="256"]) {--b: 256;}
-			:root:has(&[value="512"]) {--b: 512;}
+			:root:has(&[label="0"]) {--b: 0;}
+			:root:has(&[label="0.5"]) {--b: 0.5;}
+			:root:has(&[label="1"]) {--b: 1;}
+			:root:has(&[label="1.0625"]) {--b: 1.0625;}
+			:root:has(&[label="1.125"]) {--b: 1.125;}
+			:root:has(&[label="1.25"]) {--b: 1.25;}
+			:root:has(&[label="1.5"]) {--b: 1.5;}
+			:root:has(&[label="2"]) {--b: 2;}
+			:root:has(&[label="e"]) {--b: e;}
+			:root:has(&[label="4"]) {--b: 4;}
+			:root:has(&[label="8"]) {--b: 8;}
+			:root:has(&[label="10"]) {--b: 10;}
+			:root:has(&[label="16"]) {--b: 16;}
+			:root:has(&[label="32"]) {--b: 32;}
+			:root:has(&[label="64"]) {--b: 64;}
+			:root:has(&[label="128"]) {--b: 128;}
+			:root:has(&[label="256"]) {--b: 256;}
+			:root:has(&[label="512"]) {--b: 512;}
 		}
 
 		select {
@@ -139,37 +140,37 @@
 		@supports not (animation-timeline: --scrollBar1-position) {
 			.scroll-bar, #outMagn {display: none;}
 			#selMagn :checked {
-				:root:has(&[value="0"]) {--magnitude: 0;}
-				:root:has(&[value="1"]) {--magnitude: 1;}
-				:root:has(&[value="2"]) {--magnitude: 2;}
-				:root:has(&[value="3"]) {--magnitude: 3;}
-				:root:has(&[value="4"]) {--magnitude: 4;}
-				:root:has(&[value="5"]) {--magnitude: 5;}
-				:root:has(&[value="6"]) {--magnitude: 6;}
-				:root:has(&[value="7"]) {--magnitude: 7;}
-				:root:has(&[value="8"]) {--magnitude: 8;}
-				:root:has(&[value="9"]) {--magnitude: 9;}
-				:root:has(&[value="10"]) {--magnitude: 10;}
-				:root:has(&[value="11"]) {--magnitude: 11;}
-				:root:has(&[value="12"]) {--magnitude: 12;}
-				:root:has(&[value="13"]) {--magnitude: 13;}
-				:root:has(&[value="14"]) {--magnitude: 14;}
-				:root:has(&[value="15"]) {--magnitude: 15;}
-				:root:has(&[value="16"]) {--magnitude: 16;}
-				:root:has(&[value="17"]) {--magnitude: 17;}
-				:root:has(&[value="18"]) {--magnitude: 18;}
-				:root:has(&[value="19"]) {--magnitude: 19;}
-				:root:has(&[value="20"]) {--magnitude: 20;}
-				:root:has(&[value="21"]) {--magnitude: 21;}
-				:root:has(&[value="22"]) {--magnitude: 22;}
-				:root:has(&[value="23"]) {--magnitude: 23;}
-				:root:has(&[value="24"]) {--magnitude: 24;}
-				:root:has(&[value="25"]) {--magnitude: 25;}
-				:root:has(&[value="26"]) {--magnitude: 26;}
-				:root:has(&[value="27"]) {--magnitude: 27;}
-				:root:has(&[value="28"]) {--magnitude: 28;}
-				:root:has(&[value="29"]) {--magnitude: 29;}
-				:root:has(&[value="30"]) {--magnitude: 30;}
+				:root:has(&[label="0"]) {--magnitude: 0;}
+				:root:has(&[label="1"]) {--magnitude: 1;}
+				:root:has(&[label="2"]) {--magnitude: 2;}
+				:root:has(&[label="3"]) {--magnitude: 3;}
+				:root:has(&[label="4"]) {--magnitude: 4;}
+				:root:has(&[label="5"]) {--magnitude: 5;}
+				:root:has(&[label="6"]) {--magnitude: 6;}
+				:root:has(&[label="7"]) {--magnitude: 7;}
+				:root:has(&[label="8"]) {--magnitude: 8;}
+				:root:has(&[label="9"]) {--magnitude: 9;}
+				:root:has(&[label="10"]) {--magnitude: 10;}
+				:root:has(&[label="11"]) {--magnitude: 11;}
+				:root:has(&[label="12"]) {--magnitude: 12;}
+				:root:has(&[label="13"]) {--magnitude: 13;}
+				:root:has(&[label="14"]) {--magnitude: 14;}
+				:root:has(&[label="15"]) {--magnitude: 15;}
+				:root:has(&[label="16"]) {--magnitude: 16;}
+				:root:has(&[label="17"]) {--magnitude: 17;}
+				:root:has(&[label="18"]) {--magnitude: 18;}
+				:root:has(&[label="19"]) {--magnitude: 19;}
+				:root:has(&[label="20"]) {--magnitude: 20;}
+				:root:has(&[label="21"]) {--magnitude: 21;}
+				:root:has(&[label="22"]) {--magnitude: 22;}
+				:root:has(&[label="23"]) {--magnitude: 23;}
+				:root:has(&[label="24"]) {--magnitude: 24;}
+				:root:has(&[label="25"]) {--magnitude: 25;}
+				:root:has(&[label="26"]) {--magnitude: 26;}
+				:root:has(&[label="27"]) {--magnitude: 27;}
+				:root:has(&[label="28"]) {--magnitude: 28;}
+				:root:has(&[label="29"]) {--magnitude: 29;}
+				:root:has(&[label="30"]) {--magnitude: 30;}
 			}
 		}
 		.scroll-area {
@@ -287,37 +288,37 @@
 			</div>
 		</div>
 		<select id="selMagn" class="no-scroll-bar">
-			<option value="0" selected="selected">0</option>
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>
-			<option value="7">7</option>
-			<option value="8">8</option>
-			<option value="9">9</option>
-			<option value="10">10</option>
-			<option value="11">11</option>
-			<option value="12">12</option>
-			<option value="13">13</option>
-			<option value="14">14</option>
-			<option value="15">15</option>
-			<option value="16">16</option>
-			<option value="17">17</option>
-			<option value="18">18</option>
-			<option value="19">19</option>
-			<option value="20">20</option>
-			<option value="21">21</option>
-			<option value="22">22</option>
-			<option value="23">23</option>
-			<option value="24">24</option>
-			<option value="25">25</option>
-			<option value="26">26</option>
-			<option value="27">27</option>
-			<option value="28">28</option>
-			<option value="29">29</option>
-			<option value="30">30</option>
+			<option label="0" selected="selected"></option>
+			<option label="1"></option>
+			<option label="2"></option>
+			<option label="3"></option>
+			<option label="4"></option>
+			<option label="5"></option>
+			<option label="6"></option>
+			<option label="7"></option>
+			<option label="8"></option>
+			<option label="9"></option>
+			<option label="10"></option>
+			<option label="11"></option>
+			<option label="12"></option>
+			<option label="13"></option>
+			<option label="14"></option>
+			<option label="15"></option>
+			<option label="16"></option>
+			<option label="17"></option>
+			<option label="18"></option>
+			<option label="19"></option>
+			<option label="20"></option>
+			<option label="21"></option>
+			<option label="22"></option>
+			<option label="23"></option>
+			<option label="24"></option>
+			<option label="25"></option>
+			<option label="26"></option>
+			<option label="27"></option>
+			<option label="28"></option>
+			<option label="29"></option>
+			<option label="30"></option>
 		</select>
 	</div>
 	<div>Overhead: <output id="outOverhead" data-width="10"></output></div>
@@ -325,47 +326,47 @@
 	<div>Diff: <output id="outDiff" data-width="10"></output></div>
 	<div>
 		<label for="selBase">b:</label> <select id="selBase">
-			<option value="0">0</option>
-			<option value="0.5">0.5</option>
-			<option value="1">1</option>
-			<option value="1.0625">1.0625</option>
-			<option value="1.125">1.125</option>
-			<option value="1.25">1.25</option>
-			<option value="1.5">1.5</option>
-			<option value="2" selected="selected">2</option>
-			<option value="e">e</option>
-			<option value="4">4</option>
-			<option value="8">8</option>
-			<option value="10">10</option>
-			<option value="16">16</option>
-			<option value="32">32</option>
-			<option value="64">64</option>
-			<option value="128">128</option>
-			<option value="256">256</option>
-			<option value="512">512</option>
+			<option label="0"></option>
+			<option label="0.5"></option>
+			<option label="1"></option>
+			<option label="1.0625"></option>
+			<option label="1.125"></option>
+			<option label="1.25"></option>
+			<option label="1.5"></option>
+			<option label="2" selected="selected"></option>
+			<option label="e"></option>
+			<option label="4"></option>
+			<option label="8"></option>
+			<option label="10"></option>
+			<option label="16"></option>
+			<option label="32"></option>
+			<option label="64"></option>
+			<option label="128"></option>
+			<option label="256"></option>
+			<option label="512"></option>
 		</select>
 		<label for="selN">n:</label> <select id="selN">
-			<option value="-512">-512</option>
-			<option value="-256">-256</option>
-			<option value="-128">-128</option>
-			<option value="-64">-64</option>
-			<option value="-32">-32</option>
-			<option value="-16">-16</option>
-			<option value="-8">-8</option>
-			<option value="-4">-4</option>
-			<option value="-2">-2</option>
-			<option value="-1">-1</option>
-			<option value="0" selected="selected">0</option>
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="4">4</option>
-			<option value="8">8</option>
-			<option value="16">16</option>
-			<option value="32">32</option>
-			<option value="64">64</option>
-			<option value="128">128</option>
-			<option value="256">256</option>
-			<option value="512">512</option>
+			<option label="-512"></option>
+			<option label="-256"></option>
+			<option label="-128"></option>
+			<option label="-64"></option>
+			<option label="-32"></option>
+			<option label="-16"></option>
+			<option label="-8"></option>
+			<option label="-4"></option>
+			<option label="-2"></option>
+			<option label="-1"></option>
+			<option label="0" selected="selected"></option>
+			<option label="1"></option>
+			<option label="2"></option>
+			<option label="4"></option>
+			<option label="8"></option>
+			<option label="16"></option>
+			<option label="32"></option>
+			<option label="64"></option>
+			<option label="128"></option>
+			<option label="256"></option>
+			<option label="512"></option>
 		</select>
 		b^n: <output id="outExp" class="exp" data-width="8"></output>
 	</div>
