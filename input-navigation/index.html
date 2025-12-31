@@ -59,14 +59,14 @@
 		window.requestAnimationFrame(animLoop);
 	}
 	function updateOutput() {
-		for (const i in outVars)
-			if (Object.hasOwnProperty.call(outVars, i)) {
+		for(const i in outVars)
+			if(Object.hasOwnProperty.call(outVars, i)) {
 				const vector = outVars[i];
-				for (const j in vector)
-					if (Object.hasOwnProperty.call(vector, j)) {
+				for(const j in vector)
+					if(Object.hasOwnProperty.call(vector, j)) {
 						const val = vector[j];
 						const elem = document.getElementById(`${i}${j}v`);
-						if (elem) elem.innerText = val.toFixed(4);
+						if(elem) elem.innerText = val.toFixed(4);
 					}
 			}
 	}
@@ -82,7 +82,6 @@
 		window.requestAnimationFrame(animLoop);
 	}
 
-	//window.addEventListener("DOMContentLoaded", pageLoaded);
 	/* if(document.readyState === "loading")
 		document.addEventListener("DOMContentLoaded", pageLoaded);
 	else //DOMContentLoaded has already fired

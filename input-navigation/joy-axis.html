@@ -20,19 +20,19 @@
 		text-align: right;
 	}
 
-	#imgChart {
+	#svgChart {
 		height: 12em;
 		width: 100%;
 		background-color: hsla(0 0% 75% / 0.25);
 	}
-	#imgChart rect {
+	#svgChart rect {
 		fill: white;
 	}
 
-	#valueHistory {
+	#tblValueHistory {
 		font-size: 0.8em;
 	}
-	#valueHistory td {
+	#tblValueHistory td {
 		text-align: right;
 	}
 	/*]]>*/</style>
@@ -56,7 +56,7 @@
 		try {
 			const gpList = navigator.getGamepads();
 			if(!gpList) return false;
-			if (controllerIndex >= gpList.length) return false;
+			if(controllerIndex >= gpList.length) return false;
 
 			const gp = gpList[controllerIndex];
 			if(!gp) return false;
@@ -73,16 +73,16 @@
 	}
 	const svgNS = "http://www.w3.org/2000/svg";
 	function updateOutput() {
-		const tblBody = document.querySelector("#valueHistory tbody");
-		for (let i = 0; i < tableRows; i++) {
+		const tblBody = document.querySelector("#tblValueHistory tbody");
+		for(let i = 0; i < tableRows; i++) {
 			const row = tblBody.children[i];
 			//row.children[1].innerText = Math.random().toFixed(4);
 			row.children[1].innerText = valueHistory[(valueHistoryIndex + valueHistorySize - 1 - i) % valueHistorySize].toFixed(4);
 		}
 
-		const svgChildren = document.querySelector("#imgChart").children;
+		const svgChildren = document.querySelector("#svgChart").children;
 		//svg.querySelectorAll("rect").forEach((value, key, parent) => {value.remove();});
-		for (let i = 0; i < valueHistorySize; i++) {
+		for(let i = 0; i < valueHistorySize; i++) {
 			const point = svgChildren[i];
 			//point.x.baseVal.value = i / valueHistorySize;
 			point.y.baseVal.value = 0.5 * valueHistory[(valueHistoryIndex + valueHistorySize - 1 - i) % valueHistorySize] + 0.5 - 0.5 * chartPointHeight;
@@ -103,7 +103,7 @@
 		let axisCount = 0;
 		const gpList = navigator.getGamepads();
 		if(gpList)
-			if (controllerIndex < gpList.length) {
+			if(controllerIndex < gpList.length) {
 				axisCount = gpList[controllerIndex].axes.length;
 			}
 		document.getElementById("outAxisCount").innerText = axisCount.toString();
@@ -136,9 +136,9 @@
 		valueHistory.fill(0); //to do: check this
 
 		//generate table rows for data points
-		const tblBody = document.querySelector("#valueHistory tbody");
+		const tblBody = document.querySelector("#tblValueHistory tbody");
 		tblBody.querySelectorAll("tr").forEach((value, key, parent) => {value.remove();});
-		for (let i = 0; i < tableRows; i++) {
+		for(let i = 0; i < tableRows; i++) {
 			const newRow = document.createElement("tr");
 			tblBody.appendChild(newRow);
 
@@ -151,9 +151,9 @@
 		}
 
 		//generate visual elements for data points
-		const svg = document.querySelector("#imgChart");
+		const svg = document.querySelector("#svgChart");
 		svg.querySelectorAll("rect").forEach((value, key, parent) => {value.remove();});
-		for (let i = 0; i < valueHistorySize; i++) {
+		for(let i = 0; i < valueHistorySize; i++) {
 			const newPoint = document.createElementNS(svgNS, "rect");
 			newPoint.x.baseVal.value = i / valueHistorySize;
 			newPoint.y.baseVal.value = 0.5 - 0.5 * chartPointHeight;
@@ -166,7 +166,6 @@
 		window.requestAnimationFrame(animLoop);
 	}
 
-	//window.addEventListener("DOMContentLoaded", pageLoaded);
 	/* if(document.readyState === "loading")
 		document.addEventListener("DOMContentLoaded", pageLoaded);
 	else //DOMContentLoaded has already fired
@@ -184,10 +183,10 @@
 		axes available: <output id="outAxisCount">0</output>
 	</p>
 	<p>
-		<svg id="imgChart" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none">
+		<svg id="svgChart" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1 1" preserveAspectRatio="none">
 		</svg>
 	</p>
-	<table id="valueHistory">
+	<table id="tblValueHistory">
 		<thead>
 			<tr>
 				<th scope="col">Time</th>

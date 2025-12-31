@@ -155,7 +155,6 @@ function pageReady(event) {
 	WpRndNextArticle();
 	startGameCycle();
 }
-//window.addEventListener("DOMContentLoaded", pageLoaded);
 if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
 else //DOMContentLoaded has already fired

@@ -329,7 +329,7 @@
 
 		//clear frame.
 		//to do: colors responsive to color scheme?
-		visCtx.fillStyle = "canvastext";
+		visCtx.fillStyle = "CanvasText";
 		visCtx.fillRect(0, 0, cw, ch);
 
 		//frequency guide lines.
@@ -396,10 +396,10 @@
 		//draw content.
 		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
 		const sliceWidth = (cw + 1) / maxSpectrumIndex;
-		//visCtx.fillStyle = "canvas";
+		//visCtx.fillStyle = "Canvas";
 		visCtx.fillStyle = "color(srgb 1 1 1 / 0.7)";
 		//visCtx.lineWidth = 1;
-		//visCtx.strokeStyle = "canvas";
+		//visCtx.strokeStyle = "Canvas";
 		visCtx.beginPath();
 
 		/* const sliceWidth = cw / bufferLength;
