@@ -167,7 +167,7 @@ function recalcResolution() {
 function cbxCanvasRatioChanged(event) {
 	const elem = event.target;
 	//const v = elem.value;
-	let newAspectRatio = elem.value.split("_");
+	let newAspectRatio = elem.selectedOptions[0].label.split(":");
 	aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	recalcResolution();
 }
@@ -220,10 +220,11 @@ function pageLoaded() {
 	let s;
 	if(s = localStorage.getItem("canvas.aspectRatio")) {
 		aspectRatio = JSON.parse(s);
-		cbxCanvasRatio.value = aspectRatio.join("_");
+		//cbxCanvasRatio.value = aspectRatio.join(":");
+		cbxCanvasRatio.querySelector(`[label="${aspectRatio.join(":")}"]`).selected = true;
 		//+?
 	} else {
-		let newAspectRatio = cbxCanvasRatio.value.split("_");
+		let newAspectRatio = cbxCanvasRatio.selectedOptions[0].label.split(":");
 		aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	}
 	if(s = localStorage.getItem("canvas.resMagnitude")) {
