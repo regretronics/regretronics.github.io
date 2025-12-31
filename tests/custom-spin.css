@@ -75,8 +75,8 @@
 			/* display: inline-block; */
 		}
 		& > *:hover, & > *.hover {
-			background-color: canvastext;
-			color: canvas;
+			background-color: CanvasText;
+			color: Canvas;
 		}
 		&:active {
 			background-color: darkgray;
