@@ -17,39 +17,39 @@
 			color: oklch(0.75 0 0deg);
 		}
 		#selScale :checked {
-			:root:has(&[value="0.5"]) {--scale: 0.5;}
-			:root:has(&[value="1"]) {--scale: 1;}
-			:root:has(&[value="1.5"]) {--scale: 1.5;}
-			:root:has(&[value="2"]) {--scale: 2;}
-			:root:has(&[value="3"]) {--scale: 3;}
-			:root:has(&[value="4"]) {--scale: 4;}
-			:root:has(&[value="6"]) {--scale: 6;}
-			:root:has(&[value="8"]) {--scale: 8;}
-			:root:has(&[value="12"]) {--scale: 12;}
-			:root:has(&[value="16"]) {--scale: 16;}
-			:root:has(&[value="24"]) {--scale: 24;}
-			:root:has(&[value="32"]) {--scale: 32;}
+			:root:has(&[label="0.5x"]) {--scale: 0.5;}
+			:root:has(&[label="1x"]) {--scale: 1;}
+			:root:has(&[label="1.5x"]) {--scale: 1.5;}
+			:root:has(&[label="2x"]) {--scale: 2;}
+			:root:has(&[label="3x"]) {--scale: 3;}
+			:root:has(&[label="4x"]) {--scale: 4;}
+			:root:has(&[label="6x"]) {--scale: 6;}
+			:root:has(&[label="8x"]) {--scale: 8;}
+			:root:has(&[label="12x"]) {--scale: 12;}
+			:root:has(&[label="16x"]) {--scale: 16;}
+			:root:has(&[label="24x"]) {--scale: 24;}
+			:root:has(&[label="32x"]) {--scale: 32;}
 		}
 		#selFilter :checked {
-			:root:has(&[value="none"]) {
+			:root:has(&[label="none"]) {
 				--btn-filter: ;
 			}
-			:root:has(&[value="bumpMap"]) {
+			:root:has(&[label="bumpMap"]) {
 				--btn-filter: url("#bumpMap");
 			}
-			/* :root:has(&[value="bumpMap turbulence"]) {
+			/* :root:has(&[label="bumpMap turbulence"]) {
 				--btn-filter: url("#bumpMap") url("#turbulence");
 			} */
-			:root:has(&[value="bumpMap diffuse"]) {
+			:root:has(&[label="bumpMap diffuse"]) {
 				--btn-filter: url("#bumpMap") url("#diffuse");
 			}
-			:root:has(&[value="bumpMap specular"]) {
+			:root:has(&[label="bumpMap specular"]) {
 				--btn-filter: url("#bumpMap") url("#specular");
 			}
-			:root:has(&[value="bevel"]) {
+			:root:has(&[label="bevel"]) {
 				--btn-filter: url("#bevel");
 			}
-			/* :root:has(&[value="bevelMap"]) {
+			/* :root:has(&[label="bevelMap"]) {
 				--btn-filter: url("#bevelMap");
 			} */
 		}
@@ -291,28 +291,28 @@
 	</div>
 	<p><label for="selScale">Scale:</label> 
 		<select id="selScale">
-			<option value="0.5">0.5x</option>
-			<option value="1">1x</option>
-			<option value="1.5">1.5x</option>
-			<option value="2">2x</option>
-			<option value="3">3x</option>
-			<option value="4">4x</option>
-			<option value="6">6x</option>
-			<option value="8">8x</option>
-			<option value="12">12x</option>
-			<option value="16" selected="selected">16x</option>
-			<option value="24">24x</option>
-			<option value="32">32x</option>
+			<option label="0.5x"></option>
+			<option label="1x"></option>
+			<option label="1.5x"></option>
+			<option label="2x"></option>
+			<option label="3x"></option>
+			<option label="4x"></option>
+			<option label="6x"></option>
+			<option label="8x"></option>
+			<option label="12x"></option>
+			<option label="16x" selected="selected"></option>
+			<option label="24x"></option>
+			<option label="32x"></option>
 		</select>
 	</p>
 	<p><label for="selFilter">Filter:</label> 
 		<select id="selFilter">
-			<option value="none">none</option>
-			<!-- <option value="bevelMap">bevelMap</option> -->
-			<option value="bumpMap" selected="selected">bumpMap</option>
-			<option value="bumpMap diffuse">bumpMap diffuse</option>
-			<option value="bumpMap specular">bumpMap specular</option>
-			<option value="bevel">bevel</option>
+			<option label="none"></option>
+			<!-- <option label="bevelMap"></option> -->
+			<option label="bumpMap" selected="selected"></option>
+			<option label="bumpMap diffuse"></option>
+			<option label="bumpMap specular"></option>
+			<option label="bevel"></option>
 		</select>
 	</p>
 	<p>

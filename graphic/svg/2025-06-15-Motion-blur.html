@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
 	<title>SVG motion blur</title>
 	<style type="text/css">/*<![CDATA[*/
 		@property --t {
@@ -65,19 +66,19 @@
 		}
 
 		#selBodySpeed :checked {
-			:root:has(&[value="0"]) {animation-play-state: paused, paused, paused, paused, paused;}
-			:root:has(&[value="1"]) {animation-play-state: running, paused, paused, paused, paused;}
-			:root:has(&[value="2"]) {animation-play-state: paused, running, paused, paused, paused;}
-			:root:has(&[value="4"]) {animation-play-state: paused, paused, running, paused, paused;}
-			:root:has(&[value="8"]) {animation-play-state: paused, paused, paused, running, paused;}
-			:root:has(&[value="16"]) {animation-play-state: paused, paused, paused, paused, running;}
+			:root:has(&[label="0x"]) {animation-play-state: paused, paused, paused, paused, paused;}
+			:root:has(&[label="1x"]) {animation-play-state: running, paused, paused, paused, paused;}
+			:root:has(&[label="2x"]) {animation-play-state: paused, running, paused, paused, paused;}
+			:root:has(&[label="4x"]) {animation-play-state: paused, paused, running, paused, paused;}
+			:root:has(&[label="8x"]) {animation-play-state: paused, paused, paused, running, paused;}
+			:root:has(&[label="16x"]) {animation-play-state: paused, paused, paused, paused, running;}
 		}
 		#selBlurIntensity :checked {
-			:root:has(&[value="0"]) {--filter-blur: none;}
-			:root:has(&[value="1"]) {--filter-blur: url("#blur1");}
-			:root:has(&[value="2"]) {--filter-blur: url("#blur2");}
-			:root:has(&[value="4"]) {--filter-blur: url("#blur4");}
-			:root:has(&[value="8"]) {--filter-blur: url("#blur8");}
+			:root:has(&[label="0x"]) {--filter-blur: none;}
+			:root:has(&[label="1x"]) {--filter-blur: url("#blur1");}
+			:root:has(&[label="2x"]) {--filter-blur: url("#blur2");}
+			:root:has(&[label="4x"]) {--filter-blur: url("#blur4");}
+			:root:has(&[label="8x"]) {--filter-blur: url("#blur8");}
 		}
 
 		body {
@@ -250,21 +251,21 @@
 	<div>
 		<p><label for="selBodySpeed">Speed:</label> 
 			<select id="selBodySpeed">
-				<option value="0">0x</option>
-				<option value="1">1x</option>
-				<option value="2" selected="selected">2x</option>
-				<option value="4">4x</option>
-				<option value="8">8x</option>
-				<option value="16">16x</option>
+				<option label="0x"></option>
+				<option label="1x"></option>
+				<option label="2x" selected="selected"></option>
+				<option label="4x"></option>
+				<option label="8x"></option>
+				<option label="16x"></option>
 			</select>
 		</p>
 		<p><label for="selBlurIntensity">Blur intensity:</label> 
 			<select id="selBlurIntensity">
-				<option value="0">0x</option>
-				<option value="1">1x</option>
-				<option value="2" selected="selected">2x</option>
-				<option value="4">4x</option>
-				<option value="8">8x</option>
+				<option label="0x"></option>
+				<option label="1x"></option>
+				<option label="2x" selected="selected"></option>
+				<option label="4x"></option>
+				<option label="8x"></option>
 			</select>
 		</p>
 	</div>
