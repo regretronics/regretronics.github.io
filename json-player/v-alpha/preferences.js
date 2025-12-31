@@ -328,7 +328,7 @@ function themeChanged(event) {
 }
 function updateThemeColor(hue) {
 	const hueStr = hue.toString();
-	[
+	[ //to do: reconsider this (probably should just follow current theme)
 		["(prefers-color-scheme: light)", `hsl(${hueStr}, 37.5%, 75%)`],
 		["(prefers-color-scheme: dark)", `hsl(${hueStr}, 37.5%, 25%)`],
 		["(prefers-color-scheme: light) and (prefers-contrast: more)", `hsl(${hueStr}, 50%, 12.5%)`],

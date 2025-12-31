@@ -195,7 +195,7 @@ input:is([type=checkbox], [type=radio]) + label {
 	width: calc(100% - 2*2ch);
 	max-width: 120ch;
 
-	background-color: canvas;
+	background-color: Canvas;
 }
 code, .code-editor {
 	font-size: 0.8em;

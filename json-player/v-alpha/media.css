@@ -102,13 +102,6 @@
 			transition-timing-function: ease-out;
 		}
 	}
-	/*@media screen and (not (prefers-color-scheme: light)) {
-		body {
-			color-scheme: dark;
-			background-color: canvas;
-			color: canvastext;
-		}
-	}*/
 }
 @media print {
 	input[type=number] {
