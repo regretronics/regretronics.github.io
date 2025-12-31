@@ -10,106 +10,124 @@
 	:root {
 		background-color: Canvas;
 		color: CanvasText;
-		/* color-scheme: dark; */
-		color-scheme: light;
-		font-size: 1.25em;
+		font-size: /* 1.25em */ 2.5vmin;
 	}
 	body {
 		/* overflow-wrap: break-word; */ /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
 	}
 
-	/* input {
-		font-size: 0.8em;
-	} */
-	/* input[type="number"] {
-		width: 8ch;
-		text-align: right;
-	} */
-	body > div {
-		/* background-color: attr(data-color color); */
-		float: left;
-		width: 8em;
-		height: 8em;
+	.light {
+		color-scheme: light;
 	}
-	body > div::after {
+	.dark {
+		color-scheme: dark;
+	}
+	/* .color-group {
+		clear: both;
+	} */
+	.color-plate {
+		/* float: left;
+		width: 8em;
+		height: 8em; */
+
+		display: inline-block;
+		width: 15vmin;
+		height: 7.5vmin;
+		overflow-block: clip;
+		overflow-inline: hidden;
+
+		/* background-color: attr(data-color type(<color>)); *//* not supported by firefox as of 2025-12. */
+	}
+	.color-plate::after {
 		user-select: all;
 		pointer-events: all;
 		content: attr(data-color);
+		text-shadow: 0 0 0.125em oklch(from currentColor calc(1 - l) c calc(h + 180));
+
+		/* text-wrap-mode: wrap; */ /*"whether the text inside an element is wrapped"*/
+		/* line-break: anywhere; */ /*"what set of line breaking restrictions are in effect within the element"*/
+		/* word-break: break-all; */ /*"line break opportunities for non-CJK scripts"*/
+		word-wrap: break-word; /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit"*/
+		/* overflow-wrap: anywhere; */ /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit within the line box"*/
 	}
 
-	div[data-color="AccentColor"] {
+	[data-color="AccentColor"] {
 		background-color: AccentColor;
 		color: AccentColorText;
 	}
-	div[data-color="AccentColorText"] {
+	[data-color="AccentColorText"] {
 		background-color: AccentColorText;
 		color: AccentColor;
 	}
-	div[data-color="ActiveText"] {
+	[data-color="ActiveText"] {
 		background-color: ActiveText;
 	}
-	div[data-color="ButtonBorder"] {
+	[data-color="ButtonBorder"] {
 		background-color: ButtonBorder;
+		color: Canvas;
 	}
-	div[data-color="ButtonFace"] {
+	[data-color="ButtonFace"] {
 		background-color: ButtonFace;
 		color: ButtonText;
 	}
-	div[data-color="ButtonText"] {
+	[data-color="ButtonText"] {
 		background-color: ButtonText;
 		color: ButtonFace;
 	}
-	div[data-color="Canvas"] {
+	[data-color="Canvas"] {
 		background-color: Canvas;
 		color: CanvasText;
 	}
-	div[data-color="CanvasText"] {
+	[data-color="CanvasText"] {
 		background-color: CanvasText;
 		color: Canvas;
 	}
-	div[data-color="Field"] {
+	[data-color="Field"] {
 		background-color: Field;
 		color: FieldText;
 	}
-	div[data-color="FieldText"] {
+	[data-color="FieldText"] {
 		background-color: FieldText;
 		color: Field;
 	}
-	div[data-color="GrayText"] {
+	[data-color="GrayText"] {
 		background-color: GrayText;
 	}
-	div[data-color="Highlight"] {
+	[data-color="Highlight"] {
 		background-color: Highlight;
 		color: HighlightText;
 	}
-	div[data-color="HighlightText"] {
+	[data-color="HighlightText"] {
 		background-color: HighlightText;
 		color: Highlight;
 	}
-	div[data-color="LinkText"] {
+	[data-color="LinkText"] {
 		background-color: LinkText;
 		color: Canvas;
 	}
-	div[data-color="Mark"] {
+	[data-color="Mark"] {
 		background-color: Mark;
 		color: MarkText;
 	}
-	div[data-color="MarkText"] {
+	[data-color="MarkText"] {
 		background-color: MarkText;
 		color: Mark;
 	}
-	div[data-color="SelectedItem"] {
+	[data-color="SelectedItem"] {
 		background-color: SelectedItem;
 		color: SelectedItemText;
 	}
-	div[data-color="SelectedItemText"] {
+	[data-color="SelectedItemText"] {
 		background-color: SelectedItemText;
 		color: SelectedItem;
 	}
-	div[data-color="VisitedText"] {
+	[data-color="VisitedText"] {
 		background-color: VisitedText;
 		color: Canvas;
 	}
+	/* [data-color="currentColor"] {
+		background-color: currentColor;
+	} */
 	/*]]>*/</style>
 </head>
 <body>
@@ -132,24 +150,49 @@
 	SelectedItem
 	SelectedItemText
 	VisitedText -->
-	<div data-color="AccentColor"></div>
-	<div data-color="AccentColorText"></div>
-	<div data-color="ActiveText"></div>
-	<div data-color="ButtonBorder"></div>
-	<div data-color="ButtonFace"></div>
-	<div data-color="ButtonText"></div>
-	<div data-color="Canvas"></div>
-	<div data-color="CanvasText"></div>
-	<div data-color="Field"></div>
-	<div data-color="FieldText"></div>
-	<div data-color="GrayText"></div>
-	<div data-color="Highlight"></div>
-	<div data-color="HighlightText"></div>
-	<div data-color="LinkText"></div>
-	<div data-color="Mark"></div>
-	<div data-color="MarkText"></div>
-	<div data-color="SelectedItem"></div>
-	<div data-color="SelectedItemText"></div>
-	<div data-color="VisitedText"></div>
+	<p class="color-group light">Light mode:<br />
+		<span class="color-plate" data-color="AccentColor"></span>
+		<span class="color-plate" data-color="AccentColorText"></span>
+		<span class="color-plate" data-color="ActiveText"></span>
+		<span class="color-plate" data-color="ButtonBorder"></span>
+		<span class="color-plate" data-color="ButtonFace"></span>
+		<span class="color-plate" data-color="ButtonText"></span>
+		<span class="color-plate" data-color="Canvas"></span>
+		<span class="color-plate" data-color="CanvasText"></span>
+		<span class="color-plate" data-color="Field"></span>
+		<span class="color-plate" data-color="FieldText"></span>
+		<span class="color-plate" data-color="GrayText"></span>
+		<span class="color-plate" data-color="Highlight"></span>
+		<span class="color-plate" data-color="HighlightText"></span>
+		<span class="color-plate" data-color="LinkText"></span>
+		<span class="color-plate" data-color="Mark"></span>
+		<span class="color-plate" data-color="MarkText"></span>
+		<span class="color-plate" data-color="SelectedItem"></span>
+		<span class="color-plate" data-color="SelectedItemText"></span>
+		<span class="color-plate" data-color="VisitedText"></span>
+		<!-- <span class="color-plate" data-color="currentColor"></span> -->
+	</p>
+	<p class="color-group dark">Dark mode:<br />
+		<span class="color-plate" data-color="AccentColor"></span>
+		<span class="color-plate" data-color="AccentColorText"></span>
+		<span class="color-plate" data-color="ActiveText"></span>
+		<span class="color-plate" data-color="ButtonBorder"></span>
+		<span class="color-plate" data-color="ButtonFace"></span>
+		<span class="color-plate" data-color="ButtonText"></span>
+		<span class="color-plate" data-color="Canvas"></span>
+		<span class="color-plate" data-color="CanvasText"></span>
+		<span class="color-plate" data-color="Field"></span>
+		<span class="color-plate" data-color="FieldText"></span>
+		<span class="color-plate" data-color="GrayText"></span>
+		<span class="color-plate" data-color="Highlight"></span>
+		<span class="color-plate" data-color="HighlightText"></span>
+		<span class="color-plate" data-color="LinkText"></span>
+		<span class="color-plate" data-color="Mark"></span>
+		<span class="color-plate" data-color="MarkText"></span>
+		<span class="color-plate" data-color="SelectedItem"></span>
+		<span class="color-plate" data-color="SelectedItemText"></span>
+		<span class="color-plate" data-color="VisitedText"></span>
+		<!-- <span class="color-plate" data-color="currentColor"></span> -->
+	</p>
 </body>
 </html>
