@@ -5,10 +5,8 @@ var newCW, newCH;
 var aspectRatio, resMagnitude, canvasScale;
 var colorSpace, bgIntensity, spotIntensity, spotSize;
 
-//const scaleValues = {"1_1": 1; };
-
 function canvasScaleChanged(event) {
-	let newCanvasScale = cbxCanvasScale.value.split("_");
+	let newCanvasScale = cbxCanvasScale.selectedOptions[0].label.split(":");
 	newCanvasScale = [parseInt(newCanvasScale[0]), parseInt(newCanvasScale[1])];
 	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) return;
 	newCanvasScale = newCanvasScale[1] / newCanvasScale[0];

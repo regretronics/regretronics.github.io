@@ -21,7 +21,7 @@ function exp2WithFactor3(x) {
 
 function cbxCanvasRatioChanged(event) {
 	const elem = event.target;
-	const newAspectRatio = elem.value.split("_");
+	const newAspectRatio = elem.selectedOptions[0].label.split(":");
 	aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	recalcResolution();
 }
@@ -41,7 +41,7 @@ function btnResClick(event) {
 function selColorSpaceInput(event) {
 	if(!event || !event.target) return;
 	const elem = event.target;
-	colorSpace = elem.value;
+	colorSpace = elem.selectedOptions[0].label;
 	viewUpdate();
 }
 function expSpinnerChanged(event) {
@@ -135,10 +135,11 @@ function pageLoaded() {
 	/* let s;
 	if(s = localStorage.getItem("canvas.aspectRatio")) {
 		aspectRatio = JSON.parse(s);
-		cbxCanvasRatio.value = aspectRatio.join("_");
+		//cbxCanvasRatio.value = aspectRatio.join(":");
+		cbxCanvasRatio.querySelector(`[label="${aspectRatio.join(":")}"]`).selected = true;
 		//+?
 	} else {
-		const newAspectRatio = cbxCanvasRatio.value.split("_");
+		const newAspectRatio = cbxCanvasRatio.selectedOptions[0].label.split(":");
 		aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	}
 	if(s = localStorage.getItem("canvas.resMagnitude")) {
@@ -147,7 +148,7 @@ function pageLoaded() {
 	} else {
 		resMagnitude = rngCanvasResolution.valueAsNumber;
 	} */
-	const newAspectRatio = cbxCanvasRatio.value.split("_");
+	const newAspectRatio = cbxCanvasRatio.selectedOptions[0].label.split(":");
 	aspectRatio = [parseInt(newAspectRatio[0]), parseInt(newAspectRatio[1])];
 	resMagnitude = rngCanvasResolution.valueAsNumber;
 	recalcResolution();
@@ -206,7 +207,6 @@ function pageReady() {
 	}
 }
 
-//window.addEventListener("DOMContentLoaded", pageLoaded);
 if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
 else //DOMContentLoaded has already fired

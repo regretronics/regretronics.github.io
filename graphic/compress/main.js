@@ -14,7 +14,7 @@ const sinc_r = 3;
 //note: as of 2022-09 browsers only support 8 bits per channel in raster/bitmap images; deep color and hdr pixel formats are not yet available for script manipulation.
 
 function imgSourceLoaded(event) {
-	imageScaleUpdate(selSourceScale.value, imgSource);
+	imageScaleUpdate(selSourceScale.selectedOptions[0].label, imgSource);
 	sh = event.target.naturalHeight;
 	sw = event.target.naturalWidth;
 
@@ -470,8 +470,8 @@ function pageReady(event) {
 		ch = cnvOutput.height;
 		cw = cnvOutput.width;
 
-		//imageScaleUpdate(selSourceScale.value, imgSource);
-		//imageScaleUpdate(selSourceScale.value, cnvOutput);
+		imageScaleUpdate(selSourceScale.selectedOptions[0].label, imgSource);
+		imageScaleUpdate(selSourceScale.selectedOptions[0].label, cnvOutput);
 	} else {
 		btnTransform.disabled = true;
 	}
@@ -509,7 +509,6 @@ function pageLoaded(event) {
 	chkSourceShrink.dispatchEvent(evt);
 }
 
-//window.addEventListener("DOMContentLoaded", pageLoaded);
 if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
 else //DOMContentLoaded has already fired

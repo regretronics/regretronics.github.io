@@ -1,5 +1,4 @@
 "use strict";
-//const scaleValues = {"1_1": 1; };
 
 function cbxScaleChanged(event) {
 	const elem = event.target;
@@ -11,7 +10,7 @@ function cbxScaleChanged(event) {
 function imageScaleUpdate(cbx, cnv) {
 	if(!outputC2d || !cbx || !cnv) {return;}
 
-	let ratio = cbx.value.split("_");
+	let ratio = cbx.selectedOptions[0].label.split(":");
 	ratio = [parseInt(ratio[0]), parseInt(ratio[1])];
 	if(isNaN(ratio[0]) || isNaN(ratio[1])) {return;}
 

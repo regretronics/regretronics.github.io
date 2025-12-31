@@ -10,8 +10,8 @@
 	:root {
 		/* background-color: hsl(120, 25%, 12.5%); */
 		/* color: hsl(120, 0%, 87.5%); */
-		background-color: canvas;
-		color: canvastext;
+		background-color: Canvas;
+		color: CanvasText;
 		color-scheme: dark;
 	}
 	body {
@@ -74,90 +74,90 @@
 	<p>
 		Canvas: 
 		<label for="cbxCanvasRatio">aspect ratio</label> <select id="cbxCanvasRatio">
-			<option value="3_1">3:1</option>
-			<option value="8_3">8:3</option>
-			<option value="5_2">5:2</option>
-			<option value="12_5">12:5</option>
-			<option value="9_4">9:4</option>
-			<option value="32_15">32:15</option>
+			<option label="3:1"></option>
+			<option label="8:3"></option>
+			<option label="5:2"></option>
+			<option label="12:5"></option>
+			<option label="9:4"></option>
+			<option label="32:15"></option>
 
-			<option value="2_1">2:1</option>
-			<option value="15_8">15:8</option>
-			<option value="16_9">16:9</option>
-			<option value="5_3">5:3</option>
-			<option value="8_5">8:5</option>
+			<option label="2:1"></option>
+			<option label="15:8"></option>
+			<option label="16:9"></option>
+			<option label="5:3"></option>
+			<option label="8:5"></option>
 
-			<option value="3_2" selected="true">3:2</option>
-			<option value="4_3">4:3</option>
-			<option value="6_5">6:5</option>
-			<option value="5_4">5:4</option>
-			<option value="9_8">9:8</option>
-			<option value="16_15">16:15</option>
+			<option label="3:2" selected="true"></option>
+			<option label="4:3"></option>
+			<option label="6:5"></option>
+			<option label="5:4"></option>
+			<option label="9:8"></option>
+			<option label="16:15"></option>
 
-			<option value="1_1">1:1</option>
-			<option value="15_16">15:16</option>
-			<option value="8_9">8:9</option>
-			<option value="4_5">4:5</option>
-			<option value="5_6">5:6</option>
-			<option value="3_4">3:4</option>
+			<option label="1:1"></option>
+			<option label="15:16"></option>
+			<option label="8:9"></option>
+			<option label="4:5"></option>
+			<option label="5:6"></option>
+			<option label="3:4"></option>
 
-			<option value="2_3">2:3</option>
-			<option value="5_8">5:8</option>
-			<option value="3_5">3:5</option>
-			<option value="9_16">9:16</option>
-			<option value="8_15">8:15</option>
+			<option label="2:3"></option>
+			<option label="5:8"></option>
+			<option label="3:5"></option>
+			<option label="9:16"></option>
+			<option label="8:15"></option>
 
-			<option value="1_2">1:2</option>
-			<option value="15_32">15:32</option>
-			<option value="4_9">4:9</option>
-			<option value="5_12">5:12</option>
-			<option value="2_5">2:5</option>
-			<option value="3_8">3:8</option>
+			<option label="1:2"></option>
+			<option label="15:32"></option>
+			<option label="4:9"></option>
+			<option label="5:12"></option>
+			<option label="2:5"></option>
+			<option label="3:8"></option>
 
-			<option value="1_3">1:3</option>
+			<option label="1:3"></option>
 		</select>, 
 		<label for="rngCanvasResolution">resolution</label> <input id="rngCanvasResolution" type="range" min="12" max="24" step="1" value="19" />
 		<output id="outCanvasResW">0</output>x<output id="outCanvasResH">0</output>.
 		<button id="btnResDiv2" data-delta="-2">Half res.</button> 
 		<button id="btnResMul2" data-delta="2">Double res.</button> 
 		<label for="cbxCanvasScale">Scale</label> <select id="cbxCanvasScale">
-			<option value="16_1">16:1</option>
-			<option value="12_1">12:1</option>
-			<option value="8_1">8:1</option>
-			<option value="6_1">6:1</option>
-			<option value="4_1">4:1</option>
-			<option value="3_1">3:1</option>
-			<option value="2_1">2:1</option>
-			<option value="3_2">3:2</option>
-			<option value="1_1" selected="true">1:1</option>
-			<option value="2_3">2:3</option>
-			<option value="1_2">1:2</option>
-			<option value="1_3">1:3</option>
-			<option value="1_4">1:4</option>
-			<option value="1_6">1:6</option>
-			<option value="1_8">1:8</option>
-			<option value="1_12">1:12</option>
-			<option value="1_16">1:16</option>
+			<option label="16:1"></option>
+			<option label="12:1"></option>
+			<option label="8:1"></option>
+			<option label="6:1"></option>
+			<option label="4:1"></option>
+			<option label="3:1"></option>
+			<option label="2:1"></option>
+			<option label="3:2"></option>
+			<option label="1:1" selected="true"></option>
+			<option label="2:3"></option>
+			<option label="1:2"></option>
+			<option label="1:3"></option>
+			<option label="1:4"></option>
+			<option label="1:6"></option>
+			<option label="1:8"></option>
+			<option label="1:12"></option>
+			<option label="1:16"></option>
 		</select>.
 	</p>
 	<p>
 		<label for="selColorSpace">Target color space</label> 
 		<select id="selColorSpace" data-property="--cl-space">
-			<option>srgb</option>
-			<option selected="selected">srgb-linear</option>
-			<option>a98-rgb</option>
-			<option>display-p3</option>
-			<option>display-p3-linear</option>
-			<option>prophoto-rgb</option>
-			<option>rec2020</option>
-			<option>rec2100</option>
-			<option>rec2100-linear</option>
-			<option>rec2100-display-linear</option>
-			<option>rec2100-pq</option>
-			<option>rec2100-hlg</option>
-			<option>xyz</option>
-			<option>xyz-d50</option>
-			<option>xyz-d65</option>
+			<option label="srgb"></option>
+			<option label="srgb-linear" selected="selected"></option>
+			<option label="a98-rgb"></option>
+			<option label="display-p3"></option>
+			<option label="display-p3-linear"></option>
+			<option label="prophoto-rgb"></option>
+			<option label="rec2020"></option>
+			<option label="rec2100"></option>
+			<option label="rec2100-linear"></option>
+			<option label="rec2100-display-linear"></option>
+			<option label="rec2100-pq"></option>
+			<option label="rec2100-hlg"></option>
+			<option label="xyz"></option>
+			<option label="xyz-d50"></option>
+			<option label="xyz-d65"></option>
 		</select>, 
 		<label for="txtBackgroundIntensity">background intensity</label> <input type="number" id="txtBackgroundIntensity" value="0.0625" step="0.25" min="0" max="65536" class="exp" />, 
 		<label for="txtSpotIntensity">spot intensity</label> <input type="number" id="txtSpotIntensity" value="2" step="0.25" min="0" max="65536" class="exp" />, 

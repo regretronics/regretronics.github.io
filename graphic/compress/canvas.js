@@ -1,16 +1,15 @@
 "use strict";
-//const scaleValues = {"1_1": 1; };
 
 function selScaleChanged(event) {
 	const elem = event.target;
 	if(!elem) {return;}
-	imageScaleUpdate(elem.value, imgSource);
-	imageScaleUpdate(elem.value, cnvOutput);
+	imageScaleUpdate(elem.selectedOptions[0].label, imgSource);
+	imageScaleUpdate(elem.selectedOptions[0].label, cnvOutput);
 }
 function imageScaleUpdate(ratioStr, target) {
 	if(!outputC2d || !target) {return;}
 
-	let ratio = ratioStr.split("_");
+	let ratio = ratioStr.split(":");
 	ratio = [parseInt(ratio[0]), parseInt(ratio[1])];
 	if(isNaN(ratio[0]) || isNaN(ratio[1])) {return;}
 
@@ -25,7 +24,7 @@ function imageScaleUpdate(ratioStr, target) {
 
 function canvasSizeChanged(cnvOutput) {
 	if(!outputC2d) {return;}
-	imageScaleUpdate(selSourceScale.value, cnvOutput);
+	imageScaleUpdate(selSourceScale.selectedOptions[0].label, cnvOutput);
 
 	//to do: use ImageData() constructor instead of CanvasRenderingContext2D.createImageData()?
 	/*imgData = outputC2d.createImageData(cw, ch);

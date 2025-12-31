@@ -1,10 +1,8 @@
 "use strict";
 
-//const scaleValues = {"1_1": 1; };
-
 function canvasScaleChanged(event) {
 	if(!c2d) return;
-	let newCanvasScale = cbxCanvasScale.value.split("_");
+	let newCanvasScale = cbxCanvasScale.selectedOptions[0].label.split(":");
 	newCanvasScale = [parseInt(newCanvasScale[0]), parseInt(newCanvasScale[1])];
 	//isNaN and isFinite requires ECMAScript 6/2015.
 	if(isNaN(newCanvasScale[0]) || isNaN(newCanvasScale[1])) return;
