@@ -1,0 +1,44 @@
+:root {
+	font-size: min(3em, 15vmin);
+}
+@keyframes timeoutState {
+	from {width: 0%;}
+	to {width: 100%;}
+}
+.progress-box {
+	display: inline-block;
+	width: 100%;
+	width: stretch; /* for those that support it */
+	height: 1em;
+	background-color: oklch(0.25 0.03125 var(--hue1-ang, 0deg));
+}
+.fill-bar {
+	position: relative;
+	left: 0;
+	top: 0;
+
+	display: block;
+	width: 0%;
+	height: 100%;
+	
+	background-color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
+
+	:root:has(meta[http-equiv="refresh"][content]) & {
+		animation-name: timeoutState;
+		animation-duration: calc(1s * var(--timeout-secs));
+		animation-timing-function: linear;
+		animation-fill-mode: both;
+	}
+}
+
+/* head, */ body meta {
+	display: inline;
+	font-family: monospace;
+}
+meta[http-equiv][content]::after {
+	content: attr(http-equiv) ": " attr(content);
+	hyphens: none;
+}
+.code {
+	hyphens: none;
+}
