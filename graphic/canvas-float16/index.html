@@ -38,6 +38,28 @@
 		max-width: min(120ch, 100% - 3ch);
 		margin-inline: auto;
 	}
+
+	@property --test-color {
+		syntax: "\3c color\3e | auto";
+		inherits: true;
+		initial-value: auto;
+	}
+	#selColorSpace option {
+		--test-color: color(attr(label type(*)) 0 0 0);
+		background-color: if(
+			style(--test-color: auto): oklch(0.25 0.125 25deg); 
+			else: unset;);
+		color: if(
+			style(--test-color: auto): oklch(0.75 0.125 25deg); 
+			else: unset;);
+
+		/* &::after {
+			content: if(
+			style(--test-color: auto): " \002717"; 
+			else: " \002713";);
+		} */
+	}
+
 	input[type="number"] {
 		/* width: 5em; */
 		text-align: right;
@@ -142,7 +164,7 @@
 	</p>
 	<p>
 		<label for="selColorSpace">Target color space</label> 
-		<select id="selColorSpace" data-property="--cl-space">
+		<select id="selColorSpace">
 			<option label="srgb"></option>
 			<option label="srgb-linear" selected="selected"></option>
 			<option label="a98-rgb"></option>
