@@ -10,45 +10,71 @@
 			dynamic-range-limit: no-limit;
 			background-color: oklch(0.25 0 0deg);
 		}
-		.blob {
-			width: 25vmin;
-			height: 25vmin;
+		.notice.error {
+			color: red;
+		}
+		@supports (color: attr(data-test type(<color>))) {
+			.notice.error.feature-attr {
+				display: none;
+			}
+		}
+		@property --test-color {
+			syntax: "\3c color\3e | auto";
+			inherits: true;
+			initial-value: auto;
+		}
+		.color-plate {
 			margin: 1em;
 			display: inline-block;
-			font-size: 3vmin;
+			width: 25vmin;
+			height: 25vmin;
 
 			border-style: solid;
 			border-width: 1px;
 			border-color: black;
 
-			background-color: attr(data-color type(<color>));
+			--test-color: attr(data-color type(<color>));
+			background-color: var(--test-color);
+			font-size: 3vmin;
 		}
-		.blob::after {
+		.color-plate::after {
 			display: -webkit-box; /* ? */
 			/* display: inline-flex; */
+
+			background-color: oklch(0.25 0 0deg / 0.5);
+			color: oklch(0.75 0.125 205deg);
+
 			content: attr(data-color);
-			color: orange;
+			content: attr(data-color) if(
+				style(--test-color: auto): " 🙁"; 
+				else: " \002713";);
+		}
+		@container style(--test-color: auto) {
+			.color-plate::after, .color-plate::marker {
+				color: red;
+			}
 		}
 	/*]]>*/</style>
 </head>
 <body>
+	<p class="notice error feature-attr">Your browser does not support the necessary feature for this test (if you are reading this through your user agent).</p>
 	<div class="wrap">
-		<div class="blob" data-color="color(srgb-linear 0.5 0.5 0.5)"></div>
-		<div class="blob" data-color="color(srgb-linear 10 10 10)"></div>
-		<div class="blob" data-color="color(display-p3-linear 10 10 10)"></div>
-		<div class="blob" data-color="color(rec2020 1 1 1)"></div>
-		<div class="blob" data-color="color(rec2020 2 2 2)"></div>
-		<div class="blob" data-color="color(rec2100 10 10 10)"></div>
-		<div class="blob" data-color="color(rec2100-linear 10 10 10)"></div>
-		<div class="blob" data-color="color(rec2100-display-linear 10 10 10)"></div>
-		<div class="blob" data-color="color(rec2100-pq 1.0 1.0 1.0)"></div>
-		<div class="blob" data-color="color(rec2100-hlg 1.0 1.0 1.0)"></div>
-		<div class="blob" data-color="color(xyz 10 10 10)"></div>
-		<div class="blob" data-color="ictcp(0.58069 0 0)"></div>
-		<div class="blob" data-color="ictcp(0.5393 -0.2643 -0.0625)"></div>
-		<div class="blob" data-color="jzazbz(0.22207 -0.00016 -0.00012)"></div>
-		<div class="blob" data-color="jzczhz(0.17542 0.1614 132.50)"></div>
-		<div class="blob" data-color="jzazbz(0.8 0 0)"></div>
+		<div class="color-plate" data-color="color(srgb-linear 0.5 0.5 0.5)"></div>
+		<div class="color-plate" data-color="color(srgb-linear 10 10 10)"></div>
+		<div class="color-plate" data-color="color(display-p3-linear 10 10 10)"></div>
+		<div class="color-plate" data-color="color(rec2020 1 1 1)"></div>
+		<div class="color-plate" data-color="color(rec2020 2 2 2)"></div>
+		<div class="color-plate" data-color="color(rec2100 10 10 10)"></div>
+		<div class="color-plate" data-color="color(rec2100-linear 10 10 10)"></div>
+		<div class="color-plate" data-color="color(rec2100-display-linear 10 10 10)"></div>
+		<div class="color-plate" data-color="color(rec2100-pq 1.0 1.0 1.0)"></div>
+		<div class="color-plate" data-color="color(rec2100-hlg 1.0 1.0 1.0)"></div>
+		<div class="color-plate" data-color="color(xyz 10 10 10)"></div>
+		<div class="color-plate" data-color="ictcp(0.58069 0 0)"></div>
+		<div class="color-plate" data-color="ictcp(0.5393 -0.2643 -0.0625)"></div>
+		<div class="color-plate" data-color="jzazbz(0.22207 -0.00016 -0.00012)"></div>
+		<div class="color-plate" data-color="jzczhz(0.17542 0.1614 132.50)"></div>
+		<div class="color-plate" data-color="jzazbz(0.8 0 0)"></div>
 	</div>
 	<ul>
 		<li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value">https://developer.mozilla.org/en-US/docs/Web/CSS/color_value</a></li>

@@ -25,6 +25,11 @@
 	/* .color-group {
 		clear: both;
 	} */
+	@property --test-color {
+		syntax: "\3c color\3e | auto";
+		inherits: true;
+		initial-value: auto;
+	}
 	.color-plate {
 		/* float: left;
 		width: 8em;
@@ -36,19 +41,24 @@
 		overflow-block: clip;
 		overflow-inline: hidden;
 
+		--test-color: attr(data-color type(<color>));
 		/* background-color: attr(data-color type(<color>)); *//* not supported by firefox as of 2025-12. */
 	}
 	.color-plate::after {
-		user-select: all;
-		pointer-events: all;
-		content: attr(data-color);
-		text-shadow: 0 0 0.125em oklch(from currentColor calc(1 - l) c calc(h + 180));
-
 		/* text-wrap-mode: wrap; */ /*"whether the text inside an element is wrapped"*/
 		/* line-break: anywhere; */ /*"what set of line breaking restrictions are in effect within the element"*/
 		/* word-break: break-all; */ /*"line break opportunities for non-CJK scripts"*/
 		word-wrap: break-word; /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit"*/
 		/* overflow-wrap: anywhere; */ /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit within the line box"*/
+
+		user-select: all;
+		pointer-events: all;
+		text-shadow: 0 0 0.125em oklch(from currentColor calc(1 - l) calc(0.5 * c) calc(h + 180));
+
+		content: attr(data-color);
+		content: attr(data-color) if(
+			style(--test-color: auto): " 🙁"; 
+			else: " \002713";);
 	}
 
 	[data-color="AccentColor"] {
@@ -170,6 +180,7 @@
 		<span class="color-plate" data-color="SelectedItem"></span>
 		<span class="color-plate" data-color="SelectedItemText"></span>
 		<span class="color-plate" data-color="VisitedText"></span>
+		<span class="color-plate" data-color="ArbitraryName"></span>
 		<!-- <span class="color-plate" data-color="currentColor"></span> -->
 	</p>
 	<p class="color-group dark">Dark mode:<br />
@@ -192,6 +203,7 @@
 		<span class="color-plate" data-color="SelectedItem"></span>
 		<span class="color-plate" data-color="SelectedItemText"></span>
 		<span class="color-plate" data-color="VisitedText"></span>
+		<span class="color-plate" data-color="ArbitraryName"></span>
 		<!-- <span class="color-plate" data-color="currentColor"></span> -->
 	</p>
 </body>
