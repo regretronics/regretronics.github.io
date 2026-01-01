@@ -42,10 +42,16 @@
 			--test-color: color(attr(label type(*)) 0 0 0);
 			background-color: if(
 				style(--test-color: auto): oklch(0.25 0.125 25deg); 
-				else: Canvas;);
+				else: unset;);
 			color: if(
 				style(--test-color: auto): oklch(0.75 0.125 25deg); 
-				else: CanvasText;);
+				else: unset;);
+
+			/* &::after {
+				content: if(
+				style(--test-color: auto): " \002717"; 
+				else: " \002713";);
+			} */
 		}
 		/* didn't work */
 		/* @container style(--test-color: auto) {

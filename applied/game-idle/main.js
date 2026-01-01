@@ -124,7 +124,7 @@ function chkWpRunningClick(event) {
 
 function pageLoaded(event) {
 	//starting point for hue of color scheme
-	document.documentElement.style.setProperty("--hue-phase", Math.random() + "turn");
+	document.documentElement.style.setProperty("--hue-phase", Math.random().toFixed(5) + "turn");
 
 	//load HTML element references (renders document.getElementById unnecessary)
 	for(let s of document.querySelectorAll("[id]"))
