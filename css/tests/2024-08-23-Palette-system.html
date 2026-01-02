@@ -41,8 +41,8 @@
 	.light, .dark {
 		/* background-color: Canvas;
 		color: CanvasText; */
-		background-color: oklab(from Canvas l a b / calc(0.5 * alpha));
-		color: oklab(from CanvasText l a b / alpha);
+		background-color: color(from Canvas xyz x y z / calc(0.5 * alpha));
+		color: color(from CanvasText xyz x y z / alpha);
 	}
 	.light {
 		color-scheme: light;
@@ -89,14 +89,14 @@
 
 		user-select: all;
 		pointer-events: all;
-		text-shadow: 0 0 0.125em var(--fg-opp);
+		text-shadow: 0 0 0.125em var(--shadow-clr);
 
 		content: attr(data-color);
 	}
 	.color-plate::after {
 		display: block;
 
-		text-shadow: 0 0 0.125em var(--fg-opp);
+		text-shadow: 0 0 0.125em var(--shadow-clr);
 
 		content: if(
 			style(--test-color: auto): " 🙁"; 
@@ -104,23 +104,31 @@
 	}
 
 	.color-plate[data-color] {
-		/* --opp: calc(1 - l) calc(0.5 * c) calc(h + 180); */
-		--opp: clamp(0, 1.5 - 2 * l, 1) calc(0.5 * c) calc(h + 180);
-		--bg-opp: oklch(from var(--bg) var(--opp) / 0.75);
-		--fg-opp: oklch(from var(--fg) var(--opp) / 1);
+		--opp: clamp(0, 1.5 - 2 * l, 1) calc(-0.5 * a) calc(-0.5 * b);
+
+		--bg-opp: oklab(from var(--bg) var(--opp) / 1);
+		--fg-opp: oklab(from var(--fg) var(--opp) / 1);
+
+		/* --text-clr: color-mix(in oklab, var(--bg-opp), var(--fg)); */
+		/* --text-clr: var(--bg-opp); */
+		--text-clr: var(--fg);
+
+		/* --shadow-clr: oklab(from var(--text-clr) var(--opp) / 1); */
+		--shadow-clr: var(--bg-opp);
+		/* --shadow-clr: var(--fg-opp); */
+		/* --shadow-clr: var(--text-clr); */
 
 		background-clip: padding-box;
-		background-image: linear-gradient(var(--bg, transparent)), url("../../assets/pattern-neutral-soft.svg");
+		background-image: linear-gradient(var(--bg)), url("../../assets/pattern-neutral-soft.svg");
 		background-size: cover, 2em 2em;
-		background-repeat: initial, repeat;
-		background-position: initial, center;
-
+		background-repeat: no-repeat, repeat;
+		background-position: center;
 		/* background-color: var(--bg); */
-		/* color: var(--fg); */
-		color: color-mix(in oklab, var(--bg-opp), var(--fg));
+
+		color: var(--text-clr);
 
 		border-style: solid;
-		border-color: var(--bg-opp);
+		border-color: color(from var(--bg-opp) xyz x y z / calc(0.75 * alpha));
 		border-width: 0.125em;
 	}
 	[data-color="AccentColor"] {
