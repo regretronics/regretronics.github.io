@@ -10,7 +10,9 @@
 	:root {
 		background-color: Canvas;
 		color: CanvasText;
-		font-size: /* 1.25em */ 2.5vmin;
+		/* font-size: 1.25em; */
+		/* font-size: 2.5vmin; */
+		font-size: calc(1.5vmin + 1.5vmax);
 	}
 	body {
 		/* overflow-wrap: break-word; */ /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
@@ -36,15 +38,17 @@
 		height: 8em; */
 
 		display: inline-block;
-		width: 15vmin;
-		height: 7.5vmin;
+		width: 7em;
+		height: 3.5em;
 		overflow-block: clip;
 		overflow-inline: hidden;
 
 		--test-color: attr(data-color type(<color>));
 		/* background-color: attr(data-color type(<color>)); *//* not supported by firefox as of 2025-12. */
 	}
-	.color-plate::after {
+	.color-plate::before {
+		display: block;
+
 		/* text-wrap-mode: wrap; */ /*"whether the text inside an element is wrapped"*/
 		/* line-break: anywhere; */ /*"what set of line breaking restrictions are in effect within the element"*/
 		/* word-break: break-all; */ /*"line break opportunities for non-CJK scripts"*/
@@ -56,7 +60,13 @@
 		text-shadow: 0 0 0.125em oklch(from currentColor calc(1 - l) calc(0.5 * c) calc(h + 180));
 
 		content: attr(data-color);
-		content: attr(data-color) if(
+	}
+	.color-plate::after {
+		display: block;
+
+		text-shadow: 0 0 0.125em oklch(from currentColor calc(1 - l) calc(0.5 * c) calc(h + 180));
+
+		content: if(
 			style(--test-color: auto): " 🙁"; 
 			else: " \002713";);
 	}

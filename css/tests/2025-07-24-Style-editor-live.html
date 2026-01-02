@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zxx" xml:lang="zxx">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,7 +16,7 @@
 	body style[contenteditable]:not([contenteditable="false"]) {
 		display: block;
 		padding: 0.25em;
-		max-height: 80svh; /* small viewport height */
+		max-height: min(80svh, 80dvh); /* small viewport height, dynamic viewport height */
 
 		background-color: oklch(0.125 0 0deg);
 
