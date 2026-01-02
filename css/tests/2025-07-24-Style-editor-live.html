@@ -10,14 +10,18 @@
 		color-scheme: dark;
 		background-color: oklch(0.25 0 0deg);
 		color: oklch(0.875 0 0deg);
+
 		font-size: 1.5em;
 	}
 	body style[contenteditable]:not([contenteditable="false"]) {
 		display: block;
+		padding: 0.25em;
+		max-height: 80svh; /* small viewport height */
+
+		background-color: oklch(0.125 0 0deg);
+
 		white-space: pre-wrap;
 		font-family: monospace;
-		background-color: oklch(0.125 0 0deg);
-		padding: 0.25em;
 	}
 
 	/* &:nth-child(n + 9):nth-child(-n + 16) {
