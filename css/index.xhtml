@@ -22,12 +22,12 @@
 		<li>Color
 			<ul>
 				<li><a class="no-hyphen" href="color/palette-system.xhtml">palette-system</a> (2024-08-23): experiment with system colors.</li>
-				<!-- <li><a class="no-hyphen" href="color/palette-system-simple.xhtml">palette-system-simple</a></li> -->
+				<!-- <li><a class="no-hyphen" href="color/palette-system-simple.xhtml">palette-system-simple</a> (2026-01-01)</li> -->
 				<li><a class="no-hyphen" href="color/hdr-colors-test.xhtml">hdr-colors-test</a> (2024-11-30): experiments with HDR and <a href="https://en.wikipedia.org/wiki/Rec._2100">rec-2100</a> (unsupported in browsers, as of 2025-05).</li>
-				<li><a class="no-hyphen" href="color/supports-colors.xhtml">supports-colors</a> (2025-12-29): bulk testing of many CSS color values and expressions. Depends on an advanced usage of the attr() function, so as of 2025-12, doesn't work in Firefox.</li>
+				<li><a class="no-hyphen" href="color/spaces-and-hues.xhtml" data-href="color/&shy;spaces-&shy;and-&shy;hues.xhtml">spaces-and-hues</a> (2025-03-10): uses some JavaScript. (Runs in Chrome, not in Firefox, as of 2025-05.)</li>
 				<li><a class="no-hyphen" href="color/color-scheme.xhtml">color-scheme</a> (2025-12-03): a few modern CSS experiments on color schemes, including the prefers-color-scheme media query. Uses the if() function, so as of 2025-12, doesn't work in Firefox.</li>
 				<li><a class="no-hyphen" href="color/color-scheme-02.xhtml">color-scheme-02</a> (2025-12-03): draft of a CSS color scheme engine. As of 2025-12, doesn't work properly in Firefox.</li>
-				<li><a class="no-hyphen" href="color/spaces-and-hues.xhtml" data-href="color/&shy;spaces-&shy;and-&shy;hues.xhtml">spaces-and-hues</a> (2025-03-10): uses some JavaScript. (Runs in Chrome, not in Firefox, as of 2025-05.)</li>
+				<li><a class="no-hyphen" href="color/supports-colors.xhtml">supports-colors</a> (2025-12-29): bulk testing of many CSS color values and expressions. Depends on an advanced usage of the attr() function, so as of 2025-12, doesn't work in Firefox.</li>
 			</ul>
 		</li>
 		<li>Animation
@@ -53,23 +53,23 @@
 		</li> -->
 		<li>Numerical
 			<ul>
-				<li><a class="no-hyphen" href="tests/2025-04-25-CSS-vars-counters.html">2025-04-25-CSS-vars-counters</a>: experiments with animations, counters, attr(), animation-timeline, @counter-style, content, sibling-index(). Doesn't fully work in Firefox as of 2025-05.</li>
-				<li><a class="no-hyphen" href="tests/2025-05-03-CSS-random.html">2025-05-03-CSS-random</a>: random-access (non-cumulative) PRNG (pseudo-random number generator). One of the few pages using JavaScript for something. Doesn't work in Firefox as of 2025-05.</li>
-				<li><a class="no-hyphen" href="tests/2025-05-03-CSS-random02.html">2025-05-03-CSS-random02</a>: PRNG with interpolation by cubic splines. Doesn't work in Firefox as of 2025-05.</li>
-				<!-- 2025-05-03-CSS-random-float32.html not mature yet. -->
-				<li><a class="no-hyphen" href="tests/2025-07-30-CSS-number-precision.html">2025-07-30-CSS-number-precision</a>: testing the precision of CSS floating-point numbers (as of 2025, Firefox uses float32 and Chrome uses float64).</li>
-				<li><a class="no-hyphen" href="tests/2025-08-12-CSS-random-squares.html">2025-08-12-CSS-random-squares</a>: another PRNG, adapted within the limits of float32. Based on the paper <cite><a href="https://arxiv.org/abs/2004.06278">Squares: A Fast Counter-Based RNG</a></cite> by Bernard Widynski.</li>
-				<li><a class="no-hyphen" href="tests/2025-12-15-Polar-tracking.html">2025-12-15-Polar-tracking</a>: based on 2025-04-29-CSS-tracking; experiments with CSS math and CSS gradients.</li>
+				<li><a class="no-hyphen" href="numerical/vars-counters.xhtml">vars-counters</a> (2025-04-25): experiments with animations, counters, attr(), animation-timeline, @counter-style, content, sibling-index(). Doesn't fully work in Firefox as of 2025-05.</li>
+				<li><a class="no-hyphen" href="numerical/random-01.xhtml">random-01</a> (2025-05-03): random-access (non-cumulative) PRNG (pseudo-random number generator). One of the few pages using JavaScript for something. Doesn't work in Firefox as of 2025-05.</li>
+				<li><a class="no-hyphen" href="numerical/random-02.xhtml">random-02</a> (2025-05-04): PRNG with interpolation by cubic splines. Doesn't work in Firefox as of 2025-05.</li>
+				<!-- random-float32.html (added 2025-07-30) not mature yet. -->
+				<li><a class="no-hyphen" href="numerical/number-precision.xhtml">number-precision</a> (2025-07-30): testing the precision of CSS floating-point numbers (as of 2025, Firefox uses float32 and Chrome uses float64).</li>
+				<li><a class="no-hyphen" href="numerical/random-squares.xhtml">random-squares</a> (2025-08-12): another PRNG, adapted within the limits of float32. Based on the paper <cite><a href="https://arxiv.org/abs/2004.06278">Squares: A Fast Counter-Based RNG</a></cite> by Bernard Widynski.</li>
+				<li><a class="no-hyphen" href="numerical/tracking-polar.xhtml">tracking-polar</a> (2025-12-15): based on 2025-04-29-CSS-tracking; experiments with CSS math and CSS gradients.</li>
 			</ul>
 		</li>
 		<li>Metaball-like blobs:
 			<ul>
-				<li><a class="no-hyphen" href="tests/Metaballs-original.html">Metaballs-original</a> (not by me)</li>
-				<li><a class="no-hyphen" href="tests/Metaballs-hc-v01.html">Metaballs-hc-v01</a>: some changes later.</li>
-				<li><a class="no-hyphen" href="tests/Filter-test-v03.html">Filter-test-v03</a>: texture deformation by particles, using SVG filters. This and later ones below don't work properly in Firefox as of 2025-05.</li>
-				<li><a class="no-hyphen" href="tests/Filter-test-v04.html">Filter-test-v04</a>: more advanced control of deformation in each particle.</li>
-				<li><a class="no-hyphen" href="tests/Filter-test-v05.html">Filter-test-v05</a>: using my custom CSS PRNG.</li>
-				<li><a class="no-hyphen" href="tests/Filter-test-v06.html">Filter-test-v06</a>: more SVG, less HTML.</li>
+				<li><a class="no-hyphen" href="tests/Metaballs-original.html">Metaballs-original</a> (found 2023-07-06) (not by me)</li>
+				<li><a class="no-hyphen" href="tests/Metaballs-hc-v01.html">Metaballs-hc-v01</a> (2023-07-06): some changes later.</li>
+				<li><a class="no-hyphen" href="tests/Filter-test-v03.html">Filter-test-v03</a> (2023-07-07): texture deformation by particles, using SVG filters. This and later ones below don't work properly in Firefox as of 2025-05.</li>
+				<li><a class="no-hyphen" href="tests/Filter-test-v04.html">Filter-test-v04</a> (2024-08-22): more advanced control of deformation in each particle.</li>
+				<li><a class="no-hyphen" href="tests/Filter-test-v05.html">Filter-test-v05</a> (2025-05-04): using my custom CSS PRNG.</li>
+				<li><a class="no-hyphen" href="tests/Filter-test-v06.html">Filter-test-v06</a> (2025-05-13): more SVG, less HTML.</li>
 				<li><a class="no-hyphen" href="tests/2025-05-14-Color-map.html">2025-05-14-Color-map</a>: custom color map, using SVG filters.</li>
 				<li><a class="no-hyphen" href="tests/2025-05-14-Color-map-mono.html">2025-05-14-Color-map-mono</a></li>
 			</ul>

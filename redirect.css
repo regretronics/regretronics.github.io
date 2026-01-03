@@ -20,7 +20,7 @@
 	display: block;
 	width: 0%;
 	height: 100%;
-	
+
 	background-color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
 
 	:root:has(meta[http-equiv="refresh"][content]) & {
