@@ -24,7 +24,7 @@
 				<li><a class="no-hyphen" href="color/palette-system.xhtml">palette-system</a> (2024-08-23): experiment with system colors.</li>
 				<!-- <li><a class="no-hyphen" href="color/palette-system-simple.xhtml">palette-system-simple</a> (2026-01-01)</li> -->
 				<li><a class="no-hyphen" href="color/hdr-colors-test.xhtml">hdr-colors-test</a> (2024-11-30): experiments with HDR and <a href="https://en.wikipedia.org/wiki/Rec._2100">rec-2100</a> (unsupported in browsers, as of 2025-05).</li>
-				<li><a class="no-hyphen" href="color/spaces-and-hues.xhtml" data-href="color/&shy;spaces-&shy;and-&shy;hues.xhtml">spaces-and-hues</a> (2025-03-10): uses some JavaScript. (Runs in Chrome, not in Firefox, as of 2025-05.)</li>
+				<li><a class="no-hyphen" href="color/spaces-and-hues.xhtml" data-href="color/&shy;spaces-&shy;and-&shy;hues.xhtml">spaces-and-hues</a> (2025-03-10): some color operations and gamut testing. Uses some JavaScript. (Runs in Chrome, not in Firefox, as of 2025-05.)</li>
 				<li><a class="no-hyphen" href="color/color-scheme.xhtml">color-scheme</a> (2025-12-03): a few modern CSS experiments on color schemes, including the prefers-color-scheme media query. Uses the if() function, so as of 2025-12, doesn't work in Firefox.</li>
 				<li><a class="no-hyphen" href="color/color-scheme-02.xhtml">color-scheme-02</a> (2025-12-03): draft of a CSS color scheme engine. As of 2025-12, doesn't work properly in Firefox.</li>
 				<li><a class="no-hyphen" href="color/supports-colors.xhtml">supports-colors</a> (2025-12-29): bulk testing of many CSS color values and expressions. Depends on an advanced usage of the attr() function, so as of 2025-12, doesn't work in Firefox.</li>
@@ -55,14 +55,14 @@
 			<ul>
 				<li><a class="no-hyphen" href="numerical/vars-counters.xhtml">vars-counters</a> (2025-04-25): experiments with animations, counters, attr(), animation-timeline, @counter-style, content, sibling-index(). Doesn't fully work in Firefox as of 2025-05.</li>
 				<li><a class="no-hyphen" href="numerical/random-01.xhtml">random-01</a> (2025-05-03): random-access (non-cumulative) PRNG (pseudo-random number generator). One of the few pages using JavaScript for something. Doesn't work in Firefox as of 2025-05.</li>
-				<li><a class="no-hyphen" href="numerical/random-02.xhtml">random-02</a> (2025-05-04): PRNG with interpolation by cubic splines. Doesn't work in Firefox as of 2025-05.</li>
-				<!-- random-float32.html (added 2025-07-30) not mature yet. -->
+				<li><a class="no-hyphen" href="numerical/random-seq-interpolated.xhtml">random-seq-interpolated</a> (2025-05-04): PRNG with interpolation by cubic splines. Doesn't work in Firefox as of 2025-05.</li>
+				<!-- random-float32.html (2025-07-30) not mature yet. -->
 				<li><a class="no-hyphen" href="numerical/number-precision.xhtml">number-precision</a> (2025-07-30): testing the precision of CSS floating-point numbers (as of 2025, Firefox uses float32 and Chrome uses float64).</li>
 				<li><a class="no-hyphen" href="numerical/random-squares.xhtml">random-squares</a> (2025-08-12): another PRNG, adapted within the limits of float32. Based on the paper <cite><a href="https://arxiv.org/abs/2004.06278">Squares: A Fast Counter-Based RNG</a></cite> by Bernard Widynski.</li>
 				<li><a class="no-hyphen" href="numerical/tracking-polar.xhtml">tracking-polar</a> (2025-12-15): based on 2025-04-29-CSS-tracking; experiments with CSS math and CSS gradients.</li>
 			</ul>
 		</li>
-		<li>Metaball-like blobs:
+		<li>Metaball-like blobs
 			<ul>
 				<li><a class="no-hyphen" href="tests/Metaballs-original.html">Metaballs-original</a> (found 2023-07-06) (not by me)</li>
 				<li><a class="no-hyphen" href="tests/Metaballs-hc-v01.html">Metaballs-hc-v01</a> (2023-07-06): some changes later.</li>
@@ -74,7 +74,7 @@
 				<li><a class="no-hyphen" href="tests/2025-05-14-Color-map-mono.html">2025-05-14-Color-map-mono</a></li>
 			</ul>
 		</li>
-		<li>Tests/miscellanea
+		<li>Miscellanea/simple tests
 			<ul>
 				<li><a class="no-hyphen" href="tests/2023-11-22-CSS-state.html">2023-11-22-CSS-state</a>: experiments with :has() and non-local effects, counters, attr(), oklch(), atan2(), polygon(), cubic-bezier().</li>
 				<li><a class="no-hyphen" href="tests/2024-06-25-CSS-state.html">2024-06-25-CSS-state</a>: experiments with form controls, CSS custom variables, :has(), backdrop-filter, text-shadow, box-shadow, parametric page theme.</li>

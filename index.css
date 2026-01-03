@@ -45,7 +45,7 @@ a:link {
 	color: oklch(0.75 0.125 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 a:visited {
-	color: oklch(0.75 0.0625 calc(var(--hue1-ang, 0deg) + 30deg));
+	color: oklch(0.75 0.03125 calc(var(--hue1-ang, 0deg) + 30deg));
 }
 :any-link:hover {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
