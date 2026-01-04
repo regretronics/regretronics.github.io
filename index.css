@@ -9,6 +9,8 @@
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
 }
 body {
+	/* margin: min(1em, 3vmin); */
+	margin: 3vmin;
 	font-variant: slashed-zero;
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 }
@@ -54,28 +56,72 @@ a:visited {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 
+label {
+	cursor: pointer;
+}
+input, textarea, button, select {
+	font-size: inherit;
+}
+/* input {
+	font-size: 0.8em;
+} */
+
+input:is([type=checkbox], [type=radio]) {
+	/* vertical-align: baseline; */
+	vertical-align: middle;
+
+	/* block-size: 1em;
+	inline-size: 1em; */
+	block-size: 1cap;
+	inline-size: 1cap;
+	margin-inline: 0em;
+
+	color: inherit;
+
+	& + label {
+		/* vertical-align: middle; */
+		/* margin-inline: 0.125em; */
+		padding-inline: 0.25em;
+		/* margin-inline-start: 0.375em; */
+		/* padding-inline-start: 0.25em; */
+
+		/* @starting-style {
+			color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
+		} */
+	}
+	&:not(:checked) + label {
+		color: oklch(0.75 0.03125 var(--hue1-ang, 0deg));
+	}
+	&:checked + label {
+		color: oklch(0.875 0.1875 var(--hue1-ang, 0deg));
+	}
+}
+
 p, ul, ol {
 	hyphens: auto;
 }
 .no-hyphen {
 	hyphenate-character: "";
 }
+.grade-lower-1 {
+	opacity: 0.9;
+	color: oklch(0.875 0.03125 var(--hue1-ang, 0deg));
+	accent-color: oklch(0.375 0.0625 var(--hue1-ang, 0deg));
 
-/* @property --presence {
-	syntax: "\3c number\3e";
-	inherits: true;
-	initial-value: 0.0;
-} */
+	:is(&, & *)::marker {
+		color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
+	}
+	:is(&, & *):is(:active, :has(:active), :focus-within)::marker {
+		color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
+	}
+
+	:root:not(:has(#chkEntriesExpand:checked)) & {
+		display: none;
+	}
+}
+
 a:any-link {
 	touch-action: none;
-
-	/* --presence: 0.0;
-	transition-property: --presence;
-	transition-duration: 2s;
-	transition-delay: 0s; */
-	/* transition-timing-function: linear; */
-	/* transition-timing-function: cubic-bezier(0,0,0,1);
-	transition-behavior: allow-discrete; */
 
 	&::before {
 		left: 0px;
@@ -122,9 +168,6 @@ a:any-link {
 	}
 
 	@media (hover: hover) {
-		/* &:hover, &:focus {
-			--presence: 1.0;
-		} */
 		&::before {
 			/* position: relative; */
 			position: absolute;
@@ -141,7 +184,6 @@ a:any-link {
 			/* transition-duration: 0s;
 			transition-delay: 1s, 1s, 0s, 0s, 0s; */
 			/* transition-delay: 1s; */
-			/* --presence: 0.0; */
 
 			/* @starting-style {
 				backdrop-filter: blur(0.09375em);
@@ -151,17 +193,13 @@ a:any-link {
 			} */
 		}
 		&:hover::before, &:focus::before {
-			/* --presence: 1.0; */
-			/* display: inline-block; */
 			visibility: visible;
 			content-visibility: visible;
 
 			/* margin-inline: auto; */
 			/* text-align: center; */
 
-			/* opacity: 0.9; */
-			/* backdrop-filter: blur(0.09375em);
-			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
+			/* background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
 			color: light-dark(oklch(0.25 0.125 var(--hue1-ang, 0deg)), oklch(0.75 0.125 var(--hue1-ang, 0deg))); */
 			backdrop-filter: blur(0.125em);
 			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
@@ -171,7 +209,6 @@ a:any-link {
 
 			/* content: attr(href); */
 			pointer-events: revert;
-			/* user-select: all; */
 
 			/* transition-duration: 0.5s; */
 			transition-delay: 0s;
@@ -193,14 +230,11 @@ a:any-link {
 			transition-delay: 0s;
 		}
 		&:hover::before, &:active::before/* , &:focus::before */ {
-			/* display: inline-block; */
-			/* display: block; */
 			visibility: visible;
 			content-visibility: visible;
 			/* text-align: center; */
 			/* margin-inline: auto; */
 
-			/* opacity: 0.9; */
 			backdrop-filter: blur(0.125em);
 			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
 			color: light-dark(

@@ -163,7 +163,7 @@ input:not([type=checkbox], [type=radio], [type=range]), textarea, button, select
 	background-color: oklch(0.25 0.0625 var(--hue1-ang, 0deg));
 	color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 }
-input:is([type=checkbox], input[type=radio]) {
+input:is([type=checkbox], [type=radio]) {
 	/* block-size: 1em; */
 	/* inline-size: 1em; */
 	/* vertical-align: baseline; */
@@ -281,7 +281,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 		transition-property: opacity, rotate;
 		transition-duration: 1s;
 	}
-	input[type=checkbox] + label, input[type=radio] + label {
+	input:is([type=checkbox], [type=radio]) + label {
 		transition-property: color;
 		transition-duration: 0.5s;
 	}
@@ -341,7 +341,7 @@ input:is([type=button], [type=submit], [type=reset]), button {
 		/* box-sizing: content-box; */
 		padding: 0.1875em;
 	}
-	input:is([type=checkbox], input[type=radio]):not(:checked) + label {
+	input:is([type=checkbox], [type=radio]):not(:checked) + label {
 		color: oklch(0.875 0.0625 var(--hue1-ang, 0deg) / 0.8);
 	}
 	input:is([type=button], [type=submit], [type=reset]), button {
