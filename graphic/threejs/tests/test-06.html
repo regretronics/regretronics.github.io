@@ -3,15 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
 <head>
 	<meta charset="UTF-8" />
-	<!-- <meta
-		http-equiv="Cross-Origin-Resource-Policy"
-		content="cross-origin" />
-	<meta
-		http-equiv="Content-Security-Policy"
-		content="default-src * file: 'unsafe-inline'; script-src * file: 'unsafe-inline';" /> -->
-	<!-- <meta
-		http-equiv="Content-Security-Policy"
-		content="default-src 'self'; img-src https://*; child-src 'none';" /> -->
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 	<title>Three.js test #06</title>
@@ -28,6 +19,7 @@
 		height: 100%;
 		margin: 0;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		align-content: center;
 		justify-content: center;
@@ -49,63 +41,89 @@
 		max-width: 100%;
 		max-height: 100%;
 	}
+	.script-visible {
+		display: block;
+		background-color: oklch(0.125 0 0deg);
+
+		white-space-collapse: preserve;
+		text-wrap-mode: wrap;
+
+		overflow-block: scroll;
+		overflow-inline: auto;
+
+		font-family: monospace;
+		tab-size: 4ch;
+	}
 	/*]]>*/</style>
-	<!-- <script type="importmap">{
-		"imports": {
-			"three": "https://threejs.org/build/three.module.js"
-		}
-	}</script> -->
-	<!-- <script type="importmap">{
-		"imports": {
-			"three": "./three.module.js"
-		}
-	}</script> -->
-	<!-- <script type="module" src="./three.module.js"></script> -->
 </head>
 <body>
 	<div><canvas id="c" width="512" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></div>
 	<!-- <script type="module" src="main.js"></script> -->
-	<script id="FS1" type="x-shader/x-fragment">
-		#include <common>
-		//#include <packing>
+	<script id="FS1" type="x-shader/x-fragment" class="script-visible">
+	#include <common>
+	//#include <packing>
 
-		uniform sampler2D target0;
-		uniform sampler2D target0depth;
+	uniform sampler2D target0;
+	uniform sampler2D target0depth;
 
-		uniform float cameraNear;
-		uniform float cameraFar;
+	uniform float cameraNear;
+	uniform float cameraFar;
 
-		out vec4 fragColor;
+	out vec4 fragColor;
 
-		#define opacityFactor -4.0
+	#define opacityFactor -4.0
 
-		void main() {
-			float dz = gl_FragCoord.z - texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0).x;
-			if(dz <= 0.0) discard;
-			//float z = (1.0 - gl_FragCoord.z) / near;
-			//float z = (1.0 - texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0).x) / near;
-			//float z = gl_FragCoord.w;
-			//z = gl_FragCoord.w - z;
+	void main() {
+		float dz = gl_FragCoord.z - texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0).x;
+		if(dz <= 0.0) discard;
+		//float z = (1.0 - gl_FragCoord.z) / near;
+		//float z = (1.0 - texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0).x) / near;
+		//float z = gl_FragCoord.w;
+		//z = gl_FragCoord.w - z;
 
-			//fragColor = vec4(z, z, z, 1.0);
-			//fragColor.rgb = vec3(z);
-			//fragColor = texelFetch(target0, ivec2(gl_FragCoord.xy), 0) * (1.0 - exp2(-z));
-			fragColor = texelFetch(target0, ivec2(gl_FragCoord.xy), 0);
-			//fragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0);
-			//fragColor = texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0);
-			//fragColor.a = 1.0;
-			fragColor.a = 1.0 - exp2(opacityFactor * dz * cameraNear);
-			//fragColor.a = 0.25;
-		}
+		//fragColor = vec4(z, z, z, 1.0);
+		//fragColor.rgb = vec3(z);
+		//fragColor = texelFetch(target0, ivec2(gl_FragCoord.xy), 0) * (1.0 - exp2(-z));
+		fragColor = texelFetch(target0, ivec2(gl_FragCoord.xy), 0);
+		//fragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0);
+		//fragColor = texelFetch(target0depth, ivec2(gl_FragCoord.xy), 0);
+		//fragColor.a = 1.0;
+		fragColor.a = 1.0 - exp2(opacityFactor * dz * cameraNear);
+		//fragColor.a = 0.25;
+	}
 	</script>
 	<script type="module">
 	"use strict";
-	import * as THREE from './three.module.js';
-	//import * as THREE from 'three';
+
+	try {
+		window.THREE = await import('https:./three.module.js');
+		console.log("three.js imported locally", THREE);
+	} catch(error) {
+		window.THREE = await import('https://threejs.org/build/three.module.js');
+		console.log("three.js imported remotely", THREE);
+		console.log(error);
+	}
+	/* import('./three.module.js').then((value) => {
+		console.log("import promise 1 then fulfilled", value);
+		window.THREE = value;
+	}, (reason) => {
+		console.log("import promise 1 then rejected", reason);
+		return import('https://threejs.org/build/three.module.js');
+		//return await import('https://threejs.org/build/three.module.js');
+	}).then((value) => {
+		console.log("import promise 2 then fulfilled", value);
+		window.THREE = value;
+	}, (reason) => {
+		console.log("import promise 2 then rejected", reason);
+	}).catch((reason) => {
+		console.log("import promise catch", reason);
+	}); */
 
 	var material0, uniforms1, material1;
 
 	function loaded(event) {
+		//console.log("Starting function 'loaded'", event);
+		//console.log("THREE: ", THREE);
 		window.canvas = document.querySelector('#c');
 		window.renderer = new THREE.WebGLRenderer({/* antialias: true, */ depth: true, canvas});
 		//renderer.setTransparentSort(null);
@@ -193,7 +211,8 @@
 		requestAnimationFrame(render);
 	}
 
-	window.addEventListener("load", loaded);
+	//window.addEventListener("load", loaded);
+	loaded();
 	</script>
 </body>
 </html>

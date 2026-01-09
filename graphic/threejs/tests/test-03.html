@@ -47,8 +47,9 @@
 			//vec2 texRes = vec2(4, 1);
 			vec4 texel = texture2D(iChannel0, uv);
 			gl_FragColor = texel;
+			/*gl_FragColor = vec4(0.25, 0.5, 0.75, 0.5);*/
 		}
-		</script>
+	</script>
 	<script id="FS1" type="x-shader/x-fragment">
 		#include <common>
 
@@ -61,6 +62,7 @@
 			//vec2 texRes = vec2(4, 1);
 			vec4 texel = texture2D(iChannel0, uv);
 			gl_FragColor = texel;
+			/*gl_FragColor = vec4(0.25, 0.5, 0.75, 0.5);*/
 		}
 	</script>
 	<script type="module">
@@ -85,10 +87,10 @@
 
 		const texW = 4, texH = 1;
 		const data = new Float32Array([
-			0, 0, 0, 0,
-			0, 0, 0.5, 0,
-			0, 0.5, 0, 0,
-			0, 0.5, 0.5, 0
+			0, 0, 0, 0.5,
+			0, 0, 0.5, 0.5,
+			0, 0.5, 0, 0.5,
+			0, 0.5, 0.5, 0.5
 		]);
 		const tex0 = new THREE.DataTexture(data, texW, texH, THREE.RGBAFormat, THREE.FloatType);
 		tex0.needsUpdate = true;
@@ -97,10 +99,10 @@
 			iResolution: { value: new THREE.Vector3(texW, texH, 1) },
 			iChannel0: { value: tex0 }
 		};
-		const material0 = new THREE.ShaderMaterial( {
-			fragmentShader: document.getElementById("FS0").textContent,
+		const material0 = new THREE.ShaderMaterial({
+			fragmentShader: document.getElementById("FS0").textContent.trim(),
 			uniforms: uniforms0,
-		} );
+		});
 		const target0 = new THREE.WebGLRenderTarget(4, 1, {format: THREE.RGBAFormat, type: THREE.FloatType});
 
 		const uniforms1 = {
@@ -108,10 +110,10 @@
 			iResolution: { value: new THREE.Vector3() },
 			iChannel0: { value: target0.texture }
 		};
-		const material1 = new THREE.ShaderMaterial( {
-			fragmentShader: document.getElementById("FS1").textContent,
+		const material1 = new THREE.ShaderMaterial({
+			fragmentShader: document.getElementById("FS1").textContent.trim(),
 			uniforms: uniforms1,
-		} );
+		});
 
 		const mesh = new THREE.Mesh(plane, material1);
 		scene.add(mesh);
@@ -121,7 +123,7 @@
 			const width = canvas.clientWidth;
 			const height = canvas.clientHeight;
 			const needResize = canvas.width !== width || canvas.height !== height;
-			if (needResize) {
+			if(needResize) {
 				renderer.setSize(width, height, false);
 			}
 			return needResize;
@@ -132,10 +134,10 @@
 
 			resizeRendererToDisplaySize(renderer);
 
-			//uniforms0.iResolution.value.set( texW, texH, 1 );
+			//uniforms0.iResolution.value.set(texW, texH, 1);
 			uniforms0.iTime.value = time;
 			const canvas = renderer.domElement;
-			uniforms1.iResolution.value.set( canvas.width, canvas.height, 1 );
+			uniforms1.iResolution.value.set(canvas.width, canvas.height, 1);
 			uniforms1.iTime.value = time;
 
 			mesh.material = material0;
