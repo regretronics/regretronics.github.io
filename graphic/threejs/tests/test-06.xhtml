@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
 <head>
@@ -8,58 +8,244 @@
 	<title>Three.js test #06</title>
 	<style type="text/css">/*<![CDATA[*/
 	:root {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+
 		color-scheme: dark;
 		background-color: Canvas;
 		color: CanvasText;
-		height: 100%;
-		overflow: hidden;
+
+		/* --aspect-ratio: 1 / 1; */
 	}
 	body {
-		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
-		height: 100%;
 		margin: 0;
+		box-sizing: border-box;
+		width: 100%;
+		height: 100%;
+		/* width: stretch; */
+		/* height: stretch; */
+
+		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
 		display: flex;
+		/* flex-wrap: wrap; */
+
+		/* display: grid; */
+		/* grid-auto-columns: minmax(30vmax, auto); */
+		/* grid-auto-rows: minmax(30vmax, auto); */
+		/* grid-auto-columns: auto; */
+		/* grid-auto-rows: auto; */
+
+		/* align-content: stretch; */ /* flex container -> cross axis; when flex-wrap is other than nowrap */
+		align-items: stretch; /* flex container -> cross axis */
+		justify-content: stretch; /* flex container -> main axis */
+		/* justify-items: stretch; */
+	}
+	body > * {
+		max-height: 100%;
+		max-width: 100%;
+	}
+	.layout-horizontal {
+		flex-direction: row;
+
+		& > :first-child {
+			height: stretch;
+		}
+		& #c {
+			margin-block: auto;
+		}
+		& .script-visible {
+			flex-basis: 24ch;
+			/* flex-basis: min-content; */
+		}
+	}
+	.layout-vertical {
 		flex-direction: column;
-		align-items: center;
-		align-content: center;
-		justify-content: center;
-		justify-items: center;
+
+		& > :first-child {
+			width: stretch;
+		}
+		& #c {
+			margin-inline: auto;
+		}
+		& .script-visible {
+			flex-basis: 6lh;
+		}
 	}
 
-	body > div {
-		height: 100%;
-		align-content: center;
+	body > :first-child {
+		align-self: center;
+		/* display: block; */
+		display: flex;
+		flex-direction: inherit;
+
+		flex-shrink: 1;
+
+		container-type: size;
 	}
 	#c {
-		/* border-style: solid;
-		border-width: 0.25em;
-		border-color: gray; */
-
+		/* margin: auto; */
 		box-sizing: border-box;
-		/* width: 1024px; */
-		/* width: 100%; */
+
 		max-width: 100%;
 		max-height: 100%;
+
+		object-fit: contain;
+		object-position: center;
 	}
+
 	.script-visible {
 		display: block;
-		background-color: oklch(0.125 0 0deg);
 
-		white-space-collapse: preserve;
-		text-wrap-mode: wrap;
+		flex-grow: 1;
+		flex-shrink: 0;
 
 		overflow-block: scroll;
 		overflow-inline: auto;
 
+		white-space-collapse: preserve;
+		text-wrap-mode: wrap;
+
+		background-color: oklch(0.125 0 0deg);
+		font-family: monospace;
+		tab-size: 4ch;
+	}
+	/*]]>*/</style>
+	<style type="text">/*<![CDATA[*/ /* legacy and dead; will be deleted */
+	@media (aspect-ratio >= 1 / 1) {
+		body {
+			flex-direction: row;
+
+			/* grid-template-columns: 100vmin repeat(auto-fit, minmax(7em, 1fr));
+			grid-template-rows: none; */
+		}
+		/* body > * {
+			height: 100%;
+		} */
+		body > :first-child {
+			max-height: 100%;
+			/* max-width: 100vmin; */
+			/* width: stretch; */
+			height: stretch;
+		}
+		#c {
+			margin-block: auto;
+			/* max-height: 100%; */
+			/* width: stretch !important; */
+		}
+		.script-visible {
+			flex-basis: 24ch;
+			/* flex-basis: min-content; */
+		}
+	}
+	@media (aspect-ratio < 1 / 1) {
+		body {
+			flex-direction: column;
+
+			/* grid-template-columns: 100vmin; */
+			/* grid-template-columns: none;
+			grid-template-rows: 100vmin repeat(auto-fit, minmax(7em, 1fr)); */
+		}
+		/* body > * {
+			width: 100%;
+		} */
+		body > :first-child {
+			max-width: 100%;
+			/* max-height: 100vmin; */
+			/* height: stretch; */
+			width: stretch;
+		}
+		#c {
+			margin-inline: auto;
+			/* max-width: 100%; */
+			/* height: stretch !important; */
+		}
+		.script-visible {
+			flex-basis: 6lh;
+		}
+	}
+
+	body > :first-child {
+		align-self: center;
+		/* display: block; */
+		display: flex;
+		flex-direction: inherit;
+
+		/* height: fit-content; */
+		/* width: fit-content; */
+
+		/* max-width: 100vmin; */
+		/* max-height: 100vmin; */
+		/* max-height: 100%; */
+		/* max-width: 100%; */
+
+		/* flex-basis: stretch; */
+		/* flex-grow: 1; */
+		flex-shrink: 1;
+
+		/* align-content: center; */
+
+		/* object-fit: contain; */
+		/* object-position: center; */
+		/* contain: size; */
+		container-type: size;
+	}
+	#c {
+		/* margin: auto; */
+		box-sizing: border-box;
+
+		/* border-style: solid;
+		border-width: 0.25em;
+		border-color: gray; */
+
+		/* flex-basis: stretch;
+		flex-grow: 1;
+		flex-shrink: 1; */
+
+		/* width: auto; */
+		/* height: auto; */
+		/* width: stretch; */
+		/* height: stretch; */
+
+		max-width: 100%;
+		max-height: 100%;
+		/* max-width: 100vmin; */
+		/* max-height: 100vmin; */
+		/* max-width: stretch; */
+		/* max-height: stretch; */
+
+		object-fit: contain;
+		object-position: center;
+		/* aspect-ratio: auto; */
+	}
+
+	.script-visible {
+		display: block;
+
+		/* min-width: 24ch; */
+		/* min-height: 3lh; */
+		/* flex-basis: auto; */
+		flex-grow: 1;
+		flex-shrink: 0;
+
+		overflow-block: scroll;
+		overflow-inline: auto;
+
+		white-space-collapse: preserve;
+		text-wrap-mode: wrap;
+
+		background-color: oklch(0.125 0 0deg);
 		font-family: monospace;
 		tab-size: 4ch;
 	}
 	/*]]>*/</style>
 </head>
 <body>
-	<div><canvas id="c" width="512" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></div>
+	<div><canvas id="c" width="512" height="512">Graphics output. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.)</canvas></div>
+	<!-- <script src="main.js" async="async" defer="defer"></script> -->
 	<!-- <script type="module" src="main.js"></script> -->
 	<script id="FS1" type="x-shader/x-fragment" class="script-visible">
+	/*<![CDATA[*/
 	#include <common>
 	//#include <packing>
 
@@ -91,18 +277,28 @@
 		fragColor.a = 1.0 - exp2(opacityFactor * dz * cameraNear);
 		//fragColor.a = 0.25;
 	}
-	</script>
-	<script type="module">
+	/*]]>*/</script>
+	<script type="text/javascript">
 	"use strict";
 
-	try {
-		window.THREE = await import('https:./three.module.js');
-		console.log("three.js imported locally", THREE);
-	} catch(error) {
-		window.THREE = await import('https://threejs.org/build/three.module.js');
-		console.log("three.js imported remotely", THREE);
-		console.log(error);
+	async function loadModules() {
+		let loadRemote = location.protocol != "https:";
+		if(!loadRemote) {
+			try {
+				window.THREE = await import('./three.module.js');
+				console.log("three.js imported locally", THREE);
+			} catch(error) {
+				console.log(error);
+				loadRemote = true;
+			}
+		}
+		if(loadRemote) {
+			window.THREE = await import('https://threejs.org/build/three.module.js');
+			console.log("three.js imported remotely", THREE);
+		}
+		loaded();
 	}
+	loadModules();
 	/* import('./three.module.js').then((value) => {
 		console.log("import promise 1 then fulfilled", value);
 		window.THREE = value;
@@ -127,7 +323,9 @@
 		window.canvas = document.querySelector('#c');
 		window.renderer = new THREE.WebGLRenderer({/* antialias: true, */ depth: true, canvas});
 		//renderer.setTransparentSort(null);
-		window.camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 3);
+		window.canvasAspectRatio = canvas.width / canvas.height;
+		canvas.parentElement.style.aspectRatio = canvasAspectRatio;
+		window.camera = new THREE.PerspectiveCamera(75, canvasAspectRatio, 0.1, 3);
 
 		window.scene = new THREE.Scene();
 		window.geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -172,14 +370,32 @@
 	}
 
 	function resizeRendererToDisplaySize(renderer) {
+		const body = document.body;
+		if(body.clientWidth / body.clientHeight > canvasAspectRatio) {
+			body.classList.add("layout-horizontal");
+			body.classList.remove("layout-vertical");
+		} else {
+			body.classList.add("layout-vertical");
+			body.classList.remove("layout-horizontal");
+		}
+
 		const canvas = renderer.domElement;
-		/* const width = canvas.clientWidth * devicePixelRatio;
-		const height = canvas.clientHeight * devicePixelRatio; */
-		const width = Math.trunc(canvas.clientWidth * devicePixelRatio);
-		const height = Math.trunc(canvas.clientHeight * devicePixelRatio);
+
+		canvas.parentElement.style.zoom = 1 / devicePixelRatio;
+		const widthAvailable = canvas.parentElement.clientWidth, heightAvailable = canvas.parentElement.clientHeight;
+		//canvas.style.zoom = 1 / devicePixelRatio;
+		//const widthAvailable = canvas.clientWidth, heightAvailable = canvas.clientHeight;
+
+		/* const width = widthAvailable * devicePixelRatio;
+		const height = heightAvailable * devicePixelRatio; */
+		/* const width = Math.trunc(widthAvailable * devicePixelRatio);
+		const height = Math.trunc(heightAvailable * devicePixelRatio); */
+		const width = Math.trunc(Math.min(widthAvailable, heightAvailable * canvasAspectRatio));
+		const height = Math.trunc(Math.min(heightAvailable, widthAvailable / canvasAspectRatio));
 		const needResize = canvas.width !== width || canvas.height !== height;
 		if(needResize) {
 			renderer.setSize(width, height, false);
+			//renderer.setDrawingBufferSize(width, height, 1);
 			target0.setSize(width, height);
 		}
 		return needResize;
@@ -212,7 +428,7 @@
 	}
 
 	//window.addEventListener("load", loaded);
-	loaded();
+	//loaded();
 	</script>
 </body>
 </html>
