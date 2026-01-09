@@ -16,9 +16,13 @@ body {
 }
 
 ::selection {
-	background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));
+	background-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
 	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 }
+/* :active::selection */
+/* body:has(:active::selection) ::selection {
+	background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));
+} */
 ::marker {
 	/* color: oklch(0.625 0.0625 var(--hue1-ang, 0deg)); */
 	color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
@@ -251,3 +255,22 @@ a:any-link {
 		}
 	}
 }
+
+@counter-style bullets {
+	system: cyclic;
+	/* •⚫︎⚪⚫⬡⬢⬣❭ */
+	/* half/fullwidth block: ･ｰ￭￮ */
+	/* U+0020   SPACE */
+	/* U+00A0   NO-BREAK SPACE */
+	/* U+2002   EN SPACE */
+	/* U+2003   EM SPACE */
+	/* U+3000 　 ideographic space */
+	/* U+FFA0 ﾠ HALFWIDTH HANGUL FILLER */
+	/* symbols: "￭ﾠ"; */
+	symbols: "⬢";
+	/* suffix: " "; */
+}
+/* ul > li::marker {
+	font-weight: bolder;
+	content: counters(list-item, "", bullets) " ";
+} */
