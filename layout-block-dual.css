@@ -1,0 +1,115 @@
+:root {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+
+	color-scheme: dark;
+	background-color: Canvas;
+	color: CanvasText;
+
+	/* --aspect-ratio: 1 / 1; */
+}
+body {
+	margin: 0;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+
+	overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	display: flex;
+	/* flex-wrap: wrap; */
+
+	/* align-content: stretch; */ /* flex container -> cross axis; when flex-wrap is other than nowrap */
+	align-items: stretch; /* flex container -> cross axis */
+	justify-content: stretch; /* flex container -> main axis */
+	/* justify-items: stretch; */
+}
+body > * {
+	max-height: 100%;
+	max-width: 100%;
+}
+.layout-horizontal {
+	flex-direction: row;
+
+	& > :first-child {
+		height: 100%;
+	}
+	& #c {
+		margin-block: auto;
+	}
+	& .script-visible {
+		flex-basis: 24ch;
+	}
+}
+.layout-vertical {
+	flex-direction: column;
+
+	& > :first-child {
+		width: 100%;
+	}
+	& #c {
+		margin-inline: auto;
+	}
+	& .script-visible {
+		flex-basis: 6lh;
+	}
+}
+
+body > :first-child {
+	align-self: center;
+	/* display: block; */
+	display: flex;
+	flex-direction: inherit;
+
+	flex-basis: 100%;
+	flex-shrink: 1;
+
+	container-type: size;
+}
+#cnvMainOutput, :root:not(:has(#cnvMainOutput)) canvas {
+	/* margin: auto; */
+	box-sizing: border-box;
+
+	max-width: 100%;
+	max-height: 100%;
+
+	object-fit: contain;
+	object-position: center;
+}
+
+.script-visible {
+	display: block;
+
+	flex-grow: 1;
+	flex-shrink: 0;
+
+	overflow-block: scroll;
+	overflow-inline: auto;
+
+	white-space-collapse: preserve;
+	text-wrap-mode: wrap;
+
+	background-color: oklch(0.125 0 0deg);
+	font-family: monospace;
+	tab-size: 4ch;
+}
+
+@supports (height: stretch) {
+	body {
+		width: stretch;
+		height: stretch;
+	}
+	.layout-horizontal {
+		& > :first-child {
+			height: stretch;
+		}
+	}
+	.layout-vertical {
+		& > :first-child {
+			width: stretch;
+		}
+	}
+	body > :first-child {
+		flex-basis: stretch;
+	}
+}

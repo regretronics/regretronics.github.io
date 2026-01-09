@@ -6,109 +6,11 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 	<title>Three.js test #06</title>
-	<style type="text/css">/*<![CDATA[*/
-	:root {
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-
-		color-scheme: dark;
-		background-color: Canvas;
-		color: CanvasText;
-
-		/* --aspect-ratio: 1 / 1; */
-	}
-	body {
-		margin: 0;
-		box-sizing: border-box;
-		width: 100%;
-		height: 100%;
-		/* width: stretch; */
-		/* height: stretch; */
-
-		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
-		display: flex;
-		/* flex-wrap: wrap; */
-
-		/* align-content: stretch; */ /* flex container -> cross axis; when flex-wrap is other than nowrap */
-		align-items: stretch; /* flex container -> cross axis */
-		justify-content: stretch; /* flex container -> main axis */
-		/* justify-items: stretch; */
-	}
-	body > * {
-		max-height: 100%;
-		max-width: 100%;
-	}
-	.layout-horizontal {
-		flex-direction: row;
-
-		& > :first-child {
-			height: stretch;
-		}
-		& #c {
-			margin-block: auto;
-		}
-		& .script-visible {
-			flex-basis: 24ch;
-		}
-	}
-	.layout-vertical {
-		flex-direction: column;
-
-		& > :first-child {
-			width: stretch;
-		}
-		& #c {
-			margin-inline: auto;
-		}
-		& .script-visible {
-			flex-basis: 6lh;
-		}
-	}
-
-	body > :first-child {
-		align-self: center;
-		/* display: block; */
-		display: flex;
-		flex-direction: inherit;
-
-		flex-shrink: 1;
-
-		container-type: size;
-	}
-	#c {
-		/* margin: auto; */
-		box-sizing: border-box;
-
-		max-width: 100%;
-		max-height: 100%;
-
-		object-fit: contain;
-		object-position: center;
-	}
-
-	.script-visible {
-		display: block;
-
-		flex-grow: 1;
-		flex-shrink: 0;
-
-		overflow-block: scroll;
-		overflow-inline: auto;
-
-		white-space-collapse: preserve;
-		text-wrap-mode: wrap;
-
-		background-color: oklch(0.125 0 0deg);
-		font-family: monospace;
-		tab-size: 4ch;
-	}
-	/*]]>*/</style>
+	<link rel="stylesheet" type="text/css" href="../../../layout-block-dual.css" />
+	<script src="../threejs-common.js" async="async"></script>
 </head>
 <body>
-	<div><canvas id="c" width="512" height="512">Graphics output. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.)</canvas></div>
-	<!-- <script src="main.js" async="async" defer="defer"></script> -->
-	<!-- <script type="module" src="main.js"></script> -->
+	<div><canvas id="cnvMainOutput" width="512" height="512">Graphics output. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.)</canvas></div>
 	<script id="FS1" type="x-shader/x-fragment" class="script-visible">
 	/*<![CDATA[*/
 	#include <common>
@@ -146,50 +48,12 @@
 	<script type="text/javascript">
 	"use strict";
 
-	async function loadModules() {
-		let loadRemote = location.protocol != "https:";
-		if(!loadRemote) {
-			try {
-				window.THREE = await import('./three.module.js');
-				console.log("three.js imported locally", THREE);
-			} catch(error) {
-				console.log(error);
-				loadRemote = true;
-			}
-		}
-		if(loadRemote) {
-			window.THREE = await import('https://threejs.org/build/three.module.js');
-			console.log("three.js imported remotely", THREE);
-		}
-		loaded();
-	}
-	loadModules();
-	/* import('./three.module.js').then((value) => {
-		console.log("import promise 1 then fulfilled", value);
-		window.THREE = value;
-	}, (reason) => {
-		console.log("import promise 1 then rejected", reason);
-		return import('https://threejs.org/build/three.module.js');
-		//return await import('https://threejs.org/build/three.module.js');
-	}).then((value) => {
-		console.log("import promise 2 then fulfilled", value);
-		window.THREE = value;
-	}, (reason) => {
-		console.log("import promise 2 then rejected", reason);
-	}).catch((reason) => {
-		console.log("import promise catch", reason);
-	}); */
-
 	var material0, uniforms1, material1;
 
 	function loaded(event) {
 		//console.log("Starting function 'loaded'", event);
-		//console.log("THREE: ", THREE);
-		window.canvas = document.querySelector('#c');
-		window.renderer = new THREE.WebGLRenderer({/* antialias: true, */ depth: true, canvas});
-		//renderer.setTransparentSort(null);
-		window.canvasAspectRatio = canvas.width / canvas.height;
-		canvas.parentElement.style.aspectRatio = canvasAspectRatio;
+		loadedBasic();
+
 		window.camera = new THREE.PerspectiveCamera(75, canvasAspectRatio, 0.1, 3);
 
 		window.scene = new THREE.Scene();
@@ -234,38 +98,6 @@
 		requestAnimationFrame(render);
 	}
 
-	function resizeRendererToDisplaySize(renderer) {
-		const body = document.body;
-		if(body.clientWidth / body.clientHeight > canvasAspectRatio) {
-			body.classList.add("layout-horizontal");
-			body.classList.remove("layout-vertical");
-		} else {
-			body.classList.add("layout-vertical");
-			body.classList.remove("layout-horizontal");
-		}
-
-		const canvas = renderer.domElement;
-
-		canvas.parentElement.style.zoom = 1 / devicePixelRatio;
-		const widthAvailable = canvas.parentElement.clientWidth, heightAvailable = canvas.parentElement.clientHeight;
-		//canvas.style.zoom = 1 / devicePixelRatio;
-		//const widthAvailable = canvas.clientWidth, heightAvailable = canvas.clientHeight;
-
-		/* const width = widthAvailable * devicePixelRatio;
-		const height = heightAvailable * devicePixelRatio; */
-		/* const width = Math.trunc(widthAvailable * devicePixelRatio);
-		const height = Math.trunc(heightAvailable * devicePixelRatio); */
-		const width = Math.trunc(Math.min(widthAvailable, heightAvailable * canvasAspectRatio));
-		const height = Math.trunc(Math.min(heightAvailable, widthAvailable / canvasAspectRatio));
-		const needResize = canvas.width !== width || canvas.height !== height;
-		if(needResize) {
-			renderer.setSize(width, height, false);
-			//renderer.setDrawingBufferSize(width, height, 1);
-			target0.setSize(width, height);
-		}
-		return needResize;
-	}
-
 	function render(time) {
 		time *= 0.001; //convert to seconds
 
@@ -292,8 +124,17 @@
 		requestAnimationFrame(render);
 	}
 
-	//window.addEventListener("load", loaded);
-	//loaded();
+	function pageLoaded(event) {
+		if(window.THREE)
+			loaded();
+		else
+			window.modulesLoaded = loaded;
+	}
+	if(document.readyState === "loading")
+		document.addEventListener("DOMContentLoaded", pageLoaded);
+	else //DOMContentLoaded has already fired
+		pageLoaded();
+	//window.addEventListener("load", pageReady);
 	</script>
 </body>
 </html>
