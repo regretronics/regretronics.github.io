@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
 <head>
@@ -6,17 +6,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 	<title>Three.js test #01</title>
+	<link rel="stylesheet" type="text/css" href="../../../layout-block-dual.css" />
+	<script src="../threejs-common.js" async="async"></script>
 	<style type="text/css">/*<![CDATA[*/
-	:root {
-		color-scheme: dark;
-		background-color: Canvas;
-		color: CanvasText;
-	}
-	body {
-		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
-		margin: 0;
-	}
-
 	/* body > canvas {
 		border-style: solid;
 		border-width: 0.25em;
@@ -26,58 +18,47 @@
 		max-width: 100%;
 	} */
 	/*]]>*/</style>
+</head>
+<body>
+	<!-- <div><canvas id="cnvMainOutput" width="768" height="512">Graphics output. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.)</canvas></div> -->
 	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
 
-	/* function pageLoaded(event) {
-	} */
-	/* function pageReady(event) {
-		//load HTML element references
-		for(const s of document.querySelectorAll('[id]'))
-			window[s.id] = s;
+	function loaded() {
+		window.scene = new THREE.Scene();
+		window.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	} */
-	//window.addEventListener("DOMContentLoaded", pageLoaded);
-	/* if(document.readyState === "loading")
-		document.addEventListener("DOMContentLoaded", pageLoaded);
-	else //DOMContentLoaded has already fired
-		pageLoaded(); */
-	//window.addEventListener("load", pageReady);
-	/*]]>*/</script>
-</head>
-<body>
-	<!-- <p><canvas id="c" width="768" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></p> -->
-	<script type="importmap">{
-		"imports": {
-			"three": "https://threejs.org/build/three.module.js"
-		}
-	}</script>
-	<!-- <script type="module" src="main.js"></script> -->
-	<script type="module">
-	"use strict";
-	import * as THREE from 'three';
+		window.renderer = new THREE.WebGLRenderer();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setAnimationLoop(animate);
+		document.body.appendChild(renderer.domElement);
 
-	const scene = new THREE.Scene();
-	const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		const geometry = new THREE.BoxGeometry(1, 1, 1);
+		const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+		window.cube = new THREE.Mesh(geometry, material);
+		scene.add(cube);
 
-	const renderer = new THREE.WebGLRenderer();
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setAnimationLoop( animate );
-	document.body.appendChild( renderer.domElement );
-
-	const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-	const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-	const cube = new THREE.Mesh( geometry, material );
-	scene.add( cube );
-
-	camera.position.z = 5;
+		camera.position.z = 5;
+	}
 
 	function animate() {
 		cube.rotation.x += 0.01;
 		cube.rotation.y += 0.01;
 
-		renderer.render( scene, camera );
+		renderer.render(scene, camera);
 	}
-	</script>
+
+	function pageLoaded(event) {
+		if(window.THREE)
+			loaded();
+		else
+			window.modulesLoaded = loaded;
+	}
+	if(document.readyState === "loading")
+		document.addEventListener("DOMContentLoaded", pageLoaded);
+	else //DOMContentLoaded has already fired
+		pageLoaded();
+	//window.addEventListener("load", pageReady);
+	/*]]>*/</script>
 </body>
 </html>

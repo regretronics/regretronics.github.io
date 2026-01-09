@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
 <head>
@@ -6,17 +6,10 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 	<title>Three.js test #03</title>
+	<link rel="stylesheet" type="text/css" href="../../../layout-block-dual.css" />
+	<script src="../threejs-common.js" async="async"></script>
 	<style type="text/css">/*<![CDATA[*/
-	:root {
-		color-scheme: dark;
-		background-color: Canvas;
-		color: CanvasText;
-	}
-	body {
-		overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
-	}
-
-	#c {
+	/* #cnvMainOutput {
 		border-style: solid;
 		border-width: 0.25em;
 		border-color: gray;
@@ -24,57 +17,54 @@
 		box-sizing: border-box;
 		width: 768px;
 		max-width: 100%;
-	}
+	} */
 	/*]]>*/</style>
-	<script  type="importmap">{
-		"imports": {
-			"three": "https://threejs.org/build/three.module.js"
-		}
-	}</script>
 </head>
-<body>
-	<p><canvas id="c" width="768" height="512">[Graphics output.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.</canvas></p>
-	<!-- <script type="module" src="main.js"></script> -->
-	<script id="FS0" type="x-shader/x-fragment">
-		#include <common>
+<body class="layout-vertical">
+	<div><canvas id="cnvMainOutput" width="768" height="512">Graphics output. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.)</canvas></div>
+	<script id="FS0" type="x-shader/x-fragment" class="script-visible">
+	/*<![CDATA[*/
+	#include <common>
 
-		uniform vec3 iResolution;
-		uniform float iTime;
-		uniform sampler2D iChannel0;
+	uniform vec3 iResolution;
+	uniform float iTime;
+	uniform sampler2D iChannel0;
 
-		void main() {
-			vec2 uv = gl_FragCoord.xy / iResolution.xy;
-			//vec2 texRes = vec2(4, 1);
-			vec4 texel = texture2D(iChannel0, uv);
-			gl_FragColor = texel;
-			/*gl_FragColor = vec4(0.25, 0.5, 0.75, 0.5);*/
-		}
-	</script>
-	<script id="FS1" type="x-shader/x-fragment">
-		#include <common>
+	void main() {
+		vec2 uv = gl_FragCoord.xy / iResolution.xy;
+		//vec2 texRes = vec2(4, 1);
+		vec4 texel = texture2D(iChannel0, uv);
+		gl_FragColor = texel;
+		/*gl_FragColor = vec4(0.25, 0.5, 0.75, 0.5);*/
+	}
+	/*]]>*/</script>
+	<script id="FS1" type="x-shader/x-fragment" class="script-visible">
+	/*<![CDATA[*/
+	#include <common>
 
-		uniform vec3 iResolution;
-		uniform float iTime;
-		uniform sampler2D iChannel0;
+	uniform vec3 iResolution;
+	uniform float iTime;
+	uniform sampler2D iChannel0;
 
-		void main() {
-			vec2 uv = gl_FragCoord.xy / iResolution.xy;
-			//vec2 texRes = vec2(4, 1);
-			vec4 texel = texture2D(iChannel0, uv);
-			gl_FragColor = texel;
-			/*gl_FragColor = vec4(0.25, 0.5, 0.75, 0.5);*/
-		}
-	</script>
-	<script type="module">
+	void main() {
+		vec2 uv = gl_FragCoord.xy / iResolution.xy;
+		//vec2 texRes = vec2(4, 1);
+		vec4 texel = texture2D(iChannel0, uv);
+		gl_FragColor = texel;
+		/*gl_FragColor = vec4(0.25, 0.5, 0.75, 0.5);*/
+	}
+	/*]]>*/</script>
+	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
-	import * as THREE from 'three';
 
-	function main() {
-		const canvas = document.querySelector('#c');
-		const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+	function loaded() {
+		window.canvas = document.getElementById("cnvMainOutput");
+		window.renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 		renderer.autoClearColor = false;
+		window.canvasAspectRatio = canvas.width / canvas.height;
+		canvas.parentElement.style.aspectRatio = canvasAspectRatio;
 
-		const camera = new THREE.OrthographicCamera(
+		window.camera = new THREE.OrthographicCamera(
 			-1, // left
 			1, // right
 			1, // top
@@ -82,7 +72,7 @@
 			-1, // near
 			1, // far
 		);
-		const scene = new THREE.Scene();
+		window.scene = new THREE.Scene();
 		const plane = new THREE.PlaneGeometry(2, 2);
 
 		const texW = 4, texH = 1;
@@ -94,31 +84,31 @@
 		]);
 		const tex0 = new THREE.DataTexture(data, texW, texH, THREE.RGBAFormat, THREE.FloatType);
 		tex0.needsUpdate = true;
-		const uniforms0 = {
-			iTime: { value: 0 },
-			iResolution: { value: new THREE.Vector3(texW, texH, 1) },
-			iChannel0: { value: tex0 }
+		window.uniforms0 = {
+			iTime: {value: 0},
+			iResolution: {value: new THREE.Vector3(texW, texH, 1)},
+			iChannel0: {value: tex0}
 		};
-		const material0 = new THREE.ShaderMaterial({
+		window.material0 = new THREE.ShaderMaterial({
 			fragmentShader: document.getElementById("FS0").textContent.trim(),
 			uniforms: uniforms0,
 		});
-		const target0 = new THREE.WebGLRenderTarget(4, 1, {format: THREE.RGBAFormat, type: THREE.FloatType});
+		window.target0 = new THREE.WebGLRenderTarget(4, 1, {format: THREE.RGBAFormat, type: THREE.FloatType});
 
-		const uniforms1 = {
-			iTime: { value: 0 },
-			iResolution: { value: new THREE.Vector3() },
-			iChannel0: { value: target0.texture }
+		window.uniforms1 = {
+			iTime: {value: 0},
+			iResolution: {value: new THREE.Vector3()},
+			iChannel0: {value: target0.texture}
 		};
-		const material1 = new THREE.ShaderMaterial({
+		window.material1 = new THREE.ShaderMaterial({
 			fragmentShader: document.getElementById("FS1").textContent.trim(),
 			uniforms: uniforms1,
 		});
 
-		const mesh = new THREE.Mesh(plane, material1);
+		window.mesh = new THREE.Mesh(plane, material1);
 		scene.add(mesh);
 
-		function resizeRendererToDisplaySize(renderer) {
+		/* function resizeRendererToDisplaySize(renderer) {
 			const canvas = renderer.domElement;
 			const width = canvas.clientWidth;
 			const height = canvas.clientHeight;
@@ -127,34 +117,44 @@
 				renderer.setSize(width, height, false);
 			}
 			return needResize;
-		}
-
-		function render(time) {
-			time *= 0.001; // convert to seconds
-
-			resizeRendererToDisplaySize(renderer);
-
-			//uniforms0.iResolution.value.set(texW, texH, 1);
-			uniforms0.iTime.value = time;
-			const canvas = renderer.domElement;
-			uniforms1.iResolution.value.set(canvas.width, canvas.height, 1);
-			uniforms1.iTime.value = time;
-
-			mesh.material = material0;
-			renderer.setRenderTarget(target0);
-			renderer.render(scene, camera);
-
-			mesh.material = material1;
-			renderer.setRenderTarget(null);
-			renderer.render(scene, camera);
-
-			requestAnimationFrame(render);
-		}
+		} */
 
 		requestAnimationFrame(render);
 	}
 
-	main();
-	</script>
+	function render(time) {
+		time *= 0.001; // convert to seconds
+
+		resizeRendererToDisplaySize(renderer);
+
+		//uniforms0.iResolution.value.set(texW, texH, 1);
+		uniforms0.iTime.value = time;
+		const canvas = renderer.domElement;
+		uniforms1.iResolution.value.set(canvas.width, canvas.height, 1);
+		uniforms1.iTime.value = time;
+
+		mesh.material = material0;
+		renderer.setRenderTarget(target0);
+		renderer.render(scene, camera);
+
+		mesh.material = material1;
+		renderer.setRenderTarget(null);
+		renderer.render(scene, camera);
+
+		requestAnimationFrame(render);
+	}
+
+	function pageLoaded(event) {
+		if(window.THREE)
+			loaded();
+		else
+			window.modulesLoaded = loaded;
+	}
+	if(document.readyState === "loading")
+		document.addEventListener("DOMContentLoaded", pageLoaded);
+	else //DOMContentLoaded has already fired
+		pageLoaded();
+	//window.addEventListener("load", pageReady);
+	/*]]>*/</script>
 </body>
 </html>

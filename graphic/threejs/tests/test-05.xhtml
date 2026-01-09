@@ -126,10 +126,10 @@
 		target0.depthTexture.type = THREE.FloatType;
 
 		uniforms1 = {
-			//iTime: { value: 0 },
-			//iResolution: { value: new THREE.Vector3() },
-			target0: { value: target0.texture },
-			target0depth: { value: target0.depthTexture },
+			//iTime: {value: 0},
+			//iResolution: {value: new THREE.Vector3()},
+			target0: {value: target0.texture},
+			target0depth: {value: target0.depthTexture},
 		};
 		material1 = new THREE.ShaderMaterial({
 			fragmentShader: document.getElementById("FS1").textContent.trim(),

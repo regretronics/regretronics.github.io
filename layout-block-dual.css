@@ -31,10 +31,10 @@ body > * {
 .layout-horizontal {
 	flex-direction: row;
 
-	& > :first-child {
+	& > :nth-child(1 of :not(script)) {
 		height: 100%;
 	}
-	& #c {
+	& #cnvMainOutput {
 		margin-block: auto;
 	}
 	& .script-visible {
@@ -44,10 +44,10 @@ body > * {
 .layout-vertical {
 	flex-direction: column;
 
-	& > :first-child {
+	& > :nth-child(1 of :not(script)) {
 		width: 100%;
 	}
-	& #c {
+	& #cnvMainOutput {
 		margin-inline: auto;
 	}
 	& .script-visible {
@@ -55,7 +55,7 @@ body > * {
 	}
 }
 
-body > :first-child {
+body > :nth-child(1 of :not(script)) {
 	align-self: center;
 	/* display: block; */
 	display: flex;
@@ -77,6 +77,13 @@ body > :first-child {
 	object-position: center;
 }
 
+script {
+	white-space-collapse: preserve;
+	text-wrap-mode: wrap;
+
+	font-family: monospace;
+	tab-size: 4ch;
+}
 .script-visible {
 	display: block;
 
@@ -86,12 +93,7 @@ body > :first-child {
 	overflow-block: scroll;
 	overflow-inline: auto;
 
-	white-space-collapse: preserve;
-	text-wrap-mode: wrap;
-
 	background-color: oklch(0.125 0 0deg);
-	font-family: monospace;
-	tab-size: 4ch;
 }
 
 @supports (height: stretch) {
@@ -100,16 +102,16 @@ body > :first-child {
 		height: stretch;
 	}
 	.layout-horizontal {
-		& > :first-child {
+		& > :nth-child(1 of :not(script)) {
 			height: stretch;
 		}
 	}
 	.layout-vertical {
-		& > :first-child {
+		& > :nth-child(1 of :not(script)) {
 			width: stretch;
 		}
 	}
-	/* body > :first-child {
+	/* body > :nth-child(1 of :not(script)) {
 		flex-basis: stretch;
 	} */
 }

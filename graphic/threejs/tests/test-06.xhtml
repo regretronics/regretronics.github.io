@@ -79,12 +79,12 @@
 		target0.depthTexture.type = THREE.FloatType;
 
 		uniforms1 = {
-			//iResolution: { value: new THREE.Vector3() },
-			target0: { value: target0.texture },
-			target0depth: { value: target0.depthTexture },
+			//iResolution: {value: new THREE.Vector3()},
+			target0: {value: target0.texture},
+			target0depth: {value: target0.depthTexture},
 
-			cameraNear: { value: 1.0 / camera.near },
-			cameraFar: { value: 1.0 / camera.far },
+			cameraNear: {value: 1.0 / camera.near},
+			cameraFar: {value: 1.0 / camera.far},
 		};
 		material1 = new THREE.ShaderMaterial({
 			glslVersion: THREE.GLSL3,

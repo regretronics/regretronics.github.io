@@ -9,7 +9,7 @@
 	<link rel="stylesheet" type="text/css" href="../../../layout-block-dual.css" />
 	<script src="../threejs-common.js" async="async"></script>
 	<style type="text/css">/*<![CDATA[*/
-	/* #c {
+	/* #cnvMainOutput {
 		border-style: solid;
 		border-width: 0.25em;
 		border-color: gray;
@@ -102,9 +102,9 @@
 		const tex0 = new THREE.DataTexture(data, texW, texH, THREE.RGBAFormat, THREE.FloatType);
 		tex0.needsUpdate = true;
 		window.uniforms0 = {
-			iTime: { value: 0 },
-			iResolution: { value: new THREE.Vector3(particleCount, 1, 1) },
-			iChannel0: { value: tex0 }
+			iTime: {value: 0},
+			iResolution: {value: new THREE.Vector3(particleCount, 1, 1)},
+			iChannel0: {value: tex0}
 		};
 		window.material0 = new THREE.ShaderMaterial({
 			fragmentShader: document.getElementById("FS0").textContent.trim(),
@@ -113,10 +113,10 @@
 		window.target0 = new THREE.WebGLRenderTarget(particleCount, 1, {format: THREE.RGBAFormat, type: THREE.FloatType});
 
 		window.uniforms1 = {
-			iTime: { value: 0 },
-			iResolution: { value: new THREE.Vector3() },
-			iChannel0: { value: target0.texture },
-			particleCount: { value: target0.width }
+			iTime: {value: 0},
+			iResolution: {value: new THREE.Vector3()},
+			iChannel0: {value: target0.texture},
+			particleCount: {value: target0.width}
 		};
 		window.material1 = new THREE.ShaderMaterial({
 			fragmentShader: document.getElementById("FS1").textContent.trim(),
