@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+	<title>SVG failed tricks</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			/* width: 100%;
+			height: 100%;
+			overflow: hidden; */
+
+			color-scheme: dark;
+			background-color: black;
+			color: white;
+		}
+
+		body {
+			/* margin: 0;
+			border: none;
+			padding: 0; */
+			/* height: 100%; */
+			/* overflow: hidden; */
+			counter-reset: test 0;
+		}
+
+		#svg1 {
+			/* visibility: hidden; */
+			/* content-visibility: hidden; */
+			/* display: inline;
+			height: 0;
+			width: 0;
+			margin: 0;
+			border: none;
+			padding: 0; */
+			width: 100%;
+			height: 100%;
+			/* overflow: hidden; */
+			/* aspect-ratio: auto; */
+			/* counter-increment: test 10; */
+		}
+		#dummy1 {
+			/* counter-reset: test 123; */
+			/* counter-increment: test 100; */
+			counter-increment: test attr(x type(*), 999);
+		}
+		#outCounter1::after {
+			content: counter(test) ".";
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<svg id="svg1" viewBox="0 0 300 300">
+		<defs>
+		</defs>
+		<style>
+			div {
+				height: 100%;
+				background-color: gray;
+				color: red;
+			}
+		</style>
+		<rect id="dummy1" x="1" y="0" width="100" height="30" fill="white">
+			<animate
+				attributeType="auto"
+				attributeName="x"
+				accumulate="sum"
+				by="25"
+				dur="1s"
+				repeatCount="indefinite" />
+		</rect>
+		<foreignObject x="0" y="30" width="300" height="200">
+			<textarea cols="30" rows="10">asdfgh asdfdghg
+				<animate
+					attributeType="auto"
+					attributeName="cols"
+					calcMode="discrete"
+					from="5"
+					to="35"
+					dur="2s"
+					repeatCount="indefinite" />
+			</textarea>
+		</foreignObject>
+	</svg>
+	<p>
+		<output id="outCounter1">counter: </output>
+		<textarea cols="60" rows="10">asdfgh asdfdghg
+			<svg:animate
+				svg:attributeType="XML"
+				svg:attributeName="cols"
+				svg:calcMode="discrete"
+				svg:from="5"
+				svg:to="35"
+				svg:dur="4s"
+				svg:repeatCount="indefinite" />
+		</textarea>
+	</p>
+</body>
+</html>
