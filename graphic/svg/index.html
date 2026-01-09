@@ -21,16 +21,21 @@
 			<ul>
 				<li><a class="no-hyphen" href="texture-warp-noise.xhtml">texture-warp-noise</a> (2025-05-13): noise texture deformed by transient noise, with cross-fade using SVG animation.</li>
 				<li><a class="no-hyphen" href="texture-dyn-warp-noise.xhtml">texture-dyn-warp-noise</a> (2025-05-13): similar to above, but with varying colors as well. Heavy on GPU; may flick sometimes.</li>
-				<li><a class="no-hyphen" href="2025-05-18-Noise-blur.svg">2025-05-18-Noise-blur.svg</a>: test about SVG Gaussian blur filter, through SVG animation.</li>
-				<li><a class="no-hyphen" href="2025-05-18-Noise-blur2.svg">2025-05-18-Noise-blur2.svg</a>: similar to the previous one, but with stronger blur, and feGaussianBlur before feColorMatrix in the filter pipeline, which means the alpha channel is only removed after the blur. In Google Chrome (as of 2025-05) the implicit downsampling becomes obvious; the effect is so ugly you might have wished you haven't seen it.</li>
-				<li><a class="no-hyphen" href="2025-05-19-Noise-map.svg">2025-05-19-Noise-map.svg</a>: variable blur, plus custom luminosity map.</li>
-				<li><a class="no-hyphen" href="2025-05-19-Noise-dyn-map-mono.svg" data-href="2025-05-19-&shy;Noise-&shy;dyn-map-&shy;mono.svg">2025-05-19-Noise-dyn-map-mono.svg</a>: custom color map, variable texture.</li>
-				<li><a class="no-hyphen" href="2025-05-19-Noise-dyn-map.svg">2025-05-19-Noise-dyn-map.svg</a>: similar to above, but with hues map and more noise bandwidth.</li>
+				<li><a class="no-hyphen" href="noise-blur.svg">noise-blur.svg</a> (2025-05-18): test about SVG Gaussian blur filter, through SVG animation.</li>
+				<li><a class="no-hyphen" href="noise-blur-02.svg">noise-blur-02.svg</a> (2025-05-22): similar to the previous one, but with stronger blur, and feGaussianBlur before feColorMatrix in the filter pipeline, which means the alpha channel is only removed after the blur. In Google Chrome (as of 2025-05) the implicit downsampling becomes obvious; the effect is so ugly you might have wished you haven't seen it.</li>
+				<!-- noise-convolve.svg (2025-05-18) not notable. -->
+				<li><a class="no-hyphen" href="noise-map.svg">noise-map.svg</a> (2025-05-19): variable blur, plus custom luminosity map.</li>
+				<li><a class="no-hyphen" href="noise-dyn-map-mono.svg" data-href="2025-05-19-&shy;Noise-&shy;dyn-map-&shy;mono.svg">noise-dyn-map-mono.svg</a> (2025-05-19): custom color map, variable texture.</li>
+				<li><a class="no-hyphen" href="noise-dyn-map.svg">noise-dyn-map.svg</a> (2025-05-19): similar to above, but with hues map and more noise bandwidth.</li>
 			</ul>
 		</li>
-		<li><a class="no-hyphen" href="2025-05-21-Shape-gradient.svg">2025-05-21-Shape-gradient.svg</a>: <a href="https://en.wikipedia.org/wiki/Diffusion_curve" data-href="https:&shy;//en.wikipedia.org/&shy;wiki/&shy;Diffusion_&shy;curve">diffusion curves</a> emulation.</li>
+		<li><a class="no-hyphen" href="shape-gradient.svg">shape-gradient.svg</a> (2025-05-21): <a href="https://en.wikipedia.org/wiki/Diffusion_curve" data-href="https:&shy;//en.wikipedia.org/&shy;wiki/&shy;Diffusion_&shy;curve">diffusion curves</a> emulation.</li>
 		<li><a class="no-hyphen" href="motion-blur.xhtml">motion-blur</a> (2025-06-15): a trick using a combination of transforms and filters. Doesn't work in Firefox as of 2025-06.</li>
-		<li><a class="no-hyphen" href="bevel-shading.xhtml">bevel-shading</a> (2025-06-17): another experience with filters, this time involving feDiffuseLighting and feSpecularLighting for a 3-d effect.</li>
+		<li><a class="no-hyphen" href="bevel-shading.xhtml">bevel-shading</a> (2025-06-17): another experience with filters, this time involving feDiffuseLighting and feSpecularLighting for a 3-d effect.
+			<ul>
+				<li><a class="no-hyphen" href="bevel-map.svg">bevel-map.svg</a> (2025-06-19): companion to bevel-shading.</li>
+			</ul>
+		</li>
 		<li>See also: <a href="/css/">CSS pages</a> (some use SVG).</li>
 	</ul>
 	<p>
