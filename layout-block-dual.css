@@ -61,7 +61,7 @@ body > :first-child {
 	display: flex;
 	flex-direction: inherit;
 
-	flex-basis: 100%;
+	/* flex-basis: 100%; */
 	flex-shrink: 1;
 
 	container-type: size;
@@ -109,7 +109,7 @@ body > :first-child {
 			width: stretch;
 		}
 	}
-	body > :first-child {
+	/* body > :first-child {
 		flex-basis: stretch;
-	}
+	} */
 }

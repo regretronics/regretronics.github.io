@@ -71,10 +71,6 @@ function resizeRendererToDisplaySize(renderer) {
 	if(needResize) {
 		renderer.setSize(width, height, false);
 		//renderer.setDrawingBufferSize(width, height, 1);
-		target0.setSize(width, height);
 	}
 	return needResize;
 }
-
-//window.addEventListener("load", loaded);
-//loaded();

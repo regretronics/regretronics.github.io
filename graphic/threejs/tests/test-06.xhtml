@@ -9,7 +9,7 @@
 	<link rel="stylesheet" type="text/css" href="../../../layout-block-dual.css" />
 	<script src="../threejs-common.js" async="async"></script>
 </head>
-<body>
+<body class="layout-vertical">
 	<div><canvas id="cnvMainOutput" width="512" height="512">Graphics output. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the graphics without Canvas.)</canvas></div>
 	<script id="FS1" type="x-shader/x-fragment" class="script-visible">
 	/*<![CDATA[*/
@@ -45,7 +45,7 @@
 		//fragColor.a = 0.25;
 	}
 	/*]]>*/</script>
-	<script type="text/javascript">
+	<script type="text/javascript">/*<![CDATA[*/
 	"use strict";
 
 	var material0, uniforms1, material1;
@@ -108,6 +108,7 @@
 
 		const canvas = renderer.domElement;
 		//uniforms1.iResolution.value.set(canvas.width, canvas.height, 1);
+		target0.setSize(canvas.width, canvas.height);
 
 		//frontmost layer
 		mesh.material = material0;
@@ -135,6 +136,6 @@
 	else //DOMContentLoaded has already fired
 		pageLoaded();
 	//window.addEventListener("load", pageReady);
-	</script>
+	/*]]>*/</script>
 </body>
 </html>
