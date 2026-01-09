@@ -17,7 +17,6 @@ async function loadModules() {
 	}
 	if(window.modulesLoaded) modulesLoaded();
 }
-loadModules();
 /* import('./three.module.js').then((value) => {
 	console.log("import promise 1 then fulfilled", value);
 	window.THREE = value;
@@ -33,6 +32,7 @@ loadModules();
 }).catch((reason) => {
 	console.log("import promise catch", reason);
 }); */
+loadModules();
 
 function loadedBasic(event) {
 	//console.log("Starting function 'loadedBasic'", event);
