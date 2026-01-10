@@ -128,12 +128,11 @@
 <body>
 	<h1>Project ontological</h1>
 	<details>
-		<summary>Explanation:</summary>
+		<summary>Introduction:</summary>
 		<div class="details-main">
-			<p>Currently a content generator. Work in early progress.</p>
 			<p>This project is inspired by my ramblings and investigations about the domain of meanings and their representation. 
 				I wanted to get rid of more concrete aspects that are usually embedded in communication, 
-				like phonemes, language tradition and even psychological or social concerns like rhetoric and etiquette, 
+				like phonemes, language tradition and even psychological or social concerns (like rhetoric and etiquette), 
 				for a highly conceptual and abstract form of content. 
 				It's a logical kind of content, that often interacts with consequences and decisions.</p>
 			<p>It's also inspired by a range of concepts including 
@@ -146,8 +145,35 @@
 			<p>My strategy involves formatting content into a tree based mainly on a dualism between property and value, or question and answer. 
 				In this manner, the content gets broken down from a qualitative level to a quantitative one, ultimately getting to mathematical objects.</p>
 			<p>In this experiment, the objective is to build an autonomous fiction generator or an "imaginator", generating a virtual world (more or less following the real one) with its due parts. 
-				But in this case, the approach is very abstract (unlike generating pixels, for example, which is visual). 
+				But in this case, the approach is very abstract (unlike generating pixels, for example, which is visual and rather shallow). 
 				This could have some creative and ludic applications, like increased replay value and flexibility from variable artificial situations in computer games.</p>
+		</div>
+	</details>
+	<details>
+		<summary>Guide:</summary>
+		<div class="details-main">
+			<p>Currently a content generator. Work in early progress.</p>
+			<p>This page generates variable structures based on a ruleset that can be programmed. This ruleset is represented by objects in a JavaScript module; the output format is the JavaScript Object Notation (JSON).</p>
+			<p>Expected objects:
+				<ul>
+					<li>categoryValues</li>
+					<li>taxonomy</li>
+					<li>fieldValues</li>
+					<li>categoryFieldsReq</li>
+					<li>categoryFieldsOpt (not used yet)</li>
+					<li>fieldCategories</li>
+				</ul>
+			</p>
+			<p>to do:
+				<ul>
+					<li>data structures, properties, one-to-many, arrays</li>
+					<li>categories</li>
+					<li>generation in general, rules</li>
+					<li>analytical category and specific generators</li>
+					<li>taxonomy and semantic relationships</li>
+					<li>matching, separators, identifiers</li>
+				</ul>
+			</p>
 		</div>
 	</details>
 	<div class="align-end"><button id="btnRulesReset">Reset</button></div>
