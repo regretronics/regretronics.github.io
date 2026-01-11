@@ -198,6 +198,10 @@ output:read-write {
 	min-block-size: 4em;
 	max-block-size: 75svb;
 
+	transition-property: max-block-size/* , overflow-block */;
+	transition-duration: 1s;
+	interpolate-size: allow-keywords;
+
 	&:not(details &) {
 		/* border-style: solid;
 		border-color: oklch(0.75 0.0625 var(--hue1-ang, 0deg) / 0.75);
@@ -221,7 +225,8 @@ output:read-write {
 	}
 	&:focus {
 		outline-color: oklch(0.875 0.0625 var(--hue1-ang, 0deg) / 0.875) !important;
-		max-block-size: revert-layer;
+		/* max-block-size: revert-layer; */
+		max-block-size: fit-content;
 		overflow-block: auto;
 		/* block-size: unset !important; */
 	}

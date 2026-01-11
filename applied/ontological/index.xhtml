@@ -15,11 +15,9 @@
 	<script src="ontol-main.js" type="text/javascript" defer="defer"></script>
 	<script src="page.js" type="text/javascript" defer="defer"></script>
 	<script id="defaultRulesBody" type="text/plain">
-		//this rule-set is incipient and experimental; there's a lot to do yet.
+		//this ruleset is incipient and experimental; there's a lot to do yet.
 
 		export const categoryValues = {
-			//category or "field/category" as key
-			//one from the list is used each time
 			/* "analytical.bit": [0, 1], */
 			"name.personal": ["Mary", "John"],
 			"0/name.personal": ["Mr. First"],
@@ -30,41 +28,39 @@
 
 			category: ["conceptual", "practical", "material", "physical", "analytical"],
 
-			"conceptual": ["process", "relation", "role", "item"],
-			"process": ["life", "event"],
-			"relation": ["family"],
-			"role": ["creator", "participant", "witness"],
-			"item": ["time", "situation", "place", "object"],
+			conceptual: ["process", "relation", "role", "item"],
+			process: ["life", "event"],
+			relation: ["family"],
+			role: ["creator", "participant", "witness"],
+			item: ["time", "situation", "place", "object"],
 
-			"practical": ["entity", "property", "propValue"],
-			"entity": ["living being", "material object", "material"],
-			"property": ["temperature"],
-			"propValue": ["low", "medium", "high", "negative", "zero", "positive"],
+			practical: ["entity", "property", "propValue"],
+			entity: ["living being", "material object", "material"],
+			property: ["temperature"],
+			propValue: ["low", "medium", "high", "negative", "zero", "positive"],
 
-			"material": ["universe", "person", "time", "space", "density", "probability"],
+			material: ["universe", "person", "time", "space", "density", "probability"],
 
-			"physical": ["quantity", "unit", "measurement"],
+			physical: ["quantity", "unit", "measurement"],
 
-			"analytical": ["set", "sequence", "vector", "number"],
+			analytical: ["set", "sequence", "vector", "number"],
 
-			"living being": ["animal", "plant"],
-			"animal": ["vertebrate"],
-			"vertebrate": ["mammal"],
-			"mammal": ["feline", "canine"],
-			"feline": ["cat"],
-			"canine": ["dog"],
+			"living being": ["bacteria", "fungus", "plant", "animal"],
+			animal: ["cnidarian", "mollusk", "arthropod", "vertebrate"],
+			vertebrate: ["amphibian", "mammal", "reptile", "bird"],
+			mammal: ["feline", "canine"],
+			feline: ["cat"],
+			canine: ["dog"],
 
 			"unit.time": ["decade", "year", "month", "day"],
 			"unit.length": ["kilometer", "meter", "foot", "millimeter"],
-			"unit.volume": ["litre", "cubic meter"],
+			"unit.volume": ["liter", "cubic meter"],
 			"unit.mass": ["kilogram", "pound"],
 			"unit.temperature": ["degree kelvin"],
 			"unit.electric charge": ["coulomb"],
 			"unit.logarithmic": ["bit", "decibel", "byte"],
 		};
 		export const fieldValues = {
-			//field or "category/field" as key
-			//one from the list is used each time
 			category: ["taxonomy:category"],
 
 			process: ["adolescence"],
@@ -78,8 +74,6 @@
 		};
 
 		export const categoryFieldsReq = {
-			//category or "field/category" as key
-			//all from the list are used each time
 			conceptual: [/*"type",*/ "roles"],
 			"conceptual.process.event": ["date", "place"],
 			"conceptual.relation.family": ["father", "mother", "children"],
@@ -88,7 +82,6 @@
 			material: ["material1", "material2"],
 			physical: ["physical1", "physical2"],
 			"physical.quantity": ["scale"],
-			//analytical: [],
 
 			roles: ["protagonist", "antagonist"],
 			//"roles/agent": ["protagonist", "antagonist"],
@@ -99,28 +92,19 @@
 			"physical.quantity.time": ["measure"],
 			//"measure.time": ["unit.time", "scale.time"],
 			"measure.time": ["unit", "scale"],
-			/* process: ["type", "roles"],
-			relation: ["type", ""],
-			role: ["type", "agent"], */
 		};
-		//not used yet.
 		/* export const categoryFieldsOpt = {
 			process: ["type", "roles"],
 		}; */
 
 		export const fieldCategories = {
-			//field or "category/field" as key
-			//one from the list is used each time
 			category: ["string"],
-			//category2: ["string"],
 			roles: ["roles/agent"],
 			//"conceptual/roles": ["roles/agent"],
-			//"practical.property/name": ["string"],
 			"practical.property/value": ["practical.propValue"],
 			age: ["physical.quantity.time"],
 			//"agent/name": ["name.personal"],
 			"physical.quantity.time/measure": ["measure.time"],
-			//"scale.time": ["analytical.realnonneg"],
 			"measure.time/scale": ["analytical.realnonneg"],
 		};
 	</script>
@@ -154,16 +138,6 @@
 		<div class="details-main">
 			<p>Currently a content generator. Work in early progress.</p>
 			<p>This page generates variable structures based on a ruleset that can be programmed. This ruleset is represented by objects in a JavaScript module; the output format is the JavaScript Object Notation (JSON).</p>
-			<p>Expected objects:
-				<ul>
-					<li><code>categoryValues</code></li>
-					<li><code>taxonomy</code></li>
-					<li><code>fieldValues</code></li>
-					<li><code>categoryFieldsReq</code></li>
-					<li><code>categoryFieldsOpt</code> (not used yet)</li>
-					<li><code>fieldCategories</code></li>
-				</ul>
-			</p>
 			<p>to do:
 				<ul>
 					<li>data structures, properties, one-to-many, arrays</li>
@@ -173,6 +147,36 @@
 					<li>taxonomy and semantic relationships</li>
 					<li>matching, separators, identifiers</li>
 				</ul>
+			</p>
+			<p>Expected objects:
+				<dl>
+					<dt><strong><code>categoryValues</code></strong></dt>
+					<dd><code>category</code> or <code>"field/category"</code> as key.
+						<br />Provides values.
+						One from the list is used each time.
+					</dd>
+					<dt><strong><code>taxonomy</code></strong></dt>
+					<dd><code>type: ["subtype"]</code>.
+						<br />Provides subtype names.
+						One from the list is used each time.
+					</dd>
+					<dt><strong><code>fieldValues</code></strong></dt>
+					<dd><code>field</code> or <code>"category/field"</code> as key.
+						<br />Provides values.
+						One from the list is used each time.
+					</dd>
+					<dt><strong><code>categoryFieldsReq</code></strong></dt>
+					<dd><code>category</code> or <code>"field/category"</code> as key.
+						<br />Provides field names.
+						All from the list are used each time.
+					</dd>
+					<dt><strong><code>categoryFieldsOpt</code></strong> (not used yet)</dt>
+					<dt><strong><code>fieldCategories</code></strong></dt>
+					<dd><code>field</code> or <code>"category/field"</code> as key.
+						<br />Provides category names; can be a chain.
+						One (chain) from the list is used each time.
+					</dd>
+				</dl>
 			</p>
 		</div>
 	</details>
