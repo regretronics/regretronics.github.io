@@ -108,8 +108,8 @@ p, ul, ol {
 	hyphenate-character: "";
 }
 .grade-lower-1 {
-	opacity: 0.9;
-	color: oklch(0.875 0.03125 var(--hue1-ang, 0deg));
+	opacity: 0.85;
+	color: oklch(0.875 0.046875 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.0625 var(--hue1-ang, 0deg));
 
 	:is(&, & *)::marker {

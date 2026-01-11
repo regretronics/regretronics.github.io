@@ -19,21 +19,21 @@
 	<ul>
 		<li>Based on <a href="https://en.wikipedia.org/wiki/Perlin_noise" data-href="https:&shy;//en.wikipedia.org/&shy;wiki/&shy;Perlin_&shy;noise">Perlin noise</a>:
 			<ul>
-				<li><a class="no-hyphen" href="texture-warp-noise.xhtml">texture-warp-noise</a> (2025-05-13): noise texture deformed by transient noise, with cross-fade using SVG animation.</li>
+				<li><a class="no-hyphen" href="texture-warp-noise.xhtml">texture-warp-noise</a> (2025-05-13): noise texture deformed by transient noise, with cross-fade using SVG animation. Buggy in Chrome for Android as of 2025-12.</li>
 				<li><a class="no-hyphen" href="texture-dyn-warp-noise.xhtml">texture-dyn-warp-noise</a> (2025-05-13): similar to above, but with varying colors as well. Heavy on GPU; may flick sometimes.</li>
-				<li><a class="no-hyphen" href="noise-blur.svg">noise-blur.svg</a> (2025-05-18): test about SVG Gaussian blur filter, through SVG animation.</li>
-				<li><a class="no-hyphen" href="noise-blur-02.svg">noise-blur-02.svg</a> (2025-05-22): similar to the previous one, but with stronger blur, and feGaussianBlur before feColorMatrix in the filter pipeline, which means the alpha channel is only removed after the blur. In Google Chrome (as of 2025-05) the implicit downsampling becomes obvious; the effect is so ugly you might have wished you haven't seen it.</li>
-				<!-- noise-convolve.svg (2025-05-18) not notable. -->
-				<li><a class="no-hyphen" href="noise-map.svg">noise-map.svg</a> (2025-05-19): variable blur, plus custom luminosity map.</li>
-				<li><a class="no-hyphen" href="noise-dyn-map-mono.svg" data-href="2025-05-19-&shy;Noise-&shy;dyn-map-&shy;mono.svg">noise-dyn-map-mono.svg</a> (2025-05-19): custom color map, variable texture.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="noise-blur.svg">noise-blur.svg</a> (2025-05-18): test about SVG Gaussian blur filter, through SVG animation.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="noise-blur-02.svg">noise-blur-02.svg</a> (2025-05-22): similar to the previous one, but with stronger blur, and feGaussianBlur before feColorMatrix in the filter pipeline, which means the alpha channel is only removed after the blur. In Google Chrome (as of 2025-05) the implicit downsampling becomes obvious; the effect is so ugly you might have wished you haven't seen it.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="noise-convolve.svg">noise-convolve.svg</a> (2025-05-18): animated convolution effect. Currently ineffective in Chrome, and slow in Firefox.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="noise-map.svg">noise-map.svg</a> (2025-05-19): variable blur, plus custom luminosity map.</li>
+				<li><a class="no-hyphen" href="noise-dyn-map-mono.svg" data-href="2025-05-19-&shy;Noise-&shy;dyn-map-&shy;mono.svg">noise-dyn-map-mono.svg</a> (2025-05-19): variable texture, under custom color map.</li>
 				<li><a class="no-hyphen" href="noise-dyn-map.svg">noise-dyn-map.svg</a> (2025-05-19): similar to above, but with hues map and more noise bandwidth.</li>
 			</ul>
 		</li>
 		<!-- Animierte_DB_Uhr.svg (from https://commons.wikimedia.org/wiki/File:Animierte_DB_Uhr.svg) not notable; stored for historic purposes (the wall clock-timed animation worked in the 2000s, but not since the early 2010s). -->
 		<li><a class="no-hyphen" href="shape-gradient.svg">shape-gradient.svg</a> (2025-05-21): <a href="https://en.wikipedia.org/wiki/Diffusion_curve" data-href="https:&shy;//en.wikipedia.org/&shy;wiki/&shy;Diffusion_&shy;curve">diffusion curves</a> emulation.</li>
 		<li><a class="no-hyphen" href="motion-blur.xhtml">motion-blur</a> (2025-06-15): a trick using a combination of transforms and filters. Doesn't work in Firefox as of 2025-06.</li>
-		<!-- 2025-06-16-SMIL-CSS.html (2025-06-16) not notable. -->
-		<li><a class="no-hyphen" href="bevel-shading.xhtml">bevel-shading</a> (2025-06-17): another experience with filters, this time involving feDiffuseLighting and feSpecularLighting for a 3-d effect.
+		<!-- 2025-06-16-SMIL-CSS.html (2025-06-16) not complete or notable. -->
+		<li><a class="no-hyphen" href="bevel-shading.xhtml">bevel-shading</a> (2025-06-17): another experience with filters, this time involving feDiffuseLighting and feSpecularLighting for a 3-d effect. Not completely mature.
 			<ul>
 				<li><a class="no-hyphen" href="bevel-map.svg">bevel-map.svg</a> (2025-06-19): companion to bevel-shading.</li>
 			</ul>
