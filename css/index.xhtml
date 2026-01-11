@@ -22,44 +22,46 @@
 		<li>Color
 			<ul>
 				<li><a class="no-hyphen" href="color/palette-system.xhtml">palette-system</a> (2024-08-23): experiment with system colors.</li>
-				<!-- <li><a class="no-hyphen" href="color/palette-system-simple.xhtml">palette-system-simple</a> (2026-01-01)</li> -->
+				<li class="grade-lower-1"><a class="no-hyphen" href="color/palette-system-simple.xhtml">palette-system-simple</a> (2026-01-01)</li>
 				<li><a class="no-hyphen" href="color/hdr-colors-test.xhtml">hdr-colors-test</a> (2024-11-30): experiments with HDR and <a href="https://en.wikipedia.org/wiki/Rec._2100">rec-2100</a> (unsupported in browsers, as of 2025-05).</li>
 				<li><a class="no-hyphen" href="color/spaces-and-hues.xhtml" data-href="color/&shy;spaces-&shy;and-&shy;hues.xhtml">spaces-and-hues</a> (2025-03-10): some color operations and gamut testing. Uses some JavaScript. (Runs in Chrome, not in Firefox, as of 2025-05.)</li>
-				<li><a class="no-hyphen" href="color/color-scheme.xhtml">color-scheme</a> (2025-12-03): a few modern CSS experiments on color schemes, including the prefers-color-scheme media query. Uses the if() function, so as of 2025-12, doesn't work in Firefox.</li>
-				<li><a class="no-hyphen" href="color/color-scheme-02.xhtml">color-scheme-02</a> (2025-12-03): draft of a CSS color scheme engine. As of 2025-12, doesn't work properly in Firefox.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="color/color-scheme.xhtml">color-scheme</a> (2025-12-03): a few modern CSS experiments on color schemes, including the prefers-color-scheme media query. Uses the if() function, so as of 2025-12, doesn't work in Firefox.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="color/color-scheme-02.xhtml">color-scheme-02</a> (2025-12-03): draft of a CSS color scheme engine. As of 2025-12, doesn't work properly in Firefox.</li>
 				<li><a class="no-hyphen" href="color/supports-colors.xhtml">supports-colors</a> (2025-12-29): bulk testing of many CSS color values and expressions. Depends on an advanced usage of the attr() function, so as of 2025-12, doesn't work in Firefox.</li>
 			</ul>
 		</li>
 		<li>Animation
 			<ul>
-				<li><a class="no-hyphen" href="animation/wheels.xhtml">wheels</a> (2023-03-31): experiments with animations, interactivity, gradients, transform, animation-play-state, transitions.</li>
-				<li><a class="no-hyphen" href="animation/3d-translation.xhtml">3d-translation</a> (2023-11-23): experiment with perspective/perspective(), animation-composition, translate.</li>
-				<li><a class="no-hyphen" href="animation/hover-trail.xhtml">hover-trail</a> (2023-11-23): experiment with transitions, :hover, transition-delay.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="animation/wheels.xhtml">wheels</a> (2023-03-31): experiments with animations, interactivity, gradients, transform, animation-play-state, transitions.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="animation/3d-translation.xhtml">3d-translation</a> (2023-11-23): experiment with perspective/perspective(), animation-composition, translate.</li>
+				<li><a class="no-hyphen" href="animation/hover-trail.xhtml">hover-trail</a> (2023-11-23): experiment with transitions, :hover, transition-delay. Works better with a mouse.</li>
 				<li><a class="no-hyphen" href="animation/shape-dyn-01.xhtml">shape-dyn-01</a> (2025-04-29): animated and parametric drawing; small experiment about using formulas in shapes, through CSS shape(). Doesn't work in Firefox as of 2025-05.</li>
 				<li><a class="no-hyphen" href="animation/shape-dyn-02.xhtml">shape-dyn-02</a> (2025-06-01): a more ambitious variation of the previous one, using Bézier curves, my PRNG, cubic spline interpolation. Doesn't work in Firefox as of 2025-05.</li>
-				<li><a class="no-hyphen" href="animation/turbulence.xhtml">turbulence</a> (2025-05-13): effect using SVG filters, blend modes, animated SVG. Doesn't work in Firefox as of 2025-05.
+				<li><a class="no-hyphen" href="animation/turbulence.xhtml">turbulence</a> (2025-05-13): effect using SVG filters, blend modes, animated SVG. Doesn't work in Firefox as of 2025-05. Buggy in Chrome for Android as of 2025-12.
 					<ul>
 						<li><a class="no-hyphen" href="animation/turbulence-anim.svg">turbulence-anim.svg</a> (2025-05-14): companion to turbulence.</li>
 					</ul>
 				</li>
 				<li><a class="no-hyphen" href="animation/anim-numerical.xhtml">anim-numerical</a> (2025-05-20): experiment with crossbreeding of transitions and animations (through custom variables), math functions and interactivity, looking for complex or subtle possibilities. The animation-delay approach doesn't work in Firefox, as of 2025-05, but I've found an alternative.</li>
-				<li><a class="no-hyphen" href="animation/anim-numerical-emulation.xhtml">anim-numerical-emulation</a> (2025-05-22): more unconventional experiments, similar to the previous.</li>
-				<!-- animation/spring-tests.xhtml (2025-11-10) not mature yet. -->
+				<li class="grade-lower-1"><a class="no-hyphen" href="animation/anim-numerical-emulation.xhtml">anim-numerical-emulation</a> (2025-05-22): more unconventional experiments, similar to the previous.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="animation/spring-tests.xhtml">anim-spring-tests</a> (2025-11-10): attempt to simulate elastic dynamics. Never matured.</li>
 				<li><a class="no-hyphen" href="animation/scroll-spring.xhtml">scroll-spring</a> (2025-11-25): experiments with scroll-driven animations. Includes a simulation of inertial elastic motion with overshoot.</li>
-				<!-- <li><a class="no-hyphen" href="animation/pause-gating.xhtml">pause-gating</a> (2025-11-28) not mature yet.</li> -->
+				<li class="grade-lower-1"><a class="no-hyphen" href="animation/pause-gating.xhtml">pause-gating</a> (2025-11-28): incomplete.</li>
 			</ul>
 		</li>
-		<!-- <li>3-d
+		<li class="grade-lower-1">3-d
 			<ul>
-				<li><a class="no-hyphen" href="3d/3d-walls.xhtml">3d-walls</a> (2025-05-29) not mature yet.</li>
+				<li><a class="no-hyphen" href="3d/gcss-3d/" data-href="3d/&shy;gcss-3d/">gcss-3d</a> (2023-03-25): lots of CSS math. Allows parallax scrolling.</li>
+				<li><a class="no-hyphen" href="particles/">particles</a> (2023-04-08)</li>
+				<li><a class="no-hyphen" href="3d/3d-walls.xhtml">3d-walls</a> (2025-05-29) not done yet.</li>
 			</ul>
-		</li> -->
+		</li>
 		<li>Numerical
 			<ul>
-				<li><a class="no-hyphen" href="numerical/vars-counters.xhtml">vars-counters</a> (2025-04-25): experiments with animations, counters, attr(), animation-timeline, @counter-style, content, sibling-index(). Doesn't fully work in Firefox as of 2025-05.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="numerical/vars-counters.xhtml">vars-counters</a> (2025-04-25): experiments with animations, counters, attr(), animation-timeline, @counter-style, content, sibling-index(). Doesn't fully work in Firefox as of 2025-05.</li>
 				<li><a class="no-hyphen" href="numerical/random-01.xhtml">random-01</a> (2025-05-03): random-access (non-cumulative) PRNG (pseudo-random number generator). One of the few pages using JavaScript for something. Doesn't work in Firefox as of 2025-05.</li>
 				<li><a class="no-hyphen" href="numerical/random-seq-interpolated.xhtml">random-seq-interpolated</a> (2025-05-04): PRNG with interpolation by cubic splines. Doesn't work in Firefox as of 2025-05.</li>
-				<!-- random-float32.xhtml (2025-07-30) not mature yet. -->
+				<li class="grade-lower-1"><a class="no-hyphen" href="numerical/random-float32.xhtml">random-float32</a> (2025-07-30): Firefox-compatible PRNG. Not mature yet.</li>
 				<li><a class="no-hyphen" href="numerical/number-precision.xhtml">number-precision</a> (2025-07-30): testing the precision of CSS floating-point numbers (as of 2025, Firefox uses float32 and Chrome uses float64).</li>
 				<li><a class="no-hyphen" href="numerical/random-squares.xhtml">random-squares</a> (2025-08-12): another PRNG, adapted within the limits of float32. Based on the paper <cite><a href="https://arxiv.org/abs/2004.06278">Squares: A Fast Counter-Based RNG</a></cite> by Bernard Widynski.</li>
 				<li><a class="no-hyphen" href="numerical/tracking-polar.xhtml">tracking-polar</a> (2025-12-15): based on 2025-04-29-CSS-tracking; experiments with CSS math and CSS gradients.</li>
@@ -70,21 +72,21 @@
 				<li><a class="no-hyphen" href="blobs/blobs-original.html">blobs-original</a> (found 2023-07-06) (not by me)</li>
 				<li><a class="no-hyphen" href="blobs/blobs-v02.xhtml">blobs-v02</a> (2023-07-06): some changes later.</li>
 				<li><a class="no-hyphen" href="blobs/blobs-v03-filter-warp.xhtml">blobs-v03-filter-warp</a> (2023-07-07): texture deformation by particles, using SVG filters. This and later ones below don't work properly in Firefox as of 2025-05.</li>
-				<li><a class="no-hyphen" href="blobs/blobs-v03-filter-warp-02.xhtml">blobs-v03-filter-warp-02</a> (2024-08-22): more advanced control of deformation in each particle.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="blobs/blobs-v03-filter-warp-02.xhtml">blobs-v03-filter-warp-02</a> (2024-08-22): more advanced control of deformation in each particle.</li>
 				<li><a class="no-hyphen" href="blobs/blobs-v04-random.xhtml">blobs-v04-random</a> (2025-05-04): using my custom CSS PRNG.</li>
-				<li><a class="no-hyphen" href="blobs/blobs-v04-random-02.xhtml">blobs-v04-random-02</a> (2025-05-13): more SVG, less HTML.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="blobs/blobs-v04-random-02.xhtml">blobs-v04-random-02</a> (2025-05-13): more SVG, less HTML.</li>
 				<li><a class="no-hyphen" href="blobs/blobs-v05-filter-map.xhtml">blobs-v05-filter-map</a> (2025-05-14): custom color map, using SVG filters.</li>
-				<li><a class="no-hyphen" href="blobs/blobs-v05-filter-map-mono.xhtml">blobs-v05-filter-map-mono</a> (2025-05-15)</li>
+				<li><a class="no-hyphen" href="blobs/blobs-v05-filter-map-mono.xhtml">blobs-v05-filter-map-mono</a> (2025-05-15): similar to the previous, with a color map of oscillating luminosity.</li>
 			</ul>
 		</li>
 		<li>Miscellanea/simple tests
 			<ul>
-				<li><a class="no-hyphen" href="tests/css-misc-01.xhtml">css-misc-01</a> (2023-11-22): experiments with :has() and non-local effects, counters, attr(), oklch(), atan2(), polygon(), cubic-bezier().</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="tests/css-misc-01.xhtml">css-misc-01</a> (2023-11-22): experiments with :has() and non-local effects, counters, attr(), oklch(), atan2(), polygon(), cubic-bezier().</li>
 				<li><a class="no-hyphen" href="tests/css-misc-02.xhtml">css-misc-02</a> (2024-06-25): experiments with form controls, CSS custom variables, :has(), backdrop-filter, text-shadow, box-shadow, parametric page theme.</li>
-				<li><a class="no-hyphen" href="tests/css-misc-03.xhtml">css-misc-03</a> (2024-07-11): experiments with :target, :focus-within, contenteditable, :has(), :hover, counters.</li>
-				<li><a class="no-hyphen" href="tests/links-overlay.xhtml">links-overlay</a> (2025-04-25): URL hinting overlay UI experiment.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="tests/css-misc-03.xhtml">css-misc-03</a> (2024-07-11): experiments with :target, :focus-within, contenteditable, :has(), :hover, counters.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="tests/links-overlay.xhtml">links-overlay</a> (2025-04-25): URL hinting overlay UI experiment.</li>
 				<li><a class="no-hyphen" href="tests/css-tracking.xhtml">css-tracking</a> (2025-04-29): experiment with element indexing, CSS anchors, counters, CSS math.</li>
-				<li><a class="no-hyphen" href="tests/css-tracking-v02.xhtml">css-tracking-v02</a> (2025-05-01): same as above, improved with a few more tricks.</li>
+				<li class="grade-lower-1"><a class="no-hyphen" href="tests/css-tracking-v02.xhtml">css-tracking-v02</a> (2025-05-01): same as above, improved with a few more tricks.</li>
 				<li><a class="no-hyphen" href="tests/style-editor-live.xhtml">style-editor-live</a> (2025-07-24): real-time CSS surgery.</li>
 				<!-- <li><a class="no-hyphen" href="tests/filter-blur-sliced.xhtml">filter-blur-sliced</a> (2025-11-20) not mature yet.</li> -->
 				<!-- <li><a class="no-hyphen" href="tests/css-funcs-01.xhtml">css-funcs-01</a> (2025-12-04) not mature yet.</li> -->
