@@ -70,7 +70,7 @@
 			transition-property: scrollbar-color;
 			transition-duration: 0.25s;
 		} */
-		/*:root::selection, *::selection {
+		/*:root::selection {
 			transition-property: background-color, color !important;
 			transition-duration: 0.25s !important;
 		}*/ /*introduces selection color bug in null theme in desktop browsers*/

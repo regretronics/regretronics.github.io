@@ -8,6 +8,13 @@
 	color: hsla(var(--hue-accent, 120), 25%, 100%, 0.9375);
 	accent-color: hsl(var(--hue-accent, 120), 25%, 75%);
 	color-scheme: dark;
+
+	&::selection {
+		/*background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
+		color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);*/
+		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 100%, 0.9375);
+		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 0%, 0.875);
+	}
 }
 * {
 	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 25%, 87.5%);*/
@@ -42,35 +49,21 @@
 body {
 	font-weight: 500;
 }
-@media screen and not (prefers-reduced-motion: reduce) {
-	:root::selection, *::selection { /*not really working*/
-		transition-property: background-color, color !important;
-		transition-duration: 0.25s !important;
-	}
-}
-.code-editor, code {
-	:not(&, & *)::selection { /*the exclusions are a workaround for Blink*/
-		/*background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.9375);
-		color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);*/
-		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 100%, 0.9375);
-		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 0%, 0.875);
-	}
-	:is(&, & *)::selection {
-		background-color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1) !important;
-		color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375) !important;
-	}
+:is(.code-editor, code)::selection {
+	background-color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 1) !important;
+	color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 0.9375) !important;
 }
 
 strong {
 	color: white;
 }
 h1, h2, h3, strong, em {
-	:is(&, & *)::selection {
+	&::selection {
 		background-color: hsl(var(--hue-accent, 120), 0%, 100%) !important;
 		color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
 	}
 	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
-		:is(&, & *)::selection {
+		&::selection {
 			color: hsl(var(--hue-accent2, 300), 100%, 93.75%) !important;
 		}
 	}

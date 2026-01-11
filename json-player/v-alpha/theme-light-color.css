@@ -8,6 +8,13 @@
 	color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
 	accent-color: hsl(var(--hue-accent, 120), 50%, 37.5%);
 	color-scheme: light;
+
+	&::selection {
+		/*background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
+		color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);*/
+		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.625);
+		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.875);
+	}
 }
 * {
 	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 62.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);*/
@@ -41,36 +48,21 @@
 
 /* body {
 } */
-@media screen and not (prefers-reduced-motion: reduce) {
-	:root::selection, *::selection { /*not really working*/
-		transition-property: background-color, color !important;
-		transition-duration: 0.25s !important;
-	}
-}
-/*::selection {*/
-.code-editor, code {
-	:not(&, & *)::selection { /*the exclusions are a workaround for Blink*/
-		/*background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.625);
-		color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.875);*/
-		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.625);
-		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.875);
-	}
-	:is(&, & *)::selection {
-		background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75) !important;
-		color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875) !important;
-	}
+:is(.code-editor, code)::selection {
+	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75) !important;
+	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875) !important;
 }
 
 strong {
 	color: black;
 }
 h1, h2, h3, strong, em {
-	:is(&, & *)::selection {
+	&::selection {
 		background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
 		color: hsl(var(--hue-accent, 120), 100%, 87.5%) !important;
 	}
 	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
-		:is(&, & *)::selection {
+		&::selection {
 			background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.875) !important;
 			color: hsl(var(--hue-accent2, 300), 100%, 12.5%) !important;
 		}

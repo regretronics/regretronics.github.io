@@ -7,6 +7,11 @@
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
+	
+	&::selection {
+		background-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
+		color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
+	}
 }
 body {
 	/* margin: min(1em, 3vmin); */
@@ -15,10 +20,6 @@ body {
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 }
 
-::selection {
-	background-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
-	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
-}
 /* :active::selection */
 /* body:has(:active::selection) ::selection {
 	background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));

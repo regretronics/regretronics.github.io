@@ -7,10 +7,11 @@
 	background-color: oklch(0.1875 0.015625 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.03125 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
-}
-::selection {
-	background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));
-	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
+
+	&::selection {
+		background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));
+		color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
+	}
 }
 ::marker {
 	color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
@@ -59,7 +60,7 @@ input, textarea, button, select {
 }
 
 details {
-	margin-block: 1em;
+	margin-block: 0.5em;
 
 	&:is(:focus-within/* , :has(::selection) */) summary:first-of-type::marker {
 		color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
@@ -120,17 +121,18 @@ details {
 	}
 	& summary:first-of-type {
 		cursor: pointer;
+		padding-block: 0.25em;
 		/* border-radius: inherit; */ /*not working in Chrome*/
 		/* clip-path: border-box; */
 		/* clip-path: padding-box; */
 
 		list-style-position: outside;
-		margin-inline-start: 2ch;
+		margin-inline-start: 1.25em;
 		padding-inline-start: 0.5ch;
 	}
 	& > .details-main {
 		/* padding: 1em; */
-		padding-block: 0.01px;
+		padding-block: 0.01px; /*as of 2025-12, margin-trim is unavailable.*/
 		padding-inline: 1em;
 		hyphens: auto;
 
@@ -156,7 +158,7 @@ details {
 	display: flex;
 	/* float: inline-end; */
 	justify-self: end;
-	height: 1lh;
+	height: calc(1lh + 0.5em);
 	/* clip-path: border-box; */
 
 	& > * {
@@ -175,9 +177,9 @@ details {
 		&, & > :last-child {
 			border-end-end-radius: 0.75rem;
 		}
-		& > :last-child {
-			padding-inline-end: 0.375rem;
-		}
+		/* & > :last-child {
+			padding-inline-end: 0.5rem;
+		} */
 	}
 	& > button {
 		padding: 0em 0.5em;
