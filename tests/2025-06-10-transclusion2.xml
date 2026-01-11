@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="2025-06-10-Transclusion-style.xsl" type="application/xslt+xml"?>
+<?xml-stylesheet href="2025-06-10-transclusion-style.xsl" type="application/xslt+xml"?>
 <!DOCTYPE persons>
 <persons xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xsl:version="1.0">
 	<person username="JS1">
@@ -14,7 +14,7 @@
 		<xsl:template match="/">asfasdfsad</xsl:template>
 	</xsl:transform>
 	<xsl:copy-of select="document('about:blank')"></xsl:copy-of>
-	<xsl:copy-of select="document('2025-06-10-Transclusion-target.html')"></xsl:copy-of>
+	<xsl:copy-of select="document('2025-06-10-transclusion-target.html')"></xsl:copy-of>
 	<xsl:stylesheet version="1.0">
 		<xsl:output method="xml" indent="yes"/>
 
