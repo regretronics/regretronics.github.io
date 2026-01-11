@@ -38,7 +38,7 @@
 	/* --con-sign: -1; */
 	/* @media (prefers-color-scheme: no-preference) {--con-sign: -0.5;} */ /* no-preference is deprecated */
 	/* @media (prefers-color-scheme: normal) {--con-sign: -0.5;} */
-	@media (prefers-color-scheme: dark) {& {--con-sign: -1.0;}}
+	@media (prefers-color-scheme: dark) {  {--con-sign: -1.0;}} /* does this work? */
 	@media (prefers-color-scheme: light) {& {--con-sign: 1.0;}}
 }
 /* @media (prefers-color-scheme: dark) {:root {--con-sign: -1.0;}}

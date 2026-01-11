@@ -77,15 +77,15 @@ details {
 		}
 		&:hover, &:active, &:focus-visible, 
 		&:has(summary:first-of-type:is(:hover, :active, :focus-visible)) {
-			outline-style: solid;
-			outline-width: 0.25em;
-			outline-color: oklch(0.375 0.09375 var(--hue1-ang, 0deg) / 0.3);
+			/* outline-style: solid;
+			outline-width: 0.125em;
+			outline-color: oklch(0.625 0.09375 var(--hue1-ang, 0deg) / 0.3); */
 			background-color: oklch(0.375 0.09375 var(--hue1-ang, 0deg) / 0.5);
 		}
 		/* & summary:first-of-type {
 			&:hover, &:active, &:focus {
 				outline-style: solid;
-				outline-width: 0.25em;
+				outline-width: 0.125em;
 				outline-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.5);
 				background-color: oklch(0.5 0.125 var(--hue1-ang, 0deg) / 0.5);
 			}
@@ -157,7 +157,8 @@ details {
 	/* display: inline-flex; */
 	display: flex;
 	/* float: inline-end; */
-	justify-self: end;
+	/* justify-self: end; */
+	right: 1em;
 	height: calc(1lh + 0.5em);
 	/* clip-path: border-box; */
 

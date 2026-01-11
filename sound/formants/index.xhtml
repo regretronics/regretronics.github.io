@@ -60,10 +60,10 @@
 		/* resize: vertical; */
 
 		&.parsing {
-			background-color: hsl(60deg 50% 25%);
+			background-color: oklch(0.25 0.0625 25% 85deg);
 		}
 		&.invalid {
-			background-color: hsl(0deg 50% 25%);
+			background-color: oklch(0.25 0.0625 25deg);
 		}
 	}
 
@@ -329,7 +329,7 @@
 
 		//clear frame.
 		//to do: colors responsive to color scheme?
-		visCtx.fillStyle = "CanvasText";
+		visCtx.fillStyle = "oklch(0.125 0 0deg)";
 		visCtx.fillRect(0, 0, cw, ch);
 
 		//frequency guide lines.
@@ -340,7 +340,7 @@
 			for(const formant of formantList) {
 				visCtx.beginPath();
 
-				visCtx.strokeStyle = "hsl(210deg 100% 75% / 0.5)";
+				visCtx.strokeStyle = "oklch(0.75 0.0625 235deg / 0.5)";
 				//question: multiply by overall q? (currently not.)
 				//range calculation, linear
 				/* visCtx.lineWidth = cw * formant.freq / (4096.0 * formant.q);
@@ -361,16 +361,16 @@
 
 		//vertical grid lines.
 		//visCtx.lineWidth = 3;
-		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
+		//visCtx.strokeStyle = "oklch(0.75 0 0deg)";
 		//visCtx.beginPath();
 		for(let i = 0; i <= maxFreq; i += 250.0) {
 			visCtx.beginPath();
 			if((i % 1000.0) === 0.0) {
 				visCtx.lineWidth = 3;
-				visCtx.strokeStyle = "hsl(30deg 100% 75% / 0.75)";
+				visCtx.strokeStyle = "oklch(0.75 0.125 55deg / 0.75)";
 			} else {
 				visCtx.lineWidth = 1;
-				visCtx.strokeStyle = "hsl(30deg 100% 50% / 0.75)";
+				visCtx.strokeStyle = "oklch(0.5 0.0625 55deg / 0.75)";
 			}
 			const x = i * cw / maxFreq;
 			visCtx.moveTo(x, 0);
@@ -396,7 +396,6 @@
 		//draw content.
 		const maxSpectrumIndex = bufferLength * maxFreq * 2 / audioCtx.sampleRate;
 		const sliceWidth = (cw + 1) / maxSpectrumIndex;
-		//visCtx.fillStyle = "Canvas";
 		visCtx.fillStyle = "color(srgb 1 1 1 / 0.7)";
 		//visCtx.lineWidth = 1;
 		//visCtx.strokeStyle = "Canvas";
@@ -675,7 +674,7 @@
 {"freq": 1381, "q": 16, "gain": 0.177827941},
 {"freq": 2436, "q": 16, "gain": 0.028183829}]
 ]</textarea></p>
-	<p><canvas id="visualizer" width="1024" height="256">[Sound visualizer.] If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the sound spectrum without Canvas.</canvas></p>
+	<p><canvas id="visualizer" width="1024" height="256">Sound visualizer. (If you are reading this through a user agent, it does not support HTML Canvas. This page can't display the sound spectrum without Canvas.)</canvas></p>
 	<p>Sources:</p>
 	<ul class="sources">
 		<li>0&ndash;2: <a href="http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html">http://hyperphysics.phy-astr.gsu.edu/hbase/Music/vowel.html</a><br />/ɑ/, /i/, /u/ (approx., from chart)</li>
