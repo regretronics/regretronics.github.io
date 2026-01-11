@@ -152,14 +152,14 @@ function initSpinControls() {
 		if(!btnDec) {
 			btnDec = document.createElement("span");
 			btnDec.classList.add("btn-dec");
-			btnDec.innerHTML = "&minus;";
+			btnDec.innerHTML = /* "&minus;" */ "&#x2212;";
 			buttonsArea.insertBefore(btnDec, null);
 		}
 		let btnInc = spinEdit.querySelector(".btn-inc");
 		if(!btnInc) {
 			let btnInc = document.createElement("span");
 			btnInc.classList.add("btn-inc");
-			btnInc.innerHTML = "&plus;";
+			btnInc.innerHTML = /* "&plus;" */ "&#x2b;";
 			buttonsArea.insertBefore(btnInc, null);
 		}
 
