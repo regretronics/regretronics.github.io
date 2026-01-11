@@ -123,6 +123,10 @@
 			height: var(--height);
 			vertical-align: middle;
 
+			outline-style: solid;
+			outline-width: 0.125em;
+			outline-color: oklch(1 0 0deg / 0.5);
+
 			margin-block: calc(-0.5 * var(--scale) * var(--height));
 			margin-inline: calc(-0.5 * var(--scale) * var(--width));
 			overflow-x: scroll;
@@ -130,6 +134,10 @@
 			contain: strict;
 
 			background-color: oklch(0.25 0 0deg);
+
+			/* &:focus {
+				outline-color: oklch(1 0 0deg / 0.875);
+			} */
 		}
 		@supports (animation-timeline: --scrollBar1-position) {
 			.no-scroll-bar {display: none;}

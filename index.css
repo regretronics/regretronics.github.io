@@ -271,7 +271,7 @@ a:any-link {
 	/* U+FFA0 ﾠ HALFWIDTH HANGUL FILLER */
 	symbols: "￭ ";
 	/* symbols: "⬢"; */
-	/* suffix: " "; */
+	/* apparently, property "suffix" has no effect when using counters(), only if using counter(). */
 }
 @counter-style even {
 	/* system: cyclic;
@@ -289,7 +289,6 @@ a:any-link {
 	/* additive-symbols: 2 "⨝", 1 "⨞"; */
 	/* additive-symbols: 2 "⦊⦉", 1 "⦊"; */
 	/* additive-symbols: 2 "⧉", 1 "◻"; */
-	/* to do: look for *curl* or hook */
 	/* additive-symbols: 4 "◢◣◥◤", 3 "◢◣◥", 2 "◢◣", 1 "◢"; */
 	/* additive-symbols: 2 "X", 1 "I"; */
 	/* additive-symbols: 2 "⎰⎱", 1 "⎰"; */
@@ -306,8 +305,14 @@ ul/* , ol */ {
 	/* counter-reset: list-item; */
 	/* list-style-position: inside; */
 }
-/* :is(dir, menu, ol, ul) ul {
+/* :is(dir, menu, ol, ul) ul */
+/* :is(dir, dl, menu, ol, ul) ul {
+	margin-block-end: 1em;
 } */
+
+li:not(li li) {
+	margin-block-end: 1em;
+}
 ul > li::marker {
 	/* font-weight: bolder; */
 	content: counters(list-item, " ", bullets) " ";

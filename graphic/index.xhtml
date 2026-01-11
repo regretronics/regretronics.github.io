@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- <base href="../" /> -->
+	<link rel="icon" href="../site-icon.svg" type="image/svg+xml" />
+	<meta name="color-scheme" content="dark" />
+	<meta name="theme-color" media="all" content="oklch(0.1875 0.015625 55deg)" />
+
+	<title>Technicore: graphical pages</title>
+	<link rel="stylesheet" type="text/css" href="../index.css" />
+</head>
+<body>
+	<h1>Technicore: graphical pages</h1>
+	<p class="sub"><a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/graphic/" data-href="https:&shy;//bitbucket.org/&shy;technicore/&shy;technicore.bitbucket.io/&shy;src/master/&shy;graphic/">Browse sources at bitbucket.org</a></p>
+	<ul>
+		<!-- to do: update hyphenized versions of paths? -->
+		<li>2-d raster
+			<ul>
+				<li><a class="no-hyphen" href="canvas-misc/test-01/">test-01</a> (2018-11-25): HTML Canvas test, one of the earliest.</li>
+				<li><a class="no-hyphen" href="canvas-misc/noise-gen/">noise-gen</a> (2024-02-15): infinite texture. Currently, requires keyboard for navigation.</li>
+				<li><a class="no-hyphen" href="canvas-float16/">canvas-float16</a> (2025-07-26): testing HDR, color spaces and floating-point pixel format.</li>
+				<li><a class="no-hyphen" href="resampling/">resampling</a> (2023-03-28): resampling experiment, not yet complete.</li>
+				<li><a class="no-hyphen" href="compress/">compress</a> (2022-09-22): experiment with common image compression strategies.</li>
+			</ul>
+		</li>
+		<li>three.js (mostly shader experiments)
+			<ul>
+				<li><a href="threejs/tests/test-06.xhtml" data-href="threejs/&shy;tests/&shy;test-06.xhtml">test-06</a>: volumetric 3-d with <a href="https://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law" data-href="https:&shy;//en.wikipedia.org/&shy;wiki/&shy;Beer%E2%80%93&shy;Lambert_&shy;law">Beer's law of extinction</a> (incomplete)</li>
+			</ul>
+		</li>
+		<li>Other 3-d
+			<ul>
+				<li><a class="no-hyphen" href="../gvoxels-gpu/">gvoxels-gpu</a> (2023-05-07): voxels with volumetric raycasting/ray marching. A maze of solid but translucent cubes. Using gpu.js for acceleration.</li>
+				<li><a class="no-hyphen" href="../gvoxels/">gvoxels</a> (2020-04-27): earlier JavaScript implementation of the above, without acceleration.</li>
+				<!-- <li><a class="no-hyphen" href="../gvoxels-particles/">gvoxels-particles</a> (2023-06-15): not notable yet.</li> -->
+				<!-- <li><a class="no-hyphen" href="3d-circles/">3d-circles</a> (): not done yet.</li> -->
+				<!-- <li><a class="no-hyphen" href="3d-spheres/">3d-spheres</a> (2023-07-02): not notable yet.</li> -->
+			</ul>
+		</li>
+		<li><a class="no-hyphen" href="svg/">SVG experiments</a></li>
+	</ul>
+	<p>
+		<input type="checkbox" id="chkEntriesExpand" /> 
+		<label for="chkEntriesExpand">Show less relevant entries too</label>
+	</p>
+</body>
+</html>
