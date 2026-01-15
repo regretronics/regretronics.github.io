@@ -109,10 +109,12 @@ p, ul, ol {
 	hyphenate-character: "";
 }
 .grade-lower-1 {
-	opacity: 0.85;
 	color: oklch(0.875 0.046875 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.0625 var(--hue1-ang, 0deg));
-
+	
+	:is(&, & *):not(:hover, :active, :has(:active), :focus-within) {
+		opacity: 0.85; /*using semitransparency breaks the backdrop-filter of the link URL overlay, so it's made conditional*/
+	}
 	:is(&, & *)::marker {
 		color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
 	}
@@ -158,6 +160,7 @@ a:any-link {
 		hyphenate-character: "";
 
 		pointer-events: none;
+		z-index: 256;
 
 		transition-property: visibility, content-visibility, pointer-events, backdrop-filter, background-color, color;
 		transition-duration: 1s;
@@ -296,13 +299,9 @@ a:any-link {
 	/* additive-symbols: 2 "𒐞", 1 "𒐕"; */
 }
 ul/* , ol */ {
-	/* padding-inline-start: 1lh; */
-	/* padding-inline-start: 1cap; */
 	/* padding-inline-start: 1em; */
 	padding-inline-start: 1ic;
-	/* padding-inline-start: 2ch; */
 
-	/* list-style-type: decimal; */
 	/* counter-reset: list-item; */
 	/* list-style-position: inside; */
 }
