@@ -196,8 +196,7 @@ output:read-write {
 .code-box {
 	display: block;
 	min-block-size: 4em;
-	/* max-block-size: 75dvb; */ /*dynamic viewport block-axis*/
-	max-height: 75dvh; /*dynamic viewport height*/
+	max-block-size: 75svb; /*small viewport block-axis*/
 
 	transition-property: max-block-size/* , overflow-block */;
 	transition-duration: 1s;
