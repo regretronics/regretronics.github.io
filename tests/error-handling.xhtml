@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>Test: error handling</title>
+	<style type="text/css">/*<![CDATA[*/
+	:root {
+		color-scheme: dark;
+		background-color: Canvas;
+		color: CanvasText;
+
+		font-size: 1.25em;
+	}
+	body {
+		overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+	}
+
+	#outErrorLog {
+		overflow: auto;
+		font-family: monospace;
+		tab-size: 2;
+		text-wrap-mode: wrap;
+	}
+
+	#divErrorList {
+		position: sticky;
+		bottom: 0;
+		max-block-size: 25svb;
+		overflow-block: auto;
+		backdrop-filter: blur(0.25em);
+
+		content-visibility: hidden;
+		opacity: 0;
+		transition-property: content-visibility, opacity;
+		transition-duration: 2s;
+		transition-delay: 1s;
+		transition-timing-function: ease-in-out;
+		transition-behavior: allow-discrete;
+
+		&:is(.recent-error, :hover, :active, :target) {
+			content-visibility: visible;
+			opacity: 1;
+			transition-duration: 0.25s;
+			transition-delay: 0s;
+		}
+
+		& > :nth-child(odd of .error-item) {
+			background-color: oklch(0.5 0.125 25deg / 0.25);
+		}
+		& > :nth-child(even of .error-item) {
+			background-color: oklch(0.25 0.125 25deg / 0.25);
+		}
+		& pre {
+			margin-block: 0em;
+		}
+		& .details:not(.error-item:is(:hover, :active, :target) .details) {
+			display: none;
+		}
+	}
+	& .wrap {
+		text-wrap-mode: wrap;
+	}
+	.error-item {
+		/* backdrop-filter: blur(0.25em); */
+		padding: 0.5em;
+	}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	//recursive function?
+	function cloneObject(obj, level) {
+		/* if(level && level > 1)
+			return "...";
+		else
+			level = Number(level); */
+		if(!obj || typeof obj !== "object") return obj;
+		const objClone = {};
+		if(obj.__proto__) objClone.prototype = Object.keys(obj.__proto__);
+		for(const key in obj) {
+			//if(!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+			const element = obj[key];
+			/* objClone[key] = (typeof obj === "object") ? 
+				((element === window) ? "[window]" : cloneObject(element, level + 1)) : 
+				element; */
+			objClone[key] = /* (typeof element === "object") ?  */
+				element.toString() /* : 
+				element */;
+		}
+		return objClone;
+	}
+
+	function docError(event) {
+		console.log(event);
+		console.log(event.toString());
+		document.getElementById("outErrorLog").textContent += event.toString() + "\n";
+	}
+	function globalError(event) {
+		//console.log(event);
+
+		const eventClone = cloneObject(event/* , 0 */);
+		/* eventClone.error.message = event.error.message;
+		eventClone.error.name = event.error.name;
+		eventClone.error.stack = event.error.stack; */
+		eventClone.error = {message: event.error.message, name: event.error.name, stack: event.error.stack};
+
+		document.getElementById("outErrorLog").textContent += JSON.stringify(eventClone, null, "\t") + "\n";
+
+		const errorItem = document.createElement("div");
+		errorItem.classList.add("error-item");
+		errorItem.append(event.message);
+		errorItem.append(document.createElement("br"));
+
+		const stackElem = document.createElement("pre");
+		stackElem.classList.add("wrap");
+		stackElem.append(event.error.stack);
+		errorItem.append(stackElem);
+
+		const detailsElem = document.createElement("pre");
+		detailsElem.classList.add("details");
+		detailsElem.classList.add("wrap");
+		detailsElem.append(`isTrusted: ${event.isTrusted}\ntarget: ${event.target}\nsrcElement: ${event.srcElement}\ntimeStamp: ${event.timeStamp}`);
+		errorItem.append(detailsElem);
+
+		const errorList = document.getElementById("divErrorList");
+		errorList.appendChild(errorItem);
+		errorList.classList.add("recent-error");
+		setTimeout(() => {
+			errorList.classList.remove("recent-error");
+		}, 2000);
+		setTimeout(() => {
+			errorItem.scrollIntoView({behavior: "smooth", block: "end", container: "nearest"});
+		}, 100);
+
+		//return true;
+	}
+
+	/* function errorListMouseEnter(event) {
+		//
+	}
+	function errorListMouseLeave(event) {
+		//
+	} */
+
+	function err() {
+		whatevar = 123;
+	}
+	function pageLoaded(event) {
+		window.addEventListener("error", globalError);
+		document.addEventListener("error", docError);
+		/* document.getElementById("divErrorList").addEventListener("mouseenter", errorListMouseEnter);
+		document.getElementById("divErrorList").addEventListener("mouseleave", errorListMouseLeave); */
+	}
+	function pageReady(event) {
+		document.getElementById("btnError").addEventListener("click", err);
+
+		err();
+	}
+	//window.addEventListener("DOMContentLoaded", pageLoaded);
+	if(document.readyState === "loading")
+		document.addEventListener("DOMContentLoaded", pageLoaded);
+	else //DOMContentLoaded has already fired
+		pageLoaded();
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<button id="btnError">Run an error</button>
+	<pre id="outErrorLog"></pre>
+	<div id="divErrorList"></div>
+</body>
+</html>

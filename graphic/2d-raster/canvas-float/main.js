@@ -99,10 +99,9 @@ function cloneObject(obj) {
 	if(!obj || typeof obj !== "object") return obj;
 	const objClone = {};
 	for(const key in obj) {
-		//if(Object.prototype.hasOwnProperty.call(scr, key)) {
-			const element = obj[key];
-			objClone[key] = (typeof obj === "object") ? cloneObject(element) : element;
-		//}
+		if(!Object.prototype.hasOwnProperty.call(scr, key)) continue;
+		const element = obj[key];
+		objClone[key] = (typeof obj === "object") ? cloneObject(element) : element;
 	}
 	return objClone;
 }
