@@ -14,11 +14,6 @@
 	inherits: true;
 	initial-value: 0;
 } */
-/* @property --hue-scroll {
-	syntax: "<number>";
-	inherits: true;
-	initial-value: 0;
-} */
 
 :root {
 	/*question: include deg unit for hues? (currently never)*/
@@ -83,7 +78,7 @@ button, input:not([type=radio]), select {
 	font-size: 0.85em;
 }
 :not(.custom) {
-	.spin-edit&, :not(.spin-edit) > &:is(button, input:not([type=checkbox]):not([type=radio]), select) {
+	.spin-edit&, :not(.spin-edit) > &:is(button, input:not([type=checkbox], [type=radio]), select) {
 		margin-block: 0.125em;
 	}
 	button& {
@@ -93,10 +88,10 @@ button, input:not([type=radio]), select {
 		padding-inline: 0.375em;
 		border-radius: 0.25em;
 	}
-	button&, input:not(:is([type=checkbox], [type=radio], [type=range]))&, textarea:not(.code-editor)&, select& {
+	button&, input:not([type=checkbox], [type=radio], [type=range])&, textarea:not(.code-editor)&, select& {
 		border-width: calc(5em/32);
 
-		&:not(:active):not(:focus):not(:hover) {
+		&:not(:active, :focus, :hover) {
 			opacity: 0.875;
 		}
 	}
@@ -201,7 +196,7 @@ input:is([type=checkbox], [type=radio]) + label {
 	width: calc(100% - 2*2ch);
 	max-width: 120ch;
 
-	background-color: canvas;
+	background-color: Canvas;
 }
 code, .code-editor {
 	font-size: 0.8em;

@@ -10,6 +10,14 @@
 	align-items: center;
 }*/
 
+[lang|=en] {
+	html& .lang-static, html:not(&) .lang-flex {
+		display: revert;
+	}
+	html& .lang-flex, html:not(&) .lang-static {
+		display: none;
+	}
+}
 /*unhide certain elements (outside of reader view)*/
 main, hr, .bg {
 	display: revert;
@@ -21,15 +29,12 @@ h1, h2, h3, h4, h5, h6 {
 	hr + &, &:first-child {
 		margin-block-start: 0.25em;
 	}
+	& + p, p:first-child {
+		margin-block-start: 0.5em;
+	}
 }
 div > h1:first-child {
 	margin-block: 0em;
-}
-div.flex-row {
-	margin-block: 1em;
-}
-.flex-row:first-child {
-	margin-block-start: 0em;
 }
 details {
 	margin-bottom: 1.5em;
@@ -45,9 +50,6 @@ noscript {
 /*}*/
 p, p * {
 	hyphens: auto;
-}
-:is(h1, h2, h3, h4, h5, h6) + p, p:first-child {
-	margin-block-start: 0.5em;
 }
 
 #importForm, #inFile, a[hidden] {
@@ -81,6 +83,9 @@ input:is([type=number], [type=text]) {
 		--size: 11;
 	}
 }
+input[type=number], .right {
+	text-align: right;
+}
 /*input[type=number]:not([size]) {
 	width: 8ch;
 }*/
@@ -112,7 +117,14 @@ input[type=checkbox] {
 	justify-content: space-between;
 	align-items: center;
 
-	& > *:not(wbr):not(.right) {
+	div& {
+		margin-block: 1em;
+	}
+	&:first-child {
+		margin-block-start: 0em;
+	}
+
+	& > *:not(wbr, .right) {
 		@supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
 			flex-basis: calc-size(max-content, 0.5625 * size);
 		}
@@ -133,10 +145,11 @@ input[type=checkbox] {
 	}*/
 }
 /* @supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
-	.flex-row > *:not(wbr):not(.right) {
+	.flex-row > *:not(wbr, .right) {
 		flex-basis: calc-size(max-content, 0.5625 * size);
 	}
 } */
+
 .align-top {
 	align-items: flex-start;
 }
@@ -146,9 +159,6 @@ input[type=checkbox] {
 /* .chunk {
 	text-wrap-mode: wrap;
 } */
-input[type=number], .right {
-	text-align: right;
-}
 
 .code-editor {
 	box-sizing: border-box;
@@ -205,15 +215,6 @@ input[type=number], .right {
 		/*vertical-align: middle;*/
 	}
 }
-[lang|=en] {
-	html& .lang-static, html:not(&) .lang-flex {
-		display: revert;
-	}
-	html& .lang-flex, html:not(&) .lang-static {
-		display: none;
-	}
-}
-
 #tblFractionIntervals {
 	width: 100%;
 

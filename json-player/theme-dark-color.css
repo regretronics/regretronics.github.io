@@ -1,72 +1,46 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
-/* @keyframes anim-hue {
-	0% { --hue-accent: 0.0; }
-	100% { --hue-accent: 360.0; }
-} */
 :root {
 	--img-filter1: contrast(87.5%);
 
 	background-color: hsl(var(--hue-accent, 120), 37.5%, 25%);
-	/*background-image: 
-		repeating-radial-gradient(circle,
-		hsla(var(--hue-accent, 120), 37.5%, 18.75%, 0.875),
-		hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.375),
-		hsla(var(--hue-accent, 120), 37.5%, 18.75%, 0.875))*//*,
-		repeating-conic-gradient(at bottom right,
-		hsl(var(--hue-accent, 120), 50%, 12.5%) 0turn,
-		hsl(var(--hue-accent, 120), 37.5%, 18.75%) 0.03125turn,
-		hsl(var(--hue-accent, 120), 50%, 12.5%) 0.0625turn)*//*;*/
-		/*repeating-conic-gradient(at bottom right,
-		hsl(var(--hue-accent, 120), 37.5%, 12.5%) 0.0625turn 0.1875turn,
-		hsl(var(--hue-accent, 120), 37.5%, 37.5%) 0.3125turn 0.4375turn,
-		hsl(var(--hue-accent, 120), 37.5%, 12.5%) 0.5625turn);*/
-	/*background-attachment: local, fixed;*/
-	/*background:
-		repeating-conic-gradient(#888 0.0625turn 0.1875turn, #000 0.3125turn 0.4375turn, #888 0.5625turn)
-		top left / 8em 8em repeat;*/
 	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
 	accent-color: hsl(var(--hue-accent, 120), 50%, 62.5%);
 	color-scheme: dark;
-/* }
-* { */
-	/* animation-name: anim-hue;
-	animation-duration: 90s;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
-	animation-fill-mode: forwards; */
+
+	&::selection {
+		/*background-color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.625);
+		color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);*/
+		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.625);
+		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.875);
+	}
 }
 * {
 	/*scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 37.5%, 0.875) hsla(var(--hue-accent, 120), 25%, 12.5%, 0.875);*/
 	scrollbar-color:
-		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 37.5%, 75%, 0.875)
-		hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
-	/* scrollbar-base-color: red;
-	scrollbar-arrow-color: red;
-	scrollbar-face-color: red;
-	scrollbar-highlight-color: red;
-	scrollbar-track-color: red; */
+		hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875)
+		hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 }
-/* *, *::-webkit-scrollbar, *::selection {
-	transition-property: var(--hue-accent) !important;
+/* * {
+	transition-property: --hue-accent !important;
 	transition-timing-function: linear !important;
 	transition-duration: 2s !important;
 } */
 *::-webkit-scrollbar {
-	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
-	/* color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 75%, 0.875); */
+	background-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
+	/* color: hsla(var(--hue-accent, 120), 25%, 75%, 0.875); */
 }
 *::-webkit-scrollbar-thumb {
-	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 37.5%, 75%, 0.875);
+	background-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875);
 }
 *::-webkit-scrollbar-track {
-	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
+	background-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 }
 /* *::-webkit-scrollbar-track-piece {
 	background-color: black;
 } */
 *::-webkit-scrollbar-corner {
-	background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-scroll, 0)), 25%, 25%, 0.875);
+	background-color: hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 }
 /* *::-webkit-resizer {
 	background-color: black;
@@ -74,45 +48,21 @@
 	accent-color: red;
 } */
 
-/* :root::selection, *::selection {
-	animation-name: anim-hue;
-	animation-duration: 4s;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
-	animation-fill-mode: forwards;
-} */
-@media screen and not (prefers-reduced-motion: reduce) {
-	:root::selection, *::selection { /*not really working*/
-		transition-property: background-color, color !important;
-		transition-duration: 0.25s !important;
-	}
-}
-/*::selection {*/
-/* :not(code):not(code *):not(.code-editor):not(.code-editor *)::selection { */
-:is(.code-editor, code) {
-	:not(:is(&, & *))::selection { /*the exclusions are a workaround for Blink*/
-		/*background-color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.625);
-		color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);*/
-		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 87.5%, 0.625);
-		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 100%, 12.5%, 0.875);
-	}
+:is(.code-editor, code)::selection {
+	background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.75) !important;
+	color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 0.875) !important;
 }
 
 strong {
 	color: white;
 }
-/* :is(h1, h1 *, h2, h2 *, h3, h3 *, strong, strong *, em, em *)::selection { */
-:is(h1, h2, h3, strong, em) {
-	:is(&, & *)::selection {
+h1, h2, h3, strong, em {
+	&::selection {
 		background-color: hsla(var(--hue-accent, 120), 100%, 87.5%, 0.75) !important;
 		color: hsl(var(--hue-accent, 120), 100%, 12.5%) !important;
 	}
-}
-/* :is(strong code, strong code *, em code, em code *, code strong, code strong *, code em, code em *, .code-editor strong, .code-editor strong *, .code-editor em, .code-editor em *)::selection { */
-/* :is(strong code, em code, code strong, code em, .code-editor strong, .code-editor em) { */
-:is(h1, h2, h3, strong, em) {
 	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
-		:is(&, & *)::selection {
+		&::selection {
 			background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.875) !important;
 			color: hsl(var(--hue-accent2, 300), 100%, 87.5%) !important;
 		}
@@ -130,14 +80,6 @@ hr {
 }
 table, caption, td {
 	background-color: hsla(0, 0%, 0%, 0.25);
-}
-
-/* :is(.code-editor, .code-editor *, code, code *)::selection { */
-:is(.code-editor, code) {
-	:is(&, & *)::selection {
-		background-color: hsla(var(--hue-accent2, 300), 50%, 12.5%, 0.75) !important;
-		color: hsla(var(--hue-accent2, 300), 100%, 87.5%, 0.875) !important;
-	}
 }
 
 a:link {
@@ -183,13 +125,6 @@ input::selection {
 		border-right-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
 		border-left-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.5);
 		border-bottom-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.625);
-
-		/*border-image-source: linear-gradient(to bottom,
-			hsla(var(--hue-accent, 120), 25%, 25%, 0.75),
-			hsla(var(--hue-accent, 120), 25%, 50%, 0.5),
-			hsla(var(--hue-accent, 120), 25%, 75%, 0.75));
-		border-image-repeat: stretch;
-		border-image-slice: 15%;*/
 	}
 }
 /*input[type=checkbox] {
@@ -203,15 +138,15 @@ input.invalid {
 	background-color: hsl(var(--hue-accent, 120), 50%, 12.5%);
 	color: hsl(var(--hue-accent, 120), 12.5%, 75%);
 
-	& > *:hover, & > *.hover {
+	& > *:is(:hover, .hover) {
 		background-color: hsl(var(--hue-accent, 120), 50%, 75%);
 		color: hsl(var(--hue-accent, 120), 12.5%, 12.5%);
 	}
-	&:active, &.active, &:has(:active) {
+	&:is(:active, .active, :has(:active)) {
 		background-color: hsl(var(--hue-accent, 120), 25%, 37.5%);
 		color: hsl(var(--hue-accent, 120), 12.5%, 87.5%);
 
-		& > *:hover, & > *.hover {
+		& > *:is(:hover, .hover) {
 			/* box-shadow: 0 0 0.25em hsl(var(--hue-accent, 120), 50%, 75%); */
 			box-shadow: 0 0 0.25em 0.125em hsl(var(--hue-accent, 120), 50%, 75%);
 		}

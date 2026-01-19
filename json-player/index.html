@@ -99,17 +99,17 @@
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
 		<p><strong class="chunk"><span class="lang-static" translate="no">Generator params.</span><span class="lang-flex" hidden="hidden">Generator parameters</span>:</strong> 
 			<datalist id="tunings">
-				<option value="256" />
-				<option value="258.65" />
-				<option value="415" />
-				<option value="427" />
-				<option value="430" />
-				<option value="432" />
-				<option value="435" />
-				<option value="440" />
-				<option value="442" />
-				<option value="443" />
-				<option value="466" />
+				<option value="256"></option>
+				<option value="258.65"></option>
+				<option value="415"></option>
+				<option value="427"></option>
+				<option value="430"></option>
+				<option value="432"></option>
+				<option value="435"></option>
+				<option value="440"></option>
+				<option value="442"></option>
+				<option value="443"></option>
+				<option value="466"></option>
 			</datalist>
 			<span class="cell"><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label>
 				<input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" />
@@ -174,25 +174,25 @@
 		<!--the form here is necessary so that the file control can be reset (cleared). then I had to put it outside of paragraphs to not break layout.-->
 		<form id="importForm" hidden="hidden"><input type="file" id="inFile" accept=".mus.json,application/json,text/plain" hidden="hidden" /></form>
 		<!-- <datalist id="scriptKeywords">
-			<option value="timeDelta" />
-			<option value="timeScale" />
-			<option value="freqRatio" />
-			<option value="volRatio" />
-			<option value="timbre" />
-			<option value="q" />
-			<option value="decayFactor" />
-			<option value="attack" />
-			<option value="portamento" />
-			<option value="vibratoFreq" />
-			<option value="vibratoDepth" />
-			<option value="vibratoAttack" />
-			<option value="tag" />
-			<option value="noteStart" />
-			<option value="duration" />
-			<option value="noteStop" />
-			<option value="freq0" />
-			<option value="freq" />
-			<option value="vol" />
+			<option value="timeDelta"></option>
+			<option value="timeScale"></option>
+			<option value="freqRatio"></option>
+			<option value="volRatio"></option>
+			<option value="timbre"></option>
+			<option value="q"></option>
+			<option value="decayFactor"></option>
+			<option value="attack"></option>
+			<option value="portamento"></option>
+			<option value="vibratoFreq"></option>
+			<option value="vibratoDepth"></option>
+			<option value="vibratoAttack"></option>
+			<option value="tag"></option>
+			<option value="noteStart"></option>
+			<option value="duration"></option>
+			<option value="noteStop"></option>
+			<option value="freq0"></option>
+			<option value="freq"></option>
+			<option value="vol"></option>
 		</datalist> -->
 		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
 		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
@@ -371,20 +371,21 @@
 							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">3.863</td>
 							<td>Major third</td>
-							<td headers="colNotes" rowspan="2">Often used in "good-mood" musical phrases.</td>
+							<td headers="colNotes">5<sup>1</sup> intervals seem to be preferred for "good-mood" harmonies, by convention.</td>
 						</tr>
 						<tr title="Just minor sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
 							<td translate="no">2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
 							<td translate="no">8.137</td>
 							<td>Minor sixth</td>
+							<td headers="colNotes">5<sup>&minus;1</sup> intervals can be used as a "sad" replacement for 5<sup>1</sup> ones.</td>
 						</tr>
 						<tr title="Just major sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
 							<td translate="no">2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">8.844</td>
 							<td>Major sixth</td>
-							<td headers="colNotes" rowspan="2">Used as a "sad" replacement for 5/4 and 8/5.</td>
+							<td headers="colNotes" rowspan="2"></td>
 						</tr>
 						<tr title="Just minor third">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>

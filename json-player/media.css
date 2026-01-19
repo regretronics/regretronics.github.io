@@ -70,7 +70,7 @@
 			transition-property: scrollbar-color;
 			transition-duration: 0.25s;
 		} */
-		/*:root::selection, *::selection {
+		/*:root::selection {
 			transition-property: background-color, color !important;
 			transition-duration: 0.25s !important;
 		}*/ /*introduces selection color bug in null theme in desktop browsers*/
@@ -96,19 +96,12 @@
 			transition-duration: 0.25s, 0.25s, 0.25s, 0.1s;
 			transition-timing-function: initial, initial, initial, ease-out;
 		}*/
-		button:active, button:focus, button:hover {
+		button:is(:active, :focus, :hover) {
 			transition-property: background-color, color, /*accent-color,*/ border-color;
 			transition-duration: 0.1s;
 			transition-timing-function: ease-out;
 		}
 	}
-	/*@media screen and (not (prefers-color-scheme: light)) {
-		body {
-			color-scheme: dark;
-			background-color: canvas;
-			color: canvastext;
-		}
-	}*/
 }
 @media print {
 	input[type=number] {
