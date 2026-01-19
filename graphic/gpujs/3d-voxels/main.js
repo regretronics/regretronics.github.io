@@ -49,7 +49,7 @@ function initParticles_random() {
 		emission: new Float32Array(4 * particleCount),
 		alpha: new Float32Array(4 * particleCount)
 	};
-	for (let i = 0; i < particleCount; i++) {
+	for(let i = 0; i < particleCount; i++) {
 		particles.r[i] = 2.0 ** (5.0 * Math.random() - 2.0);
 		particles.pos[4 * i    ] = worldRes[0] * Math.random();
 		particles.pos[4 * i + 1] = worldRes[1] * Math.random();

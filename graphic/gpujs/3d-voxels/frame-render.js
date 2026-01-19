@@ -169,7 +169,7 @@ function registerFieldKernels(gpu) {
 		let accumAlpha = [0.0625, 0.0625, 0.0625/* , 0.0 */];
 		//let accumColor = [accumAlpha[0] * Math.random(), accumAlpha[1] * Math.random(), accumAlpha[2] * Math.random()/* , 0.0 */];
 
-		for (let i = 0; i < particleCount; i++) {
+		for(let i = 0; i < particleCount; i++) {
 			const r = particleR[i];
 			const i4 = 4 * i;
 			const partPos = [particlePos[i4 + 0], particlePos[i4 + 1], particlePos[i4 + 2]];
@@ -555,8 +555,8 @@ function registerRayCastingKernelMono() {
 		//let asdf = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
 		//let asdf = [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]];
 
-		//for (let i = 0; i < this.constants.iterations; i++) {
-		for (let i = 0; i < layerCount; i++) {
+		//for(let i = 0; i < this.constants.iterations; i++) {
+		for(let i = 0; i < layerCount; i++) {
 			//let vecDRay = getDRay(vecCrossingPoint, vecRayDir, vecRayDirSign);
 			let firstCrossing = getFirstCrossing(vecCrossingPoint, vecRayDir, vecRayDirSign);
 			let vecDRay = [

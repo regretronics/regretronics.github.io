@@ -15158,10 +15158,10 @@ const vendorName = vendorId => {
     2772:'Zhuhai Pantum Electronisc Co., Ltd',
   };
 
-  if (vendorId in usbVendors) {
+  if(vendorId in usbVendors) {
     return usbVendors[vendorId];
   }
-  if (vendorId in bluetoothVendors) {
+  if(vendorId in bluetoothVendors) {
     return bluetoothVendors[vendorId];
   }
   return 'Unknown vendor';
@@ -15211,9 +15211,9 @@ const usagePageName = usagePage => {
     0x0092: 'Gaming Device',
     0xF1D0: 'FIDO Alliance',
   };
-  if (usagePage in kUsagePageNames)
+  if(usagePage in kUsagePageNames)
     return kUsagePageNames[usagePage];
-  if (usagePage >= 0xFF00)
+  if(usagePage >= 0xFF00)
     return `Vendor-defined page 0x${hex16(usagePage)}`;
   return `Unknown usage page 0x${hex16(usagePage)}`;
 };
@@ -18002,17 +18002,17 @@ const usageName = usage => {
   const usageString = `${hex16(usagePage)}:${hex16(usageId)}`;
 
   // Consider any usage ID from the Button, Ordinal, Unicode, and Monitor Enumerated Values pages as valid usages.
-  if (usagePage === 0x0009)
+  if(usagePage === 0x0009)
     return `${usageString} (${usagePageName(usagePage)} Button ${usageId})`;
-  if (usagePage === 0x000A)
+  if(usagePage === 0x000A)
     return `${usageString} (${usagePageName(usagePage)} Instance ${usageId})`;
-  if (usagePage === 0x0010)
+  if(usagePage === 0x0010)
     return `${usageString} (${usagePageName(usagePage)} U+${hex16(usageId)})`;
-  if (usagePage === 0x0081)
+  if(usagePage === 0x0081)
     return `${usageString} (${usagePageName(usagePage)} ENUM_${usageId})`;
 
   // Include the usage name, if available.
-  if (usage in kUsageNames)
+  if(usage in kUsageNames)
     return `${usageString} (${usagePageName(usagePage)} > ${kUsageNames[usage]})`;
 
   return `${usageString} (${usagePageName(usagePage)} usage 0x${hex16(usageId)})`;

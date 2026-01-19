@@ -68,7 +68,7 @@ function uRemainder(x, y) { //When x % y is not enough.
 }
 function viewUpdate() {
 	worldResCheck();
-	//if (!worldResCheck())
+	//if(!worldResCheck())
 	canvasSizeCheck();
 	outVoxelCount.innerText = (worldSize ** 3).toFixed(0);
 	//if(frameCount) kinematicsRefresh();

@@ -33,17 +33,17 @@ const IdentityMatrix3 = [
 ];
 
 function actionAdd(actionName, obj, param, magnitude) {
-	//if (magnitude === undefined) magnitude = 1.0;
-	if (!actionName.startsWith("add")) return;
-	for (const key in obj)
-		if (Object.hasOwnProperty.call(obj, key) && Object.hasOwnProperty.call(param, key))
-			if (magnitude === undefined)
+	//if(magnitude === undefined) magnitude = 1.0;
+	if(!actionName.startsWith("add")) return;
+	for(const key in obj)
+		if(Object.hasOwnProperty.call(obj, key) && Object.hasOwnProperty.call(param, key))
+			if(magnitude === undefined)
 				obj[key] += param[key];
 			else
 				obj[key] += magnitude * param[key];
 }
 function commandFired(actionName, objName, param, magnitude) {
-	//if (actionName.startsWith("add")) actionAdd(actionName, vars[objName], param, magnitude);
+	//if(actionName.startsWith("add")) actionAdd(actionName, vars[objName], param, magnitude);
 	const actionMap = {
 		"add": actionAdd
 	};
@@ -55,13 +55,13 @@ function deadZone(v, thres) {
 }
 
 function getControllerInput(controller, kind, path, transfer) {
-	if (!controller) return undefined;
+	if(!controller) return undefined;
 	let val = controller[kind];
-	//if (val == null) return val;
-	if (path == undefined) return val;
+	//if(val == null) return val;
+	if(path == undefined) return val;
 	val = val[path];
-	//if (val == undefined) return false;
-	if (/* kind === "axes" && */ val != undefined && transfer != undefined) {
+	//if(val == undefined) return false;
+	if(/* kind === "axes" && */ val != undefined && transfer != undefined) {
 		//val = deadZone(val, 0.0625);
 		//val = Math.abs(val)**2 * Math.sign(val);
 		val = transfer(val);
@@ -150,27 +150,27 @@ function updateDynamics(dt) {
 	Object.assign(dRot, [0.0, 0.0, 0.0]);
 }
 function inputCycle(newLastTime, dt) {
-	for (const key in keysPressed)
-	if (Object.hasOwnProperty.call(keysPressed, key)) {
+	for(const key in keysPressed)
+	if(Object.hasOwnProperty.call(keysPressed, key)) {
 		const pressedRec = keysPressed[key];
-		if (pressedRec.lastDown < newLastTime - 30000) {
+		if(pressedRec.lastDown < newLastTime - 30000) {
 			delete keysPressed[key];
 			continue;
 		}
-		for (const inputObj of inputKeyMap)
-			if (inputObj.keyCode == key && inputObj.inputMode.startsWith("ifPressed")) {
+		for(const inputObj of inputKeyMap)
+			if(inputObj.keyCode == key && inputObj.inputMode.startsWith("ifPressed")) {
 				commandFired(inputObj.action, inputObj.object, inputObj.param);
 				//commandFired(inputObj.action, inputObj.object, inputObj.param, dt);
 			}
 	}
 
-	if (!navigator.getGamepads) return;
+	if(!navigator.getGamepads) return;
 	const gpList = navigator.getGamepads();
-	for (const inputObj of inputGamepadMap) {
-		if (inputObj.controllerIndex >= gpList.length) continue;
+	for(const inputObj of inputGamepadMap) {
+		if(inputObj.controllerIndex >= gpList.length) continue;
 		const gp = gpList[inputObj.controllerIndex];
 		const val = getControllerInput(gp, inputObj.inputKind, inputObj.inputPath, inputObj.transfer);
-		if (val == undefined /* || val === false */) continue;
+		if(val == undefined /* || val === false */) continue;
 		//controllerFeed(inputObj.action, inputObj.object, inputObj.param, val * dt);
 		commandFired(inputObj.action, inputObj.object, inputObj.param, val /* * dt */);
 	}
@@ -182,27 +182,27 @@ function navKeyDown(event) {
 	//const now = performance.now();
 	const now = event.timeStamp;
 
-	for (const inputObj of inputKeyMap)
-		if (inputObj.keyCode == event.code) {
+	for(const inputObj of inputKeyMap)
+		if(inputObj.keyCode == event.code) {
 			event.preventDefault();
 			//event.stopImmediatePropagation();
-			if (inputObj.inputMode.startsWith("onKeyDown")) commandFired(inputObj.action, inputObj.object, inputObj.param);
+			if(inputObj.inputMode.startsWith("onKeyDown")) commandFired(inputObj.action, inputObj.object, inputObj.param);
 		}
 
 	let pressedRec = keysPressed[event.code];
-	if (pressedRec === undefined) {
+	if(pressedRec === undefined) {
 		pressedRec = { firstDown: now };
 		keysPressed[event.code] = pressedRec;
 	};
 	pressedRec.lastDown = now;
 }
 function navKeyUp(event) {
-	for (const inputObj of inputKeyMap)
-		if (inputObj.keyCode == event.code && inputObj.inputMode.startsWith("onKeyUp")) {
+	for(const inputObj of inputKeyMap)
+		if(inputObj.keyCode == event.code && inputObj.inputMode.startsWith("onKeyUp")) {
 			commandFired(inputObj.action, inputObj.object, inputObj.param);
 		}
 
-	if (keysPressed[event.code]) {
+	if(keysPressed[event.code]) {
 		delete keysPressed[event.code];
 	}
 }

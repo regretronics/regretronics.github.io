@@ -151,7 +151,7 @@
 		//visCtx.lineWidth = 3;
 		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
 		//visCtx.beginPath();
-		for (let i = 0; i <= maxFreq; i += 250.0) {
+		for(let i = 0; i <= maxFreq; i += 250.0) {
 			visCtx.beginPath();
 			if((i % 1000.0) === 0.0) {
 				visCtx.lineWidth = 3;
@@ -171,7 +171,7 @@
 		//visCtx.lineWidth = 3;
 		//visCtx.strokeStyle = "hsl(0deg 100% 75%)";
 		//visCtx.beginPath();
-		for (let i = 250.0; i <= maxFreq; i += 250.0) {
+		for(let i = 250.0; i <= maxFreq; i += 250.0) {
 			visCtx.beginPath();
 			if((i % 1000.0) === 0.0) {
 				visCtx.lineWidth = 3;
@@ -221,7 +221,7 @@
 			//const v = magResponseOutput[i];
 			const v = (Math.log2(magResponseOutput[i]) - rangeLow) / (rangeHigh - rangeLow);
 			const y = ch * (1.0 - v);
-			if (i === 0) {
+			if(i === 0) {
 				visCtx.moveTo(x, y);
 			} else {
 				visCtx.lineTo(x, y);
@@ -234,7 +234,7 @@
 			const v = 1.0 - 24.0 * Math.pow(10.0, dataArray[i] / 20.0); //spectrum, linear amplitude
 			const y = v * ch;
 
-			if (i === 0) {
+			if(i === 0) {
 				visCtx.moveTo(x, y);
 			} else {
 				visCtx.lineTo(x, y);

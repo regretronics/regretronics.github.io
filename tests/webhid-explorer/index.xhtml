@@ -89,8 +89,8 @@
 	const hexview = data => {
 		let buffer = '';
 		let u8array = new Uint8Array(data.buffer);
-		for (const byteValue of u8array) {
-			if (buffer)
+		for(const byteValue of u8array) {
+			if(buffer)
 				buffer += ' ';
 			buffer += hex8(byteValue);
 		}
@@ -100,19 +100,19 @@
 	const parseHexArray = text => {
 		// Remove non-hex characters.
 		text = text.replace(/[^0-9a-fA-F]/g, '');
-		if (text.length % 2)
+		if(text.length % 2)
 			return null;
 
 		// Parse each character pair as a hex byte value.
 		let u8 = new Uint8Array(text.length / 2);
-		for (let i = 0; i < text.length; i += 2)
+		for(let i = 0; i < text.length; i += 2)
 			u8[i / 2] = parseInt(text.substr(i, 2), 16);
 
 		return new DataView(u8.buffer);
 	};
 
 	const pluralize = (count, unit) => {
-		if (count === 1) {
+		if(count === 1) {
 			return `${count} ${unit}`;
 		}
 		return `${count} ${unit}s`;
@@ -122,33 +122,33 @@
 	// The selection is updated to the newly connected device.
 	const connectDevice = async () => {
 		const devices = await navigator.hid.requestDevice({filters: []});
-		if (devices.length == 0)
+		if(devices.length == 0)
 			return;
 
-		for (let device of devices)
+		for(let device of devices)
 			await addDevice(device);
 	};
 
 	// Adds |device| to |connectedDevices|. Selects the device if there was no prior
 	// selection.
 	const addDevice = async (device) => {
-		if (connectedDevices.includes(device)) {
+		if(connectedDevices.includes(device)) {
 			console.log('device already in connectedDevices');
 			return;
 		}
 		connectedDevices.push(device);
 		console.log(`device connected: ${device.productName}`);
-		if (selectedDevice === null)
+		if(selectedDevice === null)
 			await selectDevice(device);
 		updateDeviceMenu();
 	};
 
 	// Removes |device| from |connectedDevices|.
 	const removeDevice = device => {
-		if (device === selectedDevice)
+		if(device === selectedDevice)
 			selectedDevice = null;
-		for (let i = connectedDevices.length - 1; i >= 0; --i) {
-			if (connectedDevices[i] === device) {
+		for(let i = connectedDevices.length - 1; i >= 0; --i) {
+			if(connectedDevices[i] === device) {
 				connectedDevices.splice(i, 1);
 				console.log(`device disconnected: ${device.productName}`);
 				updateDeviceMenu();
@@ -159,24 +159,24 @@
 	const handleInputReport = event => {
 		const t = new Date();
 		const inputReportTextView = document.getElementById('inputReport');
-		if (!inputReportTextView) {
+		if(!inputReportTextView) {
 			console.log(event);
 			return;
 		}
 
 		let buffer = hex8(event.reportId) + '\n';
 		const reportData = new Uint8Array(event.data.buffer);
-		for (let byte of reportData)
+		for(let byte of reportData)
 			buffer += ' ' + hex8(byte);
 		inputReportTextView.textContent = t.toLocaleTimeString() + ' / ' + t.valueOf() + '\n' + buffer;
 	}
 
 	const sendOutputReport = () => {
-		if (!selectedDevice)
+		if(!selectedDevice)
 			return;
 
 		const reportTextArea = document.getElementById('outputReport');
-		if (!reportTextArea)
+		if(!reportTextArea)
 			return;
 
 		let data = parseHexArray(reportTextArea.value);
@@ -190,11 +190,11 @@
 	};
 
 	const sendFeatureReport = () => {
-		if (!selectedDevice)
+		if(!selectedDevice)
 			return;
 
 		const reportTextArea = document.getElementById('featureReport');
-		if (!reportTextArea)
+		if(!reportTextArea)
 			return;
 
 		let data = parseHexArray(reportTextArea.value);
@@ -207,11 +207,11 @@
 	};
 
 	const receiveFeatureReport = () => {
-		if (!selectedDevice)
+		if(!selectedDevice)
 			return;
 
 		const reportTextArea = document.getElementById('featureReport');
-		if (!reportTextArea)
+		if(!reportTextArea)
 			return;
 
 		let data = parseHexArray(reportTextArea.value);
@@ -232,15 +232,15 @@
 
 	// Selects |device| and updates the device info display.
 	const selectDevice = async (device) => {
-		if (selectedDevice)
+		if(selectedDevice)
 			selectedDevice.oninputreport = null;
 
-		if (!device) {
+		if(!device) {
 			selectedDevice = null;
 		} else {
 			let select = document.getElementById('deviceSelect');
-			for (let i = 0; i < select.options.length; ++i) {
-				if (select.options[i].device === device) {
+			for(let i = 0; i < select.options.length; ++i) {
+				if(select.options[i].device === device) {
 					select.value = i;
 					break;
 				}
@@ -248,13 +248,13 @@
 			selectedDevice = device;
 		}
 
-		if (selectedDevice) {
+		if(selectedDevice) {
 			selectedDevice.oninputreport = handleInputReport;
-			if (!selectedDevice.opened) {
+			if(!selectedDevice.opened) {
 				try {
 					await selectedDevice.open();
 				} catch (e) {
-					if (e instanceof DOMException) {
+					if(e instanceof DOMException) {
 						console.log(`Error opening ${selectedDevice.productName}: ${e.message}`);
 					} else {
 						throw e;
@@ -269,10 +269,10 @@
 	// Updates the device selection menu to match |connectedDevices|.
 	const updateDeviceMenu = () => {
 		let select = document.getElementById('deviceSelect');
-		for (let i = select.options.length - 1; i >= 0; --i)
+		for(let i = select.options.length - 1; i >= 0; --i)
 			select.options[i] = null;
 
-		if (connectedDevices.length == 0) {
+		if(connectedDevices.length == 0) {
 			var opt = document.createElement('option');
 			opt.value = 0;
 			opt.device = null;
@@ -284,7 +284,7 @@
 		}
 
 		let index = 0;
-		for (let device of connectedDevices) {
+		for(let device of connectedDevices) {
 			var opt = document.createElement('option');
 			opt.value = index++;
 			opt.device = device;
@@ -330,11 +330,11 @@
 	// within the containing report.
 	const reportSizeAndCountAsString = (item, startBit) => {
 		const bitWidth = item.reportCount * item.reportSize;
-		if (bitWidth == 1)
+		if(bitWidth == 1)
 			return `1 bit (bit ${startBit})`;
 
 		const endBit = startBit + bitWidth - 1;
-		if (item.reportCount == 1)
+		if(item.reportCount == 1)
 			return `${item.reportSize} bits (bits ${startBit} to ${endBit})`;
 
 		return `${pluralize(item.reportCount, 'value')} * ${pluralize(item.reportSize, 'bit')} (bits ${startBit} to ${endBit})`;
@@ -345,8 +345,8 @@
 	const bitFieldAsString = item => {
 		const fields = ["isConstant", "isArray", "isAbsolute", "wrap", "isLinear", "hasPreferredState", "hasNull", "isVolatile", "isBufferedBytes"];
 		const bits = [];
-		for (const field of fields) {
-			if (field in item) {
+		for(const field of fields) {
+			if(field in item) {
 				const value = item[field];
 				bits.push(field + "-" + Number(value));
 			}
@@ -354,12 +354,12 @@
 		/* bits.push(item.isConstant ? 'Cnst' : 'Data');
 		bits.push(item.isArray ? 'Ary' : 'Var');
 		bits.push(item.isAbsolute ? 'Abs' : 'Rel');
-		if (item.wrap) bits.push('Wrap');
-		if (!item.isLinear) bits.push('NLin');
-		if (!item.hasPreferredState) bits.push('NPrf');
-		if (item.hasNull) bits.push('Null');
-		if (item.isVolatile) bits.push('Vol');
-		if (item.isBufferedBytes) bits.push('Buf'); */
+		if(item.wrap) bits.push('Wrap');
+		if(!item.isLinear) bits.push('NLin');
+		if(!item.hasPreferredState) bits.push('NPrf');
+		if(item.hasNull) bits.push('Null');
+		if(item.isVolatile) bits.push('Vol');
+		if(item.isBufferedBytes) bits.push('Buf'); */
 		return bits.join(', ');
 	};
 
@@ -370,16 +370,16 @@
 
 	// Returns the usages assigned to |item| as a human-readable string.
 	const usagesAsString = item => {
-		if (item.isRange) {
-			if (item.usageMinimum == item.usageMaximum)
+		if(item.isRange) {
+			if(item.usageMinimum == item.usageMaximum)
 				return `Usage: ${usageName(item.usageMinimum)}`;
 			return `Usages: ${usageName(item.usageMinimum)} to ${usageName(item.usageMaximum)}`;
 		}
 
 		let usageStrings = [];
-		for (const usage of item.usages)
+		for(const usage of item.usages)
 			usageStrings.push(usageName(usage));
-		if (usageStrings.length == 1)
+		if(usageStrings.length == 1)
 			return `Usage: ${usageStrings[0]}`;
 		return `Usages:\n      ${usageStrings.join('\n      ')}`
 	};
@@ -400,12 +400,12 @@
 	// appended to the numerator, unit factors with negative exponents are appended
 	// to the denominator. Unit factors with exponent zero are not appended.
 	const addUnitFactor = (numerator, denominator, unitFactorName, unitFactorExponent) => {
-		if (unitFactorExponent == 0)
+		if(unitFactorExponent == 0)
 			return;
 
 		const absoluteExponent = Math.abs(unitFactorExponent);
 		const exponent = (absoluteExponent == 1) ? '' : `^${absoluteExponent}`;
-		if (unitFactorExponent > 0)
+		if(unitFactorExponent > 0)
 			numerator.push(unitFactorName + exponent);
 		else
 			denominator.push(unitFactorName + exponent);
@@ -419,28 +419,28 @@
 		let temperatureName;
 		let currentName;
 		let luminousIntensityName;
-		if (item.unitSystem == 'si-linear') {
+		if(item.unitSystem == 'si-linear') {
 			lengthName = 'cm';  // Centimeter
 			massName = 'g';  // Gram
 			timeName = 's';  // Seconds
 			temperatureName = 'K';  // Kelvin
 			currentName = 'A';  // Ampere
 			luminousIntensityName = 'cd';  // Candela
-		} else if (item.unitSystem == 'si-rotation') {
+		} else if(item.unitSystem == 'si-rotation') {
 			lengthName = 'rad';  // Radians
 			massName = 'g';  // Gram
 			timeName = 's';  // Seconds
 			temperatureName = 'K';  // Kelvin
 			currentName = 'A';  // Ampere
 			luminousIntensityName = 'cd';  // Candela
-		} else if (item.unitSystem == 'english-linear') {
+		} else if(item.unitSystem == 'english-linear') {
 			lengthName = 'in';  // Inch
 			massName = 'slug';  // Slug
 			timeName = 's';  // Seconds
 			temperatureName = '°F';  // Fahrenheit
 			currentName = 'A';  // Ampere
 			luminousIntensityName = 'cd';  // Candela
-		} else if (item.unitSystem == 'english-rotation') {
+		} else if(item.unitSystem == 'english-rotation') {
 			lengthName = 'deg';  // Degrees
 			massName = 'slug';  // Slug
 			timeName = 's';  // Seconds
@@ -467,7 +467,7 @@
 
 		const exponent = (item.unitExponent == 0) ? '' : `10^${item.unitExponent}*`;
 		const numerator = (numeratorFactors.length > 0) ? numeratorFactors.join('*') : '1';
-		if (denominatorFactors.length == 0)
+		if(denominatorFactors.length == 0)
 			return `Units: ${exponent}${numerator}`;
 
 		const denominator = denominatorFactors.join('*')
@@ -478,19 +478,19 @@
 	// |type|.
 	const formatReportListInfo = (reports, type) => {
 		let reportInfo = '';
-		if (!reports.length || reports.length < 1) return reportInfo;
-		for (const r of reports) {
+		if(!reports.length || reports.length < 1) return reportInfo;
+		for(const r of reports) {
 			reportInfo += `${type} report 0x${hex8(r.reportId)}\n`;
 			let bitOffset = 0;
-			for (const item of r.items) {
+			for(const item of r.items) {
 				reportInfo += `  ${reportSizeAndCountAsString(item, bitOffset)}\n`;
 				reportInfo += `    ${bitFieldAsString(item)}\n`;
-				if (hasUsages(item))
+				if(hasUsages(item))
 					reportInfo += `    ${usagesAsString(item)}\n`;
 				reportInfo += `    ${logicalBoundsAsString(item)}\n`;
-				if (hasPhysicalBounds(item))
+				if(hasPhysicalBounds(item))
 					reportInfo += `    ${physicalBoundsAsString(item)}\n`;
-				if (hasUnitDefinition(item))
+				if(hasUnitDefinition(item))
 					reportInfo += `    ${unitsAsString(item)}\n`;
 				bitOffset += item.reportSize * item.reportCount;
 			}
@@ -501,7 +501,7 @@
 	// Updates the device info display for the currently selected device.
 	const updateDeviceInfo = () => {
 		let textarea = document.getElementById('deviceInfo');
-		if (selectedDevice == null) {
+		if(selectedDevice == null) {
 			textarea.textContent = '';
 			return;
 		}
@@ -512,33 +512,33 @@
 			`productId:   0x${hex16(selectedDevice.productId)} (${selectedDevice.productId})\n` +
 			`opened:      ${(selectedDevice.opened ? 'true' : 'false')}\n\n`;
 
-		if (selectedDevice.collections.length == 0) {
+		if(selectedDevice.collections.length == 0) {
 			deviceInfo += 'collections: None';
 		} else {
-			for (let i = 0; i < selectedDevice.collections.length; ++i) {
+			for(let i = 0; i < selectedDevice.collections.length; ++i) {
 				const c = selectedDevice.collections[i];
 				let inputReports = [];
 				let outputReports = [];
 				let featureReports = [];
-				for (const r of c.inputReports)
+				for(const r of c.inputReports)
 					inputReports.push(`0x${hex8(r.reportId)}`);
-				for (const r of c.outputReports)
+				for(const r of c.outputReports)
 					outputReports.push(`0x${hex8(r.reportId)}`);
-				for (const r of c.featureReports)
+				for(const r of c.featureReports)
 					featureReports.push(`0x${hex8(r.reportId)}`);
 
 				deviceInfo += `collections[${i}]\n`;
 				deviceInfo += `  ${collectionUsageAsString(c)}\n`;
-				if (inputReports.length > 0)
+				if(inputReports.length > 0)
 					deviceInfo += `  Input reports: ${inputReports.join(', ')}\n`;
-				if (outputReports.length > 0)
+				if(outputReports.length > 0)
 					deviceInfo += `  Output reports: ${outputReports.join(', ')}\n`;
-				if (featureReports.length > 0)
+				if(featureReports.length > 0)
 					deviceInfo += `  Feature reports: ${featureReports.join(', ')}\n`;
 			}
 			deviceInfo += '\n';
 
-			for (let i = 0; i < selectedDevice.collections.length; ++i) {
+			for(let i = 0; i < selectedDevice.collections.length; ++i) {
 				const c = selectedDevice.collections[i];
 				deviceInfo += formatReportListInfo(c.inputReports, 'Input');
 				deviceInfo += formatReportListInfo(c.outputReports, 'Output');
@@ -556,7 +556,7 @@
 
 		// Fetch the list of connected devices.
 		const devices = await navigator.hid.getDevices();
-		for (let device of devices)
+		for(let device of devices)
 			await addDevice(device);
 	};
 	/*]]>*/</script>

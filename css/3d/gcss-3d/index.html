@@ -224,7 +224,7 @@
 
 		let evt = new Event("input");
 		for(let pindex = 0; pindex < 2; pindex++)
-			for (let coord = 0; coord < 3; coord++) {
+			for(let coord = 0; coord < 3; coord++) {
 				let elem = document.getElementById("txtP" + pindex.toString() + "_" + coord.toString());
 				elem.addEventListener("input", txtPointCoordChanged);
 				elem.dispatchEvent(evt);

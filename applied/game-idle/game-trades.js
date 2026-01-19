@@ -60,7 +60,7 @@ function loadTrades(targetList) {
 		const lstTradeFeatures = tradeElem.appendChild(document.createElement("ul")); //features of a trade
 		lstTradeFeatures.classList.add("trade-features-list");
 		const enumFeatures = function(list, featureClass) {
-			for (const item of list) {
+			for(const item of list) {
 				const featureElem = lstTradeFeatures.appendChild(document.createElement("li")); //feature
 
 				const featureField = featureElem.appendChild(document.createElement("span"));
