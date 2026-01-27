@@ -1,7 +1,9 @@
 :root {
 	--hue1-ang: 55deg; /*red = ~25deg*/
 
-	font-size: 1.5em;
+	/* font-size: 1.5em; */
+	/* font-size: calc(2vmin + 0.5vmax); */
+	font-size: calc(0.5svb + 2svi);
 
 	color-scheme: dark;
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
@@ -18,7 +20,7 @@ body {
 	margin: 3vmin;
 	font-variant: slashed-zero;
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
-	column-width: max(65vh, 20em);
+	column-width: max(65svh, 16em); /*small viewport height*/
 }
 
 /* :active::selection */

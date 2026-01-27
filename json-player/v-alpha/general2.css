@@ -18,6 +18,7 @@
 :root {
 	/*question: include deg unit for hues? (currently never)*/
 	--hue-accent0: 120;
+	/*0deg hsl -> red; ~25deg oklch -> red*/
 	--hue-accent: var(--hue-accent0, 120);
 	--hue-accent2: calc(var(--hue-accent, 120) + 180);
 	/*--img-filter1: ;*/
