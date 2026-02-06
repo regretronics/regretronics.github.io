@@ -32,8 +32,6 @@ set outsuffix=.png
 	)
 	@title done %~n0 %~1 %~2 %~3 %~4 %~5 %%~nxn
 )
-
-@rem title done %~n0 %~1 %~2 %~3 %~4 %~5
 @exit /b
 
 @rem %1: blur parameter

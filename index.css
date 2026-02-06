@@ -3,7 +3,7 @@
 
 	/* font-size: 1.5em; */
 	/* font-size: calc(2vmin + 0.5vmax); */
-	font-size: calc(0.5svb + 2svi);
+	font-size: calc(2svb + 0.5svi);
 
 	color-scheme: dark;
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));

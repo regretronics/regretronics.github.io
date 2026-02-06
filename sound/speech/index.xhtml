@@ -6,16 +6,28 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 	<title>Speech pages</title>
+	<base href="../../" />
+	<link rel="stylesheet" type="text/css" href="index.css" />
 
 	<style type="text/css">/*<![CDATA[*/
+	noscript {
+		color: oklch(0.75 0.125 25deg);
+	}
 	.codeEditor {
-		height: 16em;
-		font-size: 90%;
-		width: 100%;
-		overflow-y: auto;
+		box-sizing: border-box;
+		/* height: 16em; */
 		min-height: 8em;
+		/* max-height: 90svh; */
+		/* width: 100%; */
+
 		white-space: pre;
 		tab-size: 4;
+		font-size: 90%;
+	}
+	pre:read-write {
+		background-color: oklch(0 0 0deg / 0.5);
+		padding: 0.5em;
+		overflow-block: auto;
 	}
 	/*]]>*/</style>
 
@@ -25,8 +37,9 @@
 
 	function btnSpeakClick(event) {
 		var u = new SpeechSynthesisUtterance();
-		u.text = ctlInputCode.innerText;
-		//u.text = ctlInputCode.innerHTML;
+		u.text = document.getElementById("ctlInputCode").innerText;
+		//u.text = document.getElementById("ctlInputCode").innerHTML;
+		//u.text = document.getElementById("ctlInputCode").childNodes[0].data;
 		//u.lang = 'en-US';
 		//u.rate = 1.2;
 		u.onend = function(event) {
@@ -43,8 +56,8 @@
 	/*]]>*/</script>
 </head>
 <body>
-	<h1>Speech page</h1>
-	<noscript style="color: hsl(0, 100%, 25%);">It seems you have disabled scripting in your user agent. This page can't do things without JavaScript enabled.</noscript>
+	<h1>Speech experiment</h1>
+	<noscript>It seems you have disabled scripting in your user agent. This page can't do things without JavaScript enabled.</noscript>
 	<p>Web Speech API tests.</p>
 	<ul>
 		<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API">Web Speech API - Web APIs | MDN</a></li>
@@ -52,24 +65,39 @@
 		<!--<li><a href=""></a></li>-->
 	</ul>
 	<!--<textarea style="width: 100%;"></textarea>-->
-	<pre id="ctlInputCode" contenteditable="true" class="codeEditor" spellcheck="false" autocapitalize="off">
-&lt;?xml version="1.0"?&gt;
+	<pre id="ctlInputCode" contenteditable="plaintext-only" class="codeEditor" spellcheck="false" autocapitalize="off">&lt;?xml version="1.0"?&gt;
 &lt;speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.w3.org/2001/10/synthesis
-			http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
-xml:lang="en-US"&gt;
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.w3.org/2001/10/synthesis
+		http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
+	xml:lang="en-US"&gt;
 	The 
 	&lt;phoneme alphabet="ipa"
-	ph="&#x2C8;l&#x251; &#x2C8;vi&#x2D0;&#x27E;&#x259; &#x2C8;&#x294;e&#x26A; &#x2C8;b&#x25B;l&#x259;"&gt; 
+		ph="&#x2C8;l&#x251; &#x2C8;vi&#x2D0;&#x27E;&#x259; &#x2C8;&#x294;e&#x26A; &#x2C8;b&#x25B;l&#x259;"&gt; 
 	ella &lt;/phoneme&gt;
 	&lt;!-- The IPA pronunciation is ˈlɑ ˈviːɾə ˈʔeɪ ˈbɛlə --&gt;
 	&lt;phoneme alphabet="ipa"
-	ph="&#x279;&#x259;&#x2C8;b&#x25B;&#x2D0;&#x279;&#x27E;o&#x28A; b&#x25B;&#x2C8;ni&#x2D0;nji"&gt; 
+		ph="&#x279;&#x259;&#x2C8;b&#x25B;&#x2D0;&#x279;&#x27E;o&#x28A; b&#x25B;&#x2C8;ni&#x2D0;nji"&gt; 
 		ober &lt;/phoneme&gt;
 	&lt;!-- The IPA pronunciation is ɹəˈbɛːɹɾoʊ bɛˈniːnji --&gt;
-&lt;/speak&gt;
-</pre>
+&lt;/speak&gt;</pre>
+	<!-- <pre id="ctlInputCode" contenteditable="plaintext-only" class="codeEditor" spellcheck="false" autocapitalize="off"><![CDATA[<?xml version="1.0"?>
+<speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.w3.org/2001/10/synthesis
+		http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
+	xml:lang="en-US">
+	The 
+	<phoneme alphabet="ipa"
+		ph="ˈlɑ ˈviːɾə ˈʔeɪ ˈbɛlə"> 
+	ella </phoneme>
+	<!- - The IPA pronunciation is ˈlɑ ˈviːɾə ˈʔeɪ ˈbɛlə - ->
+	<phoneme alphabet="ipa"
+		ph="ɹəˈbɛːɹɾoʊ bɛˈniːnji"> 
+		ober </phoneme>
+	<!- - The IPA pronunciation is ɹəˈbɛːɹɾoʊ bɛˈniːnji - ->
+</speak>
+]]></pre> -->
 	<p>
 		<button id="btnSpeak">Speak</button>
 	</p>

@@ -1,0 +1,7 @@
+# Learn more about .gitignore:
+#     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
+
+**/resize-magick-png-u8bpc-4096px/
+**/resize-magick-png-u16bpc-1024px/
+**/resize-magick-png-u16bpc-4096px/
+**/blur2.00-rect-gaussian/
