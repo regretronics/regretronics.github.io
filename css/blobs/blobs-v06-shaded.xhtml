@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+	<title>CSS blobs and PRNG, with SVG shading</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --t {
+			syntax: "\<number\>";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@keyframes shuffle {
+			to {
+				/* --t: var(--dur); */
+				--t: calc(0.25 * var(--dur));
+			}
+		}
+
+		:root {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+
+			color-scheme: dark;
+			background-color: black;
+			--dur: 43200;
+
+			--ti: round(down, var(--t));
+			/* --ti: round(down, 30000 + var(--t)); */
+			--ti1: calc(var(--ti) + 1);
+			--ti2: calc(var(--ti) + 2);
+			--ti3: calc(var(--ti) + 3);
+			--tfrac: mod(var(--t), 1);
+			--tfrac1: calc(1 - var(--tfrac));
+
+			--interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
+			--interp-hermite-10: calc(0.735 * var(--tfrac) * var(--tfrac1) * var(--tfrac1));
+			--interp-hermite-01: calc(var(--tfrac) * var(--tfrac) * (3 - 2 * var(--tfrac)));
+			--interp-hermite-11: calc(-0.735 * var(--tfrac) * var(--tfrac) * var(--tfrac1));
+
+			--rnd-ratio1: mod(sqrt(7), 1);
+			--rnd-ratio2: mod(pow(349, 1 / 5), -1);
+			--rnd-ratio3: mod(pow(3181, 1 / 3), 1);
+			--rnd-exp1: calc(pi * 2 / 3);
+			--rnd-exp2: calc(20 / 7);
+			--rnd-exp3: calc(110 / 113);
+			--rnd-offset: mod(pow(1451, 1 / 7), 1);
+
+			animation-name: shuffle;
+			animation-duration: calc(1s * var(--dur));
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+			/* animation-composition: add; */
+		}
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+		}
+
+		#svg1 {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			border: none;
+			overflow: hidden;
+			/* background-color: color(srgb 0.5 0.5 0.5); */
+			background-color: black;
+			/* filter: url("#shade"); */
+
+			--blob-count: 16;
+		}
+		/*Firefox-ism*/
+		/* #svg1 > circle:nth-of-type(1) { --i: 0; }
+		#svg1 > circle:nth-of-type(2) { --i: 1; }
+		#svg1 > circle:nth-of-type(3) { --i: 2; }
+		#svg1 > circle:nth-of-type(4) { --i: 3; }
+		#svg1 > circle:nth-of-type(5) { --i: 4; }
+		#svg1 > circle:nth-of-type(6) { --i: 5; }
+		#svg1 > circle:nth-of-type(7) { --i: 6; }
+		#svg1 > circle:nth-of-type(8) { --i: 7; } */
+		#svg1 g circle {
+			/* --i: calc(sibling-index() - 1); */
+			--i: attr(data-i type(<number>));
+
+			--tilog-x: log(2 * (var(--ti) * var(--blob-count) + var(--i)) + pi);
+			--ti1log-x: log(2 * (var(--ti1) * var(--blob-count) + var(--i)) + pi);
+			--ti2log-x: log(2 * (var(--ti2) * var(--blob-count) + var(--i)) + pi);
+			--ti3log-x: log(2 * (var(--ti3) * var(--blob-count) + var(--i)) + pi);
+			--tilog-y: log(2 * (var(--ti) * var(--blob-count) + var(--i)) + 1 + pi);
+			--ti1log-y: log(2 * (var(--ti1) * var(--blob-count) + var(--i)) + 1 + pi);
+			--ti2log-y: log(2 * (var(--ti2) * var(--blob-count) + var(--i)) + 1 + pi);
+			--ti3log-y: log(2 * (var(--ti3) * var(--blob-count) + var(--i)) + 1 + pi);
+			--rnd-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--tilog-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd1-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti1log-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti1log-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti1log-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd2-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti2log-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti2log-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti2log-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd3-x: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti3log-x)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti3log-x)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti3log-x)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--tilog-y)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd1-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti1log-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti1log-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti1log-y)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd2-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti2log-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti2log-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti2log-y)) 
+				+ var(--rnd-offset), 
+				1);
+			--rnd3-y: mod(
+				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti3log-y)) 
+				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti3log-y)) 
+				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti3log-y)) 
+				+ var(--rnd-offset), 
+				1);
+
+			--rnd-interp-x: calc(
+				var(--interp-hermite-00) * var(--rnd1-x)
+				+ var(--interp-hermite-10) * (var(--rnd2-x) - var(--rnd-x))
+				+ var(--interp-hermite-01) * var(--rnd2-x)
+				+ var(--interp-hermite-11) * (var(--rnd3-x) - var(--rnd1-x))
+				/* - 0.5 */
+			);
+			--rnd-interp-y: calc(
+				var(--interp-hermite-00) * var(--rnd1-y)
+				+ var(--interp-hermite-10) * (var(--rnd2-y) - var(--rnd-y))
+				+ var(--interp-hermite-01) * var(--rnd2-y)
+				+ var(--interp-hermite-11) * (var(--rnd3-y) - var(--rnd1-y))
+				/* - 0.5 */
+			);
+
+			cx: var(--rnd-interp-x);
+			cy: var(--rnd-interp-y);
+			/* cx: calc(50% + 25vmin * var(--rnd-interp-x));
+			cy: calc(50% + 25vmin * var(--rnd-interp-y)); */
+			/* transform: translate(
+				calc(50vmin * (2 * var(--rnd-interp-x) - 1)), 
+				calc(50vmin * (2 * var(--rnd-interp-y) - 1))); */
+
+			/* mix-blend-mode: hard-light; */
+			r: 25%;
+			mask: url("#blobMask");
+		}
+		radialGradient#blobGrad stop {
+			stop-color: white;
+
+			&:not(:last-child) {
+				/* --i: sibling-index(); */
+				/* --i: attr(data-i type(<number>)); */
+				--offset: attr(offset type(<number>));
+				/*opacities based on gaussian function*/
+				/* stop-opacity: pow(2, -0.03125 * var(--i) * var(--i)); */
+				stop-opacity: pow(2, -8 * var(--offset) * var(--offset));
+			}
+		}
+		filter * {
+			color-interpolation-filters: sRGB;
+			/* color-interpolation-filters: linearRGB; */
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" filter="url('#shade')">
+		<!-- filter="url('#shade')" -->
+		<defs>
+			<radialGradient id="blobGrad">
+				<stop offset="0" />
+				<stop offset="0.015625" />
+				<stop offset="0.03125" />
+				<stop offset="0.046875" />
+				<stop offset="0.0625" />
+				<stop offset="0.078125" />
+				<stop offset="0.09375" />
+				<stop offset="0.109375" />
+				<stop offset="0.125" />
+				<stop offset="0.140625" />
+				<stop offset="0.15625" />
+				<stop offset="0.171875" />
+				<stop offset="0.1875" />
+				<stop offset="0.203125" />
+				<stop offset="0.21875" />
+				<stop offset="0.234375" />
+				<stop offset="0.25" />
+				<stop offset="0.265625" />
+				<stop offset="0.28125" />
+				<stop offset="0.296875" />
+				<stop offset="0.3125" />
+				<stop offset="0.328125" />
+				<stop offset="0.34375" />
+				<stop offset="0.359375" />
+				<stop offset="0.375" />
+				<stop offset="0.390625" />
+				<stop offset="0.40625" />
+				<stop offset="0.421875" />
+				<stop offset="0.4375" />
+				<stop offset="0.453125" />
+				<stop offset="0.46875" />
+				<stop offset="0.484375" />
+				<stop offset="0.5" />
+				<stop offset="0.515625" />
+				<stop offset="0.53125" />
+				<stop offset="0.546875" />
+				<stop offset="0.5625" />
+				<stop offset="0.578125" />
+				<stop offset="0.59375" />
+				<stop offset="0.609375" />
+				<stop offset="0.625" />
+				<stop offset="0.640625" />
+				<stop offset="0.65625" />
+				<stop offset="0.671875" />
+				<stop offset="0.6875" />
+				<stop offset="0.703125" />
+				<stop offset="0.71875" />
+				<stop offset="0.734375" />
+				<stop offset="0.75" />
+				<stop offset="0.765625" />
+				<stop offset="0.78125" />
+				<stop offset="0.796875" />
+				<stop offset="0.8125" />
+				<stop offset="0.828125" />
+				<stop offset="0.84375" />
+				<stop offset="0.859375" />
+				<stop offset="0.875" />
+				<stop offset="0.890625" />
+				<stop offset="0.90625" />
+				<stop offset="0.921875" />
+				<stop offset="0.9375" />
+				<stop offset="0.953125" />
+				<stop offset="0.96875" />
+				<stop offset="0.984375" />
+				<stop offset="1" stop-opacity="0" />
+			</radialGradient>
+			<filter id="shade" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+				<!--color to alpha-->
+				<feColorMatrix type="matrix" values="
+					0 0 0 0 0
+					0 0 0 0 0
+					0 0 0 0 0
+					1 0 0 0 0" />
+				<feSpecularLighting 
+					lighting-color="white" specularConstant="0.5" 
+					surfaceScale="128" specularExponent="1" kernelUnitLength="1" 
+					result="specular">
+					<feDistantLight azimuth="240" elevation="30" />
+				</feSpecularLighting>
+				<!--alpha to color (grayscale)-->
+				<feColorMatrix type="matrix" values="
+					0 0 0 1 0
+					0 0 0 1 0
+					0 0 0 1 0
+					0 0 0 0 1" />
+				<feGaussianBlur stdDeviation="0.0078125" result="blurred" />
+				<feTurbulence
+					type="fractalNoise"
+					baseFrequency="0.0025"
+					numOctaves="8"
+					result="noise" />
+				<feColorMatrix result="noise" type="matrix" values="
+					1 0 0 0 0
+					1 0 0 0 0
+					1 0 0 0 0
+					0 0 0 0 0.5" />
+				<feMerge>
+					<feMergeNode in="blurred" />
+					<feMergeNode in="noise" />
+				</feMerge>
+				<!-- <feColorMatrix type="matrix" values="
+					2 0 0 0 -0.5
+					2 0 0 0 -0.5
+					2 0 0 0 -0.5
+					0 0 0 0 1" /> -->
+			</filter>
+		</defs>
+		<mask id="blobMask" mask-type="alpha" maskContentUnits="objectBoundingBox">
+			<circle cx="0.5" cy="0.5" r="0.5" fill="url(#blobGrad)" />
+		</mask>
+		<g fill="white">
+			<circle data-i="0" />
+			<circle data-i="1" />
+			<circle data-i="2" />
+			<circle data-i="3" />
+			<circle data-i="4" />
+			<circle data-i="5" />
+			<circle data-i="6" />
+			<circle data-i="7" />
+			<circle data-i="8" />
+			<circle data-i="9" />
+			<circle data-i="10" />
+			<circle data-i="11" />
+			<circle data-i="12" />
+			<circle data-i="13" />
+			<circle data-i="14" />
+			<circle data-i="15" />
+		</g>
+	</svg>
+</body>
+</html>

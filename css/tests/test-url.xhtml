@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>CSS experiment: URLs</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			font-size: 10vmin;
+		}
+
+		/* .show-number::after {
+			content: counter(val);
+		}
+		#outTheme {
+			counter-reset: val round(down, var(--theme));
+		} */
+		.img {
+			width: 6em;
+			height: 4em;
+			background-size: contain;
+		}
+		#img1 {
+			/* background-image: url("Blue_Marble_2022.jpg"); */
+			background-image: url("../../assets/pattern-neutral-soft.svg");
+			/* background-size: contain; */
+		}
+		#img2 {
+			/* background-image: url("Blue_Marble_2022.jpg#xywh=1024,1024,256,256"); */
+			background-image: url("../../assets/pattern-neutral-soft.svg#xywh=64,64,128,128");
+			/* background-size: contain; */
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<p class="img" id="img1"></p>
+	<p class="img" id="img2"></p>
+</body>
+</html>
