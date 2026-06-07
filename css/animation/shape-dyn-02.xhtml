@@ -15,7 +15,8 @@
 		}
 		@keyframes shuffle {
 			to {
-				--t: calc(1 * var(--dur));
+				/* --t: calc(1 * var(--dur)); */
+				--t: 1800;
 			}
 		}
 
@@ -244,43 +245,43 @@
 			--ang4: calc(1turn * 4 / 6);
 			--ang5: calc(1turn * 5 / 6);
 
-			--rnd-dev: 0.375;
-			--rnd-interp-0: calc(var(--ang0) + var(--rnd-dev) * 1turn * (
+			--ang-dev: 0.375turn;
+			--rnd-interp-0: calc(var(--ang0) + var(--ang-dev) * (
 				var(--interp-hermite-00) * var(--rnd0-1)
 				+ var(--interp-hermite-10) * (var(--rnd0-2) - var(--rnd0-0))
 				+ var(--interp-hermite-01) * var(--rnd0-2)
 				+ var(--interp-hermite-11) * (var(--rnd0-3) - var(--rnd0-1))
 				- 0.5
 			));
-			--rnd-interp-1: calc(var(--ang1) + var(--rnd-dev) * 1turn * (
+			--rnd-interp-1: calc(var(--ang1) + var(--ang-dev) * (
 				var(--interp-hermite-00) * var(--rnd1-1)
 				+ var(--interp-hermite-10) * (var(--rnd1-2) - var(--rnd1-0))
 				+ var(--interp-hermite-01) * var(--rnd1-2)
 				+ var(--interp-hermite-11) * (var(--rnd1-3) - var(--rnd1-1))
 				- 0.5
 			));
-			--rnd-interp-2: calc(var(--ang2) + var(--rnd-dev) * 1turn * (
+			--rnd-interp-2: calc(var(--ang2) + var(--ang-dev) * (
 				var(--interp-hermite-00) * var(--rnd2-1)
 				+ var(--interp-hermite-10) * (var(--rnd2-2) - var(--rnd2-0))
 				+ var(--interp-hermite-01) * var(--rnd2-2)
 				+ var(--interp-hermite-11) * (var(--rnd2-3) - var(--rnd2-1))
 				- 0.5
 			));
-			--rnd-interp-3: calc(var(--ang3) + var(--rnd-dev) * 1turn * (
+			--rnd-interp-3: calc(var(--ang3) + var(--ang-dev) * (
 				var(--interp-hermite-00) * var(--rnd3-1)
 				+ var(--interp-hermite-10) * (var(--rnd3-2) - var(--rnd3-0))
 				+ var(--interp-hermite-01) * var(--rnd3-2)
 				+ var(--interp-hermite-11) * (var(--rnd3-3) - var(--rnd3-1))
 				- 0.5
 			));
-			--rnd-interp-4: calc(var(--ang4) + var(--rnd-dev) * 1turn * (
+			--rnd-interp-4: calc(var(--ang4) + var(--ang-dev) * (
 				var(--interp-hermite-00) * var(--rnd4-1)
 				+ var(--interp-hermite-10) * (var(--rnd4-2) - var(--rnd4-0))
 				+ var(--interp-hermite-01) * var(--rnd4-2)
 				+ var(--interp-hermite-11) * (var(--rnd4-3) - var(--rnd4-1))
 				- 0.5
 			));
-			--rnd-interp-5: calc(var(--ang5) + var(--rnd-dev) * 1turn * (
+			--rnd-interp-5: calc(var(--ang5) + var(--ang-dev) * (
 				var(--interp-hermite-00) * var(--rnd5-1)
 				+ var(--interp-hermite-10) * (var(--rnd5-2) - var(--rnd5-0))
 				+ var(--interp-hermite-01) * var(--rnd5-2)
@@ -294,58 +295,63 @@
 
 			fill: gray;
 			/* clip-path: shape(from 0% 0%, line to 100% 0%, line to 50% 100%, close); */
+			--p0-x: calc(100% * (var(--shp-scale) * cos(var(--ang0)) + 0.5));
+			--p0-y: calc(100% * (var(--shp-scale) * sin(var(--ang0)) + 0.5));
+			--p0-cp-x: calc(-100% * var(--shp-scale) * var(--ctl-dist) * sin(var(--rnd-interp-0)));
+			--p0-cp-y: calc(100% * var(--shp-scale) * var(--ctl-dist) * cos(var(--rnd-interp-0)));
+			--p1-x: calc(100% * (var(--shp-scale) * cos(var(--ang1)) + 0.5));
+			--p1-y: calc(100% * (var(--shp-scale) * sin(var(--ang1)) + 0.5));
+			--p1-cp-x: calc(-100% * var(--shp-scale) * var(--ctl-dist) * sin(var(--rnd-interp-1)));
+			--p1-cp-y: calc(100% * var(--shp-scale) * var(--ctl-dist) * cos(var(--rnd-interp-1)));
+			--p2-x: calc(100% * (var(--shp-scale) * cos(var(--ang2)) + 0.5));
+			--p2-y: calc(100% * (var(--shp-scale) * sin(var(--ang2)) + 0.5));
+			--p2-cp-x: calc(-100% * var(--shp-scale) * var(--ctl-dist) * sin(var(--rnd-interp-2)));
+			--p2-cp-y: calc(100% * var(--shp-scale) * var(--ctl-dist) * cos(var(--rnd-interp-2)));
+			--p3-x: calc(100% * (var(--shp-scale) * cos(var(--ang3)) + 0.5));
+			--p3-y: calc(100% * (var(--shp-scale) * sin(var(--ang3)) + 0.5));
+			--p3-cp-x: calc(-100% * var(--shp-scale) * var(--ctl-dist) * sin(var(--rnd-interp-3)));
+			--p3-cp-y: calc(100% * var(--shp-scale) * var(--ctl-dist) * cos(var(--rnd-interp-3)));
+			--p4-x: calc(100% * (var(--shp-scale) * cos(var(--ang4)) + 0.5));
+			--p4-y: calc(100% * (var(--shp-scale) * sin(var(--ang4)) + 0.5));
+			--p4-cp-x: calc(-100% * var(--shp-scale) * var(--ctl-dist) * sin(var(--rnd-interp-4)));
+			--p4-cp-y: calc(100% * var(--shp-scale) * var(--ctl-dist) * cos(var(--rnd-interp-4)));
+			--p5-x: calc(100% * (var(--shp-scale) * cos(var(--ang5)) + 0.5));
+			--p5-y: calc(100% * (var(--shp-scale) * sin(var(--ang5)) + 0.5));
+			--p5-cp-x: calc(-100% * var(--shp-scale) * var(--ctl-dist) * sin(var(--rnd-interp-5)));
+			--p5-cp-y: calc(100% * var(--shp-scale) * var(--ctl-dist) * cos(var(--rnd-interp-5)));
 			clip-path: shape(
 				from 
-					calc(100% * (var(--shp-scale) * cos(var(--ang0)) + 0.5)) 
-					calc(100% * (var(--shp-scale) * sin(var(--ang0)) + 0.5)), 
+					var(--p0-x) var(--p0-y), 
 				curve to 
-					calc(100% * (var(--shp-scale) * cos(var(--ang1)) + 0.5)) 
-					calc(100% * (var(--shp-scale) * sin(var(--ang1)) + 0.5)) 
+					var(--p1-x) var(--p1-y) 
 				with 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang0)) - var(--ctl-dist) * sin(var(--rnd-interp-0))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang0)) + var(--ctl-dist) * cos(var(--rnd-interp-0))) + 0.5)) / 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang1)) + var(--ctl-dist) * sin(var(--rnd-interp-1))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang1)) - var(--ctl-dist) * cos(var(--rnd-interp-1))) + 0.5)), 
+					calc(var(--p0-x) + var(--p0-cp-x)) calc(var(--p0-y) + var(--p0-cp-y)) / 
+					calc(var(--p1-x) - var(--p1-cp-x)) calc(var(--p1-y) - var(--p1-cp-y)), 
 				curve to 
-					calc(100% * (var(--shp-scale) * cos(var(--ang2)) + 0.5)) 
-					calc(100% * (var(--shp-scale) * sin(var(--ang2)) + 0.5)) 
+					var(--p2-x) var(--p2-y)
 				with 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang1)) - var(--ctl-dist) * sin(var(--rnd-interp-1))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang1)) + var(--ctl-dist) * cos(var(--rnd-interp-1))) + 0.5)) / 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang2)) + var(--ctl-dist) * sin(var(--rnd-interp-2))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang2)) - var(--ctl-dist) * cos(var(--rnd-interp-2))) + 0.5)), 
+					calc(var(--p1-x) + var(--p1-cp-x)) calc(var(--p1-y) + var(--p1-cp-y)) / 
+					calc(var(--p2-x) - var(--p2-cp-x)) calc(var(--p2-y) - var(--p2-cp-y)), 
 				curve to 
-					calc(100% * (var(--shp-scale) * cos(var(--ang3)) + 0.5)) 
-					calc(100% * (var(--shp-scale) * sin(var(--ang3)) + 0.5))
+					var(--p3-x) var(--p3-y)
 				with 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang2)) - var(--ctl-dist) * sin(var(--rnd-interp-2))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang2)) + var(--ctl-dist) * cos(var(--rnd-interp-2))) + 0.5)) / 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang3)) + var(--ctl-dist) * sin(var(--rnd-interp-3))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang3)) - var(--ctl-dist) * cos(var(--rnd-interp-3))) + 0.5)), 
+					calc(var(--p2-x) + var(--p2-cp-x)) calc(var(--p2-y) + var(--p2-cp-y)) / 
+					calc(var(--p3-x) - var(--p3-cp-x)) calc(var(--p3-y) - var(--p3-cp-y)), 
 				curve to 
-					calc(100% * (var(--shp-scale) * cos(var(--ang4)) + 0.5)) 
-					calc(100% * (var(--shp-scale) * sin(var(--ang4)) + 0.5)) 
+					var(--p4-x) var(--p4-y)
 				with 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang3)) - var(--ctl-dist) * sin(var(--rnd-interp-3))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang3)) + var(--ctl-dist) * cos(var(--rnd-interp-3))) + 0.5)) / 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang4)) + var(--ctl-dist) * sin(var(--rnd-interp-4))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang4)) - var(--ctl-dist) * cos(var(--rnd-interp-4))) + 0.5)), 
+					calc(var(--p3-x) + var(--p3-cp-x)) calc(var(--p3-y) + var(--p3-cp-y)) / 
+					calc(var(--p4-x) - var(--p4-cp-x)) calc(var(--p4-y) - var(--p4-cp-y)), 
 				curve to 
-					calc(100% * (var(--shp-scale) * cos(var(--ang5)) + 0.5)) 
-					calc(100% * (var(--shp-scale) * sin(var(--ang5)) + 0.5)) 
+					var(--p5-x) var(--p5-y)
 				with 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang4)) - var(--ctl-dist) * sin(var(--rnd-interp-4))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang4)) + var(--ctl-dist) * cos(var(--rnd-interp-4))) + 0.5)) / 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang5)) + var(--ctl-dist) * sin(var(--rnd-interp-5))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang5)) - var(--ctl-dist) * cos(var(--rnd-interp-5))) + 0.5)), 
+					calc(var(--p4-x) + var(--p4-cp-x)) calc(var(--p4-y) + var(--p4-cp-y)) / 
+					calc(var(--p5-x) - var(--p5-cp-x)) calc(var(--p5-y) - var(--p5-cp-y)), 
 				curve to 
-					calc(100% * (var(--shp-scale) * cos(var(--ang0)) + 0.5)) 
-					calc(100% * (var(--shp-scale) * sin(var(--ang0)) + 0.5)) 
+					var(--p0-x) var(--p0-y)
 				with 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang5)) - var(--ctl-dist) * sin(var(--rnd-interp-5))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang5)) + var(--ctl-dist) * cos(var(--rnd-interp-5))) + 0.5)) / 
-					calc(100% * (var(--shp-scale) * (cos(var(--ang0)) + var(--ctl-dist) * sin(var(--rnd-interp-0))) + 0.5)) 
-					calc(100% * (var(--shp-scale) * (sin(var(--ang0)) - var(--ctl-dist) * cos(var(--rnd-interp-0))) + 0.5)), 
+					calc(var(--p5-x) + var(--p5-cp-x)) calc(var(--p5-y) + var(--p5-cp-y)) / 
+					calc(var(--p0-x) - var(--p0-cp-x)) calc(var(--p0-y) - var(--p0-cp-y)), 
 				close);
 		}
 	/*]]>*/</style>
