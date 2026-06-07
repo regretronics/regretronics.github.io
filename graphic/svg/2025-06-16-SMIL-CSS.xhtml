@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg">
 <head>
 	<meta charset="UTF-8" />
@@ -40,10 +40,34 @@
 			/* aspect-ratio: auto; */
 			/* counter-increment: test 10; */
 		}
+		@property --x {
+			syntax: "<number>";
+			initial-value: 10.0;
+			inherits: true;
+		}
 		#dummy1 {
 			/* counter-reset: test 123; */
 			/* counter-increment: test 100; */
-			counter-increment: test attr(x type(*), 999);
+			/* counter-increment: test attr(x type(*), 999); */
+			/* --x: 0; */
+			/* x: var(--x); */
+			/* x: attr(abc type(<number>)); */
+			/* &[data-abc="10"] {
+				fill: red;
+			} */
+			/* &.test {
+				fill: red;
+			} */
+			/* &[class="0"] {
+				fill: red;
+			} */
+			/* &[class^="t"] {
+				fill: red;
+			} */
+		}
+		.test {
+			fill: red;
+			background-color: red;
 		}
 		#outCounter1::after {
 			content: counter(test) ".";
@@ -51,41 +75,75 @@
 	/*]]>*/</style>
 </head>
 <body>
-	<svg id="svg1" viewBox="0 0 300 300">
-		<defs>
-		</defs>
-		<style>
+	<svg:svg id="svg1" viewBox="0 0 300 300">
+		<!-- <svg:defs></svg:defs> -->
+		<svg:style>
 			div {
 				height: 100%;
 				background-color: gray;
 				color: red;
 			}
-		</style>
-		<rect id="dummy1" x="1" y="0" width="100" height="30" fill="white">
-			<animate
+			textarea {
+				tab-size: 2;
+			}
+			.test textarea {
+				background-color: blueviolet;
+			}
+		</svg:style>
+		<svg:rect id="dummy1" x="1" y="0" width="100" height="30" fill="white">
+			<!-- <animate
 				attributeType="auto"
 				attributeName="x"
 				accumulate="sum"
 				by="25"
 				dur="1s"
+				repeatCount="indefinite" /> -->
+			<!-- <animate
+				attributeType="CSS"
+				attributeName="- -x"
+				from="0"
+				by="25"
+				dur="1s"
+				repeatCount="indefinite" /> -->
+			<!-- <animate
+				attributeName="class"
+				from="0"
+				by="25"
+				dur="1s"
+				calcMode="discrete"
+				repeatCount="indefinite" /> -->
+			<svg:set
+				href="#fo1"
+				attributeName="class"
+				to="test"
+				begin="txt2.click"
+				dur="1s" />
+			<!-- <set
+				href="#txt1"
+				attributeType="CSS"
+				attributeName="font-size"
+				to="20%"
+				begin="txt1.click"
+				dur="1s" /> -->
+		</svg:rect>
+		<svg:foreignObject id="fo1" x="0" y="30" width="300" height="200">
+			<textarea id="txt1" cols="30" rows="10">asdfgh asdfdghg
+			<svg:animate
+				href="#fo1"
+				attributeType="auto"
+				attributeName="x"
+				calcMode="linear"
+				from="5"
+				to="35"
+				dur="2s"
 				repeatCount="indefinite" />
-		</rect>
-		<foreignObject x="0" y="30" width="300" height="200">
-			<textarea cols="30" rows="10">asdfgh asdfdghg
-				<animate
-					attributeType="auto"
-					attributeName="cols"
-					calcMode="discrete"
-					from="5"
-					to="35"
-					dur="2s"
-					repeatCount="indefinite" />
 			</textarea>
-		</foreignObject>
-	</svg>
+		</svg:foreignObject>
+		<svg:rect id="dummy2" x="10" y="230" width="100" height="30" fill="white" />
+	</svg:svg>
 	<p>
 		<output id="outCounter1">counter: </output>
-		<textarea cols="60" rows="10">asdfgh asdfdghg
+		<textarea id="txt2" cols="60" rows="10">asdfgh asdfdghg
 			<svg:animate
 				svg:attributeType="XML"
 				svg:attributeName="cols"
