@@ -15,7 +15,7 @@ body {
 	width: 100%;
 	height: 100%;
 
-	overflow-wrap: break-word; /* 2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug */
+	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 	display: flex;
 	/* flex-wrap: wrap; */
 

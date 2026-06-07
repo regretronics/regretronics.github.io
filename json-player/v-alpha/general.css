@@ -183,7 +183,7 @@ input[type=checkbox] {
 	}
 	&:not(.expanded) {
 		resize: vertical;
-		max-height: 93.75svh;
+		max-height: 93.75svh; /*small viewport height*/
 	}
 	&.expanded {
 		resize: none;

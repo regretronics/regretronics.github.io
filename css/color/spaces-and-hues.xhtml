@@ -12,8 +12,8 @@
 			color-scheme: dark;
 			--hue-phase: 0;
 			--sat: 0.125;
-			--lgh-ref: 0.5;
-			--lgh-colors: 0.5;
+			--lgt-ref: 0.5;
+			--lgt-colors: 0.5;
 
 			--cl-space: rec2020;
 			--fr: 1;
@@ -88,7 +88,7 @@
 			user-select: none;
 			padding: 0.25ch;
 			gap: 0.25ch;
-			background-color: color(var(--cl-space, srgb) calc(var(--lgh-ref, 0.5) * var(--fr)) calc(var(--lgh-ref, 0.5) * var(--fg)) calc(var(--lgh-ref, 0.5) * var(--fb)));
+			background-color: color(var(--cl-space, srgb) calc(var(--lgt-ref, 0.5) * var(--fr)) calc(var(--lgt-ref, 0.5) * var(--fg)) calc(var(--lgt-ref, 0.5) * var(--fb)));
 		}
 		.shade-group > span {
 			block-size: 4em;
@@ -100,14 +100,14 @@
 			/* border: solid gray 0.125ch; */
 			/* border-style: solid;
 			border-width: 0.25ch; */
-			/* border-color: color(display-p3 var(--lgh-ref, 0.5) var(--lgh-ref, 0.5) var(--lgh-ref, 0.5)); */
-			/* border-color: color(var(--cl-space, srgb) calc(var(--lgh-ref, 0.5) * var(--fr)) calc(var(--lgh-ref, 0.5) * var(--fg)) calc(var(--lgh-ref, 0.5) * var(--fb))); */
+			/* border-color: color(display-p3 var(--lgt-ref, 0.5) var(--lgt-ref, 0.5) var(--lgt-ref, 0.5)); */
+			/* border-color: color(var(--cl-space, srgb) calc(var(--lgt-ref, 0.5) * var(--fr)) calc(var(--lgt-ref, 0.5) * var(--fg)) calc(var(--lgt-ref, 0.5) * var(--fb))); */
 
 			counter-increment: sh-hue;
 			/* counter-increment: --c; */
 			--hue-int: attr(data-hue-int type(<number>));
 			/* --hue-int: counter(sh-hue, numeric); */
-			--cl-radial: oklch(var(--lgh-colors, 0.5) var(--sat, 0.125) calc(var(--hue-phase, 0) * 1turn + var(--hue-int, 0) * 1turn / 12));
+			--cl-radial: oklch(var(--lgt-colors, 0.5) var(--sat, 0.125) calc(var(--hue-phase, 0) * 1turn + var(--hue-int, 0) * 1turn / 12));
 			/* background-color: var(--cl-radial, gray); */
 			background-color: color(from var(--cl-radial, gray) var(--gain-balance));
 
@@ -232,9 +232,9 @@
 	</p>
 	<p>
 		<label for="txtLightnessRef">Lightness, ref.</label> 
-		<input type="number" id="txtLightnessRef" value="0.5" step="0.03125" data-property="--lgh-ref" /> 
+		<input type="number" id="txtLightnessRef" value="0.5" step="0.03125" data-property="--lgt-ref" /> 
 		<label for="txtLightnessColors">Lightness, colors</label> 
-		<input type="number" id="txtLightnessColors" value="0.5" step="0.03125" data-property="--lgh-colors" />
+		<input type="number" id="txtLightnessColors" value="0.5" step="0.03125" data-property="--lgt-colors" />
 	</p>
 	<p>
 		<label for="txtGainR">Gain, red</label> 
