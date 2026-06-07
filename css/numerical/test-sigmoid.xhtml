@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>CSS experiment: numerical performance of custom function</title>
+	<link rel="stylesheet" type="text/css" href="../tests/test-func.css" media="screen" />
+	<style type="text/css">/*<![CDATA[*/
+		@property --value-start {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@property --value-inc {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+
+		@property --func-value0 {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@property --func-value1 {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@property --func-value {
+			syntax: "\3c number\3e";
+			initial-value: 0.0;
+			inherits: true;
+		}
+		@property --func-color {
+			syntax: "\3c color\3e";
+			initial-value: transparent;
+			inherits: true;
+		}
+
+		:root {
+			/* --con-factor: 0.375; */
+			--con-factor: 1;
+		}
+		input[type=number] {
+			text-align: right;
+			/* width: 10ch; */
+			--step: attr(step type(<number>), 1);
+			--digits: log(var(--step, 1), 0.5);
+			width: calc(5em/16 + 5ch + var(--digits, 0)*1ch);
+		}
+
+		#tblFuncValues {
+			min-width: 100%;
+			width: fit-content;
+			height: fit-content; /*necessary to allow cell height-filling content*/
+
+			& tr {
+				--func-value0: --clr-chn-transfer0(var(--row-input));
+				--func-value1: --clr-chn-transfer1(var(--row-input));
+				--func-value: --clr-chn-transfer(var(--row-input));
+				--func-color: --scheme-clr(var(--row-input), 0.5);
+			}
+			& th, & td:not(:nth-of-type(6)) {
+				padding-inline: 0.25em;
+				background-color: light-dark(color(srgb 0 0 0 / 0.125), color(srgb 1 1 1 / 0.125));
+			}
+			& td {
+				/* min-width: fit-content; */
+				/* width: fit-content; */
+				/* max-width: max-content; */
+				text-wrap-mode: nowrap;
+				font-family: monospace;
+			}
+			& td:nth-of-type(1) {
+				text-align: end;
+			}
+			& td:nth-of-type(2) {
+				min-width: 8ch;
+			}
+			& td:nth-of-type(3) {
+				min-width: 9ch;
+			}
+			& td:nth-of-type(4) {
+				min-width: 12ch;
+			}
+			& td:nth-of-type(5) {
+				min-width: 12ch;
+			}
+			& td:nth-of-type(6) {
+				min-width: 4em;
+				width: 50%;
+				background-color: light-dark(color(srgb 0 0 0 / 0.75), color(srgb 1 1 1 / 0.75));
+
+				& > div {
+					width: calc(100% * var(--func-value, 0));
+					height: 100%;
+					/* background-color: light-dark(color(srgb 0 0 0 / 0.5), color(srgb 1 1 1 / 0.5)); */
+					background-color: light-dark(color(srgb 1 1 1 / 0.75), color(srgb 0 0 0 / 0.75));
+				}
+			}
+		}
+	/*]]>*/</style>
+	<script type="text/javascript">/*<![CDATA[*/
+	"use strict";
+
+	function updateValueList() {
+		const tBody = tblFuncValues.tBodies[0] ?? tblFuncValues.createTBody();
+		if(!tBody) return;
+
+		tBody.innerHTML = "";
+		if(txtValueInc.valueAsNumber == 0) return;
+
+		let v = txtValueStart.valueAsNumber;
+		const len = txtTableSize.valueAsNumber, inc = txtValueInc.valueAsNumber;
+		for(let i = 0; i < len; i++) {
+			const valueRow = tBody.insertRow();
+			valueRow.insertCell().textContent = i.toString();
+			valueRow.insertCell().textContent = v.toString();
+			valueRow.style.setProperty("--row-input", v);
+			valueRow.insertCell().textContent = getComputedStyle(valueRow).getPropertyValue("--func-value0");
+			valueRow.insertCell().textContent = getComputedStyle(valueRow).getPropertyValue("--func-value1");
+			valueRow.insertCell().textContent = getComputedStyle(valueRow).getPropertyValue("--func-value");
+			const cellBar = valueRow.insertCell();
+			cellBar.appendChild(document.createElement("div"));
+			valueRow.insertCell().textContent = getComputedStyle(valueRow).getPropertyValue("--func-color");
+
+			v += inc;
+		}
+	}
+	function txtParamsInput(event) {
+		if(!event || !event.target) return;
+		const elem = event.target;
+		//document.documentElement.style.setProperty("--clr-distort", parseFloat(txtDistortion.value));
+		document.documentElement.style.setProperty(elem.dataset.property, elem.valueAsNumber);
+		updateValueList();
+	}
+
+	function pageLoaded(event) {
+		//load HTML element references (renders document.getElementById unnecessary)
+		for(let s of document.querySelectorAll("[id]"))
+			window[s.id] = s;
+	}
+	function pageReady(event) {
+		//trap UI changes
+		/* txtDistortion.addEventListener("input", txtParamsInput);
+		txtValueStart.addEventListener("input", txtParamsInput);
+		txtValueInc.addEventListener("input", txtParamsInput); */
+		document.querySelectorAll("input[type=number][data-property]").forEach(elem => {
+			elem.addEventListener("input", txtParamsInput);
+			document.documentElement.style.setProperty(elem.dataset.property, elem.valueAsNumber);
+		});
+		txtTableSize.addEventListener("input", updateValueList);
+		updateValueList();
+	}
+	if(document.readyState === "loading")
+		document.addEventListener("DOMContentLoaded", pageLoaded);
+	else //DOMContentLoaded has already fired
+		pageLoaded();
+	window.addEventListener("load", pageReady);
+	/*]]>*/</script>
+</head>
+<body>
+	<p>
+		<label for="txtDistortion">Distortion</label> 
+		<input type="number" id="txtDistortion" value="-7.5" step="0.5" data-property="--clr-distort" /> 
+		<label for="txtTableSize">Table size</label> 
+		<input type="number" id="txtTableSize" value="32" step="2" /> 
+	</p>
+	<p>
+		<label for="txtValueStart">Value start</label> 
+		<input type="number" id="txtValueStart" value="-7.5" step="0.125" data-property="--value-start" /> 
+		<label for="txtValueInc">Value increment</label> 
+		<input type="number" id="txtValueInc" value="0.5" step="0.03125" data-property="--value-inc" />
+	</p>
+	<table id="tblFuncValues">
+		<thead>
+			<tr>
+				<th scope="col">count</th>
+				<th scope="col">input</th>
+				<th scope="col">output 0</th>
+				<th scope="col">output 1</th>
+				<th scope="col">output</th>
+				<th scope="col">bar</th>
+				<th scope="col">color</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+</body>
+</html>

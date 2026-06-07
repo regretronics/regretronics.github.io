@@ -1,5 +1,30 @@
 @function --f1() {
-	result: red;
+	/* result: red; */
+	result: oklch(0.75 --f2b(0.5) 0.5turn);
+}
+/*Using a typed parameter, --x <number>, or typed return, returns <number>, breaks the function in relative color declarations in Chrome 150 (2026-05).*/
+@function --f2b(--x: 0.5) { /*works*/
+/* @function --f2b(--x <number>) { */
+/* @function --f2b(--x type(<number>)) { */
+/* @function --f2b(--x type(*)) { */ /*works*/
+/* @function --f2b(--x) returns <number> { */
+/* @function --f2b(--x) returns type(<number>) { */
+/* @function --f2b(--x) returns type(*) { */ /*works*/
+/* @function --f2b(--x <number>) returns <number> { */
+/* @function --f2b(--x type(*)) returns type(*) { */ /*works*/
+	/* result: 0.5; */
+	result: calc(0.5 * var(--x));
+}
+@function --f2() returns <color> {
+	/* --clr-transfer: srgb-linear r g b; */
+	result: color(
+		from oklch(
+			0.5 
+			0.125 
+			0turn) 
+		srgb-linear --f2b(r) --f2b(g) --f2b(b));
+		/* srgb-linear --f2b(calc(r)) calc(--f2b(g)) calc(--f2b(calc(b)))); */
+		/* srgb-linear calc(--f2b(calc(1 * r))) calc(--f2b(calc(1 * g))) calc(--f2b(calc(1 * b)))); */
 }
 :root {
 	@media (prefers-color-scheme: dark) {}
@@ -8,6 +33,37 @@ body {
 	p {
 	}
 }
+
 :root {
 	color: --f1();
+	background-color: --f2();
+}
+
+@function --f3a(--x <number>) returns <number> {
+	/* result: if(style(--x >= 0.5): 80; else: 8); */
+	result: if(style(--x < 0.5): 8; else: 80);
+}
+/*Didn't work.*/
+/* @function --f3b(--x <number>) returns <number> {
+	result: 0;
+	@container style(--x >= 0.5) {
+		result: 1;
+	}
+} */
+@function --f4(--x <number>: calc(2 + 2)) returns <number> {
+	/* result: if(style(--x >= 0.5): 80; else: 8); */
+	result: var(--x);
+}
+/*Recursion didn't work.*/
+@function --fact-recr(--x) {
+/* @function --fact-recr(--x <number>) returns <number> { */
+	/* result: if(style(--x < 1): 1; else: calc(var(--x) * --fact-recr(calc(var(--x) - 1)))); */
+	result: if(style(--x >= 1): calc(var(--x) * --fact-recr(calc(var(--x) - 1))); else: 1);
+}
+#outA::after {
+	/* --val: 123; */
+	--val: --f4();
+	/* --val: --fact-recr(3); */
+	counter-reset: val round(to-zero, var(--val));
+	content: counter(val);
 }

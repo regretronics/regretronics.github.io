@@ -3,44 +3,115 @@
 	initial-value: normal;
 	inherits: true;
 } */
-
-@function --f1(--s <string>: "asdfsa") returns <string> {
-	/* result: "black"; */
-	result: var(--s);
+@property --dummy-num {
+	syntax: "\3c number\3e";
+	initial-value: 0.0;
+	inherits: true;
 }
-@function --scheme-clr(--l <number>: 0.0, --s <number>: 0.0, --a <number>: 1.0) returns <color> {
-	/* result: red; */
+@property --dummy-color {
+	syntax: "\3c color\3e";
+	initial-value: transparent;
+	inherits: true;
+}
+
+@function --f1(--s <string>: "asdfsa") /* returns <string> */ { /*"returns <string>" breaks concatenation.*/
+	/* result: "black"; */
+	--s1: "abc ";
+	result: var(--s1) var(--s) " xyz";
+}
+@function --clr-chn-transfer0(--x /* <number> */) /* returns <number> */ { /*for debugging purposes.*/
+	--x-decmp: calc(2 * sign(var(--x)) * pow(abs(var(--x)), 1 / 3) - 1);
+	result: var(--x-decmp);
+}
+@function --clr-chn-transfer1(--x /* <number> */) /* returns <number> */ { /*for debugging purposes.*/
+	--x-decmp: calc(2 * sign(var(--x)) * pow(abs(var(--x)), 1 / 3) - 1);
+	--x2: pow(abs(var(--x-decmp)), var(--clr-dist-expinv));
+	result: var(--x2);
+}
+@function --clr-chn-transfer(--x /* <number> */) /* returns <number> */ {
+	--x-decmp: calc(2 * sign(var(--x)) * pow(abs(var(--x)), 1 /* / 3 */) - 1);
+	--x2: pow(abs(var(--x-decmp)), var(--clr-dist-expinv));
+	/*calc(1 / 0) also works like calc(infinity).*/
+	--y: if(
+		style(--x2 >= calc(infinity)): sign(var(--x-decmp)); 
+		else: calc(var(--x-decmp) * pow(var(--clr-dist-expinv) + var(--x2), var(--clr-dist-exp)));
+		/* style(--x2 < calc(infinity)): calc(var(--x-decmp) * pow(var(--clr-dist-expinv) + var(--x2), var(--clr-dist-exp))); 
+		else: sign(var(--x-decmp)); */
+	);
+	/* result: --clr-chn-compress(var(--y)); */
+	result: --clr-chn-compress(calc(0.5 * var(--y) + 0.5));
+	/* result: var(--y); */
+}
+@function --clr-chn-compress(--x /* <number> */) /* returns <number> */ {
+	/* result: calc(0.5 * var(--x) + 0.5); */
+	/* result: pow(calc(0.5 * var(--x) + 0.5), 3); */
+	result: pow(var(--x), 3);
+	/* result: var(--x); */
+	/* result: pow(max(0.5 * var(--x) + 0.5, 0), 3); */
+}
+@function --scheme-clr(--l /* <number> */: 0.0, --s <number>: 0.0, --a <number>: 1.0) returns <color> {
 	/* result: oklch(var(--x) 0.125 0deg); */
 	result: color(
-		from oklch(
+		/* from oklch(
 			calc(var(--l) * var(--con-factor, -0.375) + 0.5) 
 			calc(var(--s) * var(--sat-scale, 0.125)) 
+			var(--hue-accent, 145))  */
+		from --oklch-custom(
+			calc(var(--l) * var(--con-factor, -0.375) + 0.5), 
+			calc(var(--s) * var(--sat-scale, 0.125)), 
 			var(--hue-accent, 145)) 
 		var(--clr-transfer) / var(--a, 1));
 	/* result: var(--s); */
 }
-
-* {
-	/* --clr-transfer: var(--clr-space, srgb-linear) r g b; */
-	--clr-distortion: -2.0;
-	--clr-distortion-exp: calc(-1 * exp(var(--clr-distortion, 0)));
-	--clr-distortion-expinv: exp(-1 * var(--clr-distortion, 0));
-	/* --clr-transfer: var(--clr-space, srgb-linear) 
-		calc((2 * r - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * r - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5) 
-		calc((2 * g - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * g - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5) 
-		calc((2 * b - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * b - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5); */
-	--clr-transfer: var(--clr-space, srgb-linear) 
-		pow((2 * sign(r) * pow(abs(r), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(r), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
-		pow((2 * sign(g) * pow(abs(g), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(g), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3) 
-		pow((2 * sign(b) * pow(abs(b), 1 / 3) - 1) * pow(var(--clr-distortion-expinv) + pow(abs(2 * pow(abs(b), 1 / 3) - 1), var(--clr-distortion-expinv)), var(--clr-distortion-exp)) * 0.5 + 0.5, 3);
+@function --oklch-custom(--l /* <number> */: 0.5, --c <number>: 0.0, --h <number>: 0.0, --alpha <number>: 1.0) returns <color> {
+	/* result: oklch(var(--l) var(--c) var(--h)); */
+	/* result: color(
+		from oklch(var(--l) var(--c) var(--h)) 
+		var(--clr-transfer) / var(--alpha, 1)); */
+	--a: calc(var(--c) * cos(1deg * var(--h)));
+	--b: calc(var(--c) * sin(1deg * var(--h)));
+	--lms-l: pow(var(--l) + 0.3963377774 * var(--a) + 0.2158037573 * var(--b), 1);
+	--lms-m: pow(var(--l) + -0.1055613458 * var(--a) + -0.0638541728 * var(--b), 1);
+	--lms-s: pow(var(--l) + -0.0894841775 * var(--a) + -1.2914855480 * var(--b), 1);
+	result: color(xyz 
+		calc(1.227013851 * var(--lms-l) + -0.557799981 * var(--lms-m) + 0.281256149 * var(--lms-s)) 
+		calc(-0.040580178 * var(--lms-l) + 1.11225687 * var(--lms-m) + -0.071676679 * var(--lms-s)) 
+		calc(-0.076381285 * var(--lms-l) + -0.421481978 * var(--lms-m) + 1.58616322 * var(--lms-s)) / 
+		var(--alpha, 1));
 }
+
 :root {
+	--clr-distort: -1.0;
+	--clr-dist-exp: calc(-1 * exp(var(--clr-distort, 0)));
+	--clr-dist-expinv: exp(-1 * var(--clr-distort, 0));
+
+	--x1: 0;
+	/* --dummy-num: pow(abs(var(--x1)), var(--clr-dist-expinv)); */
+	--dummy-num: --clr-chn-transfer(var(--x1));
+	--dummy-color: color(from oklch(0.125 0.0625 145) srgb-linear --clr-chn-transfer(r) --clr-chn-transfer(g) --clr-chn-transfer(b));
+
+	/* --clr-transfer: var(--clr-space, srgb-linear) r g b; */
+	/* --clr-transfer: var(--clr-space, srgb-linear) 
+		calc((2 * r - 1) * pow(var(--clr-dist-expinv) + pow(abs(2 * r - 1), var(--clr-dist-expinv)), var(--clr-dist-exp)) * 0.5 + 0.5) 
+		calc((2 * g - 1) * pow(var(--clr-dist-expinv) + pow(abs(2 * g - 1), var(--clr-dist-expinv)), var(--clr-dist-exp)) * 0.5 + 0.5) 
+		calc((2 * b - 1) * pow(var(--clr-dist-expinv) + pow(abs(2 * b - 1), var(--clr-dist-expinv)), var(--clr-dist-exp)) * 0.5 + 0.5); */
+	/* --r2: 2 * pow(abs(r), 1 / 3);
+	--g2: 2 * pow(abs(g), 1 / 3);
+	--b2: 2 * pow(abs(b), 1 / 3);
+	--clr-transfer: var(--clr-space, srgb-linear) 
+		pow((sign(r) * var(--r2) - 1) * pow(var(--clr-dist-expinv) + pow(abs(var(--r2) - 1), var(--clr-dist-expinv)), var(--clr-dist-exp)) * 0.5 + 0.5, 3) 
+		pow((sign(g) * var(--g2) - 1) * pow(var(--clr-dist-expinv) + pow(abs(var(--g2) - 1), var(--clr-dist-expinv)), var(--clr-dist-exp)) * 0.5 + 0.5, 3) 
+		pow((sign(b) * var(--b2) - 1) * pow(var(--clr-dist-expinv) + pow(abs(var(--b2) - 1), var(--clr-dist-expinv)), var(--clr-dist-exp)) * 0.5 + 0.5, 3); */
+	--clr-transfer: var(--clr-space, srgb-linear) --clr-chn-transfer(r) --clr-chn-transfer(g) --clr-chn-transfer(b);
+	/* --clr-transfer: var(--clr-space, srgb-linear) calc(--clr-chn-transfer(r)) calc(--clr-chn-transfer(g)) calc(--clr-chn-transfer(b)); */
+}
+/* :root { */
 	/* --con-sign: -1; */
 	/* @media (prefers-color-scheme: no-preference) {--con-sign: -0.5;} */ /* no-preference is deprecated */
 	/* @media (prefers-color-scheme: normal) {--con-sign: -0.5;} */
-	@media (prefers-color-scheme: dark) {  {--con-sign: -1.0;}} /* does this work? */
-	@media (prefers-color-scheme: light) {& {--con-sign: 1.0;}}
-}
+	/* @media (prefers-color-scheme: dark) {& {--con-sign: -1.0;}} */ /* is & necessary? */
+	/* @media (prefers-color-scheme: light) {& {--con-sign: 1.0;}} */
+/* } */
 /* @media (prefers-color-scheme: dark) {:root {--con-sign: -1.0;}}
 @media (prefers-color-scheme: light) {:root {--con-sign: 1.0;}} */
 meta[name="color-scheme"] {
@@ -62,14 +133,4 @@ meta[name="color-scheme"] {
 	/* &[content="only light"] {
 		:root:has(&) {--con-sign: 1;}
 	} */
-}
-
-#outA::after {
-	/* content: "asdf"; */
-	content: --f1("asefewwv");
-	color: --scheme-clr(0.25, 0.5);
-}
-
-:root {
-	color: --scheme-clr(0.25, 0.5);
 }
