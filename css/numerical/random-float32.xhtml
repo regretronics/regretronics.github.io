@@ -25,7 +25,7 @@
 
 			--dur: 86400;
 
-			/* Firefox (as of v142) seems to use single-precision (float32) numbers. */
+			/*Firefox (as of v142) seems to use single-precision (float32) numbers.*/
 			--ti: round(down, var(--start) + var(--t)); 
 			--ti1: calc(var(--ti) + 1);
 			--ti2: calc(var(--ti) + 2);
@@ -54,26 +54,27 @@
 			--rnd-bias1: exp(-17 / 9);
 			--rnd-bias2: mod(pow(1451, 1 / 7), 1);
 
-			--tilog1: log(var(--ti) + sqrt(e));
+			--tilog1: log(var(--ti) + sqrt(e), 2);
 			--tilog2: log(var(--ti) + pi);
-			--ti1log1: log(var(--ti1) + sqrt(e));
+			--ti1log1: log(var(--ti1) + sqrt(e), 2);
 			--ti1log2: log(var(--ti1) + pi);
-			--ti2log1: log(var(--ti2) + sqrt(e));
+			--ti2log1: log(var(--ti2) + sqrt(e), 2);
 			--ti2log2: log(var(--ti2) + pi);
-			--ti3log1: log(var(--ti3) + sqrt(e));
+			--ti3log1: log(var(--ti3) + sqrt(e), 2);
 			--ti3log2: log(var(--ti3) + pi);
 			--rnd-parcel1: mod(
-				sin(exp(var(--rnd-exp1) * var(--tilog1))), 
+				sin(2 * pi * exp(var(--rnd-exp1) * var(--tilog1))), 
 				1);
+			/* --rnd-parcel1: calc(0.5 * sin(exp(var(--rnd-exp1) * var(--tilog1))) + 0.5); */
 			--rnd-parcel2: mod(
-				var(--rnd-ratio2) * exp(var(--rnd-exp2) * mod(var(--tilog2), 1)), 
+				var(--rnd-ratio2) * exp(var(--rnd-exp2) * mod(var(--tilog2), 4)), 
 				1);
 			--rnd-parcel3: mod(
 				var(--rnd-ratio3) * pow(exp(var(--rnd-exp3) * var(--tilog2)) + var(--rnd-bias1), var(--rnd-ratio1)), 
 				1);
 			--rnd: mod(
 				sin(exp(var(--rnd-exp1) * var(--tilog1))) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * mod(var(--tilog2), 1)) 
+				- var(--rnd-ratio2) * exp(var(--rnd-exp2) * mod(var(--tilog2), 4)) 
 				+ var(--rnd-ratio3) * pow(exp(var(--rnd-exp3) * var(--tilog2)) + var(--rnd-bias1), var(--rnd-ratio1)) 
 				+ var(--rnd-bias2), 
 				1);
@@ -148,19 +149,19 @@
 
 		@counter-style dec-frac3-sign {
 			system: extends decimal;
-			/* pad: var(--places) "0"; */ /* not working in Chrome as of 2025-05-03 */
+			/* pad: var(--places) "0"; */ /*not working in Chrome as of 2025-05-03*/
 			pad: 4 "0";
 			range: infinite -1;
 			fallback: dec-frac3;
 		}
 		@counter-style dec-frac3 {
 			system: extends decimal;
-			/* pad: var(--places) "0"; */ /* not working in Chrome as of 2025-05-03 */
+			/* pad: var(--places) "0"; */ /*not working in Chrome as of 2025-05-03*/
 			pad: 3 "0";
 		}
 		@counter-style dec-frac9 {
 			system: extends decimal;
-			/* pad: var(--places) "0"; */ /* not working in Chrome as of 2025-05-03 */
+			/* pad: var(--places) "0"; */ /*not working in Chrome as of 2025-05-03*/
 			pad: 9 "0";
 		}
 		@counter-style sign {
