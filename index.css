@@ -3,14 +3,14 @@
 
 	/* font-size: 1.5em; */
 	/* font-size: calc(2vmin + 0.5vmax); */
-	font-size: calc(2svb + 0.5svi);
+	font-size: calc(1.5svb + 1svi); /*small viewport block-axis, small viewport inline-axis*/
 
 	color-scheme: dark;
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
-	
-	&::selection {
+
+	&::selection {/*for Chrome, that's enough (inheritance does the rest), but not for Firefox*/
 		background-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
 		color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 	}
@@ -20,7 +20,13 @@ body {
 	margin: 3vmin;
 	font-variant: slashed-zero;
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
-	column-width: max(65svh, 16em); /*small viewport height*/
+	&.col-multi {
+		column-width: max(65svh, 16em); /*small viewport height*/
+	}
+}
+::selection { /*required for Firefox*/
+	background-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
+	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 }
 
 /* :active::selection */
