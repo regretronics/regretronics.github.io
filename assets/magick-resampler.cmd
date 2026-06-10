@@ -58,7 +58,7 @@ set outsuffix=.png
 
 :invoke-converter
 	if exist "%outprefix%%outmidpart%%outfilename%%outsuffix%" exit /b
-	md %outprefix%%outmidpart% 2>nul
+	md "%outprefix%%outmidpart%" 2>nul
 	magick -verbose "%~4[0]" -define quantum:format=floating-point -depth 32^
 	 %map% %vp% -define filter:blur=%1 %filterpart% %operationpart% %~5x%~5 %unmap%^
 	 -define quantum:format=unsigned -depth %6^

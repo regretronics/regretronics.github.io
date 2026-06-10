@@ -1,8 +1,6 @@
 assets/images*/original/** filter=lfs diff=lfs merge=lfs -text
 assets/images*/*/original/** filter=lfs diff=lfs merge=lfs -text
-assets/images*/resize*-1024px/** filter=lfs diff=lfs merge=lfs -text
 assets/images*/resize*-4096px/** filter=lfs diff=lfs merge=lfs -text
 assets/images*/resize*-16384px/** filter=lfs diff=lfs merge=lfs -text
-assets/images*/*/resize*-1024px/** filter=lfs diff=lfs merge=lfs -text
 assets/images*/*/resize*-4096px/** filter=lfs diff=lfs merge=lfs -text
 assets/images*/*/resize*-16384px/** filter=lfs diff=lfs merge=lfs -text

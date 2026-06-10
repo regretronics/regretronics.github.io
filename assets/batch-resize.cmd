@@ -10,27 +10,29 @@ cls
 @rem set unmap=-sigmoidal-contrast %contrast%,50%%
 @rem set mappart=-sigm%contrast%
 
+cd "%~dp0"
 set pathroot=images-wmcommons\sdr-truecolor
+if "%~1" neq "" set pathroot=%~1
 set filename=%pathroot%\original\*
 
 @set outprefix=%pathroot%\resize-magick-png-u8bpc%mappart%-
-rem del /s /q /a %outprefix%*
-@rem set sizes=4096
-@rem @set sizes="4096 1024 256 64"
-@set sizes="1024"
+rem del /s /q /a "%outprefix%*"
+@set sizes=4096
+@rem set sizes="4096 1024 256 64"
+@rem set sizes="1024 256 64"
 for %%b in (1.00) do @(
-	start /low magick-resampler rect gaussian %%b gaussian 0 %filename% %sizes% 8
+	start /low magick-resampler rect gaussian %%b gaussian 0 "%filename%" %sizes% 8
 )
 for %%b in (2.00) do @(
-	rem start "" /low magick-resampler ewa lobed %%b lanczos 6 %filename% %sizes% 8
-	start /low magick-resampler ewa lobed %%b lanczos 4 %filename% %sizes% 8
+	rem start "" /low magick-resampler ewa lobed %%b lanczos 6 "%filename%" %sizes% 8
+	start /low magick-resampler ewa lobed %%b lanczos 4 "%filename%" %sizes% 8
 )
 @set outprefix=%pathroot%\resize-magick-png-u16bpc%mappart%-
 for %%b in (1.00) do @(
-	start /low magick-resampler rect gaussian %%b gaussian 0 %filename% %sizes% 16
+	start /low magick-resampler rect gaussian %%b gaussian 0 "%filename%" %sizes% 16
 )
 for %%b in (2.00) do @(
-	rem start "" /low magick-resampler ewa lobed %%b lanczos 6 %filename% %sizes% 16
-	start /low magick-resampler ewa lobed %%b lanczos 4 %filename% %sizes% 16
+	rem start "" /low magick-resampler ewa lobed %%b lanczos 6 "%filename%" %sizes% 16
+	start /low magick-resampler ewa lobed %%b lanczos 4 "%filename%" %sizes% 16
 )
 @exit /b
