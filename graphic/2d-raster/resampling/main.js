@@ -36,7 +36,7 @@ function encodeImage(image) {
 
 	//sourceC2d = cnvSource.getContext('2d');
 	//sourceC2d = cnvSource.getContext('2d', {colorSpace: "display-p3", storageFormat: 'float16'});
-	sourceC2d = cnvSource.getContext('2d', {alpha: false});
+	sourceC2d = cnvSource.getContext('2d', {alpha: false, willReadFrequently: true});
 	//sourceC2d.globalAlpha = 1;
 	//sourceC2d.imageSmoothingEnabled = false;
 
