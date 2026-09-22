@@ -26,7 +26,7 @@ main, hr, .bg {
 h1, h2, h3, h4, h5, h6 {
 	margin-block-end: 0.75em;
 
-	header > &:first-child {
+	header > & {
 		margin-block: 0em;
 	}
 	hr + &, &:first-child {
@@ -39,9 +39,6 @@ h1, h2, h3, h4, h5, h6 {
 details {
 	margin-block: 1em;
 
-	/* & > table {
-		margin-block: 1em;
-		} */
 	&[open]::details-content {
 		margin-block-start: 0.5em;
 		margin-block-end: 1em;
@@ -168,6 +165,10 @@ input[type=checkbox] {
 /* .chunk {
 	text-wrap-mode: wrap;
 } */
+.section-link:not(:hover) {
+	color: inherit;
+	text-decoration: none;
+}
 
 .code-editor {
 	box-sizing: border-box;
@@ -209,11 +210,15 @@ input[type=checkbox] {
 	}
 }
 
-#imgVisualizer {
-	width: 100%;
-	height: 96px;
+#grpUiOptions {
+	float: inline-end;
+	max-width: max(33.33%, 32ch);
+
+	&[open] {
+		width: min-content;
+	}
 }
-#title-icon {
+#titleIcon {
 	height: 1em;
 	width: auto;
 
@@ -223,6 +228,10 @@ input[type=checkbox] {
 		vertical-align: text-bottom;
 		/*vertical-align: middle;*/
 	}
+}
+#imgVisualizer {
+	width: 100%;
+	height: 96px;
 }
 #tblFractionIntervals {
 	width: 100%;

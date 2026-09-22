@@ -1,4 +1,12 @@
 @media screen {
+	.section-link:is(:hover, :focus) {
+		&::before {
+			/* display: inline; */
+			content: "🔗︎ " / attr(href);
+			/* 🔖🔗🖇📑🔖︎🔗︎📑︎🖇︎ */
+		}
+	}
+
 	/*for wide viewports, a two-column layout (control panel + documentation)*/
 	/*@media (min-width: 160ch) {*/
 	@media
@@ -104,6 +112,17 @@
 	}
 }
 @media print {
+	:any-link {
+		text-decoration: none;
+
+		&:not(.section-link)::after {
+			content: "<" attr(href) ">";
+			line-break: anywhere;
+			/* word-break: break-all; */
+			overflow-wrap: anywhere;
+			opacity: 0.7;
+		}
+	}
 	input[type=number] {
 		appearance: textfield;
 

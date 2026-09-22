@@ -78,7 +78,7 @@ hr {
 .separator {
 	background-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.75);
 }
-#tblFractionIntervals, caption {
+table:has(> caption), caption {
 	background-color: hsla(0, 0%, 0%, 0.125);
 }
 td {

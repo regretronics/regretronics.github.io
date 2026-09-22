@@ -62,11 +62,14 @@
 	padding: 0px;
 } */
 
-details > summary {
+details > summary:first-of-type {
 	cursor: pointer;
 	font-weight: bold;
 }
 
+table.controls-group :is(th, td):nth-child(2) {
+	text-align: end;
+}
 code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }
@@ -222,7 +225,7 @@ td {
 		padding: 0em;
 		text-align: center;
 
-		& button {
+		& > button {
 			width: 100%;
 			height: 100%;
 			margin: 0em;
