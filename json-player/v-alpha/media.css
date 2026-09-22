@@ -32,7 +32,7 @@
 				flex-basis: 96ch;
 				flex-grow: 1;
 			}
-			& > section {
+			& > :not(main) {
 				/*min-width: 64ch;*/
 				flex-basis: 64ch;
 				flex-grow: 0.5;

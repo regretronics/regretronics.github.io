@@ -747,6 +747,7 @@ function addIntervalSamples() {
 		cell.headers = "colSoundSample";
 		//cell.classList.add("sample-cell");
 		cell.translate = false;
+		cell.hidden = true; //for screen reader; later reverted in CSS
 
 		const sampleBtn = document.createElement("button");
 		sampleBtn.addEventListener("click", playIntervalHandler);
@@ -763,6 +764,7 @@ function addIntervalSamples() {
 		const cell = document.createElement("th"); //insertCell would make a td element.
 		cell.id = "colSoundSample";
 		cell.scope = "col";
+		cell.hidden = true;
 		//cell.innerHTML = "Sam&shy;ple"; //Sample
 		cell.innerHTML = '<span class="lang-static" translate="no">Sam&shy;ple</span><span class="lang-flex" hidden="">Sample</span>';
 		row.insertBefore(cell, row.children[4]); //to do: use neighboring header id as reference?

@@ -26,6 +26,9 @@ main, hr, .bg {
 h1, h2, h3, h4, h5, h6 {
 	margin-block-end: 0.75em;
 
+	header > &:first-child {
+		margin-block: 0em;
+	}
 	hr + &, &:first-child {
 		margin-block-start: 0.25em;
 	}
@@ -33,14 +36,14 @@ h1, h2, h3, h4, h5, h6 {
 		margin-block-start: 0.5em;
 	}
 }
-div > h1:first-child {
-	margin-block: 0em;
-}
 details {
 	margin-bottom: 1.5em;
 }
-noscript {
+noscript { /*like a paragraph*/
+	display: block;
+	margin-block: 1em;
 	font-size: 1.25em;
+	/* font-weight: bold; */
 }
 
 /*p {*/
@@ -116,10 +119,8 @@ input[type=checkbox] {
 	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
+	margin-block: 1em;
 
-	div& {
-		margin-block: 1em;
-	}
 	&:first-child {
 		margin-block-start: 0em;
 	}
@@ -238,6 +239,9 @@ input[type=checkbox] {
 	& #colSoundSample, & td[headers=colSoundSample] {
 		max-width: 6ch;
 	}
+	& td[headers=colSoundSample]:not(:has(button)) {
+		display: none;
+	}
 	& #colNotes, & td[headers=colNotes] {
 		min-width: 10ch;
 	}
@@ -252,11 +256,11 @@ input[type=checkbox] {
 	& td:nth-child(3) {
 		text-align: right;
 	}
-	@media print {
+	@media screen {
 		/* &:has(.sample-cell) :is(td, th):nth-child(5) { */
 		/* &:has(#colSoundSample) :is(td, th):nth-child(5) { */
 		& #colSoundSample, & td[headers=colSoundSample] {
-			display: none;
+			display: revert;
 		}
 	}
 }

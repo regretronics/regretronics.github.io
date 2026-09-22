@@ -59,10 +59,8 @@
 <body>
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
 	<!--to do: use id attribute for more points of interest, e.g. start of the documentation.-->
-	<!-- to do: use article element below? -->
 	<main class="major-section" hidden="hidden">
-		<!-- to do: use header element below -->
-		<div class="flex-row align-top">
+		<header class="flex-row align-top">
 			<h1 style="flex-basis: 16ch;">
 				<picture id="title-icon">
 					<!-- <source srcset="icon/Musical-science-white-optim.svg" type="image/svg+xml" width="192" height="192" /> -->
@@ -71,10 +69,10 @@
 					<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
 					<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
 					<!-- <img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" /> -->
-					<img src="icon/Musical-science-white-optim.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" role="img" /><!-- this one is possibly used in Facebook as of 2025-06. -->
+					<img src="icon/Musical-science-white-optim.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" role="img" /><!--this one is possibly used in Facebook as of 2025-06.-->
 				</picture>
-				<!-- "chunks" below are for organizing a line break hierarchy (mostly for aesthetic reasons) -->
-				<!-- throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart. -->
+				<!--"chunks" below are for organizing a line break hierarchy (mostly for aesthetic reasons)-->
+				<!--throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart.-->
 				<span class="lang-static" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="lang-flex" hidden="hidden">JSON-based music format, player and generator</span>
 			</h1><wbr />
 			<!-- <span class="right print-dp-none" style="flex-basis: 30ch;"> -->
@@ -93,12 +91,14 @@
 						<option>Light, high contrast</option>
 					</select></span>
 				<span class="cell"><strong class="chunk">Hue shift:</strong> 
-					<button id="btnHueFine1" data-delta="-1" translate="no">MBCGYR</button>
-					<button id="btnHueFine2" data-delta="1" translate="no">RYGCBM</button></span>
+					<button id="btnHueFine1" data-delta="-1" translate="no" title="magenta&ndash;blue&ndash;cyan&ndash;green&ndash;yellow&ndash;red">MBCGYR</button>
+					<button id="btnHueFine2" data-delta="1" translate="no" title="red&ndash;yellow&ndash;green&ndash;cyan&ndash;blue&ndash;magenta">RYGCBM</button></span>
 			</span>
-		</div>
-		<div id="translationWarning" class="lang-flex" hidden="hidden">Warning: machine translation detected. Unfortunately, this page is hard to translate automatically; texts often become inaccurate or incomprehensible, despite adaptations to help automatic translation.</div>
+		</header>
+		<!--question: put #translationWarning and noscript inside header element?-->
+		<p id="translationWarning" class="lang-flex" hidden="hidden">Warning: machine translation detected. Unfortunately, this page is hard to translate automatically; texts often become inaccurate or incomprehensible, despite adaptations to help automatic translation.</p>
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
+		<!--to do: use aria-labelledby for the strong elems in each p: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements#labeling_section_content -->
 		<p><strong class="chunk"><span class="lang-static" translate="no">Generator params.</span><span class="lang-flex" hidden="hidden">Generator parameters</span>:</strong> 
 			<datalist id="tunings">
 				<option value="256"></option>
@@ -196,6 +196,7 @@
 			<option value="freq"></option>
 			<option value="vol"></option>
 		</datalist> -->
+		<!--to do: autocorrect, inputmode, writingsuggestions attributes-->
 		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
 		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
 		<p class="flex-row">
@@ -296,10 +297,9 @@
 	</main>
 
 	<hr hidden="hidden" />
-	<!-- to do: use article element below? (or aside?) -->
-	<section class="major-section">
-		<!-- to do: partition the guide in sections, using the section element -->
-		<article>
+	<article class="major-section">
+		<!--question: further partition the guide in sections?-->
+		<section>
 			<h2>Introduction</h2>
 			<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
 				Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
@@ -578,6 +578,8 @@
 				However, the deeper you go into dissonance, the more subtle it becomes, so it gets harder to tell the harmonies exactly. 
 				In practice, music composers rarely take inspiration from beyond a few lower primes. 
 				Working with lots of nuance in harmony demands for longer notes to discern them more clearly, and thus slower tempo (pacing).</p>
+		</section>
+		<section>
 			<h2>Musical format</h2>
 			<p>This page uses two text-based formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive <a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">list</a> of notes), used when playing, supporting only note properties. 
 				But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). 
@@ -766,14 +768,14 @@
 
 				<dt><strong><code>tag</code></strong></dt>
 			</dl>
-		</article>
+		</section>
 		<footer>
 			<hr />
-			<p>Project page (including source code): <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/">https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/</a></p>
 			<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), custom filtering, custom effects, multiple tracks/custom mixing pipeline or multiple channels/spatialization.</p>
+			<p>Project page (including source code): <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/">https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/</a></p>
 			<p>By regretronics; licensed under the <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
 			<p>I'm still <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/README.md">waiting for your feedback</a>! Thanks.</p>
 		</footer>
-	</section>
+	</article>
 </body>
 </html>
