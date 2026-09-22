@@ -74,10 +74,10 @@ hr {
 .separator {
 	background-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
 }
-table, caption {
+#tblFractionIntervals, caption, table:not(#tblFractionIntervals) td {
 	background-color: hsla(0, 0%, 50%, 0.25);
 }
-td {
+#tblFractionIntervals td {
 	background-color: hsla(0, 0%, 100%, 0.5);
 }
 

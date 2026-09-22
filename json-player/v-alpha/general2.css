@@ -64,6 +64,7 @@
 
 details > summary {
 	cursor: pointer;
+	font-weight: bold;
 }
 
 code:not(.long) { /*class "long" reserved for future use*/
@@ -188,7 +189,7 @@ input:is([type=checkbox], [type=radio]) + label {
 	/*position: sticky;*/
 	bottom: 0em;
 	padding-block: 1em;
-	padding-inline: max(2ch, calc(50% - 0.5*120ch));
+	padding-inline: max(2ch, 50% - 0.5*120ch);
 	width: calc(100% - 2*2ch);
 	max-width: 120ch;
 

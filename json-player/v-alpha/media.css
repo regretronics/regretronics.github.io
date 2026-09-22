@@ -26,7 +26,7 @@
 				height: 100%;
 				overflow-y: auto;
 				/* padding: 2vmin; */
-				padding: max(0em, calc(7.5vmin - 8ch));
+				padding: max(0em, 1.5vmin, 7.5vmin - 8ch);
 			}
 			& > main {
 				flex-basis: 96ch;

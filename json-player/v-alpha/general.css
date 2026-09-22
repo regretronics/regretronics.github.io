@@ -37,7 +37,15 @@ h1, h2, h3, h4, h5, h6 {
 	}
 }
 details {
-	margin-bottom: 1.5em;
+	margin-block: 1em;
+
+	/* & > table {
+		margin-block: 1em;
+		} */
+	&[open]::details-content {
+		margin-block-start: 0.5em;
+		margin-block-end: 1em;
+	}
 }
 noscript { /*like a paragraph*/
 	display: block;

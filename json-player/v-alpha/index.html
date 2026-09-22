@@ -58,7 +58,6 @@
 </head>
 <body>
 	<!--using hidden attribute for top-level children for screen reader optimization.-->
-	<!--to do: use id attribute for more points of interest, e.g. start of the documentation.-->
 	<main class="major-section" hidden="hidden">
 		<header class="flex-row align-top">
 			<h1 style="flex-basis: 16ch;">
@@ -76,7 +75,8 @@
 				<span class="lang-static" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="lang-flex" hidden="hidden">JSON-based music format, player and generator</span>
 			</h1><wbr />
 			<!-- <span class="right print-dp-none" style="flex-basis: 30ch;"> -->
-			<span class="right print-dp-none">
+			<details class="right print-dp-none">
+				<summary>UI options</summary>
 				<span class="cell"><strong class="chunk">Text size:</strong> 
 					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
 					<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
@@ -93,13 +93,14 @@
 				<span class="cell"><strong class="chunk">Hue shift:</strong> 
 					<button id="btnHueFine1" data-delta="-1" translate="no" title="magenta&ndash;blue&ndash;cyan&ndash;green&ndash;yellow&ndash;red">MBCGYR</button>
 					<button id="btnHueFine2" data-delta="1" translate="no" title="red&ndash;yellow&ndash;green&ndash;cyan&ndash;blue&ndash;magenta">RYGCBM</button></span>
-			</span>
+			</details>
 		</header>
 		<!--question: put #translationWarning and noscript inside header element?-->
 		<p id="translationWarning" class="lang-flex" hidden="hidden">Warning: machine translation detected. Unfortunately, this page is hard to translate automatically; texts often become inaccurate or incomprehensible, despite adaptations to help automatic translation.</p>
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
 		<!--to do: use aria-labelledby for the strong elems in each p: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements#labeling_section_content -->
-		<p><strong class="chunk"><span class="lang-static" translate="no">Generator params.</span><span class="lang-flex" hidden="hidden">Generator parameters</span>:</strong> 
+		<details>
+			<summary>Generator parameters</summary>
 			<datalist id="tunings">
 				<option value="256"></option>
 				<option value="258.65"></option>
@@ -113,47 +114,72 @@
 				<option value="443"></option>
 				<option value="466"></option>
 			</datalist>
-			<span class="cell"><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label>
-				<input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" />
-			</span>
-			<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
-			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-				<input type="number" id="txtTimeScale" value="0.5" required="required" data-min="0" step="0.25" class="exp custom-spin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" />
-			</span>
-			<span class="cell"><label for="txtPatternCount"><span class="lang-static" translate="no">patterns</span><span class="lang-flex" hidden="hidden">pattern count</span></label>
-				<input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" />
-			</span>
-			<span class="cell"><label for="txtPrimeCount"><span class="lang-static" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label>
-				<input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" />
-				<output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output>
-			</span>
-			<span class="cell"><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth (exponent variance)</span></label>
-				<input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators. Higher values produce more atonality. Low values may freeze the generator due to lack of choices." size="5" />
-			</span>
-		</p>
-		<p><strong class="chunk">Rhythm:</strong> 
-			<span class="cell"><label for="txtRhythmScale"><span class="lang-static" translate="no">approx. scale</span><span class="lang-flex" hidden="hidden">approximate scale</span></label>
-				<input type="number" id="txtRhythmScale" value="8" step="1" data-min="1" class="exp custom-spin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" />
-			</span>
-			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
-			<span class="cell"><label for="txtRhythmFactors">structure formula</label>
-				<input type="text" id="txtRhythmFactors" class="right" value="2*2*2" data-pref="rhythmParams.rhythmFactors" translate="no" title="Used by rhythm and melody generators. Supports non-integers." size="11" />
-				<output id="outRhythmScales" translate="no" title="Cascade of rhythmic scales">1</output>
-			</span>
-		</p>
-		<p><strong class="chunk"><span class="lang-static" translate="no">Additional gen. params.</span><span class="lang-flex" hidden="hidden">Additional generator parameters</span>:</strong> 
-			<span class="cell"><label for="txtVoiceCount">voices</label>
-				<input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" />
-			</span>
-			<span class="cell"><label for="txtReptCount"><span class="lang-static" translate="no">rept.&nbsp;count</span><span class="lang-flex" hidden="hidden">repeat count</span></label>
-				<input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" />
-			</span>
-			<span class="cell"><label for="txtReptPeriod"><span class="lang-static" translate="no">rept.&nbsp;period</span><span class="lang-flex" hidden="hidden">repeat period</span></label>
-				<input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" />
-			</span>
-			<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label>
-			</span>
-		</p>
+			<table>
+				<tbody>
+					<tr>
+						<td><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label></td>
+						<td><input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></td>
+					</tr>
+					<tr>
+						<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
+						<td><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label></td>
+						<td><input type="number" id="txtTimeScale" value="0.5" required="required" data-min="0" step="0.25" class="exp custom-spin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPatternCount"><span class="lang-static" translate="no">patterns</span><span class="lang-flex" hidden="hidden">pattern count</span></label></td>
+						<td><input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPrimeCount"><span class="lang-static" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label></td>
+						<td><input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></td>
+						<td><output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output></td>
+					</tr>
+					<tr>
+						<td><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth (exponent variance)</span></label></td>
+						<td><input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators. Higher values produce more atonality. Low values may freeze the generator due to lack of choices." size="5" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<details>
+			<summary>Rhythm</summary>
+			<table>
+				<tbody>
+					<tr>
+						<td><label for="txtRhythmScale"><span class="lang-static" translate="no">approx. scale</span><span class="lang-flex" hidden="hidden">approximate scale</span></label></td>
+						<td><input type="number" id="txtRhythmScale" value="8" step="1" data-min="1" class="exp custom-spin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" /></td>
+						<td><button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button></td>
+					</tr>
+					<tr>
+						<td><label for="txtRhythmFactors">structure formula</label></td>
+						<td><input type="text" id="txtRhythmFactors" class="right" value="2*2*2" data-pref="rhythmParams.rhythmFactors" translate="no" title="Used by rhythm and melody generators. Supports non-integers." size="11" /></td>
+						<td><output id="outRhythmScales" translate="no" title="Cascade of rhythmic scales">1</output></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<details>
+			<summary>Additional generator parameters</summary>
+			<table>
+				<tbody>
+					<tr>
+						<td><label for="txtVoiceCount">voices</label></td>
+						<td><input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtReptCount"><span class="lang-static" translate="no">rept.&nbsp;count</span><span class="lang-flex" hidden="hidden">repeat count</span></label></td>
+						<td><input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtReptPeriod"><span class="lang-static" translate="no">rept.&nbsp;period</span><span class="lang-flex" hidden="hidden">repeat period</span></label></td>
+						<td><input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" /></td>
+					</tr>
+					<tr>
+						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
 		<p class="flex-row">
 			<span style="flex-basis: 28ch;"><strong class="chunk">Structured music:</strong> 
 				<button id="btnChordGen" accesskey="c" title="Chord generator"><span class="lang-static" translate="no">Make <u>c</u>hords</span><span class="lang-flex" hidden="hidden">Make chords (<u>c</u>)</span></button>
@@ -196,36 +222,47 @@
 			<option value="freq"></option>
 			<option value="vol"></option>
 		</datalist> -->
-		<!--to do: autocorrect, inputmode, writingsuggestions attributes-->
-		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
-		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
-		<p class="flex-row">
-			<span style="flex-basis: 24ch;"><strong class="chunk">Flattened note list:</strong> 
-				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
-			</span><wbr />
-			<!-- <span class="right"> -->
-			<span class="right" style="flex-basis: 14ch;">
-				<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
-				<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
-			</span>
-		</p>
-		<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" aria-placeholder="[{&quot;property&quot;: 123}]"></pre>
-		<p><strong class="chunk">Overall controls:</strong> 
-			<!--question: switch input elems to type="range"?-->
-			<span class="cell"><label for="txtPlayFreqScale"><span class="lang-static" translate="no">freq./tuning</span><span class="lang-flex" hidden="hidden">frequency and tuning</span></label>
-				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" />
-			</span>
-			<span class="cell"><label for="txtPlayVolScale">volume</label>
-				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" />
-			</span>
-			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-				<input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp custom-spin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" />
-			</span>
-			<span class="cell"><label for="txtPlayTimeDelta"><span class="lang-static" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="lang-flex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label>
-				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="custom-spin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" />
-			</span>
-		</p>
+		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
+		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
+		<details>
+			<summary>Flattened note list</summary>
+			<p class="flex-row">
+				<span style="flex-basis: 24ch;">
+					<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
+					<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
+				</span><wbr />
+				<!-- <span class="right"> -->
+				<span class="right" style="flex-basis: 14ch;">
+					<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
+					<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
+				</span>
+			</p>
+			<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" aria-placeholder="[{&quot;property&quot;: 123}]"></pre>
+		</details>
+		<details>
+			<summary>Overall controls</summary>
+			<!--question: switch input elems to type="range"? (or have them both?)-->
+			<table>
+				<tbody>
+					<tr>
+						<td><label for="txtPlayFreqScale"><span class="lang-static" translate="no">freq./tuning</span><span class="lang-flex" hidden="hidden">frequency and tuning</span></label></td>
+						<td><input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPlayVolScale">volume</label></td>
+						<td><input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPlayTimeScale">time&nbsp;scale</label></td>
+						<td><input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp custom-spin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPlayTimeDelta"><span class="lang-static" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="lang-flex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label></td>
+						<td><input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="custom-spin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
 		<p class="flex-row">
 			<span style="flex-basis: 44ch;"><strong class="chunk"><span class="lang-static" translate="no">Player</span><span class="lang-flex" hidden="hidden">Music player</span>:</strong> 
 				<span class="cell"><button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><span class="lang-static" translate="no"><u>L</u>oad and play</span><span class="lang-flex" hidden="hidden">Load and play (<u>l</u>)</span></button>
@@ -266,7 +303,7 @@
 		</p>
 
 		<details>
-			<summary><strong>Audio export to file:</strong></summary>
+			<summary>Audio export to file</summary>
 			<!--to do: format selector, sample rate-->
 			<!--to do: use OfflineAudioContext with Wav or WebCodecs-->
 			<p>
@@ -280,7 +317,7 @@
 		</details>
 
 		<details>
-			<summary><strong>Reset preferences:</strong></summary>
+			<summary>Reset preferences</summary>
 			<p><input type="checkbox" id="chkResetPageAppearance" data-pref="reset.pageAppearance" title="" /><label for="chkResetPageAppearance">Page appearance</label></p>
 			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters, common</label></p>
 			<p><input type="checkbox" id="chkResetRhythmParams" data-pref="reset.rhythmParams" title="" /><label for="chkResetRhythmParams">Rhythm parameters</label></p>
@@ -297,15 +334,16 @@
 	</main>
 
 	<hr hidden="hidden" />
-	<article class="major-section">
+	<!--to do: perhaps include anchors so section URLs can be copied or bookmarked.-->
+	<article class="major-section" id="sec_documentation">
 		<!--question: further partition the guide in sections?-->
 		<section>
-			<h2>Introduction</h2>
+			<h2 id="sec_introduction">Introduction</h2>
 			<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
 				Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
 				Here we try to bypass the <a href="https://en.wikipedia.org/wiki/Arbitrariness">unreasoning</a> junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
 				This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
-			<h3>Pitch and harmony: intervals and consonance</h3>
+			<h3 id="sec_pitch_and_harmony">Pitch and harmony: intervals and consonance</h3>
 			<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval_(Music)">intervals</a>) are actually frequency ratios (proportions). 
 				Chords are made of intervals, and both things inspire interpretations for listeners. 
 				The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. 
@@ -313,9 +351,9 @@
 				As the irreducible form is the most important one for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can help, as used below. 
 				More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and are often deemed as representing a peaceful mood or positive emotions in soundtracks. 
 				More dissonant (less consonant) intervals may sound <a href="https://en.wikipedia.org/wiki/Beat_(acoustics)">pulsating</a>, complicated, strange, advanced, cacophonous or imperfect, and are symbolically assigned to negative things.</p>
-			<details open="open">
-				<summary><strong>Analysis table for main ratio-based intervals</strong></summary>
-				<p><table id="tblFractionIntervals">
+			<details open="open" id="table_intervals_main">
+				<summary>Analysis table for main ratio-based intervals</summary>
+				<table id="tblFractionIntervals">
 					<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a> (approximately descending order of consonance)</caption>
 					<thead>
 						<tr>
@@ -559,7 +597,7 @@
 							<td colspan="5" id="outToolTip2" class="tool-tip print-dp-none">A description of the selected item will appear here.</td>
 						</tr>
 					</tbody>
-				</table></p>
+				</table>
 				<p>Note: "semitone" is a British English term, corresponding to "half step" in American English. 
 					Several other intervals have alternative names: for example the tritone can also be called augmented fourth and diminished fifth, and the major second is also known as a whole tone.</p>
 				<p>Note: the naming of intervals is often not formal or systematic, and may even vary between sources. For further reading on interval names, see:</p>
@@ -580,7 +618,7 @@
 				Working with lots of nuance in harmony demands for longer notes to discern them more clearly, and thus slower tempo (pacing).</p>
 		</section>
 		<section>
-			<h2>Musical format</h2>
+			<h2 id="sec_musical_format">Musical format</h2>
 			<p>This page uses two text-based formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive <a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">list</a> of notes), used when playing, supporting only note properties. 
 				But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). 
 				As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>
@@ -589,7 +627,7 @@
 				As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. 
 				Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). 
 				That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
-			<h3>Structured representation</h3>
+			<h3 id="sec_structured_representation">Structured representation</h3>
 			<p>The <em>structured representation</em> is made to be readable and editable, while also understandable by a computer. 
 				In this format, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). 
 				Use <a href="https://en.wikipedia.org/wiki/Natural_number">natural numbers</a> starting at 0 and don't skip numbers. 
@@ -689,7 +727,7 @@
 				<dd>Inheritable property meant to be ignored by the computer (works like comments in a programming language). Can store a string or other things in its value.</dd>
 				<dd>Absolute override when present.</dd>
 			</dl>
-			<h3>Numbers</h3>
+			<h3 id="sec_numbers">Numbers</h3>
 			<p>In the structured representation, block and note properties support several <strong>number formats</strong>. Examples:</p>
 			<ul>
 				<li><code>1.25</code> = 1.25 (literal number)</li>
@@ -719,7 +757,7 @@
 				<li>Addition, multiplication and exponentiation are right-associative: e.g. <code>4^3^2</code> = <code>4^(3^2)</code>, not <code>(4^3)^2</code></li>
 				<li>Subtraction and division are left-associative: e.g. <code>4 - 3 - 2</code> = <code>(4 - 3) - 2</code>, not <code>4 - (3 - 2)</code></li>
 			</ul>
-			<h3>Flattened representation</h3>
+			<h3 id="sec_flattened_representation">Flattened representation</h3>
 			<p>Eventually, the structured representation is converted (by the page) into a <em>flattened representation</em>, which is easier for a computer to play. 
 				In this format, blocks, recursion, named patterns, numerical structures and arithmetics are not available. 
 				For creative representation (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is going to play the music.</p>
