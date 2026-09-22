@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
 	<!ENTITY gradMargin "0">
+	<!ENTITY gradMarginOpp "1"><!-- gradMarginOpp = 1 - gradMargin -->
 ]>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" width="100vw" height="100vh" filter="url(#bevel)">
 	<!-- viewBox="0 0 1 1" -->
@@ -18,6 +19,7 @@
 				/*--outer-margin: calc(50%*(1 - 1/1.125) - 0.75px);*/
 				--outer-margin: 1px;
 				/*--grad-margin: 0.125;*/
+				--grad-margin: 0;
 				/*--grad-width: 12px;*/
 				--grad-width: clamp(0px, 50vmin - var(--outer-margin), 6px);
 				--interior-dilation: 0px;
@@ -27,6 +29,37 @@
 				stop-opacity: calc(1 - pow(attr(offset type(<number>)), 2));
 				/*stop-opacity: calc(1 - sqrt(1 - pow(1 - attr(offset type(<number>)), 2)));*/
 			}
+
+			/*#gradEdgeX1 {
+				x2: &gradMargin;;
+			}
+			#gradEdgeX2 {
+				x2: calc(1 - &gradMargin;);
+			}
+			#gradEdgeY1 {
+				y2: &gradMargin;;
+			}
+			#gradEdgeY2 {
+				y2: calc(1 - &gradMargin;);
+			}
+			#gradCornerX1Y1 {
+				r: calc(1 - &gradMargin;);
+			}*/
+			/*#gradEdgeX1 {
+				x2: var(--grad-margin);
+			}
+			#gradEdgeX2 {
+				x2: calc(1 - var(--grad-margin));
+			}
+			#gradEdgeY1 {
+				y2: var(--grad-margin);
+			}
+			#gradEdgeY2 {
+				y2: calc(1 - var(--grad-margin));
+			}
+			radialGradient {
+				r: calc(1 - var(--grad-margin));
+			}*/
 
 			.horiz {
 				x: calc(var(--outer-margin) + var(--grad-width) - var(--interior-dilation));
@@ -87,11 +120,11 @@
 			<stop offset="0.9375" />
 			<stop offset="1" />
 		</linearGradient>
-		<linearGradient id="gradEdgeX2" href="#gradEdgeX1" x1="0" x2="calc(1 - &gradMargin;)" />
+		<linearGradient id="gradEdgeX2" href="#gradEdgeX1" x1="0" x2="&gradMarginOpp;" />
 		<linearGradient id="gradEdgeY1" href="#gradEdgeX1" x1="0" x2="0" y1="1" y2="&gradMargin;" />
-		<linearGradient id="gradEdgeY2" href="#gradEdgeX1" x1="0" x2="0" y1="0" y2="calc(1 - &gradMargin;)" />
+		<linearGradient id="gradEdgeY2" href="#gradEdgeX1" x1="0" x2="0" y1="0" y2="&gradMarginOpp;" />
 
-		<radialGradient id="gradCornerX1Y1" href="#gradEdgeX1" cx="1" cy="1" r="calc(1 - &gradMargin;)" />
+		<radialGradient id="gradCornerX1Y1" href="#gradEdgeX1" cx="1" cy="1" r="&gradMarginOpp;" />
 		<radialGradient id="gradCornerX2Y1" href="#gradCornerX1Y1" cx="0" cy="1" />
 		<radialGradient id="gradCornerX1Y2" href="#gradCornerX1Y1" cx="1" cy="0" />
 		<radialGradient id="gradCornerX2Y2" href="#gradCornerX1Y1" cx="0" cy="0" />

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg" id="oHtml">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,6 +14,8 @@
 			color-scheme: dark;
 			background-color: black;
 			color: white;
+
+			/* --x: 456; */
 		}
 
 		body {
@@ -25,6 +27,7 @@
 			counter-reset: test 0;
 		}
 
+		/* @namespace svgNS url("http://www.w3.org/2000/svg"); */
 		#svg1 {
 			/* visibility: hidden; */
 			/* content-visibility: hidden; */
@@ -44,6 +47,10 @@
 			syntax: "<number>";
 			initial-value: 10.0;
 			inherits: true;
+		}
+		#fo1 {
+			/* counter-increment: test 100; */
+			/* counter-set: test round(down, attr(x type(<number>), 999)); */
 		}
 		#dummy1 {
 			/* counter-reset: test 123; */
@@ -74,10 +81,11 @@
 		}
 	/*]]>*/</style>
 </head>
-<body>
+<body id="oBody">
 	<svg:svg id="svg1" viewBox="0 0 300 300">
 		<!-- <svg:defs></svg:defs> -->
-		<svg:style>
+		<svg:style>/*<![CDATA[*/
+			/* @namespace svgNS url("http://www.w3.org/2000/svg"); */
 			div {
 				height: 100%;
 				background-color: gray;
@@ -89,7 +97,15 @@
 			.test textarea {
 				background-color: blueviolet;
 			}
-		</svg:style>
+			#fo1 {
+				/* counter-increment: test 100; */
+				counter-increment: test round(down, attr(x type(<number>), 999));
+				/* counter-increment: test round(down, attr(svgNS|x type(<number>), 999)); */
+			}
+			#dummy1 {
+				counter-increment: test round(down, var(--x, 321));
+			}
+		/*]]>*/</svg:style>
 		<svg:rect id="dummy1" x="1" y="0" width="100" height="30" fill="white">
 			<!-- <animate
 				attributeType="auto"
@@ -98,13 +114,16 @@
 				by="25"
 				dur="1s"
 				repeatCount="indefinite" /> -->
-			<!-- <animate
+			<!-- attributeName="&#45;&#45;x" -->
+			<svg:animate
+				href="#dummy1"
 				attributeType="CSS"
-				attributeName="- -x"
+				attributeName="--x"
 				from="0"
 				by="25"
 				dur="1s"
-				repeatCount="indefinite" /> -->
+				calcMode="linear"
+				repeatCount="indefinite" />
 			<!-- <animate
 				attributeName="class"
 				from="0"
@@ -118,6 +137,20 @@
 				to="test"
 				begin="txt2.click"
 				dur="1s" />
+			<svg:set
+				href="#dummy1"
+				attributeType="CSS"
+				attributeName="--x"
+				to="700"
+				begin="txt2.click"
+				dur="1s" />
+			<svg:set
+				href="#dummy1"
+				attributeType="CSS"
+				attributeName="counter-reset"
+				to="test 987"
+				begin="txt2.click"
+				dur="1s" />
 			<!-- <set
 				href="#txt1"
 				attributeType="CSS"
@@ -125,34 +158,67 @@
 				to="20%"
 				begin="txt1.click"
 				dur="1s" /> -->
-		</svg:rect>
-		<svg:foreignObject id="fo1" x="0" y="30" width="300" height="200">
-			<textarea id="txt1" cols="30" rows="10">asdfgh asdfdghg
+			<svg:set
+				href="#txt1"
+				attributeType="CSS"
+				attributeName="background-color"
+				to="brown"
+				begin="1s"
+				dur="1s" />
 			<svg:animate
-				href="#fo1"
+				href="#txt1"
 				attributeType="auto"
-				attributeName="x"
-				calcMode="linear"
+				attributeName="cols"
+				calcMode="discrete"
 				from="5"
 				to="35"
-				dur="2s"
+				dur="4s"
 				repeatCount="indefinite" />
+		</svg:rect>
+		<svg:foreignObject id="fo1" x="2" y="30" width="300" height="200">
+			<textarea id="txt1" cols="30" rows="10">asdfgh asdfdghg
+				<svg:animate
+					href="#fo1"
+					attributeType="auto"
+					attributeName="x"
+					calcMode="linear"
+					from="5"
+					to="35"
+					dur="2s"
+					repeatCount="indefinite" />
 			</textarea>
 		</svg:foreignObject>
 		<svg:rect id="dummy2" x="10" y="230" width="100" height="30" fill="white" />
 	</svg:svg>
 	<p>
-		<output id="outCounter1">counter: </output>
 		<textarea id="txt2" cols="60" rows="10">asdfgh asdfdghg
-			<svg:animate
+			<!-- <svg:animate
+				svg:href="#txt2"
 				svg:attributeType="XML"
 				svg:attributeName="cols"
 				svg:calcMode="discrete"
 				svg:from="5"
 				svg:to="35"
 				svg:dur="4s"
-				svg:repeatCount="indefinite" />
-		</textarea>
+				svg:repeatCount="indefinite" /> -->
+			<!-- <svg:animate
+				svg:href="#txt2"
+				svg:attributeType="XML"
+				svg:attributeName="cols"
+				svg:calcMode="discrete"
+				svg:from="5"
+				svg:to="35"
+				svg:dur="4s"
+				svg:repeatCount="indefinite" /> -->
+			<!-- <svg:set
+				svg:href="#txt2"
+				svg:attributeType="CSS"
+				svg:attributeName="background-color"
+				svg:to="brown"
+				svg:begin="1s"
+				svg:dur="1s" /> -->
+		</textarea><br />
+		<output id="outCounter1">counter: </output>
 	</p>
 </body>
 </html>

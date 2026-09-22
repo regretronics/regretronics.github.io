@@ -89,6 +89,11 @@
 			height: 100%;
 		}
 
+		@property --depth {
+			syntax: "\<number\>";
+			initial-value: 1.0;
+			inherits: false;
+		}
 		/* p:first-of-type {
 			z-index: -256;
 		}
@@ -100,7 +105,8 @@
 		} */
 		p:has(> button) {
 			height: 2em;
-			width: fit-content;
+			/* width: fit-content; */
+			width: 3em;
 			overflow: hidden;
 			resize: both;
 			background-color: gray;
@@ -122,15 +128,25 @@
 
 			appearance: none;
 			background-color: chocolate;
+			/* background-color: oklch(calc(0.5 + 0.375 * var(--depth)) 0.125 55deg); */
 			border: none;
 			/* border-radius: 0.25em; */
 			/* border-radius: 1.75px; */
 			border-radius: 4.5px;
 			overflow: hidden;
 
+			--depth: 1;
+			transition-property: --depth;
+			transition-duration: 0.125s;
+			transition-delay: 0s;
+			transition-timing-function: ease;
+
 			filter: var(--btn-filter);
 			&:hover, &:focus {
 				filter: var(--btn-filter) contrast(1.125);
+			}
+			&.kb-pressed, &:active {
+				--depth: -1;
 			}
 		}
 		/* :root:has(#chkFilter:checked) {
@@ -143,139 +159,195 @@
 		} */
 	/*]]>*/</style>
 </head>
-<body>
-	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg1" viewBox="0 0 1 1">
-		<defs>
-			<!-- <filter id="bevelMap" filterUnits="userSpaceOnUse" x="0%" y="0%" width="calc(75% - 0.5px)" height="100%" primitiveUnits="objectBoundingBox"> -->
-			<filter id="bevelMap" 
+<body xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<svg:svg id="svg1" viewBox="0 0 1 1">
+		<svg:defs>
+			<svg:style>/*<![CDATA[*/
+				#bevelMap, #bumpMap, #diffuse, #specular, #bevel {
+				/*#asdf {*/
+					x: calc(0% - 2px);
+					y: calc(0% - 2px);
+					width: calc(100% + 4px);
+					height: calc(100% + 4px);
+				}
+			/*]]>*/</svg:style>
+			<!-- <svg:filter id="bevelMap" filterUnits="userSpaceOnUse" x="0%" y="0%" width="calc(75% - 0.5px)" height="100%" primitiveUnits="objectBoundingBox"> -->
+			<svg:filter id="bevelMap"
 				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
 				primitiveUnits="userSpaceOnUse">
-				<!-- <feImage href="#g1" /> -->
-				<!-- <feImage href="#g1" preserveAspectRatio="none" /> -->
-				<!-- <feImage href="#g1" preserveAspectRatio="xMidYMid meet" /> -->
-				<!-- <feImage href="#g1" x="0%" y="0%" width="100%" height="100%" /> -->
+				<!-- <svg:feImage href="#g1" /> -->
+				<!-- <svg:feImage href="#g1" preserveAspectRatio="none" /> -->
+				<!-- <svg:feImage href="#g1" preserveAspectRatio="xMidYMid meet" /> -->
+				<!-- <svg:feImage href="#g1" x="0%" y="0%" width="100%" height="100%" /> -->
 
-				<!-- <feImage href="#dummy1" /> -->
-				<!-- <feImage href="#dummy1" preserveAspectRatio="none" /> -->
-				<!-- <feImage href="#dummy1" preserveAspectRatio="xMidYMid meet" /> -->
-				<!-- <feImage href="#dummy1" x="0%" y="0%" width="100%" height="100%" /> -->
-				<!-- <feImage href="#dummy1" x="0%" y="0%" width="100%" height="100%" /> -->
+				<!-- <svg:feImage href="#dummy1" /> -->
+				<!-- <svg:feImage href="#dummy1" preserveAspectRatio="none" /> -->
+				<!-- <svg:feImage href="#dummy1" preserveAspectRatio="xMidYMid meet" /> -->
+				<!-- <svg:feImage href="#dummy1" x="0%" y="0%" width="100%" height="100%" /> -->
+				<!-- <svg:feImage href="#dummy1" x="0%" y="0%" width="100%" height="100%" /> -->
 
-				<feImage href="bevel-map.svg" />
-				<!-- <feImage href="bevel-map.svg" preserveAspectRatio="none" /> -->
-				<!-- <feImage href="bevel-map.svg" preserveAspectRatio="xMidYMid meet" /> -->
-				<!-- <feImage href="bevel-map.svg" preserveAspectRatio="xMidYMid slice" /> -->
-				<!-- <feImage href="bevel-map.svg" x="0%" y="0%" width="100%" height="100%" /> -->
-				<!-- <feImage href="bevel-map.svg" x="0" y="0" width="1" height="1" /> -->
-			</filter>
-			<filter id="bumpMap" 
+				<svg:feImage href="bevel-map.svg" />
+				<!-- <svg:feImage href="bevel-map.svg" preserveAspectRatio="none" /> -->
+				<!-- <svg:feImage href="bevel-map.svg" preserveAspectRatio="xMidYMid meet" /> -->
+				<!-- <svg:feImage href="bevel-map.svg" preserveAspectRatio="xMidYMid slice" /> -->
+				<!-- <svg:feImage href="bevel-map.svg" x="0%" y="0%" width="100%" height="100%" /> -->
+				<!-- <svg:feImage href="bevel-map.svg" x="0" y="0" width="1" height="1" /> -->
+			</svg:filter>
+			<svg:filter id="bumpMap" 
 				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
 				primitiveUnits="userSpaceOnUse">
 
-				<feImage href="bevel-map.svg" />
+				<svg:feImage href="bevel-map.svg" />
 				<!--alpha to color (grayscale)-->
-				<feColorMatrix type="matrix" values="
+				<svg:feColorMatrix type="matrix" values="
 					0 0 0 1 0
 					0 0 0 1 0
 					0 0 0 1 0
 					0 0 0 0 1" />
-			</filter>
+			</svg:filter>
 
-			<filter id="diffuse" 
+			<svg:filter id="diffuse" 
 				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
 				primitiveUnits="userSpaceOnUse">
 
 				<!--color to alpha-->
-				<feColorMatrix type="matrix" values="
+				<svg:feColorMatrix type="matrix" values="
 					0 0 0 0 0
 					0 0 0 0 0
 					0 0 0 0 0
 					1 0 0 0 0" />
-				<feDiffuseLighting 
+				<svg:feDiffuseLighting 
 					lighting-color="white" diffuseConstant="1" 
 					surfaceScale="4" kernelUnitLength="1">
 					<!-- <fePointLight x="0.25" y="0" z="0.5" /> -->
-					<feDistantLight azimuth="240" elevation="45" />
-				</feDiffuseLighting>
-				<feGaussianBlur stdDeviation="0.5" />
-			</filter>
-			<filter id="specular" 
+					<svg:feDistantLight azimuth="240" elevation="45" />
+				</svg:feDiffuseLighting>
+				<svg:feGaussianBlur stdDeviation="0.5" />
+			</svg:filter>
+			<svg:filter id="specular" 
 				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
 				primitiveUnits="userSpaceOnUse">
 
 				<!--color to alpha-->
-				<feColorMatrix type="matrix" values="
+				<svg:feColorMatrix type="matrix" values="
 					0 0 0 0 0
 					0 0 0 0 0
 					0 0 0 0 0
 					1 0 0 0 0" />
-				<feSpecularLighting 
+				<svg:feSpecularLighting 
 					lighting-color="white" specularConstant="1" 
 					surfaceScale="4" specularExponent="8" kernelUnitLength="1" 
 					result="specular">
-					<feDistantLight azimuth="240" elevation="5" />
-				</feSpecularLighting>
+					<svg:feDistantLight azimuth="240" elevation="5" />
+				</svg:feSpecularLighting>
 				<!--alpha to color (grayscale)-->
-				<feColorMatrix type="matrix" values="
+				<svg:feColorMatrix type="matrix" values="
 					0 0 0 1 0
 					0 0 0 1 0
 					0 0 0 1 0
 					0 0 0 0 1" />
-				<feGaussianBlur stdDeviation="0.5" />
-				<!-- <feComponentTransfer>
-					<feFuncR type="linear" slope="0.375" intercept="-0.125" />
-					<feFuncG type="linear" slope="0.375" intercept="-0.125" />
-					<feFuncB type="linear" slope="0.375" intercept="-0.125" />
-				</feComponentTransfer> -->
-			</filter>
+				<svg:feGaussianBlur stdDeviation="0.5" />
+				<!-- <svg:feComponentTransfer>
+					<svg:feFuncR type="linear" slope="0.375" intercept="-0.125" />
+					<svg:feFuncG type="linear" slope="0.375" intercept="-0.125" />
+					<svg:feFuncB type="linear" slope="0.375" intercept="-0.125" />
+				</svg:feComponentTransfer> -->
+			</svg:filter>
 
-			<filter id="bevel" 
+			<svg:filter id="bevel" 
 				filterUnits="userSpaceOnUse" x="calc(0% - 2px)" y="calc(0% - 2px)" width="calc(100% + 4px)" height="calc(100% + 4px)" 
 				primitiveUnits="userSpaceOnUse">
 				<!-- primitiveUnits="objectBoundingBox" -->
 
-				<feImage href="bevel-map.svg" result="bumpMap" />
+				<svg:feImage href="bevel-map.svg" result="bumpMap" />
 
-				<feDiffuseLighting 
+				<svg:feDiffuseLighting 
 					lighting-color="white" diffuseConstant="1" 
 					surfaceScale="4" kernelUnitLength="1">
-					<!-- <fePointLight x="0.25" y="0" z="0.5" /> -->
-					<feDistantLight azimuth="240" elevation="45" />
-				</feDiffuseLighting>
-				<feGaussianBlur stdDeviation="0.5" />
-				<feComposite 
+					<!-- <svg:fePointLight x="0.25" y="0" z="0.5" /> -->
+					<svg:feDistantLight azimuth="240" elevation="45" />
+					<!-- <svg:set 
+						id="btnTestDown"
+						begin="btnTest.mousedown" 
+						end="btnTest.mouseup" 
+						fill="freeze" />
+					<svg:set 
+						id="btnTestUp"
+						begin="btnTest.mouseup" 
+						end="btnTest.mousedown" 
+						fill="freeze" /> -->
+						<!-- begin="btnTestDown.begin"  -->
+					<svg:animate 
+						attributeName="surfaceScale" 
+						begin="btnTest.mousedown" 
+						end="btnTest.mouseup" 
+						to="-2" 
+						dur="0.125s" 
+						calcMode="linear" 
+						repeatCount="1" 
+						fill="freeze" />
+					<svg:animate 
+						attributeName="surfaceScale" 
+						begin="btnTest.mouseup" 
+						end="btnTest.mousedown" 
+						to="4" 
+						dur="0.125s" 
+						calcMode="linear" 
+						repeatCount="1" 
+						fill="freeze" />
+				</svg:feDiffuseLighting>
+				<svg:feGaussianBlur stdDeviation="0.5" />
+				<svg:feComposite 
 					in2="SourceGraphic" 
 					operator="arithmetic" 
 					k1="0.875" k2="0" k3="0.125" k4="0" 
 					result="shaded" />
 
-				<feSpecularLighting 
+				<svg:feSpecularLighting 
 					lighting-color="white" specularConstant="1" 
 					surfaceScale="4" specularExponent="8" kernelUnitLength="1" 
 					in="bumpMap" result="specular">
-					<feDistantLight azimuth="240" elevation="5" />
-				</feSpecularLighting>
+					<svg:feDistantLight azimuth="240" elevation="5" />
+					<svg:animate 
+						attributeName="surfaceScale" 
+						begin="btnTest.mousedown" 
+						end="btnTest.mouseup" 
+						to="-2" 
+						dur="0.125s" 
+						calcMode="linear" 
+						repeatCount="1" 
+						fill="freeze" />
+					<svg:animate 
+						attributeName="surfaceScale" 
+						begin="btnTest.mouseup" 
+						end="btnTest.mousedown" 
+						to="4" 
+						dur="0.125s" 
+						calcMode="linear" 
+						repeatCount="1" 
+						fill="freeze" />
+				</svg:feSpecularLighting>
 				<!--alpha to color (grayscale)-->
-				<feColorMatrix type="matrix" values="
+				<svg:feColorMatrix type="matrix" values="
 					0 0 0 1 0
 					0 0 0 1 0
 					0 0 0 1 0
 					0 0 0 0 1" />
-				<feGaussianBlur stdDeviation="0.5" />
-				<feComposite 
+				<svg:feGaussianBlur stdDeviation="0.5" />
+				<svg:feComposite 
 					in2="SourceAlpha" 
 					operator="in" />
 
-				<feComposite 
+				<svg:feComposite 
 					in2="shaded" 
 					operator="arithmetic" 
 					k1="0" k2="0.625" k3="0.625" k4="0" />
-			</filter>
-		</defs>
-		<!-- <rect id="dummy1" x="0" y="0" width="1" height="1" fill="white">
-			<set to-do="" />
-		</rect> -->
-	</svg>
+			</svg:filter>
+		</svg:defs>
+		<!-- <svg:rect id="dummy1" x="0" y="0" width="1" height="1" fill="white">
+			<svg:set to-do="" />
+		</svg:rect> -->
+	</svg:svg>
 	<div>
 		<!-- <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svgBtnMap" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet">
 			<g id="g1"> -->
@@ -309,14 +381,55 @@
 		<select id="selFilter">
 			<option label="none"></option>
 			<!-- <option label="bevelMap"></option> -->
-			<option label="bumpMap" selected="selected"></option>
+			<option label="bumpMap"></option>
 			<option label="bumpMap diffuse"></option>
 			<option label="bumpMap specular"></option>
-			<option label="bevel"></option>
+			<option label="bevel" selected="selected"></option>
 		</select>
 	</p>
 	<p>
-		<button>Test</button>
+		<button id="btnTest">Test
+			<!-- <svg:set 
+				id="btnTestDown"
+				begin="btnTest.mousedown" 
+				end="btnTest.mouseup" 
+				fill="freeze" />
+			<svg:set 
+				id="btnTestUp"
+				begin="btnTest.mouseup" 
+				end="btnTest.mousedown" 
+				fill="freeze" /> -->
+		</button>
 	</p>
+	<script type="text/javascript">/*<![CDATA[*/
+		"use strict";
+		function buttonPressingKeyDown(event) {
+			if(!event || !event.target) return;
+			//console.log(event);
+			//if(event.code == "Space")
+			if(event.key == " ")
+				event.target.classList.add("kb-pressed");
+		}
+		function buttonPressingKeyUp(event) {
+			if(!event || !event.target) return;
+			//console.log(event);
+			//if(event.code == "Space")
+			if(event.key == " ")
+				event.target.classList.remove("kb-pressed");
+		}
+		function pageLoaded(event) {
+			//makes button pressed state responsive to CSS
+			for(let btn of document.querySelectorAll("button")) {
+				btn.addEventListener("keydown", buttonPressingKeyDown);
+				btn.addEventListener("keyup", buttonPressingKeyUp);
+			}
+		}
+
+		if(document.readyState === "loading")
+			document.addEventListener("DOMContentLoaded", pageLoaded);
+		else //DOMContentLoaded has already fired
+			pageLoaded();
+		//window.addEventListener("load", pageReady);
+	/*]]>*/</script>
 </body>
 </html>
