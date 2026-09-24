@@ -142,6 +142,10 @@
 						<td><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth (exponent variance)</span></label></td>
 						<td><input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators. Higher values produce more atonality. Low values may freeze the generator due to lack of choices." size="5" /></td>
 					</tr>
+					<tr>
+						<!--question: default state: line wrapping? overflow?-->
+						<td colspan="2"><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="genParams.primeExpRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
+					</tr>
 				</tbody>
 			</table>
 		</details>
@@ -152,7 +156,7 @@
 					<tr>
 						<td><label for="txtRhythmScale"><span class="lang-static" translate="no">approx. scale</span><span class="lang-flex" hidden="hidden">approximate scale</span></label></td>
 						<td><input type="number" id="txtRhythmScale" value="8" step="1" data-min="1" class="exp custom-spin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" /></td>
-						<td><button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button></td>
+						<td><button id="btnRhythmFactorsGen" title="Rhythm structure generator. Uses prime count as parameter, but not tone depth and exponent ranges.">Generate</button></td>
 					</tr>
 					<tr>
 						<td><label for="txtRhythmFactors">structure formula</label></td>

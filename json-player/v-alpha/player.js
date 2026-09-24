@@ -202,7 +202,7 @@ function renderNote(clip, note) {
 				type: "bandpass",
 				frequency: Math.abs(noteFreq),
 				Q: NaNToDefault(note.q, defaultNoteNode.q)
-			}); //to do: exponentially increasing Q? (but how?)
+			}); //to do: exponentially increasing Q? (how? apparently it will require a script-based audio node for the reverse of an exponential decay.)
 			terminalNode.connect(fltBandPass);
 			terminalNode = fltBandPass;
 			sourceNode.fltBandPass = fltBandPass;
@@ -480,7 +480,7 @@ function loadNewClip() {
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
 	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
-	//to do: allow reverse playback?
+	//to do: allow reverse playback? (how? apparently it will require a script-based audio node for the reverse of an exponential decay.)
 	if(playTimeScale <= 0) return false;
 	const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
 
@@ -696,37 +696,43 @@ function pauseToggle() {
 let lastAudioObjURL = null, exportType = "";
 function audioDownload(data) {
 	if(!data) return false;
-	let file, fileName = getDateTimeCode(5);
-	if(exportType.includes("codecs=opus")) fileName += ".opus";
-	if(exportType.startsWith("audio/ogg"))
-		fileName += ".ogg";
-	else
-		if(exportType.startsWith("audio/webm"))
-			fileName += ".webm";
-	//const properties = {type: 'audio/webm; codecs=opus'}; //constructor parameters: container's MIME-type, and encoding.
-	//const properties = {type: 'audio/webm'}; //constructor parameters: container's MIME-type.
-	//const properties = {};
 	try {
-		//specify the filename using the File constructor, but...
-		//file = new File(data, fileName, properties);
-		file = new File(data, fileName);
-	} catch(error) {
-		//...fall back to the Blob constructor if that isn't supported.
-		///file = new Blob(data, properties);
-		file = new Blob(data);
-	}
-	if(lastAudioObjURL) URL.revokeObjectURL(lastAudioObjURL);
-	lastAudioObjURL = URL.createObjectURL(file);
-	//console.log("audioDownload(): createObjectURL object");
+		let file, fileName = getDateTimeCode(5);
+		if(exportType.includes("codecs=opus")) fileName += ".opus";
+		if(exportType.startsWith("audio/ogg"))
+			fileName += ".ogg";
+		else
+			if(exportType.startsWith("audio/webm"))
+				fileName += ".webm";
+		//const properties = {type: 'audio/webm; codecs=opus'}; //constructor parameters: container's MIME-type, and encoding.
+		//const properties = {type: 'audio/webm'}; //constructor parameters: container's MIME-type.
+		//const properties = {};
+		try {
+			//specify the filename using the File constructor, but...
+			//file = new File(data, fileName, properties);
+			file = new File(data, fileName);
+		} catch(error) {
+			//...fall back to the Blob constructor if that isn't supported.
+			///file = new Blob(data, properties);
+			file = new Blob(data);
+		}
+		if(lastAudioObjURL) URL.revokeObjectURL(lastAudioObjURL);
+		lastAudioObjURL = URL.createObjectURL(file);
+		//console.log("audioDownload(): createObjectURL object");
 
-	if(!aAudioDownload) return false;
-	aAudioDownload.setAttribute('href', lastAudioObjURL);
-	aAudioDownload.setAttribute('download', fileName);
-	aAudioDownload.click();
-	const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
-	if(window.outExportProgress)
-		outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
-	exportType = "";
+		if(!aAudioDownload) return false;
+		aAudioDownload.setAttribute('href', lastAudioObjURL);
+		aAudioDownload.setAttribute('download', fileName);
+		aAudioDownload.click();
+		const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
+		if(window.outExportProgress)
+			outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
+		exportType = "";
+	} catch(error) {
+		console.error(error);
+		return false;
+	}
+	return true;
 }
 let mediaRecorder, chunks = [], exportClip = null;
 function exportClipEnd() {

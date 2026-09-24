@@ -2,10 +2,11 @@
 
 //imported variables
 var primes, primeCount, expVariance;
-var maxPitches;
+var /* maxPitches */primeExpRanges;
 var rootFreq;
 var rhythmFactors, rhythmFactorsAccum;
 
+//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
 const freqMin = 30, freqMax = 13000;
 
 function renormalizeOctave(refFreq, targetFreq) {
@@ -17,6 +18,7 @@ function renormalizeOctave(refFreq, targetFreq) {
 //makes a simple interval by introducing a random prime factor up or down one unit
 //to do: reuse this in melodySubNodes? (probably not)
 function addInterval(refFreq, targetFreq, primeCount) {
+	//to do: use a while loop
 	//question: weighted random on factor selection? (currently yes)
 	//const iPrime = Math.floor(primeCount * Math.random());
 	const iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
@@ -27,9 +29,11 @@ function addInterval(refFreq, targetFreq, primeCount) {
 	//bounds (tonality) check
 	//question: should + 1 be + 0.5?
 	//for chords with a fixed first note, the exponents should vary in a bilateral way
-	const maxExp = expVariance * maxPitches[iPrime] + 1;
+	//const maxExp = expVariance * maxPitches[iPrime] + 1;
+	const expBounds = primeExpRanges[primes[iPrime]];
 	//if(Math.abs(newExp) > 1 * maxExp && sign === Math.sign(newExp)) sign *= -1;
-	if((newExp > maxExp || - newExp < 0.5 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
+	//if((newExp > maxExp || - newExp < 0.5 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
+	if((newExp < expBounds[0] || newExp > expBounds[1]) && sign === Math.sign(newExp)) sign *= -1;
 	targetFreq[primes[iPrime]] += sign;
 
 	//pitch normalization into factor 2, i.e. octave normalization, except when changing the very octave on purpose
@@ -70,7 +74,7 @@ function newChord(voiceCount, polyphony, primeCount) {
 	}
 	return chordStruct;
 }
-function makeChords(patCount, voiceCount, _expVariance, _timeScale) {
+function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: remove _expVariance or change to primeExpRanges
 	if(primeCount <= 1) return false;
 	if(patCount <= 0) return false;
 	if(voiceCount < 2) return false;
@@ -139,7 +143,6 @@ function limitFreq(tuning, freq) {
 	let freqAbs = Math.abs(tuning) * parseNumber(freq);
 	if(!freq[2]) freq[2] = 0;
 	while(true) {
-		//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
 		if(freqAbs > freqMax) {
 			freq[2]--;
 			freqAbs *= 0.5;
@@ -331,7 +334,7 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 			//iPrime = Math.floor(primeCount * rnd ** level);
 			iPrime = Math.floor((primeCount - 0.5) * rnd ** (0.5 * Math.max(altLevel + 1, 1)) + 0.5);
 
-			//const factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[Math.ceil(primeCount) - 1]); //1 - rnd is to avoid division by zero
+			//const factor = Math.min(1 + Math.floor(0.5 * (1 - rnd) ** (-2)), primes[Math.ceil(primeCount) - 1]); //1 - rnd (instead of rnd - 1) is to avoid division by zero
 			//for(iPrime = 0; primes[iPrime + 1] <= factor; iPrime++) {}
 		}*/
 
@@ -345,23 +348,25 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 		//const sign = (i < 1 ^ beatStrengthInv ? 1 : -1);
 		let sign;
 
-		let newExp, maxExp;//, deviation;
+		let newExp, /* maxExp */expBounds;//, deviation;
 		do {
 			rnd = Math.random();
 			//iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
 			iPrime = Math.floor((primeCount - 0.5) * rnd ** (0.5 * Math.max(altLevel + 1, 1)) + 0.5);
 			//sign = ((beatType ^ (iPrime === 0)) ? 1 : -1);
 			//sign = ((beatType ^ (iPrime === 0) ^ beatStrengthInv) ? -1 : 1);
-			if(iPrime === 0)
+			if(iPrime === 0) //the simplest prime factor has slightly different rules
 				sign = ((beatType ^ beatStrengthInv) ? 1 : 0);
 			else
 				sign = ((beatType ^ beatStrengthInv) ? -1 : 1);
 			newExp = newNode.freq[primes[iPrime]] + sign;
-			maxExp = expVariance * maxPitches[iPrime] + 1;
+			//maxExp = expVariance * maxPitches[iPrime] + 1;
+			expBounds = primeExpRanges[primes[iPrime]];
 			//deviation = newExp - 0.5 * maxExp;
 		//} while((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation));
 		//} while(Math.abs(newExp) > maxExp && sign === Math.sign(newExp));
-		} while((newExp > maxExp || - newExp < -0.5 * maxExp) && sign === Math.sign(newExp));
+		//} while((newExp > maxExp || - newExp < -0.5 * maxExp) && sign === Math.sign(newExp));
+		} while(newExp < expBounds[0] || newExp > expBounds[1]);
 		//} while(newExp < 0 || newExp > maxExp);
 
 		//const newExp = newNode.freq[primes[iPrime]] + sign;
@@ -382,6 +387,7 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 
 		melodySubNodes(newNode, level + 1, tuning, primeCount);
 	}
+	//return true;
 }
 //to do: pattern variations
 function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
@@ -450,13 +456,14 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 
 		//randomize an initial note
 		let product = 1;
-		for(let p = 1; p < primeCount; p++) {
-			//question: can the factors only go upwards? is signed (bipolar) random better?
-			//	question: in the last case, use round() instead of floor() or trunc()?
-			//const exp = Math.trunc((expVariance * maxPitches[p] + 1) * Math.random());
-			const exp = Math.round((expVariance * maxPitches[p] + 1) * (Math.random() - 1 / 3));
-			pattern.freq[primes[p]] = exp;
-			product *= primes[p] ** exp;
+		for(let iPrime = 1; iPrime < primeCount; iPrime++) {
+			const factor = primes[iPrime];
+			//const exp = Math.trunc((expVariance * maxPitches[iPrime] + 1) * Math.random());
+			//const exp = Math.round((expVariance * maxPitches[iPrime] + 1) * (Math.random() - 1 / 3));
+			const expBounds = primeExpRanges[factor];
+			const exp = Math.floor(expBounds[0] + (expBounds[1] - expBounds[0] + 1) * Math.random());
+			pattern.freq[factor] = exp;
+			product *= factor ** exp;
 		}
 		//multiply the primes and balance factor 2 (octave normalization)
 		pattern.freq[2] = - Math.round(Math.log2(product));

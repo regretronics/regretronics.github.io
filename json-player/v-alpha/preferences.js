@@ -108,6 +108,12 @@ function loadPreferences() {
 				txtExpVariance.value = s;
 				txtExpVariance.dispatchEvent(new Event("input"));
 			}
+			s = localStorage.getItem("genParams.primeExpRanges");
+			if(s) {
+				codeEditorContentSet(ctlPrimeExpRanges, s);
+				ctlPrimeExpRanges.dispatchEvent(new Event("input"));
+			} else
+				recalcExpRanges(true);
 		}
 
 		//Rhythm parameters
@@ -259,6 +265,7 @@ function savePreferences() {
 	localStorage.setItem("genParams.patternCount", txtPatternCount.value);
 	localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(primeCount)?
 	localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(expVariance)?
+	localStorage.setItem("genParams.primeExpRanges", codeEditorContentGet(ctlPrimeExpRanges));
 	//Rhythm parameters
 	localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
 	localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(rhythmFactors)?
@@ -308,10 +315,12 @@ function rescaleText(event) {
 	if(!elem) return false;
 	const f = Number(elem.dataset["factor"]);
 	textSize *= f;
+	const strTextSize = textSize.toPrecision(5);
+	textSize = Number(strTextSize);
 	//document.documentElement.style.fontSize = textSize.toString() + "em"; //html element
 	document.documentElement.style.setProperty("--page-scale", textSize);
 
-	localStorage.setItem("pageAppearance.textSize", JSON.stringify(textSize));
+	localStorage.setItem("pageAppearance.textSize", strTextSize);
 }
 function themeChanged(event) {
 	if(!document) return false;
@@ -353,7 +362,7 @@ function btnHueClick(event) {
 	if(typeof(hue) === "string") hue = parseFloat(hue);
 	if(isNaN(hue) || !isFinite(hue)) hue = 120;
 
-	delta *= 30;
+	delta *= 30; //to do: hue would be better measured in 120-degree steps, instead of 30
 	if(event.shiftKey) delta *= 4;
 	hue += delta;
 	/*hue %= 360; //this wrapping screws filter interpolation. using setTimeout doesn't prevent flashing on hue wrapping.
@@ -381,8 +390,45 @@ function primeCountChanged() {
 	primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
 	if(primeCount < 1.25) primeCount = 1.25;
 	if(primeCount > primes.length) primeCount = primes.length;
+
 	//question: for fractional values, represent the prime list in a different way? (currently yes)
-	if(window.outPrimeList) outPrimeList.innerText = "[" + primes.slice(0, Math.ceil(primeCount)).join(" ") + "]";
+	if(window.outPrimeList) outPrimeList.innerText = "[" + primes.slice(0, Math.ceil(primeCount)).join(", ") + "]";
+	recalcExpRanges();
+}
+function expVarianceChanged(event) {
+	if(!window.txtExpVariance) return false;
+	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	if(expVariance < 0.5) expVariance = 0.5;
+	if(expVariance > 8) expVariance = 8;
+	recalcExpRanges();
+}
+function recalcExpRanges(force) {
+	if(adjustingPreferences && !force) return;
+	//primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
+	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+
+	const primeCountCeil = Math.ceil(primeCount);
+	//const newExpRanges = new Array(primeCountCeil);
+	const newExpRanges = {};
+	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
+	for(let i = 0; i < primeCountCeil; i++) {
+		const varFraction = (i <= primeCount - 1 ? 1 : primeCount % 1);
+		//newExpRanges[i] = varFraction * expVariance / Math.log2(primes[i]);
+		//question: what will be the proper default range? can the factors only go upwards? is signed (bipolar) random better?
+		newExpRanges[primes[i]] = [0, varFraction * expVariance / Math.log2(primes[i])];
+	}
+	primeExpRanges = newExpRanges;
+
+	let s = JSON.stringify(newExpRanges, null, "\t");
+	//final adjustments on indentation (to do: check)
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	s = s.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	s = s.replace(regex, "\{$1\}");
+	if(window.ctlPrimeExpRanges) {
+		codeEditorContentSet(ctlPrimeExpRanges, s);
+		saveControlPreference(ctlPrimeExpRanges);
+	}
 }
 
 const defaultRootFreq = 440;
@@ -447,12 +493,15 @@ function rhythmFactorsChanged() {
 		txtRhythmFactors.classList.remove("invalid");
 		txtRhythmFactors.setCustomValidity("");
 	} catch(error) {
+		console.error(error);
 		//default/fallback
 		rhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
 		txtRhythmFactors.classList.add("invalid");
 		txtRhythmFactors.setCustomValidity(error.toString());
+		return false;
 	}
 	rhythmAccumUpdate();
+	return true;
 }
 
 function saveControlPreference(elem) {
@@ -526,6 +575,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("genParams.patternCount");
 			localStorage.removeItem("genParams.primeCount");
 			localStorage.removeItem("genParams.expVariance");
+			localStorage.removeItem("genParams.primeExpRanges");
 
 			txtBaseFreq.value = "440";
 			txtBaseFreq.dispatchEvent(new Event("input"));
@@ -537,6 +587,7 @@ function btnResetPreferencesClick(event) {
 			txtPrimeCount.dispatchEvent(new Event("input"));
 			txtExpVariance.value = "2";
 			txtExpVariance.dispatchEvent(new Event("input"));
+			recalcExpRanges(true);
 		}
 		if(chkResetRhythmParams?.checked) {
 			localStorage.removeItem("rhythmParams.rhythmScale");

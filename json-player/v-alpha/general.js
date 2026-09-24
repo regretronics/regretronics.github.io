@@ -1,6 +1,7 @@
 "use strict";
 
-//to do: consider worker threads
+//to do: consider extra .js file for user interface
+//to do: consider worker threads or scheduler
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
@@ -178,16 +179,19 @@ function parseNumber(n) {
 	return NaN;
 }
 function codeEditorContentGet(elem) {
+	if(!elem) return false;
 	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
 		return elem.value;
 	else
 		return elem.textContent;
 }
 function codeEditorContentSet(elem, text) {
+	if(!elem) return false;
 	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
 		elem.value = text;
 	else
 		elem.textContent = text;
+	return true;
 }
 
 const timeDisplPrecision = 2;
@@ -197,14 +201,15 @@ var releaseCurve;
 const releaseCurveSize = 8192;
 
 //variability per prime factor (2, 3, 5, 7, ...); array of numbers.
-var maxPitches = null;
+//var maxPitches = null; //to do: get rid of this
+var primeExpRanges = null;
 
 async function initialCalculations() {
-	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
-	//question: too simple? should it depend on primeCount?
+	//to do: remove
+	/* //build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 	maxPitches = new Array(primes.length);
 	for(const i in primes)
-		maxPitches[i] = 1 / Math.log2(primes[i]);
+		maxPitches[i] = 1 / Math.log2(primes[i]); */
 
 	//initialize look-up table
 	releaseCurve = new Float32Array(releaseCurveSize);
@@ -232,6 +237,8 @@ function loadEventHandlers() {
 
 	txtBaseFreq.addEventListener("input", baseFreqChanged);
 	txtPrimeCount.addEventListener("input", primeCountChanged);
+	txtExpVariance.addEventListener("input", expVarianceChanged);
+	ctlPrimeExpRanges.addEventListener("input", parseExpRanges);
 
 	btnRhythmFactorsGen.addEventListener("click", btnRhythmFactorsGenClick);
 	txtRhythmFactors.addEventListener("input", rhythmFactorsChanged);
@@ -251,7 +258,7 @@ function loadEventHandlers() {
 	ctlStructuredScript.addEventListener("input", scriptChanged);
 
 	btnFlattenStruct.addEventListener("click", flattenStruct);
-	chkAutoFlatten.addEventListener("click", ev => setAutoFlatten(chkAutoFlatten.checked));
+	chkAutoFlatten.addEventListener("click", event => setAutoFlatten(chkAutoFlatten.checked));
 	//btnOverflowToggle2.addEventListener("click", overflowToggle);
 	//btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
 	chkOverflow2.addEventListener("click", overflowToggle);
@@ -346,10 +353,10 @@ function pageReady(event) {
 			const evt = new Event("input");
 			for(const elem of document.querySelectorAll("input.exp"))
 				elem.dispatchEvent(evt);
+			window.primeCountChanged?.();
 		} finally {
 			adjustingPreferences = false;
 		}
-		window.primeCountChanged?.();
 		window.rhythmFactorsChanged?.();
 
 		window.initSpinControls?.(); //custom-spin.js
@@ -481,6 +488,7 @@ function rhythmAccumUpdate() {
 	//rhythmFactorsAccum.push(1);
 	if(window.outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	rhythmFactors.push(1);
+	return true;
 }
 
 function btnRhythmFactorsGenClick(event) {
@@ -492,8 +500,8 @@ function btnRhythmFactorsGenClick(event) {
 	//rhythmAccumUpdate();
 }
 function btnChordGenClick(event) {
-	const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtExpVariance.value), parseNumber(txtTimeScale.value));
-	let s = JSON.stringify(rootStruct, null, "\t");
+	const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), expVariance, parseNumber(txtTimeScale.value));
+	let s = JSON.stringify(rootStruct, null, "\t"); //to do: function for this repeated code? (also found in following functions and recalcExpRanges)
 	//final adjustments on indentation
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
 	s = s.replace(regex, " ");
@@ -512,7 +520,7 @@ function btnRhythmGenClick(event) {
 	setStructuredText(s);
 }
 function btnMelodyGenClick(event) {
-	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 	const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked);
 	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
@@ -594,10 +602,12 @@ function editorPaste(event) {
 function editorInput(event) {
 	if(!event || !event.target || !event.target.classList) return false;
 	event.target.classList.remove("invalid");
+	return true;
 }
 function editorChanged(event) {
 	if(!event || !event.target) return false;
 	event.target.normalize();
+	return true;
 }
 function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	const elem = event.target;
@@ -637,7 +647,7 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	//document.title = iArr.toString();
 }
 
-const focusableElemTypes = ["INPUT", "BUTTON"];
+const focusableElemTypes = ["INPUT", "SELECT", "BUTTON"];
 function addToolTipHandler(rootSelector, handler) {
 	if(!rootSelector) rootSelector = "body";
 	//document.body.addEventListener("touchstart", handler);
@@ -694,31 +704,36 @@ function getDateTimeCode(size) { //hard-coded to Western calendar.
 function structDownload(event) {
 	//for the future (as of 2024-08)?: window.showSaveFilePicker()
 	if(!window.ctlStructuredScript) return false;
-	//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-	const data = codeEditorContentGet(ctlStructuredScript);
-	let file;
-	const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
-
-	//date for file name
-	const fileName = getDateTimeCode(5) + ".mus.json";
-
 	try {
-		//specify the filename using the File constructor, but...
-		file = new File([data], fileName, properties);
+		//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
+		const data = codeEditorContentGet(ctlStructuredScript);
+		let file;
+		const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
+
+		//date for file name
+		const fileName = getDateTimeCode(5) + ".mus.json";
+
+		try {
+			//specify the filename using the File constructor, but...
+			file = new File([data], fileName, properties);
+		} catch(error) {
+			//...fall back to the Blob constructor if that isn't supported.
+			file = new Blob([data], properties);
+		}
+		if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
+		lastCodeObjURL = URL.createObjectURL(file);
+
+		if(!aStructDownload) return false;
+		aStructDownload.setAttribute('href', lastCodeObjURL);
+		aStructDownload.setAttribute('download', fileName);
+
+		/*const newEvent = new MouseEvent('click');
+		aStructDownload.dispatchEvent(newEvent);*/
+		aStructDownload.click();
 	} catch(error) {
-		//...fall back to the Blob constructor if that isn't supported.
-		file = new Blob([data], properties);
+		console.error(error);
+		return false;
 	}
-	if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
-	lastCodeObjURL = URL.createObjectURL(file);
-
-	if(!aStructDownload) return false;
-	aStructDownload.setAttribute('href', lastCodeObjURL);
-	aStructDownload.setAttribute('download', fileName);
-
-	/*const newEvent = new MouseEvent('click');
-	aStructDownload.dispatchEvent(newEvent);*/
-	aStructDownload.click();
 	return true;
 }
 
@@ -859,7 +874,7 @@ function inFileChange(event) {
 	if(!fileList || fileList.length < 1) {
 		outToolTip.innerText = "No file was chosen.";
 		outToolTip.style.position = "sticky";
-		return;
+		return; //question: is return false acceptable in event handlers?
 	}
 	const file = fileList[0];
 	file.text()?.then?.(value => {

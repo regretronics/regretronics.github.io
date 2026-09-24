@@ -7,6 +7,49 @@ var autoFlatten;
 //shared variables
 var struct;
 
+function parseExpRanges() {
+	if(!ctlPrimeExpRanges) return false;
+	try {
+		const parsed = JSON.parse(codeEditorContentGet(ctlPrimeExpRanges));
+		ctlPrimeExpRanges.classList.remove("invalid");
+		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
+
+		//clean-copying of JSON code
+		const newExpRanges = [];
+		let hasAnyRanges = false;
+		for(const factor in parsed) {
+			if(!Object.hasOwn(parsed, factor)) continue;
+			if(!primes.includes[factor]) continue;
+
+			const element = parsed[factor];
+			//normalize to 2-element array, ignore invalid entries
+			if(typeof(element) === "number")
+				element = [0, element];
+			else
+				if(Array.isArray(element))
+					element = [NaNToDefault(element[0], 0), NaNToDefault(element[1], 0)];
+				else
+					continue;
+			if(element[0] > element[1]) continue;
+			newExpRanges[factor] = element;
+			hasAnyRanges ||= element[1] > element[0];
+		}
+		if(Object.keys(primeExpRanges) <= 0) throw "Exponent ranges: no valid entries.";
+		if(!hasAnyRanges) throw "Exponent ranges: no valid ranges.";
+
+		primeExpRanges = newExpRanges;
+		saveControlPreference(ctlPrimeExpRanges);
+	} catch(error) {
+		console.error(error);
+		//codeEditorContentSet(ctlFlatScript, error.name + ": " + error.message);
+		//codeEditorContentSet(ctlFlatScript, error.toString());
+		ctlPrimeExpRanges.classList.add("invalid");
+		//ctlPrimeExpRanges.setCustomValidity(error.toString());
+		return false;
+	}
+	return true;
+}
+
 //recursive function
 //to do: consider negative time scales
 //question: propagation of arbitrary/unrecognized properties? (probably a bad idea, because of patterns)
@@ -85,7 +128,7 @@ function parseNode(flatStruct, node, blockContext) {
 		} catch(error) {
 			console.error(error);
 		}
-		else
+	else
 		if(node.remark) {
 			//remark-only dummy note
 			node.noteStart = NaNToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
@@ -118,6 +161,7 @@ function parseNode(flatStruct, node, blockContext) {
 let hasScriptChanged = true;
 function flattenStruct() {
 	if(!hasScriptChanged) return false;
+	if(!ctlStructuredScript) return false;
 	try {
 		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
 		ctlStructuredScript.classList.remove("invalid");
@@ -145,14 +189,17 @@ function flattenStruct() {
 		codeEditorContentSet(ctlFlatScript, s);
 		ctlFlatScript.classList.remove("invalid");
 	} catch(error) {
+		console.error(error);
 		//codeEditorContentSet(ctlFlatScript, error.name + ": " + error.message);
 		codeEditorContentSet(ctlFlatScript, error.toString());
 		ctlStructuredScript.classList.add("invalid");
 		//ctlStructuredScript.setCustomValidity(error.toString());
+		return false;
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
 	btnFlattenStruct.innerText = "Flattened";
+	return true;
 }
 
 function setStructuredText(s) {
@@ -168,6 +215,7 @@ function setStructuredText(s) {
 let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
 function scriptChanged() {
+	if(!window.flattenStruct) return false;
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 
@@ -180,6 +228,7 @@ function scriptChanged() {
 }
 
 function setAutoFlatten(value) {
+	if(!window.flattenStruct) return false;
 	autoFlatten = value;
 	if(autoFlatten) {
 		if(hasScriptChanged && !flattenTimeoutID) flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
