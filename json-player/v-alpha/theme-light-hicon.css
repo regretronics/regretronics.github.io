@@ -19,6 +19,7 @@
 	scrollbar-color:
 		hsl(var(--hue-accent2, 300), 12.5%, 12.5%)
 		hsl(var(--hue-accent2, 300), 12.5%, 93.75%);
+	outline-color: hsl(var(--hue-accent, 120), 25%, 25%);
 }
 *::-webkit-scrollbar {
 	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);

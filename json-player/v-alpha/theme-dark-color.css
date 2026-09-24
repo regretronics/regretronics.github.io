@@ -20,6 +20,7 @@
 	scrollbar-color:
 		hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875)
 		hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
+	outline-color: hsl(var(--hue-accent, 120), 50%, 62.5%);
 }
 /* * {
 	transition-property: --hue-accent !important;

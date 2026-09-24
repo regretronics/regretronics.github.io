@@ -1,40 +1,55 @@
 @media screen {
 	.section-link:is(:hover, :focus) {
-		&::before {
+		&::after {
 			/* display: inline; */
-			content: "🔗︎ " / attr(href);
-			/* 🔖🔗🖇📑🔖︎🔗︎📑︎🖇︎ */
+			font-size: 0.85em;
+			content: " 🖇︎" / attr(href);
+			/* 🔖📑🔗🖇🔖︎📑︎🔗︎🖇︎ */
 		}
 	}
 
 	/*for wide viewports, a two-column layout (control panel + documentation)*/
 	/*@media (min-width: 160ch) {*/
-	@media
+	/* @media
 		(orientation: landscape) and (min-width: 160ch),
 		(min-aspect-ratio: 3/2) and (min-width: 128ch),
-		(min-aspect-ratio: 2/1) and (min-width: 80ch) {
+		(min-aspect-ratio: 2/1) and (min-width: 80ch) { */
 		/* (min-aspect-ratio: 2/1) and (min-width: calc(var(--page-scale, 1) * 80ch)) { */
-		:root {
-			height: 100%;
-		}
+	/* @container
+		(width >= 160ch) or
+		((orientation: landscape) and (width >= 144ch)) or
+		((aspect-ratio >= 3/2) and (width >= 104ch)) or
+		((aspect-ratio >= 2/1) and (width >= 88ch)) { */
+	@container
+		(width >= calc(960px + 20ch)) or
+		((orientation: landscape) and (width >= calc(864px + 18ch))) or
+		((aspect-ratio >= 3/2) and (width >= calc(624px + 13ch))) or
+		((aspect-ratio >= 2/1) and (width >= calc(528px + 11ch))) {
 		body {
+			box-sizing: border-box;
+			margin: 0em;
+			height: 100%;
+			/*height: 100vh;*/
+
 			display: flex;
 			flex-direction: row;
 			flex-wrap: nowrap;
 			justify-content: center;
 			align-items: stretch;
 
-			box-sizing: border-box;
-			margin: 0em;
-			height: 100%;
-			/*height: 100vh;*/
-
 			& > .major-section {
 				box-sizing: border-box;
 				height: 100%;
 				overflow-y: auto;
 				/* padding: 2vmin; */
-				padding: max(0em, 1.5vmin, 7.5vmin - 8ch);
+				/* padding: max(1.5vmin, 5vmin - 8ch); */
+				/* padding: max(1vmin, 4vmin - 2ch, 9vmin - 8ch); */
+				--viewport-frac: calc(3.125vmax + 6.25vmin);
+				--text-frac: calc(8 * (1em + 1ch));
+				padding: calc(0.0625 * max(/* 0ch, */ 
+					var(--viewport-frac), 
+					4 * var(--viewport-frac) - var(--text-frac), 
+					9 * var(--viewport-frac) - 4 * var(--text-frac)));
 			}
 			& > main {
 				flex-basis: 96ch;

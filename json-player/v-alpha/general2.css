@@ -62,12 +62,18 @@
 	padding: 0px;
 } */
 
+/* @media (max-width: 64ch) { */
+@container (inline-size < 64ch) {
+	header:has(details[open]) h1 {
+		clear: both;
+	}
+}
 details > summary:first-of-type {
 	cursor: pointer;
 	font-weight: bold;
 }
 
-table.controls-group :is(th, td):nth-child(2) {
+table.controls-group :is(th, td):not(.left):nth-child(2) {
 	text-align: end;
 }
 code:not(.long) { /*class "long" reserved for future use*/
@@ -192,9 +198,11 @@ input:is([type=checkbox], [type=radio]) + label {
 	/*position: sticky;*/
 	bottom: 0em;
 	padding-block: 1em;
-	padding-inline: max(2ch, 50% - 0.5*120ch);
+	/* padding-inline: max(2ch, 50% - 0.5*120ch);
 	width: calc(100% - 2*2ch);
-	max-width: 120ch;
+	max-width: 120ch; */
+	padding-inline: 2ch;
+	width: auto;
 
 	background-color: Canvas;
 }
@@ -217,7 +225,8 @@ svg g {
 	height: fit-content; /*necessary to allow cell height-filling buttons*/
 }
 td {
-	padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em);
+	/* padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em); */
+	padding: clamp(0.125em, 0.75cqb + 1.5cqi - 0.25em - 8px, 0.25em + 0.5cqi);
 
 	/* &:has(.interval-sample) { */
 	/* &.sample-cell { */

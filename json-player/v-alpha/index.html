@@ -62,6 +62,7 @@
 		<!-- <header class="flex-row align-top"> -->
 		<header>
 			<!-- <span class="right print-dp-none" style="flex-basis: 30ch;"> -->
+			<!--to do: persistent options for the open state of newly added detail elements-->
 			<details id="grpUiOptions" class="right print-dp-none">
 				<summary>UI options</summary>
 				<span class="cell"><strong class="chunk">Text size:</strong> 
@@ -91,13 +92,16 @@
 					<!-- <img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" /> -->
 					<img src="icon/Musical-science-white-optim.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="titleIconImg" role="img" /><!--this one is possibly used in Facebook as of 2025-06.-->
 				</picture>
-				<!--"chunks" below are for organizing a line break hierarchy (mostly for aesthetic reasons)-->
+				<!--"chunks" below are for organizing a line break hierarchy (mostly for typography aesthetics)-->
 				<!--throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart.-->
 				<span class="lang-static" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="lang-flex" hidden="hidden">JSON-based music format, player and generator</span>
 			</h1>
 		</header>
 		<!--question: put #translationWarning and noscript inside header element?-->
-		<p id="translationWarning" class="lang-flex" hidden="hidden">Warning: machine translation detected. Unfortunately, this page is hard to translate automatically; texts often become inaccurate or incomprehensible, despite adaptations to help automatic translation.</p>
+		<p id="translationWarning" class="lang-flex" hidden="hidden">
+			Warning: machine translation detected. 
+			Unfortunately, this page has several small portions of text, which makes it hard to translate automatically. 
+			Those texts are expected to become inaccurate or incomprehensible, despite adaptations to aid automatic translation.</p>
 		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
 		<details>
 			<summary>Generator parameters</summary>
@@ -240,7 +244,7 @@
 			<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" aria-placeholder="[{&quot;property&quot;: 123}]"></pre>
 		</details>
 		<details>
-			<summary>Overall controls</summary>
+			<summary>Overall play controls</summary>
 			<!--question: switch input elems to type="range"? (or have them both?)-->
 			<table class="controls-group">
 				<tbody>
