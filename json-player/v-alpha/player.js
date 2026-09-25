@@ -123,11 +123,11 @@ function defNodeEnded() {
 		//console.debug(`defNodeEnded(): clip.audioCtx.currentTime: ${clip.audioCtx.currentTime}; clip.flatStruct: ${clip.flatStruct}.`);
 		//console.debug(`defNodeEnded(): clip.duration: ${clip.duration}; clip.t0: ${clip.t0}.`);
 		if(clip.generators || clip.auxNodes || clip.flatStruct) {
-			//console.log("defNodeEnded(): Will end clip.");
+			//console.log("defNodeEnded(): will end clip.");
 			if(clip.onClipEnd) clip.onClipEnd(false); else emptyClip(clip, false);
 		}
 		if(clip === playerClip && clip.audioCtx.state === 'running') {
-			console.log("defNodeEnded(): Will suspend audioCtx.");
+			console.log("defNodeEnded(): will suspend audioCtx.");
 			clip.audioCtx.suspend().then(() => {
 				if(clip === playerClip && chkAutoReload && chkAutoReload.checked)
 					loadAndPlay();
@@ -364,7 +364,7 @@ let lastT = 0, visT = 0;
 //function audioTimer(noEnqueue) {
 function audioTimer(clip) {
 	if(!clip) {
-		console.info("audioTimer(): Parameter clip is empty. Returning.");
+		console.info("audioTimer(): parameter clip is empty. Returning.");
 		return false;
 	}
 	if(!clip.open) {
@@ -391,11 +391,11 @@ function audioTimer(clip) {
 		&& clip.generators.length < 1
 		&& (!clip.flatStruct || clip.flatStruct.length < 1)) {
 		if(clip.generators || clip.auxNodes || clip.flatStruct) {
-			console.log("audioTimer(): Will close clip.");
+			console.log("audioTimer(): will close clip.");
 			if(clip.onClipEnd) clip.onClipEnd(false); else emptyClip(clip, false);
 		}
 		if(clip === playerClip) {
-			console.log("audioTimer(): Will suspend audioCtx and return.");
+			console.log("audioTimer(): will suspend audioCtx and return.");
 			clip.audioCtx?.suspend?.()?.then?.(() => {
 				if(clip === playerClip && chkAutoReload && chkAutoReload.checked)
 					loadAndPlay();
@@ -469,7 +469,7 @@ function audioTimer(clip) {
 	//if(clip.audioCtx.currentTime - clip.t0 >= clip.duration - 1)
 	//if(clip.audioCtx.currentTime - clip.t0 >= 0.1)
 		//throw "Test."; //call stack test
-	//window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
+	//window.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
 	//to do: allow skipping/fast forward/rewind?
 }
 
@@ -533,7 +533,7 @@ function loadNewClip() {
 	return new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
 }
 function beforePlay() {
-	console.log("beforePlay started...");
+	console.log("beforePlay(): function started...");
 	playerClip.destNode = playerClip.audioCtx.destination;
 
 	//if(!playerClip.noiseBuffer || noiseSource.context !== playerClip.audioCtx) playerClip.noiseBuffer = createNoiseBuffer();
@@ -561,7 +561,7 @@ function beforePlay() {
 	else
 		//audioTimer(playerClip);
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-		//window.requestAnimationFrame((timestamp) => audioTimer(clip, timestamp));
+		//window.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
 		playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 	if(window.btnPause) {
 		btnPause.innerHTML = pauseToggleCaptions[true];
@@ -612,7 +612,7 @@ function loadAndPlay() {
 function emptyClip(clip, suspend) {
 	if(!clip) return false;
 	if(!clip.open) return false;
-	//console.log("emptyClip() started...");
+	//console.log("emptyClip(): function started...");
 	printClip(clip, "emptyClip(): ");
 
 	for(const node of clip.generators) {
@@ -661,7 +661,7 @@ function playerClipEnd(suspend) {
 
 //reversible operation
 function pauseToggle() {
-	console.log("pauseToggle() started...");
+	console.log("pauseToggle(): function started...");
 	if(!playerClip) return false;
 	if(!playerClip.open || !playerClip.audioCtx) return false;
 	//audioTUpdate();
@@ -678,7 +678,7 @@ function pauseToggle() {
 			});
 	} else {
 		//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000), playerClip);
-		//playerClip.audioCtx.resume().then(() => window.requestAnimationFrame((timestamp) => audioTimer(playerClip, timestamp)));
+		//playerClip.audioCtx.resume().then(() => window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp)));
 		;
 		playerClip.audioCtx.resume().then(() => {
 			audioTimer(playerClip);
@@ -686,7 +686,7 @@ function pauseToggle() {
 			playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 		});
 		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-		//window.requestAnimationFrame((timestamp) => audioTimer(playerClip, timestamp));
+		//window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp));
 	}
 	//audioTimer(playerClip.audioCtx.state !== 'running');
 	//audioTimer(playerClip); //question: is this statement necessary?
@@ -782,7 +782,7 @@ function exportAudioTimer(clip) {
 			clip.timerID = NaN;
 		}
 	//window.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000, clip);
-	//window.requestAnimationFrame((timestamp) => exportAudioTimer(clip, timestamp));
+	//window.requestAnimationFrame(timestamp => exportAudioTimer(clip, timestamp));
 }
 function beforeRecord() {
 	//exportClip.destNode = exportClip.audioCtx.destination;
@@ -815,7 +815,7 @@ function beforeRecord() {
 	};
 
 	enqueueNotes(exportClip, lastT, Infinity);
-	//console.log("audioExport(): enqueueNotes done.");
+	//console.log("beforeRecord(): enqueueNotes done.");
 	if(window.outExportProgress) outExportProgress.innerText = "Starting";
 	mediaRecorder.start();
 	exportClip.audioCtx.resume().then(() => {

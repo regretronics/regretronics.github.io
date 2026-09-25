@@ -7,34 +7,40 @@ var autoFlatten;
 //shared variables
 var struct;
 
-function parseExpRanges() {
+function parseExpRanges(event) {
 	if(!ctlPrimeExpRanges) return false;
 	try {
 		const parsed = JSON.parse(codeEditorContentGet(ctlPrimeExpRanges));
+		if(!parsed) throw "Exponent ranges: couldn't parse JSON code.";
 		ctlPrimeExpRanges.classList.remove("invalid");
 		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 
 		//clean-copying of JSON code
-		const newExpRanges = [];
+		const newExpRanges = {};
 		let hasAnyRanges = false;
-		for(const factor in parsed) {
-			if(!Object.hasOwn(parsed, factor)) continue;
-			if(!primes.includes[factor]) continue;
+		for(const strFactor in parsed) {
+			if(!Object.hasOwn(parsed, strFactor)) continue;
+			const factor = parseNumber(strFactor);
+			if(isNaN(factor)) continue;
+			if(!primes.includes(factor)) continue;
 
-			const element = parsed[factor];
+			let element = parsed[strFactor];
 			//normalize to 2-element array, ignore invalid entries
 			if(typeof(element) === "number")
 				element = [0, element];
 			else
 				if(Array.isArray(element))
-					element = [NaNToDefault(element[0], 0), NaNToDefault(element[1], 0)];
-				else
-					continue;
+					element = [NaNToDefault(parseNumber(element[0]), 0), NaNToDefault(parseNumber(element[1]), 0)];
+				else {
+					const elementNum = parseNumber(parseNumber);
+					if(isNaN(elementNum)) continue;
+					element = [0, elementNum];
+				}
 			if(element[0] > element[1]) continue;
 			newExpRanges[factor] = element;
-			hasAnyRanges ||= element[1] > element[0];
+			hasAnyRanges ||= (element[1] > element[0]);
 		}
-		if(Object.keys(primeExpRanges) <= 0) throw "Exponent ranges: no valid entries.";
+		if(Object.keys(newExpRanges) <= 0) throw "Exponent ranges: no valid entries.";
 		if(!hasAnyRanges) throw "Exponent ranges: no valid ranges.";
 
 		primeExpRanges = newExpRanges;
@@ -164,6 +170,7 @@ function flattenStruct() {
 	if(!ctlStructuredScript) return false;
 	try {
 		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
+		if(!struct) throw "Structured script: couldn't parse JSON code.";
 		ctlStructuredScript.classList.remove("invalid");
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 

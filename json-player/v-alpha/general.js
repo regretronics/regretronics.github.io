@@ -1,10 +1,11 @@
 "use strict";
 
 //to do: consider extra .js file for user interface
+//to do: return true more often? (in this case, start by finding "return false" occurrences)
+//to do: more console reports (success and failure of many operations)
 //to do: consider worker threads or scheduler
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
-//to do: return true more often? (in this case, start by finding "return false" occurrences)
 //to do: consider radically changing flattened format: events (more like midi), supporting named notes
 //to do: multitrack architecture for mixing and effect pipelines, with named tracks
 //to do: ...take query parameters (e.g. ?baseFreq=512&makeMelody)
@@ -295,8 +296,8 @@ function loadEventHandlers() {
 		main1.addEventListener("drop", mainDrop);
 	}
 
-	addToolTipHandler("body>main", event => setToolTip(event, outToolTip));
-	addToolTipHandler("#tblFractionIntervals", event => setToolTip(event, outToolTip2));
+	addToolTipHandler("body>main", event => updateToolTip(event, outToolTip));
+	addToolTipHandler("#tblFractionIntervals", event => updateToolTip(event, outToolTipIntervals));
 }
 //to do: rigorous review of load routine order
 function pageLoaded() {
@@ -378,6 +379,8 @@ function pageReady(event) {
 			document.title = s + " JSON music";
 		}, 200);*/
 	//}
+
+	console.log("pageReady: function ended");
 }
 if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
@@ -501,6 +504,7 @@ function btnRhythmFactorsGenClick(event) {
 }
 function btnChordGenClick(event) {
 	const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), expVariance, parseNumber(txtTimeScale.value));
+	if(rootStruct === false) return;
 	let s = JSON.stringify(rootStruct, null, "\t"); //to do: function for this repeated code? (also found in following functions and recalcExpRanges)
 	//final adjustments on indentation
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
@@ -511,6 +515,7 @@ function btnChordGenClick(event) {
 }
 function btnRhythmGenClick(event) {
 	const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
+	if(rootStruct === false) return;
 	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
@@ -522,6 +527,7 @@ function btnRhythmGenClick(event) {
 function btnMelodyGenClick(event) {
 	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 	const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked);
+	if(rootStruct === false) return;
 	let s = JSON.stringify(rootStruct, null, "\t");
 	//final adjustments on indentation
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
@@ -663,9 +669,18 @@ function addToolTipHandler(rootSelector, handler) {
 		elem.addEventListener("pointerdown", handler);
 	}
 }
-function setToolTip(event, outToolTip) {
-	if(!outToolTip) outToolTip = window.outToolTip;
-	if(!outToolTip) return false;
+function setToolTip(toolTipCtl, s) {
+	if(!toolTipCtl) toolTipCtl = window.outToolTip;
+	if(!toolTipCtl) return false;
+	if(!s) return false;
+	if(typeof(s) !== "string") s = s.toString();
+
+	toolTipCtl.innerText = s;
+	//toolTipCtl.innerHTML = s;
+	//toolTipCtl.style.position = "sticky";
+	toolTipCtl.classList.add("active");
+}
+function updateToolTip(event, outToolTip) {
 	let elem = event.target;
 	if(!elem || !elem.title || !elem.title.length)
 		elem = event.currentTarget; //for events fired in descendant elements, e.g. td in tr
@@ -682,12 +697,10 @@ function setToolTip(event, outToolTip) {
 	if(typeof(description) === "string" && description.length > 0 && (!elem?.validity || !elem?.validity?.stepMismatch))
 		sentences.push(description);
 
-	if(sentences.length > 0) {
-		//outToolTip.innerText = sentences.join(" ");
-		outToolTip.innerText = sentences.join("\n");
-		//outToolTip.innerHTML = sentences.join("<br />");
-		outToolTip.style.position = "sticky";
-	}
+	if(sentences.length > 0)
+		//setToolTip(outToolTip, sentences.join(" "));
+		setToolTip(outToolTip, sentences.join("\n"));
+		//setToolTip(outToolTip, sentences.join("<br />"));
 }
 
 let lastCodeObjURL = null;
@@ -839,28 +852,21 @@ function mainDrop(event) {
 	if(event.dataTransfer.items) {
 		const item = event.dataTransfer.items[0];
 		if(item.kind === "string" && item.type.match(/^text\/plain/)) {
-			item.getAsString((s) => {setStructuredText(s);});
+			item.getAsString(s => setStructuredText(s));
 		} else
 			if(item.kind === "file") {
 				item.getAsFile().text()?.then?.(value => {
 					setStructuredText(value);
-				}, reason => {
-					outToolTip.innerText = "Dropped file could not be read: " + reason.toString();
-					outToolTip.style.position = "sticky";
-				});
+				}, reason => setToolTip(outToolTip, "Dropped file could not be read: " + reason.toString()));
 			}
 	} else {
 		if(event.dataTransfer.files.length < 1) {
-			outToolTip.innerText = "No files were dropped.";
-			outToolTip.style.position = "sticky";
+			setToolTip(outToolTip, "No files were dropped.");
 			return;
 		}
 		event.dataTransfer.files[0].text()?.then?.(value => {
 			setStructuredText(value);
-		}, reason => {
-			outToolTip.innerText = "Dropped file could not be read: " + reason.toString();
-			outToolTip.style.position = "sticky";
-		});
+		}, reason => setToolTip(outToolTip, "Dropped file could not be read: " + reason.toString()));
 	}
 }
 
@@ -872,15 +878,11 @@ function btnStructImportClick(event) {
 function inFileChange(event) {
 	const fileList = this.files;
 	if(!fileList || fileList.length < 1) {
-		outToolTip.innerText = "No file was chosen.";
-		outToolTip.style.position = "sticky";
+		setToolTip(outToolTip, "No file was chosen.");
 		return; //question: is return false acceptable in event handlers?
 	}
 	const file = fileList[0];
 	file.text()?.then?.(value => {
 		setStructuredText(value);
-	}, reason => {
-		outToolTip.innerText = "Chosen file could not be read: " + reason.toString();
-		outToolTip.style.position = "sticky";
-	});
+	}, reason => setToolTip(outToolTip, "Chosen file could not be read: " + reason.toString()));
 }

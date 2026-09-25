@@ -75,6 +75,7 @@ function newChord(voiceCount, polyphony, primeCount) {
 	return chordStruct;
 }
 function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: remove _expVariance or change to primeExpRanges
+	//to do: turn these return's into exceptions, which support messages
 	if(primeCount <= 1) return false;
 	if(patCount <= 0) return false;
 	if(voiceCount < 2) return false;
@@ -102,7 +103,8 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: r
 }
 
 //rhythm structure generator
-//to do: currently, rhythmScale is like a maximum. follow it more closely.
+//question: currently, rhythmScale is like a maximum. follow it more closely?
+//to do: avoid repeating the last result, when the scale is reasonably high (e.g. 8) and the prime count too
 function makeRhythmFactors(rhythmScale, primeCount) {
 	if(primeCount < 1) return false;
 	const rhythmFactors = [];
@@ -312,8 +314,8 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
 
 		//factor selection
-		//const beatType = i < 1;
-		const beatType = i >= (beats2 - 1);
+		//const beatType = i < 1; //is first beat?
+		const beatType = i >= (beats2 - 1); //is last beat?
 		let iPrime, rnd;// = Math.random();
 		//iPrime = 1 + Math.floor((primeCount - 1) * rnd); //uniform distribution
 		//if(beatType) { //strong (#0) beat
@@ -366,7 +368,7 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 		//} while((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation));
 		//} while(Math.abs(newExp) > maxExp && sign === Math.sign(newExp));
 		//} while((newExp > maxExp || - newExp < -0.5 * maxExp) && sign === Math.sign(newExp));
-		} while(newExp < expBounds[0] || newExp > expBounds[1]);
+		} while((newExp < expBounds[0] || newExp > expBounds[1]) && sign === Math.sign(newExp));
 		//} while(newExp < 0 || newExp > maxExp);
 
 		//const newExp = newNode.freq[primes[iPrime]] + sign;

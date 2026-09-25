@@ -194,17 +194,9 @@ input:is([type=checkbox], [type=radio]) + label {
 .tool-tip {
 	font-style: italic;
 
-	z-index: 256;
-	/*position: sticky;*/
-	bottom: 0em;
-	padding-block: 1em;
 	/* padding-inline: max(2ch, 50% - 0.5*120ch);
 	width: calc(100% - 2*2ch);
 	max-width: 120ch; */
-	padding-inline: 2ch;
-	width: auto;
-
-	background-color: Canvas;
 }
 code, .code-editor {
 	font-size: 0.8em;

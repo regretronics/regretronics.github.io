@@ -427,7 +427,7 @@ function recalcExpRanges(force) {
 	s = s.replace(regex, "\{$1\}");
 	if(window.ctlPrimeExpRanges) {
 		codeEditorContentSet(ctlPrimeExpRanges, s);
-		saveControlPreference(ctlPrimeExpRanges);
+		if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
 	}
 }
 

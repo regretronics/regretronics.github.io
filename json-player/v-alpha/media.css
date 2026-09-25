@@ -65,10 +65,6 @@
 				display: none;
 			}
 		}
-		#outToolTip {
-			padding-inline: 1em;
-			max-width: 100%;
-		}
 	}
 	.code-editor {
 		height: 12em;

@@ -3,9 +3,12 @@
 	--page-scale: 1;
 	font-size: calc(var(--page-scale, 1) * 1em);
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+
 	container-name: root;
 	container-type: size;
 	height: 100%;
+
+	background-color: Canvas;
 }
 /*body {
 	display: flex;
@@ -176,6 +179,26 @@ input[type=checkbox] {
 /* .chunk {
 	text-wrap-mode: wrap;
 } */
+.tool-tip {
+	z-index: 256;
+	width: auto;
+	padding-block: 1em;
+	/* padding-inline: max(2ch, 50% - 0.5*120ch);
+	width: calc(100% - 2*2ch);
+	max-width: 120ch; */
+	padding-inline: 2ch;
+
+	background-color: ButtonFace;
+
+	&.active {
+		position: sticky;
+		bottom: 0em;
+	}
+}
+/* #outToolTip {
+	padding-inline: 1em;
+	max-width: 100%;
+} */
 /* .section-link:not(:hover) {
 	color: inherit;
 	text-decoration: none;
@@ -190,8 +213,8 @@ input[type=checkbox] {
 .code-editor {
 	box-sizing: border-box;
 	/* border: solid 0.25em; */
-	padding: 0.125em;
 	width: 100%;
+	padding: 0.125em;
 
 	/* resize: none; */
 	overflow-y: auto;
@@ -203,6 +226,8 @@ input[type=checkbox] {
 	/* text-overflow: unset; */
 	/* line-break: anywhere; */
 	/* overflow-wrap: anywhere; */
+
+	background-color: Field;
 
 	td > & {
 		margin-block: 0em;
@@ -255,6 +280,8 @@ input[type=checkbox] {
 #imgVisualizer {
 	width: 100%;
 	height: 96px;
+
+	background-color: Field;
 }
 #tblFractionIntervals {
 	width: 100%;
