@@ -60,78 +60,214 @@
 		grid-template-columns: repeat(auto-fill, minmax(7em, 1fr));
 		gap: 0.25em;
 	}
+
 	@property --bg {
 		syntax: "\3c color\3e";
 		inherits: true;
 		initial-value: transparent;
 	}
-	@property --test-color {
+	@property --attr-color {
 		syntax: "\3c color\3e | auto";
 		inherits: true;
 		initial-value: auto;
 	}
+	@property --clr-bit0 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+	@property --clr-bit1 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+	@property --clr-bit2 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+	@property --clr-bit3 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+	@property --clr-bit4 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+	@property --clr-bit5 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+	@property --clr-bit6 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+	@property --clr-bit7 {
+		syntax: "\3c color\3e";
+		inherits: false;
+		initial-value: transparent;
+	}
+
+	/*didn't work*/
+	/* @function --save-luma(--x <number>) returns <number> {
+		counter-set: luma round(nearest, 1000 * var(--x));
+		/ * counter-increment: luma 321; * /
+		result: var(--x);
+	} */
+	@function --id(--x) {
+		/* result: 100; */
+		result: var(--x);
+	}
+	/* @function --get-bit(--x <number>, --i <integer>) returns <number> { */
+	@function --get-bit(--x, --i <integer>) {
+	/* @function --get-bit(--x) { */
+		/* result: 100; */
+		/* result: var(--x); */
+		--scale: pow(2, var(--i));
+		result: mod(round(down, var(--scale) * var(--x)), 2);
+	}
+	@function --get-bit-c(--x <color>, --i <integer>) returns <color> {
+	/* @function --get-bit(--x) { */
+		/* result: white; */
+		/* result: contrast-color(oklch(from var(--x) l 0 0)); */
+		result: contrast-color(oklch(from var(--x) mod(round(down, pow(2, var(--i)) * l), 2) 0 0));
+	}
+
 	.color-plate {
 		border-radius: 0.1875em;
 		padding: 0.125em;
 		overflow-block: clip;
 		overflow-inline: hidden;
 
-		--test-color: attr(data-color type(<color>));
-		/* background-color: attr(data-color type(<color>)); *//* not supported by firefox as of 2025-12. */
+		--attr-color: attr(data-color type(<color>));/* not supported by firefox as of 2025-12. */
+		/* --attr-color-str: var(--attr-color); */
+		/* --dummy: oklch(from var(--attr-color) --save-luma(l) 0 0); */
+		/* --clr-bit1: oklch(1 0 0); */
+		/* --clr-bit1: oklch(from oklch(1 0 0) l 0 0); */
+		/* --clr-bit1: oklch(from oklch(1 0 0) --id(l) 0 0); */
+		/* --clr-bit1: oklch(from oklch(1 0 0) --get-bit(l, 1) 0 0); */
+		/* --clr-bit1: oklch(from white --get-bit(l, 1) 0 0); */
+		/* --clr-bit1: oklch(from var(--attr-color) --get-bit(l, 1) 0 0); */
+		/* --clr-bit1: --get-bit-c(white, 1); */
+		--clr-bit0: --get-bit-c(var(--attr-color), 0);
+		--clr-bit1: --get-bit-c(var(--attr-color), 1);
+		--clr-bit2: --get-bit-c(var(--attr-color), 2);
+		--clr-bit3: --get-bit-c(var(--attr-color), 3);
+		--clr-bit4: --get-bit-c(var(--attr-color), 4);
+		--clr-bit5: --get-bit-c(var(--attr-color), 5);
+		--clr-bit6: --get-bit-c(var(--attr-color), 6);
+		--clr-bit7: --get-bit-c(var(--attr-color), 7);
+
+		/* --clr-bit1: hsl(0 0 100); */
+		/* --clr-bit1: hsl(from hsl(0 0 100) 0 0 l); */
+		/* --clr-bit1: hsl(from hsl(0 0 100) 0 0 --get-bit(l, 1)); */
+
+		counter-reset: luma -1;
+		/* counter-set: luma if(style(--clr-bit1: white): 0; else: 1;); */
+		--luma: calc(
+			128 * if(style(--clr-bit0: white): 0; else: 1;)
+			+ 64 * if(style(--clr-bit1: white): 0; else: 1;)
+			+ 32 * if(style(--clr-bit2: white): 0; else: 1;)
+			+ 16 * if(style(--clr-bit3: white): 0; else: 1;)
+			+ 8 * if(style(--clr-bit4: white): 0; else: 1;)
+			+ 4 * if(style(--clr-bit5: white): 0; else: 1;)
+			+ 2 * if(style(--clr-bit6: white): 0; else: 1;)
+			+ 1 * if(style(--clr-bit7: white): 0; else: 1;)
+			);
+		counter-set: luma round(nearest, 100 * var(--luma) / 127);
+		/* counter-set: luma if(
+			style(--clr-bit1: transparent): -10; 
+
+			style(--clr-bit1: black): 0; 
+			style(--clr-bit1: color(srgb 0 0 0)): 1; 
+			style(--clr-bit1: hsl(0 0 0)): 2; 
+			style(--clr-bit1: oklch(0 0 0)): 3; 
+			style(--clr-bit1: rgb(0 0 0)): 4; 
+			style(--clr-bit1: #000000): 5; 
+
+			style(--clr-bit1: white): 10; 
+			style(--clr-bit1: color(srgb 1 1 1)): 11; 
+			style(--clr-bit1: hsl(0 0 100)): 12; 
+			style(--clr-bit1: oklch(1 0 0)): 13; 
+			style(--clr-bit1: rgb(255 255 255)): 14; 
+			style(--clr-bit1: #ffffff): 15; 
+			else: -100;
+			); */
+		--bg: var(--attr-color);
+		--fg: contrast-color(var(--attr-color));
+		background-color: var(--attr-color);
+
+		&::before, &::after {
+			display: block;
+			user-select: all;
+			pointer-events: all;
+			
+			font-size: 0.75em;
+			/* text-wrap-mode: wrap; */ /*"whether the text inside an element is wrapped"*/
+			/* line-break: anywhere; */ /*"what set of line breaking restrictions are in effect within the element"*/
+			/* word-break: break-all; */ /*"line break opportunities for non-CJK scripts"*/
+			word-wrap: break-word; /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit"*/
+			/* overflow-wrap: anywhere; */ /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit within the line box"*/
+
+			text-shadow: 0 0 0.125em var(--shadow-clr);
+		}
+		&::before {
+			content: attr(data-color);
+			/* content: attr(data-color) " " var(--attr-color-str); */
+		}
+		&::after {
+			--clr-support: " \002713";
+			@container style(--attr-color: auto) {
+				--clr-support: " 🙁";
+			}
+			@supports (content: if(style(--attr-color: auto): "";)) {
+				--clr-support: if(
+					style(--attr-color: auto): " 🙁"; 
+					else: " \002713";);
+				--clr-luma: if(
+					style(--attr-color: auto): ""; 
+					else: " (l " counter(luma) ")";);
+			}
+			content: attr(data-categ, "") var(--clr-support) var(--clr-luma, "");
+		}
+
+		&[data-color] {
+			--opp: clamp(0, 1.5 - 2 * l, 1) calc(-0.5 * a) calc(-0.5 * b);
+
+			--bg-opp: oklab(from var(--bg) var(--opp) / 1);
+			--fg-opp: oklab(from var(--fg) var(--opp) / 1);
+
+			/* --text-clr: color-mix(in oklab, var(--bg-opp), var(--fg)); */
+			/* --text-clr: var(--bg-opp); */
+			/* --text-clr: var(--fg); */
+			--text-clr: alpha(from var(--fg) / 1);
+			/* --text-clr: color(from var(--fg) xyz x y z / 1); */
+
+			/* --shadow-clr: oklab(from var(--text-clr) var(--opp) / 1); */
+			--shadow-clr: var(--bg-opp);
+			/* --shadow-clr: var(--fg-opp); */
+			/* --shadow-clr: var(--text-clr); */
+
+			background-clip: padding-box;
+			background-image: linear-gradient(var(--bg)), url("assets/pattern-neutral-soft.svg");
+			background-size: cover, 2em 2em; /*to do: browsers are complaining about background-size and background-repeat. check syntax.*/
+			background-repeat: no-repeat, repeat;
+			background-position: center;
+			/* background-color: var(--bg); */
+
+			color: var(--text-clr);
+			/* color: contrast-color(var(--bg)); */
+
+			border-style: solid;
+			border-color: color(from var(--bg-opp) xyz x y z / calc(0.75 * alpha));
+			border-width: 0.125em;
+		}
 	}
-	.color-plate::before {
-		display: block;
 
-		/* text-wrap-mode: wrap; */ /*"whether the text inside an element is wrapped"*/
-		/* line-break: anywhere; */ /*"what set of line breaking restrictions are in effect within the element"*/
-		/* word-break: break-all; */ /*"line break opportunities for non-CJK scripts"*/
-		word-wrap: break-word; /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit"*/
-		/* overflow-wrap: anywhere; */ /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit within the line box"*/
-
-		user-select: all;
-		pointer-events: all;
-		text-shadow: 0 0 0.125em var(--shadow-clr);
-
-		content: attr(data-color);
-	}
-	.color-plate::after {
-		display: block;
-
-		text-shadow: 0 0 0.125em var(--shadow-clr);
-
-		content: if(
-			style(--test-color: auto): " 🙁"; 
-			else: " \002713";);
-	}
-
-	.color-plate[data-color] {
-		--opp: clamp(0, 1.5 - 2 * l, 1) calc(-0.5 * a) calc(-0.5 * b);
-
-		--bg-opp: oklab(from var(--bg) var(--opp) / 1);
-		--fg-opp: oklab(from var(--fg) var(--opp) / 1);
-
-		/* --text-clr: color-mix(in oklab, var(--bg-opp), var(--fg)); */
-		/* --text-clr: var(--bg-opp); */
-		--text-clr: var(--fg);
-
-		/* --shadow-clr: oklab(from var(--text-clr) var(--opp) / 1); */
-		--shadow-clr: var(--bg-opp);
-		/* --shadow-clr: var(--fg-opp); */
-		/* --shadow-clr: var(--text-clr); */
-
-		background-clip: padding-box;
-		background-image: linear-gradient(var(--bg)), url("assets/pattern-neutral-soft.svg");
-		background-size: cover, 2em 2em;
-		background-repeat: no-repeat, repeat;
-		background-position: center;
-		/* background-color: var(--bg); */
-
-		color: var(--text-clr);
-
-		border-style: solid;
-		border-color: color(from var(--bg-opp) xyz x y z / calc(0.75 * alpha));
-		border-width: 0.125em;
-	}
 	[data-color="AccentColor"] {
 		--bg: AccentColor;
 		--fg: AccentColorText;
@@ -218,52 +354,106 @@
 <body>
 	<div class="paragraph light">
 		Light mode:
-		<br /><div class="color-group">
-			<span class="color-plate" data-color="AccentColor"></span>
-			<span class="color-plate" data-color="AccentColorText"></span>
-			<span class="color-plate" data-color="ActiveText"></span>
-			<span class="color-plate" data-color="ButtonBorder"></span>
-			<span class="color-plate" data-color="ButtonFace"></span>
-			<span class="color-plate" data-color="ButtonText"></span>
-			<span class="color-plate" data-color="Canvas"></span>
-			<span class="color-plate" data-color="CanvasText"></span>
-			<span class="color-plate" data-color="Field"></span>
-			<span class="color-plate" data-color="FieldText"></span>
-			<span class="color-plate" data-color="GrayText"></span>
-			<span class="color-plate" data-color="Highlight"></span>
-			<span class="color-plate" data-color="HighlightText"></span>
-			<span class="color-plate" data-color="LinkText"></span>
-			<span class="color-plate" data-color="Mark"></span>
-			<span class="color-plate" data-color="MarkText"></span>
-			<span class="color-plate" data-color="SelectedItem"></span>
-			<span class="color-plate" data-color="SelectedItemText"></span>
-			<span class="color-plate" data-color="VisitedText"></span>
+		<div class="color-group">
+			<span class="color-plate" data-categ="system" data-color="AccentColor"></span>
+			<span class="color-plate" data-categ="system" data-color="AccentColorText"></span>
+			<span class="color-plate" data-categ="system" data-color="ActiveText"></span>
+			<span class="color-plate" data-categ="system" data-color="ButtonBorder"></span>
+			<span class="color-plate" data-categ="system" data-color="ButtonFace"></span>
+			<span class="color-plate" data-categ="system" data-color="ButtonText"></span>
+			<span class="color-plate" data-categ="system" data-color="Canvas"></span>
+			<span class="color-plate" data-categ="system" data-color="CanvasText"></span>
+			<span class="color-plate" data-categ="system" data-color="Field"></span>
+			<span class="color-plate" data-categ="system" data-color="FieldText"></span>
+			<span class="color-plate" data-categ="system" data-color="GrayText"></span>
+			<span class="color-plate" data-categ="system" data-color="Highlight"></span>
+			<span class="color-plate" data-categ="system" data-color="HighlightText"></span>
+			<span class="color-plate" data-categ="system" data-color="LinkText"></span>
+			<span class="color-plate" data-categ="system" data-color="Mark"></span>
+			<span class="color-plate" data-categ="system" data-color="MarkText"></span>
+			<span class="color-plate" data-categ="system" data-color="SelectedItem"></span>
+			<span class="color-plate" data-categ="system" data-color="SelectedItemText"></span>
+			<span class="color-plate" data-categ="system" data-color="VisitedText"></span>
+		</div>
+		<div class="color-group">
+			<span class="color-plate" data-categ="legacy" data-color="ActiveBorder"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ActiveCaption"></span>
+			<span class="color-plate" data-categ="legacy" data-color="AppWorkspace"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Background"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ButtonHighlight"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ButtonShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="CaptionText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InactiveBorder"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InactiveCaption"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InactiveCaptionText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InfoBackground"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InfoText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Menu"></span>
+			<span class="color-plate" data-categ="legacy" data-color="MenuText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Scrollbar"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDDarkShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDFace"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDHighlight"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDLightShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Window"></span>
+			<span class="color-plate" data-categ="legacy" data-color="WindowFrame"></span>
+			<span class="color-plate" data-categ="legacy" data-color="WindowText"></span>
+		</div>
+		<div class="color-group">
 			<span class="color-plate" data-color="ArbitraryName"></span>
 			<!-- <span class="color-plate" data-color="currentColor"></span> -->
 		</div>
 	</div>
 	<div class="paragraph dark">
 		Dark mode:
-		<br /><div class="color-group">
-			<span class="color-plate" data-color="AccentColor"></span>
-			<span class="color-plate" data-color="AccentColorText"></span>
-			<span class="color-plate" data-color="ActiveText"></span>
-			<span class="color-plate" data-color="ButtonBorder"></span>
-			<span class="color-plate" data-color="ButtonFace"></span>
-			<span class="color-plate" data-color="ButtonText"></span>
-			<span class="color-plate" data-color="Canvas"></span>
-			<span class="color-plate" data-color="CanvasText"></span>
-			<span class="color-plate" data-color="Field"></span>
-			<span class="color-plate" data-color="FieldText"></span>
-			<span class="color-plate" data-color="GrayText"></span>
-			<span class="color-plate" data-color="Highlight"></span>
-			<span class="color-plate" data-color="HighlightText"></span>
-			<span class="color-plate" data-color="LinkText"></span>
-			<span class="color-plate" data-color="Mark"></span>
-			<span class="color-plate" data-color="MarkText"></span>
-			<span class="color-plate" data-color="SelectedItem"></span>
-			<span class="color-plate" data-color="SelectedItemText"></span>
-			<span class="color-plate" data-color="VisitedText"></span>
+		<div class="color-group">
+			<span class="color-plate" data-categ="system" data-color="AccentColor"></span>
+			<span class="color-plate" data-categ="system" data-color="AccentColorText"></span>
+			<span class="color-plate" data-categ="system" data-color="ActiveText"></span>
+			<span class="color-plate" data-categ="system" data-color="ButtonBorder"></span>
+			<span class="color-plate" data-categ="system" data-color="ButtonFace"></span>
+			<span class="color-plate" data-categ="system" data-color="ButtonText"></span>
+			<span class="color-plate" data-categ="system" data-color="Canvas"></span>
+			<span class="color-plate" data-categ="system" data-color="CanvasText"></span>
+			<span class="color-plate" data-categ="system" data-color="Field"></span>
+			<span class="color-plate" data-categ="system" data-color="FieldText"></span>
+			<span class="color-plate" data-categ="system" data-color="GrayText"></span>
+			<span class="color-plate" data-categ="system" data-color="Highlight"></span>
+			<span class="color-plate" data-categ="system" data-color="HighlightText"></span>
+			<span class="color-plate" data-categ="system" data-color="LinkText"></span>
+			<span class="color-plate" data-categ="system" data-color="Mark"></span>
+			<span class="color-plate" data-categ="system" data-color="MarkText"></span>
+			<span class="color-plate" data-categ="system" data-color="SelectedItem"></span>
+			<span class="color-plate" data-categ="system" data-color="SelectedItemText"></span>
+			<span class="color-plate" data-categ="system" data-color="VisitedText"></span>
+		</div>
+		<div class="color-group">
+			<span class="color-plate" data-categ="legacy" data-color="ActiveBorder"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ActiveCaption"></span>
+			<span class="color-plate" data-categ="legacy" data-color="AppWorkspace"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Background"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ButtonHighlight"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ButtonShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="CaptionText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InactiveBorder"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InactiveCaption"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InactiveCaptionText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InfoBackground"></span>
+			<span class="color-plate" data-categ="legacy" data-color="InfoText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Menu"></span>
+			<span class="color-plate" data-categ="legacy" data-color="MenuText"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Scrollbar"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDDarkShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDFace"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDHighlight"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDLightShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="ThreeDShadow"></span>
+			<span class="color-plate" data-categ="legacy" data-color="Window"></span>
+			<span class="color-plate" data-categ="legacy" data-color="WindowFrame"></span>
+			<span class="color-plate" data-categ="legacy" data-color="WindowText"></span>
+		</div>
+		<div class="color-group">
 			<span class="color-plate" data-color="ArbitraryName"></span>
 			<!-- <span class="color-plate" data-color="currentColor"></span> -->
 		</div>
