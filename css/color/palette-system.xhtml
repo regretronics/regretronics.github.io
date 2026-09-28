@@ -122,16 +122,19 @@
 		/* result: 100; */
 		result: var(--x);
 	}
-	/* @function --get-bit(--x <number>, --i <integer>) returns <number> { */
-	@function --get-bit(--x, --i <integer>) {
-	/* @function --get-bit(--x) { */
+	/* @function --get-luma-bit(--x <number>, --i <integer>) returns <number> { */
+	/* @function --get-luma-bit(--x type(<percentage> | <number> | none), --i <integer>) { */
+	/* @function --get-luma-bit(--x, --i <integer>) return type(<percentage> | <number> | none) { */
+	@function --get-luma-bit(--x, --i <integer>) {
+	/* @function --get-luma-bit(--x) { */
 		/* result: 100; */
 		/* result: var(--x); */
-		--scale: pow(2, var(--i));
-		result: mod(round(down, var(--scale) * var(--x)), 2);
+		/* --scale: pow(2, var(--i));
+		result: mod(round(down, var(--scale) * var(--x)), 2); */
+		result: mod(round(down, pow(2, var(--i)) * var(--x)), 2);
 	}
-	@function --get-bit-c(--x <color>, --i <integer>) returns <color> {
-	/* @function --get-bit(--x) { */
+	@function --get-clr-luma-bit(--x <color>, --i <integer>) returns <color> {
+	/* @function --get-clr-luma-bit(--x) { */
 		/* result: white; */
 		/* result: contrast-color(oklch(from var(--x) l 0 0)); */
 		result: contrast-color(oklch(from var(--x) mod(round(down, pow(2, var(--i)) * l), 2) 0 0));
@@ -149,22 +152,30 @@
 		/* --clr-bit1: oklch(1 0 0); */
 		/* --clr-bit1: oklch(from oklch(1 0 0) l 0 0); */
 		/* --clr-bit1: oklch(from oklch(1 0 0) --id(l) 0 0); */
-		/* --clr-bit1: oklch(from oklch(1 0 0) --get-bit(l, 1) 0 0); */
-		/* --clr-bit1: oklch(from white --get-bit(l, 1) 0 0); */
-		/* --clr-bit1: oklch(from var(--attr-color) --get-bit(l, 1) 0 0); */
-		/* --clr-bit1: --get-bit-c(white, 1); */
-		--clr-bit0: --get-bit-c(var(--attr-color), 0);
-		--clr-bit1: --get-bit-c(var(--attr-color), 1);
-		--clr-bit2: --get-bit-c(var(--attr-color), 2);
-		--clr-bit3: --get-bit-c(var(--attr-color), 3);
-		--clr-bit4: --get-bit-c(var(--attr-color), 4);
-		--clr-bit5: --get-bit-c(var(--attr-color), 5);
-		--clr-bit6: --get-bit-c(var(--attr-color), 6);
-		--clr-bit7: --get-bit-c(var(--attr-color), 7);
+		/* --clr-bit1: oklch(from oklch(1 0 0) --get-luma-bit(l, 1) 0 0); */
+		/* --clr-bit1: oklch(from white --get-luma-bit(l, 1) 0 0); */
+		/* --clr-bit1: oklch(from var(--attr-color) --get-luma-bit(l, 1) 0 0); */
+		/* --clr-bit1: --get-clr-luma-bit(white, 1); */
+		--clr-bit0: --get-clr-luma-bit(var(--attr-color), 0);
+		--clr-bit1: --get-clr-luma-bit(var(--attr-color), 1);
+		--clr-bit2: --get-clr-luma-bit(var(--attr-color), 2);
+		--clr-bit3: --get-clr-luma-bit(var(--attr-color), 3);
+		--clr-bit4: --get-clr-luma-bit(var(--attr-color), 4);
+		--clr-bit5: --get-clr-luma-bit(var(--attr-color), 5);
+		--clr-bit6: --get-clr-luma-bit(var(--attr-color), 6);
+		--clr-bit7: --get-clr-luma-bit(var(--attr-color), 7);
+		/* --clr-bit0: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 0) 0 0));
+		--clr-bit1: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 1) 0 0));
+		--clr-bit2: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 2) 0 0));
+		--clr-bit3: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 3) 0 0));
+		--clr-bit4: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 4) 0 0));
+		--clr-bit5: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 5) 0 0));
+		--clr-bit6: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 6) 0 0));
+		--clr-bit7: contrast-color(oklch(from var(--attr-color) --get-luma-bit(l, 7) 0 0)); */
 
 		/* --clr-bit1: hsl(0 0 100); */
 		/* --clr-bit1: hsl(from hsl(0 0 100) 0 0 l); */
-		/* --clr-bit1: hsl(from hsl(0 0 100) 0 0 --get-bit(l, 1)); */
+		/* --clr-bit1: hsl(from hsl(0 0 100) 0 0 --get-luma-bit(l, 1)); */
 
 		counter-reset: luma -1;
 		/* counter-set: luma if(style(--clr-bit1: white): 0; else: 1;); */
