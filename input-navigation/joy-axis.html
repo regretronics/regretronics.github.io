@@ -137,9 +137,11 @@
 		const tblBody = document.querySelector("#tblValueHistory tbody");
 		tblBody.querySelectorAll("tr").forEach((value, key, parent) => {value.remove();});
 		for(let i = 0; i < tableRows; i++) {
+			//to do: https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement/insertRow or https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableSectionElement/insertRow
 			const newRow = document.createElement("tr");
 			tblBody.appendChild(newRow);
 
+			//to do: https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableRowElement/insertCell
 			const newCells = [document.createElement("td"), document.createElement("td")];
 			newRow.appendChild(newCells[0]);
 			newRow.appendChild(newCells[1]);
