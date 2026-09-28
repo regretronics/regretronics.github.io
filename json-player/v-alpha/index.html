@@ -125,12 +125,20 @@
 						<td><input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></td>
 					</tr>
 					<tr>
+						<td><label for="txtFreqRangeMin"><span class="lang-static" translate="no">freq. range, min</span><span class="lang-flex" hidden="hidden">minimum frequency</span> (Hz)</label></td>
+						<td><input type="number" id="txtFreqRangeMin" value="30" step="1" class="exp custom-spin" data-pref="genParams.freqRangeMin" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtFreqRangeMax"><span class="lang-static" translate="no">freq. range, max</span><span class="lang-flex" hidden="hidden">maximum frequency</span> (Hz)</label></td>
+						<td><input type="number" id="txtFreqRangeMax" value="13000" step="1" class="exp custom-spin" data-pref="genParams.freqRangeMax" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
+					</tr>
+					<tr>
 						<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
 						<td><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label></td>
 						<td><input type="number" id="txtTimeScale" value="0.5" required="required" data-min="0" step="0.25" class="exp custom-spin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" /></td>
 					</tr>
 					<tr>
-						<td><label for="txtPatternCount"><span class="lang-static" translate="no">patterns</span><span class="lang-flex" hidden="hidden">pattern count</span></label></td>
+						<td><label for="txtPatternCount"><span class="lang-static" translate="no">pattern count</span><span class="lang-flex" hidden="hidden">pattern count</span></label></td>
 						<td><input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></td>
 					</tr>
 					<tr>
@@ -279,7 +287,7 @@
 				</span>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" data-pref="player.autoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." /><label for="chkAutoReload">Auto-reload</label>
 				</span>
-				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
+				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" title="Elapsed time (rounded down)">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration (rounded down)">0</output>&nbsp;s.</span>
 				</span>
 			</span><wbr />
 			<!-- <span class="right" style="flex-basis: 20ch;"> -->
@@ -289,9 +297,9 @@
 			</span>
 		</p>
 
-		<p class="print-dp-none">
 			<!--to do: make the visualizer more configurable-->
 			<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
+		<div class="print-dp-none">
 			<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
 				<defs>
 					<linearGradient id="noteFill1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -307,13 +315,14 @@
 						<stop offset="1" style="stop-opacity: calc(0/20)" />
 					</linearGradient>
 				</defs>
+				<g id="visArea"></g>
 			</svg>
-		</p>
+		</div>
 
 		<details>
 			<summary>Audio export to file</summary>
-			<!--to do: format selector, sample rate-->
-			<!--to do: use OfflineAudioContext with Wav or WebCodecs-->
+			<!--to do: !format selector, sample rate-->
+			<!--to do: !use OfflineAudioContext with Wav or WebCodecs-->
 			<p class="controls-group">
 				<a id="aAudioDownload" href="" hidden="hidden"></a>
 				<button id="btnAudioExport">Export</button>
@@ -338,14 +347,14 @@
 			<p><button id="btnResetPreferences">Reset selected now</button></p>
 		</details>
 
+		<!--to do: revert to this text when calling setToolTip(null, "")-->
 		<p id="outToolTip" class="tool-tip print-dp-none">A description of the selected item will appear here.</p>
 	</main>
 
 	<hr hidden="hidden" />
-	<!--to do: perhaps include anchors so section URLs can be copied or bookmarked.-->
 	<article class="major-section" id="sec_documentation">
-		<!--question: further partition the guide in sections?-->
 		<section>
+			<!--question: further partition the guide in section elements?-->
 			<h2 id="sec_introduction"><a href="#sec_introduction" class="section-link">Introduction</a></h2>
 			<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
 				Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 

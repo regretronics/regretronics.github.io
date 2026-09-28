@@ -206,6 +206,7 @@ function flattenStruct() {
 	//job done, don't do it again
 	hasScriptChanged = false;
 	btnFlattenStruct.innerText = "Flattened";
+	console.log("flattenStruct(): function ending");
 	return true;
 }
 

@@ -153,6 +153,10 @@ input.invalid {
 }
 .tool-tip {
 	background-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);
+
+	&[data-warn-level] {
+		background-color: hsl(var(--warn-hue), calc(75% * var(--warn-sat)), 87.5%, 0.875);
+	}
 }
 
 .code-editor {
@@ -167,8 +171,6 @@ input.invalid {
 
 #imgVisualizer {
 	background-color: hsla(0, 0%, 100%, 0.25);
-}
-linearGradient#noteFill1 stop {
-	/* stop-color: hsla(var(--hue-accent2, 300), 75%, 25%, 0.875); */
-	stop-color: hsl(var(--hue-accent2, 300), 75%, 25%);
+	/* --fill-color: hsla(var(--hue-accent2, 300), 75%, 25%, 0.875); */
+	--fill-color: hsl(var(--hue-accent2, 300), 75%, 25%);
 }

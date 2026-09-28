@@ -197,6 +197,15 @@ input:is([type=checkbox], [type=radio]) + label {
 	/* padding-inline: max(2ch, 50% - 0.5*120ch);
 	width: calc(100% - 2*2ch);
 	max-width: 120ch; */
+
+	&[data-warn-level] {
+		--warn-level: attr(data-warn-level type(<number>));
+		/*0: minimal (info or trivial), 1: note, 2: attention warning, 3: error or severe*/
+		--warn-hue: clamp(-60, 135 - 45 * var(--warn-level), 180); /*limited between magenta and cyan*/
+		--warn-sat: min(abs(var(--warn-level)) / 2.5, 1);
+		--warn-font-wgt: clamp(100, 200 * var(--warn-level) + 200, 950);
+		font-weight: var(--warn-font-wgt);
+	}
 }
 code, .code-editor {
 	font-size: 0.8em;
@@ -209,9 +218,17 @@ img:not(.true-colors) { /*class "true-colors" reserved for future use*/
 	/*filter: var(--img-filter1) hue-rotate(calc(var(--hue-accent, 120)*1deg - 120deg));*/
 }
 
-/*svg rect {*/
-svg g {
-	fill: url(#noteFill1);
+#noteFill1 stop {
+	stop-color: var(--fill-color, FieldText);
+}
+/*svg g {*/
+#visArea {
+	rect:not(.tapered) {
+		fill: var(--fill-color, FieldText);
+	}
+	rect.tapered {
+		fill: url(#noteFill1);
+	}
 }
 #tblFractionIntervals {
 	height: fit-content; /*necessary to allow cell height-filling buttons*/

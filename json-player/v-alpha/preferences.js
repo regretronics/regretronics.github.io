@@ -88,6 +88,16 @@ function loadPreferences() {
 				txtBaseFreq.value = s;
 				txtBaseFreq.dispatchEvent(new Event("input"));
 			}
+			s = localStorage.getItem("genParams.freqRangeMin");
+			if(s) {
+				txtFreqRangeMin.value = s;
+				txtFreqRangeMin.dispatchEvent(new Event("input"));
+			}
+			s = localStorage.getItem("genParams.freqRangeMax");
+			if(s) {
+				txtFreqRangeMax.value = s;
+				txtFreqRangeMax.dispatchEvent(new Event("input"));
+			}
 			s = localStorage.getItem("genParams.timeScale");
 			if(s) {
 				txtTimeScale.value = s;
@@ -158,21 +168,17 @@ function loadPreferences() {
 		if(!chkResetStructuredMusic.checked) {
 			s = localStorage.getItem("structuredMusic.overflow");
 			if(s) {
-				chkOverflow1.checked = JSON.parse(s);
+				const parsed = JSON.parse(s);
+				chkOverflow1.checked = parsed;
 				//chkOverflow1.dispatchEvent(new Event("input"));
-				if(JSON.parse(s))
-					ctlStructuredScript.classList.add("expanded");
-				else
-					ctlStructuredScript.classList.remove("expanded");
+				ctlStructuredScript.classList.toggle("expanded", parsed);
 			}
 			s = localStorage.getItem("structuredMusic.lineWrapping");
 			if(s) {
-				chkLineWrap1.checked = JSON.parse(s);
+				const parsed = JSON.parse(s);
+				chkLineWrap1.checked = parsed;
 				//chkLineWrap1.dispatchEvent(new Event("input"));
-				if(JSON.parse(s))
-					ctlStructuredScript.classList.add("line-wrap");
-				else
-					ctlStructuredScript.classList.remove("line-wrap");
+				ctlStructuredScript.classList.toggle("line-wrap", parsed);
 			}
 			s = localStorage.getItem("structuredMusic.content");
 			if(s) {
@@ -190,21 +196,17 @@ function loadPreferences() {
 			}
 			s = localStorage.getItem("flatScript.overflow");
 			if(s) {
-				chkOverflow2.checked = JSON.parse(s);
+				const parsed = JSON.parse(s);
+				chkOverflow2.checked = parsed;
 				//chkOverflow2.dispatchEvent(new Event("input"));
-				if(JSON.parse(s))
-					ctlFlatScript.classList.add("expanded");
-				else
-					ctlFlatScript.classList.remove("expanded");
+				ctlFlatScript.classList.toggle("expanded", parsed);
 			}
 			s = localStorage.getItem("flatScript.lineWrapping");
 			if(s) {
-				chkLineWrap2.checked = JSON.parse(s);
+				const parsed = JSON.parse(s);
+				chkLineWrap2.checked = parsed;
 				//chkLineWrap2.dispatchEvent(new Event("input"));
-				if(JSON.parse(s))
-					ctlFlatScript.classList.add("line-wrap");
-				else
-					ctlFlatScript.classList.remove("line-wrap");
+				ctlFlatScript.classList.toggle("line-wrap", parsed);
 			}
 			s = localStorage.getItem("flatScript.content");
 			if(s) {
@@ -261,6 +263,8 @@ function savePreferences() {
 	localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
 	//Generator parameters
 	localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(rootFreq)?
+	localStorage.setItem("genParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(freqMin)?
+	localStorage.setItem("genParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(freqMax)?
 	localStorage.setItem("genParams.timeScale", txtTimeScale.value);
 	localStorage.setItem("genParams.patternCount", txtPatternCount.value);
 	localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(primeCount)?
@@ -391,8 +395,11 @@ function primeCountChanged() {
 	if(primeCount < 1.25) primeCount = 1.25;
 	if(primeCount > primes.length) primeCount = primes.length;
 
-	//question: for fractional values, represent the prime list in a different way? (currently yes)
-	if(window.outPrimeList) outPrimeList.innerText = "[" + primes.slice(0, Math.ceil(primeCount)).join(", ") + "]";
+	const lastPrime = Math.ceil(primeCount), primesList = primes.slice(0, lastPrime);
+	//for fractional sizes, represent the last prime in a different way
+	if(primeCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
+	//if(window.outPrimeList) outPrimeList.innerText = "[" + primesList.join(", ") + "]";
+	if(window.outPrimeList) outPrimeList.innerHTML = "[" + primesList.join(", ") + "]";
 	recalcExpRanges();
 }
 function expVarianceChanged(event) {
@@ -412,15 +419,20 @@ function recalcExpRanges(force) {
 	const newExpRanges = {};
 	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 	for(let i = 0; i < primeCountCeil; i++) {
-		const varFraction = (i <= primeCount - 1 ? 1 : primeCount % 1);
-		//newExpRanges[i] = varFraction * expVariance / Math.log2(primes[i]);
+		const 
+			varFraction = (i <= primeCount - 1 ? 1 : (primeCount % 1)), 
+			range = varFraction * expVariance / Math.log2(primes[i]);
+
+		//newExpRanges[i] = range;
 		//question: what will be the proper default range? can the factors only go upwards? is signed (bipolar) random better?
-		newExpRanges[primes[i]] = [0, varFraction * expVariance / Math.log2(primes[i])];
+		newExpRanges[primes[i]] = [0, range];
+		//newExpRanges[primes[i]] = [-0.5 * range, range];
+		//newExpRanges[primes[i]] = [-range, range];
 	}
 	primeExpRanges = newExpRanges;
 
 	let s = JSON.stringify(newExpRanges, null, "\t");
-	//final adjustments on indentation (to do: check)
+	//final adjustments on indentation (to do: !check)
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
 	s = s.replace(regex, " ");
 	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
@@ -431,38 +443,27 @@ function recalcExpRanges(force) {
 	}
 }
 
-const defaultRootFreq = 440;
-var rootFreq = defaultRootFreq, playFreqScale = 1, playVolScale = 1;
+//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
+const defaultRootFreq = 440, defaultFreqMin = 30, defaultFreqMax = 13000;
+var rootFreq = defaultRootFreq, freqMin = defaultFreqMin, freqMax = defaultFreqMax;
 function baseFreqChanged() {
 	if(!window.txtBaseFreq) return false;
 	rootFreq = parseNumber(txtBaseFreq.value);
+	txtBaseFreq.classList.toggle("invalid", !rootFreq);
 	if(!rootFreq) {
-		txtBaseFreq.classList.add("invalid");
 		txtBaseFreq.setCustomValidity("Base frequency shouldn't be 0.");
 		rootFreq = defaultRootFreq;
 	} else {
-		txtBaseFreq.classList.remove("invalid");
 		txtBaseFreq.setCustomValidity("");
 	}
 }
-function playFreqScaleChanged() {
-	if(!window.txtPlayFreqScale) return false;
-	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
-	playFreqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
-	if(playerClip) playerClip.playFreqScale = playFreqScale;
-}
-function playVolScaleChanged() {
-	if(!window.txtPlayVolScale) return false;
-	//if(txtPlayVolScale.valueAsNumber < 0) txtPlayVolScale.stepUp();
-	playVolScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
-	if(playerClip) playerClip.playVolScale = playVolScale;
-}
+//to do: handler for frequency extremes, calling updateVisAreaTransform()?
 
 //rhythm structure data (hierarchy of factors)
 var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmFactorsChanged() {
-	//to do: support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
-	//  to do: how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
+	//to do: !support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
+	//  to do: !how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
 	if(!window.txtRhythmFactors) return false;
 	let s = txtRhythmFactors.value.toString(); //text
@@ -502,6 +503,20 @@ function rhythmFactorsChanged() {
 	}
 	rhythmAccumUpdate();
 	return true;
+}
+
+var playFreqScale = 1, playVolScale = 1;
+function playFreqScaleChanged() {
+	if(!window.txtPlayFreqScale) return false;
+	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
+	playFreqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
+	if(playerClip) playerClip.playFreqScale = playFreqScale;
+}
+function playVolScaleChanged() {
+	if(!window.txtPlayVolScale) return false;
+	//if(txtPlayVolScale.valueAsNumber < 0) txtPlayVolScale.stepUp();
+	playVolScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
+	if(playerClip) playerClip.playVolScale = playVolScale;
 }
 
 function saveControlPreference(elem) {
@@ -557,7 +572,7 @@ function btnResetPreferencesClick(event) {
 	//resetAllPreferences();
 	try {
 		adjustingPreferences = true;
-		if(chkResetPageAppearance?.checked) {
+		if(window.chkResetPageAppearance?.checked) {
 			localStorage.removeItem("pageAppearance.textSize");
 			localStorage.removeItem("pageAppearance.theme");
 			localStorage.removeItem("pageAppearance.hue");
@@ -569,16 +584,21 @@ function btnResetPreferencesClick(event) {
 			document.documentElement.style.setProperty("--hue-accent0", 120);
 			updateThemeColor(120);
 		}
-		if(chkResetGenParams?.checked) {
+		if(window.chkResetGenParams?.checked) {
 			localStorage.removeItem("genParams.baseFreq");
-			localStorage.removeItem("genParams.timeScale");
+			localStorage.removeItem("genParams.freqRangeMin");
+			localStorage.removeItem("genParams.freqRangeMax");
 			localStorage.removeItem("genParams.patternCount");
 			localStorage.removeItem("genParams.primeCount");
 			localStorage.removeItem("genParams.expVariance");
 			localStorage.removeItem("genParams.primeExpRanges");
 
-			txtBaseFreq.value = "440";
+			txtBaseFreq.value = defaultRootFreq.toString();
 			txtBaseFreq.dispatchEvent(new Event("input"));
+			txtFreqRangeMin.value = defaultFreqMin.toString();
+			txtFreqRangeMin.dispatchEvent(new Event("input"));
+			txtFreqRangeMax.value = defaultFreqMax.toString();
+			txtFreqRangeMax.dispatchEvent(new Event("input"));
 			txtTimeScale.value = "0.5";
 			txtTimeScale.dispatchEvent(new Event("input"));
 			txtPatternCount.value = "4";
@@ -589,7 +609,7 @@ function btnResetPreferencesClick(event) {
 			txtExpVariance.dispatchEvent(new Event("input"));
 			recalcExpRanges(true);
 		}
-		if(chkResetRhythmParams?.checked) {
+		if(window.chkResetRhythmParams?.checked) {
 			localStorage.removeItem("rhythmParams.rhythmScale");
 			localStorage.removeItem("rhythmParams.rhythmFactors");
 
@@ -598,7 +618,7 @@ function btnResetPreferencesClick(event) {
 			txtRhythmFactors.value = "2*2*2";
 			txtRhythmFactors.dispatchEvent(new Event("input"));
 		}
-		if(chkResetAddGenParams?.checked) {
+		if(window.chkResetAddGenParams?.checked) {
 			localStorage.removeItem("addGenParams.voiceCount");
 			localStorage.removeItem("addGenParams.reptCount");
 			localStorage.removeItem("addGenParams.reptPeriod");
@@ -613,7 +633,7 @@ function btnResetPreferencesClick(event) {
 			chkPercussivePattern.checked = true;
 			chkPercussivePattern.dispatchEvent(new Event("click"));
 		}
-		if(chkResetStructuredMusic?.checked) {
+		if(window.chkResetStructuredMusic?.checked) {
 			localStorage.removeItem("structuredMusic.overflow");
 			localStorage.removeItem("structuredMusic.lineWrapping");
 			localStorage.removeItem("structuredMusic.content");
@@ -626,7 +646,7 @@ function btnResetPreferencesClick(event) {
 			ctlStructuredScript.classList.remove("invalid");
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
-		if(chkResetFlatScript?.checked) {
+		if(window.chkResetFlatScript?.checked) {
 			localStorage.removeItem("flatScript.autoFlatten");
 			localStorage.removeItem("flatScript.overflow");
 			localStorage.removeItem("flatScript.lineWrapping");
@@ -642,7 +662,7 @@ function btnResetPreferencesClick(event) {
 			ctlFlatScript.classList.remove("invalid");
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
-		if(chkResetClipParams?.checked) {
+		if(window.chkResetClipParams?.checked) {
 			localStorage.removeItem("clipParams.freqScale");
 			localStorage.removeItem("clipParams.volScale");
 			localStorage.removeItem("clipParams.timeScale");
@@ -657,13 +677,13 @@ function btnResetPreferencesClick(event) {
 			txtPlayTimeDelta.value = "0";
 			txtPlayTimeDelta.dispatchEvent(new Event("input"));
 		}
-		if(chkResetPlayer?.checked) {
+		if(window.chkResetPlayer?.checked) {
 			localStorage.removeItem("player.autoReload");
 
 			chkAutoReload.checked = false;
 			chkAutoReload.dispatchEvent(new Event("click"));
 		}
-		if(chkResetReset?.checked) {
+		if(window.chkResetReset?.checked) {
 			localStorage.removeItem("reset.pageAppearance");
 			localStorage.removeItem("reset.genParams");
 			localStorage.removeItem("reset.rhythmParams");
@@ -674,14 +694,14 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("reset.player");
 			localStorage.removeItem("reset.reset");
 
-			chkResetPageAppearance.checked = false;
-			chkResetGenParams.checked = false;
-			chkResetRhythmParams.checked = false;
-			chkResetAddGenParams.checked = false;
-			chkResetStructuredMusic.checked = false;
-			chkResetFlatScript.checked = false;
-			chkResetClipParams.checked = false;
-			chkResetPlayer.checked = false;
+			if(window.chkResetPageAppearance) chkResetPageAppearance.checked = false;
+			if(window.chkResetGenParams) chkResetGenParams.checked = false;
+			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = false;
+			if(window.chkResetAddGenParams) chkResetAddGenParams.checked = false;
+			if(window.chkResetStructuredMusic) chkResetStructuredMusic.checked = false;
+			if(window.chkResetFlatScript) chkResetFlatScript.checked = false;
+			if(window.chkResetClipParams) chkResetClipParams.checked = false;
+			if(window.chkResetPlayer) chkResetPlayer.checked = false;
 			chkResetReset.checked = false;
 			//.dispatchEvent(new Event("input"));
 		}

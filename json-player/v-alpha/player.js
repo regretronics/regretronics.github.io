@@ -8,10 +8,14 @@ var playFreqScale, playVolScale;
 
 //done: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
-//to do: review audioTimer(), playerClipEnd(), exportClipEnd().
+//to do: !review audioTimer(), playerClipEnd(), exportClipEnd().
+//to do: !check for noise nodes whether the q can be 0, disabling the resonant filter.
 
 var playerClip = null; //shared variable
-const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
+//const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
+const pauseToggleCaptions = {
+	false: '<span class="lang-static" translate="no">Un<u>p</u>ause</span><span class="lang-flex" hidden="hidden">Unpause (<u>p</u>)</span>', 
+	true: '<span class="lang-static" translate="no"><u>P</u>ause</span><span class="lang-flex" hidden="hidden">Pause (<u>p</u>)</span>'};
 
 //constructor
 function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale) {
@@ -23,7 +27,7 @@ function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolSc
 		playTimeScale: 1, playTimeDelta: 0, playVolScale: 1, playFreqScale: 1, //overall controls
 		lastFreq: 0, lastFreq0: 0, lastNoteStart: 0, lastPortamento: 0 //portamento variables
 	});
-	if(arguments.length < 1) return;
+	if(arguments.length < 1) return; //to do: maybe use switch() here?
 	this.flatStruct = flatStruct;
 	if(arguments.length < 2) return;
 	this.duration = duration;
@@ -83,20 +87,22 @@ function printClip(clip, prefix) {
 	//console.log(clip);
 }
 //event handler for generator audio nodes
-function defNodeEnded() {
+function defNodeEnded(event) {
 	if(!this) return;
-	//console.debug("Note release: " + audioCtx.currentTime);
 
-	if(this.fltBandPass) this.fltBandPass.disconnect();
-	if(this.modGainDecay) this.modGainDecay.disconnect();
-	if(this.modGainAttack) this.modGainAttack.disconnect();
-	if(this.modGainRelease) this.modGainRelease.disconnect();
-	if(this.modGainVibrato) this.modGainVibrato.disconnect();
-	if(this.oscVibrato) this.oscVibrato.stop();
-	this.disconnect();
+	this.fltBandPass?.disconnect?.();
+	this.modGainDecay?.disconnect?.();
+	this.modGainAttack?.disconnect?.();
+	this.modGainRelease?.disconnect?.();
+	this.modGainVibrato?.disconnect?.();
+	this.oscVibrato?.stop?.();
+	this.disconnect?.();
 
 	const clip = this.sndClip;
 	if(!clip) return;
+	const ctxTime = clip.audioCtx.currentTime;
+	//console.debug("Note release: " + ctxTime);
+
 	//remove modules from list.
 	//question: move this into conditionals above, to prevent strict-mode errors? (probably it's not raising errors)
 	removeFrom(clip.generators, this);
@@ -117,10 +123,10 @@ function defNodeEnded() {
 		return;
 	}
 	if((!clip.generators || clip.generators.length < 1)
-		&& (clip.audioCtx.currentTime - clip.t0 >= clip.duration)
+		&& (ctxTime - clip.t0 >= clip.duration)
 		&& (!clip.flatStruct || clip.flatStruct.length < 1)) {
 		printClip(clip, "defNodeEnded(): ");
-		//console.debug(`defNodeEnded(): clip.audioCtx.currentTime: ${clip.audioCtx.currentTime}; clip.flatStruct: ${clip.flatStruct}.`);
+		//console.debug(`defNodeEnded(): clip.audioCtx.currentTime: ${ctxTime}; clip.flatStruct: ${clip.flatStruct}.`);
 		//console.debug(`defNodeEnded(): clip.duration: ${clip.duration}; clip.t0: ${clip.t0}.`);
 		if(clip.generators || clip.auxNodes || clip.flatStruct) {
 			//console.log("defNodeEnded(): will end clip.");
@@ -128,7 +134,7 @@ function defNodeEnded() {
 		}
 		if(clip === playerClip && clip.audioCtx.state === 'running') {
 			console.log("defNodeEnded(): will suspend audioCtx.");
-			clip.audioCtx.suspend().then(() => {
+			clip.audioCtx.suspend().then(nil => { //suspend, resume, close yield promise's, but their values are just undefined.
 				if(clip === playerClip && chkAutoReload && chkAutoReload.checked)
 					loadAndPlay();
 			}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
@@ -157,7 +163,7 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) {
 		}
 		if(!freq0) return;
 
-		sourceNode.detune.value = 1200 * Math.log2(freq0 / noteFreq);
+		sourceNode.detune.value = 1200 * Math.log2(freq0 / noteFreq); //measured in cents
 		sourceNode.detune.setTargetAtTime(0, minStart, Math.abs(clip.playTimeScale) * portamento * Math.LOG2E);
 	} catch(error) {
 		console.error(error);
@@ -171,7 +177,7 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) {
 }
 //question: which one to prefer? noteStop (current choice) or duration?
 function renderNote(clip, note) {
-	//idea: Object.assign() from defaultNoteNode and note into a new note object
+	//to do: maybe Object.assign() from defaultNoteNode and note into a new note object
 	const noteFreq = clip.playFreqScale * note.freq;
 	let noteStart = clip.playTimeScale * note.noteStart;
 	let noteStop = clip.playTimeScale * note.noteStop;
@@ -184,7 +190,7 @@ function renderNote(clip, note) {
 	let noteTimbre = note.timbre;
 	if(!noteTimbre) noteTimbre = defaultNoteNode.timbre;
 	const isNoise = noteTimbre.toLowerCase() === "noise";
-	const minStart = Math.max(clip.t0 + noteStart, clip.audioCtx.currentTime);
+	const ctxTime = clip.audioCtx.currentTime, minStart = Math.max(clip.t0 + noteStart, ctxTime);
 
 	let sourceNode, oscVibrato = null;
 	if(isNoise)
@@ -198,15 +204,18 @@ function renderNote(clip, note) {
 
 	try {
 		if(isNoise) {
-			const fltBandPass = new BiquadFilterNode(clip.audioCtx, {
-				type: "bandpass",
-				frequency: Math.abs(noteFreq),
-				Q: NaNToDefault(note.q, defaultNoteNode.q)
-			}); //to do: exponentially increasing Q? (how? apparently it will require a script-based audio node for the reverse of an exponential decay.)
-			terminalNode.connect(fltBandPass);
-			terminalNode = fltBandPass;
-			sourceNode.fltBandPass = fltBandPass;
-			clip.auxNodes.push(fltBandPass);
+			const qFactor = NaNToDefault(note.q, defaultNoteNode.q);
+			if(qFactor) {
+				const fltBandPass = new BiquadFilterNode(clip.audioCtx, {
+					type: "bandpass",
+					frequency: Math.abs(noteFreq),
+					Q: qFactor
+				}); //to do: !exponentially increasing Q? (how? apparently it will require a script-based audio node for the reverse of an exponential decay.)
+				terminalNode.connect(fltBandPass);
+				terminalNode = fltBandPass;
+				sourceNode.fltBandPass = fltBandPass;
+				clip.auxNodes.push(fltBandPass);
+			}
 		} else {
 			//vibrato (using detune for an exponential frequency variation)
 			const vibratoDepth = NaNToDefault(note.vibratoDepth, defaultNoteNode.vibratoDepth);
@@ -233,7 +242,7 @@ function renderNote(clip, note) {
 
 		//volume scale and decay (from vol to 0)
 		//note: negative gain causes phase inversion (at least in Ffx 100)
-		const gainDecay = new GainNode(clip.audioCtx, {gain: clip.playVolScale * (note.hasOwnProperty("vol") ? note.vol : defaultNoteNode.vol)}); //to do: consider the optional chaining operator here
+		const gainDecay = new GainNode(clip.audioCtx, {gain: clip.playVolScale * (note.vol ?? defaultNoteNode.vol)});
 		const decayFactor = NaNToDefault(note.decayFactor, defaultNoteNode.decayFactor);
 		//question: should decay factor be subject to playTimeScale? (currently yes)
 		gainDecay.gain.setTargetAtTime(0, minStart, Math.abs(clip.playTimeScale) * decayFactor * Math.LOG2E / Math.abs(noteFreq)); //negative time constants currently don't work
@@ -270,11 +279,11 @@ function renderNote(clip, note) {
 			sourceNode.start(minStart, Math.random() * clip.noiseBuffer.duration); //random start point
 		else
 			sourceNode.start(minStart);
-		sourceNode.stop(Math.max(clip.t0 + noteStop, clip.audioCtx.currentTime));
+		sourceNode.stop(Math.max(clip.t0 + noteStop, ctxTime));
 		if(oscVibrato) {
 			oscVibrato.start(minStart);
 			oscVibrato.tStart = minStart;
-			oscVibrato.stop(Math.max(clip.t0 + noteStop, clip.audioCtx.currentTime));
+			oscVibrato.stop(Math.max(clip.t0 + noteStop, ctxTime));
 		}
 	}
 }
@@ -305,60 +314,63 @@ function enqueueNotes(clip, tNow, tMargin) {
 
 function audioTUpdate() {
 	if(!playerClip) return false;
-	//question: trunc instead of round for time?
 	if(playerClip.audioCtx && outAudioT)
-		outAudioT.innerText = (playerClip.audioCtx.currentTime - playerClip.t0).toFixed(timeDisplPrecision);
+		//when dealing with time, it's better to round down
+		outAudioT.innerText = toFixedTrunc(playerClip.audioCtx.currentTime - playerClip.t0, timeDisplPrecision);
 	if(outGenCount) outGenCount.innerText = playerClip.generators.length.toString();
+	return true;
 }
 const visSliceCount = 48;
 const svgNS = "http://www.w3.org/2000/svg";
 function drawNote(group, sourceNode) {
-	const freqMin = 20, freqMax = 14000; //20000;
-	const octaveScale = 1 / Math.log2(freqMax / freqMin);
+	if(!group || !sourceNode) return false;
 	const noteVisWidth = 1 / 16; //bandwidth in octaves; hand-tuned, partially arbitrary scale
 
-	let freq, isNoise;
-	if(sourceNode.frequency) {
-		freq = sourceNode.frequency.value * 2 ** (sourceNode.detune.value / 1200);
-		isNoise = false;
-	} else
-		if(sourceNode.fltBandPass && sourceNode.fltBandPass.frequency) {
-			freq = sourceNode.fltBandPass.frequency.value;
-			isNoise = true;
-		}
-	if(!freq) return false;
+	let freq, isTone = Boolean(sourceNode.frequency), isFiltered = Boolean(sourceNode.fltBandPass);
+	if(isTone)
+		freq = sourceNode.frequency.value * 2 ** (sourceNode.detune.value / 1200); //1200 cents = 1 octave (log2)
+	else
+		if(isFiltered) freq = sourceNode.fltBandPass.frequency?.value;
+	if((isTone || isFiltered) && !freq) return false;
 
 	//to do: alternative blend modes such as lighten or hue?
 	const noteShape = document.createElementNS(svgNS, "rect");
-	let wid = octaveScale * (isNoise ? 8 * sourceNode.fltBandPass.Q.value ** (-1 / 3) : noteVisWidth); //hand-tuned parameters
-	/* if(isNoise)
-		wid *= 128 * sourceNode.fltBandPass.Q.value ** (-0.5);
-	else */
-	if(!isNoise)
-		if(sourceNode.modGainVibrato) {
+	//the attributes below are constant, so I could have replaced them with CSS;
+	//however, visualization would become impossible in the unlikely case that style sheets are disabled
+	noteShape.setAttributeNS(null, "height", "1");
+	noteShape.setAttributeNS(null, "y", "0");
+
+	if(isTone || isFiltered) {
+		let width = (isTone ? noteVisWidth : 8 * sourceNode.fltBandPass.Q.value ** (-1 / 3)); //hand-tuned parameters
+		if(isTone && sourceNode.modGainVibrato) {
 			const vibratoGain = sourceNode.modGainVibrato.gain.value / 1200;
 			if(sourceNode.oscVibrato) //question: precisely estimate vibrato oscillation? (currently yes)
 				freq *= 2 ** (vibratoGain * Math.sin(2 * Math.PI * (sourceNode.context.currentTime - sourceNode.oscVibrato.tStart) * sourceNode.oscVibrato.frequency.value)); //yes
 			else
-				wid = Math.max(wid, 4 * vibratoGain * octaveScale); //no
+				width = Math.max(wid, 4 * vibratoGain); //no
 		}
-	noteShape.setAttributeNS(null, "width", wid.toString());
-	noteShape.setAttributeNS(null, "x", (Math.log2(Math.abs(freq) / freqMin) * octaveScale - 0.5 * wid).toString());
-	//the attributes below are constant, so I could have replaced them with CSS;
-	//however, visualization would become impossible in the unlikely case that style sheets are disabled
-	noteShape.setAttributeNS(null, "height", (1 / visSliceCount).toString());
-	noteShape.setAttributeNS(null, "y", "0");
+		noteShape.classList.add("tapered");
+		noteShape.setAttributeNS(null, "width", width.toString());
+		noteShape.setAttributeNS(null, "x", (Math.log2(Math.abs(freq)) - 0.5 * width).toString());
+	} else {
+		noteShape.setAttributeNS(null, "x", "0");
+		//noteShape.setAttributeNS(null, "x", Math.log2(1).toString());
+		//noteShape.setAttributeNS(null, "width", "1");
+		noteShape.setAttributeNS(null, "width", Math.log2(0.5 * sourceNode.context.sampleRate).toString());
+	}
 
-	let vol = (isNoise ? 0.125 * sourceNode.fltBandPass.Q.value ** (-1 / 3) : 1); //hand-tuned parameters
-	if(sourceNode.modGainDecay) vol *= sourceNode.modGainDecay.gain.value;
-	if(sourceNode.modGainAttack) vol *= sourceNode.modGainAttack.gain.value;
-	if(sourceNode.modGainRelease) vol *= sourceNode.modGainRelease.gain.value;
+	let vol = (isTone ? 1 : 
+		(isFiltered ? 0.125 * sourceNode.fltBandPass.Q.value ** (-1 / 3) : 0.5)); //hand-tuned parameters (to do: check for unfiltered noise)
+	if(sourceNode.modGainDecay) vol *= sourceNode.modGainDecay.gain?.value ?? 1;
+	if(sourceNode.modGainAttack) vol *= sourceNode.modGainAttack.gain?.value ?? 1;
+	if(sourceNode.modGainRelease) vol *= sourceNode.modGainRelease.gain?.value ?? 1;
 	noteShape.setAttributeNS(null, "opacity", /* Math.sqrt */(Math.abs(vol)).toString());
 
 	group.appendChild(noteShape);
 	//group.append(noteShape);
+	return noteShape;
 }
-const audioTimerInterval = 86400 * 0.5 ** 21;
+const audioTimerInterval = 86400 * 0.5 ** 21; //86400 / 2097152 = ~0.0411 s
 //to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
 let lastT = 0, visT = 0;
 //function audioTimer(noEnqueue) {
@@ -385,9 +397,10 @@ function audioTimer(clip) {
 	}
 	//clip.playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
 	if(clip === playerClip) audioTUpdate();
-	//if(clip.flatStruct.length < 1 && (clip.audioCtx.currentTime - clip.t0 >= clip.duration)) {
+	const ctxTime = clip.audioCtx.currentTime, tNow = ctxTime - clip.t0;
+	//if(clip.flatStruct.length < 1 && tNow >= clip.duration) {
 	if(clip.audioCtx.state !== 'suspended'
-		&& (clip.audioCtx.currentTime - clip.t0 > 0)
+		&& tNow > 0
 		&& clip.generators.length < 1
 		&& (!clip.flatStruct || clip.flatStruct.length < 1)) {
 		if(clip.generators || clip.auxNodes || clip.flatStruct) {
@@ -396,7 +409,7 @@ function audioTimer(clip) {
 		}
 		if(clip === playerClip) {
 			console.log("audioTimer(): will suspend audioCtx and return.");
-			clip.audioCtx?.suspend?.()?.then?.(() => {
+			clip.audioCtx?.suspend?.()?.then?.(nil => {
 				if(clip === playerClip && chkAutoReload && chkAutoReload.checked)
 					loadAndPlay();
 			}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
@@ -422,52 +435,66 @@ function audioTimer(clip) {
 
 	//to do: move this upwards?
 	//if(noEnqueue === undefined) noEnqueue = false;
-	const currT = clip.audioCtx.currentTime;
 	//if(!noEnqueue)
-		enqueueNotes(clip, currT - clip.t0, 2 * Math.max(audioTimerInterval, currT - lastT));
-	lastT = currT;
+		enqueueNotes(clip, tNow, 2 * Math.max(audioTimerInterval, ctxTime - lastT));
+	lastT = ctxTime;
 
 	//to do: catch clause that suspends audioCtx on error?
 
 	//if(clip.audioCtx.state === 'suspended') return;
-	if(clip === playerClip) {
-		if(window.imgVisualizer) {
-			//scroll
-			const slices = imgVisualizer.getElementsByClassName("vis-slice");
-			for(let i = slices.length - 1; i >= 0; i--) {
-				const slice = slices[i];
-				const t = parseFloat(slice.getAttribute("data-t")); //dataset doesn't work here, somehow
-				let newY = t + visSliceCount - visT;
-				if(newY <= -1) {
-					slice.remove(); //it's easier to delete when we use groups
-					continue;
-				}
-				newY /= visSliceCount;
-				slice.setAttributeNS(null, "transform", `translate(0 ${newY})`);
+	//visualization
+	if(clip === playerClip && window.imgVisualizer) { //to do: this needs exception handling
+		const nowY = visSliceCount - 1;
+
+		//scroll
+		const slices = imgVisualizer.getElementsByClassName("vis-slice"), lastSlice = slices.length - 1;
+		if(lastSlice >= 0) {
+			const slice = slices[lastSlice], t1 = parseFloat(slice.getAttribute("data-t"))/* , t0 = parseFloat(slices[lastSlice - 1].getAttribute("data-t")) */;
+			slice.setAttributeNS(null, "data-dt", (tNow - t1).toString());
+		}
+		//to do: adjust visArea transform instead of moving every row
+		for(let i = lastSlice; i >= 0; i--) {
+			const slice = slices[i];
+			const absY = parseFloat(slice.getAttribute("data-t")) / audioTimerInterval; //dataset doesn't work here, somehow (to do: re-check)
+			//const newY = absY + (nowY - visT) /* * audioTimerInterval */;
+			const newY = absY + (nowY - tNow / audioTimerInterval);
+			if(newY <= -1) {
+			//if(newY <= -audioTimerInterval) {
+				slice.remove(); //it's easier to delete when we use groups
+				continue;
 			}
+			const dy = parseFloat(slice.getAttribute("data-dt")) / audioTimerInterval;
+			//newY /= visSliceCount;
+			slice.setAttributeNS(null, "transform", `translate(0 ${newY}) scale(1 ${dy})`);
 		}
-		//visualization
-		if(window.imgVisualizer) {
-			//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
-			//to do: consider a node-based polyline
-			const slice = document.createElementNS(svgNS, "g");
-			slice.setAttributeNS(null, "class", "vis-slice");
-			slice.setAttributeNS(null, "data-t", visT.toString());
-			slice.setAttributeNS(null, "transform", `translate(0 ${(visSliceCount - 1) / visSliceCount})`);
-			imgVisualizer.appendChild(slice);
-			for(const node of clip.generators)
-				try {
-					drawNote(slice, node);
-				} catch(error) {
-					console.error(error);
-				}
-			visT++;
-		}
+
+		//new row of spectrum
+		//to do: consider a node-based polyline
+		//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
+		//https://developer.mozilla.org/en-US/docs/Web/API/SVGSVGElement/pauseAnimations
+		//https://developer.mozilla.org/en-US/docs/Web/API/SVGSVGElement/unpauseAnimations
+		const slice = document.createElementNS(svgNS, "g");
+		slice.setAttributeNS(null, "class", "vis-slice");
+		/* slice.setAttributeNS(null, "data-t", (visT * audioTimerInterval).toString()); */
+		slice.setAttributeNS(null, "data-t", tNow.toString());
+		slice.setAttributeNS(null, "data-dt", audioTimerInterval.toString());
+		//slice.setAttributeNS(null, "transform", `translate(0 ${nowY / visSliceCount})`);
+		slice.setAttributeNS(null, "transform", `translate(0 ${nowY})`);
+		//slice.setAttributeNS(null, "transform", `translate(0 ${nowY}) scale(1 ${1})`);
+		window.visArea?.appendChild(slice);
+		for(const node of clip.generators)
+			try {
+				drawNote(slice, node);
+				//drawNote(slice, node)?.setAttributeNS(null, "height", audioTimerInterval.toString());
+			} catch(error) {
+				console.error(error);
+			}
+		visT++;
 	}
 
 	//window.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
-	//if(clip.audioCtx.currentTime - clip.t0 >= clip.duration - 1)
-	//if(clip.audioCtx.currentTime - clip.t0 >= 0.1)
+	//if(tNow >= clip.duration - 1)
+	//if(tNow >= 0.1)
 		//throw "Test."; //call stack test
 	//window.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
 	//to do: allow skipping/fast forward/rewind?
@@ -511,7 +538,7 @@ function loadNewClip() {
 		lastNoteStop = note.noteStop;
 
 		//if(note.noteStop <= note.noteStart) continue;
-		if(note.noteStop < note.noteStart) { //question: ignore negative-length notes?
+		if(note.noteStop < note.noteStart) { //question: ignore negative-length notes? (currently no.)
 			const temp = note.noteStart;
 			note.noteStart = note.noteStop;
 			note.noteStop = temp;
@@ -532,6 +559,23 @@ function loadNewClip() {
 
 	return new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
 }
+function updateVisAreaTransform() {
+	if(!window.imgVisualizer) return false;
+
+	freqMin = NaNToDefault(parseNumber(window.txtFreqRangeMin?.value), defaultFreqMin);
+	freqMax = NaNToDefault(parseNumber(window.txtFreqRangeMax?.value), defaultFreqMax);
+	//if(window.visArea) visArea.setAttributeNS(null, "transform", `translate()`);
+	if(!window.visArea?.transform?.baseVal) return false;
+
+	const newScale = imgVisualizer.createSVGTransform();
+	newScale.setScale(1 / Math.log2(freqMax / freqMin), 1 / visSliceCount);
+	//newScale.setScale(1 / Math.log2(freqMax / freqMin), 1 / (visSliceCount * audioTimerInterval));
+	visArea.transform.baseVal.initialize(newScale);
+	const newTranslate = imgVisualizer.createSVGTransform();
+	newTranslate.setTranslate(- Math.log2(freqMin), 0);
+	visArea.transform.baseVal.appendItem(newTranslate);
+	return true;
+}
 function beforePlay() {
 	console.log("beforePlay(): function started...");
 	playerClip.destNode = playerClip.audioCtx.destination;
@@ -549,12 +593,13 @@ function beforePlay() {
 		for(let i = slices.length - 1; i >= 0; i--)
 			slices[i].remove();
 	}
+	updateVisAreaTransform();
 	//audioTimer(playerClip);
 	audioTUpdate();
 	enqueueNotes(playerClip, playerClip.playTimeDelta, 2 * audioTimerInterval);
 	if(playerClip.audioCtx.state === 'suspended')
-		//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip));
-		playerClip.audioCtx.resume().then(() => {
+		//playerClip.audioCtx.resume().then(nil => window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip));
+		playerClip.audioCtx.resume().then(nil => {
 			audioTimer(playerClip);
 			playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 		});
@@ -590,9 +635,9 @@ function loadAndPlay() {
 
 	//to do: don't include empty remark nodes.
 	if(window.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
-	if(window.outAudioDur) outAudioDur.innerText = playerClip.duration.toFixed(timeDisplPrecision);
+	if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(playerClip.duration, timeDisplPrecision);
 	if(playerClip.flatStruct.length <= 0)
-		if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision); //question: ignore lead-in here? (currently yes)
+		if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 
 	playerClip.open = true;
 	if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed') {
@@ -609,6 +654,8 @@ function loadAndPlay() {
 
 //--
 //nonreversible operation, frees resources
+//to do: !move up in this file?
+//to do: !currently this function is called by the custom onClipEnd handlers (playerClipEnd, exportClipEnd). revert this, to call the handler if it's set.
 function emptyClip(clip, suspend) {
 	if(!clip) return false;
 	if(!clip.open) return false;
@@ -667,7 +714,7 @@ function pauseToggle() {
 	//audioTUpdate();
 	if(playerClip.audioCtx.state === 'closed') return false;
 	if(playerClip.audioCtx.state === 'running') {
-		playerClip.audioCtx.suspend().then(() => {
+		playerClip.audioCtx.suspend().then(nil => {
 			audioTUpdate();
 			lastT = playerClip.audioCtx.currentTime;
 			if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
@@ -675,12 +722,13 @@ function pauseToggle() {
 				window.clearInterval(playerClip.timerID);
 				playerClip.timerID = NaN;
 			}
-			});
+		});
 	} else {
-		//playerClip.audioCtx.resume().then(() => window.setTimeout(audioTimer, audioTimerInterval * 1000), playerClip);
-		//playerClip.audioCtx.resume().then(() => window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp)));
-		;
-		playerClip.audioCtx.resume().then(() => {
+		updateVisAreaTransform();
+		//playerClip.audioCtx.resume().then(nil => window.setTimeout(audioTimer, audioTimerInterval * 1000), playerClip);
+		//playerClip.audioCtx.resume().then(nil => window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp)));
+		//; //?
+		playerClip.audioCtx.resume().then(nil => {
 			audioTimer(playerClip);
 			if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 			playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
@@ -690,6 +738,7 @@ function pauseToggle() {
 	}
 	//audioTimer(playerClip.audioCtx.state !== 'running');
 	//audioTimer(playerClip); //question: is this statement necessary?
+	return true;
 }
 
 //--
@@ -735,13 +784,13 @@ function audioDownload(data) {
 	return true;
 }
 let mediaRecorder, chunks = [], exportClip = null;
-function exportClipEnd() {
+function exportClipEnd(suspend) {
 	const clip = this ?? exportClip;
 	if(!clip) return false;
 
 	emptyClip(clip, false);
-	if(clip.audioCtx) clip.audioCtx.suspend?.()?.then?.(() => {
-	//if(clip.audioCtx) clip.audioCtx.close?.()?.then?.(() => {
+	if(clip.audioCtx) clip.audioCtx.suspend?.()?.then?.(nil => {
+	//if(clip.audioCtx) clip.audioCtx.close?.()?.then?.(nil => {
 		if(window.outExportProgress) outExportProgress.innerText = "Rendered";
 		if(mediaRecorder) {
 			mediaRecorder.requestData();
@@ -761,11 +810,13 @@ function exportAudioTimer(clip) {
 		}
 		return false;
 	}
-	//question: trunc instead of round for time?
+	const ctxTime = clip.audioCtx.currentTime;
 	if(window.outExportProgress)
-		outExportProgress.innerText = (100 * (clip.audioCtx.currentTime) / (clip.duration + clip.t0)).toFixed(2) + "%";
-	//if(clip.flatStruct.length < 1 && (clip.audioCtx.currentTime - clip.t0 > clip.duration)) {
-	if(clip.audioCtx.state !== 'suspended' && (clip.audioCtx.currentTime - clip.t0 > 0) && clip.generators.length < 1) {
+		//question: round or trunc for completion? (currently trunc, as with time)
+		//outExportProgress.innerText = (100 * ctxTime / (clip.duration + clip.t0)).toFixed(2) + "%";
+		outExportProgress.innerText = toFixedTrunc(100 * ctxTime / (clip.duration + clip.t0), 2) + "%";
+	//if(clip.flatStruct.length < 1 && (ctxTime - clip.t0 > clip.duration)) {
+	if(clip.audioCtx.state !== 'suspended' && (ctxTime - clip.t0 > 0) && clip.generators.length < 1) {
 		printClip(clip, "exportAudioTimer(): ");
 		console.log("exportAudioTimer(): will stop exporting.");
 		if(clip.onClipEnd) clip.onClipEnd(true); else emptyClip(clip, false);
@@ -818,7 +869,7 @@ function beforeRecord() {
 	//console.log("beforeRecord(): enqueueNotes done.");
 	if(window.outExportProgress) outExportProgress.innerText = "Starting";
 	mediaRecorder.start();
-	exportClip.audioCtx.resume().then(() => {
+	exportClip.audioCtx.resume().then(nil => {
 		exportAudioTimer(exportClip);
 		exportClip.timerID = window.setInterval(exportAudioTimer, audioTimerInterval * 1000, exportClip);
 	});
@@ -832,8 +883,9 @@ function beforeRecord() {
 		const chunks = renderedBuffer.getChannelData(0);
 		audioDownload(chunks);
 		console.debug("audioCtx startRendering promise then end");
-	}).catch(function(err) {
-		console.error('Rendering failed: ' + err);
+	}).catch(function(error) {
+		console.error('Rendering failed: ' + error);
+		//window.reportError(error);
 		//Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
 	});*/
 }
@@ -842,7 +894,8 @@ function audioExport() {
 	exportClip = new loadNewClip();
 	exportClip.onClipEnd = exportClipEnd;
 	if(window.outExportProgress) outExportProgress.innerText = "Note list loaded";
-	if(window.outExportDuration) outExportDuration.innerText = (exportClip.duration).toFixed(timeDisplPrecision);
+	//question: round (toFixed) or trunc (toFixedTrunc) here?
+	if(window.outExportDuration) outExportDuration.innerText = exportClip.duration.toFixed(timeDisplPrecision);
 	//to do: stop AudioContext playback? (probably unnecessary)
 	exportClip.open = true;
 	const sampleRate = 48000; //will become a variable later
@@ -854,7 +907,7 @@ function audioExport() {
 function audioExportCancel() {
 	if(!exportClip) return false;
 	emptyClip(exportClip, false);
-	if(exportClip.audioCtx) exportClip.audioCtx.suspend()?.then?.(() => {
+	if(exportClip.audioCtx) exportClip.audioCtx.suspend()?.then?.(nil => {
 		if(window.outExportProgress) outExportProgress.innerText = "Canceled";
 		if(mediaRecorder) {
 			//mediaRecorder.onstop = null; //question: allow partial download? (currently yes)

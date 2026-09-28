@@ -3,11 +3,8 @@
 //imported variables
 var primes, primeCount, expVariance;
 var /* maxPitches */primeExpRanges;
-var rootFreq;
+var rootFreq, freqMin, freqMax;
 var rhythmFactors, rhythmFactorsAccum;
-
-//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
-const freqMin = 30, freqMax = 13000;
 
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
@@ -17,8 +14,8 @@ function renormalizeOctave(refFreq, targetFreq) {
 }
 //makes a simple interval by introducing a random prime factor up or down one unit
 //to do: reuse this in melodySubNodes? (probably not)
-function addInterval(refFreq, targetFreq, primeCount) {
-	//to do: use a while loop
+function addInterval(refFreq, targetFreq, primeCount, tuning) {
+	//to do: !use a while loop
 	//question: weighted random on factor selection? (currently yes)
 	//const iPrime = Math.floor(primeCount * Math.random());
 	const iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
@@ -41,9 +38,9 @@ function addInterval(refFreq, targetFreq, primeCount) {
 	if(iPrime > 1 && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) targetFreq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 	if(iPrime >= 1) renormalizeOctave(refFreq, targetFreq);
 
-	//to do: limitFreq?
+	limitFreq(tuning, targetFreq); //?
 }
-function newChord(voiceCount, polyphony, primeCount) {
+function newChord(voiceCount, polyphony, primeCount, tuning) {
 	const chordStruct = {
 		0: {freq: {}}
 	};
@@ -61,9 +58,9 @@ function newChord(voiceCount, polyphony, primeCount) {
 			while(true) { //duplicate prevention
 				note.freq = {};
 				//each note is based on a random previous note
-				addInterval(chordStruct[Math.floor(i * Math.random())].freq, note.freq, primeCount);
+				addInterval(chordStruct[Math.floor(i * Math.random())].freq, note.freq, primeCount, tuning);
 				newPitch = parseNumber(note.freq);
-				if(!(pitches.indexOf(newPitch) >= 0)) break; //to do: possibly subject to rounding errors
+				if(!(pitches.indexOf(newPitch) >= 0)) break; //to do: possibly subject to rounding errors (rewrite this detection)
 			}
 			pitches.push(newPitch); //for duplicate prevention
 		} else
@@ -74,8 +71,8 @@ function newChord(voiceCount, polyphony, primeCount) {
 	}
 	return chordStruct;
 }
-function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: remove _expVariance or change to primeExpRanges
-	//to do: turn these return's into exceptions, which support messages
+function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: !remove _expVariance or change to primeExpRanges
+	//to do: !turn these return's into exceptions, which support messages
 	if(primeCount <= 1) return false;
 	if(patCount <= 0) return false;
 	if(voiceCount < 2) return false;
@@ -93,7 +90,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: r
 	};
 
 	for(let i = 0; i < patCount; i++) {
-		rootStruct[i] = newChord(voiceCount, polyphony, primeCount);
+		rootStruct[i] = newChord(voiceCount, polyphony, primeCount, rootStruct.freqRatio);
 		//to do: chord comparison to avoid duplicates?
 		//rootStruct[i].timeDelta = i * voiceCount;
 		rootStruct[i].timeDelta = i.toString() + "*" + (voiceCount - 1 + polyphony).toString(); //in this case, the last note extra time = polyphony
@@ -104,7 +101,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: r
 
 //rhythm structure generator
 //question: currently, rhythmScale is like a maximum. follow it more closely?
-//to do: avoid repeating the last result, when the scale is reasonably high (e.g. 8) and the prime count too
+//to do: !avoid repeating the last result, when the scale is reasonably high (e.g. 8) and the prime count too
 function makeRhythmFactors(rhythmScale, primeCount) {
 	if(primeCount < 1) return false;
 	const rhythmFactors = [];
@@ -176,7 +173,7 @@ function rhythmSubNodes(struct, level, tuning) {
 		duration: 0
 	};
 	if(freqDummy[2] !== 0) {
-		//to do: explicitly represent exponentiation?
+		//to do: explicitly represent exponentiation (instead of calculating immediately)?
 		subNodePattern.freqRatio = (2 ** freqDummy[2]).toString() + "*" + subNodePattern.freqRatio.toString();
 		tuning *= 2 ** freqDummy[2];
 	}
@@ -222,6 +219,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 
 			duration: rhythmFactorsAccum[0],
 			timbre: "noise",
+			q: 1,
 			decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
 		});
 		rhythmStart++;
@@ -408,7 +406,7 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 		//sumVol += 1 / scale;
 		sumVol += barDuration / scale;
 	}
-	const partialScaleOffset = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2); //to do: explicitly represent exponentiation?
+	const partialScaleOffset = 2 ** Math.floor(Math.log2(barDuration) * 1 / 2); //to do: explicitly represent exponentiation (instead of calculating immediately)?
 	const rootStruct = {
 		//to do: should some of these properties be exclusive for melodic notes?
 		timeScale: _timeScale,
@@ -442,6 +440,7 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 
 			duration: rhythmFactorsAccum[0],
 			timbre: "noise",
+			q: 1,
 			decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
 		};
 		rhythmSubNodes(percussivePattern, 1, 2 ** freqDummy[2] * tuning);

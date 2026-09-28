@@ -1,18 +1,21 @@
 "use strict";
 
+//to do: put some project-neutral scripts (e.g. parseNumber) in a "shared" file
 //to do: consider extra .js file for user interface
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
-//to do: more console reports (success and failure of many operations)
-//to do: consider worker threads or scheduler
+//to do: !more console reports and exception handling (success and failure of many operations)
+//to do: !revise promise handling (consider adding more catch'es)
+//to do: !consider worker threads or scheduler
 //to do: ?line numbers in left side in code editors
 //to do: ?caret position (row, column, char index) status label
-//to do: consider radically changing flattened format: events (more like midi), supporting named notes
+//to do: !consider radically changing flattened format: events (more like midi), supporting named notes
 //to do: multitrack architecture for mixing and effect pipelines, with named tracks
 //to do: ...take query parameters (e.g. ?baseFreq=512&makeMelody)
 //to do: 	commands to generate, play, reset preferences
 //to do: 	take urls to import .mus.json files
+//to do: revise and remove excess dead code
 
-//to do: add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
+//to do: !add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
 	//question: these names are probably lousy and inconsistent. right now I'm not sure of how to improve.
 	timeDelta: 0,
@@ -22,7 +25,7 @@ const defaultBlockNode = {
 	volRatio: 1,
 
 	timbre: "sine",
-	q: 1, //for noise resonance. question: substitutive or relative? (currently substitutive)
+	q: 0, //for noise resonance. question: substitutive or relative? (currently substitutive)
 	decayFactor: 256, //question: rename this to sustain(Factor)?
 	attack: 1 / 64,
 
@@ -35,6 +38,7 @@ const defaultBlockNode = {
 
 	remark: "", //one-time comment; currently unprocessed altogether.
 	tag: "" //inherited (substitutive) comment; currently unprocessed altogether.
+	//to do: show these last two in the visualizer (probably as horizontal lines)
 }, relativeBlockProps = ["timeDelta", "timeScale", "freqRatio", "volRatio"],
  substitutiveProps = ["timbre", "q", "decayFactor", "attack", "portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack", "tag"]; //currently unused.
 const defaultNoteNode = {
@@ -63,6 +67,8 @@ tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
 var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
 
 function NaNToDefault(x, def) {
+	//note: for non-numbers, isNaN returns whether they can be converted to numbers (e.g. "9" vs. "abc")
+	//to do: !check every use of NaNToDefault considering the above
 	return isNaN(x) ? def : x;
 }
 //try to evaluate parenthesized subexpressions
@@ -109,55 +115,45 @@ function parseNumber(n) {
 	if(t === "string") {
 		if(n.length == 0) return NaN;
 
-		try {
-			//can be an object
+		try { //can be an object
 			n = JSON.parse(n);
-		} catch(error) {
-			//can be an expression
-
+		} catch(error) { //can be an expression
 			n = exprEliminateParens(n);
 
-			//operators, starting from low precedence
+			//operators, starting from low precedence (higher-precedence ones in the way will be captured in recursive calls)
+			const slicer = pos => (pos >= 0 ? [parseNumber(n.slice(0, pos)), parseNumber(n.slice(pos + 1))] : false);
+			let slices;
+
 			//addition: "3+4+5" -> 3+(4+5) (right-associative)
 			//question: why not make it almost all left-associative?
 			//"+x" = "x+" = 0+x
-			let pos = n.indexOf("+");
-			if(pos >= 0)
-				return NaNToDefault(parseNumber(n.slice(0, pos)), 0)
-					+ NaNToDefault(parseNumber(n.slice(pos + 1)), 0);
+			if(slices = slicer(n.indexOf("+")))
+				return NaNToDefault(slices[0], 0) + NaNToDefault(slices[1], 0);
 
 			//subtraction: "3-4-5" -> (3-4)-5, not 3-(4-5) (left-associative)
 			//"5-2+3" = (5-2)+3, not 5-(2+3)
 			//"-x" = 0-x
 			//"x-" = x-0
-			pos = n.lastIndexOf("-");
-			if(pos >= 0)
-				return NaNToDefault(parseNumber(n.slice(0, pos)), 0)
-					- NaNToDefault(parseNumber(n.slice(pos + 1)), 0);
+			if(slices = slicer(n.lastIndexOf("-")))
+				return NaNToDefault(slices[0], 0) - NaNToDefault(slices[1], 0);
 
 			//multiplication: "3*4*5" -> 3*(4*5) (right-associative)
 			//"*x" = "x*" = 1*x
-			pos = n.indexOf("*");
-			if(pos >= 0)
-				return NaNToDefault(parseNumber(n.slice(0, pos)), 1)
-					* NaNToDefault(parseNumber(n.slice(pos + 1)), 1);
+			if(slices = slicer(n.indexOf("*")))
+				return NaNToDefault(slices[0], 1) * NaNToDefault(slices[1], 1);
 
 			//division: "3/4/5" -> (3/4)/5, not 3/(4/5) (left-associative)
 			//"5/2*3" = (5/2)*3, not 5/(2*3)
 			//"/x" = 1/x
 			//"x/" = x/1
-			pos = n.lastIndexOf("/");
-			if(pos >= 0)
-				return NaNToDefault(parseNumber(n.slice(0, pos)), 1)
-					/ NaNToDefault(parseNumber(n.slice(pos + 1)), 1);
+			if(slices = slicer(n.lastIndexOf("/")))
+				return NaNToDefault(slices[0], 1) / NaNToDefault(slices[1], 1);
 
 			//exponentiation: "x^y^z" = x^(y^z) (right-associative)
 			//"x^" = x^1
-			//"^x" = 2^x (?)
-			pos = n.indexOf("^");
-			if(pos >= 0)
-				return NaNToDefault(parseNumber(n.slice(0, pos)), 2)
-					** NaNToDefault(parseNumber(n.slice(pos + 1)), 1);
+			//"^x" = 2^x (? question)
+			if(slices = slicer(n.indexOf("^")))
+				return NaNToDefault(slices[0], 2) ** NaNToDefault(slices[1], 1);
 
 			//no operation? try Number() again (may yield NaN).
 			return Number(n);
@@ -178,6 +174,11 @@ function parseNumber(n) {
 	}
 
 	return NaN;
+}
+function toFixedTrunc(value, digits) {
+	if(!digits) return value.toFixed(digits);
+	const scale = Math.pow(10, digits);
+	return (Math.trunc(scale * value) / scale).toFixed(digits);
 }
 function codeEditorContentGet(elem) {
 	if(!elem) return false;
@@ -291,7 +292,7 @@ function loadEventHandlers() {
 	//window.addEventListener("paste", editorPaste);
 
 	{
-		const main1 = document.getElementsByTagName("main")[0];
+		const main1 = document.getElementsByTagName("main")[0]; //limited scope and life-time declaration
 		main1.addEventListener("dragover", mainDragOver);
 		main1.addEventListener("drop", mainDrop);
 	}
@@ -306,8 +307,8 @@ function pageLoaded() {
 		window[s.id] = s;
 
 	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
-	if(window.outAudioT) outAudioT.innerText = (0).toFixed(timeDisplPrecision);
-	if(window.outAudioDur) outAudioDur.innerText = (0).toFixed(timeDisplPrecision);
+	if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
+	if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 
@@ -380,7 +381,7 @@ function pageReady(event) {
 		}, 200);*/
 	//}
 
-	console.log("pageReady: function ended");
+	console.log("pageReady(): function ending");
 }
 if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
@@ -398,11 +399,7 @@ function overflowToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	//control.classList.toggle("expanded");
-	if(elem.checked)
-		control.classList.add("expanded");
-	else
-		control.classList.remove("expanded");
+	control.classList.toggle("expanded", elem.checked);
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("expanded")));
 }
@@ -411,11 +408,7 @@ function lineWrapToggle(event) {
 	if(!elem) return false;
 	const control = document.getElementById(elem.dataset["target"]);
 	if(!control) return false;
-	//control.classList.toggle("line-wrap");
-	if(elem.checked)
-		control.classList.add("line-wrap");
-	else
-		control.classList.remove("line-wrap");
+	control.classList.toggle("line-wrap", elem.checked);
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("line-wrap")));
 }
@@ -428,12 +421,12 @@ function expSpinnerChanged(event) {
 
 	//let val = elem.valueAsNumber;
 	let val = parseNumber(elem.value);
-	if(isNaN(val)) {
+	const valNaN = isNaN(val);
+	elem.classList.toggle("invalid", valNaN);
+	if(valNaN) {
 		val = 1;
-		elem.classList.add("invalid");
 		elem.setCustomValidity("Input not recognized as a real number.");
 	} else {
-		elem.classList.remove("invalid");
 		elem.setCustomValidity("");
 	}
 
@@ -503,9 +496,11 @@ function btnRhythmFactorsGenClick(event) {
 	//rhythmAccumUpdate();
 }
 function btnChordGenClick(event) {
+	freqMin = parseNumber(window.txtFreqRangeMin?.value);
+	freqMax = parseNumber(window.txtFreqRangeMax?.value);
 	const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), expVariance, parseNumber(txtTimeScale.value));
 	if(rootStruct === false) return;
-	let s = JSON.stringify(rootStruct, null, "\t"); //to do: function for this repeated code? (also found in following functions and recalcExpRanges)
+	let s = JSON.stringify(rootStruct, null, "\t"); //to do: !function for this repeated code? (also found in following functions and recalcExpRanges)
 	//final adjustments on indentation
 	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
 	s = s.replace(regex, " ");
@@ -514,6 +509,8 @@ function btnChordGenClick(event) {
 	setStructuredText(s);
 }
 function btnRhythmGenClick(event) {
+	freqMin = parseNumber(window.txtFreqRangeMin?.value);
+	freqMax = parseNumber(window.txtFreqRangeMax?.value);
 	const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
 	if(rootStruct === false) return;
 	let s = JSON.stringify(rootStruct, null, "\t");
@@ -525,6 +522,8 @@ function btnRhythmGenClick(event) {
 	setStructuredText(s);
 }
 function btnMelodyGenClick(event) {
+	freqMin = parseNumber(window.txtFreqRangeMin?.value);
+	freqMax = parseNumber(window.txtFreqRangeMax?.value);
 	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 	const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked);
 	if(rootStruct === false) return;
@@ -544,7 +543,7 @@ function btnStopClick(event) {
 
 function deletePrevTab() {
 	//outdent line (actually, erase the nearest tab before caret)
-	const rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
+	const rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports (to do?)
 	let pos = rng.endOffset;
 	let node = rng.endContainer; //to do: store original node?
 	let txt = node.textContent;
@@ -577,6 +576,7 @@ function deletePrevTab() {
 	//to do: try a method from Selection instead of from Range, maybe deleteFromDocument()
 	rng.setStart(node, pos - 1); //also buggy
 	rng.setEnd(node, pos - 1);
+	return true; //to do: !catch clause
 }
 function editorKeyDown(event) {
 	if(event.key == "Tab") {
@@ -591,7 +591,7 @@ function editorKeyDown(event) {
 		if(event.shiftKey)
 			deletePrevTab();
 		else
-			document.execCommand("insertText", false, "\t");
+			document.execCommand("insertText", false, "\t"); //to do: !tabify (indent) instead of replacing
 	}
 	//to do: home key goes past initial indentation?
 }
@@ -669,16 +669,28 @@ function addToolTipHandler(rootSelector, handler) {
 		elem.addEventListener("pointerdown", handler);
 	}
 }
-function setToolTip(toolTipCtl, s) {
+function setToolTip(toolTipCtl, s, warnLevel) {
 	if(!toolTipCtl) toolTipCtl = window.outToolTip;
 	if(!toolTipCtl) return false;
-	if(!s) return false;
+
+	/* if(!s) return false;
+	if(typeof(s) !== "string") s = s.toString(); */
+	if(!s) s = "";
 	if(typeof(s) !== "string") s = s.toString();
 
 	toolTipCtl.innerText = s;
 	//toolTipCtl.innerHTML = s;
-	//toolTipCtl.style.position = "sticky";
-	toolTipCtl.classList.add("active");
+	toolTipCtl.classList.toggle("active", s !== "");
+
+	/* if(warnLevel)
+		toolTipCtl.dataset.warnLevel = warnLevel.toString();
+	else
+		delete toolTipCtl.dataset.warnLevel; */
+	//accepts a lot, though it might not support it. the value will be dealt by CSS.
+	if(warnLevel == undefined || (isNaN(warnLevel) && typeof(warnLevel) === "number"))
+		delete toolTipCtl.dataset.warnLevel;
+	else
+		toolTipCtl.dataset.warnLevel = warnLevel.toString();
 }
 function updateToolTip(event, outToolTip) {
 	let elem = event.target;
@@ -798,7 +810,7 @@ function addIntervalSamples() {
 		row.insertBefore(cell, row.children[4]); //to do: use neighboring header id as reference?
 	}
 }
-//to do: review this code
+//to do: !review this code
 //to do: separate AudioContext?
 function playIntervalHandler(event) {
 	//event.preventDefault();
@@ -810,7 +822,7 @@ function playIntervalHandler(event) {
 	if(rootFreq == 0) return false;
 	if(playFreqScale == 0) return false;
 	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
-	//to do: allow reverse playback?
+	//to do: allow reverse playback? (currently no)
 	if(playTimeScale <= 0) return false;
 	//const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
 	const playTimeDelta = 0; //probably not, I think.
