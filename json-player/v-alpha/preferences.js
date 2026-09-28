@@ -325,6 +325,7 @@ function rescaleText(event) {
 	document.documentElement.style.setProperty("--page-scale", textSize);
 
 	localStorage.setItem("pageAppearance.textSize", strTextSize);
+	return true;
 }
 function themeChanged(event) {
 	if(!document) return false;
@@ -338,6 +339,7 @@ function themeChanged(event) {
 		sheet.rel = (sheet.disabled ? "alternate stylesheet" : "stylesheet");
 	}
 	updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
+	return true;
 }
 function updateThemeColor(hue) {
 	const hueStr = hue.toString();
@@ -348,9 +350,9 @@ function updateThemeColor(hue) {
 		["(prefers-contrast: more)", `hsl(${hueStr}, 50%, 87.5%)`],
 		["all", `hsl(${hueStr}, 25%, 50%)`]
 	].forEach(medium => {
-		const metaElem = document.querySelector(`meta[name="theme-color"][media="${medium[0]}"]`);
-		if(metaElem) metaElem.content = medium[1];
-	});
+			const metaElem = document.querySelector(`meta[name="theme-color"][media="${medium[0]}"]`);
+			if(metaElem) metaElem.content = medium[1];
+		});
 	//cboPageTheme.value
 }
 function btnHueClick(event) {
@@ -401,6 +403,7 @@ function primeCountChanged() {
 	//if(window.outPrimeList) outPrimeList.innerText = "[" + primesList.join(", ") + "]";
 	if(window.outPrimeList) outPrimeList.innerHTML = "[" + primesList.join(", ") + "]";
 	recalcExpRanges();
+	return true;
 }
 function expVarianceChanged(event) {
 	if(!window.txtExpVariance) return false;
@@ -410,7 +413,7 @@ function expVarianceChanged(event) {
 	recalcExpRanges();
 }
 function recalcExpRanges(force) {
-	if(adjustingPreferences && !force) return;
+	if(adjustingPreferences && !force) return false;
 	//primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
 	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 
@@ -441,6 +444,7 @@ function recalcExpRanges(force) {
 		codeEditorContentSet(ctlPrimeExpRanges, s);
 		if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
 	}
+	return true;
 }
 
 //I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
@@ -456,10 +460,12 @@ function baseFreqChanged() {
 	} else {
 		txtBaseFreq.setCustomValidity("");
 	}
+	return true;
 }
 //to do: handler for frequency extremes, calling updateVisAreaTransform()?
 
 //rhythm structure data (hierarchy of factors)
+const defaultRhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
 var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmFactorsChanged() {
 	//to do: !support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
@@ -486,17 +492,17 @@ function rhythmFactorsChanged() {
 	//note: empty structures now allowed
 	try {
 		if(rhythmFactors.some(x => x == 0)) //has zeroes?
-			throw "Rhythm factors can't include zero.";
+			throw new Error("Rhythm factors can't include zero.");
 
 		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
-			throw "Unrecognized numerical expression in rhythm formula.";
+			throw new Error("Unrecognized numerical expression in rhythm formula.");
 
 		txtRhythmFactors.classList.remove("invalid");
 		txtRhythmFactors.setCustomValidity("");
 	} catch(error) {
 		console.error(error);
 		//default/fallback
-		rhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
+		rhythmFactors = defaultRhythmFactors;
 		txtRhythmFactors.classList.add("invalid");
 		txtRhythmFactors.setCustomValidity(error.toString());
 		return false;
@@ -511,12 +517,14 @@ function playFreqScaleChanged() {
 	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
 	playFreqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
 	if(playerClip) playerClip.playFreqScale = playFreqScale;
+	return true;
 }
 function playVolScaleChanged() {
 	if(!window.txtPlayVolScale) return false;
 	//if(txtPlayVolScale.valueAsNumber < 0) txtPlayVolScale.stepUp();
 	playVolScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
 	if(playerClip) playerClip.playVolScale = playVolScale;
+	return true;
 }
 
 function saveControlPreference(elem) {
@@ -615,7 +623,7 @@ function btnResetPreferencesClick(event) {
 
 			txtRhythmScale.value = "8";
 			txtRhythmScale.dispatchEvent(new Event("input"));
-			txtRhythmFactors.value = "2*2*2";
+			txtRhythmFactors.value = defaultRhythmFactors.join("*");
 			txtRhythmFactors.dispatchEvent(new Event("input"));
 		}
 		if(window.chkResetAddGenParams?.checked) {

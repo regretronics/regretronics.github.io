@@ -1,8 +1,7 @@
 "use strict";
 
 //imported variables
-var primes, primeCount, expVariance;
-var /* maxPitches */primeExpRanges;
+var primes, primeCount, primeExpRanges;
 var rootFreq, freqMin, freqMax;
 var rhythmFactors, rhythmFactorsAccum;
 
@@ -14,7 +13,7 @@ function renormalizeOctave(refFreq, targetFreq) {
 }
 //makes a simple interval by introducing a random prime factor up or down one unit
 //to do: reuse this in melodySubNodes? (probably not)
-function addInterval(refFreq, targetFreq, primeCount, tuning) {
+function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 	//to do: !use a while loop
 	//question: weighted random on factor selection? (currently yes)
 	//const iPrime = Math.floor(primeCount * Math.random());
@@ -24,10 +23,8 @@ function addInterval(refFreq, targetFreq, primeCount, tuning) {
 
 	const newExp = targetFreq[primes[iPrime]] + sign;
 	//bounds (tonality) check
-	//question: should + 1 be + 0.5?
 	//for chords with a fixed first note, the exponents should vary in a bilateral way
-	//const maxExp = expVariance * maxPitches[iPrime] + 1;
-	const expBounds = primeExpRanges[primes[iPrime]];
+	const expBounds = primeExpRanges[primes[iPrime]]; //question: +1? +0.5?
 	//if(Math.abs(newExp) > 1 * maxExp && sign === Math.sign(newExp)) sign *= -1;
 	//if((newExp > maxExp || - newExp < 0.5 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
 	if((newExp < expBounds[0] || newExp > expBounds[1]) && sign === Math.sign(newExp)) sign *= -1;
@@ -40,7 +37,7 @@ function addInterval(refFreq, targetFreq, primeCount, tuning) {
 
 	limitFreq(tuning, targetFreq); //?
 }
-function newChord(voiceCount, polyphony, primeCount, tuning) {
+function newChord(voiceCount, polyphony, primeCount, tuning, primeExpRanges) {
 	const chordStruct = {
 		0: {freq: {}}
 	};
@@ -58,7 +55,7 @@ function newChord(voiceCount, polyphony, primeCount, tuning) {
 			while(true) { //duplicate prevention
 				note.freq = {};
 				//each note is based on a random previous note
-				addInterval(chordStruct[Math.floor(i * Math.random())].freq, note.freq, primeCount, tuning);
+				addInterval(chordStruct[Math.floor(i * Math.random())].freq, note.freq, primeCount, tuning, primeExpRanges);
 				newPitch = parseNumber(note.freq);
 				if(!(pitches.indexOf(newPitch) >= 0)) break; //to do: possibly subject to rounding errors (rewrite this detection)
 			}
@@ -71,14 +68,11 @@ function newChord(voiceCount, polyphony, primeCount, tuning) {
 	}
 	return chordStruct;
 }
-function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: !remove _expVariance or change to primeExpRanges
-	//to do: !turn these return's into exceptions, which support messages
-	if(primeCount <= 1) return false;
-	if(patCount <= 0) return false;
-	if(voiceCount < 2) return false;
-	expVariance = NaNToDefault(_expVariance, 2);
-	if(expVariance <= 0) return false; //to do: set to < 0.5?
-	if(rootFreq == 0) return false;
+function makeChords(patCount, voiceCount, _timeScale, primeExpRanges) {
+	if(primeCount <= 1) throw new Error("Prime factors setting too low.");
+	if(patCount <= 0) throw new Error("Pattern count setting too low.");
+	if(voiceCount < 2) throw new Error("Voice count setting too low.");
+	if(rootFreq == 0) throw new Error("Invalid base frequency setting.");
 
 	const polyphony = voiceCount - 1; //partial superposition
 	_timeScale = NaNToDefault(_timeScale, defaultBlockNode.timeScale);
@@ -90,7 +84,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: !
 	};
 
 	for(let i = 0; i < patCount; i++) {
-		rootStruct[i] = newChord(voiceCount, polyphony, primeCount, rootStruct.freqRatio);
+		rootStruct[i] = newChord(voiceCount, polyphony, primeCount, rootStruct.freqRatio, primeExpRanges);
 		//to do: chord comparison to avoid duplicates?
 		//rootStruct[i].timeDelta = i * voiceCount;
 		rootStruct[i].timeDelta = i.toString() + "*" + (voiceCount - 1 + polyphony).toString(); //in this case, the last note extra time = polyphony
@@ -103,7 +97,7 @@ function makeChords(patCount, voiceCount, _expVariance, _timeScale) { //to do: !
 //question: currently, rhythmScale is like a maximum. follow it more closely?
 //to do: !avoid repeating the last result, when the scale is reasonably high (e.g. 8) and the prime count too
 function makeRhythmFactors(rhythmScale, primeCount) {
-	if(primeCount < 1) return false;
+	if(primeCount < 1) throw new Error("Too few prime factors.");
 	const rhythmFactors = [];
 	let scale = Math.abs(NaNToDefault(rhythmScale, 4));
 	//builds a (random) product of prime factors
@@ -152,11 +146,13 @@ function limitFreq(tuning, freq) {
 			} else
 				break;
 	}
+	return freq;
 }
 
 //the rhythm generator presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
 function rhythmSubNodes(struct, level, tuning) {
+	if(!struct) return false;
 	if(level >= rhythmFactors.length) return false;
 	const beats = rhythmFactors[level - 1];
 	const scale = rhythmFactorsAccum[level];
@@ -193,10 +189,11 @@ function rhythmSubNodes(struct, level, tuning) {
 
 		rhythmSubNodes(newNode, level + 1, tuning);
 	}
+	return struct;
 }
 function makeRhythm(repeatCount, percussion, timeScale) {
-	if(repeatCount <= 0) return false;
-	if(rootFreq == 0) return false;
+	if(repeatCount <= 0) throw new Error("Repeat count setting too low.");
+	if(rootFreq == 0)  throw new Error("Invalid base frequency setting.");
 
 	//hierarchy of beats
 	const pattern = [];
@@ -212,16 +209,16 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 		const tuning = rootFreq / rhythmFactorsAccum[0];
 		limitFreq(tuning, freqDummy); //not THAT low
 		pattern.push({ //rhythm formula root block and note
-			freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain too
-			//to do: what is the best register (frequency range) for percussion?
-			//volRatio: 1,
-			volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
+				freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain too
+				//to do: what is the best register (frequency range) for percussion?
+				//volRatio: 1,
+				volRatio: (4).toString() + "*" + rhythmFactorsAccum[0].toString() + "/" + sumVol.toString(),
 
-			duration: rhythmFactorsAccum[0],
-			timbre: "noise",
-			q: 1,
-			decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
-		});
+				duration: rhythmFactorsAccum[0],
+				timbre: "noise",
+				q: 1,
+				decayFactor: (defaultBlockNode.decayFactor / 8).toString() + "*" + _timeScale.toString()
+			});
 		rhythmStart++;
 		rhythmSubNodes(pattern[0], 1, 2 ** freqDummy[2] * tuning);
 	}
@@ -277,6 +274,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 //recursive function
 //done: option for rhythm pattern in both rhythm and melody generator
 function melodySubNodes(struct, level, tuning, primeCount) {
+	if(!struct) return false;
 	if(level >= rhythmFactors.length) return false;
 	const beats = rhythmFactors[level - 1];
 	const scale = rhythmFactorsAccum[level];
@@ -360,7 +358,6 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 			else
 				sign = ((beatType ^ beatStrengthInv) ? -1 : 1);
 			newExp = newNode.freq[primes[iPrime]] + sign;
-			//maxExp = expVariance * maxPitches[iPrime] + 1;
 			expBounds = primeExpRanges[primes[iPrime]];
 			//deviation = newExp - 0.5 * maxExp;
 		//} while((Math.abs(deviation) > 0.5 * maxExp) && sign === Math.sign(deviation));
@@ -373,7 +370,6 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 		//bounds (tonality) check
 		//question: should + 1 be + 0.5?
 		//question: should the variance here be less than when choosing pattern root pitch?
-		//const maxExp = expVariance * maxPitches[iPrime] + 1;
 		//const deviation = newExp - 0.5 * maxExp;
 		//if(Math.abs(deviation) > (0.5 * maxExp) && sign === Math.sign(deviation)) sign *= -1;
 		newNode.freq[primes[iPrime]] += sign;
@@ -387,16 +383,15 @@ function melodySubNodes(struct, level, tuning, primeCount) {
 
 		melodySubNodes(newNode, level + 1, tuning, primeCount);
 	}
-	//return true;
+	return struct;
 }
 //to do: pattern variations
-function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
-	if(primeCount <= 1) return false;
-	if(patCount <= 0) return false;
-	if(reptPeriod <= 0) return false;
-	if(repeatCount <= 0) return false;
-	if(expVariance <= 0) return false; //to do: set to < 0.5?
-	if(rootFreq == 0) return false;
+function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion, primeExpRanges) {
+	if(primeCount <= 1) throw new Error("Prime factors setting too low.");
+	if(patCount <= 0) throw new Error("Pattern count setting too low.");
+	if(reptPeriod <= 0) throw new Error("Repeat period setting too low.");
+	if(repeatCount <= 0) throw new Error("Repeat count setting too low.");
+	if(rootFreq == 0) throw new Error("Invalid base frequency setting.");
 
 	//top-level node
 	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);
@@ -459,8 +454,6 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion) {
 		let product = 1;
 		for(let iPrime = 1; iPrime < primeCount; iPrime++) {
 			const factor = primes[iPrime];
-			//const exp = Math.trunc((expVariance * maxPitches[iPrime] + 1) * Math.random());
-			//const exp = Math.round((expVariance * maxPitches[iPrime] + 1) * (Math.random() - 1 / 3));
 			const expBounds = primeExpRanges[factor];
 			const exp = Math.floor(expBounds[0] + (expBounds[1] - expBounds[0] + 1) * Math.random());
 			pattern.freq[factor] = exp;

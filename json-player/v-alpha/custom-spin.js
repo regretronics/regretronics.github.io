@@ -3,12 +3,12 @@
 const spinInterval = 250; //milliseconds.
 function spinEditTimer(spinEdit, pointerId) {
 	//console.log("spinEditTimer", spinEdit, pointerId);
-	if(!spinEdit) return;
+	if(!spinEdit) return false;
 	const buttonsArea = spinEdit.querySelector(".buttons-area");
-	if(!buttonsArea) return;
+	if(!buttonsArea) return false;
 	buttonsArea.deltaTimer = 0;
-	//if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) return;
-	if(!buttonsArea.hasPointerCapture(pointerId)) return;
+	//if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) return false;
+	if(!buttonsArea.hasPointerCapture(pointerId)) return false;
 	/* let force = 1.0;
 	if(buttonsArea.lastPointerEvent) {
 		if(buttonsArea.lastPointerEvent.pointerType === "mouse")
@@ -38,7 +38,7 @@ function spinEditTimer(spinEdit, pointerId) {
 				//for(let i = 0; i < iterations; i++)
 					txtControl.stepUp();
 				txtControl.dispatchEvent(new Event("input"));
-			};
+			}
 			//buttonsArea.currentDelta++;
 		}
 	}
@@ -49,6 +49,7 @@ function spinEditTimer(spinEdit, pointerId) {
 		nextInterval = spinInterval * Math.pow(0.5, Math.abs(currentDelta) / 16.0);
 	buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, nextInterval, spinEdit, pointerId);
 	//buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 0.25 * spinInterval, spinEdit, pointerId);
+	return true;
 }
 
 function spinEditPointerDown(event) {

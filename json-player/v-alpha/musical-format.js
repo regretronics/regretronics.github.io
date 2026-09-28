@@ -11,7 +11,7 @@ function parseExpRanges(event) {
 	if(!ctlPrimeExpRanges) return false;
 	try {
 		const parsed = JSON.parse(codeEditorContentGet(ctlPrimeExpRanges));
-		if(!parsed) throw "Exponent ranges: couldn't parse JSON code.";
+		if(!parsed) throw new Error("Exponent ranges: couldn't parse JSON code.");
 		ctlPrimeExpRanges.classList.remove("invalid");
 		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 
@@ -40,8 +40,8 @@ function parseExpRanges(event) {
 			newExpRanges[factor] = element;
 			hasAnyRanges ||= (element[1] > element[0]);
 		}
-		if(Object.keys(newExpRanges) <= 0) throw "Exponent ranges: no valid entries.";
-		if(!hasAnyRanges) throw "Exponent ranges: no valid ranges.";
+		if(Object.keys(newExpRanges) <= 0) throw new Error("Exponent ranges: no valid entries.");
+		if(!hasAnyRanges) throw new Error("Exponent ranges: no valid ranges.");
 
 		primeExpRanges = newExpRanges;
 		saveControlPreference(ctlPrimeExpRanges);
@@ -170,7 +170,7 @@ function flattenStruct() {
 	if(!ctlStructuredScript) return false;
 	try {
 		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
-		if(!struct) throw "Structured script: couldn't parse JSON code.";
+		if(!struct) throw new Error("Structured script: couldn't parse JSON code.");
 		ctlStructuredScript.classList.remove("invalid");
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 
@@ -233,6 +233,7 @@ function scriptChanged() {
 	}
 	if(autoFlatten)
 		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
+	return true;
 }
 
 function setAutoFlatten(value) {
@@ -246,4 +247,5 @@ function setAutoFlatten(value) {
 			flattenTimeoutID = undefined;
 		}
 	}
+	return true;
 }

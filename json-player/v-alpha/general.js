@@ -14,6 +14,7 @@
 //to do: 	commands to generate, play, reset preferences
 //to do: 	take urls to import .mus.json files
 //to do: revise and remove excess dead code
+//to do: !(hierarchical) objects for preferences and default preferences
 
 //to do: !add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -202,17 +203,10 @@ const timeDisplPrecision = 2;
 var releaseCurve;
 const releaseCurveSize = 8192;
 
-//variability per prime factor (2, 3, 5, 7, ...); array of numbers.
-//var maxPitches = null; //to do: get rid of this
+//variability per prime factor (2, 3, 5, 7, ...); array of array of numbers.
 var primeExpRanges = null;
 
 async function initialCalculations() {
-	//to do: remove
-	/* //build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
-	maxPitches = new Array(primes.length);
-	for(const i in primes)
-		maxPitches[i] = 1 / Math.log2(primes[i]); */
-
 	//initialize look-up table
 	releaseCurve = new Float32Array(releaseCurveSize);
 	for(let i = 0; i < releaseCurveSize; i++) {
@@ -318,31 +312,31 @@ function pageLoaded() {
 	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
 
 	new Promise((resolve, reject) => {
-	//setTimeout(() => {
-		//control separators
-		//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
-		for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
-			const separator = document.createElement("span");
-			separator.classList.add("separator");
+		//setTimeout(() => {
+			//control separators
+			//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+			for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
+				const separator = document.createElement("span");
+				separator.classList.add("separator");
 
-			//s.parentElement.insertBefore(separator, s);
-			//s.insertBefore(separator, s.firstElementChild);
-			//remove unwanted white space that could affect spacing
-			const first = s.firstChild;
-			if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
-				s.removeChild(first);
-			s.insertBefore(separator, s.firstChild);
-			//s.prepend(separator, "\u{A0}");
-		}
-		//resolve();
-	});
+				//s.parentElement.insertBefore(separator, s);
+				//s.insertBefore(separator, s.firstElementChild);
+				//remove unwanted white space that could affect spacing
+				const first = s.firstChild;
+				if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
+					s.removeChild(first);
+				s.insertBefore(separator, s.firstChild);
+				//s.prepend(separator, "\u{A0}");
+			}
+			//resolve();
+		});
 	//}, 16);
 
 	new Promise((resolve, reject) => {
-	//setTimeout(() => {
-		addIntervalSamples();
-		//resolve();
-	});
+		//setTimeout(() => {
+			addIntervalSamples();
+			//resolve();
+		});
 	//}, 16);
 }
 function pageReady(event) {
@@ -374,11 +368,11 @@ function pageReady(event) {
 	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
 		//window.setInterval(hueAnimation, 150);
 		/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
-			const bars = "▁▂▃▄▅▆▇█";
-			let s = "";
-			for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
-			document.title = s + " JSON music";
-		}, 200);*/
+				const bars = "▁▂▃▄▅▆▇█";
+				let s = "";
+				for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
+				document.title = s + " JSON music";
+			}, 200);*/
 	//}
 
 	console.log("pageReady(): function ending");
@@ -487,8 +481,15 @@ function rhythmAccumUpdate() {
 	return true;
 }
 
+//question: exception catching for generator buttons?
 function btnRhythmFactorsGenClick(event) {
-	rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), primeCount);
+	try {
+		rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), primeCount);
+	} catch(error) {
+		console.log(error);
+		setToolTip(outToolTip, "Rhythm structure generator failed. " + error.message ?? error ?? "", 3);
+		return;
+	}
 	if(window.txtRhythmFactors) {
 		txtRhythmFactors.value = rhythmFactors.join("*");
 		txtRhythmFactors.dispatchEvent(new Event("input"));
@@ -496,87 +497,110 @@ function btnRhythmFactorsGenClick(event) {
 	//rhythmAccumUpdate();
 }
 function btnChordGenClick(event) {
-	freqMin = parseNumber(window.txtFreqRangeMin?.value);
-	freqMax = parseNumber(window.txtFreqRangeMax?.value);
-	const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), expVariance, parseNumber(txtTimeScale.value));
-	if(rootStruct === false) return;
-	let s = JSON.stringify(rootStruct, null, "\t"); //to do: !function for this repeated code? (also found in following functions and recalcExpRanges)
-	//final adjustments on indentation
-	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-	s = s.replace(regex, "\{$1\}");
-	setStructuredText(s);
+	try {
+		freqMin = parseNumber(window.txtFreqRangeMin?.value);
+		freqMax = parseNumber(window.txtFreqRangeMax?.value);
+		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), primeExpRanges);
+		if(rootStruct === false) throw new Error();
+
+		let s = JSON.stringify(rootStruct, null, "\t"); //to do: !function for this repeated code? (also found in following functions and recalcExpRanges)
+		//final adjustments on indentation
+		let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+		s = s.replace(regex, " ");
+		regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+		s = s.replace(regex, "\{$1\}");
+		setStructuredText(s);
+	} catch(error) {
+		console.log(error);
+		setToolTip(outToolTip, "Failure in chord generator. " + (error.message ?? error ?? ""), 3);
+	}
 }
 function btnRhythmGenClick(event) {
-	freqMin = parseNumber(window.txtFreqRangeMin?.value);
-	freqMax = parseNumber(window.txtFreqRangeMax?.value);
-	const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
-	if(rootStruct === false) return;
-	let s = JSON.stringify(rootStruct, null, "\t");
-	//final adjustments on indentation
-	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-	s = s.replace(regex, "\{$1\}");
-	setStructuredText(s);
+	try {
+		freqMin = parseNumber(window.txtFreqRangeMin?.value);
+		freqMax = parseNumber(window.txtFreqRangeMax?.value);
+		const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
+		if(rootStruct === false) throw new Error();
+
+		let s = JSON.stringify(rootStruct, null, "\t");
+		//final adjustments on indentation
+		let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+		s = s.replace(regex, " ");
+		regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+		s = s.replace(regex, "\{$1\}");
+		setStructuredText(s);
+	} catch(error) {
+		console.log(error);
+		setToolTip(outToolTip, "Failure in rhythm generator. " + (error.message ?? error ?? ""), 3);
+	}
 }
 function btnMelodyGenClick(event) {
-	freqMin = parseNumber(window.txtFreqRangeMin?.value);
-	freqMax = parseNumber(window.txtFreqRangeMax?.value);
-	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
-	const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked);
-	if(rootStruct === false) return;
-	let s = JSON.stringify(rootStruct, null, "\t");
-	//final adjustments on indentation
-	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-	s = s.replace(regex, "\{$1\}");
-	setStructuredText(s);
+	try {
+		freqMin = parseNumber(window.txtFreqRangeMin?.value);
+		freqMax = parseNumber(window.txtFreqRangeMax?.value);
+		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, primeExpRanges);
+		if(rootStruct === false) throw new Error();
+
+		let s = JSON.stringify(rootStruct, null, "\t");
+		//final adjustments on indentation
+		let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+		s = s.replace(regex, " ");
+		regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+		s = s.replace(regex, "\{$1\}");
+		setStructuredText(s);
+	} catch(error) {
+		console.log(error);
+		setToolTip(outToolTip, "Failure in melody generator. " + (error.message ?? error ?? ""), 3);
+	}
 }
 function btnStopClick(event) {
 	if(!playerClip) return;
-	if(playerClip.onClipEnd) playerClip.onClipEnd(); else emptyClip(playerClip);
-	playerClip.audioCtx?.suspend?.();
+	playerClip.onClipEnd?.(true);
 }
 
 function deletePrevTab() {
 	//outdent line (actually, erase the nearest tab before caret)
-	const rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports (to do?)
-	let pos = rng.endOffset;
-	let node = rng.endContainer; //to do: store original node?
-	let txt = node.textContent;
-	let i;
+	try {
+		const rng = window.getSelection?.()?.getRangeAt?.(0); //disregarding multiple selection, which only Firefox supports (to do?)
+		if(!rng) return false;
 
-	while(true) {
-		i = txt.lastIndexOf("\t", pos - 1);
-		if(txt.slice(i, pos).indexOf("\n") >= 0) return false; //line breaks interrupt the search
-		if(i >= 0) break; //tab character found?
+		let pos = rng.endOffset;
+		let node = rng.endContainer; //to do: store original node?
+		let txt = node.textContent;
+		let i;
 
-		node = node.previousSibling;
-		if(!node) return false; //"end" of text?
-		if(node.nodeName.toUpperCase() == "BR") return false; //line break attacks again
+		while(true) {
+			i = txt.lastIndexOf("\t", pos - 1);
+			if(txt.slice(i, pos).indexOf("\n") >= 0) return false; //line breaks interrupt the search
+			if(i >= 0) break; //tab character found?
 
-		txt = node.textContent;
-		pos = txt.length;
+			node = node.previousSibling;
+			if(!node) return false; //"end" of text?
+			if(node.nodeName.toUpperCase() == "BR") return false; //line break attacks again
+
+			txt = node.textContent;
+			pos = txt.length;
+		}
+		if(i < 0) return false;
+
+		//tried to preserve caret position, but the result is buggy
+		/*txtBefore = txtBefore.slice(0, i) + txtBefore.slice(i + 1);
+		node.textContent = txtBefore + txt.slice(pos);*/
+		/*rng.setStart(node, pos - 1);
+		rng.setEnd(node, pos - 1);*/
+
+		rng.setStart(node, i);
+		rng.setEnd(node, i + 1);
+		//rng.deleteContents();
+		document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently I haven't found any proper replacement for this command.
+		//to do: try a method from Selection instead of from Range, maybe deleteFromDocument()
+		rng.setStart(node, pos - 1); //also buggy
+		rng.setEnd(node, pos - 1);
+	} catch(error) {
+		console.error(error);
+		return false;
 	}
-	if(!(i >= 0)) return false;
-
-	//tried to preserve caret position, but the result is buggy
-	/*txtBefore = txtBefore.slice(0, i) + txtBefore.slice(i + 1);
-	node.textContent = txtBefore + txt.slice(pos);*/
-	/*rng.setStart(node, pos - 1);
-	rng.setEnd(node, pos - 1);*/
-
-	rng.setStart(node, i);
-	rng.setEnd(node, i + 1);
-	//rng.deleteContents();
-	document.execCommand("delete", false, null); //they say execCommand() is deprecated. currently I haven't found any proper replacement for this command.
-	//to do: try a method from Selection instead of from Range, maybe deleteFromDocument()
-	rng.setStart(node, pos - 1); //also buggy
-	rng.setEnd(node, pos - 1);
-	return true; //to do: !catch clause
+	return true;
 }
 function editorKeyDown(event) {
 	if(event.key == "Tab") {
@@ -587,7 +611,8 @@ function editorKeyDown(event) {
 		//tried to dispatch input or beforeinput events. didn't work.
 		//event.target.dispatchEvent(new InputEvent("beforeinput", {data: "\t", inputType: "insertText"}));
 
-		event.target.focus(); //unnecessary?
+		event.target.focus(); //necessary?
+		//to do: check if selection is wholly contained in code box
 		if(event.shiftKey)
 			deletePrevTab();
 		else
@@ -677,6 +702,7 @@ function setToolTip(toolTipCtl, s, warnLevel) {
 	if(typeof(s) !== "string") s = s.toString(); */
 	if(!s) s = "";
 	if(typeof(s) !== "string") s = s.toString();
+	s = s.trim();
 
 	toolTipCtl.innerText = s;
 	//toolTipCtl.innerHTML = s;
@@ -691,8 +717,9 @@ function setToolTip(toolTipCtl, s, warnLevel) {
 		delete toolTipCtl.dataset.warnLevel;
 	else
 		toolTipCtl.dataset.warnLevel = warnLevel.toString();
+	return true;
 }
-function updateToolTip(event, outToolTip) {
+function updateToolTip(event, toolTipCtl) {
 	let elem = event.target;
 	if(!elem || !elem.title || !elem.title.length)
 		elem = event.currentTarget; //for events fired in descendant elements, e.g. td in tr
@@ -710,9 +737,9 @@ function updateToolTip(event, outToolTip) {
 		sentences.push(description);
 
 	if(sentences.length > 0)
-		//setToolTip(outToolTip, sentences.join(" "));
-		setToolTip(outToolTip, sentences.join("\n"));
-		//setToolTip(outToolTip, sentences.join("<br />"));
+		//setToolTip(toolTipCtl, sentences.join(" "));
+		setToolTip(toolTipCtl, sentences.join("\n"));
+		//setToolTip(toolTipCtl, sentences.join("<br />"));
 }
 
 let lastCodeObjURL = null;
@@ -813,49 +840,59 @@ function addIntervalSamples() {
 //to do: !review this code
 //to do: separate AudioContext?
 function playIntervalHandler(event) {
-	//event.preventDefault();
 	if(!event?.target) return;
-	let fraction = event.target.dataset["fraction"];
-	if(!fraction || fraction == "") return;
-	fraction = parseNumber(fraction);
+	try {
+		let fraction = event.target.dataset["fraction"];
+		if(!fraction || fraction == "") throw new Error("Unrecognized interval.");
+		fraction = parseNumber(fraction);
 
-	if(rootFreq == 0) return false;
-	if(playFreqScale == 0) return false;
-	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
-	//to do: allow reverse playback? (currently no)
-	if(playTimeScale <= 0) return false;
-	//const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
-	const playTimeDelta = 0; //probably not, I think.
+		if(rootFreq == 0) throw new Error("Invalid base frequency setting.");
+		if(playFreqScale == 0) throw new Error("Invalid playback frequency scale setting.");
+		const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
+		//to do: allow reverse playback? (currently no)
+		if(playTimeScale <= 0) throw new Error("Invalid playback time scale setting.");
+		//const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
+		const playTimeDelta = 0; //probably not, I think.
 
-	const noteInterval = 0.25, noteDuration = 3;
-	const clip = new SoundClip(null, playTimeScale * (noteDuration + noteInterval), playTimeScale, playTimeDelta, playVolScale, playFreqScale);
-	if(playerClip) clip.audioCtx = playerClip.audioCtx;
-	if(!clip.audioCtx || clip.audioCtx.state === 'closed') {
-		//clip.audioCtx = new AudioContext({latencyHint: "playback"});
-		clip.audioCtx = new AudioContext({latencyHint: "interactive"});
-		//clip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
+		const noteTInterval = 0.25, noteDuration = 3;
+		const clip = new SoundClip(null, playTimeScale * (noteDuration + noteTInterval), playTimeScale, playTimeDelta, playVolScale, playFreqScale);
+		if(playerClip) clip.audioCtx = playerClip.audioCtx;
+		if(!clip.audioCtx || clip.audioCtx.state === 'closed') {
+			//clip.audioCtx = new AudioContext({latencyHint: "playback"});
+			clip.audioCtx = new AudioContext({latencyHint: "interactive"});
+			//clip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
+		}
+		clip.destNode = clip.audioCtx.destination;
+		clip.t0 = clip.audioCtx.currentTime - clip.playTimeDelta;
+
+		renderNote(clip, {
+				noteStart: 0, noteStop: noteDuration,
+				freq: rootFreq, vol: 0.5,
+				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
+			});
+		renderNote(clip, {
+				noteStart: noteTInterval, noteStop: noteTInterval + noteDuration,
+				freq: fraction * rootFreq, vol: 0.5,
+				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
+			});
+		if(clip.audioCtx.state === 'suspended')
+			clip.audioCtx.resume()?.then?.(null, 
+					reason => setToolTip(outToolTipIntervals, "Could not resume playback. " + reason.toString()))
+				?.catch?.(error => {
+					window.reportError(error);
+				});
+		clip.open = true;
+	} catch(error) {
+		console.log(error);
+		setToolTip(outToolTip, "Failure in interval player. " + (error.message ?? error ?? ""), 3);
 	}
-	clip.destNode = clip.audioCtx.destination;
-	clip.t0 = clip.audioCtx.currentTime - clip.playTimeDelta;
-
-	renderNote(clip, {
-		noteStart: 0, noteStop: noteDuration,
-		freq: rootFreq, vol: 0.5,
-		portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
-	});
-	renderNote(clip, {
-		noteStart: noteInterval, noteStop: noteInterval + noteDuration,
-		freq: fraction * rootFreq, vol: 0.5,
-		portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
-	});
-	if(clip.audioCtx.state === 'suspended') clip.audioCtx.resume();
-	clip.open = true;
 }
 
 function mainDragOver(event) {
 	if(!event) return;
 	event.preventDefault();
 	event.dataTransfer.dropEffect = "copy";
+	//to do: UI feedback on accepting dragging
 }
 function mainDrop(event) {
 	if(!event || !event.dataTransfer) return;
@@ -863,22 +900,32 @@ function mainDrop(event) {
 	//const data = event.dataTransfer.getData("application/json");
 	if(event.dataTransfer.items) {
 		const item = event.dataTransfer.items[0];
+		if(!item) {
+			setToolTip(outToolTip, "No files were dropped.");
+			return;
+		}
 		if(item.kind === "string" && item.type.match(/^text\/plain/)) {
 			item.getAsString(s => setStructuredText(s));
 		} else
 			if(item.kind === "file") {
 				item.getAsFile().text()?.then?.(value => {
-					setStructuredText(value);
-				}, reason => setToolTip(outToolTip, "Dropped file could not be read: " + reason.toString()));
+						setStructuredText(value);
+					}, reason => setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString()))
+					?.catch?.(error => {
+						window.reportError(error);
+					});
 			}
 	} else {
-		if(event.dataTransfer.files.length < 1) {
+		if(!event.dataTransfer.files || event.dataTransfer.files.length < 1) {
 			setToolTip(outToolTip, "No files were dropped.");
 			return;
 		}
 		event.dataTransfer.files[0].text()?.then?.(value => {
-			setStructuredText(value);
-		}, reason => setToolTip(outToolTip, "Dropped file could not be read: " + reason.toString()));
+				setStructuredText(value);
+			}, reason => setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString()))
+			?.catch?.(error => {
+				window.reportError(error);
+			});
 	}
 }
 
@@ -895,6 +942,9 @@ function inFileChange(event) {
 	}
 	const file = fileList[0];
 	file.text()?.then?.(value => {
-		setStructuredText(value);
-	}, reason => setToolTip(outToolTip, "Chosen file could not be read: " + reason.toString()));
+			setStructuredText(value);
+		}, reason => setToolTip(outToolTip, "Chosen file could not be read. " + reason.toString()))
+		?.catch?.(error => {
+			window.reportError(error);
+		});
 }
