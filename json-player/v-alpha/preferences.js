@@ -12,48 +12,39 @@ function loadPreferences() {
 
 		//Reset preferences (influences later conditionals)
 		if(!chkResetReset.checked) {
-			s = localStorage.getItem("reset.pageAppearance");
-			if(s) {
+			if(s = localStorage.getItem("reset.pageAppearance")) {
 				chkResetPageAppearance.checked = JSON.parse(s);
 				//chkResetPageAppearance.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.genParams");
-			if(s) {
+			if(s = localStorage.getItem("reset.genParams")) {
 				chkResetGenParams.checked = JSON.parse(s);
 				//chkResetGenParams.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.rhythmParams");
-			if(s) {
+			if(s = localStorage.getItem("reset.rhythmParams")) {
 				chkResetRhythmParams.checked = JSON.parse(s);
 				//chkResetRhythmParams.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.addGenParams");
-			if(s) {
+			if(s = localStorage.getItem("reset.addGenParams")) {
 				chkResetAddGenParams.checked = JSON.parse(s);
 				//chkResetAddGenParams.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.structuredMusic");
-			if(s) {
+			if(s = localStorage.getItem("reset.structuredMusic")) {
 				chkResetStructuredMusic.checked = JSON.parse(s);
 				//chkResetStructuredMusic.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.flatScript");
-			if(s) {
+			if(s = localStorage.getItem("reset.flatScript")) {
 				chkResetFlatScript.checked = JSON.parse(s);
 				//chkResetFlatScript.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.clipParams");
-			if(s) {
+			if(s = localStorage.getItem("reset.clipParams")) {
 				chkResetClipParams.checked = JSON.parse(s);
 				//chkResetClipParams.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.player");
-			if(s) {
+			if(s = localStorage.getItem("reset.player")) {
 				chkResetPlayer.checked = JSON.parse(s);
 				//chkResetPlayer.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("reset.reset");
-			if(s) {
+			if(s = localStorage.getItem("reset.reset")) {
 				chkResetReset.checked = JSON.parse(s);
 				//chkResetReset.dispatchEvent(new Event("input"));
 			}
@@ -61,19 +52,16 @@ function loadPreferences() {
 
 		//Page appearance
 		if(!chkResetPageAppearance.checked) {
-			s = localStorage.getItem("pageAppearance.textSize");
-			if(s) {
+			if(s = localStorage.getItem("pageAppearance.textSize")) {
 				textSize = JSON.parse(s);
 				//document.documentElement.style.fontSize = textSize.toString() + "em";
 				document.documentElement.style.setProperty("--page-scale", textSize);
 			}
-			s = localStorage.getItem("pageAppearance.theme");
-			if(s) {
+			if(s = localStorage.getItem("pageAppearance.theme")) {
 				cboPageTheme.value = s;
 				cboPageTheme.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("pageAppearance.hue");
-			if(s) {
+			if(s = localStorage.getItem("pageAppearance.hue")) {
 				const hue = parseNumber(JSON.parse(s)), hueMod = ((hue % 360) + 360.0) % 360.0;
 				document.documentElement.style.setProperty("--hue-accent0", hueMod);
 				//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
@@ -83,43 +71,35 @@ function loadPreferences() {
 
 		//Generator parameters
 		if(!chkResetGenParams.checked) {
-			s = localStorage.getItem("genParams.baseFreq");
-			if(s) {
+			if(s = localStorage.getItem("genParams.baseFreq")) {
 				txtBaseFreq.value = s;
 				txtBaseFreq.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("genParams.freqRangeMin");
-			if(s) {
+			if(s = localStorage.getItem("genParams.freqRangeMin")) {
 				txtFreqRangeMin.value = s;
 				txtFreqRangeMin.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("genParams.freqRangeMax");
-			if(s) {
+			if(s = localStorage.getItem("genParams.freqRangeMax")) {
 				txtFreqRangeMax.value = s;
 				txtFreqRangeMax.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("genParams.timeScale");
-			if(s) {
+			if(s = localStorage.getItem("genParams.timeScale")) {
 				txtTimeScale.value = s;
 				txtTimeScale.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("genParams.patternCount");
-			if(s) {
+			if(s = localStorage.getItem("genParams.patternCount")) {
 				txtPatternCount.value = s;
 				txtPatternCount.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("genParams.primeCount");
-			if(s) {
+			if(s = localStorage.getItem("genParams.primeCount")) {
 				txtPrimeCount.value = s;
 				txtPrimeCount.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("genParams.expVariance");
-			if(s) {
+			if(s = localStorage.getItem("genParams.expVariance")) {
 				txtExpVariance.value = s;
 				txtExpVariance.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("genParams.primeExpRanges");
-			if(s) {
+			if(s = localStorage.getItem("genParams.primeExpRanges")) {
 				codeEditorContentSet(ctlPrimeExpRanges, s);
 				ctlPrimeExpRanges.dispatchEvent(new Event("input"));
 			} else
@@ -128,13 +108,11 @@ function loadPreferences() {
 
 		//Rhythm parameters
 		if(!chkResetRhythmParams.checked) {
-			s = localStorage.getItem("rhythmParams.rhythmScale");
-			if(s) {
+			if(s = localStorage.getItem("rhythmParams.rhythmScale")) {
 				txtRhythmScale.value = s;
 				txtRhythmScale.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("rhythmParams.rhythmFactors");
-			if(s) {
+			if(s = localStorage.getItem("rhythmParams.rhythmFactors")) {
 				txtRhythmFactors.value = s;
 				txtRhythmFactors.dispatchEvent(new Event("input"));
 			}
@@ -142,23 +120,19 @@ function loadPreferences() {
 
 		//Additional generator parameters
 		if(!chkResetAddGenParams.checked) {
-			s = localStorage.getItem("addGenParams.voiceCount");
-			if(s) {
+			if(s = localStorage.getItem("addGenParams.voiceCount")) {
 				txtVoiceCount.value = s;
 				txtVoiceCount.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("addGenParams.reptCount");
-			if(s) {
+			if(s = localStorage.getItem("addGenParams.reptCount")) {
 				txtReptCount.value = s;
 				txtReptCount.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("addGenParams.reptPeriod");
-			if(s) {
+			if(s = localStorage.getItem("addGenParams.reptPeriod")) {
 				txtReptPeriod.value = s;
 				txtReptPeriod.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("addGenParams.percussivePattern");
-			if(s) {
+			if(s = localStorage.getItem("addGenParams.percussivePattern")) {
 				chkPercussivePattern.checked = JSON.parse(s);
 				chkPercussivePattern.dispatchEvent(new Event("click")); //question: input or click event for check boxes?
 			}
@@ -166,22 +140,19 @@ function loadPreferences() {
 
 		//Structured music editor
 		if(!chkResetStructuredMusic.checked) {
-			s = localStorage.getItem("structuredMusic.overflow");
-			if(s) {
+			if(s = localStorage.getItem("structuredMusic.overflow")) {
 				const parsed = JSON.parse(s);
 				chkOverflow1.checked = parsed;
 				//chkOverflow1.dispatchEvent(new Event("input"));
 				ctlStructuredScript.classList.toggle("expanded", parsed);
 			}
-			s = localStorage.getItem("structuredMusic.lineWrapping");
-			if(s) {
+			if(s = localStorage.getItem("structuredMusic.lineWrapping")) {
 				const parsed = JSON.parse(s);
 				chkLineWrap1.checked = parsed;
 				//chkLineWrap1.dispatchEvent(new Event("input"));
 				ctlStructuredScript.classList.toggle("line-wrap", parsed);
 			}
-			s = localStorage.getItem("structuredMusic.content");
-			if(s) {
+			if(s = localStorage.getItem("structuredMusic.content")) {
 				codeEditorContentSet(ctlStructuredScript, s);
 				ctlStructuredScript.dispatchEvent(new Event("input"));
 			}
@@ -189,27 +160,23 @@ function loadPreferences() {
 
 		//Flattened note list
 		if(!chkResetFlatScript.checked) {
-			s = localStorage.getItem("flatScript.autoFlatten");
-			if(s) {
+			if(s = localStorage.getItem("flatScript.autoFlatten")) {
 				chkAutoFlatten.checked = JSON.parse(s);
 				chkAutoFlatten.dispatchEvent(new Event("click"));
 			}
-			s = localStorage.getItem("flatScript.overflow");
-			if(s) {
+			if(s = localStorage.getItem("flatScript.overflow")) {
 				const parsed = JSON.parse(s);
 				chkOverflow2.checked = parsed;
 				//chkOverflow2.dispatchEvent(new Event("input"));
 				ctlFlatScript.classList.toggle("expanded", parsed);
 			}
-			s = localStorage.getItem("flatScript.lineWrapping");
-			if(s) {
+			if(s = localStorage.getItem("flatScript.lineWrapping")) {
 				const parsed = JSON.parse(s);
 				chkLineWrap2.checked = parsed;
 				//chkLineWrap2.dispatchEvent(new Event("input"));
 				ctlFlatScript.classList.toggle("line-wrap", parsed);
 			}
-			s = localStorage.getItem("flatScript.content");
-			if(s) {
+			if(s = localStorage.getItem("flatScript.content")) {
 				codeEditorContentSet(ctlFlatScript, s);
 				ctlFlatScript.dispatchEvent(new Event("input"));
 			}
@@ -217,23 +184,19 @@ function loadPreferences() {
 
 		//Overall play controls
 		if(!chkResetClipParams.checked) {
-			s = localStorage.getItem("clipParams.freqScale");
-			if(s) {
+			if(s = localStorage.getItem("clipParams.freqScale")) {
 				txtPlayFreqScale.value = s;
 				txtPlayFreqScale.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("clipParams.volScale");
-			if(s) {
+			if(s = localStorage.getItem("clipParams.volScale")) {
 				txtPlayVolScale.value = s;
 				txtPlayVolScale.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("clipParams.timeScale");
-			if(s) {
+			if(s = localStorage.getItem("clipParams.timeScale")) {
 				txtPlayTimeScale.value = s;
 				txtPlayTimeScale.dispatchEvent(new Event("input"));
 			}
-			s = localStorage.getItem("clipParams.timeDelta");
-			if(s) {
+			if(s = localStorage.getItem("clipParams.timeDelta")) {
 				txtPlayTimeDelta.value = s;
 				txtPlayTimeDelta.dispatchEvent(new Event("input"));
 			}
@@ -241,8 +204,7 @@ function loadPreferences() {
 
 		//Player
 		if(!chkResetPlayer.checked) {
-			s = localStorage.getItem("player.autoReload");
-			if(s) {
+			if(s = localStorage.getItem("player.autoReload")) {
 				chkAutoReload.checked = JSON.parse(s);
 				chkAutoReload.dispatchEvent(new Event("click"));
 			}

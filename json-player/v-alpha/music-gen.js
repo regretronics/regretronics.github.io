@@ -1,7 +1,7 @@
 "use strict";
 
 //imported variables
-var primes, primeCount, primeExpRanges;
+var primes, primeCount;
 var rootFreq, freqMin, freqMax;
 var rhythmFactors, rhythmFactorsAccum;
 
@@ -273,7 +273,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 //the melody generator also presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
 //done: option for rhythm pattern in both rhythm and melody generator
-function melodySubNodes(struct, level, tuning, primeCount) {
+function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 	if(!struct) return false;
 	if(level >= rhythmFactors.length) return false;
 	const beats = rhythmFactors[level - 1];
@@ -463,7 +463,7 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion, pr
 		pattern.freq[2] = - Math.round(Math.log2(product));
 		limitFreq(rootStruct.freqRatio, pattern.freq);
 
-		melodySubNodes(pattern, 1, parseNumber(rootStruct.freqRatio), primeCount);
+		melodySubNodes(pattern, 1, parseNumber(rootStruct.freqRatio), primeCount, primeExpRanges);
 
 		//rootStruct[i] = pattern;
 		rootStruct["pat" + i.toString()] = pattern;

@@ -63,7 +63,7 @@ function createNoiseBuffer(audioCtx) {
 }
 
 //finds item in arr and remove from it.
-//currently an in-place operation, with optional return.
+//currently an in-place operation (instead of pure function), with optional return.
 function removeFrom(arr, item) {
 	if(!item || !arr) return false;
 	const i = arr.indexOf(item);
@@ -136,7 +136,7 @@ function defNodeEnded(event) {
 		if(clip === playerClip && clip.audioCtx.state === 'running') {
 			console.log("defNodeEnded(): will suspend audioCtx.");
 			clip.audioCtx.suspend()?.then?.(nil => { //suspend, resume, close yield promise's, but their values are just undefined.
-					//question: remove the extra playerClip === clip check?
+					//question: remove the extra playerClip === clip check? (here and elsewhere)
 					if(playerClip === clip && window.chkAutoReload?.checked)
 						loadAndPlay();
 				})
@@ -298,16 +298,16 @@ function enqueueNotes(clip, tNow, tMargin) { //question: should this be a SoundC
 	tNow /= clip.playTimeScale; //to do: move the divisions outside this procedure (to facilitate variable time scale)?
 	tMargin /= clip.playTimeScale;
 	const tMax = tNow + tMargin;
-	let note;
+
 	//progressively enter notes
 	//this procedure presumes a time-sorted array of notes
 	//to do: nondestructive list traversal
 	while(clip.flatStruct.length > 0 && clip.flatStruct[0].noteStart <= tMax) { //to do: review time condition when allowing reverse playback
-		note = clip.flatStruct.shift();
+		const note = clip.flatStruct.shift();
 		//in the flattened structure, all notes must have (non-zero) frequency
 		if(!note.freq) continue; //note: negative frequency is allowed
 		//if(note.noteStop <= note.noteStart) continue;
-		if(note.noteStop === note.noteStart) continue; //note: negative length is not rejected
+		if(note.noteStop === note.noteStart) continue; //note: negative length is not rejected, unlike length zero
 		if(note.vol === 0) continue; //negative amplitude is allowed, but zero amplitude not played
 		if(note.noteStop < tNow) continue;
 		try {
@@ -461,12 +461,13 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 	//visualization
 	if(clip === playerClip && window.imgVisualizer)
 		try {
+			//to do: !move this block into a new function
 			const nowY = visSliceCount - 1; //to do: !change scale reference
 
 			//scroll
 			const slices = imgVisualizer.getElementsByClassName("vis-slice"), lastSlice = slices.length - 1;
 			if(lastSlice >= 0) {
-				const slice = slices[lastSlice], t1 = parseFloat(slice.getAttribute("data-t"))/* , t0 = parseFloat(slices[lastSlice - 1].getAttribute("data-t")) */;
+				const slice = slices[lastSlice], t1 = parseFloat(slice.getAttribute("data-t"));
 				slice.setAttributeNS(null, "data-dt", (tNow - t1).toString());
 			}
 			//to do: adjust visArea transform instead of moving every row
@@ -641,7 +642,7 @@ function audioCtxDefStateChanged() {
 	if(!this) return;
 	console.log(`audioCtxDefStateChanged(): state: ${this.state}`);
 }
-async function loadAndPlay() {
+async function loadAndPlay() { //to do: !exception handling
 	if(playerClip && playerClip.open) return false;
 
 	let audioCtx = null, noiseBuffer = null;
@@ -669,7 +670,7 @@ async function loadAndPlay() {
 		playerClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
 	}
 	if(playerClip.audioCtx.state === 'running')
-		//using Promise here to defer the rest of the procedure.
+		//use of Promise here will defer the rest of the procedure.
 		playerClip.audioCtx.suspend()?.then?.(playerBeforePlay)
 			?.catch?.(error => {
 				window.reportError(error);
@@ -682,6 +683,7 @@ async function loadAndPlay() {
 //--
 //nonreversible operation, frees resources
 //to do: !move up in this file?
+//to do: rename emptyClip, playerClipEnd, exportClipEnd to the same prefix (maybe clipEndDefault, clipEndPlayer, clipEndExport)
 function emptyClip(suspend) { //question: should this be a SoundClip method? (currently yes.)
 	const clip = this;
 	if(!clip || !clip.open) return false;
@@ -825,7 +827,7 @@ function exportClipEnd(suspend) {
 	const clip = this ?? exportClip;
 	if(!clip) return false;
 
-	clip.emptyClip(true)?.then?.(nil => {
+	return clip.emptyClip(true)?.then?.(nil => {
 	//if(clip.audioCtx)
 	//	clip.audioCtx.close?.()?.then?.(nil => {
 			if(window.outExportProgress) outExportProgress.innerText = "Rendered";
@@ -840,7 +842,7 @@ function exportClipEnd(suspend) {
 		?.catch?.(error => {
 			window.reportError(error);
 		});
-	return true;
+	//return true;
 }
 function exportAudioTimer(clip) { //question: should this be a SoundClip method?
 	if(!clip) return false;
@@ -930,15 +932,15 @@ function beforeRecord() {
 		}, reason => setToolTip(outToolTip, "Could not start rendering. " + reason.toString()))?.catch?.(error => {
 			console.error('Rendering failed.');
 			window.reportError(error);
-			//Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
+			//note: the promise should reject when startRendering is called a second time on an OfflineAudioContext
 		})
 		?.catch?.(error => {
 			window.reportError(error);
 		});*/
 }
-function audioExport() {
+function audioExport() { //to do: !exception handling
 	if(exportClip && exportClip.open) return false;
-	exportClip = new loadNewClip();
+	exportClip = loadNewClip();
 	exportClip.onClipEnd = exportClipEnd;
 	if(window.outExportProgress) outExportProgress.innerText = "Note list loaded";
 	//question: round (toFixed) or trunc (toFixedTrunc) here?

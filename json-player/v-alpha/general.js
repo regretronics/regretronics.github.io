@@ -311,8 +311,7 @@ function pageLoaded() {
 	codeEditorContentSet(ctlStructuredScript, defStructuredCode);
 	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
 
-	new Promise((resolve, reject) => {
-		//setTimeout(() => {
+	Promise.resolve().then(value => {
 			//control separators
 			//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
 			for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
@@ -328,41 +327,32 @@ function pageLoaded() {
 				s.insertBefore(separator, s.firstChild);
 				//s.prepend(separator, "\u{A0}");
 			}
-			//resolve();
 		});
-	//}, 16);
 
-	new Promise((resolve, reject) => {
-		//setTimeout(() => {
+	Promise.resolve().then(value => {
 			addIntervalSamples();
-			//resolve();
 		});
-	//}, 16);
 }
 function pageReady(event) {
-	//new Promise((resolve, reject) => {
-	//setTimeout(() => {
-		loadEventHandlers();
-		window.loadPreferences?.(); //preferences.js
-		adjustingPreferences = true;
-		try {
-			const evt = new Event("input");
-			for(const elem of document.querySelectorAll("input.exp"))
-				elem.dispatchEvent(evt);
-			window.primeCountChanged?.();
-		} finally {
-			adjustingPreferences = false;
-		}
-		window.rhythmFactorsChanged?.();
+	Promise.resolve().then(value => {
+			loadEventHandlers();
+			window.loadPreferences?.(); //preferences.js
+			adjustingPreferences = true;
+			try {
+				const evt = new Event("input");
+				for(const elem of document.querySelectorAll("input.exp"))
+					elem.dispatchEvent(evt);
+				window.primeCountChanged?.();
+			} finally {
+				adjustingPreferences = false;
+			}
+			window.rhythmFactorsChanged?.();
 
-		window.initSpinControls?.(); //custom-spin.js
-		for(let s of document.querySelectorAll('label[for]'))
-			//s.title = document.getElementById(s.htmlFor).title ?? "";
-			s.title = s.control?.title ?? "";
-
-		//resolve();
-	//});
-	//}, 16);
+			window.initSpinControls?.(); //custom-spin.js
+			for(let s of document.querySelectorAll('label[for]'))
+				//s.title = document.getElementById(s.htmlFor).title ?? "";
+				s.title = s.control?.title ?? "";
+		});
 
 	//just eye candy
 	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
@@ -383,8 +373,8 @@ else //DOMContentLoaded has already fired
 	pageLoaded();
 window.addEventListener("load", pageReady);
 //window.addEventListener("load", async evt => {pageReady(evt);});
-//window.addEventListener("load", evt => {new Promise((resolve, reject) => {pageReady(evt);});});
-//window.addEventListener("load", evt => {setTimeout(() => {pageReady();}, 1);});
+//window.addEventListener("load", evt => {Promise.resolve().then(value => {pageReady(evt);});});
+//window.addEventListener("load", evt => {Promise.resolve().then(pageReady);});
 
 if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON music (unstable)";
 
@@ -481,7 +471,6 @@ function rhythmAccumUpdate() {
 	return true;
 }
 
-//question: exception catching for generator buttons?
 function btnRhythmFactorsGenClick(event) {
 	try {
 		rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), primeCount);
