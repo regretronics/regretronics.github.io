@@ -165,7 +165,7 @@ function parseNode(flatStruct, node, blockContext) {
 }
 
 let hasScriptChanged = true;
-function flattenStruct() {
+function flattenStruct(event) {
 	if(!hasScriptChanged) return false;
 	if(!ctlStructuredScript) return false;
 	try {
@@ -198,7 +198,9 @@ function flattenStruct() {
 	} catch(error) {
 		console.error(error);
 		//codeEditorContentSet(ctlFlatScript, error.name + ": " + error.message);
-		codeEditorContentSet(ctlFlatScript, error.toString());
+		//codeEditorContentSet(ctlFlatScript, error.toString());
+		setToolTip(outToolTip, "Failure in structured code parsing. " + (error.message ?? error ?? ""), 3);
+
 		ctlStructuredScript.classList.add("invalid");
 		//ctlStructuredScript.setCustomValidity(error.toString());
 		return false;
@@ -222,7 +224,7 @@ function setStructuredText(s) {
 
 let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
-function scriptChanged() {
+function scriptChanged(event) {
 	if(!window.flattenStruct) return false;
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";

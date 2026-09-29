@@ -15,6 +15,8 @@
 //to do: 	take urls to import .mus.json files
 //to do: revise and remove excess dead code
 //to do: !(hierarchical) objects for preferences and default preferences
+//to do: I think it will be good to put return's even in events
+//to do: try more use of promise.then for heavy code, hopefully improving UI performance
 
 //to do: !add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -259,7 +261,7 @@ function loadEventHandlers() {
 	//btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
 	chkOverflow2.addEventListener("click", overflowToggle);
 	chkLineWrap2.addEventListener("click", lineWrapToggle);
-	ctlFlatScript.addEventListener("input", editorInput); //question: also for ctlStructuredScript? (currently no)
+	ctlFlatScript.addEventListener("input", codeEditorResetValidity); //question: also for ctlStructuredScript? (currently no)
 
 	txtPlayFreqScale.addEventListener("input", playFreqScaleChanged);
 	txtPlayVolScale.addEventListener("input", playVolScaleChanged);
@@ -294,8 +296,25 @@ function loadEventHandlers() {
 	addToolTipHandler("body>main", event => updateToolTip(event, outToolTip));
 	addToolTipHandler("#tblFractionIntervals", event => updateToolTip(event, outToolTipIntervals));
 }
+function addControlSeparators() {
+	//control separators
+	//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
+	for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
+		const separator = document.createElement("span");
+		separator.classList.add("separator");
+
+		//s.parentElement.insertBefore(separator, s);
+		//s.insertBefore(separator, s.firstElementChild);
+		//remove unwanted white space that could affect spacing
+		const first = s.firstChild;
+		if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
+			s.removeChild(first);
+		s.insertBefore(separator, s.firstChild);
+		//s.prepend(separator, "\u{A0}");
+	}
+}
 //to do: rigorous review of load routine order
-function pageLoaded() {
+function pageLoaded(event) {
 	//load HTML element references (renders document.getElementById unnecessary)
 	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
@@ -311,26 +330,12 @@ function pageLoaded() {
 	codeEditorContentSet(ctlStructuredScript, defStructuredCode);
 	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
 
-	Promise.resolve().then(value => {
-			//control separators
-			//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
-			for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
-				const separator = document.createElement("span");
-				separator.classList.add("separator");
-
-				//s.parentElement.insertBefore(separator, s);
-				//s.insertBefore(separator, s.firstElementChild);
-				//remove unwanted white space that could affect spacing
-				const first = s.firstChild;
-				if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
-					s.removeChild(first);
-				s.insertBefore(separator, s.firstChild);
-				//s.prepend(separator, "\u{A0}");
-			}
+	Promise.resolve().then(addControlSeparators)?.catch?.(reason => {
+			window.reportError(reason);
 		});
 
-	Promise.resolve().then(value => {
-			addIntervalSamples();
+	Promise.resolve().then(addIntervalSamples())?.catch?.(reason => {
+			window.reportError(reason);
 		});
 }
 function pageReady(event) {
@@ -352,6 +357,8 @@ function pageReady(event) {
 			for(let s of document.querySelectorAll('label[for]'))
 				//s.title = document.getElementById(s.htmlFor).title ?? "";
 				s.title = s.control?.title ?? "";
+		})?.catch?.(reason => {
+			window.reportError(reason);
 		});
 
 	//just eye candy
@@ -372,9 +379,9 @@ if(document.readyState === "loading")
 else //DOMContentLoaded has already fired
 	pageLoaded();
 window.addEventListener("load", pageReady);
-//window.addEventListener("load", async evt => {pageReady(evt);});
-//window.addEventListener("load", evt => {Promise.resolve().then(value => {pageReady(evt);});});
-//window.addEventListener("load", evt => {Promise.resolve().then(pageReady);});
+//window.addEventListener("load", async event => {pageReady(event);});
+//window.addEventListener("load", event => {Promise.resolve().then(value => {pageReady(event);});});
+//window.addEventListener("load", event => {Promise.resolve().then(pageReady);});
 
 if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON music (unstable)";
 
@@ -475,7 +482,7 @@ function btnRhythmFactorsGenClick(event) {
 	try {
 		rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), primeCount);
 	} catch(error) {
-		console.log(error);
+		console.error(error);
 		setToolTip(outToolTip, "Rhythm structure generator failed. " + error.message ?? error ?? "", 3);
 		return;
 	}
@@ -484,6 +491,7 @@ function btnRhythmFactorsGenClick(event) {
 		txtRhythmFactors.dispatchEvent(new Event("input"));
 	}
 	//rhythmAccumUpdate();
+	return true;
 }
 function btnChordGenClick(event) {
 	try {
@@ -500,7 +508,7 @@ function btnChordGenClick(event) {
 		s = s.replace(regex, "\{$1\}");
 		setStructuredText(s);
 	} catch(error) {
-		console.log(error);
+		console.error(error);
 		setToolTip(outToolTip, "Failure in chord generator. " + (error.message ?? error ?? ""), 3);
 	}
 }
@@ -519,7 +527,7 @@ function btnRhythmGenClick(event) {
 		s = s.replace(regex, "\{$1\}");
 		setStructuredText(s);
 	} catch(error) {
-		console.log(error);
+		console.error(error);
 		setToolTip(outToolTip, "Failure in rhythm generator. " + (error.message ?? error ?? ""), 3);
 	}
 }
@@ -538,13 +546,20 @@ function btnMelodyGenClick(event) {
 		s = s.replace(regex, "\{$1\}");
 		setStructuredText(s);
 	} catch(error) {
-		console.log(error);
+		console.error(error);
 		setToolTip(outToolTip, "Failure in melody generator. " + (error.message ?? error ?? ""), 3);
 	}
 }
 function btnStopClick(event) {
-	if(!playerClip) return;
-	playerClip.onClipEnd?.(true);
+	try {
+		if(!playerClip) return false;
+		playerClip.onClipEnd?.(true);
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Playback stop failed. " + error.message ?? error ?? "", 3);
+		return false;
+	}
+	return true;
 }
 
 function deletePrevTab() {
@@ -619,7 +634,7 @@ function editorPaste(event) {
 	selection.getRangeAt(0).insertNode(document.createTextNode(paste));
 	selection.collapseToEnd();
 }
-function editorInput(event) {
+function codeEditorResetValidity(event) {
 	if(!event || !event.target || !event.target.classList) return false;
 	event.target.classList.remove("invalid");
 	return true;
@@ -773,6 +788,7 @@ function structDownload(event) {
 		aStructDownload.click();
 	} catch(error) {
 		console.error(error);
+		setToolTip(outToolTip, "Failure in file saving. " + (error.message ?? error ?? ""), 3);
 		return false;
 	}
 	return true;
@@ -865,14 +881,14 @@ function playIntervalHandler(event) {
 				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
 			});
 		if(clip.audioCtx.state === 'suspended')
-			clip.audioCtx.resume()?.then?.(null, 
-					reason => setToolTip(outToolTipIntervals, "Could not resume playback. " + reason.toString()))
-				?.catch?.(error => {
-					window.reportError(error);
+			clip.audioCtx.resume()?.catch?.(reason => {
+					setToolTip(outToolTipIntervals, "Could not resume playback. " + reason.toString());
+					//window.reportError(reason);
+					console.error(reason);
 				});
 		clip.open = true;
 	} catch(error) {
-		console.log(error);
+		console.error(error);
 		setToolTip(outToolTip, "Failure in interval player. " + (error.message ?? error ?? ""), 3);
 	}
 }
@@ -899,9 +915,10 @@ function mainDrop(event) {
 			if(item.kind === "file") {
 				item.getAsFile().text()?.then?.(value => {
 						setStructuredText(value);
-					}, reason => setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString()))
-					?.catch?.(error => {
-						window.reportError(error);
+					}, reason => {
+						setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString());
+						//window.reportError(reason);
+						console.error(reason);
 					});
 			}
 	} else {
@@ -911,9 +928,10 @@ function mainDrop(event) {
 		}
 		event.dataTransfer.files[0].text()?.then?.(value => {
 				setStructuredText(value);
-			}, reason => setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString()))
-			?.catch?.(error => {
-				window.reportError(error);
+			}, reason => {
+				setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString());
+				//window.reportError(reason);
+				console.error(reason);
 			});
 	}
 }
@@ -932,8 +950,9 @@ function inFileChange(event) {
 	const file = fileList[0];
 	file.text()?.then?.(value => {
 			setStructuredText(value);
-		}, reason => setToolTip(outToolTip, "Chosen file could not be read. " + reason.toString()))
-		?.catch?.(error => {
-			window.reportError(error);
+		}, reason => {
+			setToolTip(outToolTip, "Chosen file could not be read. " + reason.toString());
+			//window.reportError(reason);
+			console.error(reason);
 		});
 }

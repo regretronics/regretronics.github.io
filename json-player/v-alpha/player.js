@@ -139,9 +139,8 @@ function defNodeEnded(event) {
 					//question: remove the extra playerClip === clip check? (here and elsewhere)
 					if(playerClip === clip && window.chkAutoReload?.checked)
 						loadAndPlay();
-				})
-				?.catch?.(error => {
-					window.reportError(error);
+				}, reason => {
+					window.reportError(reason);
 				}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
 		}
 		//return;
@@ -384,6 +383,56 @@ function drawNote(group, sourceNode) {
 const audioTimerInterval = 86400 * 0.5 ** 21; //86400 / 2097152 = ~0.0411 s
 //to do: variable/adaptive enqueue interval? (high note density -> smaller intervals)
 let lastT = 0, visT = 0;
+function visualizerUpdate(clip, tNow) {
+	if(!window.imgVisualizer) return false;
+	const nowY = visSliceCount - 1; //to do: !change scale reference
+
+	//scroll
+	const slices = imgVisualizer.getElementsByClassName("vis-slice"), lastSlice = slices.length - 1;
+	if(lastSlice >= 0) { //update slice duration to the correct amount once
+		const slice = slices[lastSlice], t1 = parseFloat(slice.getAttribute("data-t"));
+		slice.setAttributeNS(null, "data-dt", (tNow - t1).toString());
+	}
+	//to do: adjust visArea transform instead of moving every row
+	for(let i = lastSlice; i >= 0; i--) {
+		const slice = slices[i];
+		const absY = parseFloat(slice.getAttribute("data-t")) / audioTimerInterval; //dataset doesn't work here, somehow (to do: re-check)
+		//const newY = absY + (nowY - visT) /* * audioTimerInterval */;
+		const newY = absY + (nowY - tNow / audioTimerInterval);
+		if(newY <= -1) {
+		//if(newY <= -audioTimerInterval) {
+			slice.remove(); //it's easier to delete when we use groups
+			continue;
+		}
+		const dy = parseFloat(slice.getAttribute("data-dt")) / audioTimerInterval;
+		//newY /= visSliceCount;
+		slice.setAttributeNS(null, "transform", `translate(0 ${newY}) scale(1 ${dy})`);
+	}
+
+	//new row of spectrum
+	//to do: consider a node-based polyline
+	//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
+	//https://developer.mozilla.org/en-US/docs/Web/API/SVGSVGElement/pauseAnimations
+	//https://developer.mozilla.org/en-US/docs/Web/API/SVGSVGElement/unpauseAnimations
+	const slice = document.createElementNS(svgNS, "g");
+	slice.setAttributeNS(null, "class", "vis-slice");
+	/* slice.setAttributeNS(null, "data-t", (visT * audioTimerInterval).toString()); */
+	slice.setAttributeNS(null, "data-t", tNow.toString());
+	slice.setAttributeNS(null, "data-dt", audioTimerInterval.toString());
+	//slice.setAttributeNS(null, "transform", `translate(0 ${nowY / visSliceCount})`);
+	slice.setAttributeNS(null, "transform", `translate(0 ${nowY})`);
+	//slice.setAttributeNS(null, "transform", `translate(0 ${nowY}) scale(1 ${1})`);
+	window.visArea?.appendChild?.(slice); //to do: some operations should actually fail and break the flow; maybe I'm using too many checks all the time
+	for(const node of clip.generators)
+		try {
+			drawNote(slice, node);
+			//drawNote(slice, node)?.setAttributeNS(null, "height", audioTimerInterval.toString());
+		} catch(error) {
+			console.error(error);
+		}
+	visT++;
+	return true;
+}
 //function audioTimer(noEnqueue) {
 function audioTimer(clip) { //question: should this be a SoundClip method?
 	if(!clip) {
@@ -425,9 +474,8 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 					//question: remove the extra playerClip === clip check?
 					if(playerClip === clip && window.chkAutoReload?.checked)
 						loadAndPlay();
-				})
-				?.catch?.(error => {
-					window.reportError(error);
+				}, reason => {
+					window.reportError(reason);
 				}); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
 		}
 		if(clip?.timerID) {
@@ -459,55 +507,9 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 
 	//if(clip.audioCtx.state === 'suspended') return;
 	//visualization
-	if(clip === playerClip && window.imgVisualizer)
+	if(clip === playerClip)
 		try {
-			//to do: !move this block into a new function
-			const nowY = visSliceCount - 1; //to do: !change scale reference
-
-			//scroll
-			const slices = imgVisualizer.getElementsByClassName("vis-slice"), lastSlice = slices.length - 1;
-			if(lastSlice >= 0) {
-				const slice = slices[lastSlice], t1 = parseFloat(slice.getAttribute("data-t"));
-				slice.setAttributeNS(null, "data-dt", (tNow - t1).toString());
-			}
-			//to do: adjust visArea transform instead of moving every row
-			for(let i = lastSlice; i >= 0; i--) {
-				const slice = slices[i];
-				const absY = parseFloat(slice.getAttribute("data-t")) / audioTimerInterval; //dataset doesn't work here, somehow (to do: re-check)
-				//const newY = absY + (nowY - visT) /* * audioTimerInterval */;
-				const newY = absY + (nowY - tNow / audioTimerInterval);
-				if(newY <= -1) {
-				//if(newY <= -audioTimerInterval) {
-					slice.remove(); //it's easier to delete when we use groups
-					continue;
-				}
-				const dy = parseFloat(slice.getAttribute("data-dt")) / audioTimerInterval;
-				//newY /= visSliceCount;
-				slice.setAttributeNS(null, "transform", `translate(0 ${newY}) scale(1 ${dy})`);
-			}
-
-			//new row of spectrum
-			//to do: consider a node-based polyline
-			//to do: consider SVG animation: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform , https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/accumulate
-			//https://developer.mozilla.org/en-US/docs/Web/API/SVGSVGElement/pauseAnimations
-			//https://developer.mozilla.org/en-US/docs/Web/API/SVGSVGElement/unpauseAnimations
-			const slice = document.createElementNS(svgNS, "g");
-			slice.setAttributeNS(null, "class", "vis-slice");
-			/* slice.setAttributeNS(null, "data-t", (visT * audioTimerInterval).toString()); */
-			slice.setAttributeNS(null, "data-t", tNow.toString());
-			slice.setAttributeNS(null, "data-dt", audioTimerInterval.toString());
-			//slice.setAttributeNS(null, "transform", `translate(0 ${nowY / visSliceCount})`);
-			slice.setAttributeNS(null, "transform", `translate(0 ${nowY})`);
-			//slice.setAttributeNS(null, "transform", `translate(0 ${nowY}) scale(1 ${1})`);
-			window.visArea?.appendChild(slice);
-			for(const node of clip.generators)
-				try {
-					drawNote(slice, node);
-					//drawNote(slice, node)?.setAttributeNS(null, "height", audioTimerInterval.toString());
-				} catch(error) {
-					console.error(error);
-				}
-			visT++;
+			visualizerUpdate(clip, tNow);
 		} catch(error) {
 			console.error(error);
 		}
@@ -623,9 +625,10 @@ function playerBeforePlay() {
 				//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
 				audioTimer(playerClip);
 				playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
-			}, reason => setToolTip(outToolTip, "Could not resume playback. " + reason.toString()))
-			?.catch?.(error => {
-				window.reportError(error);
+			}, reason => {
+				setToolTip(outToolTip, "Could not resume playback. " + reason.toString());
+				//window.reportError(reason);
+				console.error(reason);
 			});
 	else
 		//audioTimer(playerClip);
@@ -637,47 +640,53 @@ function playerBeforePlay() {
 		btnPause.disabled = false;
 	}
 }
-function audioCtxDefStateChanged() {
+function audioCtxDefStateChanged(event) {
 	printClip(this, "audioCtxDefStateChanged(): ");
 	if(!this) return;
 	console.log(`audioCtxDefStateChanged(): state: ${this.state}`);
 }
-async function loadAndPlay() { //to do: !exception handling
-	if(playerClip && playerClip.open) return false;
+async function loadAndPlay(event) {
+	try {
+		if(playerClip && playerClip.open) return false;
 
-	let audioCtx = null, noiseBuffer = null;
-	if(playerClip) {
-		audioCtx = playerClip.audioCtx;
-		noiseBuffer = playerClip.noiseBuffer;
-		playerClip.onClipEnd?.(false);
+		let audioCtx = null, noiseBuffer = null;
+		if(playerClip) {
+			audioCtx = playerClip.audioCtx;
+			noiseBuffer = playerClip.noiseBuffer;
+			playerClip.onClipEnd?.(false);
+		}
+		playerClip = loadNewClip();
+		if(!playerClip || !playerClip.flatStruct) return false;
+		playerClip.audioCtx = audioCtx;
+		playerClip.noiseBuffer = noiseBuffer;
+		playerClip.onClipEnd = playerClipEnd;
+
+		//to do: don't include empty remark nodes.
+		if(window.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
+		if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(playerClip.duration, timeDisplPrecision);
+		if(playerClip.flatStruct.length <= 0)
+			if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision); //question: ignore lead-in here? (currently yes)
+
+		playerClip.open = true;
+		if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed') {
+			//playerClip.audioCtx = new AudioContext({latencyHint: "playback"});
+			playerClip.audioCtx = new AudioContext({latencyHint: "interactive"});
+			playerClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
+		}
+		if(playerClip.audioCtx.state === 'running')
+			//use of Promise here will defer the rest of the procedure.
+			playerClip.audioCtx.suspend()?.then?.(playerBeforePlay)
+				?.catch?.(reason => {
+					window.reportError(reason);
+				});
+		else
+			playerBeforePlay();
+		return true;
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Playback start failed. " + error.message ?? error ?? "", 3);
+		return false;
 	}
-	playerClip = loadNewClip();
-	if(!playerClip || !playerClip.flatStruct) return false;
-	playerClip.audioCtx = audioCtx;
-	playerClip.noiseBuffer = noiseBuffer;
-	playerClip.onClipEnd = playerClipEnd;
-
-	//to do: don't include empty remark nodes.
-	if(window.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
-	if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(playerClip.duration, timeDisplPrecision);
-	if(playerClip.flatStruct.length <= 0)
-		if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision); //question: ignore lead-in here? (currently yes)
-
-	playerClip.open = true;
-	if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed') {
-		//playerClip.audioCtx = new AudioContext({latencyHint: "playback"});
-		playerClip.audioCtx = new AudioContext({latencyHint: "interactive"});
-		playerClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
-	}
-	if(playerClip.audioCtx.state === 'running')
-		//use of Promise here will defer the rest of the procedure.
-		playerClip.audioCtx.suspend()?.then?.(playerBeforePlay)
-			?.catch?.(error => {
-				window.reportError(error);
-			});
-	else
-		playerBeforePlay();
-	return true;
 }
 
 //--
@@ -735,48 +744,54 @@ function playerClipEnd(suspend) {
 		if(clip.open) audioTUpdate();
 		if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 	}
-	return clip.emptyClip(suspend)?.catch?.(error => {
-			window.reportError(error);
+	return clip.emptyClip(suspend)?.catch?.(reason => {
+			window.reportError(reason);
 		});
 }
 
 //reversible operation
-function pauseToggle() {
+function pauseToggle(event) {
 	//console.log("pauseToggle(): function started...");
-	if(!playerClip) return false;
-	if(!playerClip.open || !playerClip.audioCtx) return false;
-	//audioTUpdate();
-	if(playerClip.audioCtx.state === 'closed') return false;
-	if(playerClip.audioCtx.state === 'running') {
-		playerClip.audioCtx.suspend()?.then?.(nil => {
-				audioTUpdate();
-				lastT = playerClip.audioCtx.currentTime;
-				if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
-				if(playerClip?.timerID) {
-					window.clearInterval(playerClip.timerID);
-					playerClip.timerID = NaN;
-				}
-			})
-			?.catch?.(error => {
-				window.reportError(error);
-			});
-	} else {
-		updateVisAreaTransform();
-		playerClip.audioCtx.resume()?.then?.(nil => {
-				//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-				//window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp))
-				audioTimer(playerClip);
-				if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
-				playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
-			}, reason => setToolTip(outToolTip, "Could not resume playback. " + reason.toString()))
-			?.catch?.(error => {
-				window.reportError(error);
-			});
-		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-		//window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp));
+	try {
+		if(!playerClip) return false;
+		if(!playerClip.open || !playerClip.audioCtx) return false;
+		//audioTUpdate();
+		if(playerClip.audioCtx.state === 'closed') return false;
+		if(playerClip.audioCtx.state === 'running') {
+			playerClip.audioCtx.suspend()?.then?.(nil => {
+					audioTUpdate();
+					lastT = playerClip.audioCtx.currentTime;
+					if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
+					if(playerClip?.timerID) {
+						window.clearInterval(playerClip.timerID);
+						playerClip.timerID = NaN;
+					}
+				}, reason => {
+					window.reportError(reason);
+				});
+		} else {
+			updateVisAreaTransform();
+			playerClip.audioCtx.resume()?.then?.(nil => {
+					//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+					//window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp))
+					audioTimer(playerClip);
+					if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
+					playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
+				}, reason => {
+					setToolTip(outToolTip, "Could not resume playback. " + reason.toString());
+					//window.reportError(reason);
+					console.error(reason);
+				});
+			//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+			//window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp));
+		}
+		//audioTimer(playerClip.audioCtx.state !== 'running');
+		//audioTimer(playerClip); //question: is this statement necessary?
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Playback state toggling failed. " + error.message ?? error ?? "", 3);
+		return false;
 	}
-	//audioTimer(playerClip.audioCtx.state !== 'running');
-	//audioTimer(playerClip); //question: is this statement necessary?
 	return true;
 }
 
@@ -838,9 +853,8 @@ function exportClipEnd(suspend) {
 			}
 			clip.audioCtx.close(); //to do: use this in place of suspend()?
 			if(exportClip === clip) exportClip = null;
-		})
-		?.catch?.(error => {
-			window.reportError(error);
+		}, reason => {
+			window.reportError(reason);
 		});
 	//return true;
 }
@@ -915,9 +929,10 @@ function beforeRecord() {
 	exportClip.audioCtx.resume()?.then?.(nil => {
 			exportAudioTimer(exportClip);
 			exportClip.timerID = window.setInterval(exportAudioTimer, audioTimerInterval * 1000, exportClip);
-		}, reason => setToolTip(outToolTip, "Could not resume playback. " + reason.toString()))
-		?.catch?.(error => {
-			window.reportError(error);
+		}, reason => {
+			setToolTip(outToolTip, "Could not resume playback. " + reason.toString());
+			//window.reportError(reason);
+			console.error(reason);
 		});
 
 	/*//audioCtxOff.oncomplete = ;
@@ -929,35 +944,39 @@ function beforeRecord() {
 			const chunks = renderedBuffer.getChannelData(0);
 			audioDownload(chunks);
 			console.debug("audioCtx startRendering promise then end");
-		}, reason => setToolTip(outToolTip, "Could not start rendering. " + reason.toString()))?.catch?.(error => {
-			console.error('Rendering failed.');
-			window.reportError(error);
+		}, reason => {
+			setToolTip(outToolTip, "Could not start rendering. " + reason.toString());
+			//window.reportError(reason);
+			console.error(reason);
 			//note: the promise should reject when startRendering is called a second time on an OfflineAudioContext
-		})
-		?.catch?.(error => {
-			window.reportError(error);
 		});*/
 }
-function audioExport() { //to do: !exception handling
-	if(exportClip && exportClip.open) return false;
-	exportClip = loadNewClip();
-	exportClip.onClipEnd = exportClipEnd;
-	if(window.outExportProgress) outExportProgress.innerText = "Note list loaded";
-	//question: round (toFixed) or trunc (toFixedTrunc) here?
-	if(window.outExportDuration) outExportDuration.innerText = exportClip.duration.toFixed(timeDisplPrecision);
-	//to do: stop AudioContext playback? (probably unnecessary)
-	exportClip.open = true;
-	const sampleRate = 48000; //to do: will become a variable later
-	//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.duration, sampleRate);
-	exportClip.audioCtx = new AudioContext({latencyHint: "playback", sampleRate: sampleRate});
-	exportClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
-	exportClip.audioCtx.suspend()?.then?.(beforeRecord)
-		?.catch?.(error => {
-			window.reportError(error);
-		});
-	return true;
+function audioExport(event) {
+	try {
+		if(exportClip && exportClip.open) return false;
+		exportClip = loadNewClip();
+		exportClip.onClipEnd = exportClipEnd;
+		if(window.outExportProgress) outExportProgress.innerText = "Note list loaded";
+		//question: round (toFixed) or trunc (toFixedTrunc) here?
+		if(window.outExportDuration) outExportDuration.innerText = exportClip.duration.toFixed(timeDisplPrecision);
+		//to do: stop AudioContext playback? (probably unnecessary)
+		exportClip.open = true;
+		const sampleRate = 48000; //to do: will become a variable later
+		//exportClip.audioCtx = new OfflineAudioContext(1, sampleRate * exportClip.duration, sampleRate);
+		exportClip.audioCtx = new AudioContext({latencyHint: "playback", sampleRate: sampleRate});
+		exportClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
+		exportClip.audioCtx.suspend()?.then?.(beforeRecord)
+			?.catch?.(reason => {
+				window.reportError(reason);
+			});
+		return true;
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Audio exporting failed. " + error.message ?? error ?? "", 3);
+		return false;
+	}
 }
-function audioExportCancel() {
+function audioExportCancel(event) {
 	if(!exportClip) return false;
 	exportClip.emptyClip(true)?.then?.(nil => {
 			if(window.outExportProgress) outExportProgress.innerText = "Canceled";
@@ -968,9 +987,8 @@ function audioExportCancel() {
 			}
 			exportClip.audioCtx.close();
 			exportClip = null;
-		})
-		?.catch?.(error => {
-			window.reportError(error);
+		}, reason => {
+			window.reportError(reason);
 		});
 	return true;
 }

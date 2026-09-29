@@ -353,7 +353,7 @@ function btnHueClick(event) {
 	localStorage.setItem("pageAppearance.hue", JSON.stringify(hue));
 }
 
-function primeCountChanged() {
+function primeCountChanged(event) {
 	if(!window.txtPrimeCount) return false;
 	primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
 	if(primeCount < 1.25) primeCount = 1.25;
@@ -412,7 +412,7 @@ function recalcExpRanges(force) {
 //I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
 const defaultRootFreq = 440, defaultFreqMin = 30, defaultFreqMax = 13000;
 var rootFreq = defaultRootFreq, freqMin = defaultFreqMin, freqMax = defaultFreqMax;
-function baseFreqChanged() {
+function baseFreqChanged(event) {
 	if(!window.txtBaseFreq) return false;
 	rootFreq = parseNumber(txtBaseFreq.value);
 	txtBaseFreq.classList.toggle("invalid", !rootFreq);
@@ -429,7 +429,7 @@ function baseFreqChanged() {
 //rhythm structure data (hierarchy of factors)
 const defaultRhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
 var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
-function rhythmFactorsChanged() {
+function rhythmFactorsChanged(event) {
 	//to do: !support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
 	//  to do: !how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
@@ -474,14 +474,14 @@ function rhythmFactorsChanged() {
 }
 
 var playFreqScale = 1, playVolScale = 1;
-function playFreqScaleChanged() {
+function playFreqScaleChanged(event) {
 	if(!window.txtPlayFreqScale) return false;
 	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
 	playFreqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
 	if(playerClip) playerClip.playFreqScale = playFreqScale;
 	return true;
 }
-function playVolScaleChanged() {
+function playVolScaleChanged(event) {
 	if(!window.txtPlayVolScale) return false;
 	//if(txtPlayVolScale.valueAsNumber < 0) txtPlayVolScale.stepUp();
 	playVolScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
