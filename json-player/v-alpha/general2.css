@@ -235,7 +235,8 @@ img:not(.true-colors) { /*class "true-colors" reserved for future use*/
 }
 td {
 	/* padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em); */
-	padding: clamp(0.125em, 0.75cqb + 1.5cqi - 0.25em - 8px, 0.25em + 0.5cqi);
+	/*svb instead of cqb, since the block-size is not always determined top-down in hierarchy*/
+	padding: clamp(0.125em, 0.75svb + 1.5cqi - 0.25em - 8px, 0.25em + 0.5cqi);
 
 	/* &:has(.interval-sample) { */
 	/* &.sample-cell { */

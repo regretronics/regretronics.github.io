@@ -28,7 +28,7 @@
 main, hr, .bg {
 	display: revert;
 }
-main, article {
+body, body > *, body > main > .flex-row, body > article > *, body > article > * > * { /*layout optimization for performance*/
 	container-type: inline-size;
 }
 main > div {

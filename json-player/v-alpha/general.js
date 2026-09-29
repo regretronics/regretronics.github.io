@@ -297,6 +297,7 @@ function loadEventHandlers() {
 	addToolTipHandler("#tblFractionIntervals", event => updateToolTip(event, outToolTipIntervals));
 }
 function addControlSeparators() {
+	console.log("addControlSeparators(): function started...");
 	//control separators
 	//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
 	for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
@@ -312,6 +313,7 @@ function addControlSeparators() {
 		s.insertBefore(separator, s.firstChild);
 		//s.prepend(separator, "\u{A0}");
 	}
+	console.log("addControlSeparators(): function ending");
 }
 //to do: rigorous review of load routine order
 function pageLoaded(event) {
@@ -334,11 +336,14 @@ function pageLoaded(event) {
 			window.reportError(reason);
 		});
 
-	Promise.resolve().then(addIntervalSamples())?.catch?.(reason => {
+	Promise.resolve().then(addIntervalSamples)?.catch?.(reason => {
 			window.reportError(reason);
 		});
+
+	console.log("pageLoaded(): function ending");
 }
 function pageReady(event) {
+	console.log("pageReady(): function started...");
 	Promise.resolve().then(value => {
 			loadEventHandlers();
 			window.loadPreferences?.(); //preferences.js
@@ -804,6 +809,7 @@ function hueAnimation() {
 }
 
 function addIntervalSamples() {
+	console.log("addIntervalSamples(): function starting...");
 	//add cells to rows in table body
 	const container = document.querySelector("#tblFractionIntervals tbody");
 	for(const row of container.children) {
@@ -841,6 +847,7 @@ function addIntervalSamples() {
 		cell.innerHTML = '<span class="lang-static" translate="no">Sam&shy;ple</span><span class="lang-flex" hidden="">Sample</span>';
 		row.insertBefore(cell, row.children[4]); //to do: use neighboring header id as reference?
 	}
+	console.log("addIntervalSamples(): function ending");
 }
 //to do: !review this code
 //to do: separate AudioContext?
