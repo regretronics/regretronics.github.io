@@ -221,7 +221,7 @@ input[type=checkbox] {
 		display: block;
 	}
 	&:not(.expanded) {
-		resize: vertical;
+		resize: block;
 		max-block-size: 93.75svb; /*small viewport block-size*/
 	}
 	&.expanded {
