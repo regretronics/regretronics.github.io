@@ -214,60 +214,72 @@ function loadPreferences() {
 		/* if(!chkResetAudioExport.checked) {
 			s = localStorage.getItem("audioExport.");
 		} */
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to load preferences. " + (error.message ?? error ?? ""), 3);
+		return false;
 	} finally {
 		adjustingPreferences = false;
 	}
+	return true;
 }
 function savePreferences() {
-	//Page appearance
-	localStorage.setItem("pageAppearance.textSize", JSON.stringify(textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
-	localStorage.setItem("pageAppearance.theme", cboPageTheme.value);
-	localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
-	//Generator parameters
-	localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(rootFreq)?
-	localStorage.setItem("genParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(freqMin)?
-	localStorage.setItem("genParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(freqMax)?
-	localStorage.setItem("genParams.timeScale", txtTimeScale.value);
-	localStorage.setItem("genParams.patternCount", txtPatternCount.value);
-	localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(primeCount)?
-	localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(expVariance)?
-	localStorage.setItem("genParams.primeExpRanges", codeEditorContentGet(ctlPrimeExpRanges));
-	//Rhythm parameters
-	localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
-	localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(rhythmFactors)?
-	//Additional generator parameters
-	localStorage.setItem("addGenParams.voiceCount", txtVoiceCount.value);
-	localStorage.setItem("addGenParams.reptCount", txtReptCount.value);
-	localStorage.setItem("addGenParams.reptPeriod", txtReptPeriod.value);
-	localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked));
-	//Structured music editor
-	localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
-	localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("line-wrap")));
-	localStorage.setItem("structuredMusic.content", codeEditorContentGet(ctlStructuredScript));
-	//Flattened note list
-	localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
-	localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
-	localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("line-wrap")));
-	localStorage.setItem("flatScript.content", codeEditorContentGet(ctlFlatScript));
-	//Overall play controls
-	localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
-	localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(playVolScale)?
-	localStorage.setItem("clipParams.timeScale", txtPlayTimeScale.value);
-	localStorage.setItem("clipParams.timeDelta", txtPlayTimeDelta.value);
-	//Player
-	localStorage.setItem("player.autoReload", JSON.stringify(chkAutoReload.checked));
-	//Audio export
-	//localStorage.setItem("audioExport.", JSON.stringify());
-	//Reset preferences
-	localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance.checked));
-	localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
-	localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams.checked));
-	localStorage.setItem("reset.addGenParams", JSON.stringify(chkResetAddGenParams.checked));
-	localStorage.setItem("reset.structuredMusic", JSON.stringify(chkResetStructuredMusic.checked));
-	localStorage.setItem("reset.flatScript", JSON.stringify(chkResetFlatScript.checked));
-	localStorage.setItem("reset.clipParams", JSON.stringify(chkResetClipParams.checked));
-	localStorage.setItem("reset.player", JSON.stringify(chkResetPlayer.checked));
-	localStorage.setItem("reset.reset", JSON.stringify(chkResetReset.checked));
+	try {
+		//Page appearance
+		localStorage.setItem("pageAppearance.textSize", JSON.stringify(textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
+		localStorage.setItem("pageAppearance.theme", cboPageTheme.value);
+		localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
+		//Generator parameters
+		localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(rootFreq)?
+		localStorage.setItem("genParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(freqMin)?
+		localStorage.setItem("genParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(freqMax)?
+		localStorage.setItem("genParams.timeScale", txtTimeScale.value);
+		localStorage.setItem("genParams.patternCount", txtPatternCount.value);
+		localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(primeCount)?
+		localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(expVariance)?
+		localStorage.setItem("genParams.primeExpRanges", codeEditorContentGet(ctlPrimeExpRanges));
+		//Rhythm parameters
+		localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
+		localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(rhythmFactors)?
+		//Additional generator parameters
+		localStorage.setItem("addGenParams.voiceCount", txtVoiceCount.value);
+		localStorage.setItem("addGenParams.reptCount", txtReptCount.value);
+		localStorage.setItem("addGenParams.reptPeriod", txtReptPeriod.value);
+		localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked));
+		//Structured music editor
+		localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
+		localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("line-wrap")));
+		localStorage.setItem("structuredMusic.content", codeEditorContentGet(ctlStructuredScript));
+		//Flattened note list
+		localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
+		localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
+		localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("line-wrap")));
+		localStorage.setItem("flatScript.content", codeEditorContentGet(ctlFlatScript));
+		//Overall play controls
+		localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
+		localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(playVolScale)?
+		localStorage.setItem("clipParams.timeScale", txtPlayTimeScale.value);
+		localStorage.setItem("clipParams.timeDelta", txtPlayTimeDelta.value);
+		//Player
+		localStorage.setItem("player.autoReload", JSON.stringify(chkAutoReload.checked));
+		//Audio export
+		//localStorage.setItem("audioExport.", JSON.stringify());
+		//Reset preferences
+		localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance.checked));
+		localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
+		localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams.checked));
+		localStorage.setItem("reset.addGenParams", JSON.stringify(chkResetAddGenParams.checked));
+		localStorage.setItem("reset.structuredMusic", JSON.stringify(chkResetStructuredMusic.checked));
+		localStorage.setItem("reset.flatScript", JSON.stringify(chkResetFlatScript.checked));
+		localStorage.setItem("reset.clipParams", JSON.stringify(chkResetClipParams.checked));
+		localStorage.setItem("reset.player", JSON.stringify(chkResetPlayer.checked));
+		localStorage.setItem("reset.reset", JSON.stringify(chkResetReset.checked));
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to bulk-save preferences. " + (error.message ?? error ?? ""), 3);
+		return false;
+	}
+	return true;
 }
 function resetAllPreferences() {
 	localStorage.clear();
@@ -384,36 +396,38 @@ function expVarianceChanged(event) {
 	recalcExpRanges();
 }
 function recalcExpRanges(force) {
-	if(adjustingPreferences && !force) return false;
+	if(adjustingPreferences && !force) return false; //fails silently
 	//primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
 	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 
-	const primeCountCeil = Math.ceil(primeCount);
-	//const newExpRanges = new Array(primeCountCeil);
-	const newExpRanges = {};
-	//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
-	for(let i = 0; i < primeCountCeil; i++) {
-		const 
-			varFraction = (i <= primeCount - 1 ? 1 : (primeCount % 1)), 
-			range = varFraction * expVariance / Math.log2(primes[i]);
+	try {
+		const primeCountCeil = Math.ceil(primeCount);
+		//const newExpRanges = new Array(primeCountCeil);
+		const newExpRanges = {};
+		//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
+		for(let i = 0; i < primeCountCeil; i++) {
+			const 
+				varFraction = (i <= primeCount - 1 ? 1 : (primeCount % 1)), 
+				range = varFraction * expVariance / Math.log2(primes[i]);
 
-		//newExpRanges[i] = range;
-		//question: what will be the proper default range? can the factors only go upwards? is signed (bipolar) random better?
-		newExpRanges[primes[i]] = [0, range];
-		//newExpRanges[primes[i]] = [-0.5 * range, range];
-		//newExpRanges[primes[i]] = [-range, range];
-	}
-	primeExpRanges = newExpRanges;
+			//newExpRanges[i] = range;
+			//question: what will be the proper default range? can the factors only go upwards? is signed (bipolar) random better?
+			newExpRanges[primes[i]] = [0, range];
+			//newExpRanges[primes[i]] = [-0.5 * range, range];
+			//newExpRanges[primes[i]] = [-range, range];
+		}
+		primeExpRanges = newExpRanges;
 
-	let s = JSON.stringify(newExpRanges, null, "\t");
-	//final adjustments on indentation (to do: !check)
-	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-	s = s.replace(regex, " ");
-	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-	s = s.replace(regex, "\{$1\}");
-	if(window.ctlPrimeExpRanges) {
-		codeEditorContentSet(ctlPrimeExpRanges, s);
-		if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
+		const objText = toJSONCodeAdjusted(newExpRanges);
+		if(window.ctlPrimeExpRanges) {
+			codeEditorContentSet(ctlPrimeExpRanges, objText);
+			saveControlPreference(ctlPrimeExpRanges);
+		} else
+			throw(new Error("Control ctlPrimeExpRanges not found."));
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to refresh exponent variance ranges. " + (error.message ?? error ?? ""), 3);
+		return false;
 	}
 	return true;
 }
@@ -433,15 +447,17 @@ function baseFreqChanged(event) {
 	}
 	return true;
 }
-//to do: handler for frequency extremes, calling updateVisAreaTransform()?
+//to do: handler for frequency extremes, calling updateVisAreaTransform()? (currently, changing the thresholds during play requires pause-toggling for visualizer updating)
 
 //rhythm structure data (hierarchy of factors)
 const defaultRhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
 var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmFactorsChanged(event) {
 	//to do: !support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
-	//  to do: !how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
+	//	to do: !how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
+	//		maybe bottom-up: 3 + 2*2 would be like 3*1 + 2*2. seems conceptually simpler.
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
+	//to do: !maybe interpret the rightmost factor (deepest into the small scale) as a duration in pulses, not a multiple of pulses, which would change the number of levels (2 * 2 would have 4/2 as levels, instead of 4/2/1)
 	if(!window.txtRhythmFactors) return false;
 	let s = txtRhythmFactors.value.toString(); //text
 	rhythmFactors = []; //will become an array of numbers
@@ -499,6 +515,7 @@ function playVolScaleChanged(event) {
 }
 
 function saveControlPreference(elem) {
+	if(adjustingPreferences) return false; //breaks silently; no need to log this
 	if(!elem) {
 		console.info("saveControlPreference(): parameter elem is empty. Returning.");
 		return false;
@@ -690,7 +707,12 @@ function btnResetPreferencesClick(event) {
 			chkResetReset.checked = false;
 			//.dispatchEvent(new Event("input"));
 		}
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to reset preferences. " + (error.message ?? error ?? ""), 3);
+		return false;
 	} finally {
 		adjustingPreferences = false;
 	}
+	return true;
 }

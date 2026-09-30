@@ -183,6 +183,18 @@ function toFixedTrunc(value, digits) {
 	const scale = Math.pow(10, digits);
 	return (Math.trunc(scale * value) / scale).toFixed(digits);
 }
+function toJSONCodeAdjusted(object) {
+	let objCode = JSON.stringify(object, null, "\t");
+
+	//final adjustments on indentation
+	let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
+	objCode = objCode.replace(regex, " ");
+	regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
+	objCode = objCode.replace(regex, "\{$1\}");
+
+	return objCode;
+}
+
 function codeEditorContentGet(elem) {
 	if(!elem) {
 		console.info("codeEditorContentGet(): parameter elem is empty. Returning.");
@@ -198,15 +210,10 @@ function codeEditorContentSet(elem, text) {
 		console.info("codeEditorContentSet(): parameter elem is empty. Returning.");
 		return false;
 	}
-	try {
-		if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
-			elem.value = text;
-		else
-			elem.textContent = text;
-	} catch (error) {
-		console.error(error);
-		setToolTip(outToolTip, "Failed to set code box contents. " + (error.message ?? error ?? ""), 3);
-	}
+	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		elem.value = text;
+	else
+		elem.textContent = text;
 	return true;
 }
 
@@ -337,8 +344,13 @@ function pageLoaded(event) {
 
 	initialCalculations();
 
-	codeEditorContentSet(ctlStructuredScript, defStructuredCode);
-	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
+	try {
+		codeEditorContentSet(ctlStructuredScript, defStructuredCode);
+		codeEditorContentSet(ctlFlatScript, defFlattenedCode);
+	} catch (error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to set code box contents. " + (error.message ?? error ?? ""), 3);
+	}
 
 	Promise.resolve().then(addControlSeparators)/* ?.catch?.(reason => {
 			window.reportError(reason);
@@ -529,13 +541,7 @@ function btnChordGenClick(event) {
 		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
-		let s = JSON.stringify(rootStruct, null, "\t"); //to do: !function for this repeated code? (also found in following functions and recalcExpRanges)
-		//final adjustments on indentation
-		let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-		s = s.replace(regex, " ");
-		regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-		s = s.replace(regex, "\{$1\}");
-		setStructuredText(s);
+		setStructuredText(toJSONCodeAdjusted(rootStruct));
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failure in chord generator. " + (error.message ?? error ?? ""), 3);
@@ -548,13 +554,7 @@ function btnRhythmGenClick(event) {
 		const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
 		if(rootStruct === false) throw(new Error());
 
-		let s = JSON.stringify(rootStruct, null, "\t");
-		//final adjustments on indentation
-		let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-		s = s.replace(regex, " ");
-		regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-		s = s.replace(regex, "\{$1\}");
-		setStructuredText(s);
+		setStructuredText(toJSONCodeAdjusted(rootStruct));
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failure in rhythm generator. " + (error.message ?? error ?? ""), 3);
@@ -567,13 +567,7 @@ function btnMelodyGenClick(event) {
 		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
-		let s = JSON.stringify(rootStruct, null, "\t");
-		//final adjustments on indentation
-		let regex = new RegExp(/(?<=\t{1,}[^\t\{\}\[\]]+,)\n\t{2,}/, "g"); //rows of properties without inner objects
-		s = s.replace(regex, " ");
-		regex = new RegExp(/\{\n\t{2,}([^\t\{\}\[\]\n]+)\n\t{1,}\}/, "g"); //object without inner objects
-		s = s.replace(regex, "\{$1\}");
-		setStructuredText(s);
+		setStructuredText(toJSONCodeAdjusted(rootStruct));
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failure in melody generator. " + (error.message ?? error ?? ""), 3);
@@ -978,37 +972,39 @@ function mainDrop(event) {
 		return false;
 	}
 	event.preventDefault();
-	//const data = event.dataTransfer.getData("application/json");
-	if(event.dataTransfer.items) {
-		const item = event.dataTransfer.items[0];
-		if(!item) {
-			setToolTip(outToolTip, "No files were dropped.", 1);
-			return false;
-		}
-		if(item.kind === "string" && item.type.match(/^text\/plain/)) {
-			item.getAsString(s => setStructuredText(s));
-		} else
-			if(item.kind === "file") {
-				item.getAsFile().text()?.then?.(value => {
-						setStructuredText(value);
-					}, reason => {
-						setToolTip(outToolTip, "Dropped file could not be read. " + (reason.message ?? reason ?? ""), 3);
-						//window.reportError(reason);
-						console.error(reason);
-					});
+	try {
+		//const data = event.dataTransfer.getData("application/json");
+		if(event.dataTransfer.items) {
+			const item = event.dataTransfer.items[0];
+			if(!item) {
+				setToolTip(outToolTip, "No files were dropped.", 1);
+				return false;
 			}
-	} else {
-		if(!event.dataTransfer.files || event.dataTransfer.files.length < 1) {
-			setToolTip(outToolTip, "No files were dropped.", 1);
-			return false;
+			if(item.kind === "string" && item.type.match(/^text\/plain/)) {
+				item.getAsString(setStructuredText);
+			} else
+				if(item.kind === "file") {
+					item.getAsFile().text()?.then?.(setStructuredText)?.catch?.(reason => {
+							setToolTip(outToolTip, "Failed to import dropped file. " + (reason.message ?? reason ?? ""), 3);
+							//window.reportError(reason);
+							console.error(reason);
+						});
+				}
+		} else {
+			if(!event.dataTransfer.files || event.dataTransfer.files.length < 1) {
+				setToolTip(outToolTip, "No files were dropped.", 1);
+				return false;
+			}
+			event.dataTransfer.files[0].text()?.then?.(setStructuredText)?.catch?.(reason => {
+					setToolTip(outToolTip, "Failed to import dropped file. " + (reason.message ?? reason ?? ""), 3);
+					//window.reportError(reason);
+					console.error(reason);
+				});
 		}
-		event.dataTransfer.files[0].text()?.then?.(value => {
-				setStructuredText(value);
-			}, reason => {
-				setToolTip(outToolTip, "Dropped file could not be read. " + (reason.message ?? reason ?? ""), 3);
-				//window.reportError(reason);
-				console.error(reason);
-			});
+	} catch (error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to import dropped file. " + (error.message ?? error ?? ""), 3);
+		return false;
 	}
 	return true;
 }
@@ -1024,13 +1020,17 @@ function inFileChange(event) {
 		setToolTip(outToolTip, "No file was chosen.", 2);
 		return false;
 	}
-	const file = fileList[0];
-	file.text()?.then?.(value => {
-			setStructuredText(value);
-		}, reason => {
-			setToolTip(outToolTip, "Chosen file could not be read. " + (reason.message ?? reason ?? ""), 3);
-			//window.reportError(reason);
-			console.error(reason);
-		});
+	try {
+		const file = fileList[0];
+		file.text()?.then?.(setStructuredText)?.catch?.(reason => {
+				setToolTip(outToolTip, "Chosen file could not be read. " + (reason.message ?? reason ?? ""), 3);
+				//window.reportError(reason);
+				console.error(reason);
+			});
+	} catch (error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to import chosen file. " + (error.message ?? error ?? ""), 3);
+		return false;
+	}
 	return true;
 }

@@ -100,8 +100,8 @@
 		<!--question: put translation warning and noscript inside header element?-->
 		<p class="lang-flex alert-warn" hidden="hidden">
 			Warning: machine translation detected. 
-			Unfortunately, this page has several small portions of text, which makes it hard to translate automatically. 
-			Those texts are expected to become inaccurate or incomprehensible, despite adaptations to aid automatic translation.</p>
+			Unfortunately, this page has several small portions of text, and technical language from more than one knowledge domain, which make it hard for translators. 
+			Those texts are expected to become inaccurate or incomprehensible, even despite adaptations to aid automatic translation.</p>
 		<noscript class="alert-error">If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
 		<details>
 			<summary>Generator parameters</summary>
@@ -148,11 +148,12 @@
 						<td><output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output></td>
 					</tr>
 					<tr>
-						<td><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth (exponent variance)</span></label></td>
-						<td><input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators. Higher values produce more atonality. Low values may freeze the generator due to lack of choices." size="5" /></td>
+						<td><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth scale (exponent variance)</span></label></td>
+						<td><input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher prime factors have narrower variance). Used by chord and melody generators. Higher values (wider ranges) produce more atonality. Low values may freeze the generator due to lack of choices." size="5" /></td>
 					</tr>
 					<tr>
 						<!--question: default state: line wrapping? overflow?-->
+						<!--question: make code boxes always left-to-right?-->
 						<td colspan="2"><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="genParams.primeExpRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
 					</tr>
 				</tbody>

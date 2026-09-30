@@ -202,7 +202,7 @@ function flattenStruct(event) {
 		console.warn(error);
 		//codeEditorContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
 		//codeEditorContentSet(ctlFlatScript, (error.message ?? error).toString());
-		setToolTip(outToolTip, "Failure in structured code parsing. " + (error.message ?? error ?? ""), 3);
+		setToolTip(outToolTip, "Failure in structured code conversion. " + (error.message ?? error ?? ""), 3);
 
 		ctlStructuredScript?.classList?.add?.("invalid");
 		if(window.ctlStructuredScript) ctlStructuredScript.title = (error.message ?? error).toString();
@@ -222,8 +222,10 @@ function setStructuredText(s) {
 	if(window.ctlStructuredScript) {
 		codeEditorContentSet(ctlStructuredScript, s);
 		saveControlPreference(ctlStructuredScript);
-	}
+	} else
+		throw(new Error("Control ctlStructuredScript not found."));
 	if(autoFlatten) flattenStruct();
+	return true;
 }
 
 let flattenTimeoutID;

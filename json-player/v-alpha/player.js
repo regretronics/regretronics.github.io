@@ -27,7 +27,8 @@ function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolSc
 			lastFreq: 0, lastFreq0: 0, lastNoteStart: 0, lastPortamento: 0, //portamento variables
 			emptyClip //methods
 		});
-	if(arguments.length < 1) return; //to do: maybe use switch() here?
+	//to do: maybe use switch() here?
+	if(arguments.length < 1) return;  //breaks silently; no need to log this or to provide a return value
 	this.flatStruct = flatStruct;
 	if(arguments.length < 2) return;
 	this.duration = duration;
@@ -65,7 +66,7 @@ function createNoiseBuffer(audioCtx) {
 //finds item in arr and remove from it.
 //currently an in-place operation (instead of pure function), with optional return.
 function removeFrom(arr, item) {
-	if(!item || !arr) return false;
+	if(!item || !arr) return false; //breaks silently; no need to log this
 	const i = arr.indexOf(item);
 	if(i >= 0) arr.splice(i, 1);
 	return arr;
@@ -159,7 +160,7 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) { //question: 
 	//note: negative frequency causes phase inversion (at least in Ffx 100)
 	const sourceNode = new OscillatorNode(clip.audioCtx, {type: "sine", frequency: noteFreq});
 	try {
-		if(portamento <= 0) return;
+		if(portamento <= 0) return; //breaks silently; no need to log this or to provide a return value
 		//portamento (using detune for an exponential frequency variation)
 		//fixed start frequency?
 		//question: should an explicit freq0 of 0 also disable portamento? (currently yes)
