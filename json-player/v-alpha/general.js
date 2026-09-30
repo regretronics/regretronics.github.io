@@ -303,9 +303,6 @@ function loadEventHandlers() {
 		main1.addEventListener("dragover", mainDragOver);
 		main1.addEventListener("drop", mainDrop);
 	}
-
-	addToolTipHandler("body>main", event => updateCtlToolTip(event, outToolTip));
-	addToolTipHandler("#tblFractionIntervals", event => updateCtlToolTip(event, outToolTipIntervals));
 }
 function addControlSeparators() {
 	console.log("addControlSeparators(): function started...");
@@ -354,8 +351,8 @@ function pageLoaded(event) {
 	console.log("pageLoaded(): function ending");
 }
 function pageReady(event) {
-	console.log("pageReady(): function started...");
 	Promise.resolve().then(value => {
+			console.log("pageReady() promise: function started...");
 			loadEventHandlers();
 			window.loadPreferences?.(); //preferences.js
 			adjustingPreferences = true;
@@ -367,12 +364,15 @@ function pageReady(event) {
 			} finally {
 				adjustingPreferences = false;
 			}
+			addToolTipHandler("body>main", event => updateCtlToolTip(event, outToolTip));
+			addToolTipHandler("#tblFractionIntervals", event => updateCtlToolTip(event, outToolTipIntervals));
 			window.rhythmFactorsChanged?.();
 
 			window.initSpinControls?.(); //custom-spin.js
 			for(let s of document.querySelectorAll('label[for]'))
 				//s.title = document.getElementById(s.htmlFor).title ?? "";
 				s.title = s.control?.title ?? "";
+			console.log("pageReady() promise: function ending");
 		})/* ?.catch?.(reason => {
 			window.reportError(reason);
 		}) */;
@@ -387,8 +387,6 @@ function pageReady(event) {
 				document.title = s + " JSON music";
 			}, 200);*/
 	//}
-
-	console.log("pageReady(): function ending");
 }
 if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
@@ -792,7 +790,7 @@ function updateCtlToolTip(event, toolTipCtl) {
 	if(adjustingPreferences) return false;
 	//could have focus -> should have focus
 	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem) {
-		console.info(`updateCtlToolTip(): element #${elem.id} (${elem.tagName}) is focusable but not selected. Returning.`);
+		//console.info(`updateCtlToolTip(): element #${elem.id} (${elem.tagName}) is focusable but not selected. Returning.`);
 		return false;
 	}
 

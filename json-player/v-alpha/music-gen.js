@@ -387,16 +387,16 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 		//if(i === 0) newNode.freq[2]++; //first beat -> new voice level -> one octave up
 		limitFreq(tuning, newNode.freq); //not THAT high
 
-		melodySubNodes(newNode, level + 1, tuning, primeCount);
+		melodySubNodes(newNode, level + 1, tuning, primeCount, primeExpRanges);
 	}
 	return struct;
 }
 //to do: pattern variations
-function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion, primeExpRanges) {
+function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, primeExpRanges) {
 	if(primeCount <= 1) throw new Error("Prime factors setting too low.");
 	if(patCount <= 0) throw new Error("Pattern count setting too low.");
 	if(reptPeriod <= 0) throw new Error("Repeat period setting too low.");
-	if(repeatCount <= 0) throw new Error("Repeat count setting too low.");
+	if(reptCount <= 0) throw new Error("Repeat count setting too low.");
 	if(rootFreq == 0) throw new Error("Invalid base frequency setting.");
 
 	//top-level node
@@ -477,9 +477,9 @@ function makeMelody(patCount, reptPeriod, repeatCount, timeScale, percussion, pr
 	//make pattern instances referring to existing patterns
 	for(let x = 0, iPat, barPos; x < Math.ceil(patCount / reptPeriod); x++) {
 	//for(let x = 0; x < patCount; x++) {
-		for(let y = 0; y < repeatCount; y++) {
+		for(let y = 0; y < reptCount; y++) {
 			for(let z = 0; z < reptPeriod && (iPat = x * reptPeriod + z) < patCount; z++) {
-				barPos = (x * repeatCount + y) * reptPeriod + z;
+				barPos = (x * reptCount + y) * reptPeriod + z;
 				const bar = {timeDelta: barPos.toString() + "*" + barDuration.toString()};
 				let i = 0;
 				if(percussivePattern)

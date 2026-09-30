@@ -552,9 +552,9 @@ function loadNewClip() {
 	let flatStruct;
 	try {
 		flatStruct = JSON.parse(codeEditorContentGet(ctlFlatScript));
+		if(!flatStruct) throw new Error("Unrecognized flattened structure.");
 		ctlFlatScript.classList.remove("invalid");
 		ctlFlatScript.title = "";
-		if(!flatStruct) throw new Error("Unrecognized flattened structure.");
 	} catch(error) {
 		ctlFlatScript?.classList?.add?.("invalid");
 		if(window.ctlFlatScript) ctlFlatScript.title = (error.message ?? error).toString();
@@ -1009,7 +1009,7 @@ function audioExport(event) {
 	try {
 		if(exportClip && exportClip.open) return false;
 		exportClip = loadNewClip();
-		if(!exportClip || !exportClip.flatStruct) return false;
+		if(!exportClip || !exportClip.flatStruct) throw new Error("Failed to create or initialize clip object.");
 		exportClip.onClipEnd = exportClipEnd;
 		if(window.outExportProgress) {
 			outExportProgress.innerText = "Note list loaded";

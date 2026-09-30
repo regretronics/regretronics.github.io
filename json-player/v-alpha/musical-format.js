@@ -172,6 +172,7 @@ function flattenStruct(event) {
 	try {
 		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
 		if(!struct) throw new Error("Structured script: couldn't parse JSON code.");
+
 		ctlStructuredScript.classList.remove("invalid");
 		ctlStructuredScript.title = "";
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
