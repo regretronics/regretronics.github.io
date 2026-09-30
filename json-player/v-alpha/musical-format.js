@@ -11,7 +11,7 @@ function parseExpRanges(event) {
 	if(!window.ctlPrimeExpRanges) return false;
 	try {
 		const parsed = JSON.parse(codeEditorContentGet(ctlPrimeExpRanges));
-		if(!parsed) throw new Error("Exponent ranges: couldn't parse JSON code.");
+		if(!parsed) throw(new Error("Exponent ranges: couldn't parse JSON code."));
 		ctlPrimeExpRanges.classList.remove("invalid");
 		ctlPrimeExpRanges.title = "";
 		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
@@ -41,8 +41,8 @@ function parseExpRanges(event) {
 			newExpRanges[factor] = element;
 			hasAnyRanges ||= (element[1] > element[0]);
 		}
-		if(Object.keys(newExpRanges) <= 0) throw new Error("Exponent ranges: no valid entries.");
-		if(!hasAnyRanges) throw new Error("Exponent ranges: no valid ranges.");
+		if(Object.keys(newExpRanges) <= 0) throw(new Error("Exponent ranges: no valid entries."));
+		if(!hasAnyRanges) throw(new Error("Exponent ranges: no valid ranges."));
 
 		primeExpRanges = newExpRanges;
 		saveControlPreference(ctlPrimeExpRanges);
@@ -171,7 +171,7 @@ function flattenStruct(event) {
 	if(!window.ctlStructuredScript) return false;
 	try {
 		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
-		if(!struct) throw new Error("Structured script: couldn't parse JSON code.");
+		if(!struct) throw(new Error("Structured script: couldn't parse JSON code."));
 
 		ctlStructuredScript.classList.remove("invalid");
 		ctlStructuredScript.title = "";

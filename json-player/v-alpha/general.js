@@ -527,7 +527,7 @@ function btnChordGenClick(event) {
 		freqMin = parseNumber(window.txtFreqRangeMin?.value);
 		freqMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), primeExpRanges);
-		if(rootStruct === false) throw new Error();
+		if(rootStruct === false) throw(new Error());
 
 		let s = JSON.stringify(rootStruct, null, "\t"); //to do: !function for this repeated code? (also found in following functions and recalcExpRanges)
 		//final adjustments on indentation
@@ -546,7 +546,7 @@ function btnRhythmGenClick(event) {
 		freqMin = parseNumber(window.txtFreqRangeMin?.value);
 		freqMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
-		if(rootStruct === false) throw new Error();
+		if(rootStruct === false) throw(new Error());
 
 		let s = JSON.stringify(rootStruct, null, "\t");
 		//final adjustments on indentation
@@ -565,7 +565,7 @@ function btnMelodyGenClick(event) {
 		freqMin = parseNumber(window.txtFreqRangeMin?.value);
 		freqMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, primeExpRanges);
-		if(rootStruct === false) throw new Error();
+		if(rootStruct === false) throw(new Error());
 
 		let s = JSON.stringify(rootStruct, null, "\t");
 		//final adjustments on indentation
@@ -823,7 +823,7 @@ function getDateTimeCode(size) { //hard-coded to Western calendar.
 function structDownload(event) {
 	//for the future (as of 2024-08)?: window.showSaveFilePicker()
 	try {
-		if(!window.ctlStructuredScript) throw new Error("Structured script control not found.");
+		if(!window.ctlStructuredScript) throw(new Error("Structured script control not found."));
 
 		//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 		const data = codeEditorContentGet(ctlStructuredScript);
@@ -843,7 +843,7 @@ function structDownload(event) {
 		if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 		lastCodeObjURL = URL.createObjectURL(file);
 
-		if(!window.aStructDownload) throw new Error("Anchor element not found (page may be corrupted).");
+		if(!window.aStructDownload) throw(new Error("Anchor element not found (page may be corrupted)."));
 		aStructDownload.setAttribute('href', lastCodeObjURL);
 		aStructDownload.setAttribute('download', fileName);
 		/*const newEvent = new MouseEvent('click');
@@ -917,14 +917,14 @@ function playIntervalHandler(event) {
 	}
 	try {
 		let fraction = event.target.dataset["fraction"];
-		if(!fraction || fraction == "") throw new Error("Unrecognized interval.");
+		if(!fraction || fraction == "") throw(new Error("Unrecognized interval."));
 		fraction = parseNumber(fraction);
 
-		if(rootFreq == 0) throw new Error("Invalid base frequency setting.");
-		if(playFreqScale == 0) throw new Error("Invalid playback frequency scale setting.");
+		if(rootFreq == 0) throw(new Error("Invalid base frequency setting."));
+		if(playFreqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
 		const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
 		//to do: allow reverse playback? (currently no)
-		if(playTimeScale <= 0) throw new Error("Invalid playback time scale setting.");
+		if(playTimeScale <= 0) throw(new Error("Invalid playback time scale setting."));
 		//const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
 		const playTimeDelta = 0; //probably not, I think.
 

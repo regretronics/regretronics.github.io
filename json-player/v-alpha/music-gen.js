@@ -69,10 +69,10 @@ function newChord(voiceCount, polyphony, primeCount, tuning, primeExpRanges) {
 	return chordStruct;
 }
 function makeChords(patCount, voiceCount, _timeScale, primeExpRanges) {
-	if(primeCount <= 1) throw new Error("Prime factors setting too low.");
-	if(patCount <= 0) throw new Error("Pattern count setting too low.");
-	if(voiceCount < 2) throw new Error("Voice count setting too low.");
-	if(rootFreq == 0) throw new Error("Invalid base frequency setting.");
+	if(primeCount <= 1) throw(new Error("Prime factors setting too low."));
+	if(patCount <= 0) throw(new Error("Pattern count setting too low."));
+	if(voiceCount < 2) throw(new Error("Voice count setting too low."));
+	if(rootFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	const polyphony = voiceCount - 1; //partial superposition
 	_timeScale = NaNToDefault(_timeScale, defaultBlockNode.timeScale);
@@ -97,7 +97,7 @@ function makeChords(patCount, voiceCount, _timeScale, primeExpRanges) {
 //question: currently, rhythmScale is like a maximum. follow it more closely?
 //to do: !avoid repeating the last result, when the scale is reasonably high (e.g. 8) and the prime count too
 function makeRhythmFactors(rhythmScale, primeCount) {
-	if(primeCount < 1) throw new Error("Too few prime factors.");
+	if(primeCount < 1) throw(new Error("Too few prime factors."));
 	const rhythmFactors = [];
 	let scale = Math.abs(NaNToDefault(rhythmScale, 4));
 	//builds a (random) product of prime factors
@@ -195,8 +195,8 @@ function rhythmSubNodes(struct, level, tuning) {
 	return struct;
 }
 function makeRhythm(repeatCount, percussion, timeScale) {
-	if(repeatCount <= 0) throw new Error("Repeat count setting too low.");
-	if(rootFreq == 0)  throw new Error("Invalid base frequency setting.");
+	if(repeatCount <= 0) throw(new Error("Repeat count setting too low."));
+	if(rootFreq == 0)  throw(new Error("Invalid base frequency setting."));
 
 	//hierarchy of beats
 	const pattern = [];
@@ -393,11 +393,11 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 }
 //to do: pattern variations
 function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, primeExpRanges) {
-	if(primeCount <= 1) throw new Error("Prime factors setting too low.");
-	if(patCount <= 0) throw new Error("Pattern count setting too low.");
-	if(reptPeriod <= 0) throw new Error("Repeat period setting too low.");
-	if(reptCount <= 0) throw new Error("Repeat count setting too low.");
-	if(rootFreq == 0) throw new Error("Invalid base frequency setting.");
+	if(primeCount <= 1) throw(new Error("Prime factors setting too low."));
+	if(patCount <= 0) throw(new Error("Pattern count setting too low."));
+	if(reptPeriod <= 0) throw(new Error("Repeat period setting too low."));
+	if(reptCount <= 0) throw(new Error("Repeat count setting too low."));
+	if(rootFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	//top-level node
 	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);

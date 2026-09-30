@@ -463,10 +463,10 @@ function rhythmFactorsChanged(event) {
 	//note: empty structures now allowed
 	try {
 		if(rhythmFactors.some(x => x == 0)) //has zeroes?
-			throw new Error("Rhythm factors can't include zero.");
+			throw(new Error("Rhythm factors can't include zero."));
 
 		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
-			throw new Error("Unrecognized numerical expression in rhythm formula.");
+			throw(new Error("Unrecognized numerical expression in rhythm formula."));
 
 		txtRhythmFactors.classList.remove("invalid");
 		txtRhythmFactors.setCustomValidity("");

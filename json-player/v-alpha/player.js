@@ -532,7 +532,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 	//window.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
 	//if(tNow >= clip.duration - 1)
 	//if(tNow >= 0.1)
-		//throw "Test."; //call stack test
+		//throw("Test."); //call stack test
 	//window.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
 	//to do: allow skipping/fast forward/rewind?
 	return true;
@@ -541,18 +541,18 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.
 function loadNewClip() {
 	if(!window.ctlFlatScript) return false;
-	if(playFreqScale == 0) throw new Error("Invalid playback frequency scale setting.");
+	if(playFreqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
 	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
 	//question: allow reverse playback? (how? apparently it will require a script-based audio node for the reverse of an exponential decay.)
-	if(playTimeScale <= 0) throw new Error("Invalid playback time scale setting."); //currently no.
+	if(playTimeScale <= 0) throw(new Error("Invalid playback time scale setting.")); //currently no.
 	const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
 
 	let flatStruct;
 	try {
 		flatStruct = JSON.parse(codeEditorContentGet(ctlFlatScript));
-		if(!flatStruct) throw new Error("Unrecognized flattened structure.");
+		if(!flatStruct) throw(new Error("Unrecognized flattened structure."));
 		ctlFlatScript.classList.remove("invalid");
 		ctlFlatScript.title = "";
 	} catch(error) {
@@ -848,7 +848,7 @@ function audioDownload(data) {
 		lastAudioObjURL = URL.createObjectURL(file);
 		//console.log("audioDownload(): createObjectURL object");
 
-		if(!window.aAudioDownload) throw new Error("Anchor element not found (page may be corrupted).");
+		if(!window.aAudioDownload) throw(new Error("Anchor element not found (page may be corrupted)."));
 		aAudioDownload.setAttribute('href', lastAudioObjURL);
 		aAudioDownload.setAttribute('download', fileName);
 		aAudioDownload.click();
@@ -1009,7 +1009,7 @@ function audioExport(event) {
 	try {
 		if(exportClip && exportClip.open) return false;
 		exportClip = loadNewClip();
-		if(!exportClip || !exportClip.flatStruct) throw new Error("Failed to create or initialize clip object.");
+		if(!exportClip || !exportClip.flatStruct) throw(new Error("Failed to create or initialize clip object."));
 		exportClip.onClipEnd = exportClipEnd;
 		if(window.outExportProgress) {
 			outExportProgress.innerText = "Note list loaded";
