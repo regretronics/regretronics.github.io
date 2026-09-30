@@ -237,6 +237,7 @@
 		} */
 
 		#selTextScale option:checked {
+			/*as of 2025-03, Chrome requires quotes for numeric contents*/
 			:root:has(&[label="-3"]) {--text-scale-log: -3;}
 			:root:has(&[label="-2"]) {--text-scale-log: -2;}
 			:root:has(&[label="-1"]) {--text-scale-log: -1;}
