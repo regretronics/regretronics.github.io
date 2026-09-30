@@ -36,9 +36,9 @@
 	margin: 0px;
 	border-width: 0px;
 
-	width: 100%;
-	height: 100%;
-	min-height: 100%;
+	inline-size: 100%;
+	block-size: 100%;
+	min-block-size: 100%;
 	padding: 0px;
 } */
 /* body {
@@ -46,8 +46,8 @@
 	margin: 0px;
 	border-width: 0px;
 
-	width: 100%;
-	height: 100%;
+	inline-size: 100%;
+	block-size: 100%;
 	padding: 0px;
 } */
 /* body > #wrapper {
@@ -55,26 +55,30 @@
 	margin: 0px;
 	border-width: 0px;
 
-	width: 100%;
-	height: 100%;
+	inline-size: 100%;
+	block-size: 100%;
 	overflow-x: hidden;
 	overflow-y: scroll;
 	padding: 0px;
 } */
 
-/* @media (max-width: 64ch) { */
+/* @media (max-inline-size: 64ch) { */
 @container (inline-size < 64ch) {
 	header:has(details[open]) h1 {
 		clear: both;
 	}
 }
-details > summary:first-of-type {
-	cursor: pointer;
-	font-weight: bold;
+details {
+	margin-inline: 1ch;
+
+	& > summary:first-of-type {
+		cursor: pointer;
+		font-weight: bold;
+	}
 }
 
 table.controls-group :is(th, td):not(.left):nth-child(2) {
-	text-align: end;
+	text-align: right;
 }
 code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
@@ -101,10 +105,10 @@ button, input:not([type=radio]), select {
 			opacity: 0.875;
 		}
 	}
-	&:is(input[type=text], textarea, select, .code-editor):not(.right) {
+	&:is(input[type=text], textarea, select, .code-editor):dir(ltr):not(.right) {
 		border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 	}
-	input&[type=number], &:is(input, button, textarea, .code-editor).right {
+	input&[type=number]:not(.left), &:is(input, button, textarea, .code-editor):is(:dir(rtl), .right):not(.left) {
 		border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
 	}
 }
@@ -144,8 +148,8 @@ input:is([type=checkbox], [type=radio]) + label {
 }
 .separator {
 	display: inline-block;
-	width: 0.125em;
-	height: 100%;
+	inline-size: 0.125em;
+	block-size: 100%;
 	background-color: GrayText;
 	/* background-clip: content-box; */
 	/* opacity: 0.5; */
@@ -189,14 +193,14 @@ input:is([type=checkbox], [type=radio]) + label {
 }
 #outAudioT {
 	display: inline-block;
-	min-width: 6ch;
+	min-inline-size: 6ch;
 }
 .tool-tip {
 	font-style: italic;
 
 	/* padding-inline: max(2ch, 50% - 0.5*120ch);
-	width: calc(100% - 2*2ch);
-	max-width: 120ch; */
+	inline-size: calc(100% - 2*2ch);
+	max-inline-size: 120ch; */
 
 	&[data-warn-level] {
 		--warn-level: attr(data-warn-level type(<number>));
@@ -231,7 +235,7 @@ img:not(.true-colors) { /*class "true-colors" reserved for future use*/
 	}
 }
 #tblFractionIntervals {
-	height: fit-content; /*necessary to allow cell height-filling buttons*/
+	block-size: fit-content; /*necessary to allow cell height-filling buttons*/
 }
 td {
 	/* padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em); */
@@ -245,8 +249,8 @@ td {
 		text-align: center;
 
 		& > button {
-			width: 100%;
-			height: 100%;
+			inline-size: 100%;
+			block-size: 100%;
 			margin: 0em;
 			cursor: pointer;
 		}

@@ -9,26 +9,26 @@
 	}
 
 	/*for wide viewports, a two-column layout (control panel + documentation)*/
-	/*@media (min-width: 160ch) {*/
+	/*@media (min-inline-size: 160ch) {*/
 	/* @media
-		(orientation: landscape) and (min-width: 160ch),
-		(min-aspect-ratio: 3/2) and (min-width: 128ch),
-		(min-aspect-ratio: 2/1) and (min-width: 80ch) { */
-		/* (min-aspect-ratio: 2/1) and (min-width: calc(var(--page-scale, 1) * 80ch)) { */
+		(orientation: landscape) and (min-inline-size: 160ch),
+		(min-aspect-ratio: 3/2) and (min-inline-size: 128ch),
+		(min-aspect-ratio: 2/1) and (min-inline-size: 80ch) { */
+		/* (min-aspect-ratio: 2/1) and (min-inline-size: calc(var(--page-scale, 1) * 80ch)) { */
 	/* @container
-		(width >= 160ch) or
-		((orientation: landscape) and (width >= 144ch)) or
-		((aspect-ratio >= 3/2) and (width >= 104ch)) or
-		((aspect-ratio >= 2/1) and (width >= 88ch)) { */
+		(inline-size >= 160ch) or
+		((orientation: landscape) and (inline-size >= 144ch)) or
+		((aspect-ratio >= 3/2) and (inline-size >= 104ch)) or
+		((aspect-ratio >= 2/1) and (inline-size >= 88ch)) { */
 	@container
-		(width >= calc(960px + 20ch)) or
-		((orientation: landscape) and (width >= calc(864px + 18ch))) or
-		((aspect-ratio >= 3/2) and (width >= calc(624px + 13ch))) or
-		((aspect-ratio >= 2/1) and (width >= calc(528px + 11ch))) {
+		(inline-size >= calc(960px + 20ch)) or
+		((orientation: landscape) and (inline-size >= calc(864px + 18ch))) or
+		((aspect-ratio >= 3/2) and (inline-size >= calc(624px + 13ch))) or
+		((aspect-ratio >= 2/1) and (inline-size >= calc(528px + 11ch))) {
 		body {
 			box-sizing: border-box;
 			margin: 0em;
-			height: 100%;
+			block-size: 100%;
 
 			display: flex;
 			flex-direction: row;
@@ -38,7 +38,7 @@
 
 			& > .major-section {
 				box-sizing: border-box;
-				height: 100%;
+				block-size: 100%;
 				overflow-y: auto;
 				/* padding: 2vmin; */
 				/* padding: max(1.5vmin, 5vmin - 8ch); */
@@ -55,10 +55,10 @@
 				flex-grow: 1;
 			}
 			& > :not(main) {
-				/*min-width: 64ch;*/
+				/*min-inline-size: 64ch;*/
 				flex-basis: 64ch;
 				flex-grow: 0.5;
-				max-width: 144ch;
+				max-inline-size: 144ch;
 			}
 			& > hr, & > .bg {
 				display: none;
@@ -66,7 +66,7 @@
 		}
 	}
 	.code-editor {
-		height: 12em;
+		block-size: 12em;
 	}
 	/*try to show spin buttons on numerical fields*/
 	/*input[type=number]::inner-spin-button, 
@@ -157,7 +157,7 @@
 		display: none;
 	}
 	.code-editor {
-		height: unset;
+		block-size: unset;
 		white-space: pre-wrap;
 		resize: none;
 		@supports (field-sizing: content) {

@@ -164,6 +164,7 @@ function initSpinControls() {
 		if(!spinEdit) {
 			spinEdit = document.createElement("span");
 			spinEdit.classList.add("spin-edit");
+			//spinEdit.dir = "ltr";
 			txtControl.parentElement.insertBefore(spinEdit, txtControl);
 			spinEdit.insertBefore(txtControl, null);
 		}

@@ -69,8 +69,11 @@ h1, h2, h3, strong, em {
 	}
 }
 
-noscript, #translationWarning {
-	color: hsl(0, 100%, 12.5%);
+.alert-error {
+	color: hsl(0, 100%, 25%);
+}
+.alert-warn {
+	color: hsl(60, 75%, 18.75%);
 }
 hr {
 	border-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.75);

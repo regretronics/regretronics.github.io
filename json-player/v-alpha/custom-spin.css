@@ -17,6 +17,8 @@
 	border-end-end-radius: 0.125em;
 	/* clip-path: border-box; */
 
+	/* direction: ltr; */
+
 	& > :first-child {
 		border-start-start-radius: inherit;
 		border-end-start-radius: inherit;
@@ -38,7 +40,7 @@
 		box-sizing: border-box;
 		/* border-style: solid; */
 
-		text-align: right;
+		text-align: right; /*question: right or end*/
 		/* vertical-align: text-bottom; */
 		z-index: 1;
 	}
@@ -88,7 +90,7 @@
 
 		& > * {
 			touch-action: none;
-			width: 1em;
+			inline-size: 1em;
 			/* flex-basis: 1em; */
 			/* flex-basis: auto; */
 			flex-grow: 1;
