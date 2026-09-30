@@ -8,11 +8,12 @@ var autoFlatten;
 var struct;
 
 function parseExpRanges(event) {
-	if(!ctlPrimeExpRanges) return false;
+	if(!window.ctlPrimeExpRanges) return false;
 	try {
 		const parsed = JSON.parse(codeEditorContentGet(ctlPrimeExpRanges));
 		if(!parsed) throw new Error("Exponent ranges: couldn't parse JSON code.");
 		ctlPrimeExpRanges.classList.remove("invalid");
+		ctlPrimeExpRanges.title = "";
 		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 
 		//clean-copying of JSON code
@@ -46,11 +47,11 @@ function parseExpRanges(event) {
 		primeExpRanges = newExpRanges;
 		saveControlPreference(ctlPrimeExpRanges);
 	} catch(error) {
-		console.error(error);
-		//codeEditorContentSet(ctlFlatScript, error.name + ": " + error.message);
-		//codeEditorContentSet(ctlFlatScript, error.toString());
-		ctlPrimeExpRanges.classList.add("invalid");
-		//ctlPrimeExpRanges.setCustomValidity(error.toString());
+		console.warn(error);
+		//codeEditorContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
+		ctlPrimeExpRanges?.classList?.add?.("invalid");
+		if(window.ctlPrimeExpRanges) ctlPrimeExpRanges.title = (error.message ?? error).toString();
+		//ctlPrimeExpRanges?.setCustomValidity?.((error.message ?? error).toString());
 		return false;
 	}
 	return true;
@@ -132,7 +133,7 @@ function parseNode(flatStruct, node, blockContext) {
 
 			flatStruct.push(newNote);
 		} catch(error) {
-			console.error(error);
+			console.warn(error);
 		}
 	else
 		if(node.remark) {
@@ -167,11 +168,12 @@ function parseNode(flatStruct, node, blockContext) {
 let hasScriptChanged = true;
 function flattenStruct(event) {
 	if(!hasScriptChanged) return false;
-	if(!ctlStructuredScript) return false;
+	if(!window.ctlStructuredScript) return false;
 	try {
 		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
 		if(!struct) throw new Error("Structured script: couldn't parse JSON code.");
 		ctlStructuredScript.classList.remove("invalid");
+		ctlStructuredScript.title = "";
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
 
 		const flatStruct = [];
@@ -196,13 +198,14 @@ function flattenStruct(event) {
 		codeEditorContentSet(ctlFlatScript, s);
 		ctlFlatScript.classList.remove("invalid");
 	} catch(error) {
-		console.error(error);
-		//codeEditorContentSet(ctlFlatScript, error.name + ": " + error.message);
-		//codeEditorContentSet(ctlFlatScript, error.toString());
+		console.warn(error);
+		//codeEditorContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
+		//codeEditorContentSet(ctlFlatScript, (error.message ?? error).toString());
 		setToolTip(outToolTip, "Failure in structured code parsing. " + (error.message ?? error ?? ""), 3);
 
-		ctlStructuredScript.classList.add("invalid");
-		//ctlStructuredScript.setCustomValidity(error.toString());
+		ctlStructuredScript?.classList?.add?.("invalid");
+		if(window.ctlStructuredScript) ctlStructuredScript.title = (error.message ?? error).toString();
+		//ctlStructuredScript?.setCustomValidity?.((error.message ?? error).toString());
 		return false;
 	}
 	//job done, don't do it again

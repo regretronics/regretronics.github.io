@@ -4,10 +4,10 @@
 //to do: consider extra .js file for user interface
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
 //to do: !more console reports and exception handling (success and failure of many operations)
-//to do: !revise promise handling (consider adding more catch'es)
 //to do: !consider worker threads or scheduler
-//to do: ?line numbers in left side in code editors
-//to do: ?caret position (row, column, char index) status label
+//to do: code editors:
+//to do: 	?line numbers in left side in code editors
+//to do: 	?caret position (row, column, char index) status label
 //to do: !consider radically changing flattened format: events (more like midi), supporting named notes
 //to do: multitrack architecture for mixing and effect pipelines, with named tracks
 //to do: ...take query parameters (e.g. ?baseFreq=512&makeMelody)
@@ -184,18 +184,29 @@ function toFixedTrunc(value, digits) {
 	return (Math.trunc(scale * value) / scale).toFixed(digits);
 }
 function codeEditorContentGet(elem) {
-	if(!elem) return false;
+	if(!elem) {
+		console.info("codeEditorContentGet(): parameter elem is empty. Returning.");
+		return false;
+	}
 	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
 		return elem.value;
 	else
 		return elem.textContent;
 }
 function codeEditorContentSet(elem, text) {
-	if(!elem) return false;
-	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
-		elem.value = text;
-	else
-		elem.textContent = text;
+	if(!elem) {
+		console.info("codeEditorContentSet(): parameter elem is empty. Returning.");
+		return false;
+	}
+	try {
+		if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+			elem.value = text;
+		else
+			elem.textContent = text;
+	} catch (error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to set code box contents. " + (error.message ?? error ?? ""), 3);
+	}
 	return true;
 }
 
@@ -293,8 +304,8 @@ function loadEventHandlers() {
 		main1.addEventListener("drop", mainDrop);
 	}
 
-	addToolTipHandler("body>main", event => updateToolTip(event, outToolTip));
-	addToolTipHandler("#tblFractionIntervals", event => updateToolTip(event, outToolTipIntervals));
+	addToolTipHandler("body>main", event => updateCtlToolTip(event, outToolTip));
+	addToolTipHandler("#tblFractionIntervals", event => updateCtlToolTip(event, outToolTipIntervals));
 }
 function addControlSeparators() {
 	console.log("addControlSeparators(): function started...");
@@ -332,13 +343,13 @@ function pageLoaded(event) {
 	codeEditorContentSet(ctlStructuredScript, defStructuredCode);
 	codeEditorContentSet(ctlFlatScript, defFlattenedCode);
 
-	Promise.resolve().then(addControlSeparators)?.catch?.(reason => {
+	Promise.resolve().then(addControlSeparators)/* ?.catch?.(reason => {
 			window.reportError(reason);
-		});
+		}) */;
 
-	Promise.resolve().then(addIntervalSamples)?.catch?.(reason => {
+	Promise.resolve().then(addIntervalSamples)/* ?.catch?.(reason => {
 			window.reportError(reason);
-		});
+		}) */;
 
 	console.log("pageLoaded(): function ending");
 }
@@ -362,9 +373,9 @@ function pageReady(event) {
 			for(let s of document.querySelectorAll('label[for]'))
 				//s.title = document.getElementById(s.htmlFor).title ?? "";
 				s.title = s.control?.title ?? "";
-		})?.catch?.(reason => {
+		})/* ?.catch?.(reason => {
 			window.reportError(reason);
-		});
+		}) */;
 
 	//just eye candy
 	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
@@ -392,18 +403,30 @@ if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON 
 
 function overflowToggle(event) {
 	const elem = event.target;
-	if(!elem) return false;
+	if(!elem || !elem.dataset) {
+		console.info("overflowToggle(): parameter event.target(.dataset) is empty. Returning.");
+		return false;
+	}
 	const control = document.getElementById(elem.dataset["target"]);
-	if(!control) return false;
+	if(!control) {
+		console.info("overflowToggle(): target box not found. Returning.");
+		return false;
+	}
 	control.classList.toggle("expanded", elem.checked);
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("expanded")));
 }
 function lineWrapToggle(event) {
 	const elem = event.target;
-	if(!elem) return false;
+	if(!elem) {
+		console.info("lineWrapToggle(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	const control = document.getElementById(elem.dataset["target"]);
-	if(!control) return false;
+	if(!control) {
+		console.info("lineWrapToggle(): target box not found. Returning.");
+		return false;
+	}
 	control.classList.toggle("line-wrap", elem.checked);
 	if(elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("line-wrap")));
@@ -413,7 +436,10 @@ function lineWrapToggle(event) {
 function expSpinnerChanged(event) {
 	//console.log(event);
 	const elem = event.target;
-	if(!elem) return false;
+	if(!elem) {
+		console.info("expSpinnerChanged(): parameter event.target is empty. Returning.");
+		return false;
+	}
 
 	//let val = elem.valueAsNumber;
 	let val = parseNumber(elem.value);
@@ -488,8 +514,8 @@ function btnRhythmFactorsGenClick(event) {
 		rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), primeCount);
 	} catch(error) {
 		console.error(error);
-		setToolTip(outToolTip, "Rhythm structure generator failed. " + error.message ?? error ?? "", 3);
-		return;
+		setToolTip(outToolTip, "Rhythm structure generator failed. " + (error.message ?? error ?? ""), 3);
+		return false;
 	}
 	if(window.txtRhythmFactors) {
 		txtRhythmFactors.value = rhythmFactors.join("*");
@@ -557,11 +583,14 @@ function btnMelodyGenClick(event) {
 }
 function btnStopClick(event) {
 	try {
-		if(!playerClip) return false;
+		if(!playerClip) {
+			console.info("btnStopClick(): variable playerClip is empty. Returning.");
+			return false;
+		}
 		playerClip.onClipEnd?.(true);
 	} catch(error) {
 		console.error(error);
-		setToolTip(outToolTip, "Playback stop failed. " + error.message ?? error ?? "", 3);
+		setToolTip(outToolTip, "Playback stop failed. " + (error.message ?? error ?? ""), 3);
 		return false;
 	}
 	return true;
@@ -571,7 +600,10 @@ function deletePrevTab() {
 	//outdent line (actually, erase the nearest tab before caret)
 	try {
 		const rng = window.getSelection?.()?.getRangeAt?.(0); //disregarding multiple selection, which only Firefox supports (to do?)
-		if(!rng) return false;
+		if(!rng) {
+			console.info("deletePrevTab(): member window.getSelection().getRangeAt(0) is empty. Returning.");
+			return false;
+		}
 
 		let pos = rng.endOffset;
 		let node = rng.endContainer; //to do: store original node?
@@ -606,7 +638,7 @@ function deletePrevTab() {
 		rng.setStart(node, pos - 1); //also buggy
 		rng.setEnd(node, pos - 1);
 	} catch(error) {
-		console.error(error);
+		console.warn(error);
 		return false;
 	}
 	return true;
@@ -633,29 +665,44 @@ function editorPaste(event) {
 	event.preventDefault();
 
 	let paste = (event.clipboardData || window.clipboardData).getData("text");
-	const selection = window.getSelection();
-	if(!selection.rangeCount) return;
+	const selection = window.getSelection?.();
+	if(!selection || !selection.rangeCount) {
+		console.info("editorPaste(): member window.getSelection().rangeCount is empty. Returning.");
+		return false;
+	}
 	selection.deleteFromDocument();
 	selection.getRangeAt(0).insertNode(document.createTextNode(paste));
 	selection.collapseToEnd();
 }
 function codeEditorResetValidity(event) {
-	if(!event || !event.target || !event.target.classList) return false;
+	if(!event || !event.target || !event.target.classList) {
+		console.info("codeEditorResetValidity(): parameter event.target.classList is empty. Returning.");
+		return false;
+	}
 	event.target.classList.remove("invalid");
 	return true;
 }
 function editorChanged(event) {
-	if(!event || !event.target) return false;
+	if(!event || !event.target) {
+		console.info("editorChanged(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	event.target.normalize();
 	return true;
 }
 function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	const elem = event.target;
-	if(!elem) return false;
+	if(!elem) {
+		console.info("recalcEditorCursorPos(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	elem.normalize();
 
-	const rng = getSelection().getRangeAt(0); //disregarding multiple selection, which only Firefox supports
-	if(!rng) return false;
+	const rng = window.getSelection?.()?.getRangeAt?.(0); //disregarding multiple selection, which only Firefox supports (to do?)
+	if(!rng) {
+		console.info("recalcEditorCursorPos(): member window.getSelection().getRangeAt(0) is empty. Returning.");
+		return false;
+	}
 	let pos = rng.endOffset;
 	let node = rng.endContainer;
 	let txt = node.textContent;
@@ -705,9 +752,15 @@ function addToolTipHandler(rootSelector, handler) {
 }
 function setToolTip(toolTipCtl, s, warnLevel) {
 	if(!toolTipCtl) toolTipCtl = window.outToolTip;
-	if(!toolTipCtl) return false;
+	if(!toolTipCtl) {
+		console.info("toolTipCtl(): toolTipCtl parameter and window.outToolTip are both empty. Returning.");
+		return false;
+	}
 
-	/* if(!s) return false;
+	/* if(!s) {
+		console.info("toolTipCtl(): parameter s is empty. Returning.");
+		return false;
+	}
 	if(typeof(s) !== "string") s = s.toString(); */
 	if(!s) s = "";
 	if(typeof(s) !== "string") s = s.toString();
@@ -728,13 +781,20 @@ function setToolTip(toolTipCtl, s, warnLevel) {
 		toolTipCtl.dataset.warnLevel = warnLevel.toString();
 	return true;
 }
-function updateToolTip(event, toolTipCtl) {
+function updateCtlToolTip(event, toolTipCtl) {
 	let elem = event.target;
 	if(!elem || !elem.title || !elem.title.length)
 		elem = event.currentTarget; //for events fired in descendant elements, e.g. td in tr
-	if(!elem) return false;
-	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem)
-		return false; //could have focus -> should have focus
+	if(!elem) {
+		console.info("updateCtlToolTip(): parameters event.target or event.currentTarget are either empty or unfit. Returning.");
+		return false;
+	}
+	if(adjustingPreferences) return false;
+	//could have focus -> should have focus
+	if(focusableElemTypes.includes(elem.tagName.toUpperCase()) && event.type != "pointerdown" && document.activeElement != elem) {
+		console.info(`updateCtlToolTip(): element #${elem.id} (${elem.tagName}) is focusable but not selected. Returning.`);
+		return false;
+	}
 
 	const sentences = [];
 	let description = elem.title;
@@ -764,8 +824,9 @@ function getDateTimeCode(size) { //hard-coded to Western calendar.
 }
 function structDownload(event) {
 	//for the future (as of 2024-08)?: window.showSaveFilePicker()
-	if(!window.ctlStructuredScript) return false;
 	try {
+		if(!window.ctlStructuredScript) throw new Error("Structured script control not found.");
+
 		//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 		const data = codeEditorContentGet(ctlStructuredScript);
 		let file;
@@ -784,16 +845,16 @@ function structDownload(event) {
 		if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 		lastCodeObjURL = URL.createObjectURL(file);
 
-		if(!aStructDownload) return false;
+		if(!window.aStructDownload) throw new Error("Anchor element not found (page may be corrupted).");
 		aStructDownload.setAttribute('href', lastCodeObjURL);
 		aStructDownload.setAttribute('download', fileName);
-
 		/*const newEvent = new MouseEvent('click');
 		aStructDownload.dispatchEvent(newEvent);*/
 		aStructDownload.click();
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failure in file saving. " + (error.message ?? error ?? ""), 3);
+		//if(event && event?.target?.title) event.target.title = (error.message ?? error).toString(); //this would overwrite the default title
 		return false;
 	}
 	return true;
@@ -802,7 +863,7 @@ function structDownload(event) {
 let animHue = 0;
 function hueAnimation() {
 	const root = document.documentElement;
-	if(!root || !root.style || !root.style.setProperty) return;
+	if(!root || !root.style || !root.style.setProperty) return false;
 	animHue = (animHue + 360 / 384) % 360;
 	//root.style.setProperty("--hue-accent2", animHue);
 	root.style.setProperty("--hue-anim", animHue);
@@ -852,7 +913,10 @@ function addIntervalSamples() {
 //to do: !review this code
 //to do: separate AudioContext?
 function playIntervalHandler(event) {
-	if(!event?.target) return;
+	if(!event?.target) {
+		console.info("playIntervalHandler(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	try {
 		let fraction = event.target.dataset["fraction"];
 		if(!fraction || fraction == "") throw new Error("Unrecognized interval.");
@@ -870,6 +934,7 @@ function playIntervalHandler(event) {
 		const clip = new SoundClip(null, playTimeScale * (noteDuration + noteTInterval), playTimeScale, playTimeDelta, playVolScale, playFreqScale);
 		if(playerClip) clip.audioCtx = playerClip.audioCtx;
 		if(!clip.audioCtx || clip.audioCtx.state === 'closed') {
+			console.debug("playIntervalHandler(): creating new AudioContext.");
 			//clip.audioCtx = new AudioContext({latencyHint: "playback"});
 			clip.audioCtx = new AudioContext({latencyHint: "interactive"});
 			//clip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
@@ -889,7 +954,7 @@ function playIntervalHandler(event) {
 			});
 		if(clip.audioCtx.state === 'suspended')
 			clip.audioCtx.resume()?.catch?.(reason => {
-					setToolTip(outToolTipIntervals, "Could not resume playback. " + reason.toString());
+					setToolTip(outToolTipIntervals, "Could not resume playback. " + (reason.message ?? reason ?? ""), 3);
 					//window.reportError(reason);
 					console.error(reason);
 				});
@@ -901,20 +966,26 @@ function playIntervalHandler(event) {
 }
 
 function mainDragOver(event) {
-	if(!event) return;
+	if(!event) {
+		console.info("mainDragOver(): parameter event is empty. Returning.");
+		return false;
+	}
 	event.preventDefault();
 	event.dataTransfer.dropEffect = "copy";
 	//to do: UI feedback on accepting dragging
 }
 function mainDrop(event) {
-	if(!event || !event.dataTransfer) return;
+	if(!event || !event.dataTransfer) {
+		console.info("mainDrop(): parameter event.dataTransfer is empty. Returning.");
+		return false;
+	}
 	event.preventDefault();
 	//const data = event.dataTransfer.getData("application/json");
 	if(event.dataTransfer.items) {
 		const item = event.dataTransfer.items[0];
 		if(!item) {
-			setToolTip(outToolTip, "No files were dropped.");
-			return;
+			setToolTip(outToolTip, "No files were dropped.", 1);
+			return false;
 		}
 		if(item.kind === "string" && item.type.match(/^text\/plain/)) {
 			item.getAsString(s => setStructuredText(s));
@@ -923,24 +994,25 @@ function mainDrop(event) {
 				item.getAsFile().text()?.then?.(value => {
 						setStructuredText(value);
 					}, reason => {
-						setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString());
+						setToolTip(outToolTip, "Dropped file could not be read. " + (reason.message ?? reason ?? ""), 3);
 						//window.reportError(reason);
 						console.error(reason);
 					});
 			}
 	} else {
 		if(!event.dataTransfer.files || event.dataTransfer.files.length < 1) {
-			setToolTip(outToolTip, "No files were dropped.");
-			return;
+			setToolTip(outToolTip, "No files were dropped.", 1);
+			return false;
 		}
 		event.dataTransfer.files[0].text()?.then?.(value => {
 				setStructuredText(value);
 			}, reason => {
-				setToolTip(outToolTip, "Dropped file could not be read. " + reason.toString());
+				setToolTip(outToolTip, "Dropped file could not be read. " + (reason.message ?? reason ?? ""), 3);
 				//window.reportError(reason);
 				console.error(reason);
 			});
 	}
+	return true;
 }
 
 function btnStructImportClick(event) {
@@ -951,15 +1023,16 @@ function btnStructImportClick(event) {
 function inFileChange(event) {
 	const fileList = this.files;
 	if(!fileList || fileList.length < 1) {
-		setToolTip(outToolTip, "No file was chosen.");
-		return; //question: is return false acceptable in event handlers?
+		setToolTip(outToolTip, "No file was chosen.", 2);
+		return false;
 	}
 	const file = fileList[0];
 	file.text()?.then?.(value => {
 			setStructuredText(value);
 		}, reason => {
-			setToolTip(outToolTip, "Chosen file could not be read. " + reason.toString());
+			setToolTip(outToolTip, "Chosen file could not be read. " + (reason.message ?? reason ?? ""), 3);
 			//window.reportError(reason);
 			console.error(reason);
 		});
+	return true;
 }

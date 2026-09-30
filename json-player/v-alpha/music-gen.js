@@ -152,7 +152,10 @@ function limitFreq(tuning, freq) {
 //the rhythm generator presumes that rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
 function rhythmSubNodes(struct, level, tuning) {
-	if(!struct) return false;
+	if(!struct) {
+		console.info("rhythmSubNodes(): parameter struct is empty. Returning.");
+		return false;
+	}
 	if(level >= rhythmFactors.length) return false;
 	const beats = rhythmFactors[level - 1];
 	const scale = rhythmFactorsAccum[level];
@@ -274,7 +277,10 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 //recursive function
 //done: option for rhythm pattern in both rhythm and melody generator
 function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
-	if(!struct) return false;
+	if(!struct) {
+		console.info("melodySubNodes(): parameter struct is empty. Returning.");
+		return false;
+	}
 	if(level >= rhythmFactors.length) return false;
 	const beats = rhythmFactors[level - 1];
 	const scale = rhythmFactorsAccum[level];

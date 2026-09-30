@@ -278,7 +278,10 @@ let textSize = 1;
 function rescaleText(event) {
 	if(!document || !document.documentElement || !document.documentElement.style) return false;
 	const elem = event.target;
-	if(!elem) return false;
+	if(!elem) {
+		console.info("rescaleText(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	const f = Number(elem.dataset["factor"]);
 	textSize *= f;
 	const strTextSize = textSize.toPrecision(5);
@@ -292,7 +295,10 @@ function rescaleText(event) {
 function themeChanged(event) {
 	if(!document) return false;
 	const elem = event.target;
-	if(!elem) return false;
+	if(!elem) {
+		console.info("themeChanged(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	const styleTitle = elem.value.toString();
 	const sheets = document.querySelectorAll("head link[rel~=stylesheet][title]");
 	for(const sheet of sheets) {
@@ -320,13 +326,16 @@ function updateThemeColor(hue) {
 function btnHueClick(event) {
 	if(!document) return false;
 	const elem = event.target;
-	if(!elem) return false;
+	if(!elem) {
+		console.info("btnHueClick(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	let delta = Number(elem.dataset["delta"]);
 
 	const root = document.documentElement;
 	let hue = getComputedStyle(root).getPropertyValue("--hue-accent0");
 
-	//if(hue == undefined) return;
+	//if(hue == undefined) return false;
 	if(typeof(hue) === "string") hue = parseFloat(hue);
 	if(isNaN(hue) || !isFinite(hue)) hue = 120;
 
@@ -465,8 +474,8 @@ function rhythmFactorsChanged(event) {
 		console.error(error);
 		//default/fallback
 		rhythmFactors = defaultRhythmFactors;
-		txtRhythmFactors.classList.add("invalid");
-		txtRhythmFactors.setCustomValidity(error.toString());
+		txtRhythmFactors?.classList?.add?.("invalid");
+		txtRhythmFactors?.setCustomValidity?.(error.toString());
 		return false;
 	}
 	rhythmAccumUpdate();
@@ -490,7 +499,10 @@ function playVolScaleChanged(event) {
 }
 
 function saveControlPreference(elem) {
-	if(!elem) return false;
+	if(!elem) {
+		console.info("saveControlPreference(): parameter elem is empty. Returning.");
+		return false;
+	}
 	let prefKey = elem.dataset["pref"];
 	if(!prefKey) return false;
 
@@ -514,8 +526,11 @@ function saveControlPreference(elem) {
 	return false;
 }
 function saveInputValue(event) {
-	if(adjustingPreferences) return;
-	if(!event?.target) return;
+	if(adjustingPreferences) return false;
+	if(!event?.target) {
+		console.info("saveInputValue(): parameter event.target is empty. Returning.");
+		return false;
+	}
 	saveControlPreference(event.target);
 }
 
