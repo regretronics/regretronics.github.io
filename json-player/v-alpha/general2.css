@@ -245,12 +245,13 @@ td {
 	/* &:has(.interval-sample) { */
 	/* &.sample-cell { */
 	&[headers=colSoundSample] {
+		container-type: size;
 		padding: 0em;
 		text-align: center;
 
 		& > button {
 			inline-size: 100%;
-			block-size: 100%;
+			block-size: 100%; /*to do: stopped working in Ffx*/
 			margin: 0em;
 			cursor: pointer;
 		}

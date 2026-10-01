@@ -104,7 +104,7 @@ function loadPreferences(triggerNow) {
 				codeBoxContentSet(ctlPrimeExpRanges, s);
 				window.ctlPrimeExpRanges?.dispatchEvent?.(new Event("input"));
 			} else
-				recalcExpRanges(true);
+				recalcExpRanges(false);
 		}
 
 		//Rhythm parameters
@@ -696,7 +696,7 @@ function btnResetPreferencesClick(event) {
 			chkOverflow2.checked = false;
 			chkLineWrap2.checked = false;
 			codeBoxContentSet(ctlFlatScript, defFlattenedCode);
-			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid", "outdated");
+			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid");
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
 		if(window.chkResetClipParams?.checked) {

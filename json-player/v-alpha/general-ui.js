@@ -156,6 +156,7 @@ function pageReady(event) {
 	Promise.resolve().then(value => {
 			console.log("pageReady() promise: function started...");
 			loadEventHandlers();
+
 			window.loadPreferences?.(false); //preferences.js
 			updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
 			setAutoFlatten(autoFlatten);
@@ -164,15 +165,16 @@ function pageReady(event) {
 				const evt = new Event("input");
 				for(const elem of document.querySelectorAll("input.exp"))
 					elem.dispatchEvent(evt);
-				window.primeCountChanged?.();
 			} finally {
 				adjustingPreferences = false;
 			}
+
+			window.primeCountChanged?.();
+			window.rhythmFactorsChanged?.();
+			window.initSpinControls?.(); //custom-spin.js
+
 			addToolTipHandler("body>main", event => updateCtlToolTip(event, outToolTip));
 			addToolTipHandler("#tblFractionIntervals", event => updateCtlToolTip(event, outToolTipIntervals));
-			window.rhythmFactorsChanged?.();
-
-			window.initSpinControls?.(); //custom-spin.js
 			for(let s of document.querySelectorAll('label[for]'))
 				//s.title = document.getElementById(s.htmlFor).title ?? "";
 				s.title = s.control?.title ?? "";
