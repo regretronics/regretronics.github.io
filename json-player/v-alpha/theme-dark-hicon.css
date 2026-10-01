@@ -162,6 +162,7 @@ input.invalid {
 }
 .tool-tip {
 	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.875);
+	--inactive-opacity: 0.9375;
 
 	&[data-warn-level] {
 		background-color: hsl(var(--warn-hue), calc(100% * var(--warn-sat)), 6.25%, 0.875);

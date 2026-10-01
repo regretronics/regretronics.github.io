@@ -15,7 +15,7 @@ function parseExpRanges(event) {
 		ctlPrimeExpRanges.classList.remove("invalid");
 		ctlPrimeExpRanges.title = "";
 		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
-		setToolTip(outToolTip, "");
+		if(!adjustingPreferences) setToolTip(outToolTip, "");
 
 		//clean-copying of JSON code
 		const newExpRanges = {};
@@ -245,7 +245,7 @@ function scriptChanged(event) {
 		window.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
-	if(autoFlatten)
+	if(autoFlatten && !adjustingPreferences)
 		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	return true;
 }
@@ -254,7 +254,8 @@ function setAutoFlatten(value) {
 	if(!window.flattenStruct) return false;
 	autoFlatten = value;
 	if(autoFlatten) {
-		if(hasScriptChanged && !flattenTimeoutID) flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
+		if(hasScriptChanged && !flattenTimeoutID)
+			flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	} else {
 		if(flattenTimeoutID) {
 			window.clearTimeout(flattenTimeoutID);

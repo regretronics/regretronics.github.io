@@ -367,7 +367,9 @@ function pageReady(event) {
 	Promise.resolve().then(value => {
 			console.log("pageReady() promise: function started...");
 			loadEventHandlers();
-			window.loadPreferences?.(); //preferences.js
+			window.loadPreferences?.(false); //preferences.js
+			updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
+			setAutoFlatten(autoFlatten);
 			adjustingPreferences = true;
 			try {
 				const evt = new Event("input");
@@ -672,7 +674,8 @@ function codeBoxResetValidity(event) {
 		console.info("codeBoxResetValidity(): parameter event.target.classList is empty. Returning.");
 		return false;
 	}
-	event.target.classList.remove("invalid", "outdated");
+	event.target.classList.remove("invalid");
+	if(!adjustingPreferences) event.target.classList.remove("outdated");
 	return true;
 }
 function editorChanged(event) {

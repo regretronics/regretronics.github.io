@@ -171,6 +171,12 @@ input[type=checkbox] {
 
 	background-color: ButtonFace;
 
+	&:is(&:empty/* , &:blank */)::before {
+		/* @media not all and (prefers-contrast: more) { */
+			opacity: var(--inactive-opacity, 0.75);
+		/* } */
+		content: attr(data-def-caption);
+	}
 	&.active {
 		position: sticky;
 		inset-block-end: 0em; /*this property is replacing bottom, but could yield weird positioning with writing-mode: vertical-lr*/
@@ -226,7 +232,7 @@ input[type=checkbox] {
 	}
 	&.expanded {
 		resize: none;
-		block-size: unset !important;
+		block-size: unset !important; /*override inline style*/
 		height: unset !important;
 
 		@supports (field-sizing: content) {
