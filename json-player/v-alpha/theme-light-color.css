@@ -48,7 +48,7 @@
 
 /* body {
 } */
-:is(.code-editor, code)::selection {
+:is(.code-box, code)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75) !important;
 	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875) !important;
 }
@@ -61,7 +61,7 @@ h1, h2, h3, strong, em {
 		background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
 		color: hsl(var(--hue-accent, 120), 100%, 87.5%) !important;
 	}
-	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
+	:is(& code, .code-box &, code &) {
 		&::selection {
 			background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.875) !important;
 			color: hsl(var(--hue-accent2, 300), 100%, 12.5%) !important;
@@ -170,7 +170,7 @@ input.invalid {
 	}
 }
 
-.code-editor {
+.code-box {
 	background-color: hsla(var(--hue-accent, 120), 12.5%, 0%, 0.625);
 	color: hsl(var(--hue-accent, 120), 25%, 100%);
 	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875) hsla(var(--hue-accent, 120), 25%, 25%, 0.875);

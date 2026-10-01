@@ -100,7 +100,7 @@ function loadPreferences() {
 				txtExpVariance.dispatchEvent(new Event("input"));
 			}
 			if(s = localStorage.getItem("genParams.primeExpRanges")) {
-				codeEditorContentSet(ctlPrimeExpRanges, s);
+				codeBoxContentSet(ctlPrimeExpRanges, s);
 				ctlPrimeExpRanges.dispatchEvent(new Event("input"));
 			} else
 				recalcExpRanges(true);
@@ -153,7 +153,7 @@ function loadPreferences() {
 				ctlStructuredScript.classList.toggle("line-wrap", parsed);
 			}
 			if(s = localStorage.getItem("structuredMusic.content")) {
-				codeEditorContentSet(ctlStructuredScript, s);
+				codeBoxContentSet(ctlStructuredScript, s);
 				ctlStructuredScript.dispatchEvent(new Event("input"));
 			}
 		}
@@ -177,7 +177,7 @@ function loadPreferences() {
 				ctlFlatScript.classList.toggle("line-wrap", parsed);
 			}
 			if(s = localStorage.getItem("flatScript.content")) {
-				codeEditorContentSet(ctlFlatScript, s);
+				codeBoxContentSet(ctlFlatScript, s);
 				ctlFlatScript.dispatchEvent(new Event("input"));
 			}
 		}
@@ -237,7 +237,7 @@ function savePreferences() {
 		localStorage.setItem("genParams.patternCount", txtPatternCount.value);
 		localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(primeCount)?
 		localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(expVariance)?
-		localStorage.setItem("genParams.primeExpRanges", codeEditorContentGet(ctlPrimeExpRanges));
+		localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges));
 		//Rhythm parameters
 		localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
 		localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(rhythmFactors)?
@@ -249,12 +249,12 @@ function savePreferences() {
 		//Structured music editor
 		localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
 		localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("line-wrap")));
-		localStorage.setItem("structuredMusic.content", codeEditorContentGet(ctlStructuredScript));
+		localStorage.setItem("structuredMusic.content", codeBoxContentGet(ctlStructuredScript));
 		//Flattened note list
 		localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
 		localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
 		localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("line-wrap")));
-		localStorage.setItem("flatScript.content", codeEditorContentGet(ctlFlatScript));
+		localStorage.setItem("flatScript.content", codeBoxContentGet(ctlFlatScript));
 		//Overall play controls
 		localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
 		localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(playVolScale)?
@@ -420,7 +420,7 @@ function recalcExpRanges(force) {
 
 		const objText = toJSONCodeAdjusted(newExpRanges);
 		if(window.ctlPrimeExpRanges) {
-			codeEditorContentSet(ctlPrimeExpRanges, objText);
+			codeBoxContentSet(ctlPrimeExpRanges, objText);
 			saveControlPreference(ctlPrimeExpRanges);
 		} else
 			throw(new Error("Control ctlPrimeExpRanges not found."));
@@ -534,9 +534,9 @@ function saveControlPreference(elem) {
 			localStorage.setItem(prefKey, elem.value);
 		return true;
 	}
-	if(elem.contentEditable.toLowerCase() != "false" || elem.classList.contains("code-editor")) {
+	if(elem.contentEditable.toLowerCase() != "false") {
 		//localStorage.setItem(prefKey, elem.innerText);
-		localStorage.setItem(prefKey, codeEditorContentGet(elem));
+		localStorage.setItem(prefKey, codeBoxContentGet(elem));
 		return true;
 	}
 	console.warn("Could not save a preference: exceptional control type.");
@@ -643,7 +643,7 @@ function btnResetPreferencesClick(event) {
 
 			chkOverflow1.checked = false;
 			chkLineWrap1.checked = false;
-			codeEditorContentSet(ctlStructuredScript, defStructuredCode);
+			codeBoxContentSet(ctlStructuredScript, defStructuredCode);
 			ctlStructuredScript.classList.remove("expanded", "line-wrap", "invalid");
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
@@ -657,7 +657,7 @@ function btnResetPreferencesClick(event) {
 			//chkAutoFlatten.dispatchEvent(new Event("click"));
 			chkOverflow2.checked = false;
 			chkLineWrap2.checked = false;
-			codeEditorContentSet(ctlFlatScript, defFlattenedCode);
+			codeBoxContentSet(ctlFlatScript, defFlattenedCode);
 			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid", "outdated");
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}

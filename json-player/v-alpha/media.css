@@ -65,7 +65,7 @@
 			}
 		}
 	}
-	.code-editor {
+	.code-box {
 		block-size: 12em;
 	}
 	/*try to show spin buttons on numerical fields*/
@@ -103,7 +103,7 @@
 		}
 		img, svg, a:link, :any-link, table, caption, td,
 		input, button, textarea, select, label, meter, progress,
-		.buttons-area, .buttons-area *, .code-editor, .tool-tip {
+		.buttons-area, .buttons-area *, .code-box, .tool-tip {
 			transition-property: opacity;
 			/* transition-property: background-color, color, accent-color, border-color, scrollbar-color, stop-color, opacity, filter; */
 			transition-duration: 0.25s;
@@ -156,7 +156,7 @@
 	.print-dp-none, button/*, .cell:has(input[type=checkbox])*/ {
 		display: none;
 	}
-	.code-editor {
+	.code-box {
 		block-size: unset;
 		white-space: pre-wrap;
 		resize: none;

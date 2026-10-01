@@ -10,7 +10,7 @@ var struct;
 function parseExpRanges(event) {
 	if(!window.ctlPrimeExpRanges) return false;
 	try {
-		const parsed = JSON.parse(codeEditorContentGet(ctlPrimeExpRanges));
+		const parsed = JSON.parse(codeBoxContentGet(ctlPrimeExpRanges));
 		if(!parsed) throw(new Error("Exponent ranges: couldn't parse JSON code."));
 		ctlPrimeExpRanges.classList.remove("invalid");
 		ctlPrimeExpRanges.title = "";
@@ -49,7 +49,7 @@ function parseExpRanges(event) {
 		saveControlPreference(ctlPrimeExpRanges);
 	} catch(error) {
 		console.warn(error);
-		//codeEditorContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
+		//codeBoxContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
 		ctlPrimeExpRanges?.classList?.add?.("invalid");
 		if(window.ctlPrimeExpRanges) ctlPrimeExpRanges.title = (error.message ?? error).toString();
 		//ctlPrimeExpRanges?.setCustomValidity?.((error.message ?? error).toString());
@@ -171,7 +171,7 @@ function flattenStruct(event) {
 	if(!hasScriptChanged) return false;
 	if(!window.ctlStructuredScript) return false;
 	try {
-		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
+		struct = JSON.parse(codeBoxContentGet(ctlStructuredScript));
 		if(!struct) throw(new Error("Structured script: couldn't parse JSON code."));
 
 		ctlStructuredScript.classList.remove("invalid");
@@ -187,23 +187,23 @@ function flattenStruct(event) {
 			parseNode(flatStruct, struct, defaultBlockNode);
 
 		//finally, yield the flattened version
-		let s = JSON.stringify(flatStruct, null, "\t");
+		let objText = JSON.stringify(flatStruct, null, "\t");
 		struct = null; //frees memory, hopefully
 		//final adjustments on indentation
 		let regex = new RegExp(/\{\n\t{2,}/, "g");
-		s = s.replace(regex, "{");
+		objText = objText.replace(regex, "{");
 		regex = new RegExp(/\n\t{2,}/, "g"); //to do: review this one closely, against hypothetical effects like " }"
-		s = s.replace(regex, " ");
+		objText = objText.replace(regex, " ");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
-		s = s.replace(regex, "}");
+		objText = objText.replace(regex, "}");
 
 		saveControlPreference(ctlStructuredScript);
-		codeEditorContentSet(ctlFlatScript, s);
+		codeBoxContentSet(ctlFlatScript, objText);
 		ctlFlatScript.classList.remove("invalid", "outdated");
 	} catch(error) {
 		console.warn(error);
-		//codeEditorContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
-		//codeEditorContentSet(ctlFlatScript, (error.message ?? error).toString());
+		//codeBoxContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
+		//codeBoxContentSet(ctlFlatScript, (error.message ?? error).toString());
 		setToolTip(outToolTip, "Failure in structured code conversion. " + (error.message ?? error ?? ""), 3);
 
 		ctlStructuredScript?.classList?.add?.("invalid");
@@ -218,11 +218,11 @@ function flattenStruct(event) {
 	return true;
 }
 
-function setStructuredText(s) {
+function setStructuredText(codeText) {
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 	if(window.ctlStructuredScript) {
-		codeEditorContentSet(ctlStructuredScript, s);
+		codeBoxContentSet(ctlStructuredScript, codeText);
 		saveControlPreference(ctlStructuredScript);
 	} else
 		throw(new Error("Control ctlStructuredScript not found."));

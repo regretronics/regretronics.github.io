@@ -611,7 +611,7 @@ function loadNewClip() {
 
 	let flatStruct;
 	try {
-		flatStruct = JSON.parse(codeEditorContentGet(ctlFlatScript));
+		flatStruct = JSON.parse(codeBoxContentGet(ctlFlatScript));
 		if(!flatStruct) throw(new Error("Unrecognized flattened structure."));
 		ctlFlatScript.classList.remove("invalid");
 		ctlFlatScript.title = "";

@@ -191,7 +191,7 @@ input[type=checkbox] {
 	}
 }
 
-.code-editor {
+.code-box {
 	box-sizing: border-box;
 	/* border: solid 0.25em; */
 	inline-size: 100%;

@@ -46,7 +46,7 @@
 body {
 	font-weight: 500;
 }
-:is(.code-editor, code)::selection {
+:is(.code-box, code)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 1) !important;
 	color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 0.9375) !important;
 }
@@ -59,7 +59,7 @@ h1, h2, h3, strong, em {
 		background-color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
 		color: hsl(var(--hue-accent, 120), 0%, 100%) !important;
 	}
-	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
+	:is(& code, .code-box &, code &) {
 		&::selection {
 			color: hsl(var(--hue-accent2, 300), 100%, 6.25%) !important;
 		}
@@ -165,7 +165,7 @@ input.invalid {
 	}
 }
 
-.code-editor {
+.code-box {
 	background-color: hsla(var(--hue-accent, 120), 0%, 87.5%, 0.625);
 	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
 

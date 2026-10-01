@@ -195,9 +195,9 @@ function toJSONCodeAdjusted(object) {
 	return objCode;
 }
 
-function codeEditorContentGet(elem) {
+function codeBoxContentGet(elem) {
 	if(!elem) {
-		console.info("codeEditorContentGet(): parameter elem is empty. Returning.");
+		console.info("codeBoxContentGet(): parameter elem is empty. Returning.");
 		return false;
 	}
 	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
@@ -205,9 +205,9 @@ function codeEditorContentGet(elem) {
 	else
 		return elem.textContent;
 }
-function codeEditorContentSet(elem, text) {
+function codeBoxContentSet(elem, text) {
 	if(!elem) {
-		console.info("codeEditorContentSet(): parameter elem is empty. Returning.");
+		console.info("codeBoxContentSet(): parameter elem is empty. Returning.");
 		return false;
 	}
 	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
@@ -279,7 +279,7 @@ function loadEventHandlers() {
 	//btnLineWrapToggle2.addEventListener("click", lineWrapToggle);
 	chkOverflow2.addEventListener("click", overflowToggle);
 	chkLineWrap2.addEventListener("click", lineWrapToggle);
-	ctlFlatScript.addEventListener("input", codeEditorResetValidity); //question: also for ctlStructuredScript? (currently no)
+	ctlFlatScript.addEventListener("input", codeBoxResetValidity); //question: also for ctlStructuredScript? (currently no)
 
 	txtPlayFreqScale.addEventListener("input", playFreqScaleChanged);
 	txtPlayVolScale.addEventListener("input", playVolScaleChanged);
@@ -296,7 +296,8 @@ function loadEventHandlers() {
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		elem.addEventListener("input", saveInputValue);
 
-	for(const elem of document.getElementsByClassName("code-editor")) {
+	//editable code-box'es: having the contenteditable attribute, but not with false as its value
+	for(const elem of document.querySelectorAll(".code-box[contenteditable]:not([contenteditable=false i])")) {
 		elem.addEventListener("keydown", editorKeyDown);
 		elem.addEventListener("paste", editorPaste);
 		//elem.addEventListener("input", editorChanged);
@@ -345,8 +346,8 @@ function pageLoaded(event) {
 	initialCalculations();
 
 	try {
-		codeEditorContentSet(ctlStructuredScript, defStructuredCode);
-		codeEditorContentSet(ctlFlatScript, defFlattenedCode);
+		codeBoxContentSet(ctlStructuredScript, defStructuredCode);
+		codeBoxContentSet(ctlFlatScript, defFlattenedCode);
 	} catch (error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to set code box contents. " + (error.message ?? error ?? ""), 3);
@@ -666,9 +667,9 @@ function editorPaste(event) {
 	selection.getRangeAt(0).insertNode(document.createTextNode(paste));
 	selection.collapseToEnd();
 }
-function codeEditorResetValidity(event) {
+function codeBoxResetValidity(event) {
 	if(!event || !event.target || !event.target.classList) {
-		console.info("codeEditorResetValidity(): parameter event.target.classList is empty. Returning.");
+		console.info("codeBoxResetValidity(): parameter event.target.classList is empty. Returning.");
 		return false;
 	}
 	event.target.classList.remove("invalid", "outdated");
@@ -820,7 +821,7 @@ function structDownload(event) {
 		if(!window.ctlStructuredScript) throw(new Error("Structured script control not found."));
 
 		//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
-		const data = codeEditorContentGet(ctlStructuredScript);
+		const data = codeBoxContentGet(ctlStructuredScript);
 		let file;
 		const properties = {type: 'application/json'}; //constructor parameters: file's MIME-type.
 
