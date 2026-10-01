@@ -1,7 +1,5 @@
 "use strict";
 
-//const timeDisplPrecision = 2;
-
 let lastCodeObjURL = null;
 function getDateTimeCode(size) { //hard-coded to Western calendar.
 	if(size < 1) return "";
