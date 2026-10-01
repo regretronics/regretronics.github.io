@@ -72,9 +72,17 @@ details {
 	margin-inline: 1ch;
 
 	& > summary:first-of-type {
+		display: list-item flow-root; /*flow-root induces a new block formatting context, which inhibits superposition with floating boxes*/
 		cursor: pointer;
 		font-weight: bold;
 	}
+}
+hr {
+	border-style: none;
+	block-size: 0em;
+
+	border-block-start-style: solid;
+	border-width: 0.5ch;
 }
 
 table.controls-group :is(th, td):not(.left):nth-child(2) {
@@ -237,7 +245,7 @@ img:not(.true-colors) { /*class "true-colors" reserved for future use*/
 #tblFractionIntervals {
 	block-size: fit-content; /*necessary to allow cell height-filling buttons*/
 }
-td {
+td, th, caption {
 	/* padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em); */
 	/*svb instead of cqb, since the block-size is not always determined top-down in hierarchy*/
 	padding: clamp(0.125em, 0.75svb + 1.5cqi - 0.25em - 8px, 0.25em + 0.5cqi);

@@ -636,14 +636,13 @@ function addIntervalSamples() {
 //to do: !review this code
 //to do: separate AudioContext?
 function playIntervalHandler(event) {
-	if(!event?.target) {
-		console.info("playIntervalHandler(): parameter event.target is empty. Returning.");
+	if(!event?.target?.dataset) {
+		console.info("playIntervalHandler(): parameter event.target.dataset is empty. Returning.");
 		return false;
 	}
 	try {
-		let fraction = event.target.dataset["fraction"];
-		if(!fraction || fraction == "") throw(new Error("Unrecognized interval."));
-		fraction = parseNumber(fraction);
+		const fraction = parseNumber(event.target.dataset["fraction"]);
+		if(isNaN(fraction) || fraction == 0 || Math.abs(fraction) == Infinity) throw(new Error(`Unrecognized interval: ${fraction}.`));
 
 		if(rootFreq == 0) throw(new Error("Invalid base frequency setting."));
 		if(playFreqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
@@ -685,5 +684,7 @@ function playIntervalHandler(event) {
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failure in interval player. " + (error.message ?? error ?? ""), 3);
+		return false;
 	}
+	return true;
 }

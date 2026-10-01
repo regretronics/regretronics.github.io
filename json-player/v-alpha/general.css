@@ -249,6 +249,8 @@ input[type=checkbox] {
 #grpUiOptions {
 	float: inline-end;
 	max-inline-size: max(33.33%, 32ch);
+	position: relative; /*for drawing over occasional (summary hover/active) outlines*/
+	/* z-index: 256; */
 
 	&[open] {
 		inline-size: min-content;
@@ -300,7 +302,7 @@ input[type=checkbox] {
 	& td[headers=colSoundSample]:not(:has(button)) {
 		display: none;
 	}
-	& #colNotes, & td[headers=colNotes] {
+	& #colRemarks, & td[headers=colRemarks] {
 		min-inline-size: 10ch;
 	}
 

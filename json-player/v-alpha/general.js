@@ -66,7 +66,7 @@ tonalOnlyProps = ["portamento", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
 var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
 
 function NaNToDefault(x, def) {
-	//note: for non-numbers, isNaN returns whether they can be converted to numbers (e.g. "9" vs. "abc")
+	//note: for non-numbers, isNaN returns whether they can be converted to numbers (e.g. "9" vs. "abc"). undefined returns true.
 	//to do: !check every use of NaNToDefault considering the above
 	return isNaN(x) ? def : x;
 }

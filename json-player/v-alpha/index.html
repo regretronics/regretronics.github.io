@@ -373,7 +373,6 @@
 			<p><button id="btnResetPreferences">Reset selected now</button></p>
 		</details>
 
-		<!--to do: revert to this text when calling setToolTip(null, "")-->
 		<p id="outToolTip" class="tool-tip print-dp-none" data-def-caption="A description of the selected item will appear here."></p>
 	</main>
 
@@ -406,7 +405,7 @@
 							<th id="colPrimeFactors" scope="col" abbr="Factors"><span class="lang-static" translate="no">Prime fac&shy;tor&shy;iza&shy;tion</span><span class="lang-flex" hidden="hidden">Prime factorization</span></th>
 							<th id="colSizeSemitones" scope="col" abbr="Semitones"><a href="https://en.wikipedia.org/wiki/12_equal_temperament"><span class="lang-static" translate="no">Semi&shy;tones (12-TET)</span><span class="lang-flex" hidden="hidden">Semitones (12-TET)</span></a></th>
 							<th id="colIntervalName" scope="col" abbr="Name"><span class="lang-static" translate="no">Trad&shy;ition&shy;al name (approx.)</span><span class="lang-flex" hidden="hidden">Traditional approximate name</span></th>
-							<th id="colNotes" scope="col">Notes</th>
+							<th id="colRemarks" scope="col">Remarks</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -415,14 +414,14 @@
 							<td translate="no">2<sup>0</sup></td>
 							<td translate="no">0.000</td>
 							<td>(Perfect) unison</td>
-							<td headers="colNotes">Most consonant, but not always considered an interval.</td>
+							<td headers="colRemarks">Most consonant, but not always considered an interval.</td>
 						</tr>
 						<tr title="Perfect octave">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Octave">2<wbr />/1</a></td>
 							<td translate="no">2<sup>1</sup></td>
 							<td translate="no">12.000</td>
 							<td>(Perfect) octave</td>
-							<td headers="colNotes">So consonant it can be hard to tell the notes apart (when played <a href="https://en.wikipedia.org/wiki/Interval_(music)#Melodic_and_harmonic">harmonically</a>), depending on the instrument.</td>
+							<td headers="colRemarks">So consonant it can be hard to tell the notes apart (when played <a href="https://en.wikipedia.org/wiki/Interval_(music)#Melodic_and_harmonic">harmonically</a>), depending on the instrument.</td>
 						</tr>
 						<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
 						<tr title="Just perfect fifth">
@@ -430,7 +429,7 @@
 							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>1</sup></td>
 							<td translate="no">7.020</td>
 							<td>(Perfect) fifth</td>
-							<td headers="colNotes" rowspan="2">Still sounds very basic.</td>
+							<td headers="colRemarks" rowspan="2">Still sounds very basic.</td>
 						</tr>
 						<tr title="Just perfect fourth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4<wbr />/3</a></td>
@@ -443,7 +442,7 @@
 							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>2</sup></td>
 							<td translate="no">2.039</td>
 							<td>Major second</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Pythagorean minor seventh">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16<wbr />/9</a></td>
@@ -457,21 +456,21 @@
 							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">3.863</td>
 							<td>Major third</td>
-							<td headers="colNotes">5<sup>1</sup> intervals seem to be preferred for "good-mood" harmonies, by convention.</td>
+							<td headers="colRemarks">5<sup>1</sup> intervals seem to be preferred for "good-mood" harmonies, by convention.</td>
 						</tr>
 						<tr title="Just minor sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
 							<td translate="no">2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
 							<td translate="no">8.137</td>
 							<td>Minor sixth</td>
-							<td headers="colNotes">5<sup>&minus;1</sup> intervals can be used as a "sad" replacement for 5<sup>1</sup> ones.</td>
+							<td headers="colRemarks">5<sup>&minus;1</sup> intervals can be used as a "sad" replacement for 5<sup>1</sup> ones.</td>
 						</tr>
 						<tr title="Just major sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
 							<td translate="no">2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">8.844</td>
 							<td>Major sixth</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Just minor third">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>
@@ -484,7 +483,7 @@
 							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">10.883</td>
 							<td>Major seventh</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Just diatonic semitone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16<wbr />/15</a></td>
@@ -497,7 +496,7 @@
 							<td translate="no">2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">1.824</td>
 							<td>Major second</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Large just minor seventh">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9<wbr />/5</a></td>
@@ -510,7 +509,7 @@
 							<td translate="no">2<sup>&minus;4</sup> <wbr />3<sup>0</sup> <wbr />5<sup>2</sup></td>
 							<td translate="no">7.726</td>
 							<td>Minor sixth</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Just diminished fourth">
 							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32<wbr />/25</a></td>
@@ -523,7 +522,7 @@
 							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>2</sup></td>
 							<td translate="no">0.707</td>
 							<td>Semitone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Diminished octave">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Diminished_octave">48<wbr />/25</a></td>
@@ -536,7 +535,7 @@
 							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>2</sup></td>
 							<td translate="no">5.687</td>
 							<td>Tritone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Classic diminished fifth">
 							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36<wbr />/25</a></td>
@@ -550,7 +549,7 @@
 							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">9.688</td>
 							<td>Minor seventh</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal whole tone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8<wbr />/7</a></td>
@@ -563,7 +562,7 @@
 							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">2.669</td>
 							<td></td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal major sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12<wbr />/7</a></td>
@@ -576,7 +575,7 @@
 							<td translate="no">2<sup>&minus;4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">4.708</td>
 							<td>(Perfect) fourth</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diminished sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32<wbr />/21</a></td>
@@ -590,7 +589,7 @@
 							<td translate="no">2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">7.649</td>
 							<td></td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal major third">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9<wbr />/7</a></td>
@@ -603,7 +602,7 @@
 							<td translate="no">2<sup>0</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">5.825</td>
 							<td>Tritone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Euler's tritone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10<wbr />/7</a></td>
@@ -616,7 +615,7 @@
 							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">0.845</td>
 							<td>Semitone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diminished octave">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave" title="Alternative name: acute major seventh">40<wbr />/21</a></td>
@@ -629,7 +628,7 @@
 							<td translate="no">2<sup>2</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">10.806</td>
 							<td>Major seventh</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diatonic semitone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15<wbr />/14</a></td>

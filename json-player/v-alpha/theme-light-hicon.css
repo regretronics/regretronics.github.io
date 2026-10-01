@@ -85,6 +85,13 @@ table:has(> caption) td {
 	background-color: hsla(0, 0%, 100%, 0.5);
 }
 summary:first-of-type {
+	&:hover, &:focus {
+		background-color: hsla(var(--hue-accent, 120), 50%, 0%, 0.25);
+		outline-style: solid;
+		outline-width: 0.25em;
+		outline-color: hsla(var(--hue-accent, 120), 50%, 0%, 0.25);
+	}
+
 	details:has(.outdated) > & {
 		color: hsla(30, 50%, 25%, 0.75);
 	}

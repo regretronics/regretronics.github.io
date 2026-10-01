@@ -495,7 +495,7 @@ function rhythmFactorsChanged(event) {
 	//	to do: !how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
 	//		maybe bottom-up: 3 + 2*2 would be like 3*1 + 2*2. seems conceptually simpler.
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
-	//to do: !maybe interpret the rightmost factor (deepest into the small scale) as a duration in pulses, not a multiple of pulses, which would change the number of levels (2 * 2 would have 4/2 as levels, instead of 4/2/1)
+	//to do: !maybe interpret the rightmost factor (deepest into the small scale) as a duration in pulses, not a group of pulses, which would change the number of levels (2 * 2 would have 4/2 as levels, instead of 4/2/1)
 	if(!window.txtRhythmFactors) return false;
 	let s = txtRhythmFactors.value.toString(); //text
 	rhythmFactors = []; //will become an array of numbers
