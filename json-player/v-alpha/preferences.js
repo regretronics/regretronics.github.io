@@ -536,7 +536,7 @@ function rhythmFactorsChanged(event) {
 	return true;
 }
 
-var playFreqScale = 1, playVolScale = 1;
+var playFreqScale = 1, playVolScale = 1/* , playTimeScale = 1, playTimeDelta = 0 */;
 function playFreqScaleChanged(event) {
 	if(!window.txtPlayFreqScale) return false;
 	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
