@@ -1,9 +1,100 @@
 "use strict";
 
+//to do: !(hierarchical) objects for preferences and default preferences
+const preferencesKeysFlat = [
+	"pageAppearance.textSize",
+	"pageAppearance.theme",
+	"pageAppearance.hue",
+	"genParams.baseFreq",
+	"genParams.freqRangeMin",
+	"genParams.freqRangeMax",
+	"genParams.timeScale",
+	"genParams.patternCount",
+	"genParams.primeCount",
+	"genParams.expVariance",
+	"genParams.primeExpRanges",
+	"rhythmParams.rhythmScale",
+	"rhythmParams.rhythmFactors",
+	"addGenParams.voiceCount",
+	"addGenParams.reptCount",
+	"addGenParams.reptPeriod",
+	"addGenParams.percussivePattern",
+	"structuredMusic.overflow",
+	"structuredMusic.lineWrapping",
+	"structuredMusic.content",
+	"flatScript.autoFlatten",
+	"flatScript.overflow",
+	"flatScript.lineWrapping",
+	"flatScript.content",
+	"clipParams.freqScale",
+	"clipParams.volScale",
+	"clipParams.timeScale",
+	"clipParams.timeDelta",
+	"player.autoReload",
+	"reset.pageAppearance",
+	"reset.genParams",
+	"reset.rhythmParams",
+	"reset.addGenParams",
+	"reset.structuredMusic",
+	"reset.flatScript",
+	"reset.clipParams",
+	"reset.player",
+	"reset.reset"
+];
+const preferencesKeysTree = {
+	pageAppearance: ["textSize", "theme", "hue"],
+	genParams: ["baseFreq", "freqRangeMin", "freqRangeMax", "timeScale", "patternCount", "primeCount", "expVariance", "primeExpRanges"],
+	rhythmParams: ["rhythmScale", "rhythmFactors"],
+	addGenParams: ["voiceCount", "reptCount", "reptPeriod", "percussivePattern"],
+	structuredMusic: ["overflow", "lineWrapping", "content"],
+	flatScript: ["autoFlatten", "overflow", "lineWrapping", "content"],
+	clipParams: ["freqScale", "volScale", "timeScale", "timeDelta"],
+	player: ["autoReload"],
+	reset: ["pageAppearance", "genParams", "rhythmParams", "addGenParams", "structuredMusic", "flatScript", "clipParams", "player", "reset"]
+};
+const preferencesDefault = {
+	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
+	genParams: {baseFreq: undefined, freqRangeMin: undefined, freqRangeMax: undefined, timeScale: undefined, patternCount: undefined, primeCount: undefined, expVariance: undefined, primeExpRanges: undefined},
+	rhythmParams: {rhythmScale: undefined, rhythmFactors: undefined},
+	addGenParams: {voiceCount: undefined, reptCount: undefined, reptPeriod: undefined, percussivePattern: undefined},
+	structuredMusic: {overflow: undefined, lineWrapping: undefined, content: undefined},
+	flatScript: {autoFlatten: undefined, overflow: undefined, lineWrapping: undefined, content: undefined},
+	clipParams: {freqScale: undefined, volScale: undefined, timeScale: undefined, timeDelta: undefined},
+	player: {autoReload: undefined},
+	reset: {pageAppearance: undefined, genParams: undefined, rhythmParams: undefined, addGenParams: undefined, structuredMusic: undefined, flatScript: undefined, clipParams: undefined, player: undefined, reset: undefined}
+};
+var prefs = Object.assign({}, preferencesDefault);
+
+let textSize = 1;
 var primeCount = 2, expVariance = 2;
 var autoFlatten = true;
+//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
+const defaultRootFreq = 440, defaultFreqMin = 30, defaultFreqMax = 13000;
+var rootFreq = defaultRootFreq, freqMin = defaultFreqMin, freqMax = defaultFreqMax;
+//rhythm structure data (hierarchy of factors)
+const defaultRhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
+var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
+var playFreqScale = 1, playVolScale = 1/* , playTimeScale = 1, playTimeDelta = 0 */;
+const defStructuredCode = '{\n\
+	"freqRatio": 440,\n\
+	"volRatio": 0.5,\n\
+	"timeDelta": 0,\n\
+	"timeScale": 0.5,\n\
+	"decayFactor": 128,\n\
+	"attack": "1/64",\n\
+	"pat1": [\n\
+		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},\n\
+		{"noteStart": 0, "duration": 1, "freq": 1},\n\
+		{"noteStart": 1, "duration": 1, "freq": "5/4"},\n\
+		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},\n\
+		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}\n\
+	],\n\
+	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1", "remark": "asdfsf"},\n\
+	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1", "remark": 1234, "tag": "qwert"}\n\
+}';
+const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
+{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
 
-//persistence feature under construction
 var adjustingPreferences = false;
 function loadPreferences(triggerNow) {
 	try {
@@ -318,12 +409,155 @@ function savePreferences() {
 	}
 	return true;
 }
+function btnResetPreferencesClick(event) {
+	//resetAllPreferences();
+	try {
+		adjustingPreferences = true;
+		if(window.chkResetPageAppearance?.checked) {
+			localStorage.removeItem("pageAppearance.textSize");
+			localStorage.removeItem("pageAppearance.theme");
+			localStorage.removeItem("pageAppearance.hue");
+
+			textSize = 1;
+			document.documentElement.style.setProperty("--page-scale", textSize);
+			cboPageTheme.value = "Automatic";
+			cboPageTheme.dispatchEvent(new Event("input"));
+			document.documentElement.style.setProperty("--hue-accent0", 120);
+			updateThemeColor(120);
+		}
+		if(window.chkResetGenParams?.checked) {
+			localStorage.removeItem("genParams.baseFreq");
+			localStorage.removeItem("genParams.freqRangeMin");
+			localStorage.removeItem("genParams.freqRangeMax");
+			localStorage.removeItem("genParams.timeScale");
+			localStorage.removeItem("genParams.patternCount");
+			localStorage.removeItem("genParams.primeCount");
+			localStorage.removeItem("genParams.expVariance");
+			localStorage.removeItem("genParams.primeExpRanges");
+
+			txtBaseFreq.value = defaultRootFreq.toString();
+			txtBaseFreq.dispatchEvent(new Event("input"));
+			txtFreqRangeMin.value = defaultFreqMin.toString();
+			txtFreqRangeMin.dispatchEvent(new Event("input"));
+			txtFreqRangeMax.value = defaultFreqMax.toString();
+			txtFreqRangeMax.dispatchEvent(new Event("input"));
+			txtTimeScale.value = "0.5";
+			txtTimeScale.dispatchEvent(new Event("input"));
+			txtPatternCount.value = "4";
+			txtPatternCount.dispatchEvent(new Event("input"));
+			txtPrimeCount.value = "3";
+			txtPrimeCount.dispatchEvent(new Event("input"));
+			txtExpVariance.value = "2";
+			txtExpVariance.dispatchEvent(new Event("input"));
+			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
+			recalcExpRanges(true);
+		}
+		if(window.chkResetRhythmParams?.checked) {
+			localStorage.removeItem("rhythmParams.rhythmScale");
+			localStorage.removeItem("rhythmParams.rhythmFactors");
+
+			txtRhythmScale.value = "8";
+			txtRhythmScale.dispatchEvent(new Event("input"));
+			txtRhythmFactors.value = defaultRhythmFactors.join("*");
+			txtRhythmFactors.dispatchEvent(new Event("input"));
+		}
+		if(window.chkResetAddGenParams?.checked) {
+			localStorage.removeItem("addGenParams.voiceCount");
+			localStorage.removeItem("addGenParams.reptCount");
+			localStorage.removeItem("addGenParams.reptPeriod");
+			localStorage.removeItem("addGenParams.percussivePattern");
+
+			txtVoiceCount.value = "3";
+			txtVoiceCount.dispatchEvent(new Event("input"));
+			txtReptCount.value = "2";
+			txtReptCount.dispatchEvent(new Event("input"));
+			txtReptPeriod.value = "4";
+			txtReptPeriod.dispatchEvent(new Event("input"));
+			chkPercussivePattern.checked = true;
+			chkPercussivePattern.dispatchEvent(new Event("click"));
+		}
+		if(window.chkResetStructuredMusic?.checked) {
+			localStorage.removeItem("structuredMusic.overflow");
+			localStorage.removeItem("structuredMusic.lineWrapping");
+			localStorage.removeItem("structuredMusic.content");
+
+			chkOverflow1.checked = false;
+			chkLineWrap1.checked = false;
+			codeBoxContentSet(ctlStructuredScript, defStructuredCode);
+			ctlStructuredScript.classList.remove("expanded", "line-wrap", "invalid");
+			//ctlStructuredScript.dispatchEvent(new Event("input"));
+		}
+		if(window.chkResetFlatScript?.checked) {
+			localStorage.removeItem("flatScript.autoFlatten");
+			localStorage.removeItem("flatScript.overflow");
+			localStorage.removeItem("flatScript.lineWrapping");
+			localStorage.removeItem("flatScript.content");
+
+			chkAutoFlatten.checked = true;
+			//chkAutoFlatten.dispatchEvent(new Event("click"));
+			chkOverflow2.checked = false;
+			chkLineWrap2.checked = false;
+			codeBoxContentSet(ctlFlatScript, defFlattenedCode);
+			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid");
+			ctlFlatScript.dispatchEvent(new Event("input"));
+		}
+		if(window.chkResetClipParams?.checked) {
+			localStorage.removeItem("clipParams.freqScale");
+			localStorage.removeItem("clipParams.volScale");
+			localStorage.removeItem("clipParams.timeScale");
+			localStorage.removeItem("clipParams.timeDelta");
+
+			txtPlayFreqScale.value = "1";
+			txtPlayFreqScale.dispatchEvent(new Event("input"));
+			txtPlayVolScale.value = "1";
+			txtPlayVolScale.dispatchEvent(new Event("input"));
+			txtPlayTimeScale.value = "1";
+			txtPlayTimeScale.dispatchEvent(new Event("input"));
+			txtPlayTimeDelta.value = "0";
+			txtPlayTimeDelta.dispatchEvent(new Event("input"));
+		}
+		if(window.chkResetPlayer?.checked) {
+			localStorage.removeItem("player.autoReload");
+
+			chkAutoReload.checked = false;
+			chkAutoReload.dispatchEvent(new Event("click"));
+		}
+		if(window.chkResetReset?.checked) {
+			localStorage.removeItem("reset.pageAppearance");
+			localStorage.removeItem("reset.genParams");
+			localStorage.removeItem("reset.rhythmParams");
+			localStorage.removeItem("reset.addGenParams");
+			localStorage.removeItem("reset.structuredMusic");
+			localStorage.removeItem("reset.flatScript");
+			localStorage.removeItem("reset.clipParams");
+			localStorage.removeItem("reset.player");
+			localStorage.removeItem("reset.reset");
+
+			if(window.chkResetPageAppearance) chkResetPageAppearance.checked = false;
+			if(window.chkResetGenParams) chkResetGenParams.checked = false;
+			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = false;
+			if(window.chkResetAddGenParams) chkResetAddGenParams.checked = false;
+			if(window.chkResetStructuredMusic) chkResetStructuredMusic.checked = false;
+			if(window.chkResetFlatScript) chkResetFlatScript.checked = false;
+			if(window.chkResetClipParams) chkResetClipParams.checked = false;
+			if(window.chkResetPlayer) chkResetPlayer.checked = false;
+			chkResetReset.checked = false;
+			//.dispatchEvent(new Event("input"));
+		}
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to reset preferences. " + (error.message ?? error ?? ""), 3);
+		return false;
+	} finally {
+		adjustingPreferences = false;
+	}
+	return true;
+}
 function resetAllPreferences() {
 	localStorage.clear();
 	loadPreferences(); //?
 }
 
-let textSize = 1;
 function rescaleText(event) {
 	if(!document || !document.documentElement || !document.documentElement.style) return false;
 	const elem = event.target;
@@ -470,9 +704,6 @@ function recalcExpRanges(force) {
 	return true;
 }
 
-//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
-const defaultRootFreq = 440, defaultFreqMin = 30, defaultFreqMax = 13000;
-var rootFreq = defaultRootFreq, freqMin = defaultFreqMin, freqMax = defaultFreqMax;
 function baseFreqChanged(event) {
 	if(!window.txtBaseFreq) return false;
 	rootFreq = parseNumber(txtBaseFreq.value);
@@ -487,9 +718,6 @@ function baseFreqChanged(event) {
 }
 //to do: handler for frequency extremes, calling updateVisAreaTransform()? (currently, changing the thresholds during play requires pause-toggling for visualizer updating)
 
-//rhythm structure data (hierarchy of factors)
-const defaultRhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
-var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
 function rhythmFactorsChanged(event) {
 	//to do: !support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
 	//	to do: !how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
@@ -536,7 +764,6 @@ function rhythmFactorsChanged(event) {
 	return true;
 }
 
-var playFreqScale = 1, playVolScale = 1/* , playTimeScale = 1, playTimeDelta = 0 */;
 function playFreqScaleChanged(event) {
 	if(!window.txtPlayFreqScale) return false;
 	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
@@ -587,167 +814,4 @@ function saveInputValue(event) {
 		return false;
 	}
 	saveControlPreference(event.target);
-}
-
-const defStructuredCode = '{\n\
-	"freqRatio": 440,\n\
-	"volRatio": 0.5,\n\
-	"timeDelta": 0,\n\
-	"timeScale": 0.5,\n\
-	"decayFactor": 128,\n\
-	"attack": "1/64",\n\
-	"pat1": [\n\
-		{"noteStart": 0, "duration": 2, "freq": 2, "timbre": "noise", "decayFactor": 64},\n\
-		{"noteStart": 0, "duration": 1, "freq": 1},\n\
-		{"noteStart": 1, "duration": 1, "freq": "5/4"},\n\
-		{"noteStart": 2, "duration": 1, "freq": [-1, 1]},\n\
-		{"noteStart": 3, "noteStop": 4, "freq": {"2": -2, "7": 1}}\n\
-	],\n\
-	"0": {"freqRatio": 1, "timeDelta": 0, "vibratoDepth": 0.25, "vibratoAttack": 1, "0": "pat1", "remark": "asdfsf"},\n\
-	"1": {"timeScale": 0.75, "freqRatio": 2, "timeDelta": 4, "portamento": 0.0625, "0": "pat1", "remark": 1234, "tag": "qwert"}\n\
-}';
-const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
-{"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
-function btnResetPreferencesClick(event) {
-	//resetAllPreferences();
-	try {
-		adjustingPreferences = true;
-		if(window.chkResetPageAppearance?.checked) {
-			localStorage.removeItem("pageAppearance.textSize");
-			localStorage.removeItem("pageAppearance.theme");
-			localStorage.removeItem("pageAppearance.hue");
-
-			textSize = 1;
-			document.documentElement.style.setProperty("--page-scale", textSize);
-			cboPageTheme.value = "Automatic";
-			cboPageTheme.dispatchEvent(new Event("input"));
-			document.documentElement.style.setProperty("--hue-accent0", 120);
-			updateThemeColor(120);
-		}
-		if(window.chkResetGenParams?.checked) {
-			localStorage.removeItem("genParams.baseFreq");
-			localStorage.removeItem("genParams.freqRangeMin");
-			localStorage.removeItem("genParams.freqRangeMax");
-			localStorage.removeItem("genParams.patternCount");
-			localStorage.removeItem("genParams.primeCount");
-			localStorage.removeItem("genParams.expVariance");
-			localStorage.removeItem("genParams.primeExpRanges");
-
-			txtBaseFreq.value = defaultRootFreq.toString();
-			txtBaseFreq.dispatchEvent(new Event("input"));
-			txtFreqRangeMin.value = defaultFreqMin.toString();
-			txtFreqRangeMin.dispatchEvent(new Event("input"));
-			txtFreqRangeMax.value = defaultFreqMax.toString();
-			txtFreqRangeMax.dispatchEvent(new Event("input"));
-			txtTimeScale.value = "0.5";
-			txtTimeScale.dispatchEvent(new Event("input"));
-			txtPatternCount.value = "4";
-			txtPatternCount.dispatchEvent(new Event("input"));
-			txtPrimeCount.value = "3";
-			txtPrimeCount.dispatchEvent(new Event("input"));
-			txtExpVariance.value = "2";
-			txtExpVariance.dispatchEvent(new Event("input"));
-			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
-			recalcExpRanges(true);
-		}
-		if(window.chkResetRhythmParams?.checked) {
-			localStorage.removeItem("rhythmParams.rhythmScale");
-			localStorage.removeItem("rhythmParams.rhythmFactors");
-
-			txtRhythmScale.value = "8";
-			txtRhythmScale.dispatchEvent(new Event("input"));
-			txtRhythmFactors.value = defaultRhythmFactors.join("*");
-			txtRhythmFactors.dispatchEvent(new Event("input"));
-		}
-		if(window.chkResetAddGenParams?.checked) {
-			localStorage.removeItem("addGenParams.voiceCount");
-			localStorage.removeItem("addGenParams.reptCount");
-			localStorage.removeItem("addGenParams.reptPeriod");
-			localStorage.removeItem("addGenParams.percussivePattern");
-
-			txtVoiceCount.value = "3";
-			txtVoiceCount.dispatchEvent(new Event("input"));
-			txtReptCount.value = "2";
-			txtReptCount.dispatchEvent(new Event("input"));
-			txtReptPeriod.value = "4";
-			txtReptPeriod.dispatchEvent(new Event("input"));
-			chkPercussivePattern.checked = true;
-			chkPercussivePattern.dispatchEvent(new Event("click"));
-		}
-		if(window.chkResetStructuredMusic?.checked) {
-			localStorage.removeItem("structuredMusic.overflow");
-			localStorage.removeItem("structuredMusic.lineWrapping");
-			localStorage.removeItem("structuredMusic.content");
-
-			chkOverflow1.checked = false;
-			chkLineWrap1.checked = false;
-			codeBoxContentSet(ctlStructuredScript, defStructuredCode);
-			ctlStructuredScript.classList.remove("expanded", "line-wrap", "invalid");
-			//ctlStructuredScript.dispatchEvent(new Event("input"));
-		}
-		if(window.chkResetFlatScript?.checked) {
-			localStorage.removeItem("flatScript.autoFlatten");
-			localStorage.removeItem("flatScript.overflow");
-			localStorage.removeItem("flatScript.lineWrapping");
-			localStorage.removeItem("flatScript.content");
-
-			chkAutoFlatten.checked = true;
-			//chkAutoFlatten.dispatchEvent(new Event("click"));
-			chkOverflow2.checked = false;
-			chkLineWrap2.checked = false;
-			codeBoxContentSet(ctlFlatScript, defFlattenedCode);
-			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid");
-			ctlFlatScript.dispatchEvent(new Event("input"));
-		}
-		if(window.chkResetClipParams?.checked) {
-			localStorage.removeItem("clipParams.freqScale");
-			localStorage.removeItem("clipParams.volScale");
-			localStorage.removeItem("clipParams.timeScale");
-			localStorage.removeItem("clipParams.timeDelta");
-
-			txtPlayFreqScale.value = "1";
-			txtPlayFreqScale.dispatchEvent(new Event("input"));
-			txtPlayVolScale.value = "1";
-			txtPlayVolScale.dispatchEvent(new Event("input"));
-			txtPlayTimeScale.value = "1";
-			txtPlayTimeScale.dispatchEvent(new Event("input"));
-			txtPlayTimeDelta.value = "0";
-			txtPlayTimeDelta.dispatchEvent(new Event("input"));
-		}
-		if(window.chkResetPlayer?.checked) {
-			localStorage.removeItem("player.autoReload");
-
-			chkAutoReload.checked = false;
-			chkAutoReload.dispatchEvent(new Event("click"));
-		}
-		if(window.chkResetReset?.checked) {
-			localStorage.removeItem("reset.pageAppearance");
-			localStorage.removeItem("reset.genParams");
-			localStorage.removeItem("reset.rhythmParams");
-			localStorage.removeItem("reset.addGenParams");
-			localStorage.removeItem("reset.structuredMusic");
-			localStorage.removeItem("reset.flatScript");
-			localStorage.removeItem("reset.clipParams");
-			localStorage.removeItem("reset.player");
-			localStorage.removeItem("reset.reset");
-
-			if(window.chkResetPageAppearance) chkResetPageAppearance.checked = false;
-			if(window.chkResetGenParams) chkResetGenParams.checked = false;
-			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = false;
-			if(window.chkResetAddGenParams) chkResetAddGenParams.checked = false;
-			if(window.chkResetStructuredMusic) chkResetStructuredMusic.checked = false;
-			if(window.chkResetFlatScript) chkResetFlatScript.checked = false;
-			if(window.chkResetClipParams) chkResetClipParams.checked = false;
-			if(window.chkResetPlayer) chkResetPlayer.checked = false;
-			chkResetReset.checked = false;
-			//.dispatchEvent(new Event("input"));
-		}
-	} catch(error) {
-		console.error(error);
-		setToolTip(outToolTip, "Failed to reset preferences. " + (error.message ?? error ?? ""), 3);
-		return false;
-	} finally {
-		adjustingPreferences = false;
-	}
-	return true;
 }

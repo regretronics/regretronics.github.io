@@ -10,7 +10,6 @@
 //to do: 	commands to generate, play, reset preferences
 //to do: 	take urls to import .mus.json files
 //to do: revise and remove excess dead code
-//to do: !(hierarchical) objects for preferences and default preferences
 //to do: I think it will be good to put return's even in events
 //to do: try more use of promise.then for heavy code, hopefully improving UI performance
 
