@@ -15,6 +15,7 @@ function parseExpRanges(event) {
 		ctlPrimeExpRanges.classList.remove("invalid");
 		ctlPrimeExpRanges.title = "";
 		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
+		setToolTip(outToolTip, "");
 
 		//clean-copying of JSON code
 		const newExpRanges = {};
@@ -176,6 +177,7 @@ function flattenStruct(event) {
 		ctlStructuredScript.classList.remove("invalid");
 		ctlStructuredScript.title = "";
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
+		setToolTip(outToolTip, "");
 
 		const flatStruct = [];
 		if(Array.isArray(struct)) {
@@ -197,7 +199,7 @@ function flattenStruct(event) {
 
 		saveControlPreference(ctlStructuredScript);
 		codeEditorContentSet(ctlFlatScript, s);
-		ctlFlatScript.classList.remove("invalid");
+		ctlFlatScript.classList.remove("invalid", "outdated");
 	} catch(error) {
 		console.warn(error);
 		//codeEditorContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
@@ -231,7 +233,11 @@ function setStructuredText(s) {
 let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
 function scriptChanged(event) {
-	if(!window.flattenStruct) return false;
+	ctlFlatScript?.classList?.add?.("outdated");
+	if(!window.flattenStruct) {
+		console.info("scriptChanged(): function flattenStruct() not found. Returning.");
+		return false;
+	}
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 

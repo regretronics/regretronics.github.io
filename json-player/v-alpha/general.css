@@ -198,7 +198,7 @@ input[type=checkbox] {
 	padding: 0.125em;
 
 	/* resize: none; */
-	overflow-y: auto;
+	overflow-block: auto;
 	min-block-size: 8em;
 
 	tab-size: 4;

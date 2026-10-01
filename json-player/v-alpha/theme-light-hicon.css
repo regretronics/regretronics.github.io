@@ -84,6 +84,14 @@ table:has(> caption), caption, table:not(:has(> caption)) td {
 table:has(> caption) td {
 	background-color: hsla(0, 0%, 100%, 0.5);
 }
+summary:first-of-type {
+	details:has(.outdated) > & {
+		color: hsla(30, 50%, 25%, 0.75);
+	}
+	details:has(.invalid) > & {
+		color: hsla(0, 100%, 25%, 0.875);
+	}
+}
 
 a:link {
 	color: hsla(var(--hue-accent, 120), 50%, 12.5%, 0.9375);
@@ -161,6 +169,10 @@ input.invalid {
 	background-color: hsla(var(--hue-accent, 120), 0%, 87.5%, 0.625);
 	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
 
+	&.outdated {
+		background-color: hsla(30, 25%, 93.75%, 0.875);
+		color: hsla(30, 25%, 6.25%, 0.75);
+	}
 	&.invalid {
 		background-color: hsla(0, 100%, 87.5%, 0.875);
 	}

@@ -671,7 +671,7 @@ function codeEditorResetValidity(event) {
 		console.info("codeEditorResetValidity(): parameter event.target.classList is empty. Returning.");
 		return false;
 	}
-	event.target.classList.remove("invalid");
+	event.target.classList.remove("invalid", "outdated");
 	return true;
 }
 function editorChanged(event) {

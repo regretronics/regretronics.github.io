@@ -528,13 +528,13 @@ function saveControlPreference(elem) {
 		return true;
 	}
 	if(elem.tagName.toUpperCase() === "INPUT") {
-		if(elem.type.toUpperCase() === "CHECKBOX")
+		if(elem.type.toLowerCase() === "checkbox")
 			localStorage.setItem(prefKey, JSON.stringify(elem.checked));
 		else
 			localStorage.setItem(prefKey, elem.value);
 		return true;
 	}
-	if(elem.contentEditable.toUpperCase() == "TRUE" || elem.classList.contains("code-editor")) {
+	if(elem.contentEditable.toLowerCase() != "false" || elem.classList.contains("code-editor")) {
 		//localStorage.setItem(prefKey, elem.innerText);
 		localStorage.setItem(prefKey, codeEditorContentGet(elem));
 		return true;
@@ -609,6 +609,7 @@ function btnResetPreferencesClick(event) {
 			txtPrimeCount.dispatchEvent(new Event("input"));
 			txtExpVariance.value = "2";
 			txtExpVariance.dispatchEvent(new Event("input"));
+			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
 			recalcExpRanges(true);
 		}
 		if(window.chkResetRhythmParams?.checked) {
@@ -640,12 +641,10 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("structuredMusic.lineWrapping");
 			localStorage.removeItem("structuredMusic.content");
 
-			ctlStructuredScript.classList.remove("expanded");
-			ctlStructuredScript.classList.remove("line-wrap");
 			chkOverflow1.checked = false;
 			chkLineWrap1.checked = false;
 			codeEditorContentSet(ctlStructuredScript, defStructuredCode);
-			ctlStructuredScript.classList.remove("invalid");
+			ctlStructuredScript.classList.remove("expanded", "line-wrap", "invalid");
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
 		if(window.chkResetFlatScript?.checked) {
@@ -656,12 +655,10 @@ function btnResetPreferencesClick(event) {
 
 			chkAutoFlatten.checked = true;
 			//chkAutoFlatten.dispatchEvent(new Event("click"));
-			ctlFlatScript.classList.remove("expanded");
-			ctlFlatScript.classList.remove("line-wrap");
 			chkOverflow2.checked = false;
 			chkLineWrap2.checked = false;
 			codeEditorContentSet(ctlFlatScript, defFlattenedCode);
-			ctlFlatScript.classList.remove("invalid");
+			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid", "outdated");
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
 		if(window.chkResetClipParams?.checked) {

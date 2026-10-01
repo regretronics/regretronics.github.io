@@ -87,6 +87,14 @@ table:has(> caption), caption {
 td {
 	background-color: hsla(var(--hue-accent, 120), 50%, 93.75%, 0.25);
 }
+summary:first-of-type {
+	details:has(.outdated) > & {
+		color: hsla(30, 50%, 18.75%, 0.75);
+	}
+	details:has(.invalid) > & {
+		color: hsla(0, 100%, 25%, 0.875);
+	}
+}
 
 a:link {
 	color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.875);
@@ -167,6 +175,10 @@ input.invalid {
 	color: hsl(var(--hue-accent, 120), 25%, 100%);
 	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875) hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 
+	&.outdated {
+		background-color: hsla(30, 50%, 25%, 0.75);
+		color: hsla(30, 50%, 87.5%, 0.75);
+	}
 	&.invalid {
 		background-color: hsla(0, 100%, 25%, 0.75);
 	}

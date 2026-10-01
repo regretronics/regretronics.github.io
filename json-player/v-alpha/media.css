@@ -39,7 +39,7 @@
 			& > .major-section {
 				box-sizing: border-box;
 				block-size: 100%;
-				overflow-y: auto;
+				overflow-block: auto;
 				/* padding: 2vmin; */
 				/* padding: max(1.5vmin, 5vmin - 8ch); */
 				/* padding: max(1vmin, 4vmin - 2ch, 9vmin - 8ch); */

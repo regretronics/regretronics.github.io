@@ -8,7 +8,7 @@ var playFreqScale, playVolScale;
 
 //done: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
-//to do: !review audioTimer(), playerClipEnd(), exportClipEnd().
+//to do: !review audioTimer(), clipEndPlayer(), clipEndExport().
 
 var playerClip = null; //shared variable
 //const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
@@ -21,11 +21,11 @@ function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolSc
 	Object.assign(this, {
 			audioCtx: null, noiseBuffer: null, destNode: null, //variables for Web Audio
 			open: false, t0: 0, duration: 0, timerID: NaN, //miscellaneous clip properties
-			onClipEnd: emptyClip, //events for custom behavior
+			onClipEnd: clipEndDefault, //events for custom behavior
 			generators: [], auxNodes: [], flatStruct: null, //node and note lists
 			playTimeScale: 1, playTimeDelta: 0, playVolScale: 1, playFreqScale: 1, //overall controls
 			lastFreq: 0, lastFreq0: 0, lastNoteStart: 0, lastPortamento: 0, //portamento variables
-			emptyClip //methods
+			clipEndDefault //methods
 		});
 	//to do: maybe use switch() here?
 	if(arguments.length < 1) return;  //breaks silently; no need to log this or to provide a return value
@@ -89,6 +89,65 @@ function printClip(clip, prefix) { //question: should this be a SoundClip method
 	}
 	//console.log(clip);
 	return true;
+}
+//nonreversible operation, frees resources
+function clipEndDefault(suspend) { //question: should this be a SoundClip method? (currently yes.)
+	const clip = this;
+	if(!clip || !clip.open) {
+		console.info("clipEndDefault(): parameter clip is either empty or not open. Returning.");
+		return false;
+	}
+	//console.log("clipEndDefault(): function started...");
+	printClip(clip, "clipEndDefault(): ");
+
+	for(const node of clip.generators) {
+		try {
+			node.stop();
+		} catch(error) {
+			console.info(error);
+		}
+		node.disconnect?.();
+	}
+	clip.generators.length = 0;
+
+	for(const node of clip.auxNodes) node.disconnect?.();
+	clip.auxNodes.length = 0;
+
+	clip.duration = 0;
+	clip.open = false;
+
+	if(clip.flatStruct) { //empty and release
+		clip.flatStruct.length = 0;
+		clip.flatStruct = null;
+	}
+
+	/*try {
+		if(clip.audioCtx) clip.audioCtx.close();
+	} catch(error) {
+		console.warn(error);
+	}
+	clip.audioCtx = null;*/
+	if(suspend && clip.audioCtx) {
+		console.log("clipEndDefault(): will suspend audioCtx.");
+		return clip.audioCtx.suspend(); //keep audioCtx, to avoid recreating noiseBuffer for future audio contexts.
+	} else
+		return true;
+}
+function clipEndPlayer(suspend) {
+	const clip = this ?? playerClip;
+	printClip(clip, "clipEndPlayer(): ");
+	if(!clip) {
+		//console.info("clipEndPlayer(): clip is empty. Returning.");
+		return false;
+	}
+
+	if(clip === playerClip) {
+		if(clip.open) audioTUpdate();
+		if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
+	}
+	return clip.clipEndDefault(suspend)/* ?.catch?.(reason => {
+			window.reportError(reason);
+		}) */;
 }
 //event handler for generator audio nodes
 function defNodeEnded(event) {
@@ -679,7 +738,7 @@ async function loadAndPlay(event) {
 		if(!playerClip || !playerClip.flatStruct) return false;
 		playerClip.audioCtx = audioCtx;
 		playerClip.noiseBuffer = noiseBuffer;
-		playerClip.onClipEnd = playerClipEnd;
+		playerClip.onClipEnd = clipEndPlayer;
 
 		//to do: don't include empty remark nodes.
 		if(window.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
@@ -710,69 +769,6 @@ async function loadAndPlay(event) {
 		setToolTip(outToolTip, "Playback start failed. " + (error.message ?? error ?? ""), 3);
 		return false;
 	}
-}
-
-//--
-//nonreversible operation, frees resources
-//to do: !move up in this file?
-//to do: rename emptyClip, playerClipEnd, exportClipEnd to the same prefix (maybe clipEndDefault, clipEndPlayer, clipEndExport)
-function emptyClip(suspend) { //question: should this be a SoundClip method? (currently yes.)
-	const clip = this;
-	if(!clip || !clip.open) {
-		console.info("emptyClip(): parameter clip is either empty or not open. Returning.");
-		return false;
-	}
-	//console.log("emptyClip(): function started...");
-	printClip(clip, "emptyClip(): ");
-
-	for(const node of clip.generators) {
-		try {
-			node.stop();
-		} catch(error) {
-			console.info(error);
-		}
-		node.disconnect?.();
-	}
-	clip.generators.length = 0;
-
-	for(const node of clip.auxNodes) node.disconnect?.();
-	clip.auxNodes.length = 0;
-
-	clip.duration = 0;
-	clip.open = false;
-
-	if(clip.flatStruct) { //empty and release
-		clip.flatStruct.length = 0;
-		clip.flatStruct = null;
-	}
-
-	/*try {
-		if(clip.audioCtx) clip.audioCtx.close();
-	} catch(error) {
-		console.warn(error);
-	}
-	clip.audioCtx = null;*/
-	if(suspend && clip.audioCtx) {
-		console.log("emptyClip(): will suspend audioCtx.");
-		return clip.audioCtx.suspend(); //keep audioCtx, to avoid recreating noiseBuffer for future audio contexts.
-	} else
-		return true;
-}
-function playerClipEnd(suspend) {
-	const clip = this ?? playerClip;
-	printClip(clip, "playerClipEnd(): ");
-	if(!clip) {
-		//console.info("playerClipEnd(): clip is empty. Returning.");
-		return false;
-	}
-
-	if(clip === playerClip) {
-		if(clip.open) audioTUpdate();
-		if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
-	}
-	return clip.emptyClip(suspend)/* ?.catch?.(reason => {
-			window.reportError(reason);
-		}) */;
 }
 
 //reversible operation
@@ -875,14 +871,14 @@ function audioDownload(data) {
 	return true;
 }
 let mediaRecorder, chunks = [], exportClip = null;
-function exportClipEnd(suspend) {
+function clipEndExport(suspend) {
 	const clip = this ?? exportClip;
 	if(!clip) {
-		console.info("exportClipEnd(): parameters this and exportClip are empty. Returning.");
+		console.info("clipEndExport(): parameters this and exportClip are empty. Returning.");
 		return false;
 	}
 
-	return clip.emptyClip(true)?.then?.(nil => {
+	return clip.clipEndDefault(true)?.then?.(nil => {
 	//if(clip.audioCtx)
 	//	clip.audioCtx.close?.()?.then?.(nil => {
 			if(window.outExportProgress) {
@@ -1011,7 +1007,7 @@ function audioExport(event) {
 		if(exportClip && exportClip.open) return false;
 		exportClip = loadNewClip();
 		if(!exportClip || !exportClip.flatStruct) throw(new Error("Failed to create or initialize clip object."));
-		exportClip.onClipEnd = exportClipEnd;
+		exportClip.onClipEnd = clipEndExport;
 		if(window.outExportProgress) {
 			outExportProgress.innerText = "Note list loaded";
 			outExportProgress?.classList?.remove("alert-error");
@@ -1039,7 +1035,7 @@ function audioExport(event) {
 }
 function audioExportCancel(event) {
 	if(!exportClip) return false;
-	exportClip.emptyClip(true)?.then?.(nil => {
+	exportClip.clipEndDefault(true)?.then?.(nil => {
 			if(window.outExportProgress) {
 				outExportProgress.innerText = "Canceled";
 				outExportProgress?.classList?.remove("alert-error");
