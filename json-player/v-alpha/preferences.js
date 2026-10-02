@@ -74,8 +74,8 @@ const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0
 //to do: !what to follow (and when)? there are default values in the HTML controls, a defaults structure below, the defaults in btnResetPreferencesClick, defaultBlockNode.
 //to do:	either read the defaults from HTML and store here, or do the converse
 //to do:	btnResetPreferencesClick should be changed to point here
-//to do:	get a criterion for when to use defaultBlockNode besides for structured code
-//to do:	the isolated constants will tend to be replaced for the defaults structure
+//to do:	get a criterion for when or whether to use defaultBlockNode besides for structured code
+//to do:	the isolated constants will tend to be replaced by the defaults structure
 const prefsDefault = {
 	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
 	genParams: {
@@ -110,22 +110,11 @@ const prefsDefault = {
 var prefs = Object.assign({}, prefsDefault);
 
 //let textSize = prefsDefault.pageAppearance.textSize;
+//to do: rename rhythmFactorsAccum -> rhythmScales?
 var 
-	//primeCount = prefsDefault.genParams.primeCount, 
-	//expVariance = prefsDefault.genParams.expVariance,
-	//autoFlatten = prefsDefault.flatScript.autoFlatten,
-	//rootFreq = prefsDefault.genParams.baseFreq, 
-	//freqMin = prefsDefault.genParams.freqRangeMin, 
-	//freqMax = prefsDefault.genParams.freqRangeMax,
-	//rhythmFactors = prefsDefault.rhythmParams.rhythmFactors, 
-	//to do: rename rhythmFactorsAccum -> rhythmScales?
-	rhythmFactorsAccum = [] //to be calculated
-	//playFreqScale = prefsDefault.clipParams.freqScale/* defaultBlockNode.freqRatio */, 
-	//playVolScale = prefsDefault.clipParams.volScale/* defaultBlockNode.volRatio */
-	/* playTimeScale = prefsDefault.clipParams.timeScale/ * defaultBlockNode.timeScale * /, 
-	playTimeDelta = prefsDefault.clipParams.timeDelta/ * defaultBlockNode.timeDelta * / */;
+	rhythmFactorsAccum = [], //to be calculated
+	adjustingPreferences = false;
 
-var adjustingPreferences = false;
 function loadPreferences(triggerNow) {
 	try {
 		adjustingPreferences = true;
@@ -345,15 +334,22 @@ function loadPreferences(triggerNow) {
 	}
 	return true;
 }
+//function currently out of use
 function savePreferences() {
+	for(const elem of document.querySelectorAll("[data-pref]"))
+		try {
+			saveControlPreference(elem);
+		} catch(error) {
+			console.warn(error);
+		}
 	try {
 		//Page appearance
 		localStorage.setItem("pageAppearance.textSize", JSON.stringify(prefs.pageAppearance.textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
-		if(window.cboPageTheme)
-			localStorage.setItem("pageAppearance.theme", cboPageTheme.value);
+		/* if(window.cboPageTheme)
+			localStorage.setItem("pageAppearance.theme", cboPageTheme.value); */
 		localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
 		//Generator parameters
-		if(window.txtBaseFreq)
+		/* if(window.txtBaseFreq)
 			localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(prefs.genParams.baseFreq)?
 		if(window.txtFreqRangeMin)
 			localStorage.setItem("genParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(prefs.genParams.freqRangeMin)?
@@ -368,53 +364,53 @@ function savePreferences() {
 		if(window.txtExpVariance)
 			localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(prefs.genParams.expVariance)?
 		if(window.ctlPrimeExpRanges)
-			localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges));
+			localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges)); */
 		//Rhythm parameters
-		if(window.txtRhythmScale)
+		/* if(window.txtRhythmScale)
 			localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
 		if(window.txtRhythmFactors)
-			localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(prefs.rhythmParams.rhythmFactors)?
+			localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(prefs.rhythmParams.rhythmFactors)? */
 		//Additional generator parameters
-		if(window.txtVoiceCount)
+		/* if(window.txtVoiceCount)
 			localStorage.setItem("addGenParams.voiceCount", txtVoiceCount.value);
 		if(window.txtReptCount)
 			localStorage.setItem("addGenParams.reptCount", txtReptCount.value);
 		if(window.txtReptPeriod)
 			localStorage.setItem("addGenParams.reptPeriod", txtReptPeriod.value);
 		if(window.chkPercussivePattern)
-			localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked));
+			localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked)); */
 		//Structured music editor
-		if(window.ctlStructuredScript?.classList?.contains) {
+		/* if(window.ctlStructuredScript?.classList?.contains) {
 			localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
 			localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("line-wrap")));
 		}
 		if(window.ctlStructuredScript)
-			localStorage.setItem("structuredMusic.content", codeBoxContentGet(ctlStructuredScript));
+			localStorage.setItem("structuredMusic.content", codeBoxContentGet(ctlStructuredScript)); */
 		//Flattened note list
-		if(window.chkAutoFlatten)
+		/* if(window.chkAutoFlatten)
 			localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
 		if(window.ctlFlatScript?.classList?.contains) {
 			localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
 			localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("line-wrap")));
 		}
 		if(window.ctlFlatScript)
-			localStorage.setItem("flatScript.content", codeBoxContentGet(ctlFlatScript));
+			localStorage.setItem("flatScript.content", codeBoxContentGet(ctlFlatScript)); */
 		//Overall play controls
-		if(window.txtPlayFreqScale)
+		/* if(window.txtPlayFreqScale)
 			localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(prefs.clipParams.freqScale)?
 		if(window.txtPlayVolScale)
 			localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(prefs.clipParams.volScale)?
 		if(window.txtPlayTimeScale)
 			localStorage.setItem("clipParams.timeScale", txtPlayTimeScale.value);
 		if(window.txtPlayTimeDelta)
-			localStorage.setItem("clipParams.timeDelta", txtPlayTimeDelta.value);
+			localStorage.setItem("clipParams.timeDelta", txtPlayTimeDelta.value); */
 		//Player
-		if(window.chkAutoReload)
-			localStorage.setItem("player.autoReload", JSON.stringify(chkAutoReload.checked));
+		/* if(window.chkAutoReload)
+			localStorage.setItem("player.autoReload", JSON.stringify(chkAutoReload.checked)); */
 		//Audio export
 		//localStorage.setItem("audioExport.", JSON.stringify());
 		//Reset preferences
-		if(window.chkResetPageAppearance)
+		/* if(window.chkResetPageAppearance)
 			localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance.checked));
 		if(window.chkResetGenParams)
 			localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
@@ -431,7 +427,7 @@ function savePreferences() {
 		if(window.chkResetPlayer)
 			localStorage.setItem("reset.player", JSON.stringify(chkResetPlayer.checked));
 		if(window.chkResetReset)
-			localStorage.setItem("reset.reset", JSON.stringify(chkResetReset.checked));
+			localStorage.setItem("reset.reset", JSON.stringify(chkResetReset.checked)); */
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to bulk-save preferences. " + (error.message ?? error ?? ""), 3);
@@ -812,7 +808,7 @@ function playVolScaleChanged(event) {
 }
 
 function saveControlPreference(elem) {
-	if(adjustingPreferences) return false; //breaks silently; no need to log this
+	//if(adjustingPreferences) return false; //breaks silently; no need to log this
 	if(!elem) {
 		console.info("saveControlPreference(): parameter elem is empty. Returning.");
 		return false;
@@ -820,7 +816,7 @@ function saveControlPreference(elem) {
 	let prefKey = elem.dataset["pref"];
 	if(!prefKey) return false;
 
-	if(elem.tagName.toUpperCase() === "SELECT") {
+	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
 		localStorage.setItem(prefKey, elem.value);
 		return true;
 	}

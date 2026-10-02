@@ -46,7 +46,7 @@ function parseExpRanges(event) {
 		if(!hasAnyRanges) throw(new Error("Exponent ranges: no valid ranges."));
 
 		primeExpRanges = newExpRanges;
-		saveControlPreference(ctlPrimeExpRanges);
+		if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
 	} catch(error) {
 		console.warn(error);
 		//codeBoxContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
@@ -197,7 +197,7 @@ function flattenStruct(event) {
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		objText = objText.replace(regex, "}");
 
-		saveControlPreference(ctlStructuredScript);
+		if(!adjustingPreferences) saveControlPreference(ctlStructuredScript);
 		codeBoxContentSet(ctlFlatScript, objText);
 		ctlFlatScript.classList.remove("invalid", "outdated");
 	} catch(error) {
@@ -223,7 +223,7 @@ function setStructuredText(codeText) {
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 	if(window.ctlStructuredScript) {
 		codeBoxContentSet(ctlStructuredScript, codeText);
-		saveControlPreference(ctlStructuredScript);
+		if(!adjustingPreferences) saveControlPreference(ctlStructuredScript);
 	} else
 		throw(new Error("Control ctlStructuredScript not found."));
 	if(prefs.flatScript.autoFlatten) flattenStruct();
