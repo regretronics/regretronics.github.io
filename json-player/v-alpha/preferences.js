@@ -52,29 +52,6 @@ const preferencesKeysTree = {
 	player: ["autoReload"],
 	reset: ["pageAppearance", "genParams", "rhythmParams", "addGenParams", "structuredMusic", "flatScript", "clipParams", "player", "reset"]
 };
-const preferencesDefault = {
-	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
-	genParams: {baseFreq: undefined, freqRangeMin: undefined, freqRangeMax: undefined, timeScale: undefined, patternCount: undefined, primeCount: undefined, expVariance: undefined, primeExpRanges: undefined},
-	rhythmParams: {rhythmScale: undefined, rhythmFactors: undefined},
-	addGenParams: {voiceCount: undefined, reptCount: undefined, reptPeriod: undefined, percussivePattern: undefined},
-	structuredMusic: {overflow: undefined, lineWrapping: undefined, content: undefined},
-	flatScript: {autoFlatten: undefined, overflow: undefined, lineWrapping: undefined, content: undefined},
-	clipParams: {freqScale: undefined, volScale: undefined, timeScale: undefined, timeDelta: undefined},
-	player: {autoReload: undefined},
-	reset: {pageAppearance: undefined, genParams: undefined, rhythmParams: undefined, addGenParams: undefined, structuredMusic: undefined, flatScript: undefined, clipParams: undefined, player: undefined, reset: undefined}
-};
-var prefs = Object.assign({}, preferencesDefault);
-
-let textSize = 1;
-var primeCount = 2, expVariance = 2;
-var autoFlatten = true;
-//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
-const defaultRootFreq = 440, defaultFreqMin = 30, defaultFreqMax = 13000;
-var rootFreq = defaultRootFreq, freqMin = defaultFreqMin, freqMax = defaultFreqMax;
-//rhythm structure data (hierarchy of factors)
-const defaultRhythmFactors = [2, 2, 2]; //question: choose a different default? (perhaps based on primeCount)
-var rhythmFactors = [], rhythmFactorsAccum = []; //to do: rename rhythmFactorsAccum -> rhythmScales?
-var playFreqScale = 1, playVolScale = 1/* , playTimeScale = 1, playTimeDelta = 0 */;
 const defStructuredCode = '{\n\
 	"freqRatio": 440,\n\
 	"volRatio": 0.5,\n\
@@ -94,6 +71,54 @@ const defStructuredCode = '{\n\
 }';
 const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
 {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
+//to do: !what to follow (and when)? there are default values in the HTML controls, a defaults structure below, the defaults in btnResetPreferencesClick, defaultBlockNode.
+//to do:	either read the defaults from HTML and store here, or do the converse
+//to do:	btnResetPreferencesClick should be changed to point here
+//to do:	get a criterion for when to use defaultBlockNode besides for structured code
+//to do:	the isolated constants will tend to be replaced for the defaults structure
+const prefsDefault = {
+	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
+	genParams: {
+		baseFreq: 440, 
+		//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
+		freqRangeMin: 30, 
+		freqRangeMax: 13000, 
+		timeScale: 0.5/* defaultBlockNode.timeScale */, 
+		patternCount: 4, 
+		primeCount: 3, 
+		expVariance: 2, 
+		primeExpRanges: undefined //to be calculated
+	},
+	rhythmParams: {
+		rhythmScale: 8, 
+		//rhythm structure data (hierarchy of factors)
+		//question: choose a different default? (perhaps based on primeCount)
+		rhythmFactors: [2, 2, 2]
+	},
+	addGenParams: {voiceCount: 3, reptCount: 2, reptPeriod: 4, percussivePattern: true},
+	structuredMusic: {overflow: false, lineWrapping: false, content: defStructuredCode},
+	flatScript: {autoFlatten: true, overflow: false, lineWrapping: false, content: defFlattenedCode},
+	clipParams: {freqScale: 1, volScale: 1, timeScale: 1, timeDelta: 0},
+	player: {autoReload: false},
+	reset: {pageAppearance: false, genParams: false, rhythmParams: false, addGenParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
+};
+var prefs = Object.assign({}, prefsDefault);
+
+let textSize = prefsDefault.pageAppearance.textSize;
+var 
+	primeCount = prefsDefault.genParams.primeCount, 
+	expVariance = prefsDefault.genParams.expVariance,
+	autoFlatten = prefsDefault.flatScript.autoFlatten,
+	rootFreq = prefsDefault.genParams.baseFreq, 
+	freqMin = prefsDefault.genParams.freqRangeMin, 
+	freqMax = prefsDefault.genParams.freqRangeMax,
+	rhythmFactors = prefsDefault.rhythmParams.rhythmFactors, 
+	//to do: rename rhythmFactorsAccum -> rhythmScales?
+	rhythmFactorsAccum = [], //to be calculated
+	playFreqScale = prefsDefault.clipParams.freqScale/* defaultBlockNode.freqRatio */, 
+	playVolScale = prefsDefault.clipParams.volScale/* defaultBlockNode.volRatio *//* , 
+	playTimeScale = prefsDefault.clipParams.timeScale/ * defaultBlockNode.timeScale * /, 
+	playTimeDelta = prefsDefault.clipParams.timeDelta/ * defaultBlockNode.timeDelta * / */;
 
 var adjustingPreferences = false;
 function loadPreferences(triggerNow) {
@@ -435,11 +460,11 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("genParams.expVariance");
 			localStorage.removeItem("genParams.primeExpRanges");
 
-			txtBaseFreq.value = defaultRootFreq.toString();
+			txtBaseFreq.value = prefsDefault.genParams.baseFreq.toString();
 			txtBaseFreq.dispatchEvent(new Event("input"));
-			txtFreqRangeMin.value = defaultFreqMin.toString();
+			txtFreqRangeMin.value = prefsDefault.genParams.freqRangeMin.toString();
 			txtFreqRangeMin.dispatchEvent(new Event("input"));
-			txtFreqRangeMax.value = defaultFreqMax.toString();
+			txtFreqRangeMax.value = prefsDefault.genParams.freqRangeMax.toString();
 			txtFreqRangeMax.dispatchEvent(new Event("input"));
 			txtTimeScale.value = "0.5";
 			txtTimeScale.dispatchEvent(new Event("input"));
@@ -458,7 +483,7 @@ function btnResetPreferencesClick(event) {
 
 			txtRhythmScale.value = "8";
 			txtRhythmScale.dispatchEvent(new Event("input"));
-			txtRhythmFactors.value = defaultRhythmFactors.join("*");
+			txtRhythmFactors.value = prefsDefault.rhythmParams.rhythmFactors.join("*");
 			txtRhythmFactors.dispatchEvent(new Event("input"));
 		}
 		if(window.chkResetAddGenParams?.checked) {
@@ -710,7 +735,7 @@ function baseFreqChanged(event) {
 	txtBaseFreq.classList.toggle("invalid", !rootFreq);
 	if(!rootFreq) {
 		txtBaseFreq.setCustomValidity("Base frequency shouldn't be 0.");
-		rootFreq = defaultRootFreq;
+		rootFreq = prefsDefault.genParams.baseFreq;
 	} else {
 		txtBaseFreq.setCustomValidity("");
 	}
@@ -755,7 +780,7 @@ function rhythmFactorsChanged(event) {
 	} catch(error) {
 		console.error(error);
 		//default/fallback
-		rhythmFactors = defaultRhythmFactors;
+		rhythmFactors = prefsDefault.rhythmParams.rhythmFactors;
 		txtRhythmFactors?.classList?.add?.("invalid");
 		txtRhythmFactors?.setCustomValidity?.(error.toString());
 		return false;

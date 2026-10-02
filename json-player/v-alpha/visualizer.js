@@ -107,8 +107,8 @@ function visualizerUpdate(clip, tNow) {
 function updateVisAreaTransform() {
 	if(!window.imgVisualizer) return false;
 
-	freqMin = NaNToDefault(parseNumber(window.txtFreqRangeMin?.value), defaultFreqMin);
-	freqMax = NaNToDefault(parseNumber(window.txtFreqRangeMax?.value), defaultFreqMax);
+	freqMin = NaNToDefault(parseNumber(window.txtFreqRangeMin?.value), prefsDefault.genParams.freqRangeMin);
+	freqMax = NaNToDefault(parseNumber(window.txtFreqRangeMax?.value), prefsDefault.genParams.freqRangeMax);
 	//if(window.visArea) visArea.setAttributeNS(null, "transform", `translate()`);
 	if(!window.visArea?.transform?.baseVal) return false;
 
