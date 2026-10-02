@@ -98,16 +98,21 @@ const prefsDefault = {
 	addGenParams: {voiceCount: 3, reptCount: 2, reptPeriod: 4, percussivePattern: true},
 	structuredMusic: {overflow: false, lineWrapping: false, content: defStructuredCode},
 	flatScript: {autoFlatten: true, overflow: false, lineWrapping: false, content: defFlattenedCode},
-	clipParams: {freqScale: 1, volScale: 1, timeScale: 1, timeDelta: 0},
+	clipParams: {
+		freqScale: 1/* defaultBlockNode.freqRatio */, 
+		volScale: 1/* defaultBlockNode.volRatio */, 
+		timeScale: 1/* defaultBlockNode.timeScale */, 
+		timeDelta: 0/* defaultBlockNode.timeDelta */
+	},
 	player: {autoReload: false},
 	reset: {pageAppearance: false, genParams: false, rhythmParams: false, addGenParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
 };
 var prefs = Object.assign({}, prefsDefault);
 
-let textSize = prefsDefault.pageAppearance.textSize;
+//let textSize = prefsDefault.pageAppearance.textSize;
 var 
-	primeCount = prefsDefault.genParams.primeCount, 
-	expVariance = prefsDefault.genParams.expVariance,
+	//primeCount = prefsDefault.genParams.primeCount, 
+	//expVariance = prefsDefault.genParams.expVariance,
 	autoFlatten = prefsDefault.flatScript.autoFlatten,
 	rootFreq = prefsDefault.genParams.baseFreq, 
 	freqMin = prefsDefault.genParams.freqRangeMin, 
@@ -170,9 +175,9 @@ function loadPreferences(triggerNow) {
 		//Page appearance
 		if(!window.chkResetPageAppearance?.checked) {
 			if(s = localStorage.getItem("pageAppearance.textSize")) {
-				textSize = JSON.parse(s);
-				//document.documentElement.style.fontSize = textSize.toString() + "em";
-				document.documentElement.style.setProperty("--page-scale", textSize);
+				prefs.pageAppearance.textSize = JSON.parse(s);
+				//document.documentElement.style.fontSize = prefs.pageAppearance.textSize.toString() + "em";
+				document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
 			}
 			if((s = localStorage.getItem("pageAppearance.theme")) && window.cboPageTheme) {
 				cboPageTheme.value = s;
@@ -343,7 +348,7 @@ function loadPreferences(triggerNow) {
 function savePreferences() {
 	try {
 		//Page appearance
-		localStorage.setItem("pageAppearance.textSize", JSON.stringify(textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
+		localStorage.setItem("pageAppearance.textSize", JSON.stringify(prefs.pageAppearance.textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
 		if(window.cboPageTheme)
 			localStorage.setItem("pageAppearance.theme", cboPageTheme.value);
 		localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
@@ -359,9 +364,9 @@ function savePreferences() {
 		if(window.txtPatternCount)
 			localStorage.setItem("genParams.patternCount", txtPatternCount.value);
 		if(window.txtPrimeCount)
-			localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(primeCount)?
+			localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(prefs.genParams.primeCount)?
 		if(window.txtExpVariance)
-			localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(expVariance)?
+			localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(prefs.genParams.expVariance)?
 		if(window.ctlPrimeExpRanges)
 			localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges));
 		//Rhythm parameters
@@ -436,6 +441,7 @@ function savePreferences() {
 }
 function btnResetPreferencesClick(event) {
 	//resetAllPreferences();
+	//to do: point those things to prefsDefault instead of literals
 	try {
 		adjustingPreferences = true;
 		if(window.chkResetPageAppearance?.checked) {
@@ -443,8 +449,8 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("pageAppearance.theme");
 			localStorage.removeItem("pageAppearance.hue");
 
-			textSize = 1;
-			document.documentElement.style.setProperty("--page-scale", textSize);
+			prefs.pageAppearance.textSize = 1;
+			document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
 			cboPageTheme.value = "Automatic";
 			cboPageTheme.dispatchEvent(new Event("input"));
 			document.documentElement.style.setProperty("--hue-accent0", 120);
@@ -591,11 +597,11 @@ function rescaleText(event) {
 		return false;
 	}
 	const f = Number(elem.dataset["factor"]);
-	textSize *= f;
-	const strTextSize = textSize.toPrecision(5);
-	textSize = Number(strTextSize);
-	//document.documentElement.style.fontSize = textSize.toString() + "em"; //html element
-	document.documentElement.style.setProperty("--page-scale", textSize);
+	prefs.pageAppearance.textSize *= f;
+	const strTextSize = prefs.pageAppearance.textSize.toPrecision(5);
+	prefs.pageAppearance.textSize = Number(strTextSize);
+	//document.documentElement.style.fontSize = prefs.pageAppearance.textSize.toString() + "em"; //html element
+	document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
 
 	localStorage.setItem("pageAppearance.textSize", strTextSize);
 	return true;
@@ -673,13 +679,13 @@ function btnHueClick(event) {
 
 function primeCountChanged(event) {
 	if(!window.txtPrimeCount) return false;
-	primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
-	if(primeCount < 1.25) primeCount = 1.25;
-	if(primeCount > primes.length) primeCount = primes.length;
+	prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
+	if(prefs.genParams.primeCount < 1.25) prefs.genParams.primeCount = 1.25;
+	if(prefs.genParams.primeCount > primes.length) prefs.genParams.primeCount = primes.length;
 
-	const lastPrime = Math.ceil(primeCount), primesList = primes.slice(0, lastPrime);
+	const lastPrime = Math.ceil(prefs.genParams.primeCount), primesList = primes.slice(0, lastPrime);
 	//for fractional sizes, represent the last prime in a different way
-	if(primeCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
+	if(prefs.genParams.primeCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
 	//if(window.outPrimeList) outPrimeList.innerText = "[" + primesList.join(", ") + "]";
 	if(window.outPrimeList) outPrimeList.innerHTML = "[" + primesList.join(", ") + "]";
 	recalcExpRanges();
@@ -687,25 +693,25 @@ function primeCountChanged(event) {
 }
 function expVarianceChanged(event) {
 	if(!window.txtExpVariance) return false;
-	expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
-	if(expVariance < 0.5) expVariance = 0.5;
-	if(expVariance > 8) expVariance = 8;
+	prefs.genParams.expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	if(prefs.genParams.expVariance < 0.5) prefs.genParams.expVariance = 0.5;
+	if(prefs.genParams.expVariance > 8) prefs.genParams.expVariance = 8;
 	recalcExpRanges();
 }
 function recalcExpRanges(force) {
 	if(adjustingPreferences && !force) return false; //fails silently
-	//primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
-	//expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	//prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
+	//prefs.genParams.expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
 
 	try {
-		const primeCountCeil = Math.ceil(primeCount);
+		const primeCountCeil = Math.ceil(prefs.genParams.primeCount);
 		//const newExpRanges = new Array(primeCountCeil);
 		const newExpRanges = {};
 		//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 		for(let i = 0; i < primeCountCeil; i++) {
 			const 
-				varFraction = (i <= primeCount - 1 ? 1 : (primeCount % 1)), 
-				range = varFraction * expVariance / Math.log2(primes[i]);
+				varFraction = (i <= prefs.genParams.primeCount - 1 ? 1 : (prefs.genParams.primeCount % 1)), 
+				range = varFraction * prefs.genParams.expVariance / Math.log2(primes[i]);
 
 			//newExpRanges[i] = range;
 			//question: what will be the proper default range? can the factors only go upwards? is signed (bipolar) random better?

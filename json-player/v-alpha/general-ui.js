@@ -300,7 +300,7 @@ function expSpinnerChanged(event) {
 
 function btnRhythmFactorsGenClick(event) {
 	try {
-		rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), primeCount);
+		rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), prefs.genParams.primeCount);
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Rhythm structure generator failed. " + (error.message ?? error ?? ""), 3);
@@ -317,7 +317,7 @@ function btnChordGenClick(event) {
 	try {
 		freqMin = parseNumber(window.txtFreqRangeMin?.value);
 		freqMax = parseNumber(window.txtFreqRangeMax?.value);
-		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), primeExpRanges);
+		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), prefs.genParams.primeCount, primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
 		setStructuredText(toJSONCodeAdjusted(rootStruct));
@@ -343,7 +343,7 @@ function btnMelodyGenClick(event) {
 	try {
 		freqMin = parseNumber(window.txtFreqRangeMin?.value);
 		freqMax = parseNumber(window.txtFreqRangeMax?.value);
-		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, primeExpRanges);
+		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, prefs.genParams.primeCount, primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
 		setStructuredText(toJSONCodeAdjusted(rootStruct));

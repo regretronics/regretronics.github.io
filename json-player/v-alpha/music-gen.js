@@ -1,9 +1,7 @@
 "use strict";
 
 //imported variables
-var primes, primeCount;
-var rootFreq, freqMin, freqMax;
-var rhythmFactors, rhythmFactorsAccum;
+var primes, rootFreq, freqMin, freqMax, rhythmFactors, rhythmFactorsAccum;
 
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
@@ -68,7 +66,7 @@ function newChord(voiceCount, polyphony, primeCount, tuning, primeExpRanges) {
 	}
 	return chordStruct;
 }
-function makeChords(patCount, voiceCount, _timeScale, primeExpRanges) {
+function makeChords(patCount, voiceCount, _timeScale, primeCount, primeExpRanges) {
 	if(primeCount <= 1) throw(new Error("Prime factors setting too low."));
 	if(patCount <= 0) throw(new Error("Pattern count setting too low."));
 	if(voiceCount < 2) throw(new Error("Voice count setting too low."));
@@ -392,7 +390,7 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 	return struct;
 }
 //to do: pattern variations
-function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, primeExpRanges) {
+function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, primeCount, primeExpRanges) {
 	if(primeCount <= 1) throw(new Error("Prime factors setting too low."));
 	if(patCount <= 0) throw(new Error("Pattern count setting too low."));
 	if(reptPeriod <= 0) throw(new Error("Repeat period setting too low."));
