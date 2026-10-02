@@ -126,7 +126,7 @@ function pageLoaded(event) {
 	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
-	//if(window.chkAutoFlatten) chkAutoFlatten.checked = autoFlatten;
+	//if(window.chkAutoFlatten) chkAutoFlatten.checked = prefs.flatScript.autoFlatten;
 	if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
@@ -159,7 +159,7 @@ function pageReady(event) {
 
 			window.loadPreferences?.(false); //preferences.js
 			updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
-			setAutoFlatten(autoFlatten);
+			setAutoFlatten(prefs.flatScript.autoFlatten);
 			adjustingPreferences = true;
 			try {
 				const evt = new Event("input");
@@ -315,8 +315,8 @@ function btnRhythmFactorsGenClick(event) {
 }
 function btnChordGenClick(event) {
 	try {
-		freqMin = parseNumber(window.txtFreqRangeMin?.value);
-		freqMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.genParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
+		prefs.genParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), prefs.genParams.primeCount, primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
@@ -328,8 +328,8 @@ function btnChordGenClick(event) {
 }
 function btnRhythmGenClick(event) {
 	try {
-		freqMin = parseNumber(window.txtFreqRangeMin?.value);
-		freqMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.genParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
+		prefs.genParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
 		if(rootStruct === false) throw(new Error());
 
@@ -341,8 +341,8 @@ function btnRhythmGenClick(event) {
 }
 function btnMelodyGenClick(event) {
 	try {
-		freqMin = parseNumber(window.txtFreqRangeMin?.value);
-		freqMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.genParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
+		prefs.genParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, prefs.genParams.primeCount, primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
@@ -644,7 +644,7 @@ function playIntervalHandler(event) {
 		const fraction = parseNumber(event.target.dataset["fraction"]);
 		if(isNaN(fraction) || fraction == 0 || Math.abs(fraction) == Infinity) throw(new Error(`Unrecognized interval: ${fraction}.`));
 
-		if(rootFreq == 0) throw(new Error("Invalid base frequency setting."));
+		if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 		if(playFreqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
 		const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
 		//to do: allow reverse playback? (currently no)
@@ -666,12 +666,12 @@ function playIntervalHandler(event) {
 
 		renderNote(clip, {
 				noteStart: 0, noteStop: noteDuration,
-				freq: rootFreq, vol: 0.5,
+				freq: prefs.genParams.baseFreq, vol: 0.5,
 				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
 			});
 		renderNote(clip, {
 				noteStart: noteTInterval, noteStop: noteTInterval + noteDuration,
-				freq: fraction * rootFreq, vol: 0.5,
+				freq: fraction * prefs.genParams.baseFreq, vol: 0.5,
 				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
 			});
 		if(clip.audioCtx.state === 'suspended')

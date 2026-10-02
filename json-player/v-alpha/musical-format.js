@@ -1,8 +1,8 @@
 "use strict";
 
 //imported variables
-var elems;
-var autoFlatten;
+var elems; //?
+//var autoFlatten;
 
 //shared variables
 var struct;
@@ -226,7 +226,7 @@ function setStructuredText(codeText) {
 		saveControlPreference(ctlStructuredScript);
 	} else
 		throw(new Error("Control ctlStructuredScript not found."));
-	if(autoFlatten) flattenStruct();
+	if(prefs.flatScript.autoFlatten) flattenStruct();
 	return true;
 }
 
@@ -245,15 +245,15 @@ function scriptChanged(event) {
 		window.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
-	if(autoFlatten && !adjustingPreferences)
+	if(prefs.flatScript.autoFlatten && !adjustingPreferences)
 		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	return true;
 }
 
 function setAutoFlatten(value) {
 	if(!window.flattenStruct) return false;
-	autoFlatten = value;
-	if(autoFlatten) {
+	prefs.flatScript.autoFlatten = value;
+	if(prefs.flatScript.autoFlatten) {
 		if(hasScriptChanged && !flattenTimeoutID)
 			flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	} else {

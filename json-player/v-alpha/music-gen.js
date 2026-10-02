@@ -1,7 +1,7 @@
 "use strict";
 
 //imported variables
-var primes, rootFreq, freqMin, freqMax, rhythmFactors, rhythmFactorsAccum;
+var prefs, primes, rhythmFactors, rhythmFactorsAccum;
 
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
@@ -70,13 +70,13 @@ function makeChords(patCount, voiceCount, _timeScale, primeCount, primeExpRanges
 	if(primeCount <= 1) throw(new Error("Prime factors setting too low."));
 	if(patCount <= 0) throw(new Error("Pattern count setting too low."));
 	if(voiceCount < 2) throw(new Error("Voice count setting too low."));
-	if(rootFreq == 0) throw(new Error("Invalid base frequency setting."));
+	if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	const polyphony = voiceCount - 1; //partial superposition
 	_timeScale = NaNToDefault(_timeScale, defaultBlockNode.timeScale);
 	const rootStruct = {
 		timeScale: _timeScale,
-		freqRatio: rootFreq,
+		freqRatio: prefs.genParams.baseFreq,
 		volRatio: 1 / polyphony,
 		decayFactor: defaultBlockNode.decayFactor.toString() + "*" + _timeScale.toString() + "*" + polyphony.toString()
 	};
@@ -134,11 +134,11 @@ function limitFreq(tuning, freq) {
 	let freqAbs = Math.abs(tuning) * parseNumber(freq);
 	if(!freq[2]) freq[2] = 0;
 	while(true) {
-		if(freqAbs > freqMax) {
+		if(freqAbs > prefs.genParams.freqRangeMax) {
 			freq[2]--;
 			freqAbs *= 0.5;
 		} else
-			if(freqAbs < freqMin) {
+			if(freqAbs < prefs.genParams.freqRangeMin) {
 				freq[2]++;
 				freqAbs *= 2;
 			} else
@@ -194,7 +194,7 @@ function rhythmSubNodes(struct, level, tuning) {
 }
 function makeRhythm(repeatCount, percussion, timeScale) {
 	if(repeatCount <= 0) throw(new Error("Repeat count setting too low."));
-	if(rootFreq == 0)  throw(new Error("Invalid base frequency setting."));
+	if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	//hierarchy of beats
 	const pattern = [];
@@ -207,7 +207,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 			sumVol += rhythmFactorsAccum[0] / scale;
 		}
 		const freqDummy = {2: 0};
-		const tuning = rootFreq / rhythmFactorsAccum[0];
+		const tuning = prefs.genParams.baseFreq / rhythmFactorsAccum[0];
 		limitFreq(tuning, freqDummy); //not THAT low
 		pattern.push({ //rhythm formula root block and note
 				freqRatio: (2 ** freqDummy[2]).toString() + "/" + rhythmFactorsAccum[0].toString(), //lengthier bars -> lower pitch -> more sustain too
@@ -260,7 +260,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 
 	const rootStruct = {
 		timeScale: _timeScale,
-		freqRatio: rootFreq,
+		freqRatio: prefs.genParams.baseFreq,
 		//decayFactor: defaultBlockNode.decayFactor * _timeScale * rhythmFactorsAccum[0] //lengthier bars = more sustain
 	};
 	if(percussion) rootStruct.volRatio = "2/3";
@@ -395,7 +395,7 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 	if(patCount <= 0) throw(new Error("Pattern count setting too low."));
 	if(reptPeriod <= 0) throw(new Error("Repeat period setting too low."));
 	if(reptCount <= 0) throw(new Error("Repeat count setting too low."));
-	if(rootFreq == 0) throw(new Error("Invalid base frequency setting."));
+	if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	//top-level node
 	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);
@@ -409,10 +409,10 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 	const rootStruct = {
 		//to do: should some of these properties be exclusive for melodic notes?
 		timeScale: _timeScale,
-		//freqRatio: rootFreq.toString() + "/" + barDuration.toString(),
+		//freqRatio: prefs.genParams.baseFreq.toString() + "/" + barDuration.toString(),
 		//big range (lots of beats)? let's start a few octaves down
-		//freqRatio: rootFreq * 0.5 ** Math.floor(Math.log2(barDuration) * 1 / 2),
-		freqRatio: rootFreq.toString() + "/" + partialScaleOffset.toString(),
+		//freqRatio: prefs.genParams.baseFreq * 0.5 ** Math.floor(Math.log2(barDuration) * 1 / 2),
+		freqRatio: prefs.genParams.baseFreq.toString() + "/" + partialScaleOffset.toString(),
 		//volRatio: 1 / sumVol,
 		volRatio: barDuration.toString() + "/" + sumVol.toString(),
 		decayFactor: defaultBlockNode.decayFactor.toString() + "*" + _timeScale.toString() + "*" + (barDuration / partialScaleOffset).toString() //lengthier bars = more sustain
@@ -427,7 +427,7 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 			sumVol += rhythmFactorsAccum[0] / scale;
 		}
 		const freqDummy = {2: 0};
-		const tuning = rootFreq / rhythmFactorsAccum[0];
+		const tuning = prefs.genParams.baseFreq / rhythmFactorsAccum[0];
 		limitFreq(tuning, freqDummy); //not THAT low
 		percussivePattern = { //rhythm formula root block and note
 			//to do: readjust these parameters below

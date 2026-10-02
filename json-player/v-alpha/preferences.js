@@ -113,10 +113,10 @@ var prefs = Object.assign({}, prefsDefault);
 var 
 	//primeCount = prefsDefault.genParams.primeCount, 
 	//expVariance = prefsDefault.genParams.expVariance,
-	autoFlatten = prefsDefault.flatScript.autoFlatten,
-	rootFreq = prefsDefault.genParams.baseFreq, 
-	freqMin = prefsDefault.genParams.freqRangeMin, 
-	freqMax = prefsDefault.genParams.freqRangeMax,
+	//autoFlatten = prefsDefault.flatScript.autoFlatten,
+	//rootFreq = prefsDefault.genParams.baseFreq, 
+	//freqMin = prefsDefault.genParams.freqRangeMin, 
+	//freqMax = prefsDefault.genParams.freqRangeMax,
 	rhythmFactors = prefsDefault.rhythmParams.rhythmFactors, 
 	//to do: rename rhythmFactorsAccum -> rhythmScales?
 	rhythmFactorsAccum = [], //to be calculated
@@ -354,11 +354,11 @@ function savePreferences() {
 		localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
 		//Generator parameters
 		if(window.txtBaseFreq)
-			localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(rootFreq)?
+			localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(prefs.genParams.baseFreq)?
 		if(window.txtFreqRangeMin)
-			localStorage.setItem("genParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(freqMin)?
+			localStorage.setItem("genParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(prefs.genParams.freqRangeMin)?
 		if(window.txtFreqRangeMax)
-			localStorage.setItem("genParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(freqMax)?
+			localStorage.setItem("genParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(prefs.genParams.freqRangeMax)?
 		if(window.txtTimeScale)
 			localStorage.setItem("genParams.timeScale", txtTimeScale.value);
 		if(window.txtPatternCount)
@@ -737,11 +737,11 @@ function recalcExpRanges(force) {
 
 function baseFreqChanged(event) {
 	if(!window.txtBaseFreq) return false;
-	rootFreq = parseNumber(txtBaseFreq.value);
-	txtBaseFreq.classList.toggle("invalid", !rootFreq);
-	if(!rootFreq) {
+	prefs.genParams.baseFreq = parseNumber(txtBaseFreq.value);
+	txtBaseFreq.classList.toggle("invalid", !prefs.genParams.baseFreq);
+	if(!prefs.genParams.baseFreq) {
 		txtBaseFreq.setCustomValidity("Base frequency shouldn't be 0.");
-		rootFreq = prefsDefault.genParams.baseFreq;
+		prefs.genParams.baseFreq = prefsDefault.genParams.baseFreq;
 	} else {
 		txtBaseFreq.setCustomValidity("");
 	}
