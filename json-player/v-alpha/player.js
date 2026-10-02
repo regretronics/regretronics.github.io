@@ -54,8 +54,8 @@ function createNoiseBuffer(audioCtx) {
 		//noise
 		//arr[i] = 2 * Math.random() - 1; //non-gaussian
 		//gaussian noise
-		//arr[i] = 0.5 * (Math.random() + Math.random() + Math.random() + Math.random()) - 1;
-		arr[i] = 1 * (Math.random() + Math.random() + Math.random() + Math.random()) - 2; //can result in overdrive/clipping, but in practice seems ok
+		arr[i] = 0.5 * (Math.random() - Math.random() + Math.random() - Math.random());
+		//arr[i] = 1 * (Math.random() - Math.random() + Math.random() - Math.random()); //can result in overdrive/clipping, but in practice seems ok
 
 		//test: sine wave that fades in and then out
 		//arr[i] = (1 - Math.abs((i - 0.5 * sampleCount) / (0.5 * sampleCount))) * Math.sin(2 * Math.PI * 440 * i / audioCtx.sampleRate);
@@ -491,7 +491,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 		}
 
 	//window.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
-	//if(tNow >= clip.duration - 1)
+	//if(tNow >= (clip.duration - 1))
 	//if(tNow >= 0.1)
 		//throw("Test."); //call stack test
 	//window.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));

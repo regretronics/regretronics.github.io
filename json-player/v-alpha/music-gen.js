@@ -395,7 +395,8 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 	if(patCount <= 0) throw(new Error("Pattern count setting too low."));
 	if(reptPeriod <= 0) throw(new Error("Repeat period setting too low."));
 	if(reptCount <= 0) throw(new Error("Repeat count setting too low."));
-	if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
+	const baseFreq = prefs.genParams.baseFreq;
+	if(baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	//top-level node
 	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);
@@ -409,10 +410,10 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 	const rootStruct = {
 		//to do: should some of these properties be exclusive for melodic notes?
 		timeScale: _timeScale,
-		//freqRatio: prefs.genParams.baseFreq.toString() + "/" + barDuration.toString(),
+		//freqRatio: baseFreq.toString() + "/" + barDuration.toString(),
 		//big range (lots of beats)? let's start a few octaves down
-		//freqRatio: prefs.genParams.baseFreq * 0.5 ** Math.floor(Math.log2(barDuration) * 1 / 2),
-		freqRatio: prefs.genParams.baseFreq.toString() + "/" + partialScaleOffset.toString(),
+		//freqRatio: baseFreq * 0.5 ** Math.floor(Math.log2(barDuration) * 1 / 2),
+		freqRatio: baseFreq.toString() + "/" + partialScaleOffset.toString(),
 		//volRatio: 1 / sumVol,
 		volRatio: barDuration.toString() + "/" + sumVol.toString(),
 		decayFactor: defaultBlockNode.decayFactor.toString() + "*" + _timeScale.toString() + "*" + (barDuration / partialScaleOffset).toString() //lengthier bars = more sustain
@@ -427,7 +428,7 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 			sumVol += rhythmFactorsAccum[0] / scale;
 		}
 		const freqDummy = {2: 0};
-		const tuning = prefs.genParams.baseFreq / rhythmFactorsAccum[0];
+		const tuning = baseFreq / rhythmFactorsAccum[0];
 		limitFreq(tuning, freqDummy); //not THAT low
 		percussivePattern = { //rhythm formula root block and note
 			//to do: readjust these parameters below

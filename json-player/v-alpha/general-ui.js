@@ -126,7 +126,6 @@ function pageLoaded(event) {
 	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
-	//if(window.chkAutoFlatten) chkAutoFlatten.checked = prefs.flatScript.autoFlatten;
 	if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();

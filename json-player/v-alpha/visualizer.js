@@ -68,7 +68,7 @@ function visualizerUpdate(clip, tNow) {
 		const slice = slices[i];
 		const absY = parseFloat(slice.getAttribute("data-t")) / audioTimerInterval; //dataset doesn't work here, somehow (to do: re-check)
 		//const newY = absY + (nowY - visT) /* * audioTimerInterval */;
-		const newY = absY + (nowY - tNow / audioTimerInterval);
+		const newY = absY + nowY - tNow / audioTimerInterval;
 		if(newY <= -1) {
 		//if(newY <= -audioTimerInterval) {
 			slice.remove(); //it's easier to delete when we use groups

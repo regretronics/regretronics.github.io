@@ -71,11 +71,11 @@ const defStructuredCode = '{\n\
 }';
 const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
 {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
-//to do: !what to follow (and when)? there are default values in the HTML controls, a defaults structure below, the defaults in btnResetPreferencesClick, defaultBlockNode.
-//to do:	either read the defaults from HTML and store here, or do the converse
-//to do:	btnResetPreferencesClick should be changed to point here
-//to do:	get a criterion for when or whether to use defaultBlockNode besides for structured code
-//to do:	the isolated constants will tend to be replaced by the defaults structure
+//to do: !what to follow (and when)? there are default values in the HTML controls, a defaults structure below, the defaults in btnResetPreferencesClick, and defaultBlockNode.
+//to do: 	either read the defaults from HTML and store here, or do the converse
+//to do: 	btnResetPreferencesClick should be changed to point here
+//to do: 	get a criterion for when or whether to use defaultBlockNode besides for structured code
+//to do: 	the isolated constants will tend to be replaced by the defaults structure
 const prefsDefault = {
 	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
 	genParams: {
@@ -115,6 +115,13 @@ var
 	rhythmFactorsAccum = [], //to be calculated
 	adjustingPreferences = false;
 
+//to do: replace these settings functions for ones that consistenly convert from some point to another, using a preferences object for representation (one of the operands)
+//to do: 	all, from HTML controls defaults to object
+//to do: 	all, from object to HTML controls defaults
+//to do: 	both specific and all, from object to local storage
+//to do: 	all, from local storage to object
+//to do: 	specific, from HTML controls values to object
+//to do: 	all, from object to HTML controls values
 function loadPreferences(triggerNow) {
 	try {
 		adjustingPreferences = true;
@@ -335,7 +342,7 @@ function loadPreferences(triggerNow) {
 	return true;
 }
 //function currently out of use
-function savePreferences() {
+function saveAllPreferences() {
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		try {
 			saveControlPreference(elem);
@@ -585,6 +592,88 @@ function resetAllPreferences() {
 	loadPreferences(); //?
 }
 
+function controlGetValue(elem) { //question: exception on failure? (currently no)
+	if(!elem) {
+		console.info("controlGetValue(): parameter elem is empty. Returning.");
+		return undefined;
+	}
+
+	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		return elem.value;
+	if(elem.tagName.toUpperCase() === "INPUT")
+		if(elem.type.toLowerCase() === "checkbox")
+			return elem.checked;
+		else
+			/* if(elem.type.toLowerCase() === "number")
+				return elem.valueAsNumber;
+			else */
+			return elem.value;
+	if(elem.contentEditable.toLowerCase() != "false")
+		return codeBoxContentGet(elem);
+
+	console.warn("controlGetValue(): failed to obtain value. Exceptional control type.");
+	return undefined;
+}
+function controlSetValue(elem, value) { //question: exception on failure? (currently no)
+	if(!elem) {
+		console.info("controlSetValue(): parameter elem is empty. Returning.");
+		return false;
+	}
+
+	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
+		elem.value = value;
+		return true;
+	}
+	if(elem.tagName.toUpperCase() === "INPUT") {
+		if(elem.type.toLowerCase() === "checkbox")
+			elem.checked = value;
+		else
+			elem.value = value;
+		return true;
+	}
+	if(elem.contentEditable.toLowerCase() != "false") {
+		return codeBoxContentSet(elem, value);
+	}
+	console.warn("controlSetValue(): failed to change value. Exceptional control type.");
+	return false;
+}
+function saveControlPreference(elem) {
+	//if(adjustingPreferences) return false; //breaks silently; no need to log this
+	if(!elem) {
+		console.info("saveControlPreference(): parameter elem is empty. Returning.");
+		return false;
+	}
+	let prefKey = elem.dataset["pref"];
+	if(!prefKey) return false;
+
+	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
+		localStorage.setItem(prefKey, elem.value);
+		return true;
+	}
+	if(elem.tagName.toUpperCase() === "INPUT") {
+		if(elem.type.toLowerCase() === "checkbox")
+			localStorage.setItem(prefKey, JSON.stringify(elem.checked));
+		else
+			localStorage.setItem(prefKey, elem.value);
+		return true;
+	}
+	if(elem.contentEditable.toLowerCase() != "false") {
+		//localStorage.setItem(prefKey, elem.innerText);
+		localStorage.setItem(prefKey, codeBoxContentGet(elem));
+		return true;
+	}
+	console.warn("Could not save a preference: exceptional control type.");
+	return false;
+}
+function saveInputValue(event) {
+	if(adjustingPreferences) return false;
+	if(!event?.target) {
+		console.info("saveInputValue(): parameter event.target is empty. Returning.");
+		return false;
+	}
+	saveControlPreference(event.target);
+}
+
 function rescaleText(event) {
 	if(!document || !document.documentElement || !document.documentElement.style) return false;
 	const elem = event.target;
@@ -593,11 +682,12 @@ function rescaleText(event) {
 		return false;
 	}
 	const f = Number(elem.dataset["factor"]);
-	prefs.pageAppearance.textSize *= f;
-	const strTextSize = prefs.pageAppearance.textSize.toPrecision(5);
-	prefs.pageAppearance.textSize = Number(strTextSize);
-	//document.documentElement.style.fontSize = prefs.pageAppearance.textSize.toString() + "em"; //html element
-	document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
+	let newTextSize = prefs.pageAppearance.textSize * f;
+	const strTextSize = newTextSize.toPrecision(5);
+	newTextSize = Number(strTextSize);
+	//document.documentElement.style.fontSize = newTextSize.toString() + "em"; //html element
+	document.documentElement.style.setProperty("--page-scale", newTextSize);
+	prefs.pageAppearance.textSize = newTextSize;
 
 	localStorage.setItem("pageAppearance.textSize", strTextSize);
 	return true;
@@ -675,13 +765,18 @@ function btnHueClick(event) {
 
 function primeCountChanged(event) {
 	if(!window.txtPrimeCount) return false;
-	prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
-	if(prefs.genParams.primeCount < 1.25) prefs.genParams.primeCount = 1.25;
-	if(prefs.genParams.primeCount > primes.length) prefs.genParams.primeCount = primes.length;
 
-	const lastPrime = Math.ceil(prefs.genParams.primeCount), primesList = primes.slice(0, lastPrime);
+	//question: reject value, correct it, or set to default?
+	const newPrimesCount = parseNumber(txtPrimeCount.value); //reject it
+	if(isNaN(newPrimesCount) || newPrimesCount < 1.25 || newPrimesCount > primes.length) return false;
+	/* let newPrimesCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2); //correct it
+	if(newPrimesCount < 1.25) newPrimesCount = 1.25;
+	if(newPrimesCount > primes.length) newPrimesCount = primes.length; */
+	prefs.genParams.primeCount = newPrimesCount;
+
+	const lastPrime = Math.ceil(newPrimesCount), primesList = primes.slice(0, lastPrime);
 	//for fractional sizes, represent the last prime in a different way
-	if(prefs.genParams.primeCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
+	if(newPrimesCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
 	//if(window.outPrimeList) outPrimeList.innerText = "[" + primesList.join(", ") + "]";
 	if(window.outPrimeList) outPrimeList.innerHTML = "[" + primesList.join(", ") + "]";
 	recalcExpRanges();
@@ -689,25 +784,32 @@ function primeCountChanged(event) {
 }
 function expVarianceChanged(event) {
 	if(!window.txtExpVariance) return false;
-	prefs.genParams.expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
-	if(prefs.genParams.expVariance < 0.5) prefs.genParams.expVariance = 0.5;
-	if(prefs.genParams.expVariance > 8) prefs.genParams.expVariance = 8;
+
+	//question: reject value, correct it, or set to default?
+	const newExpVariance = parseNumber(txtExpVariance.value); //reject it
+	if(isNaN(newExpVariance) || newExpVariance < 0.5 || newExpVariance > 8) return false;
+	/* let newExpVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2); //correct it
+	if(newExpVariance < 0.5) newExpVariance = 0.5;
+	if(newExpVariance > 8) newExpVariance = 8; */
+	prefs.genParams.expVariance = newExpVariance;
+
 	recalcExpRanges();
 }
 function recalcExpRanges(force) {
 	if(adjustingPreferences && !force) return false; //fails silently
 	//prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
 	//prefs.genParams.expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	const primeCount = prefs.genParams.primeCount, expVariance = prefs.genParams.expVariance;
 
 	try {
-		const primeCountCeil = Math.ceil(prefs.genParams.primeCount);
+		const primeCountCeil = Math.ceil(primeCount);
 		//const newExpRanges = new Array(primeCountCeil);
 		const newExpRanges = {};
 		//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
 		for(let i = 0; i < primeCountCeil; i++) {
 			const 
-				varFraction = (i <= prefs.genParams.primeCount - 1 ? 1 : (prefs.genParams.primeCount % 1)), 
-				range = varFraction * prefs.genParams.expVariance / Math.log2(primes[i]);
+				varFraction = (i <= (primeCount - 1) ? 1 : (primeCount % 1)), 
+				range = varFraction * expVariance / Math.log2(primes[i]);
 
 			//newExpRanges[i] = range;
 			//question: what will be the proper default range? can the factors only go upwards? is signed (bipolar) random better?
@@ -733,14 +835,23 @@ function recalcExpRanges(force) {
 
 function baseFreqChanged(event) {
 	if(!window.txtBaseFreq) return false;
-	prefs.genParams.baseFreq = parseNumber(txtBaseFreq.value);
-	txtBaseFreq.classList.toggle("invalid", !prefs.genParams.baseFreq);
-	if(!prefs.genParams.baseFreq) {
-		txtBaseFreq.setCustomValidity("Base frequency shouldn't be 0.");
-		prefs.genParams.baseFreq = prefsDefault.genParams.baseFreq;
+
+	//question: reject value, correct it (freqRangeMin..freqRangeMax), or set to default?
+	let newBaseFreq = parseNumber(txtBaseFreq.value);
+	if(isNaN(newBaseFreq)) return false; //reject it
+	//newBaseFreq = NaNToDefault(newBaseFreq, prefsDefault.genParams.baseFreq); //correct it
+	if(newBaseFreq < prefs.genParams.freqRangeMin) newBaseFreq = prefs.genParams.freqRangeMin;
+	if(newBaseFreq > prefs.genParams.freqRangeMax) newBaseFreq = prefs.genParams.freqRangeMax;
+
+	window.txtBaseFreq?.classList?.toggle?.("invalid", !newBaseFreq);
+	if(!newBaseFreq) {
+		window.txtBaseFreq?.setCustomValidity("Base frequency shouldn't be 0.");
+		prefs.genParams.baseFreq = prefsDefault.genParams.baseFreq; //set to default
 	} else {
-		txtBaseFreq.setCustomValidity("");
+		window.txtBaseFreq?.setCustomValidity("");
+		prefs.genParams.baseFreq = newBaseFreq;
 	}
+
 	return true;
 }
 //to do: handler for frequency extremes, calling updateVisAreaTransform()? (currently, changing the thresholds during play requires pause-toggling for visualizer updating)
@@ -753,7 +864,7 @@ function rhythmFactorsChanged(event) {
 	//to do: !maybe interpret the rightmost factor (deepest into the small scale) as a duration in pulses, not a group of pulses, which would change the number of levels (2 * 2 would have 4/2 as levels, instead of 4/2/1)
 	if(!window.txtRhythmFactors) return false;
 	let s = txtRhythmFactors.value.toString(); //text
-	const rhythmFactors = []; //will become an array of numbers
+	const newRhythmFactors = []; //will become an array of numbers
 	if(s.length >= 1) {
 		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
 		for(const n of s) {
@@ -762,19 +873,19 @@ function rhythmFactorsChanged(event) {
 			if(pos >= 0) {
 				const base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
 				for(let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
-					rhythmFactors.push(base);
+					newRhythmFactors.push(base);
 				//question: non-integer exponents? (if(exp > 0) ...)
 			} else
-				rhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
+				newRhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
 		}
 	}
 	//to do: invalidate factors below 1? and negative factors?
 	//note: empty structures now allowed
 	try {
-		if(rhythmFactors.some(x => x == 0)) //has zeroes?
+		if(newRhythmFactors.some(x => x == 0)) //has zeroes?
 			throw(new Error("Rhythm factors can't include zero."));
 
-		if(rhythmFactors.some(x => isNaN(x))) //unparsed expressions?
+		if(newRhythmFactors.some(x => isNaN(x))) //unparsed expressions?
 			throw(new Error("Unrecognized numerical expression in rhythm formula."));
 
 		txtRhythmFactors.classList.remove("invalid");
@@ -787,7 +898,7 @@ function rhythmFactorsChanged(event) {
 		txtRhythmFactors?.setCustomValidity?.(error.toString());
 		return false;
 	}
-	prefs.rhythmParams.rhythmFactors = rhythmFactors;
+	prefs.rhythmParams.rhythmFactors = newRhythmFactors;
 	rhythmAccumUpdate();
 	return true;
 }
@@ -805,41 +916,4 @@ function playVolScaleChanged(event) {
 	prefs.clipParams.volScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
 	if(playerClip) playerClip.playVolScale = prefs.clipParams.volScale;
 	return true;
-}
-
-function saveControlPreference(elem) {
-	//if(adjustingPreferences) return false; //breaks silently; no need to log this
-	if(!elem) {
-		console.info("saveControlPreference(): parameter elem is empty. Returning.");
-		return false;
-	}
-	let prefKey = elem.dataset["pref"];
-	if(!prefKey) return false;
-
-	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
-		localStorage.setItem(prefKey, elem.value);
-		return true;
-	}
-	if(elem.tagName.toUpperCase() === "INPUT") {
-		if(elem.type.toLowerCase() === "checkbox")
-			localStorage.setItem(prefKey, JSON.stringify(elem.checked));
-		else
-			localStorage.setItem(prefKey, elem.value);
-		return true;
-	}
-	if(elem.contentEditable.toLowerCase() != "false") {
-		//localStorage.setItem(prefKey, elem.innerText);
-		localStorage.setItem(prefKey, codeBoxContentGet(elem));
-		return true;
-	}
-	console.warn("Could not save a preference: exceptional control type.");
-	return false;
-}
-function saveInputValue(event) {
-	if(adjustingPreferences) return false;
-	if(!event?.target) {
-		console.info("saveInputValue(): parameter event.target is empty. Returning.");
-		return false;
-	}
-	saveControlPreference(event.target);
 }
