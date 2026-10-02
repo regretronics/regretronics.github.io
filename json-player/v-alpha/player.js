@@ -5,10 +5,11 @@ var releaseCurve;
 //var playFreqScale, playVolScale/* , playTimeScale, playTimeDelta */;
 
 //to do: iterative self-filtering for subtractive synthesis?
-
 //done: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
 //to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
 //to do: !review audioTimer(), clipEndPlayer(), clipEndExport().
+//to do: allow a common audible AudioContext for both clip and interval playback
+//to do: have a variable for the interval clip (?) (distinct from playerClip)
 
 var playerClip = null; //shared variable
 //const pauseToggleCaptions = {false: "Un<u>p</u>ause", true: "<u>P</u>ause"};
@@ -400,7 +401,7 @@ function audioTUpdate() {
 			//when dealing with time, it's better to round down
 			outAudioT.innerText = toFixedTrunc(playerClip.audioCtx.currentTime - playerClip.t0, timeDisplPrecision);
 		if(outGenCount) outGenCount.innerText = playerClip.generators.length.toString();
-	} catch (error) {
+	} catch(error) {
 		console.warn(error);
 	}
 	return true;

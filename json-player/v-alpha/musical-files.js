@@ -93,7 +93,7 @@ function mainDrop(event) {
 					console.error(reason);
 				});
 		}
-	} catch (error) {
+	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to import dropped file. " + (error.message ?? error ?? ""), 3);
 		return false;
@@ -119,7 +119,7 @@ function inFileChange(event) {
 				//window.reportError(reason);
 				console.error(reason);
 			});
-	} catch (error) {
+	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to import chosen file. " + (error.message ?? error ?? ""), 3);
 		return false;

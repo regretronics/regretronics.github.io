@@ -137,7 +137,7 @@ function pageLoaded(event) {
 	try {
 		codeBoxContentSet(ctlStructuredScript, defStructuredCode);
 		codeBoxContentSet(ctlFlatScript, defFlattenedCode);
-	} catch (error) {
+	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to set code box contents. " + (error.message ?? error ?? ""), 3);
 	}
@@ -675,7 +675,7 @@ function playIntervalHandler(event) {
 				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
 			});
 		if(clip.audioCtx.state === 'suspended')
-			clip.audioCtx.resume()?.then(value => playerClip = clip)?.catch?.(reason => {
+			clip.audioCtx.resume()/* ?.then(value => playerClip = clip) */?.catch?.(reason => {
 					setToolTip(outToolTipIntervals, "Could not resume playback. " + (reason.message ?? reason ?? ""), 3);
 					//window.reportError(reason);
 					console.error(reason);
