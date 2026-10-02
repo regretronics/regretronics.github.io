@@ -1,7 +1,7 @@
 "use strict";
 
 //imported variables
-var prefs, primes, rhythmFactors, rhythmFactorsAccum;
+var prefs, primes, rhythmFactorsAccum;
 
 function renormalizeOctave(refFreq, targetFreq) {
 	//octave comparison for overall normalization, beyond octave rounding
@@ -147,15 +147,15 @@ function limitFreq(tuning, freq) {
 	return freq;
 }
 
-//the rhythm generator presumes that rhythmFactors and rhythmFactorsAccum are properly filled
+//the rhythm generator presumes that prefs.rhythmParams.rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
 function rhythmSubNodes(struct, level, tuning) {
 	if(!struct) {
 		console.info("rhythmSubNodes(): parameter struct is empty. Returning.");
 		return false;
 	}
-	if(level >= rhythmFactors.length) return false;
-	const beats = rhythmFactors[level - 1];
+	if(level >= prefs.rhythmParams.rhythmFactors.length) return false;
+	const beats = prefs.rhythmParams.rhythmFactors[level - 1];
 	const scale = rhythmFactorsAccum[level];
 
 	const freqDummy = {2: 0};
@@ -271,7 +271,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 	return rootStruct;
 }
 
-//the melody generator also presumes that rhythmFactors and rhythmFactorsAccum are properly filled
+//the melody generator also presumes that prefs.rhythmParams.rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
 //done: option for rhythm pattern in both rhythm and melody generator
 function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
@@ -279,8 +279,8 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 		console.info("melodySubNodes(): parameter struct is empty. Returning.");
 		return false;
 	}
-	if(level >= rhythmFactors.length) return false;
-	const beats = rhythmFactors[level - 1];
+	if(level >= prefs.rhythmParams.rhythmFactors.length) return false;
+	const beats = prefs.rhythmParams.rhythmFactors[level - 1];
 	const scale = rhythmFactorsAccum[level];
 	const subNodePattern = {
 		timeDelta: 0, //make it appear early in JSON, defer filling

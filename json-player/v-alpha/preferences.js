@@ -117,12 +117,12 @@ var
 	//rootFreq = prefsDefault.genParams.baseFreq, 
 	//freqMin = prefsDefault.genParams.freqRangeMin, 
 	//freqMax = prefsDefault.genParams.freqRangeMax,
-	rhythmFactors = prefsDefault.rhythmParams.rhythmFactors, 
+	//rhythmFactors = prefsDefault.rhythmParams.rhythmFactors, 
 	//to do: rename rhythmFactorsAccum -> rhythmScales?
-	rhythmFactorsAccum = [], //to be calculated
-	playFreqScale = prefsDefault.clipParams.freqScale/* defaultBlockNode.freqRatio */, 
-	playVolScale = prefsDefault.clipParams.volScale/* defaultBlockNode.volRatio *//* , 
-	playTimeScale = prefsDefault.clipParams.timeScale/ * defaultBlockNode.timeScale * /, 
+	rhythmFactorsAccum = [] //to be calculated
+	//playFreqScale = prefsDefault.clipParams.freqScale/* defaultBlockNode.freqRatio */, 
+	//playVolScale = prefsDefault.clipParams.volScale/* defaultBlockNode.volRatio */
+	/* playTimeScale = prefsDefault.clipParams.timeScale/ * defaultBlockNode.timeScale * /, 
 	playTimeDelta = prefsDefault.clipParams.timeDelta/ * defaultBlockNode.timeDelta * / */;
 
 var adjustingPreferences = false;
@@ -373,7 +373,7 @@ function savePreferences() {
 		if(window.txtRhythmScale)
 			localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
 		if(window.txtRhythmFactors)
-			localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(rhythmFactors)?
+			localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(prefs.rhythmParams.rhythmFactors)?
 		//Additional generator parameters
 		if(window.txtVoiceCount)
 			localStorage.setItem("addGenParams.voiceCount", txtVoiceCount.value);
@@ -401,9 +401,9 @@ function savePreferences() {
 			localStorage.setItem("flatScript.content", codeBoxContentGet(ctlFlatScript));
 		//Overall play controls
 		if(window.txtPlayFreqScale)
-			localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(playFreqScale)?
+			localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(prefs.clipParams.freqScale)?
 		if(window.txtPlayVolScale)
-			localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(playVolScale)?
+			localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(prefs.clipParams.volScale)?
 		if(window.txtPlayTimeScale)
 			localStorage.setItem("clipParams.timeScale", txtPlayTimeScale.value);
 		if(window.txtPlayTimeDelta)
@@ -757,7 +757,7 @@ function rhythmFactorsChanged(event) {
 	//to do: !maybe interpret the rightmost factor (deepest into the small scale) as a duration in pulses, not a group of pulses, which would change the number of levels (2 * 2 would have 4/2 as levels, instead of 4/2/1)
 	if(!window.txtRhythmFactors) return false;
 	let s = txtRhythmFactors.value.toString(); //text
-	rhythmFactors = []; //will become an array of numbers
+	const rhythmFactors = []; //will become an array of numbers
 	if(s.length >= 1) {
 		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
 		for(const n of s) {
@@ -786,11 +786,12 @@ function rhythmFactorsChanged(event) {
 	} catch(error) {
 		console.error(error);
 		//default/fallback
-		rhythmFactors = prefsDefault.rhythmParams.rhythmFactors;
+		//prefs.rhythmParams.rhythmFactors = prefsDefault.rhythmParams.rhythmFactors;
 		txtRhythmFactors?.classList?.add?.("invalid");
 		txtRhythmFactors?.setCustomValidity?.(error.toString());
 		return false;
 	}
+	prefs.rhythmParams.rhythmFactors = rhythmFactors;
 	rhythmAccumUpdate();
 	return true;
 }
@@ -798,15 +799,15 @@ function rhythmFactorsChanged(event) {
 function playFreqScaleChanged(event) {
 	if(!window.txtPlayFreqScale) return false;
 	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
-	playFreqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
-	if(playerClip) playerClip.playFreqScale = playFreqScale;
+	prefs.clipParams.freqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
+	if(playerClip) playerClip.playFreqScale = prefs.clipParams.freqScale;
 	return true;
 }
 function playVolScaleChanged(event) {
 	if(!window.txtPlayVolScale) return false;
 	//if(txtPlayVolScale.valueAsNumber < 0) txtPlayVolScale.stepUp();
-	playVolScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
-	if(playerClip) playerClip.playVolScale = playVolScale;
+	prefs.clipParams.volScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
+	if(playerClip) playerClip.playVolScale = prefs.clipParams.volScale;
 	return true;
 }
 

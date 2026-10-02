@@ -212,8 +212,8 @@ async function initialCalculations() {
 }
 
 function rhythmAccumUpdate() {
-	if(!rhythmFactors) rhythmFactors = [];
-	const factors = rhythmFactors.slice(); //array clone
+	if(!prefs.rhythmParams.rhythmFactors) prefs.rhythmParams.rhythmFactors = [];
+	const factors = prefs.rhythmParams.rhythmFactors.slice(); //array clone
 	let product = 1;
 	rhythmFactorsAccum = [1];
 	while(factors.length > 0) {
@@ -222,6 +222,6 @@ function rhythmAccumUpdate() {
 	}
 	//rhythmFactorsAccum.push(1);
 	if(window.outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
-	rhythmFactors.push(1);
+	prefs.rhythmParams.rhythmFactors.push(1); //? (equalization?)
 	return true;
 }

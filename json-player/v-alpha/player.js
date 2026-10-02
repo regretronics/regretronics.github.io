@@ -2,7 +2,7 @@
 
 //imported variables
 var releaseCurve;
-var playFreqScale, playVolScale/* , playTimeScale, playTimeDelta */;
+//var playFreqScale, playVolScale/* , playTimeScale, playTimeDelta */;
 
 //to do: iterative self-filtering for subtractive synthesis?
 
@@ -23,7 +23,7 @@ function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolSc
 			open: false, t0: 0, duration: 0, timerID: NaN, //miscellaneous clip properties
 			onClipEnd: clipEndDefault, //events for custom behavior
 			generators: [], auxNodes: [], flatStruct: null, //node and note lists
-			playTimeScale: 1, playTimeDelta: 0, playVolScale: 1, playFreqScale: 1, //overall controls
+			playTimeScale: prefsDefault.clipParams.timeScale, playTimeDelta: prefsDefault.clipParams.timeDelta, playVolScale: prefsDefault.clipParams.volScale, playFreqScale: prefsDefault.clipParams.freqScale, //overall controls
 			lastFreq: 0, lastFreq0: 0, lastNoteStart: 0, lastPortamento: 0, //portamento variables
 			clipEndDefault //methods
 		});
@@ -501,7 +501,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.
 function loadNewClip() {
 	if(!window.ctlFlatScript) return false;
-	if(playFreqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
+	if(prefs.clipParams.freqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
 	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
@@ -555,7 +555,7 @@ function loadNewClip() {
 			return diff;
 		});
 
-	return new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolScale, playFreqScale);
+	return new SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, prefs.clipParams.volScale, prefs.clipParams.freqScale);
 }
 function playerBeforePlay() {
 	console.log("playerBeforePlay(): function started...");

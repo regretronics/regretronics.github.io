@@ -300,14 +300,14 @@ function expSpinnerChanged(event) {
 
 function btnRhythmFactorsGenClick(event) {
 	try {
-		rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), prefs.genParams.primeCount);
+		prefs.rhythmParams.rhythmFactors = makeRhythmFactors(parseNumber(txtRhythmScale.value), prefs.genParams.primeCount);
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Rhythm structure generator failed. " + (error.message ?? error ?? ""), 3);
 		return false;
 	}
 	if(window.txtRhythmFactors) {
-		txtRhythmFactors.value = rhythmFactors.join("*");
+		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
 		txtRhythmFactors.dispatchEvent(new Event("input"));
 	}
 	//rhythmAccumUpdate();
@@ -645,7 +645,7 @@ function playIntervalHandler(event) {
 		if(isNaN(fraction) || fraction == 0 || Math.abs(fraction) == Infinity) throw(new Error(`Unrecognized interval: ${fraction}.`));
 
 		if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
-		if(playFreqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
+		if(prefs.clipParams.freqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
 		const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
 		//to do: allow reverse playback? (currently no)
 		if(playTimeScale <= 0) throw(new Error("Invalid playback time scale setting."));
@@ -653,7 +653,7 @@ function playIntervalHandler(event) {
 		const playTimeDelta = 0; //probably not, I think.
 
 		const noteTInterval = 0.25, noteDuration = 3;
-		const clip = new SoundClip(null, playTimeScale * (noteDuration + noteTInterval), playTimeScale, playTimeDelta, playVolScale, playFreqScale);
+		const clip = new SoundClip(null, playTimeScale * (noteDuration + noteTInterval), playTimeScale, playTimeDelta, prefs.clipParams.volScale, prefs.clipParams.freqScale);
 		if(playerClip) clip.audioCtx = playerClip.audioCtx;
 		if(!clip.audioCtx || clip.audioCtx.state === 'closed') {
 			console.debug("playIntervalHandler(): creating new AudioContext.");
@@ -675,7 +675,7 @@ function playIntervalHandler(event) {
 				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
 			});
 		if(clip.audioCtx.state === 'suspended')
-			clip.audioCtx.resume()?.catch?.(reason => {
+			clip.audioCtx.resume()?.then(value => playerClip = clip)?.catch?.(reason => {
 					setToolTip(outToolTipIntervals, "Could not resume playback. " + (reason.message ?? reason ?? ""), 3);
 					//window.reportError(reason);
 					console.error(reason);
