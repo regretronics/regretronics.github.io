@@ -211,9 +211,9 @@
 			<!-- <span class="controls-group align-inline-end" style="flex-basis: 24ch;"> -->
 			<span class="controls-group align-inline-end">
 				<span class="cell">
-					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="lang-static" translate="no"><u>O</u>pen file</span><span class="lang-flex" hidden="hidden">Open file (<u>o</u>)</span></button>
+					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="lang-static" translate="no"><u>O</u>pen local file</span><span class="lang-flex" hidden="hidden">Open local file (<u>o</u>)</span></button>
 					<a id="aStructDownload" href="" hidden="hidden"></a>
-					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally."><span class="lang-static" translate="no">Sa<u>v</u>e file</span><span class="lang-flex" hidden="hidden">Save file (<u>v</u>)</span></button>
+					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally."><span class="lang-static" translate="no">Sa<u>v</u>e local file</span><span class="lang-flex" hidden="hidden">Save local file (<u>v</u>)</span></button>
 				</span>
 				<span class="cell">
 					<span class="chunk"><input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
@@ -702,7 +702,7 @@
 			</dl>
 			<p>In the structured format, note properties are (influenced by block property values):</p>
 			<dl>
-				<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
+				<dt><strong><code>noteStart</code></strong> (default <!-- <em>noteStop of previous note</em> or  --><code>0</code>)</dt>
 				<dd>The moment in time the note is played.</dd>
 				<dd>Affected by timeDelta and timeScale.</dd>
 
@@ -716,7 +716,7 @@
 				<dd>Affected by timeScale.</dd>
 
 				<dt><strong><code>freq</code></strong> (default <code>1</code>)</dt>
-				<dd>Frequency, which represents pitch.</dd>
+				<dd>Frequency, which represents pitch. While unfiltered noise has no specific frequency, freq is still used for decayFactor.</dd>
 				<dd>Affected by freqRatio.</dd>
 
 				<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
@@ -729,7 +729,7 @@
 				<dd>Absolute override when present.</dd>
 
 				<dt><strong><code>q</code></strong> (default <code>1</code>)</dt>
-				<dd>Inverse of relative bandwidth for a resonance filter. Used only with noise.</dd>
+				<dd>Inverse of relative bandwidth for a resonance filter. Used only with noise. The higher the number, the more tonal the timbre will be. Set to 0 prevent frequency filtering.</dd>
 				<dd>Absolute override when present.</dd>
 
 				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>

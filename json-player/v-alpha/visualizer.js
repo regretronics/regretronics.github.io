@@ -41,7 +41,8 @@ function drawNote(group, sourceNode) {
 	}
 
 	let vol = (isTone ? 1 : 
-		(isFiltered ? 0.125 * sourceNode.fltBandPass.Q.value ** (-1 / 3) : 0.5)); //hand-tuned parameters (to do: check for unfiltered noise)
+		//(isFiltered ? 0.125 * sourceNode.fltBandPass.Q.value ** (-1 / 3) : 0.5)); //hand-tuned parameters (to do: check for unfiltered noise)
+		(isFiltered ? 1 / (sourceNode.fltBandPass.Q.value + 1) : 1)); //hand-tuned parameters (to do: check for unfiltered noise)
 	if(sourceNode.modGainDecay) vol *= sourceNode.modGainDecay.gain?.value ?? 1;
 	if(sourceNode.modGainAttack) vol *= sourceNode.modGainAttack.gain?.value ?? 1;
 	if(sourceNode.modGainRelease) vol *= sourceNode.modGainRelease.gain?.value ?? 1;

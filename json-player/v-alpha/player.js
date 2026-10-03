@@ -317,9 +317,11 @@ function renderNote(clip, note) { //question: should this be a SoundClip method?
 		//volume scale and decay (from vol to 0)
 		//note: negative gain causes phase inversion (at least in Ffx 100)
 		const gainDecay = new GainNode(clip.audioCtx, {gain: clip.playVolScale * (note.vol ?? defaultNoteNode.vol)});
-		const decayFactor = NaNToDefault(note.decayFactor, defaultNoteNode.decayFactor);
-		//question: should decay factor be subject to playTimeScale? (currently yes)
-		gainDecay.gain.setTargetAtTime(0, minStart, Math.abs(clip.playTimeScale) * decayFactor * Math.LOG2E / Math.abs(noteFreq)); //negative time constants currently don't work
+		if(noteFreq) {
+			const decayFactor = NaNToDefault(note.decayFactor, defaultNoteNode.decayFactor);
+			//question: should decay factor be subject to playTimeScale? (currently yes)
+			gainDecay.gain.setTargetAtTime(0, minStart, Math.abs(clip.playTimeScale) * decayFactor * Math.LOG2E / Math.abs(noteFreq)); //negative time constants currently don't work
+		}
 		terminalNode.connect(gainDecay);
 		terminalNode = gainDecay;
 		sourceNode.modGainDecay = gainDecay;
@@ -379,12 +381,16 @@ function enqueueNotes(clip, tNow, tMargin) { //question: should this be a SoundC
 	//to do: nondestructive list traversal
 	while(clip.flatStruct.length > 0 && clip.flatStruct[0].noteStart <= tMax) { //to do: review time condition when allowing reverse playback
 		const note = clip.flatStruct.shift();
-		//in the flattened structure, all notes must have (non-zero) frequency
-		if(!note.freq) continue; //note: negative frequency is allowed
+
+		//in the flattened structure, all notes must have (non-zero) frequency...
+		if(!note.freq) //even unfiltered noise
+		//if(!note.freq && ((note.timbre ?? defaultNoteNode.timbre) != "noise" || (note.q ?? defaultNoteNode.q) != 0)) //except for unfiltered noise
+			continue; //note: negative frequency is allowed
 		//if(note.noteStop <= note.noteStart) continue;
 		if(note.noteStop === note.noteStart) continue; //note: negative length is not rejected, unlike length zero
 		if(note.vol === 0) continue; //negative amplitude is allowed, but zero amplitude not played
 		if(note.noteStop < tNow) continue;
+
 		try {
 			renderNote(clip, note);
 		} catch(error) {
@@ -529,8 +535,10 @@ function loadNewClip() {
 	let lastNoteStop = 0;
 	for(let i = 0, note; i < len; i++) {
 		note = flatStruct[i];
-		//in the flattened structure, all notes must have (non-zero) frequency.
-		if(!note.freq) continue;
+		//in the flattened structure, all notes must have (non-zero) frequency...
+		if(!note.freq) //even unfiltered noise
+		//if(!note.freq && ((note.timbre ?? defaultNoteNode.timbre) != "noise" || (note.q ?? defaultNoteNode.q) != 0)) //except for unfiltered noise
+			continue; //note: negative frequency is allowed
 		if(note.noteStart === undefined) note.noteStart = lastNoteStop;
 		if(note.noteStop === undefined)
 			note.noteStop = note.noteStart + NaNToDefault(note.duration, defaultNoteNode.duration);

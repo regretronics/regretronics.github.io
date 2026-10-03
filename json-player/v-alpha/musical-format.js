@@ -62,6 +62,7 @@ function parseExpRanges(event) {
 //to do: consider negative time scales
 //question: propagation of arbitrary/unrecognized properties? (probably a bad idea, because of patterns)
 //question: require a special format for pattern names? (to prevent collision with future properties)
+//question: 	or maybe group them into a "patterns" property?
 function parseNode(flatStruct, node, blockContext) {
 	//alter context.
 	const newContext = Object.assign({}, blockContext);
@@ -97,8 +98,15 @@ function parseNode(flatStruct, node, blockContext) {
 	if(node.remark) newContext.remark = node.remark; //string expected.
 	if(node.tag) newContext.tag = node.tag; //string expected.
 
-	//to do: allow noteStart to be inferred from previous noteStop? or inferred by its node index?
-	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") || node.hasOwnProperty("freq") || node.hasOwnProperty("vol"))
+	//the presence of any of certain properties connfirms there is a note in the node
+	//to do: !allow noteStart to be inferred from previous noteStop
+	//question:	or inferred by its node index?
+	//to do: 	how to get the previous note and its noteStop?
+	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") 
+		|| node.hasOwnProperty("freq") //even for unfiltered noise, presence of freq is accepted
+		//|| (node.hasOwnProperty("freq") && (node.timbre != "noise" || node.q != 0 || defaultNoteNode.q != 0)) //presence of freq only doesn't matter for unfiltered noise
+		|| node.hasOwnProperty("vol"))
+
 		try {
 			//register a note.
 			node.noteStart = NaNToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
@@ -120,15 +128,22 @@ function parseNode(flatStruct, node, blockContext) {
 			if(node.freq0) newNote.freq0 = newContext.freqRatio * node.freq0;
 			//to do: calculate proper freq0 while notes are still in hierarchy
 			newNote.freq = newContext.freqRatio * NaNToDefault(parseNumber(node.freq), defaultNoteNode.freq); //unconditional, but later than timbre and freq0
-			for(const prop in newContext) { //copy other properties
-				if(!relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
+			for(const prop in newContext) //copy other properties
+				if(newNote[prop] === undefined //not already present
+					&& !relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
 					&& !incrementalNoteProps.includes(prop) //exclude "blended" note properties
 					&& (newNote.timbre != "noise" || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
-						const val = newContext[prop];
-						if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
-							newNote[prop] = val;
-					}
-			}
+
+					const val = newContext[prop];
+					if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
+						newNote[prop] = val;
+				}
+			/* //unfiltered noise has no intrinsic frequency, but uses it for calculating decayFactor
+			if(newNote.timbre == "noise" && (newNote.q == 0 || (newNote.q === undefined && defaultNoteNode.q == 0))) {
+				//delete newNote.freq; //frequency value being useless and omitted
+				newNote.freq = 1 / newContext.timeScale; //frequency value being redefined from timeScale (ignoring freqRatio)
+				delete newNote.freq0; //currently, no noise portamento
+			} */
 			if(newContext.remark != defaultNoteNode.remark) newNote.remark = newContext.remark;
 			if(newContext.tag != defaultNoteNode.tag) newNote.tag = newContext.tag;
 

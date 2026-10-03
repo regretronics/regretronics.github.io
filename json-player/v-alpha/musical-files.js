@@ -1,16 +1,7 @@
 "use strict";
 
 let lastCodeObjURL = null;
-function getDateTimeCode(size) { //hard-coded to Western calendar.
-	if(size < 1) return "";
-	const now = new Date();
-	const dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()];
-	if(size < 7) dArr.length = size;
-	const dPadding = [4, 2, 2, 2, 2, 2, 3]; //digits per field
-	for(const i in dArr)
-		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0");
-	return dArr.join("-");
-}
+
 function structDownload(event) {
 	//for the future (as of 2024-08)?: window.showSaveFilePicker()
 	try {

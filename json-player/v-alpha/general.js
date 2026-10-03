@@ -225,3 +225,17 @@ function rhythmAccumUpdate() {
 	prefs.rhythmParams.rhythmFactors.push(1); //? (equalization?)
 	return true;
 }
+
+function getDateTimeCode(size) { //hard-coded to Western calendar.
+	if(size < 1) return "";
+	const 
+		now = new Date(),
+		dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()],
+		separators = ["-", "-", "_", "-", "-", "-"]; //something like 1999-12-31_23-59
+	if(size < 7) dArr.length = size;
+	const dPadding = [4, 2, 2, 2, 2, 2, 3]; //digits per field
+	for(const i in dArr)
+		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0") + (i < (dArr.length - 1) ? separators[i] : "");
+	//return dArr.join("-"); //something like 1999-12-31-23-59
+	return dArr.join("");
+}
