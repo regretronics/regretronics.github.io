@@ -67,12 +67,12 @@ function parseNode(flatStruct, node, blockContext) {
 	//alter context.
 	const newContext = Object.assign({}, blockContext);
 	//to do: bounds check and node elimination? (e.g. when freqRatio or freq or volRatio or vol or timeScale = 0)
-	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), 0); //additive
+	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), defaultBlockNode.timeDelta); //additive
 
 	//multiplicative
-	newContext.timeScale *= NaNToDefault(parseNumber(node.timeScale), 1);
-	newContext.volRatio *= NaNToDefault(parseNumber(node.volRatio), 1);
-	newContext.freqRatio *= NaNToDefault(parseNumber(node.freqRatio), 1);
+	newContext.timeScale *= NaNToDefault(parseNumber(node.timeScale), defaultBlockNode.timeScale);
+	newContext.freqRatio *= NaNToDefault(parseNumber(node.freqRatio), defaultBlockNode.freqRatio);
+	newContext.volRatio *= NaNToDefault(parseNumber(node.volRatio), defaultBlockNode.volRatio);
 
 	//absolute/substitutive
 	/*for(const prop in node) { //and others

@@ -767,16 +767,16 @@ function primeCountChanged(event) {
 	if(!window.txtPrimeCount) return false;
 
 	//question: reject value, correct it, or set to default?
-	const newPrimesCount = parseNumber(txtPrimeCount.value); //reject it
-	if(isNaN(newPrimesCount) || newPrimesCount < 1.25 || newPrimesCount > primes.length) return false;
-	/* let newPrimesCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2); //correct it
-	if(newPrimesCount < 1.25) newPrimesCount = 1.25;
-	if(newPrimesCount > primes.length) newPrimesCount = primes.length; */
-	prefs.genParams.primeCount = newPrimesCount;
+	const newPrimeCount = parseNumber(txtPrimeCount.value); //reject it
+	if(isNaN(newPrimeCount) || newPrimeCount < 1.25 || newPrimeCount > primes.length) return false;
+	/* let newPrimeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.genParams.primeCount); //correct it
+	if(newPrimeCount < 1.25) newPrimeCount = 1.25;
+	if(newPrimeCount > primes.length) newPrimeCount = primes.length; */
+	prefs.genParams.primeCount = newPrimeCount;
 
-	const lastPrime = Math.ceil(newPrimesCount), primesList = primes.slice(0, lastPrime);
+	const lastPrime = Math.ceil(newPrimeCount), primesList = primes.slice(0, lastPrime);
 	//for fractional sizes, represent the last prime in a different way
-	if(newPrimesCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
+	if(newPrimeCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
 	//if(window.outPrimeList) outPrimeList.innerText = "[" + primesList.join(", ") + "]";
 	if(window.outPrimeList) outPrimeList.innerHTML = "[" + primesList.join(", ") + "]";
 	recalcExpRanges();
@@ -788,7 +788,7 @@ function expVarianceChanged(event) {
 	//question: reject value, correct it, or set to default?
 	const newExpVariance = parseNumber(txtExpVariance.value); //reject it
 	if(isNaN(newExpVariance) || newExpVariance < 0.5 || newExpVariance > 8) return false;
-	/* let newExpVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2); //correct it
+	/* let newExpVariance = NaNToDefault(parseNumber(txtExpVariance.value), prefsDefault.genParams.expVariance); //correct it
 	if(newExpVariance < 0.5) newExpVariance = 0.5;
 	if(newExpVariance > 8) newExpVariance = 8; */
 	prefs.genParams.expVariance = newExpVariance;
@@ -797,8 +797,8 @@ function expVarianceChanged(event) {
 }
 function recalcExpRanges(force) {
 	if(adjustingPreferences && !force) return false; //fails silently
-	//prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), 2);
-	//prefs.genParams.expVariance = NaNToDefault(parseNumber(txtExpVariance.value), 2);
+	//prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.genParams.primeCount);
+	//prefs.genParams.expVariance = NaNToDefault(parseNumber(txtExpVariance.value), prefsDefault.genParams.expVariance);
 	const primeCount = prefs.genParams.primeCount, expVariance = prefs.genParams.expVariance;
 
 	try {
@@ -906,14 +906,14 @@ function rhythmFactorsChanged(event) {
 function playFreqScaleChanged(event) {
 	if(!window.txtPlayFreqScale) return false;
 	//if(txtPlayFreqScale.valueAsNumber <= 0) txtPlayFreqScale.stepUp();
-	prefs.clipParams.freqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), defaultBlockNode.freqRatio);
+	prefs.clipParams.freqScale = NaNToDefault(parseNumber(txtPlayFreqScale.value), /* defaultBlockNode.freqRatio */prefsDefault.clipParams.freqScale);
 	if(playerClip) playerClip.playFreqScale = prefs.clipParams.freqScale;
 	return true;
 }
 function playVolScaleChanged(event) {
 	if(!window.txtPlayVolScale) return false;
 	//if(txtPlayVolScale.valueAsNumber < 0) txtPlayVolScale.stepUp();
-	prefs.clipParams.volScale = NaNToDefault(parseNumber(txtPlayVolScale.value), defaultBlockNode.volRatio);
+	prefs.clipParams.volScale = NaNToDefault(parseNumber(txtPlayVolScale.value), /* defaultBlockNode.volRatio */prefsDefault.clipParams.volScale);
 	if(playerClip) playerClip.playVolScale = prefs.clipParams.volScale;
 	return true;
 }

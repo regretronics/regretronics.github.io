@@ -256,7 +256,7 @@ function expSpinnerChanged(event) {
 	}
 
 	const magnitude = Math.round(Math.log2(Math.abs(val)));
-	const stepRatio = NaNToDefault(parseFloat(elem.dataset.stepRatio), 0.25);
+	const stepRatio = NaNToDefault(parseFloat(elem.dataset?.stepRatio), 0.25);
 	const step = stepRatio * 2 ** magnitude;
 	const dynMin = val - 2 * Math.sign(val) * step, min = parseFloat(elem.dataset.min);
 	if(min === undefined || isNaN(min)) {
@@ -645,10 +645,10 @@ function playIntervalHandler(event) {
 
 		if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 		if(prefs.clipParams.freqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
-		const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
+		const playTimeScale = NaNToDefault(parseNumber(window.txtPlayTimeScale?.value), prefsDefault.clipParams.timeScale);
 		//to do: allow reverse playback? (currently no)
 		if(playTimeScale <= 0) throw(new Error("Invalid playback time scale setting."));
-		//const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta); //question: applicable here?
+		//const playTimeDelta = NaNToDefault(parseNumber(window.txtPlayTimeDelta?.value), prefsDefault.clipParams.timeDelta); //question: applicable here?
 		const playTimeDelta = 0; //probably not, I think.
 
 		const noteTInterval = 0.25, noteDuration = 3;

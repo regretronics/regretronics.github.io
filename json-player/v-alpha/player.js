@@ -437,7 +437,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 		}
 		return false;
 	}
-	//clip.playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale); //to do: ?variable speed
+	//clip.playTimeScale = NaNToDefault(parseNumber(window.txtPlayTimeScale?.value), / * defaultBlockNode.timeScale * /prefsDefault.clipParams.timeScale); //to do: ?variable speed
 	if(clip === playerClip) audioTUpdate();
 	const ctxTime = clip.audioCtx.currentTime, tNow = ctxTime - clip.t0;
 	//if(clip.flatStruct.length < 1 && tNow >= clip.duration) {
@@ -511,10 +511,10 @@ function loadNewClip() {
 	if(prefs.clipParams.freqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
-	const playTimeScale = NaNToDefault(parseNumber(txtPlayTimeScale.value), defaultBlockNode.timeScale);
+	const playTimeScale = NaNToDefault(parseNumber(window.txtPlayTimeScale?.value), /* defaultBlockNode.timeScale */prefsDefault.clipParams.timeScale);
 	//question: allow reverse playback? (how? apparently it will require a script-based audio node for the reverse of an exponential decay.)
 	if(playTimeScale <= 0) throw(new Error("Invalid playback time scale setting.")); //currently no.
-	const playTimeDelta = NaNToDefault(parseNumber(txtPlayTimeDelta.value), defaultBlockNode.timeDelta);
+	const playTimeDelta = NaNToDefault(parseNumber(window.txtPlayTimeDelta?.value), /* defaultBlockNode.timeDelta */prefsDefault.clipParams.timeDelta);
 
 	let flatStruct;
 	try {

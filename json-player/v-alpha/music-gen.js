@@ -73,7 +73,7 @@ function makeChords(patCount, voiceCount, _timeScale, primeCount, primeExpRanges
 	if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	const polyphony = voiceCount - 1; //partial superposition
-	_timeScale = NaNToDefault(_timeScale, defaultBlockNode.timeScale);
+	_timeScale = NaNToDefault(_timeScale, /* defaultBlockNode.timeScale */prefsDefault.genParams.timeScale);
 	const rootStruct = {
 		timeScale: _timeScale,
 		freqRatio: prefs.genParams.baseFreq,
@@ -97,7 +97,7 @@ function makeChords(patCount, voiceCount, _timeScale, primeCount, primeExpRanges
 function makeRhythmFactors(rhythmScale, primeCount) {
 	if(primeCount < 1) throw(new Error("Too few prime factors."));
 	const rhythmFactors = [];
-	let scale = Math.abs(NaNToDefault(rhythmScale, 4));
+	let scale = Math.abs(NaNToDefault(rhythmScale, prefsDefault.rhythmParams.rhythmScale));
 	//builds a (random) product of prime factors
 	//generate in reverse order (starting from high primes), and then use the lower ones in a complementary fashion
 	for(let i = Math.floor(primeCount) - 1, factor, y; i >= 0; i--) {
@@ -198,7 +198,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 
 	//hierarchy of beats
 	const pattern = [];
-	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);
+	const _timeScale = NaNToDefault(timeScale, /* defaultBlockNode.timeScale */prefsDefault.genParams.timeScale);
 	let rhythmStart = 0;
 	if(percussion) {
 		let sumVol = 0; //theoretical combined/maximum amplitude
@@ -399,7 +399,7 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 	if(baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 
 	//top-level node
-	const _timeScale = NaNToDefault(timeScale, defaultBlockNode.timeScale);
+	const _timeScale = NaNToDefault(timeScale, /* defaultBlockNode.timeScale */prefsDefault.genParams.timeScale);
 	const barDuration = rhythmFactorsAccum[0];
 	let sumVol = 0;
 	for(const scale of rhythmFactorsAccum) {
