@@ -2,20 +2,20 @@
 
 //to do: put some project-neutral scripts (e.g. parseNumber) in a "shared" file
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
-//to do: !more console reports and exception handling (success and failure of many operations)
+//to do: (done?) more console reports and exception handling (success and failure of many operations)
 //to do: !consider worker threads or scheduler
-//to do: !consider radically changing flattened format: events (more like midi), supporting named notes
+//to do: !consider changing flattened format, perhaps radically: events (more like midi), supporting named notes
 //to do: multitrack architecture for mixing and effect pipelines, with named tracks
 //to do: ...take query parameters (e.g. ?baseFreq=512&makeMelody)
 //to do: 	commands to generate, play, reset preferences
 //to do: 	take urls to import .mus.json files
-//to do: revise and remove excess dead code
+//to do: !revise and remove excess dead code
 //to do: I think it will be good to put return's even in events
-//to do: try more use of promise.then for heavy code, hopefully improving UI performance
+//to do: try more use of promise.then (or async?) for heavy code, hopefully improving UI performance
 
 //to do: !add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
-	//question: these names are probably lousy and inconsistent. right now I'm not sure of how to improve.
+	//question: !these names are probably lousy and inconsistent. right now I'm not sure of how to improve.
 	timeDelta: 0,
 	timeScale: 1,
 
@@ -123,7 +123,7 @@ function parseNumber(n) {
 			let slices;
 
 			//addition: "3+4+5" -> 3+(4+5) (right-associative)
-			//question: why not make it almost all left-associative?
+			//question: why not make it almost all left-associative (like JavaScript)?
 			//"+x" = "x+" = 0+x
 			if(slices = slicer(n.indexOf("+")))
 				return NaNToDefault(slices[0], 0) + NaNToDefault(slices[1], 0);
@@ -149,7 +149,7 @@ function parseNumber(n) {
 
 			//exponentiation: "x^y^z" = x^(y^z) (right-associative)
 			//"x^" = x^1
-			//"^x" = 2^x (? question)
+			//"^x" = 2^x (base 2 is a good practical choice)
 			if(slices = slicer(n.indexOf("^")))
 				return NaNToDefault(slices[0], 2) ** NaNToDefault(slices[1], 1);
 

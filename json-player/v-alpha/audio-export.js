@@ -37,18 +37,18 @@ function audioDownload(data) {
 		const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
 		if(window.outExportProgress) {
 			outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
-			outExportProgress?.classList?.remove("alert-error");
+			outExportProgress.classList?.remove?.("alert-error");
 		}
 		exportType = "";
 	} catch(error) {
 		console.error(error);
-		//question: direct message to outToolTip (currently yes), btnAudioExport or outExportProgress (currently yes)?
+		//question: direct message to outToolTip (currently yes), btnAudioExport.title or outExportProgress (currently yes)?
 		setToolTip(outToolTip, "Failure in audio saving. " + (error.message ?? error ?? ""), 3);
 		//if(event && event?.target?.title) event.target.title = (error.message ?? error).toString();
 		//if(window.btnAudioExport) btnAudioExport.title = (error.message ?? error).toString();
 		if(window.outExportProgress) {
 			outExportProgress.innerText = (error.message ?? error).toString();
-			outExportProgress?.classList?.add("alert-error");
+			outExportProgress.classList?.add?.("alert-error");
 		}
 		return false;
 	}
@@ -67,7 +67,7 @@ function clipEndExport(suspend) {
 	//	clip.audioCtx.close?.()?.then?.(nil => {
 			if(window.outExportProgress) {
 				outExportProgress.innerText = "Rendered";
-				outExportProgress?.classList?.remove("alert-error");
+				outExportProgress.classList?.remove?.("alert-error");
 			}
 			if(mediaRecorder) {
 				mediaRecorder.requestData();
@@ -96,10 +96,10 @@ function exportAudioTimer(clip) { //question: should this be a SoundClip method?
 	}
 	const ctxTime = clip.audioCtx.currentTime;
 	if(window.outExportProgress) {
-		//question: round or trunc for completion? (currently trunc, as with time)
+		//question: round (toFixed) or trunc (toFixedTrunc) for completion? (currently trunc, as with time)
 		//outExportProgress.innerText = (100 * ctxTime / (clip.duration + clip.t0)).toFixed(2) + "%";
 		outExportProgress.innerText = toFixedTrunc(100 * ctxTime / (clip.duration + clip.t0), 2) + "%";
-		outExportProgress?.classList?.remove("alert-error");
+		outExportProgress.classList?.remove?.("alert-error");
 	}
 	//if(clip.flatStruct.length < 1 && (ctxTime - clip.t0) > clip.duration) {
 	if(clip.audioCtx.state !== 'suspended' && (ctxTime - clip.t0) > 0 && clip.generators.length < 1) {
@@ -158,7 +158,7 @@ function beforeRecord() {
 	//console.log("beforeRecord(): enqueueNotes done.");
 	if(window.outExportProgress) {
 		outExportProgress.innerText = "Starting";
-		outExportProgress?.classList?.remove("alert-error");
+		outExportProgress.classList?.remove?.("alert-error");
 	}
 	mediaRecorder.start();
 	exportClip.audioCtx.resume()?.then?.(nil => {
@@ -194,7 +194,7 @@ function audioExport(event) {
 		exportClip.onClipEnd = clipEndExport;
 		if(window.outExportProgress) {
 			outExportProgress.innerText = "Note list loaded";
-			outExportProgress?.classList?.remove("alert-error");
+			outExportProgress.classList?.remove?.("alert-error");
 		}
 		//question: round (toFixed) or trunc (toFixedTrunc) here?
 		if(window.outExportDuration) outExportDuration.innerText = exportClip.duration.toFixed(timeDisplPrecision);
@@ -222,10 +222,11 @@ function audioExportCancel(event) {
 	exportClip.clipEndDefault(true)?.then?.(nil => {
 			if(window.outExportProgress) {
 				outExportProgress.innerText = "Canceled";
-				outExportProgress?.classList?.remove("alert-error");
+				outExportProgress.classList?.remove?.("alert-error");
 			}
 			if(mediaRecorder) {
-				//mediaRecorder.onstop = null; //question: allow partial download? (currently yes)
+				//question: allow partial download? (currently yes)
+				//mediaRecorder.onstop = null; //no
 				mediaRecorder.stop();
 				mediaRecorder = null;
 			}

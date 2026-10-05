@@ -87,11 +87,9 @@ const defStructuredCode = '{\n\
 }';
 const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
 {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
-//to do: !what to follow (and when)? there are default values in the HTML controls, a defaults structure below, the defaults in btnResetPreferencesClick, and defaultBlockNode.
-//to do: 	either read the defaults from HTML and store here, or do the converse
-//to do: 	btnResetPreferencesClick should be changed to point here
+//to do: what to follow (and when)? there are default values in the HTML controls, a defaults structure below, and defaultBlockNode.
+//to do: 	!either read the defaults from HTML and store here, or do the converse
 //to do: 	get a criterion for when or whether to use defaultBlockNode besides for structured code
-//to do: 	the isolated constants will tend to be replaced by the defaults structure
 const prefsDefault = {
 	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
 	basicParams: {
@@ -139,7 +137,7 @@ var
 	rhythmFactorsAccum = [], //to be calculated
 	adjustingPreferences = false;
 
-//to do: replace these settings functions for ones that consistenly convert from some point to another, using a preferences object for representation (one of the operands)
+//to do: !replace these settings functions for ones that consistenly convert from some point to another, using a preferences object for representation (one of the operands)
 //to do: 	all, from HTML controls defaults to object
 //to do: 	all, from object to HTML controls defaults
 //to do: 	both specific and all, from object to local storage
@@ -658,6 +656,7 @@ function resetAllPreferences() {
 	loadPreferences(); //?
 }
 
+//to do: !use it in saveControlPreference
 function controlGetValue(elem) { //question: exception on failure? (currently no)
 	if(!elem) {
 		console.info("controlGetValue(): parameter elem is empty. Returning.");
@@ -939,7 +938,7 @@ function baseFreqChanged(event) {
 	let newBaseFreq = parseNumber(txtBaseFreq.value);
 	if(isNaN(newBaseFreq)) return false; //reject it
 	//newBaseFreq = NaNToDefault(newBaseFreq, prefsDefault.genParams.baseFreq); //correct it
-	if(newBaseFreq < prefs.basicParams.freqRangeMin) newBaseFreq = prefs.basicParams.freqRangeMin;
+	if(newBaseFreq < prefs.basicParams.freqRangeMin) newBaseFreq = prefs.basicParams.freqRangeMin; //correct it
 	if(newBaseFreq > prefs.basicParams.freqRangeMax) newBaseFreq = prefs.basicParams.freqRangeMax;
 
 	window.txtBaseFreq?.classList?.toggle?.("invalid", !newBaseFreq);
@@ -958,6 +957,7 @@ function baseFreqChanged(event) {
 function rhythmFactorsChanged(event) {
 	//to do: !support additive time signatures (e.g. 3 beats + 4 beats -> 1001000)? (would probably turn rhythmFactors into a tree)
 	//	to do: !how should we interpret a heterogeneous number of factors, e.g. 3 + 2*2 (top-down vs. bottom-up)? like (2 + 2 + 2) + ((1 + 1) + (1 + 1)) or (1 + 1 + 1) + ((1 + 1) + (1 + 1))?
+	//		pad with factors? e.g. 3 + 2*2 -> 1*3 + 2*2
 	//		maybe bottom-up: 3 + 2*2 would be like 3*1 + 2*2. seems conceptually simpler.
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
 	//to do: !maybe interpret the rightmost factor (deepest into the small scale) as a duration in pulses, not a group of pulses, which would change the number of levels (2 * 2 would have 4/2 as levels, instead of 4/2/1)
@@ -974,6 +974,7 @@ function rhythmFactorsChanged(event) {
 				for(let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
 					newRhythmFactors.push(base);
 				//question: non-integer exponents? (if(exp > 0) ...)
+				//question: negative exponents?
 			} else
 				newRhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
 		}

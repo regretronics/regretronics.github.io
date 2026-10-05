@@ -6,8 +6,8 @@ var releaseCurve;
 
 //to do: iterative self-filtering for subtractive synthesis?
 //done: consider changing setTimeout to setInterval or requestAnimationFrame. setTimeout produces seriously deep call stacks (at least in Ffx), and might be consuming resources.
-//to do: log when .audioCtx state changes (by event), to be sure that it's not kept running.
-//to do: !review audioTimer(), clipEndPlayer(), clipEndExport().
+//to do: (done?) log when .audioCtx state changes (by event), to be sure that it's not kept running.
+//to do: review audioTimer(), clipEndPlayer(), clipEndExport().
 //to do: allow a common audible AudioContext for both clip and interval playback
 //to do: have a variable for the interval clip (?) (distinct from playerClip)
 
@@ -331,7 +331,7 @@ function renderNote(clip, note) { //question: should this be a SoundClip method?
 		const attack = NaNToDefault(note.attack, defaultNoteNode.attack);
 		if(attack > 0) {
 			const gainAttack = new GainNode(clip.audioCtx, {gain: 0});
-			//question: should attack time be subject to noteFreq? (currently no)
+			//question: !should attack time be subject to noteFreq? (currently no)
 			//question: should attack time be subject to playTimeScale? (currently yes)
 			gainAttack.gain.setTargetAtTime(1, minStart, Math.abs(clip.playTimeScale) * attack * Math.LOG2E);
 			terminalNode.connect(gainAttack);

@@ -60,9 +60,9 @@ function parseExpRanges(event) {
 
 //recursive function
 //to do: consider negative time scales
-//question: propagation of arbitrary/unrecognized properties? (probably a bad idea, because of patterns)
 //question: require a special format for pattern names? (to prevent collision with future properties)
 //question: 	or maybe group them into a "patterns" property?
+//question: propagation of arbitrary/unrecognized properties? (currently a bad idea, because of patterns)
 function parseNode(flatStruct, node, blockContext) {
 	//alter context.
 	const newContext = Object.assign({}, blockContext);
@@ -98,10 +98,10 @@ function parseNode(flatStruct, node, blockContext) {
 	if(node.remark) newContext.remark = node.remark; //string expected.
 	if(node.tag) newContext.tag = node.tag; //string expected.
 
-	//the presence of any of certain properties connfirms there is a note in the node
+	//the presence of any of certain properties confirms there is a note in the node
 	//to do: !allow noteStart to be inferred from previous noteStop
 	//question:	or inferred by its node index?
-	//to do: 	how to get the previous note and its noteStop?
+	//to do: 	!how to get the previous note and its noteStop?
 	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") 
 		|| node.hasOwnProperty("freq") //even for unfiltered noise, presence of freq is accepted
 		//|| (node.hasOwnProperty("freq") && (node.timbre != "noise" || node.q != 0 || defaultNoteNode.q != 0)) //presence of freq only doesn't matter for unfiltered noise

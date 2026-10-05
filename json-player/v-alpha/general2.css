@@ -16,6 +16,9 @@
 } */
 
 :root {
+	/*to do: !migrate from hsl to oklch*/
+	/*to do: !more use of variables (custom properties) for colors, with less specific rules in the color scheme files*/
+	/*to do: !more use of variables (custom properties) for scheme parameters*/
 	/*question: include deg unit for hues? (currently never)*/
 	--hue-accent0: 120;
 	/*0deg hsl -> red; ~25deg oklch -> red*/
@@ -133,6 +136,10 @@ input:is([type=checkbox], [type=radio]) + label {
 	appearance: none;
 	border-style: none;
 	background-color: transparent;
+}
+.controls-group th[scope=rowgroup] {
+	font-weight: normal;
+	max-inline-size: 25cqi;
 }
 
 .cell {

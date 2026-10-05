@@ -23,8 +23,10 @@ function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 		const range = primeExpRanges[factor], currExp = refFreq[factor], newRange = [
 			/* Math.max(range[0], range[0] - currExp),
 			Math.min(range[1], range[1] - currExp) */
-			Math.max(-1, Math.min(0, range[0] - currExp)),
-			Math.min( 1, Math.max(0, range[1] - currExp))
+			Math.max(range[0], Math.min(0, range[0] - currExp)),
+			Math.min(range[1], Math.max(0, range[1] - currExp))
+			/* Math.max(-1, Math.min(0, range[0] - currExp)),
+			Math.min( 1, Math.max(0, range[1] - currExp)) */
 		];
 		newPrimeExpRanges[factor] = newRange;
 		spans.push(newRange[1] - newRange[0]);
@@ -42,19 +44,6 @@ function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 	//const newExp = Math.floor(newPrimeExpRanges[primes[iPrime]] + randAccum - spans[iPrime]);
 	const factor = primes[iPrime], sign = (newPrimeExpRanges[factor][0] + spans[iPrime] - randAccum) >= 0 ? 1 : -1;
 
-	//to do: use a while loop?
-	/* //question: weighted random on factor selection? (currently yes)
-	//const iPrime = Math.floor(primeCount * Math.random());
-	const iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
-	let sign = (Math.random() >= 0.5 ? 1 : -1);
-
-	const newExp = refFreq[primes[iPrime]] + sign;
-	//bounds (tonality) check
-	//for chords with a fixed first note, the exponents should vary in a bilateral way
-	const expBounds = primeExpRanges[primes[iPrime]]; //question: +1? +0.5?
-	//if(Math.abs(newExp) > 1 * maxExp && sign === Math.sign(newExp)) sign *= -1;
-	//if((newExp > maxExp || - newExp < 0.5 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
-	if((newExp < expBounds[0] || newExp > expBounds[1]) && sign === Math.sign(newExp)) sign *= -1; */
 	Object.assign(targetFreq, refFreq);
 	//targetFreq[factor] = newExp;
 	targetFreq[factor] += sign;
@@ -123,7 +112,7 @@ function makeChords(patCount, voiceCount, _timeScale, primeCount, primeExpRanges
 }
 
 //rhythm structure generator
-//question: currently, rhythmScale is like a maximum. follow it more closely?
+//question: !currently, rhythmScale is like a maximum. follow it more closely?
 //to do: !avoid repeating the last result, when the scale is reasonably high (e.g. 8) and the prime count too
 function makeRhythmFactors(rhythmScale, primeCount) {
 	if(primeCount < 1) throw(new Error("Too few prime factors."));
@@ -472,8 +461,10 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 
 			//the default range can be further restricted by current exponent values
 			const range = primeExpRanges[factor], currExp = previous.freq[factor], newRange = [
-				Math.max(-1, Math.min(0, range[0] - currExp)),
-				Math.min( 1, Math.max(0, range[1] - currExp))
+				Math.max(range[0], Math.min(0, range[0] - currExp)),
+				Math.min(range[1], Math.max(0, range[1] - currExp))
+				/* Math.max(-1, Math.min(0, range[0] - currExp)),
+				Math.min( 1, Math.max(0, range[1] - currExp)) */
 			];
 			newPrimeExpRanges[factor] = newRange;
 			spans.push(newRange[1] - newRange[0]);
