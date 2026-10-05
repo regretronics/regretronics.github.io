@@ -193,7 +193,7 @@ input.invalid {
 }
 
 #imgVisualizer {
-	background-color: hsla(0, 0%, 100%, 0.25);
+	background-color: hsla(0, 0%, 100%, 0.5);
 	/* --fill-color: hsla(var(--hue-accent2, 300), 75%, 25%, 0.875); */
-	--fill-color: hsl(var(--hue-accent2, 300), 75%, 25%);
+	--fill-color: hsl(var(--hue-accent2, 300), 100%, 12.5%);
 }

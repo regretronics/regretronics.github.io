@@ -189,5 +189,5 @@ input.invalid {
 #imgVisualizer {
 	background-color: hsla(0, 0%, 100%, 0.5);
 	/* --fill-color: hsla(var(--hue-accent2, 300), 0%, 0%, 0.875); */
-	--fill-color: hsl(var(--hue-accent2, 300), 0%, 0%);
+	--fill-color: hsl(0, 0%, 0%);
 }
