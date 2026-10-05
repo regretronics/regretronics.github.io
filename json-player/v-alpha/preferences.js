@@ -1,7 +1,6 @@
 "use strict";
 
-//to do: !(hierarchical) objects for preferences and default preferences
-const preferencesKeysFlat = [
+const preferencesKeysFlat = [ //maybe unnecessary
 	"pageAppearance.textSize",
 	"pageAppearance.theme",
 	"pageAppearance.hue",
@@ -452,12 +451,12 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("pageAppearance.theme");
 			localStorage.removeItem("pageAppearance.hue");
 
-			prefs.pageAppearance.textSize = 1;
+			prefs.pageAppearance.textSize = prefsDefault.pageAppearance.textSize;
 			document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
-			cboPageTheme.value = "Automatic";
+			cboPageTheme.value = prefsDefault.pageAppearance.theme;
 			cboPageTheme.dispatchEvent(new Event("input"));
-			document.documentElement.style.setProperty("--hue-accent0", 120);
-			updateThemeColor(120);
+			document.documentElement.style.setProperty("--hue-accent0", prefsDefault.pageAppearance.hue);
+			updateThemeColor(prefsDefault.pageAppearance.hue);
 		}
 		if(window.chkResetGenParams?.checked) {
 			localStorage.removeItem("genParams.baseFreq");
@@ -475,13 +474,13 @@ function btnResetPreferencesClick(event) {
 			txtFreqRangeMin.dispatchEvent(new Event("input"));
 			txtFreqRangeMax.value = prefsDefault.genParams.freqRangeMax.toString();
 			txtFreqRangeMax.dispatchEvent(new Event("input"));
-			txtTimeScale.value = "0.5";
+			txtTimeScale.value = prefsDefault.genParams.timeScale.toString();
 			txtTimeScale.dispatchEvent(new Event("input"));
-			txtPatternCount.value = "4";
+			txtPatternCount.value = prefsDefault.genParams.patternCount.toString();
 			txtPatternCount.dispatchEvent(new Event("input"));
-			txtPrimeCount.value = "3";
+			txtPrimeCount.value = prefsDefault.genParams.primeCount.toString();
 			txtPrimeCount.dispatchEvent(new Event("input"));
-			txtExpVariance.value = "2";
+			txtExpVariance.value = prefsDefault.genParams.expVariance.toString();
 			txtExpVariance.dispatchEvent(new Event("input"));
 			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
 			recalcExpRanges(true);
@@ -490,7 +489,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("rhythmParams.rhythmScale");
 			localStorage.removeItem("rhythmParams.rhythmFactors");
 
-			txtRhythmScale.value = "8";
+			txtRhythmScale.value = prefsDefault.rhythmParams.rhythmScale.toString();
 			txtRhythmScale.dispatchEvent(new Event("input"));
 			txtRhythmFactors.value = prefsDefault.rhythmParams.rhythmFactors.join("*");
 			txtRhythmFactors.dispatchEvent(new Event("input"));
@@ -501,13 +500,13 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("addGenParams.reptPeriod");
 			localStorage.removeItem("addGenParams.percussivePattern");
 
-			txtVoiceCount.value = "3";
+			txtVoiceCount.value = prefsDefault.addGenParams.voiceCount.toString();
 			txtVoiceCount.dispatchEvent(new Event("input"));
-			txtReptCount.value = "2";
+			txtReptCount.value = prefsDefault.addGenParams.reptCount.toString();
 			txtReptCount.dispatchEvent(new Event("input"));
-			txtReptPeriod.value = "4";
+			txtReptPeriod.value = prefsDefault.addGenParams.reptPeriod.toString();
 			txtReptPeriod.dispatchEvent(new Event("input"));
-			chkPercussivePattern.checked = true;
+			chkPercussivePattern.checked = prefsDefault.addGenParams.percussivePattern;
 			chkPercussivePattern.dispatchEvent(new Event("click"));
 		}
 		if(window.chkResetStructuredMusic?.checked) {
@@ -515,9 +514,9 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("structuredMusic.lineWrapping");
 			localStorage.removeItem("structuredMusic.content");
 
-			chkOverflow1.checked = false;
-			chkLineWrap1.checked = false;
-			codeBoxContentSet(ctlStructuredScript, defStructuredCode);
+			chkOverflow1.checked = prefsDefault.structuredMusic.overflow;
+			chkLineWrap1.checked = prefsDefault.structuredMusic.lineWrapping;
+			codeBoxContentSet(ctlStructuredScript, prefsDefault.structuredMusic.content);
 			ctlStructuredScript.classList.remove("expanded", "line-wrap", "invalid");
 			//ctlStructuredScript.dispatchEvent(new Event("input"));
 		}
@@ -527,11 +526,11 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("flatScript.lineWrapping");
 			localStorage.removeItem("flatScript.content");
 
-			chkAutoFlatten.checked = true;
+			chkAutoFlatten.checked = prefsDefault.flatScript.autoFlatten;
 			//chkAutoFlatten.dispatchEvent(new Event("click"));
-			chkOverflow2.checked = false;
-			chkLineWrap2.checked = false;
-			codeBoxContentSet(ctlFlatScript, defFlattenedCode);
+			chkOverflow2.checked = prefsDefault.flatScript.overflow;
+			chkLineWrap2.checked = prefsDefault.flatScript.lineWrapping;
+			codeBoxContentSet(ctlFlatScript, prefsDefault.flatScript.content);
 			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid");
 			ctlFlatScript.dispatchEvent(new Event("input"));
 		}
@@ -541,19 +540,19 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("clipParams.timeScale");
 			localStorage.removeItem("clipParams.timeDelta");
 
-			txtPlayFreqScale.value = "1";
+			txtPlayFreqScale.value = prefsDefault.clipParams.freqScale.toString();
 			txtPlayFreqScale.dispatchEvent(new Event("input"));
-			txtPlayVolScale.value = "1";
+			txtPlayVolScale.value = prefsDefault.clipParams.volScale.toString();
 			txtPlayVolScale.dispatchEvent(new Event("input"));
-			txtPlayTimeScale.value = "1";
+			txtPlayTimeScale.value = prefsDefault.clipParams.timeScale.toString();
 			txtPlayTimeScale.dispatchEvent(new Event("input"));
-			txtPlayTimeDelta.value = "0";
+			txtPlayTimeDelta.value = prefsDefault.clipParams.timeDelta.toString();
 			txtPlayTimeDelta.dispatchEvent(new Event("input"));
 		}
 		if(window.chkResetPlayer?.checked) {
 			localStorage.removeItem("player.autoReload");
 
-			chkAutoReload.checked = false;
+			chkAutoReload.checked = prefsDefault.player.autoReload;
 			chkAutoReload.dispatchEvent(new Event("click"));
 		}
 		if(window.chkResetReset?.checked) {
@@ -567,15 +566,15 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("reset.player");
 			localStorage.removeItem("reset.reset");
 
-			if(window.chkResetPageAppearance) chkResetPageAppearance.checked = false;
-			if(window.chkResetGenParams) chkResetGenParams.checked = false;
-			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = false;
-			if(window.chkResetAddGenParams) chkResetAddGenParams.checked = false;
-			if(window.chkResetStructuredMusic) chkResetStructuredMusic.checked = false;
-			if(window.chkResetFlatScript) chkResetFlatScript.checked = false;
-			if(window.chkResetClipParams) chkResetClipParams.checked = false;
-			if(window.chkResetPlayer) chkResetPlayer.checked = false;
-			chkResetReset.checked = false;
+			if(window.chkResetPageAppearance) chkResetPageAppearance.checked = prefsDefault.reset.pageAppearance;
+			if(window.chkResetGenParams) chkResetGenParams.checked = prefsDefault.reset.genParams;
+			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = prefsDefault.reset.rhythmParams;
+			if(window.chkResetAddGenParams) chkResetAddGenParams.checked = prefsDefault.reset.addGenParams;
+			if(window.chkResetStructuredMusic) chkResetStructuredMusic.checked = prefsDefault.reset.structuredMusic;
+			if(window.chkResetFlatScript) chkResetFlatScript.checked = prefsDefault.reset.flatScript;
+			if(window.chkResetClipParams) chkResetClipParams.checked = prefsDefault.reset.clipParams;
+			if(window.chkResetPlayer) chkResetPlayer.checked = prefsDefault.reset.player;
+			chkResetReset.checked = prefsDefault.reset.reset;
 			//.dispatchEvent(new Event("input"));
 		}
 	} catch(error) {
