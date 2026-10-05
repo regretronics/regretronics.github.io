@@ -12,25 +12,63 @@ function renormalizeOctave(refFreq, targetFreq) {
 //makes a simple interval by introducing a random prime factor up or down one unit
 //to do: reuse this in melodySubNodes? (probably not)
 function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
-	//to do: !use a while loop
-	//question: weighted random on factor selection? (currently yes)
+	//evaluate choices and ranges for each prime factor, building a revised table of ranges
+	//const newPrimeExpRanges = structuredClone(primeExpRanges);
+	const newPrimeExpRanges = {};
+	const maxFactor = primes[Math.ceil(primeCount) - 1], spans = [];
+	//for(const factor in newPrimeExpRanges) {
+	for(const factor in primeExpRanges) {
+		//if(!Object.hasOwn(newPrimeExpRanges, factor)) continue;
+		if(!Object.hasOwn(primeExpRanges, factor)) continue;
+		if(factor > maxFactor) break;
+
+		//the default range can be further restricted by current exponent values
+		/* const range = newPrimeExpRanges[factor];
+		range[0] = Math.max(range[0], range[0] - refFreq[factor]);
+		range[1] = Math.min(range[1], range[1] - refFreq[factor]); */
+		const range = primeExpRanges[factor], currExp = refFreq[factor], newRange = [
+			/* Math.max(range[0], range[0] - currExp),
+			Math.min(range[1], range[1] - currExp) */
+			Math.max(-1, Math.min(0, range[0] - currExp)),
+			Math.min( 1, Math.max(0, range[1] - currExp))
+		];
+		newPrimeExpRanges[factor] = newRange;
+		spans.push(newRange[1] - newRange[0]);
+	}
+
+	//through proportional division, try to find a random factor and a new exponent
+	let accum = 0;
+	for(const i in spans) {
+		if(!Object.hasOwn(spans, i)) continue;
+
+		accum += spans[i];
+		spans[i] = accum;
+	}
+	//const sumRange = spans.reduce((previousValue, currentValue, currentIndex, array) => previousValue + currentValue);
+	const randAccum = accum * Math.random(), iPrime = spans.findIndex((value, index, obj) => value > randAccum);
+	//const newExp = Math.floor(newPrimeExpRanges[primes[iPrime]] + randAccum - spans[iPrime]);
+	const factor = primes[iPrime], sign = (newPrimeExpRanges[factor][0] + spans[iPrime] - randAccum) >= 0 ? 1 : -1;
+
+	//to do: use a while loop?
+	/* //question: weighted random on factor selection? (currently yes)
 	//const iPrime = Math.floor(primeCount * Math.random());
 	const iPrime = Math.floor((primeCount + 1) ** Math.random()) - 1;
-	let sign = (Math.random() >= 0.5 ? 1 : -1); //JavaScript may have a funky operator precedence, if I got it right, so I use extra parens with the ternary conditional: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
-	Object.assign(targetFreq, refFreq);
+	let sign = (Math.random() >= 0.5 ? 1 : -1);
 
-	const newExp = targetFreq[primes[iPrime]] + sign;
+	const newExp = refFreq[primes[iPrime]] + sign;
 	//bounds (tonality) check
 	//for chords with a fixed first note, the exponents should vary in a bilateral way
 	const expBounds = primeExpRanges[primes[iPrime]]; //question: +1? +0.5?
 	//if(Math.abs(newExp) > 1 * maxExp && sign === Math.sign(newExp)) sign *= -1;
 	//if((newExp > maxExp || - newExp < 0.5 * maxExp) && sign === Math.sign(newExp)) sign *= -1;
-	if((newExp < expBounds[0] || newExp > expBounds[1]) && sign === Math.sign(newExp)) sign *= -1;
-	targetFreq[primes[iPrime]] += sign;
+	if((newExp < expBounds[0] || newExp > expBounds[1]) && sign === Math.sign(newExp)) sign *= -1; */
+	Object.assign(targetFreq, refFreq);
+	//targetFreq[factor] = newExp;
+	targetFreq[factor] += sign;
 
 	//pitch normalization into factor 2, i.e. octave normalization, except when changing the very octave on purpose
 	//to do: occasional use of higher primes for normalization
-	if(iPrime > 1 && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) targetFreq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
+	if(iPrime > 1 && Math.random() < 0.5 * (1 - 0.5 ** iPrime)) targetFreq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 	if(iPrime >= 1) renormalizeOctave(refFreq, targetFreq);
 
 	limitFreq(tuning, targetFreq); //?
@@ -274,7 +312,7 @@ function makeRhythm(repeatCount, percussion, timeScale) {
 //the melody generator also presumes that prefs.rhythmParams.rhythmFactors and rhythmFactorsAccum are properly filled
 //recursive function
 //done: option for rhythm pattern in both rhythm and melody generator
-function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
+function melodySubNodesOld(struct, level, tuning, primeCount, primeExpRanges) {
 	if(!struct) {
 		console.info("melodySubNodes(): parameter struct is empty. Returning.");
 		return false;
@@ -385,6 +423,92 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 		//if(i === 0) newNode.freq[2]++; //first beat -> new voice level -> one octave up
 		limitFreq(tuning, newNode.freq); //not THAT high
 
+		melodySubNodesOld(newNode, level + 1, tuning, primeCount, primeExpRanges);
+	}
+	return struct;
+}
+function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
+	if(!struct) {
+		console.info("melodySubNodes(): parameter struct is empty. Returning.");
+		return false;
+	}
+	if(level >= prefs.rhythmParams.rhythmFactors.length) return false;
+	const beats = prefs.rhythmParams.rhythmFactors[level - 1];
+	const scale = rhythmFactorsAccum[level];
+	const subNodePattern = {
+		timeDelta: 0, //make it appear early in JSON, defer filling
+		freqRatio: beats, //faster scales are higher-pitched
+		volRatio: "1/" + beats.toString(),
+
+		duration: 0,
+		freq: null //using {} here will cause a bug of using the same reference without cloning {}
+	};
+	tuning *= subNodePattern.freqRatio;
+	//when using non-integer measures, sub-bars may become non-uniform in number of beats
+	const beats2 = struct.duration / scale;
+	const altLevel = Math.log2(rhythmFactorsAccum[0] / scale);
+	//const beatStrengthInv = Math.random() < 0.25;
+	const beatStrengthInv = false;
+	for(let i = 0; i < beats2; i++) {
+		const newNode = Object.assign({}, subNodePattern);
+		struct[i] = newNode;
+		newNode.timeDelta = i.toString() + "*" + scale.toString();
+
+		const crumb = Math.min(1, beats2 - i); //the last beat may have a fraction of the normal duration
+		newNode.duration = scale * crumb;
+		//to do: newTuning?
+		if(crumb !== 1) newNode.freqRatio = newNode.freqRatio.toString() + "/" + crumb.toString();
+
+		//question: should the other beats base their frequency on the first one?
+		//let previous = struct; //no
+		let previous = (i < 1 ? struct : struct[0]); //yes
+		//alternative: each note is based on a random previous note in the same level
+		//previous = (i < 1 ? struct : struct[Math.floor(i * Math.random())]); //don't use rnd here
+		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
+
+		//factor selection
+		//const beatType = i < 1; //is first beat?
+		//const beatType = i >= (beats2 - 1); //is last beat?
+
+		//evaluate choices and ranges for each prime factor, building a revised table of ranges
+		const newPrimeExpRanges = {};
+		const maxFactor = primes[Math.ceil(primeCount) - 1], spans = [];
+		for(const factor in primeExpRanges) {
+			if(!Object.hasOwn(primeExpRanges, factor)) continue;
+			if(factor > maxFactor) break;
+
+			//the default range can be further restricted by current exponent values
+			const range = primeExpRanges[factor], currExp = previous.freq[factor], newRange = [
+				Math.max(-1, Math.min(0, range[0] - currExp)),
+				Math.min( 1, Math.max(0, range[1] - currExp))
+			];
+			newPrimeExpRanges[factor] = newRange;
+			spans.push(newRange[1] - newRange[0]);
+		}
+
+		//through proportional division, try to find a random factor and a new exponent
+		let accum = 0;
+		for(const i in spans) {
+			if(!Object.hasOwn(spans, i)) continue;
+
+			accum += spans[i];
+			spans[i] = accum;
+		}
+		//const sumRange = spans.reduce((previousValue, currentValue, currentIndex, array) => previousValue + currentValue);
+		const randAccum = accum * Math.random(), iPrime = spans.findIndex((value, index, obj) => value > randAccum);
+		//const newExp = Math.floor(newPrimeExpRanges[primes[iPrime]][0] + randAccum - spans[iPrime]);
+		const factor = primes[iPrime], sign = (newPrimeExpRanges[factor][0] + spans[iPrime] - randAccum) >= 0 ? 1 : -1;
+
+		//newNode.freq[factor] = newExp;
+		newNode.freq[factor] += sign;
+
+		//pitch normalization into factor 2, i.e. octave normalization
+		//to do: occasional use of higher primes for normalization
+		//if(iPrime > 1 && (Math.random() < 0.5 * (1 - 0.5 ** iPrime))) newNode.freq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
+		if(iPrime >= 1) renormalizeOctave(previous.freq, newNode.freq);
+		//if(i === 0) newNode.freq[2]++; //first beat -> new voice level -> one octave up
+		limitFreq(tuning, newNode.freq); //not THAT high
+
 		melodySubNodes(newNode, level + 1, tuning, primeCount, primeExpRanges);
 	}
 	return struct;
@@ -458,9 +582,9 @@ function makeMelody(patCount, reptPeriod, reptCount, timeScale, percussion, prim
 		//randomize an initial note
 		let product = 1;
 		for(let iPrime = 1; iPrime < primeCount; iPrime++) {
-			const factor = primes[iPrime];
-			const expBounds = primeExpRanges[factor];
-			const exp = Math.floor(expBounds[0] + (expBounds[1] - expBounds[0] + 1) * Math.random());
+			const 
+				factor = primes[iPrime], expBounds = primeExpRanges[factor],
+				exp = Math.floor(expBounds[0] + (expBounds[1] - expBounds[0] + 1) * Math.random());
 			pattern.freq[factor] = exp;
 			product *= factor ** exp;
 		}
