@@ -10,13 +10,13 @@ const preferencesKeysFlat = [ //maybe unnecessary
 	"genParams.timeScale",
 	"genParams.voiceCount",
 	"genParams.patternCount",
-	"genParams.primeCount",
-	"genParams.expRangeLower",
-	"genParams.expRangeUpper",
-	"genParams.primeExpRanges",
 	"genParams.reptCount",
 	"genParams.reptPeriod",
 	"genParams.percussivePattern",
+	"primeFactors.primeCount",
+	"primeFactors.expRangeLower",
+	"primeFactors.expRangeUpper",
+	"primeFactors.expRanges",
 	"rhythmParams.rhythmScale",
 	"rhythmParams.rhythmFactors",
 	"structuredMusic.overflow",
@@ -46,6 +46,10 @@ const preferencesKeysDeprecatedFlat = [
 	"genParams.freqRangeMin",
 	"genParams.freqRangeMax",
 	"genParams.expVariance",
+	"genParams.primeCount",
+	"genParams.expRangeLower",
+	"genParams.expRangeUpper",
+	"genParams.primeExpRanges",
 	"addGenParams.voiceCount",
 	"addGenParams.reptCount",
 	"addGenParams.reptPeriod",
@@ -55,7 +59,8 @@ const preferencesKeysDeprecatedFlat = [
 const preferencesKeysTree = {
 	pageAppearance: ["textSize", "theme", "hue"],
 	basicParams: ["freqRangeMin", "freqRangeMax"],
-	genParams: ["baseFreq", "timeScale", "voiceCount", "patternCount", "primeCount", "expRangeLower", "expRangeUpper", "primeExpRanges", "reptCount", "reptPeriod", "percussivePattern"],
+	genParams: ["baseFreq", "timeScale", "voiceCount", "patternCount", "reptCount", "reptPeriod", "percussivePattern"],
+	primeFactors: ["primeCount", "expRangeLower", "expRangeUpper", "expRanges"],
 	rhythmParams: ["rhythmScale", "rhythmFactors"],
 	structuredMusic: ["overflow", "lineWrapping", "content"],
 	flatScript: ["autoFlatten", "overflow", "lineWrapping", "content"],
@@ -99,13 +104,15 @@ const prefsDefault = {
 		timeScale: 0.5/* defaultBlockNode.timeScale */, 
 		voiceCount: 3, 
 		patternCount: 4, 
-		primeCount: 3, 
-		expRangeLower: 0, 
-		expRangeUpper: 2, 
-		primeExpRanges: undefined, //to be calculated
 		reptCount: 2, 
 		reptPeriod: 4, 
 		percussivePattern: true
+	},
+	primeFactors: {
+		primeCount: 3, 
+		expRangeLower: 0, 
+		expRangeUpper: 2, 
+		expRanges: undefined //variability per prime factor (2, 3, 5, 7, ...); array of array of numbers. to be calculated.
 	},
 	rhythmParams: {
 		rhythmScale: 8, 
@@ -122,7 +129,7 @@ const prefsDefault = {
 		timeDelta: 0/* defaultBlockNode.timeDelta */
 	},
 	player: {autoReload: false},
-	reset: {pageAppearance: false, basicParams: false, genParams: false, rhythmParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
+	reset: {pageAppearance: false, basicParams: false, genParams: false, primeFactors: false, rhythmParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
 };
 var prefs = Object.assign({}, prefsDefault);
 
@@ -158,6 +165,10 @@ function loadPreferences(triggerNow) {
 			if((s = localStorage.getItem("reset.genParams")) && window.chkResetGenParams) {
 				chkResetGenParams.checked = JSON.parse(s);
 				//chkResetGenParams.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("reset.primeFactors")) && window.chkResetPrimeFactorsParams) {
+				chkResetPrimeFactorsParams.checked = JSON.parse(s);
+				//chkResetPrimeFactorsParams.dispatchEvent(new Event("input"));
 			}
 			if((s = localStorage.getItem("reset.rhythmParams")) && window.chkResetRhythmParams) {
 				chkResetRhythmParams.checked = JSON.parse(s);
@@ -234,23 +245,6 @@ function loadPreferences(triggerNow) {
 				txtPatternCount.value = s;
 				txtPatternCount.dispatchEvent(new Event("input"));
 			}
-			if((s = localStorage.getItem("genParams.primeCount")) && window.txtPrimeCount) {
-				txtPrimeCount.value = s;
-				txtPrimeCount.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.expRangeLower")) && window.txtExpRangeLower) {
-				txtExpRangeLower.value = s;
-				txtExpRangeLower.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.expRangeUpper") ?? localStorage.getItem("genParams.expVariance")) && window.txtExpRangeUpper) {
-				txtExpRangeUpper.value = s;
-				txtExpRangeUpper.dispatchEvent(new Event("input"));
-			}
-			if(s = localStorage.getItem("genParams.primeExpRanges")) {
-				codeBoxContentSet(ctlPrimeExpRanges, s);
-				window.ctlPrimeExpRanges?.dispatchEvent?.(new Event("input"));
-			} else
-				recalcExpRanges(false);
 			if((s = localStorage.getItem("genParams.reptCount") ?? localStorage.getItem("addGenParams.reptCount")) && window.txtReptCount) {
 				txtReptCount.value = s;
 				txtReptCount.dispatchEvent(new Event("input"));
@@ -263,6 +257,27 @@ function loadPreferences(triggerNow) {
 				chkPercussivePattern.checked = JSON.parse(s);
 				chkPercussivePattern.dispatchEvent(new Event("click")); //question: input or click event for check boxes?
 			}
+		}
+
+		//Prime factors parameters
+		if(!window.chkResetPrimeFactorsParams?.checked) {
+			if((s = localStorage.getItem("primeFactors.primeCount") ?? localStorage.getItem("genParams.primeCount")) && window.txtPrimeCount) {
+				txtPrimeCount.value = s;
+				txtPrimeCount.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("primeFactors.expRangeLower") ?? localStorage.getItem("genParams.expRangeLower")) && window.txtExpRangeLower) {
+				txtExpRangeLower.value = s;
+				txtExpRangeLower.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("primeFactors.expRangeUpper") ?? localStorage.getItem("genParams.expRangeUpper") ?? localStorage.getItem("genParams.expVariance")) && window.txtExpRangeUpper) {
+				txtExpRangeUpper.value = s;
+				txtExpRangeUpper.dispatchEvent(new Event("input"));
+			}
+			if(s = localStorage.getItem("primeFactors.expRanges") ?? localStorage.getItem("genParams.primeExpRanges")) {
+				codeBoxContentSet(ctlPrimeExpRanges, s);
+				window.ctlPrimeExpRanges?.dispatchEvent?.(new Event("input"));
+			} else
+				recalcExpRanges(false);
 		}
 
 		//Rhythm parameters
@@ -394,20 +409,21 @@ function saveAllPreferences() {
 			localStorage.setItem("genParams.voiceCount", txtVoiceCount.value);
 		if(window.txtPatternCount)
 			localStorage.setItem("genParams.patternCount", txtPatternCount.value);
-		if(window.txtPrimeCount)
-			localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(prefs.genParams.primeCount)?
-		if(window.txtExpRangeLower)
-			localStorage.setItem("genParams.expRangeLower", txtExpRangeLower.value); //JSON.stringify(prefs.genParams.expRangeLower)?
-		if(window.txtExpRangeUpper)
-			localStorage.setItem("genParams.expRangeUpper", txtExpRangeUpper.value); //JSON.stringify(prefs.genParams.expRangeUpper)?
-		if(window.ctlPrimeExpRanges)
-			localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges));
 		if(window.txtReptCount)
 			localStorage.setItem("genParams.reptCount", txtReptCount.value);
 		if(window.txtReptPeriod)
 			localStorage.setItem("genParams.reptPeriod", txtReptPeriod.value);
 		if(window.chkPercussivePattern)
 			localStorage.setItem("genParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked)); */
+		//Prime factors parameters
+		/* if(window.txtPrimeCount)
+			localStorage.setItem("primeFactors.primeCount", txtPrimeCount.value); //JSON.stringify(prefs.primeFactors.primeCount)?
+		if(window.txtExpRangeLower)
+			localStorage.setItem("primeFactors.expRangeLower", txtExpRangeLower.value); //JSON.stringify(prefs.primeFactors.expRangeLower)?
+		if(window.txtExpRangeUpper)
+			localStorage.setItem("primeFactors.expRangeUpper", txtExpRangeUpper.value); //JSON.stringify(prefs.primeFactors.expRangeUpper)?
+		if(window.ctlPrimeExpRanges)
+			localStorage.setItem("primeFactors.expRanges", codeBoxContentGet(ctlPrimeExpRanges)); */
 		//Rhythm parameters
 		/* if(window.txtRhythmScale)
 			localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
@@ -450,6 +466,8 @@ function saveAllPreferences() {
 			localStorage.setItem("reset.basicParams", JSON.stringify(chkResetBasicParams.checked));
 		if(window.chkResetGenParams)
 			localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
+		if(window.chkResetPrimeFactorsParams)
+			localStorage.setItem("reset.primeFactors", JSON.stringify(chkResetPrimeFactorsParams.checked));
 		if(window.chkResetRhythmParams)
 			localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams.checked));
 		if(window.chkResetStructuredMusic)
@@ -503,11 +521,6 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("addGenParams.voiceCount"); //deprecated
 			localStorage.removeItem("genParams.voiceCount");
 			localStorage.removeItem("genParams.patternCount");
-			localStorage.removeItem("genParams.primeCount");
-			localStorage.removeItem("genParams.expVariance");
-			localStorage.removeItem("genParams.expRangeLower");
-			localStorage.removeItem("genParams.expRangeUpper");
-			localStorage.removeItem("genParams.primeExpRanges");
 			localStorage.removeItem("addGenParams.reptCount"); //deprecated
 			localStorage.removeItem("addGenParams.reptPeriod"); //deprecated
 			localStorage.removeItem("addGenParams.percussivePattern"); //deprecated
@@ -523,20 +536,33 @@ function btnResetPreferencesClick(event) {
 			txtVoiceCount.dispatchEvent(new Event("input"));
 			txtPatternCount.value = prefsDefault.genParams.patternCount.toString();
 			txtPatternCount.dispatchEvent(new Event("input"));
-			txtPrimeCount.value = prefsDefault.genParams.primeCount.toString();
-			txtPrimeCount.dispatchEvent(new Event("input"));
-			txtExpRangeLower.value = prefsDefault.genParams.expRangeLower.toString();
-			txtExpRangeLower.dispatchEvent(new Event("input"));
-			txtExpRangeUpper.value = prefsDefault.genParams.expRangeUpper.toString();
-			txtExpRangeUpper.dispatchEvent(new Event("input"));
-			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
-			recalcExpRanges(true);
 			txtReptCount.value = prefsDefault.genParams.reptCount.toString();
 			txtReptCount.dispatchEvent(new Event("input"));
 			txtReptPeriod.value = prefsDefault.genParams.reptPeriod.toString();
 			txtReptPeriod.dispatchEvent(new Event("input"));
 			chkPercussivePattern.checked = prefsDefault.genParams.percussivePattern;
 			chkPercussivePattern.dispatchEvent(new Event("click"));
+		}
+		if(window.chkResetPrimeFactorsParams?.checked) {
+			localStorage.removeItem("genParams.primeCount"); //deprecated
+			localStorage.removeItem("genParams.expVariance"); //deprecated
+			localStorage.removeItem("genParams.expRangeLower"); //deprecated
+			localStorage.removeItem("genParams.expRangeUpper"); //deprecated
+			localStorage.removeItem("genParams.primeExpRanges"); //deprecated
+			localStorage.removeItem("primeFactors.primeCount");
+			localStorage.removeItem("primeFactors.expVariance");
+			localStorage.removeItem("primeFactors.expRangeLower");
+			localStorage.removeItem("primeFactors.expRangeUpper");
+			localStorage.removeItem("primeFactors.expRanges");
+
+			txtPrimeCount.value = prefsDefault.primeFactors.primeCount.toString();
+			txtPrimeCount.dispatchEvent(new Event("input"));
+			txtExpRangeLower.value = prefsDefault.primeFactors.expRangeLower.toString();
+			txtExpRangeLower.dispatchEvent(new Event("input"));
+			txtExpRangeUpper.value = prefsDefault.primeFactors.expRangeUpper.toString();
+			txtExpRangeUpper.dispatchEvent(new Event("input"));
+			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
+			recalcExpRanges(true);
 		}
 		if(window.chkResetRhythmParams?.checked) {
 			localStorage.removeItem("rhythmParams.rhythmScale");
@@ -597,6 +623,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("reset.pageAppearance");
 			localStorage.removeItem("reset.basicParams");
 			localStorage.removeItem("reset.genParams");
+			localStorage.removeItem("reset.primeFactors");
 			localStorage.removeItem("reset.rhythmParams");
 			localStorage.removeItem("reset.addGenParams"); //deprecated
 			localStorage.removeItem("reset.structuredMusic");
@@ -608,6 +635,7 @@ function btnResetPreferencesClick(event) {
 			if(window.chkResetPageAppearance) chkResetPageAppearance.checked = prefsDefault.reset.pageAppearance;
 			if(window.chkResetBasicParams) chkResetBasicParams.checked = prefsDefault.reset.basicParams;
 			if(window.chkResetGenParams) chkResetGenParams.checked = prefsDefault.reset.genParams;
+			if(window.chkResetPrimeFactorsParams) chkResetPrimeFactorsParams.checked = prefsDefault.reset.primeFactors;
 			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = prefsDefault.reset.rhythmParams;
 			if(window.chkResetStructuredMusic) chkResetStructuredMusic.checked = prefsDefault.reset.structuredMusic;
 			if(window.chkResetFlatScript) chkResetFlatScript.checked = prefsDefault.reset.flatScript;
@@ -807,10 +835,10 @@ function primeCountChanged(event) {
 	//question: reject value, correct it, or set to default?
 	const newPrimeCount = parseNumber(txtPrimeCount.value); //reject it
 	if(isNaN(newPrimeCount) || newPrimeCount < 1.25 || newPrimeCount > primes.length) return false;
-	/* let newPrimeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.genParams.primeCount); //correct it
+	/* let newPrimeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.primeFactors.primeCount); //correct it
 	if(newPrimeCount < 1.25) newPrimeCount = 1.25;
 	if(newPrimeCount > primes.length) newPrimeCount = primes.length; */
-	prefs.genParams.primeCount = newPrimeCount;
+	prefs.primeFactors.primeCount = newPrimeCount;
 
 	const lastPrime = Math.ceil(newPrimeCount), primesList = primes.slice(0, lastPrime);
 	//for fractional sizes, represent the last prime in a different way
@@ -830,15 +858,15 @@ function txtExpRangeLowerChanged(event) {
 		txtExpRangeLower.classList.add("invalid");
 		return false;
 	}
-	if(newExpRangeLower < -8 || newExpRangeLower >= prefs.genParams.expRangeUpper) {
+	if(newExpRangeLower < -8 || newExpRangeLower >= prefs.primeFactors.expRangeUpper) {
 		txtExpRangeLower.setCustomValidity("Input is out of valid bounds.");
 		txtExpRangeLower.classList.add("invalid");
 		return false;
 	}
-	/* let newExpRangeLower = NaNToDefault(parseNumber(txtExpRangeLower.value), prefsDefault.genParams.expRangeLower); //correct it
+	/* let newExpRangeLower = NaNToDefault(parseNumber(txtExpRangeLower.value), prefsDefault.primeFactors.expRangeLower); //correct it
 	if(newExpRangeLower < -8) newExpRangeLower = -8;
-	if(newExpRangeLower >= prefs.genParams.expRangeUpper) newExpRangeLower = prefs.genParams.expRangeUpper - Number(txtExpRangeLower.step); */
-	prefs.genParams.expRangeLower = newExpRangeLower;
+	if(newExpRangeLower >= prefs.primeFactors.expRangeUpper) newExpRangeLower = prefs.primeFactors.expRangeUpper - Number(txtExpRangeLower.step); */
+	prefs.primeFactors.expRangeLower = newExpRangeLower;
 	txtExpRangeLower.setCustomValidity("");
 	txtExpRangeLower.classList.remove("invalid");
 
@@ -854,15 +882,15 @@ function txtExpRangeUpperChanged(event) {
 		txtExpRangeUpper.classList.add("invalid");
 		return false;
 	}
-	if(newExpRangeUpper <= prefs.genParams.expRangeLower || newExpRangeUpper > 8) {
+	if(newExpRangeUpper <= prefs.primeFactors.expRangeLower || newExpRangeUpper > 8) {
 		txtExpRangeUpper.setCustomValidity("Input is out of valid bounds.");
 		txtExpRangeUpper.classList.add("invalid");
 		return false;
 	}
-	/* let newExpRangeUpper = NaNToDefault(parseNumber(txtExpRangeUpper.value), prefsDefault.genParams.expRangeUpper); //correct it
-	if(newExpRangeUpper <= prefsDefault.genParams.expRangeUpper) newExpRangeUpper = prefsDefault.genParams.expRangeUpper + Number(txtExpRangeUpper.step);
+	/* let newExpRangeUpper = NaNToDefault(parseNumber(txtExpRangeUpper.value), prefsDefault.primeFactors.expRangeUpper); //correct it
+	if(newExpRangeUpper <= prefsDefault.primeFactors.expRangeUpper) newExpRangeUpper = prefsDefault.primeFactors.expRangeUpper + Number(txtExpRangeUpper.step);
 	if(newExpRangeUpper > 8) newExpRangeUpper = 8; */
-	prefs.genParams.expRangeUpper = newExpRangeUpper;
+	prefs.primeFactors.expRangeUpper = newExpRangeUpper;
 	txtExpRangeUpper.setCustomValidity("");
 	txtExpRangeUpper.classList.remove("invalid");
 
@@ -870,11 +898,11 @@ function txtExpRangeUpperChanged(event) {
 }
 function recalcExpRanges(force) {
 	if(adjustingPreferences && !force) return false; //fails silently
-	//prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.genParams.primeCount);
+	//prefs.primeFactors.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.primeFactors.primeCount);
 	const 
-		primeCount = prefs.genParams.primeCount, 
-		expRangeLower = prefs.genParams.expRangeLower,
-		expRangeUpper = prefs.genParams.expRangeUpper;
+		primeCount = prefs.primeFactors.primeCount, 
+		expRangeLower = prefs.primeFactors.expRangeLower,
+		expRangeUpper = prefs.primeFactors.expRangeUpper;
 
 	try {
 		const primeCountCeil = Math.ceil(primeCount);
@@ -888,7 +916,7 @@ function recalcExpRanges(force) {
 
 			newExpRanges[primes[i]] = [Number((expRangeLower * range).toFixed(4)), Number((expRangeUpper * range).toFixed(4))];
 		}
-		primeExpRanges = newExpRanges;
+		prefs.primeFactors.expRanges = newExpRanges;
 
 		const objText = toJSONCodeAdjusted(newExpRanges);
 		if(window.ctlPrimeExpRanges) {

@@ -196,9 +196,6 @@ const timeDisplPrecision = 2;
 var releaseCurve;
 const releaseCurveSize = 8192;
 
-//variability per prime factor (2, 3, 5, 7, ...); array of array of numbers.
-var primeExpRanges = null;
-
 async function initialCalculations() {
 	//initialize look-up table
 	releaseCurve = new Float32Array(releaseCurveSize);

@@ -45,7 +45,7 @@ function parseExpRanges(event) {
 		if(Object.keys(newExpRanges) <= 0) throw(new Error("Exponent ranges: no valid entries."));
 		if(!hasAnyRanges) throw(new Error("Exponent ranges: no valid ranges."));
 
-		primeExpRanges = newExpRanges;
+		prefs.primeFactors.expRanges = newExpRanges;
 		if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
 	} catch(error) {
 		console.warn(error);

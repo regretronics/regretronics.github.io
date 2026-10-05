@@ -180,22 +180,22 @@
 					<tr>
 						<td class="empty"></td>
 						<td><label for="txtPrimeCount"><span class="lang-static" translate="no">prime factors (oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label></td>
-						<td><input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></td>
+						<td><input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="primeFactors.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></td>
 						<td><output id="outPrimeList" translate="no" data-min-size="4" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output></td>
 					</tr>
 					<tr>
 						<th scope="rowgroup" rowspan="3"><span class="lang-static" translate="no">tone (exponent) ranges</span><span class="lang-flex" hidden="hidden">tone depth (exponent ranges)</span></th>
 						<td><label for="txtExpRangeLower">lower</label></td>
-						<td><input type="number" id="txtExpRangeLower" value="0" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="genParams.expRangeLower" title="Exponent variation range, lower bound (higher prime factors have narrower variance). Used by chord and melody generators. Lower values produce more utonality, while wider ranges in general produce more atonality." size="5" /></td>
+						<td><input type="number" id="txtExpRangeLower" value="0" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="primeFactors.expRangeLower" title="Exponent variation range, lower bound (higher prime factors have narrower variance). Used by chord and melody generators. Lower values produce more utonality, while wider ranges in general produce more atonality." size="5" /></td>
 					</tr>
 					<tr>
 						<td><label for="txtExpRangeUpper">upper</label></td>
-						<td><input type="number" id="txtExpRangeUpper" value="2" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="genParams.expRangeUpper" title="Exponent variation range, upper bound (higher prime factors have narrower variance). Used by chord and melody generators. Higher values produce more otonality, while wider ranges in general produce more atonality." size="5" /></td>
+						<td><input type="number" id="txtExpRangeUpper" value="2" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="primeFactors.expRangeUpper" title="Exponent variation range, upper bound (higher prime factors have narrower variance). Used by chord and melody generators. Higher values produce more otonality, while wider ranges in general produce more atonality." size="5" /></td>
 					</tr>
 					<tr>
 						<!--question: default state: line wrapping? overflow?-->
 						<!--question: make code boxes always left-to-right?-->
-						<td colspan="2"><label for="ctlPrimeExpRanges">custom ranges:</label> <br /><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="genParams.primeExpRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
+						<td colspan="2"><label for="ctlPrimeExpRanges">custom ranges:</label> <br /><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="primeFactors.expRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
 					</tr>
 				</tbody>
 			</table>
@@ -378,6 +378,7 @@
 			<p><input type="checkbox" id="chkResetPageAppearance" data-pref="reset.pageAppearance" title="" /><label for="chkResetPageAppearance">Page appearance</label></p>
 			<p><input type="checkbox" id="chkResetBasicParams" data-pref="reset.basicParams" title="" /><label for="chkResetBasicParams">Basic parameters</label></p>
 			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters</label></p>
+			<p><input type="checkbox" id="chkResetPrimeFactorParams" data-pref="reset.primeFactors" title="" /><label for="chkResetPrimeFactorParams">Prime factor parameters</label></p>
 			<p><input type="checkbox" id="chkResetRhythmParams" data-pref="reset.rhythmParams" title="" /><label for="chkResetRhythmParams">Rhythm parameters</label></p>
 			<p><input type="checkbox" id="chkResetStructuredMusic" data-pref="reset.structuredMusic" title="" /><label for="chkResetStructuredMusic">Structured music editor</label></p>
 			<p><input type="checkbox" id="chkResetFlatScript" data-pref="reset.flatScript" title="" /><label for="chkResetFlatScript">Flattened note list</label></p>

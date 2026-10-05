@@ -13,19 +13,13 @@ function renormalizeOctave(refFreq, targetFreq) {
 //to do: reuse this in melodySubNodes? (probably not)
 function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 	//evaluate choices and ranges for each prime factor, building a revised table of ranges
-	//const newPrimeExpRanges = structuredClone(primeExpRanges);
 	const newPrimeExpRanges = {};
 	const maxFactor = primes[Math.ceil(primeCount) - 1], spans = [];
-	//for(const factor in newPrimeExpRanges) {
 	for(const factor in primeExpRanges) {
-		//if(!Object.hasOwn(newPrimeExpRanges, factor)) continue;
 		if(!Object.hasOwn(primeExpRanges, factor)) continue;
 		if(factor > maxFactor) break;
 
 		//the default range can be further restricted by current exponent values
-		/* const range = newPrimeExpRanges[factor];
-		range[0] = Math.max(range[0], range[0] - refFreq[factor]);
-		range[1] = Math.min(range[1], range[1] - refFreq[factor]); */
 		const range = primeExpRanges[factor], currExp = refFreq[factor], newRange = [
 			/* Math.max(range[0], range[0] - currExp),
 			Math.min(range[1], range[1] - currExp) */
@@ -44,7 +38,6 @@ function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 		accum += spans[i];
 		spans[i] = accum;
 	}
-	//const sumRange = spans.reduce((previousValue, currentValue, currentIndex, array) => previousValue + currentValue);
 	const randAccum = accum * Math.random(), iPrime = spans.findIndex((value, index, obj) => value > randAccum);
 	//const newExp = Math.floor(newPrimeExpRanges[primes[iPrime]] + randAccum - spans[iPrime]);
 	const factor = primes[iPrime], sign = (newPrimeExpRanges[factor][0] + spans[iPrime] - randAccum) >= 0 ? 1 : -1;
