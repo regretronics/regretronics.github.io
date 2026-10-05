@@ -85,7 +85,9 @@ input:is([type=number], [type=text])[size] {
 	inline-size: calc(2*5em/32 + 2ch + var(--size, 6)*1ch); /*inspired by Firefox sizing of input's*/
 }
 input[type=number], .right {
-	text-align: right;
+	&, table.controls-group :is(th, td):not(.left):has(&) {
+		text-align: right;
+	}
 }
 .align-inline-end {
 	text-align: end;
@@ -171,7 +173,7 @@ input[type=checkbox] {
 
 	background-color: ButtonFace;
 
-	&:is(&:empty/* , &:blank */)::before {
+	&:is(:empty/* , :blank */)::before {
 		/* @media not all and (prefers-contrast: more) { */
 			opacity: var(--inactive-opacity, 0.75);
 		/* } */
@@ -219,6 +221,9 @@ input[type=checkbox] {
 	td > & {
 		margin-block: 0em;
 	}
+	td:has(> &) {
+		max-inline-size: 75cqi;
+	}
 	&:not(td > &) {
 		margin-block: 1em;
 	}
@@ -257,8 +262,8 @@ input[type=checkbox] {
 	}
 }
 #titleIcon {
-	block-size: 1em;
-	inline-size: auto;
+	/* block-size: 1em;
+	inline-size: auto; */
 
 	& img {
 		block-size: 1em;

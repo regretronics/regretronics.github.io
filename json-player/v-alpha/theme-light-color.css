@@ -84,7 +84,7 @@ hr {
 table:has(> caption), caption {
 	background-color: hsla(0, 0%, 100%, 0.125);
 }
-td {
+tbody :is(td, th):not(.empty) {
 	background-color: hsla(var(--hue-accent, 120), 50%, 93.75%, 0.25);
 }
 summary:first-of-type {

@@ -85,9 +85,6 @@ hr {
 	border-width: 0.5ch;
 }
 
-table.controls-group :is(th, td):not(.left):nth-child(2) {
-	text-align: right;
-}
 code:not(.long) { /*class "long" reserved for future use*/
 	user-select: all;
 }

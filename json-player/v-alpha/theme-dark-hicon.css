@@ -81,10 +81,10 @@ hr {
 .separator {
 	background-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
 }
-table:has(> caption), caption, table:not(:has(> caption)) td {
+table:has(> caption), caption, table:not(:has(> caption)) tbody :is(td, th):not(.empty) {
 	background-color: hsla(0, 0%, 50%, 0.25);
 }
-table:has(> caption) td {
+table:has(> caption) tbody :is(td, th):not(.empty) {
 	background-color: hsla(0, 0%, 0%, 0.5);
 }
 summary:first-of-type {

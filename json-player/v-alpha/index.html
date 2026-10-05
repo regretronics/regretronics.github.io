@@ -113,12 +113,13 @@
 			<table class="controls-group">
 				<tbody>
 					<tr>
-						<td><label for="txtFreqRangeMin"><span class="lang-static" translate="no">freq. range, min</span><span class="lang-flex" hidden="hidden">minimum frequency</span> (Hz)</label></td>
 						<td><input type="number" id="txtFreqRangeMin" value="30" step="1" class="exp custom-spin" data-pref="genParams.freqRangeMin" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
+						<th scope="rowgroup" rowspan="2"><span class="lang-static" translate="no">freq. range</span><span class="lang-flex" hidden="hidden">frequency range</span></th>
+						<td><label for="txtFreqRangeMin"><span class="lang-static" translate="no">min.</span><span class="lang-flex" hidden="hidden">minimum</span> (Hz)</label></td>
 					</tr>
 					<tr>
-						<td><label for="txtFreqRangeMax"><span class="lang-static" translate="no">freq. range, max</span><span class="lang-flex" hidden="hidden">maximum frequency</span> (Hz)</label></td>
 						<td><input type="number" id="txtFreqRangeMax" value="13000" step="1" class="exp custom-spin" data-pref="genParams.freqRangeMax" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
+						<td><label for="txtFreqRangeMax"><span class="lang-static" translate="no">max.</span><span class="lang-flex" hidden="hidden">maximum</span> (Hz)</label></td>
 					</tr>
 				</tbody>
 			</table>
@@ -142,12 +143,12 @@
 							<option value="443"></option>
 							<option value="466"></option>
 						</datalist>
-						<td><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label></td>
+						<td><label for="txtBaseFreq"><span class="lang-static" translate="no">base freq. (Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label></td>
 						<td><input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></td>
 					</tr>
 					<tr>
 						<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
-						<td><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label></td>
+						<td><label for="txtTimeScale">time scale (s)</label></td>
 						<td><input type="number" id="txtTimeScale" value="0.5" required="required" data-min="0" step="0.25" class="exp custom-spin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" /></td>
 					</tr>
 					<tr>
@@ -159,15 +160,15 @@
 						<td><input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></td>
 					</tr>
 					<tr>
-						<td><label for="txtReptCount"><span class="lang-static" translate="no">rept.&nbsp;count</span><span class="lang-flex" hidden="hidden">repeat count</span></label></td>
+						<td><label for="txtReptCount"><span class="lang-static" translate="no">rept. count</span><span class="lang-flex" hidden="hidden">repeat count</span></label></td>
 						<td><input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" /></td>
 					</tr>
 					<tr>
-						<td><label for="txtReptPeriod"><span class="lang-static" translate="no">rept.&nbsp;period</span><span class="lang-flex" hidden="hidden">repeat period</span></label></td>
+						<td><label for="txtReptPeriod"><span class="lang-static" translate="no">rept. period</span><span class="lang-flex" hidden="hidden">repeat period</span></label></td>
 						<td><input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Interval between repetitions, in patterns. Used by melody generator." size="4" /></td>
 					</tr>
 					<tr>
-						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></td>
+						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render percussive pattern</label></td>
 					</tr>
 				</tbody>
 			</table>
@@ -177,9 +178,9 @@
 			<table class="controls-group">
 				<tbody>
 					<tr>
-						<td><label for="txtPrimeCount"><span class="lang-static" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label></td>
+						<td><label for="txtPrimeCount"><span class="lang-static" translate="no">prime factors (oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label></td>
 						<td><input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></td>
-						<td><output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output></td>
+						<td><output id="outPrimeList" translate="no" data-min-size="4" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output></td>
 					</tr>
 					<tr>
 						<td><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth scale (exponent variance)</span></label></td>
@@ -188,7 +189,7 @@
 					<tr>
 						<!--question: default state: line wrapping? overflow?-->
 						<!--question: make code boxes always left-to-right?-->
-						<td colspan="2"><label for="ctlPrimeExpRanges">Exponent ranges:</label> <br /><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="genParams.primeExpRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
+						<td colspan="2"><label for="ctlPrimeExpRanges">custom ranges:</label> <br /><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="genParams.primeExpRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
 					</tr>
 				</tbody>
 			</table>
@@ -283,11 +284,11 @@
 						<td><input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.volScale" title="Multiplicative factor." size="6" /></td>
 					</tr>
 					<tr>
-						<td><label for="txtPlayTimeScale">time&nbsp;scale</label></td>
+						<td><label for="txtPlayTimeScale">time scale</label></td>
 						<td><input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp custom-spin" data-pref="clipParams.timeScale" title="Multiplicative factor." size="6" /></td>
 					</tr>
 					<tr>
-						<td><label for="txtPlayTimeDelta"><span class="lang-static" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="lang-flex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label></td>
+						<td><label for="txtPlayTimeDelta"><span class="lang-static" translate="no">time delta (skip vs. lead-in)</span><span class="lang-flex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label></td>
 						<td><input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="custom-spin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" /></td>
 					</tr>
 				</tbody>
@@ -325,7 +326,7 @@
 							<td><input type="number" id="txtVisTimeScale" value="4" step="1" class="exp custom-spin" data-pref="vis.timeScale" title="Supports non-integers." size="6" /></td>
 						</tr>
 						<tr>
-							<td colspan="2"><input type="checkbox" id="chkVisFreqGrid" data-pref="vis.freqGrid" title="" /><label for="chkVisFreqGrid">Overlay&nbsp;frequency&nbsp;grid</label></td>
+							<td colspan="2"><input type="checkbox" id="chkVisFreqGrid" data-pref="vis.freqGrid" title="" /><label for="chkVisFreqGrid">Overlay frequency grid</label></td>
 						</tr>
 					</tbody>
 				</table>
