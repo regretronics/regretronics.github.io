@@ -153,7 +153,7 @@
 					</tr>
 					<tr>
 						<td><label for="txtVoiceCount">voices</label></td>
-						<td><input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" /></td>
+						<td><input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="genParams.voiceCount" title="Used by chord generator." size="3" /></td>
 					</tr>
 					<tr>
 						<td><label for="txtPatternCount"><span class="lang-static" translate="no">pattern count</span><span class="lang-flex" hidden="hidden">pattern count</span></label></td>
@@ -161,14 +161,14 @@
 					</tr>
 					<tr>
 						<td><label for="txtReptCount"><span class="lang-static" translate="no">rept. count</span><span class="lang-flex" hidden="hidden">repeat count</span></label></td>
-						<td><input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" /></td>
+						<td><input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" /></td>
 					</tr>
 					<tr>
 						<td><label for="txtReptPeriod"><span class="lang-static" translate="no">rept. period</span><span class="lang-flex" hidden="hidden">repeat period</span></label></td>
-						<td><input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Interval between repetitions, in patterns. Used by melody generator." size="4" /></td>
+						<td><input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.reptPeriod" title="Interval between repetitions, in patterns. Used by melody generator." size="4" /></td>
 					</tr>
 					<tr>
-						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render percussive pattern</label></td>
+						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="genParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render percussive pattern</label></td>
 					</tr>
 				</tbody>
 			</table>
@@ -377,9 +377,8 @@
 			<summary>Reset preferences</summary>
 			<p><input type="checkbox" id="chkResetPageAppearance" data-pref="reset.pageAppearance" title="" /><label for="chkResetPageAppearance">Page appearance</label></p>
 			<p><input type="checkbox" id="chkResetBasicParams" data-pref="reset.basicParams" title="" /><label for="chkResetBasicParams">Basic parameters</label></p>
-			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters, common</label></p>
+			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters</label></p>
 			<p><input type="checkbox" id="chkResetRhythmParams" data-pref="reset.rhythmParams" title="" /><label for="chkResetRhythmParams">Rhythm parameters</label></p>
-			<p><input type="checkbox" id="chkResetAddGenParams" data-pref="reset.addGenParams" title="" /><label for="chkResetAddGenParams">Generator parameters, additional</label></p>
 			<p><input type="checkbox" id="chkResetStructuredMusic" data-pref="reset.structuredMusic" title="" /><label for="chkResetStructuredMusic">Structured music editor</label></p>
 			<p><input type="checkbox" id="chkResetFlatScript" data-pref="reset.flatScript" title="" /><label for="chkResetFlatScript">Flattened note list</label></p>
 			<p><input type="checkbox" id="chkResetClipParams" data-pref="reset.clipParams" title="" /><label for="chkResetClipParams">Overall play controls</label></p>

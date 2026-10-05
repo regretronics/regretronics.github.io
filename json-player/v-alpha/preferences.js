@@ -8,17 +8,17 @@ const preferencesKeysFlat = [ //maybe unnecessary
 	"basicParams.freqRangeMax",
 	"genParams.baseFreq",
 	"genParams.timeScale",
+	"genParams.voiceCount",
 	"genParams.patternCount",
 	"genParams.primeCount",
 	"genParams.expRangeLower",
 	"genParams.expRangeUpper",
 	"genParams.primeExpRanges",
+	"genParams.reptCount",
+	"genParams.reptPeriod",
+	"genParams.percussivePattern",
 	"rhythmParams.rhythmScale",
 	"rhythmParams.rhythmFactors",
-	"addGenParams.voiceCount",
-	"addGenParams.reptCount",
-	"addGenParams.reptPeriod",
-	"addGenParams.percussivePattern",
 	"structuredMusic.overflow",
 	"structuredMusic.lineWrapping",
 	"structuredMusic.content",
@@ -45,14 +45,18 @@ const preferencesKeysFlat = [ //maybe unnecessary
 const preferencesKeysDeprecatedFlat = [
 	"genParams.freqRangeMin",
 	"genParams.freqRangeMax",
-	"genParams.expVariance"
+	"genParams.expVariance",
+	"addGenParams.voiceCount",
+	"addGenParams.reptCount",
+	"addGenParams.reptPeriod",
+	"addGenParams.percussivePattern",
+	"reset.addGenParams"
 ];
 const preferencesKeysTree = {
 	pageAppearance: ["textSize", "theme", "hue"],
 	basicParams: ["freqRangeMin", "freqRangeMax"],
-	genParams: ["baseFreq", "timeScale", "patternCount", "primeCount", "expRangeLower", "expRangeUpper", "primeExpRanges"],
+	genParams: ["baseFreq", "timeScale", "voiceCount", "patternCount", "primeCount", "expRangeLower", "expRangeUpper", "primeExpRanges", "reptCount", "reptPeriod", "percussivePattern"],
 	rhythmParams: ["rhythmScale", "rhythmFactors"],
-	addGenParams: ["voiceCount", "reptCount", "reptPeriod", "percussivePattern"],
 	structuredMusic: ["overflow", "lineWrapping", "content"],
 	flatScript: ["autoFlatten", "overflow", "lineWrapping", "content"],
 	clipParams: ["freqScale", "volScale", "timeScale", "timeDelta"],
@@ -93,11 +97,15 @@ const prefsDefault = {
 	genParams: {
 		baseFreq: 440, 
 		timeScale: 0.5/* defaultBlockNode.timeScale */, 
+		voiceCount: 3, 
 		patternCount: 4, 
 		primeCount: 3, 
 		expRangeLower: 0, 
 		expRangeUpper: 2, 
-		primeExpRanges: undefined //to be calculated
+		primeExpRanges: undefined, //to be calculated
+		reptCount: 2, 
+		reptPeriod: 4, 
+		percussivePattern: true
 	},
 	rhythmParams: {
 		rhythmScale: 8, 
@@ -105,7 +113,6 @@ const prefsDefault = {
 		//question: choose a different default? (perhaps based on primeCount)
 		rhythmFactors: [2, 2, 2]
 	},
-	addGenParams: {voiceCount: 3, reptCount: 2, reptPeriod: 4, percussivePattern: true},
 	structuredMusic: {overflow: false, lineWrapping: false, content: defStructuredCode},
 	flatScript: {autoFlatten: true, overflow: false, lineWrapping: false, content: defFlattenedCode},
 	clipParams: {
@@ -115,7 +122,7 @@ const prefsDefault = {
 		timeDelta: 0/* defaultBlockNode.timeDelta */
 	},
 	player: {autoReload: false},
-	reset: {pageAppearance: false, basicParams: false, genParams: false, rhythmParams: false, addGenParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
+	reset: {pageAppearance: false, basicParams: false, genParams: false, rhythmParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
 };
 var prefs = Object.assign({}, prefsDefault);
 
@@ -155,10 +162,6 @@ function loadPreferences(triggerNow) {
 			if((s = localStorage.getItem("reset.rhythmParams")) && window.chkResetRhythmParams) {
 				chkResetRhythmParams.checked = JSON.parse(s);
 				//chkResetRhythmParams.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.addGenParams")) && window.chkResetAddGenParams) {
-				chkResetAddGenParams.checked = JSON.parse(s);
-				//chkResetAddGenParams.dispatchEvent(new Event("input"));
 			}
 			if((s = localStorage.getItem("reset.structuredMusic")) && window.chkResetStructuredMusic) {
 				chkResetStructuredMusic.checked = JSON.parse(s);
@@ -223,6 +226,10 @@ function loadPreferences(triggerNow) {
 				txtTimeScale.value = s;
 				txtTimeScale.dispatchEvent(new Event("input"));
 			}
+			if((s = localStorage.getItem("genParams.voiceCount") ?? localStorage.getItem("addGenParams.voiceCount")) && window.txtVoiceCount) {
+				txtVoiceCount.value = s;
+				txtVoiceCount.dispatchEvent(new Event("input"));
+			}
 			if((s = localStorage.getItem("genParams.patternCount")) && window.txtPatternCount) {
 				txtPatternCount.value = s;
 				txtPatternCount.dispatchEvent(new Event("input"));
@@ -244,6 +251,18 @@ function loadPreferences(triggerNow) {
 				window.ctlPrimeExpRanges?.dispatchEvent?.(new Event("input"));
 			} else
 				recalcExpRanges(false);
+			if((s = localStorage.getItem("genParams.reptCount") ?? localStorage.getItem("addGenParams.reptCount")) && window.txtReptCount) {
+				txtReptCount.value = s;
+				txtReptCount.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("genParams.reptPeriod") ?? localStorage.getItem("addGenParams.reptPeriod")) && window.txtReptPeriod) {
+				txtReptPeriod.value = s;
+				txtReptPeriod.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("genParams.percussivePattern") ?? localStorage.getItem("addGenParams.percussivePattern")) && window.chkPercussivePattern) {
+				chkPercussivePattern.checked = JSON.parse(s);
+				chkPercussivePattern.dispatchEvent(new Event("click")); //question: input or click event for check boxes?
+			}
 		}
 
 		//Rhythm parameters
@@ -255,26 +274,6 @@ function loadPreferences(triggerNow) {
 			if((s = localStorage.getItem("rhythmParams.rhythmFactors")) && window.txtRhythmFactors) {
 				txtRhythmFactors.value = s;
 				txtRhythmFactors.dispatchEvent(new Event("input"));
-			}
-		}
-
-		//Additional generator parameters
-		if(!window.chkResetAddGenParams?.checked) {
-			if((s = localStorage.getItem("addGenParams.voiceCount")) && window.txtVoiceCount) {
-				txtVoiceCount.value = s;
-				txtVoiceCount.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("addGenParams.reptCount")) && window.txtReptCount) {
-				txtReptCount.value = s;
-				txtReptCount.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("addGenParams.reptPeriod")) && window.txtReptPeriod) {
-				txtReptPeriod.value = s;
-				txtReptPeriod.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("addGenParams.percussivePattern")) && window.chkPercussivePattern) {
-				chkPercussivePattern.checked = JSON.parse(s);
-				chkPercussivePattern.dispatchEvent(new Event("click")); //question: input or click event for check boxes?
 			}
 		}
 
@@ -391,6 +390,8 @@ function saveAllPreferences() {
 			localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(prefs.genParams.baseFreq)?
 		if(window.txtTimeScale)
 			localStorage.setItem("genParams.timeScale", txtTimeScale.value);
+		if(window.txtVoiceCount)
+			localStorage.setItem("genParams.voiceCount", txtVoiceCount.value);
 		if(window.txtPatternCount)
 			localStorage.setItem("genParams.patternCount", txtPatternCount.value);
 		if(window.txtPrimeCount)
@@ -400,21 +401,18 @@ function saveAllPreferences() {
 		if(window.txtExpRangeUpper)
 			localStorage.setItem("genParams.expRangeUpper", txtExpRangeUpper.value); //JSON.stringify(prefs.genParams.expRangeUpper)?
 		if(window.ctlPrimeExpRanges)
-			localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges)); */
+			localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges));
+		if(window.txtReptCount)
+			localStorage.setItem("genParams.reptCount", txtReptCount.value);
+		if(window.txtReptPeriod)
+			localStorage.setItem("genParams.reptPeriod", txtReptPeriod.value);
+		if(window.chkPercussivePattern)
+			localStorage.setItem("genParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked)); */
 		//Rhythm parameters
 		/* if(window.txtRhythmScale)
 			localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
 		if(window.txtRhythmFactors)
 			localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(prefs.rhythmParams.rhythmFactors)? */
-		//Additional generator parameters
-		/* if(window.txtVoiceCount)
-			localStorage.setItem("addGenParams.voiceCount", txtVoiceCount.value);
-		if(window.txtReptCount)
-			localStorage.setItem("addGenParams.reptCount", txtReptCount.value);
-		if(window.txtReptPeriod)
-			localStorage.setItem("addGenParams.reptPeriod", txtReptPeriod.value);
-		if(window.chkPercussivePattern)
-			localStorage.setItem("addGenParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked)); */
 		//Structured music editor
 		/* if(window.ctlStructuredScript?.classList?.contains) {
 			localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
@@ -454,8 +452,6 @@ function saveAllPreferences() {
 			localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
 		if(window.chkResetRhythmParams)
 			localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams.checked));
-		if(window.chkResetAddGenParams)
-			localStorage.setItem("reset.addGenParams", JSON.stringify(chkResetAddGenParams.checked));
 		if(window.chkResetStructuredMusic)
 			localStorage.setItem("reset.structuredMusic", JSON.stringify(chkResetStructuredMusic.checked));
 		if(window.chkResetFlatScript)
@@ -491,8 +487,8 @@ function btnResetPreferencesClick(event) {
 			updateThemeColor(prefsDefault.pageAppearance.hue);
 		}
 		if(window.chkResetBasicParams?.checked) {
-			localStorage.removeItem("genParams.freqRangeMin");
-			localStorage.removeItem("genParams.freqRangeMax");
+			localStorage.removeItem("genParams.freqRangeMin"); //deprecated
+			localStorage.removeItem("genParams.freqRangeMax"); //deprecated
 			localStorage.removeItem("basicParams.freqRangeMin");
 			localStorage.removeItem("basicParams.freqRangeMax");
 
@@ -504,17 +500,27 @@ function btnResetPreferencesClick(event) {
 		if(window.chkResetGenParams?.checked) {
 			localStorage.removeItem("genParams.baseFreq");
 			localStorage.removeItem("genParams.timeScale");
+			localStorage.removeItem("addGenParams.voiceCount"); //deprecated
+			localStorage.removeItem("genParams.voiceCount");
 			localStorage.removeItem("genParams.patternCount");
 			localStorage.removeItem("genParams.primeCount");
 			localStorage.removeItem("genParams.expVariance");
 			localStorage.removeItem("genParams.expRangeLower");
 			localStorage.removeItem("genParams.expRangeUpper");
 			localStorage.removeItem("genParams.primeExpRanges");
+			localStorage.removeItem("addGenParams.reptCount"); //deprecated
+			localStorage.removeItem("addGenParams.reptPeriod"); //deprecated
+			localStorage.removeItem("addGenParams.percussivePattern"); //deprecated
+			localStorage.removeItem("genParams.reptCount");
+			localStorage.removeItem("genParams.reptPeriod");
+			localStorage.removeItem("genParams.percussivePattern");
 
 			txtBaseFreq.value = prefsDefault.genParams.baseFreq.toString();
 			txtBaseFreq.dispatchEvent(new Event("input"));
 			txtTimeScale.value = prefsDefault.genParams.timeScale.toString();
 			txtTimeScale.dispatchEvent(new Event("input"));
+			txtVoiceCount.value = prefsDefault.genParams.voiceCount.toString();
+			txtVoiceCount.dispatchEvent(new Event("input"));
 			txtPatternCount.value = prefsDefault.genParams.patternCount.toString();
 			txtPatternCount.dispatchEvent(new Event("input"));
 			txtPrimeCount.value = prefsDefault.genParams.primeCount.toString();
@@ -525,6 +531,12 @@ function btnResetPreferencesClick(event) {
 			txtExpRangeUpper.dispatchEvent(new Event("input"));
 			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
 			recalcExpRanges(true);
+			txtReptCount.value = prefsDefault.genParams.reptCount.toString();
+			txtReptCount.dispatchEvent(new Event("input"));
+			txtReptPeriod.value = prefsDefault.genParams.reptPeriod.toString();
+			txtReptPeriod.dispatchEvent(new Event("input"));
+			chkPercussivePattern.checked = prefsDefault.genParams.percussivePattern;
+			chkPercussivePattern.dispatchEvent(new Event("click"));
 		}
 		if(window.chkResetRhythmParams?.checked) {
 			localStorage.removeItem("rhythmParams.rhythmScale");
@@ -534,21 +546,6 @@ function btnResetPreferencesClick(event) {
 			txtRhythmScale.dispatchEvent(new Event("input"));
 			txtRhythmFactors.value = prefsDefault.rhythmParams.rhythmFactors.join("*");
 			txtRhythmFactors.dispatchEvent(new Event("input"));
-		}
-		if(window.chkResetAddGenParams?.checked) {
-			localStorage.removeItem("addGenParams.voiceCount");
-			localStorage.removeItem("addGenParams.reptCount");
-			localStorage.removeItem("addGenParams.reptPeriod");
-			localStorage.removeItem("addGenParams.percussivePattern");
-
-			txtVoiceCount.value = prefsDefault.addGenParams.voiceCount.toString();
-			txtVoiceCount.dispatchEvent(new Event("input"));
-			txtReptCount.value = prefsDefault.addGenParams.reptCount.toString();
-			txtReptCount.dispatchEvent(new Event("input"));
-			txtReptPeriod.value = prefsDefault.addGenParams.reptPeriod.toString();
-			txtReptPeriod.dispatchEvent(new Event("input"));
-			chkPercussivePattern.checked = prefsDefault.addGenParams.percussivePattern;
-			chkPercussivePattern.dispatchEvent(new Event("click"));
 		}
 		if(window.chkResetStructuredMusic?.checked) {
 			localStorage.removeItem("structuredMusic.overflow");
@@ -601,7 +598,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("reset.basicParams");
 			localStorage.removeItem("reset.genParams");
 			localStorage.removeItem("reset.rhythmParams");
-			localStorage.removeItem("reset.addGenParams");
+			localStorage.removeItem("reset.addGenParams"); //deprecated
 			localStorage.removeItem("reset.structuredMusic");
 			localStorage.removeItem("reset.flatScript");
 			localStorage.removeItem("reset.clipParams");
@@ -612,7 +609,6 @@ function btnResetPreferencesClick(event) {
 			if(window.chkResetBasicParams) chkResetBasicParams.checked = prefsDefault.reset.basicParams;
 			if(window.chkResetGenParams) chkResetGenParams.checked = prefsDefault.reset.genParams;
 			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = prefsDefault.reset.rhythmParams;
-			if(window.chkResetAddGenParams) chkResetAddGenParams.checked = prefsDefault.reset.addGenParams;
 			if(window.chkResetStructuredMusic) chkResetStructuredMusic.checked = prefsDefault.reset.structuredMusic;
 			if(window.chkResetFlatScript) chkResetFlatScript.checked = prefsDefault.reset.flatScript;
 			if(window.chkResetClipParams) chkResetClipParams.checked = prefsDefault.reset.clipParams;
