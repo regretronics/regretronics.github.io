@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en" prefix="og: https://ogp.me/ns#">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="auto" lang="en" xml:lang="en" prefix="og: https://ogp.me/ns#">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,10 +37,14 @@
 
 	<script type="text/javascript" defer="defer" src="preferences.js"></script>
 	<script type="text/javascript" defer="defer" src="general.js"></script>
+	<script type="text/javascript" defer="defer" src="general-ui.js"></script>
 	<script type="text/javascript" defer="defer" src="custom-spin.js"></script>
-	<script type="text/javascript" defer="defer" src="player.js"></script>
 	<script type="text/javascript" defer="defer" src="musical-format.js"></script>
+	<script type="text/javascript" defer="defer" src="musical-files.js"></script>
 	<script type="text/javascript" defer="defer" src="music-gen.js"></script>
+	<script type="text/javascript" defer="defer" src="player.js"></script>
+	<script type="text/javascript" defer="defer" src="visualizer.js"></script>
+	<script type="text/javascript" defer="defer" src="audio-export.js"></script>
 
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="JSON musical format" />
@@ -57,26 +61,15 @@
 	<meta name="og:image:src" content="https://technicore.bitbucket.io/json-player/v-alpha/icon/Musical-science-simple-white-256.png" /> -->
 </head>
 <body>
-	<!--using hidden attribute for top-level children for screen reader optimization.-->
-	<!--to do: use id attribute for more points of interest, e.g. start of the documentation.-->
+	<!--using hidden attribute for top-level children for screen reader and reading mode optimization.-->
 	<main class="major-section" hidden="hidden">
-		<div class="flex-row align-top">
-			<h1 style="flex-basis: 16ch;">
-				<picture id="title-icon">
-					<!-- <source srcset="icon/Musical-science-white-optim.svg" type="image/svg+xml" width="192" height="192" /> -->
-					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
-					<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
-					<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
-					<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
-					<!-- <img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" /> -->
-					<img src="icon/Musical-science-white-optim.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="title-icon-img" role="img" /><!-- this one is possibly used in Facebook as of 2025-06. -->
-				</picture>
-				<!-- "chunks" below are for organizing a line break hierarchy (mostly for aesthetic reasons) -->
-				<!-- throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart. -->
-				<span class="lang-static" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="lang-flex" hidden="hidden">JSON-based music format, player and generator</span>
-			</h1><wbr />
-			<!-- <span class="right print-dp-none" style="flex-basis: 30ch;"> -->
-			<span class="right print-dp-none">
+		<!-- <header class="flex-row align-block-start"> -->
+		<header>
+			<!-- <span class="align-inline-end print-dp-none" style="flex-basis: 30ch;"> -->
+			<!--to do: ?persistent options for the open state of newly added detail elements-->
+			<!--to do: use aria-labelledby yet a few more times-->
+			<details id="grpUiOptions" class="align-inline-end print-dp-none">
+				<summary>UI options</summary>
 				<span class="cell"><strong class="chunk">Text size:</strong> 
 					<button id="btnTextShrink" data-factor="0.8">Shrink</button>
 					<button id="btnTextEnlarge" data-factor="1.25">Enlarge</button></span>
@@ -91,82 +84,154 @@
 						<option>Light, high contrast</option>
 					</select></span>
 				<span class="cell"><strong class="chunk">Hue shift:</strong> 
-					<button id="btnHueFine1" data-delta="-1" translate="no">MBCGYR</button>
-					<button id="btnHueFine2" data-delta="1" translate="no">RYGCBM</button></span>
-			</span>
-		</div>
-		<div id="translationWarning" class="lang-flex" hidden="hidden">Warning: machine translation detected. Unfortunately, this page is hard to translate automatically; texts often become inaccurate or incomprehensible, despite adaptations to help automatic translation.</div>
-		<noscript>If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
-		<p><strong class="chunk"><span class="lang-static" translate="no">Generator params.</span><span class="lang-flex" hidden="hidden">Generator parameters</span>:</strong> 
-			<datalist id="tunings">
-				<option value="256"></option>
-				<option value="258.65"></option>
-				<option value="415"></option>
-				<option value="427"></option>
-				<option value="430"></option>
-				<option value="432"></option>
-				<option value="435"></option>
-				<option value="440"></option>
-				<option value="442"></option>
-				<option value="443"></option>
-				<option value="466"></option>
-			</datalist>
-			<span class="cell"><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label>
-				<input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" />
-			</span>
-			<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
-			<span class="cell"><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label>
-				<input type="number" id="txtTimeScale" value="0.5" required="required" data-min="0" step="0.25" class="exp custom-spin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" />
-			</span>
-			<span class="cell"><label for="txtPatternCount"><span class="lang-static" translate="no">patterns</span><span class="lang-flex" hidden="hidden">pattern count</span></label>
-				<input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" />
-			</span>
-			<span class="cell"><label for="txtPrimeCount"><span class="lang-static" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label>
-				<input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" />
-				<output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output>
-			</span>
-			<span class="cell"><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth (exponent variance)</span></label>
-				<input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher factors have narrower variance). Used by chord and melody generators. Higher values produce more atonality. Low values may freeze the generator due to lack of choices." size="5" />
-			</span>
-		</p>
-		<p><strong class="chunk">Rhythm:</strong> 
-			<span class="cell"><label for="txtRhythmScale"><span class="lang-static" translate="no">approx. scale</span><span class="lang-flex" hidden="hidden">approximate scale</span></label>
-				<input type="number" id="txtRhythmScale" value="8" step="1" data-min="1" class="exp custom-spin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" />
-			</span>
-			<button id="btnRhythmFactorsGen" title="Rhythm structure generator">Generate</button>
-			<span class="cell"><label for="txtRhythmFactors">structure formula</label>
-				<input type="text" id="txtRhythmFactors" class="right" value="2*2*2" data-pref="rhythmParams.rhythmFactors" translate="no" title="Used by rhythm and melody generators. Supports non-integers." size="11" />
-				<output id="outRhythmScales" translate="no" title="Cascade of rhythmic scales">1</output>
-			</span>
-		</p>
-		<p><strong class="chunk"><span class="lang-static" translate="no">Additional gen. params.</span><span class="lang-flex" hidden="hidden">Additional generator parameters</span>:</strong> 
-			<span class="cell"><label for="txtVoiceCount">voices</label>
-				<input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" />
-			</span>
-			<span class="cell"><label for="txtReptCount"><span class="lang-static" translate="no">rept.&nbsp;count</span><span class="lang-flex" hidden="hidden">repeat count</span></label>
-				<input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" />
-			</span>
-			<span class="cell"><label for="txtReptPeriod"><span class="lang-static" translate="no">rept.&nbsp;period</span><span class="lang-flex" hidden="hidden">repeat period</span></label>
-				<input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" />
-			</span>
-			<span class="cell"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label>
-			</span>
-		</p>
-		<p class="flex-row">
-			<span style="flex-basis: 28ch;"><strong class="chunk">Structured music:</strong> 
+					<button id="btnHueFine1" data-delta="-1" translate="no" title="magenta&ndash;blue&ndash;cyan&ndash;green&ndash;yellow&ndash;red">MBCGYR</button>
+					<button id="btnHueFine2" data-delta="1" translate="no" title="red&ndash;yellow&ndash;green&ndash;cyan&ndash;blue&ndash;magenta">RYGCBM</button></span>
+			</details>
+			<h1 style="flex-basis: 16ch;">
+				<picture id="titleIcon">
+					<!-- <source srcset="icon/Musical-science-white-optim.svg" type="image/svg+xml" width="192" height="192" /> -->
+					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
+					<source srcset="icon/Musical-science-white-256.png 256w" type="image/png" width="256" height="256" />
+					<source srcset="icon/Musical-science-simple-white-64.png 64w" type="image/png" width="64" height="64" />
+					<source srcset="icon/Musical-science-simple-white-16.png 16w" type="image/png" width="16" height="16" />
+					<!-- <img src="icon/Musical-science-simple-white-256.png" type="image/png" alt="&quot;Musical science&quot; icon" width="256" height="256" /> -->
+					<img src="icon/Musical-science-white-optim.svg" type="image/svg+xml" alt="&quot;Musical science&quot; icon" width="192" height="192" id="titleIconImg" role="img" /><!--this one is possibly used in Facebook as of 2025-06.-->
+				</picture>
+				<!--"chunks" below are for organizing a line break hierarchy (mostly for typography aesthetics)-->
+				<!--throughout this page, lang-flex class offers a text better prepared to facilitate machine translation. lang-static is its counterpart.-->
+				<span class="lang-static" translate="no">JSON <span class="chunk">music format,</span> player <span class="chunk">and generator</span></span><span class="lang-flex" hidden="hidden">JSON-based music format, player and generator</span>
+			</h1>
+		</header>
+		<!--question: put translation warning and noscript inside header element?-->
+		<p class="lang-flex alert-warn" hidden="hidden">
+			Warning: machine translation detected. 
+			Unfortunately, this page has several small portions of text, and technical language from more than one knowledge domain, which make it hard for translators. 
+			Those texts are expected to become inaccurate or incomprehensible, even despite adaptations to aid automatic translation.</p>
+		<noscript class="alert-error">If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
+		<details>
+			<summary>Basic parameters</summary>
+			<table class="controls-group">
+				<tbody>
+					<tr>
+						<th scope="rowgroup" rowspan="2"><span class="lang-static" translate="no">freq. range</span><span class="lang-flex" hidden="hidden">frequency range</span></th>
+						<td><label for="txtFreqRangeMin"><span class="lang-static" translate="no">min.</span><span class="lang-flex" hidden="hidden">minimum</span> (Hz)</label></td>
+						<td><input type="number" id="txtFreqRangeMin" value="30" step="1" class="exp custom-spin" data-pref="basicParams.freqRangeMin" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtFreqRangeMax"><span class="lang-static" translate="no">max.</span><span class="lang-flex" hidden="hidden">maximum</span> (Hz)</label></td>
+						<td><input type="number" id="txtFreqRangeMax" value="13000" step="1" class="exp custom-spin" data-pref="basicParams.freqRangeMax" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<details>
+			<summary>Generator parameters</summary>
+			<table class="controls-group">
+				<tbody>
+					<!--question: have minimum and maximum for frequency parameters and their controls? (not freqRangeMin/Max proper, but something like 10 to 24000 for the three of them)-->
+					<tr>
+						<datalist id="tunings">
+							<option value="256"></option>
+							<option value="258.65"></option>
+							<option value="415"></option>
+							<option value="427"></option>
+							<option value="430"></option>
+							<option value="432"></option>
+							<option value="435"></option>
+							<option value="440"></option>
+							<option value="442"></option>
+							<option value="443"></option>
+							<option value="466"></option>
+						</datalist>
+						<td><label for="txtBaseFreq"><span class="lang-static" translate="no">base freq. (Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label></td>
+						<td><input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></td>
+					</tr>
+					<tr>
+						<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
+						<td><label for="txtTimeScale">time scale (s)</label></td>
+						<td><input type="number" id="txtTimeScale" value="0.5" required="required" data-min="0" step="0.25" class="exp custom-spin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtVoiceCount">voices</label></td>
+						<td><input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="genParams.voiceCount" title="Used by chord generator." size="3" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPatternCount"><span class="lang-static" translate="no">pattern count</span><span class="lang-flex" hidden="hidden">pattern count</span></label></td>
+						<td><input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtReptCount"><span class="lang-static" translate="no">rept. count</span><span class="lang-flex" hidden="hidden">repeat count</span></label></td>
+						<td><input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtReptPeriod"><span class="lang-static" translate="no">rept. period</span><span class="lang-flex" hidden="hidden">repeat period</span></label></td>
+						<td><input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.reptPeriod" title="Interval between repetitions, in patterns. Used by melody generator." size="4" /></td>
+					</tr>
+					<tr>
+						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="genParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render percussive pattern</label></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<details>
+			<summary>Prime factor parameters</summary>
+			<table class="controls-group">
+				<tbody>
+					<tr>
+						<!-- <td class="empty"></td> -->
+						<td colspan="2"><label for="txtPrimeCount"><span class="lang-static" translate="no">prime factors (oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label></td>
+						<td><input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="primeFactors.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></td>
+						<td><output id="outPrimeList" translate="no" data-min-size="4" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output></td>
+					</tr>
+					<tr>
+						<th scope="rowgroup" rowspan="3"><span class="lang-static" translate="no">tone (exponent) ranges</span><span class="lang-flex" hidden="hidden">tone depth (exponent ranges)</span></th>
+						<td><label for="txtExpRangeLower">lower</label></td>
+						<td><input type="number" id="txtExpRangeLower" value="0" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="primeFactors.expRangeLower" title="Exponent variation range, lower bound (higher prime factors have narrower variance). Used by chord and melody generators. Lower values produce more utonality, while wider ranges in general produce more atonality." size="5" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtExpRangeUpper">upper</label></td>
+						<td><input type="number" id="txtExpRangeUpper" value="2" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="primeFactors.expRangeUpper" title="Exponent variation range, upper bound (higher prime factors have narrower variance). Used by chord and melody generators. Higher values produce more otonality, while wider ranges in general produce more atonality." size="5" /></td>
+					</tr>
+					<tr>
+						<!--question: default state: line wrapping? overflow?-->
+						<!--question: make code boxes always left-to-right?-->
+						<td colspan="2"><label for="ctlPrimeExpRanges">custom ranges:</label> <br /><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="primeFactors.expRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<details>
+			<summary>Rhythm parameters</summary>
+			<table class="controls-group">
+				<tbody>
+					<tr>
+						<td><label for="txtRhythmScale"><span class="lang-static" translate="no">approx. scale</span><span class="lang-flex" hidden="hidden">approximate scale</span></label></td>
+						<td><input type="number" id="txtRhythmScale" value="8" step="1" data-min="1" class="exp custom-spin" data-pref="rhythmParams.rhythmScale" title="Used by rhythm structure generator." size="4" /></td>
+						<td><button id="btnRhythmFactorsGen" title="Rhythm structure generator. Uses prime count as parameter, but not tone depth and exponent ranges.">Generate</button></td>
+					</tr>
+					<tr>
+						<td><label for="txtRhythmFactors">structure formula</label></td>
+						<td><input type="text" id="txtRhythmFactors" class="right" value="2*2*2" data-pref="rhythmParams.rhythmFactors" translate="no" title="Used by rhythm and melody generators. Supports non-integers." size="12" /></td>
+						<td><output id="outRhythmScales" translate="no" title="Cascade of rhythmic scales">1</output></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<p class="flex-row" aria-labelledby="lblGrpStructuredMusic">
+			<span class="controls-group" style="flex-basis: 28ch;"><strong id="lblGrpStructuredMusic" class="chunk">Structured music</strong>: 
 				<button id="btnChordGen" accesskey="c" title="Chord generator"><span class="lang-static" translate="no">Make <u>c</u>hords</span><span class="lang-flex" hidden="hidden">Make chords (<u>c</u>)</span></button>
 				<button id="btnRhythmGen" accesskey="r" title="Rhythm generator"><span class="lang-static" translate="no">Make <u>r</u>hythm</span><span class="lang-flex" hidden="hidden">Make rhythm (<u>r</u>)</span></button>
 				<button id="btnMelodyGen" accesskey="m" title="Melody generator"><span class="lang-static" translate="no">Make <u>m</u>elody</span><span class="lang-flex" hidden="hidden">Make melody (<u>m</u>)</span></button>
 			</span><wbr />
-			<!-- <span class="right" style="flex-basis: 24ch;"> -->
-			<span class="right">
+			<!-- <span class="controls-group align-inline-end" style="flex-basis: 24ch;"> -->
+			<span class="controls-group align-inline-end">
 				<span class="cell">
-					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="lang-static" translate="no"><u>O</u>pen file</span><span class="lang-flex" hidden="hidden">Open file (<u>o</u>)</span></button>
+					<button id="btnStructImport" accesskey="v" title="Allows you to choose a local file to import for structured music."><span class="lang-static" translate="no"><u>O</u>pen local file</span><span class="lang-flex" hidden="hidden">Open local file (<u>o</u>)</span></button>
 					<a id="aStructDownload" href="" hidden="hidden"></a>
-					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally."><span class="lang-static" translate="no">Sa<u>v</u>e file</span><span class="lang-flex" hidden="hidden">Save file (<u>v</u>)</span></button>
+					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally."><span class="lang-static" translate="no">Sa<u>v</u>e local file</span><span class="lang-flex" hidden="hidden">Save local file (<u>v</u>)</span></button>
 				</span>
 				<span class="cell">
-					<span class="chunk"><input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
+					<span class="chunk"><input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below" /><label for="chkOverflow1"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
 					<span class="chunk"><input id="chkLineWrap1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap1">Line wrapping</label></span>
 				</span>
 			</span>
@@ -194,56 +259,87 @@
 			<option value="freq"></option>
 			<option value="vol"></option>
 		</datalist> -->
-		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
-		<pre id="ctlStructuredScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
-		<p class="flex-row">
-			<span style="flex-basis: 24ch;"><strong class="chunk">Flattened note list:</strong> 
-				<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
-				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
-			</span><wbr />
-			<!-- <span class="right"> -->
-			<span class="right" style="flex-basis: 14ch;">
-				<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
-				<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
-			</span>
-		</p>
-		<pre id="ctlFlatScript" contenteditable="true" class="code-editor" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" aria-placeholder="[{&quot;property&quot;: 123}]"></pre>
-		<p><strong class="chunk">Overall controls:</strong> 
-			<!--question: switch input elems to type="range"?-->
-			<span class="cell"><label for="txtPlayFreqScale"><span class="lang-static" translate="no">freq./tuning</span><span class="lang-flex" hidden="hidden">frequency and tuning</span></label>
-				<input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" />
-			</span>
-			<span class="cell"><label for="txtPlayVolScale">volume</label>
-				<input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" />
-			</span>
-			<span class="cell"><label for="txtPlayTimeScale">time&nbsp;scale</label>
-				<input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp custom-spin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" />
-			</span>
-			<span class="cell"><label for="txtPlayTimeDelta"><span class="lang-static" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="lang-flex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label>
-				<input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="custom-spin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" />
-			</span>
-		</p>
-		<p class="flex-row">
-			<span style="flex-basis: 44ch;"><strong class="chunk"><span class="lang-static" translate="no">Player</span><span class="lang-flex" hidden="hidden">Music player</span>:</strong> 
+		<!-- <p hidden="hidden"> --><!-- <textarea id="ctlStructuredScript" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" list="scriptKeywords" data-pref="structuredMusic.content"></textarea> --><!-- </p> -->
+		<pre id="ctlStructuredScript" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="structuredMusic.content" role="textbox" aria-multiline="true" aria-placeholder="{&quot;property&quot;: 123}"></pre>
+		<details>
+			<summary>Flattened note list</summary>
+			<p class="flex-row">
+				<span class="controls-group" style="flex-basis: 24ch;">
+					<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
+					<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
+				</span><wbr />
+				<!-- <span class="controls-group align-inline-end"> -->
+				<span class="controls-group align-inline-end" style="flex-basis: 14ch;">
+					<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below" /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
+					<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
+				</span>
+			</p>
+			<pre id="ctlFlatScript" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="flatScript.content" title="" role="textbox" aria-multiline="true" aria-placeholder="[{&quot;property&quot;: 123}]"></pre>
+		</details>
+		<details>
+			<summary>Overall play controls</summary>
+			<!--question: switch input elems to type="range"? (or have them both?)-->
+			<table class="controls-group">
+				<tbody>
+					<tr>
+						<td><label for="txtPlayFreqScale"><span class="lang-static" translate="no">freq./tuning</span><span class="lang-flex" hidden="hidden">frequency and tuning</span></label></td>
+						<td><input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.freqScale" title="Multiplicative factor." size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPlayVolScale">volume</label></td>
+						<td><input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.volScale" title="Multiplicative factor." size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPlayTimeScale">time scale</label></td>
+						<td><input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp custom-spin" data-pref="clipParams.timeScale" title="Multiplicative factor." size="6" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtPlayTimeDelta"><span class="lang-static" translate="no">time delta (skip vs. lead-in)</span><span class="lang-flex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label></td>
+						<td><input type="number" id="txtPlayTimeDelta" value="0" step="0.25" class="custom-spin" data-pref="clipParams.timeDelta" title="Additive amount. Negative values add lead-in silence, while positive values skip ahead into the song." size="6" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<p class="flex-row" aria-labelledby="lblGrpPlayer">
+			<span class="controls-group" style="flex-basis: 44ch;"><strong id="lblGrpPlayer" class="chunk"><span class="lang-static" translate="no">Player</span><span class="lang-flex" hidden="hidden">Music player</span></strong>: 
 				<span class="cell"><button id="btnPlay" accesskey="l" title="Parses the flattened representation and will convert the events into sound on-the-fly, outputting it through HTML5 Web Audio API."><span class="lang-static" translate="no"><u>L</u>oad and play</span><span class="lang-flex" hidden="hidden">Load and play (<u>l</u>)</span></button>
 				<button id="btnPause" accesskey="p" title="Suspends or resumes playback initiated by 'Load and play' in a reversible manner."><span class="lang-static" translate="no"><u>P</u>ause</span><span class="lang-flex" hidden="hidden">Pause (<u>p</u>)</span></button>
 				<button id="btnStop" accesskey="s" title="Interrupts synthesis and playback, and frees memory resources (except for the audio context)."><span class="lang-static" translate="no"><u>S</u>top and unload</span><span class="lang-flex" hidden="hidden">Stop and unload (<u>s</u>)</span></button>
 				</span>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" data-pref="player.autoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." /><label for="chkAutoReload">Auto-reload</label>
 				</span>
-				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" title="Elapsed time">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration">0</output>&nbsp;s.</span>
+				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" data-min-size="6" title="Elapsed time (rounded down)">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration (rounded down)">0</output>&nbsp;s.</span>
 				</span>
 			</span><wbr />
-			<!-- <span class="right" style="flex-basis: 20ch;"> -->
-			<span class="right">
-				<span class="cell"><span class="chunk">Note count:</span> <span translate="no"><output id="outNoteCount">0</output>.</span></span>
-				<span class="cell"><span class="chunk">Loaded generators:</span> <span translate="no"><output id="outGenCount">0</output>.</span></span>
+			<!-- <span class="align-inline-end" style="flex-basis: 20ch;"> -->
+			<span class="controls-group align-inline-end">
+				<span class="cell"><span class="chunk">Note count:</span> <span translate="no"><output id="outNoteCount" data-min-size="3">0</output>.</span></span>
+				<span class="cell"><span class="chunk">Loaded generators:</span> <span translate="no"><output id="outGenCount" data-min-size="3">0</output>.</span></span>
 			</span>
 		</p>
 
-		<p class="print-dp-none">
-			<!--to do: make the visualizer more configurable-->
-			<!--to do: idea: a "ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
+		<div class="print-dp-none">
+			<!-- <details>
+				<summary>Visualizer</summary>
+				<table class="controls-group">
+					<tbody>
+						<tr>
+							<td><label for="txtVisTimeRange">time range (s)</label></td>
+							<td><input type="number" id="txtVisTimeRange" value="4" step="1" class="exp custom-spin" data-pref="vis.timeRange" title="Supports non-integers." size="6" /></td>
+						</tr>
+						<tr>
+							<td><label for="txtVisTimeScale">time scale (px/s)</label></td>
+							<td><input type="number" id="txtVisTimeScale" value="4" step="1" class="exp custom-spin" data-pref="vis.timeScale" title="Supports non-integers." size="6" /></td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="checkbox" id="chkVisFreqGrid" data-pref="vis.freqGrid" title="" /><label for="chkVisFreqGrid">Overlay frequency grid</label></td>
+						</tr>
+					</tbody>
+				</table>
+			</details> -->
+			<!--to do: !implement visualizer options-->
+			<!--to do: idea: a vertical grid/"ruler" of octaves (e.g. 32 hz, 64 hz, ...)-->
+			<!--candidate options: mode (static vs. play-time), horizontal grid of time, mouse-hover guides-->
 			<svg id="imgVisualizer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none" width="100%">
 				<defs>
 					<linearGradient id="noteFill1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -259,14 +355,15 @@
 						<stop offset="1" style="stop-opacity: calc(0/20)" />
 					</linearGradient>
 				</defs>
+				<g id="visArea"></g>
 			</svg>
-		</p>
+		</div>
 
 		<details>
-			<summary><strong>Audio export to file:</strong></summary>
-			<!--to do: format selector, sample rate-->
-			<!--to do: use OfflineAudioContext with Wav or WebCodecs-->
-			<p>
+			<summary>Audio export to file</summary>
+			<!--to do: !format selector, sample rate-->
+			<!--to do: !use OfflineAudioContext with Wav or WebCodecs-->
+			<p class="controls-group">
 				<a id="aAudioDownload" href="" hidden="hidden"></a>
 				<button id="btnAudioExport">Export</button>
 				<button id="btnAudioExportCancel">Cancel</button>
@@ -277,31 +374,34 @@
 		</details>
 
 		<details>
-			<summary><strong>Reset preferences:</strong></summary>
+			<summary>Reset preferences</summary>
 			<p><input type="checkbox" id="chkResetPageAppearance" data-pref="reset.pageAppearance" title="" /><label for="chkResetPageAppearance">Page appearance</label></p>
-			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters, common</label></p>
+			<p><input type="checkbox" id="chkResetBasicParams" data-pref="reset.basicParams" title="" /><label for="chkResetBasicParams">Basic parameters</label></p>
+			<p><input type="checkbox" id="chkResetGenParams" data-pref="reset.genParams" title="" /><label for="chkResetGenParams">Generator parameters</label></p>
+			<p><input type="checkbox" id="chkResetPrimeFactorParams" data-pref="reset.primeFactors" title="" /><label for="chkResetPrimeFactorParams">Prime factor parameters</label></p>
 			<p><input type="checkbox" id="chkResetRhythmParams" data-pref="reset.rhythmParams" title="" /><label for="chkResetRhythmParams">Rhythm parameters</label></p>
-			<p><input type="checkbox" id="chkResetAddGenParams" data-pref="reset.addGenParams" title="" /><label for="chkResetAddGenParams">Generator parameters, additional</label></p>
 			<p><input type="checkbox" id="chkResetStructuredMusic" data-pref="reset.structuredMusic" title="" /><label for="chkResetStructuredMusic">Structured music editor</label></p>
 			<p><input type="checkbox" id="chkResetFlatScript" data-pref="reset.flatScript" title="" /><label for="chkResetFlatScript">Flattened note list</label></p>
 			<p><input type="checkbox" id="chkResetClipParams" data-pref="reset.clipParams" title="" /><label for="chkResetClipParams">Overall play controls</label></p>
 			<p><input type="checkbox" id="chkResetPlayer" data-pref="reset.player" title="" /><label for="chkResetPlayer">Player</label></p>
-			<p><input type="checkbox" id="chkResetReset" data-pref="reset.player" title="" /><label for="chkResetReset">Reset preferences</label></p>
+			<p><input type="checkbox" id="chkResetReset" data-pref="reset.player" title="" /><label for="chkResetReset">Reset preferences (clear check marks)</label></p>
+			<!--to do: add a "select toggle (select all/none)" button-->
 			<p><button id="btnResetPreferences">Reset selected now</button></p>
 		</details>
 
-		<p id="outToolTip" class="tool-tip print-dp-none">A description of the selected item will appear here.</p>
+		<p id="outToolTip" class="tool-tip print-dp-none" data-def-caption="A description of the selected item will appear here."></p>
 	</main>
 
 	<hr hidden="hidden" />
-	<section class="major-section">
-		<article>
-			<h2>Introduction</h2>
+	<article class="major-section" id="sec_documentation">
+		<section>
+			<!--question: further partition the guide in section elements?-->
+			<h2 id="sec_introduction"><a href="#sec_introduction" class="section-link">Introduction</a></h2>
 			<p>This tool presumes understanding about mathematics, acoustics, basic computer usage and some music theory. 
 				Some exposure to programming and <a href="https://en.wikipedia.org/wiki/Data_type">data types</a> will also help. 
 				Here we try to bypass the <a href="https://en.wikipedia.org/wiki/Arbitrariness">unreasoning</a> junk and thick tradition associated with the field of music, and relate to a more <a href="https://en.wikipedia.org/wiki/Formal_science">scientific</a> view of the gist of the subject. 
 				This tool encourages <a href="https://en.wikipedia.org/wiki/Just_intonation">just intonation</a> via <a href="https://en.wikipedia.org/wiki/Limit_(music)#Prime_limit">prime factors</a> and <a href="https://en.wikipedia.org/wiki/Rational_number">fractions</a> as the ultimate way to control consonance, and prime factor analysis for <a href="https://xenrhythmic.fandom.com/wiki/The_Xenrhythm_Wikia">rhythmic structure</a> and <a href="https://en.xen.wiki/w/Main_Page">harmony</a>.</p>
-			<h3>Pitch and harmony: intervals and consonance</h3>
+			<h3 id="sec_pitch_and_harmony"><a href="#sec_pitch_and_harmony" class="section-link">Pitch and harmony: intervals and consonance</a></h3>
 			<p>One of the fundamental domains in music is pitch, represented acoustically by frequency (inverse of wavelength), and pitch differences (<a href="https://en.wikipedia.org/wiki/Interval_(Music)">intervals</a>) are actually frequency ratios (proportions). 
 				Chords are made of intervals, and both things inspire interpretations for listeners. 
 				The degree of <em>consonance</em> in an interval is determined by how well and simply the wavelengths fit into each other. 
@@ -309,18 +409,19 @@
 				As the irreducible form is the most important one for consonance evaluation (e.g. 300/200 is irrelevant if you can instead simplify to 3/2), prime factor analysis can help, as used below. 
 				More consonant intervals usually sound basic, tuned, neutral, static, familiar or pure, and are often deemed as representing a peaceful mood or positive emotions in soundtracks. 
 				More dissonant (less consonant) intervals may sound <a href="https://en.wikipedia.org/wiki/Beat_(acoustics)">pulsating</a>, complicated, strange, advanced, cacophonous or imperfect, and are symbolically assigned to negative things.</p>
-			<details open="open">
-				<summary><strong>Analysis table for main ratio-based intervals</strong></summary>
-				<p><table id="tblFractionIntervals">
+			<details open="open" id="table_intervals_main">
+				<summary>Analysis table for main ratio-based intervals</summary>
+				<table id="tblFractionIntervals">
 					<caption>Main (octave-normalized) consonant intervals by prime <a href="https://en.wikipedia.org/wiki/Limit_(music)">limit</a>, paired by <a href="https://en.wikipedia.org/wiki/Inversion_(music)#Intervals">inversion</a> (approximately descending order of consonance)</caption>
+					<!--I could try using colgroup and col elements to facilitate styling, but they can only be styled in 4 properties, largely irrelevant.-->
 					<thead>
 						<tr>
 							<!--hyphenation based on Oxford Advanced Learner's Dictionary, with http://www.ushuaia.pl/hyphen/?ln=en to fill in the gaps.-->
 							<th id="colFraction" scope="col"><span class="lang-static" translate="no">Frac&shy;tion</span><span class="lang-flex" hidden="hidden">Fraction</span></th>
 							<th id="colPrimeFactors" scope="col" abbr="Factors"><span class="lang-static" translate="no">Prime fac&shy;tor&shy;iza&shy;tion</span><span class="lang-flex" hidden="hidden">Prime factorization</span></th>
 							<th id="colSizeSemitones" scope="col" abbr="Semitones"><a href="https://en.wikipedia.org/wiki/12_equal_temperament"><span class="lang-static" translate="no">Semi&shy;tones (12-TET)</span><span class="lang-flex" hidden="hidden">Semitones (12-TET)</span></a></th>
-							<th id="colIntervalName" scope="col" abbr="Name"><span class="lang-static" translate="no">Trad&shy;ition&shy;al name (approx.)</span><span class="lang-flex" hidden="hidden">Traditional approximated name</span></th>
-							<th id="colNotes" scope="col">Notes</th>
+							<th id="colIntervalName" scope="col" abbr="Name"><span class="lang-static" translate="no">Trad&shy;ition&shy;al name (approx.)</span><span class="lang-flex" hidden="hidden">Traditional approximate name</span></th>
+							<th id="colRemarks" scope="col">Remarks</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -329,14 +430,14 @@
 							<td translate="no">2<sup>0</sup></td>
 							<td translate="no">0.000</td>
 							<td>(Perfect) unison</td>
-							<td headers="colNotes">Most consonant, but not always considered an interval.</td>
+							<td headers="colRemarks">Most consonant, but not always considered an interval.</td>
 						</tr>
 						<tr title="Perfect octave">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Octave">2<wbr />/1</a></td>
 							<td translate="no">2<sup>1</sup></td>
 							<td translate="no">12.000</td>
 							<td>(Perfect) octave</td>
-							<td headers="colNotes">So consonant it can be hard to tell the notes apart (when played <a href="https://en.wikipedia.org/wiki/Interval_(music)#Melodic_and_harmonic">harmonically</a>), depending on the instrument.</td>
+							<td headers="colRemarks">So consonant it can be hard to tell the notes apart (when played <a href="https://en.wikipedia.org/wiki/Interval_(music)#Melodic_and_harmonic">harmonically</a>), depending on the instrument.</td>
 						</tr>
 						<tr><th colspan="5">3-limit (Pythagorean) harmony</th></tr>
 						<tr title="Just perfect fifth">
@@ -344,7 +445,7 @@
 							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>1</sup></td>
 							<td translate="no">7.020</td>
 							<td>(Perfect) fifth</td>
-							<td headers="colNotes" rowspan="2">Still sounds very basic.</td>
+							<td headers="colRemarks" rowspan="2">Still sounds very basic.</td>
 						</tr>
 						<tr title="Just perfect fourth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_perfect_fourth">4<wbr />/3</a></td>
@@ -357,7 +458,7 @@
 							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>2</sup></td>
 							<td translate="no">2.039</td>
 							<td>Major second</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Pythagorean minor seventh">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Pythagorean_minor_seventh">16<wbr />/9</a></td>
@@ -371,21 +472,21 @@
 							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">3.863</td>
 							<td>Major third</td>
-							<td headers="colNotes">5<sup>1</sup> intervals seem to be preferred for "good-mood" harmonies, by convention.</td>
+							<td headers="colRemarks">5<sup>1</sup> intervals seem to be preferred for "good-mood" harmonies, by convention.</td>
 						</tr>
 						<tr title="Just minor sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_sixth">8<wbr />/5</a></td>
 							<td translate="no">2<sup>3</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup></td>
 							<td translate="no">8.137</td>
 							<td>Minor sixth</td>
-							<td headers="colNotes">5<sup>&minus;1</sup> intervals can be used as a "sad" replacement for 5<sup>1</sup> ones.</td>
+							<td headers="colRemarks">5<sup>&minus;1</sup> intervals can be used as a "sad" replacement for 5<sup>1</sup> ones.</td>
 						</tr>
 						<tr title="Just major sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_major_sixth">5<wbr />/3</a></td>
 							<td translate="no">2<sup>0</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">8.844</td>
 							<td>Major sixth</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Just minor third">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_minor_third">6<wbr />/5</a></td>
@@ -398,7 +499,7 @@
 							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>1</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">10.883</td>
 							<td>Major seventh</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Just diatonic semitone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Just_diatonic_semitone">16<wbr />/15</a></td>
@@ -411,7 +512,7 @@
 							<td translate="no">2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>1</sup></td>
 							<td translate="no">1.824</td>
 							<td>Major second</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Large just minor seventh">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Large_just_minor_seventh">9<wbr />/5</a></td>
@@ -424,7 +525,7 @@
 							<td translate="no">2<sup>&minus;4</sup> <wbr />3<sup>0</sup> <wbr />5<sup>2</sup></td>
 							<td translate="no">7.726</td>
 							<td>Minor sixth</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Just diminished fourth">
 							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%22Just+diminished+fourth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">32<wbr />/25</a></td>
@@ -437,7 +538,7 @@
 							<td translate="no">2<sup>&minus;3</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>2</sup></td>
 							<td translate="no">0.707</td>
 							<td>Semitone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Diminished octave">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Diminished_octave">48<wbr />/25</a></td>
@@ -450,7 +551,7 @@
 							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>2</sup></td>
 							<td translate="no">5.687</td>
 							<td>Tritone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Classic diminished fifth">
 							<td translate="no"><a href="https://en.wikipedia.org/w/index.php?search=%22Classic+diminished+fifth%22&title=Special:Search&profile=advanced&fulltext=1&ns0=1">36<wbr />/25</a></td>
@@ -464,7 +565,7 @@
 							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>0</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">9.688</td>
 							<td>Minor seventh</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal whole tone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_whole_tone">8<wbr />/7</a></td>
@@ -477,7 +578,7 @@
 							<td translate="no">2<sup>&minus;1</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">2.669</td>
 							<td></td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal major sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_major_sixth">12<wbr />/7</a></td>
@@ -490,7 +591,7 @@
 							<td translate="no">2<sup>&minus;4</sup> <wbr />3<sup>1</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">4.708</td>
 							<td>(Perfect) fourth</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diminished sixth">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diminished_sixth">32<wbr />/21</a></td>
@@ -504,7 +605,7 @@
 							<td translate="no">2<sup>1</sup> <wbr />3<sup>&minus;2</sup> <wbr />5<sup>0</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">7.649</td>
 							<td></td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal major third">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_major_third">9<wbr />/7</a></td>
@@ -517,7 +618,7 @@
 							<td translate="no">2<sup>0</sup> <wbr />3<sup>0</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">5.825</td>
 							<td>Tritone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Euler's tritone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Euler%27s_tritone">10<wbr />/7</a></td>
@@ -530,7 +631,7 @@
 							<td translate="no">2<sup>&minus;2</sup> <wbr />3<sup>1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">0.845</td>
 							<td>Semitone</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diminished octave">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diminished_octave" title="Alternative name: acute major seventh">40<wbr />/21</a></td>
@@ -543,7 +644,7 @@
 							<td translate="no">2<sup>2</sup> <wbr />3<sup>&minus;1</sup> <wbr />5<sup>&minus;1</sup> <wbr />7<sup>1</sup></td>
 							<td translate="no">10.806</td>
 							<td>Major seventh</td>
-							<td headers="colNotes" rowspan="2"></td>
+							<td headers="colRemarks" rowspan="2"></td>
 						</tr>
 						<tr title="Septimal diatonic semitone">
 							<td translate="no"><a href="https://en.wikipedia.org/wiki/Septimal_diatonic_semitone">15<wbr />/14</a></td>
@@ -552,10 +653,10 @@
 							<td>Semitone</td>
 						</tr>
 						<tr>
-							<td colspan="5" id="outToolTip2" class="tool-tip print-dp-none">A description of the selected item will appear here.</td>
+							<td colspan="5" id="outToolTipIntervals" class="tool-tip print-dp-none" data-def-caption="A description of the selected item will appear here."></td>
 						</tr>
 					</tbody>
-				</table></p>
+				</table>
 				<p>Note: "semitone" is a British English term, corresponding to "half step" in American English. 
 					Several other intervals have alternative names: for example the tritone can also be called augmented fourth and diminished fifth, and the major second is also known as a whole tone.</p>
 				<p>Note: the naming of intervals is often not formal or systematic, and may even vary between sources. For further reading on interval names, see:</p>
@@ -574,7 +675,9 @@
 				However, the deeper you go into dissonance, the more subtle it becomes, so it gets harder to tell the harmonies exactly. 
 				In practice, music composers rarely take inspiration from beyond a few lower primes. 
 				Working with lots of nuance in harmony demands for longer notes to discern them more clearly, and thus slower tempo (pacing).</p>
-			<h2>Musical format</h2>
+		</section>
+		<section>
+			<h2 id="sec_musical_format"><a href="#sec_musical_format" class="section-link">Musical format</a></h2>
 			<p>This page uses two text-based formats for music representation: a structured one (first), which allows <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">deep hierarchies</a> of parameters (see the properties below), and a related "flattened" one (non-recursive <a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">list</a> of notes), used when playing, supporting only note properties. 
 				But you don't have to worry with the flattened one until the last moment (see <a href="https://en.wikipedia.org/wiki/Abstraction_principle_(computer_programming)">the principle of abstraction</a>, <a href="https://en.wikipedia.org/wiki/WYSIWYM">What You See Is What You Mean</a>). 
 				As it is a text format, it becomes easy to perfectly (manually) save and load content.</p>
@@ -583,7 +686,7 @@
 				As in many computer languages, usage of alphabetic characters is case-sensitive and names are strict. 
 				Another syntax is <code>[value1, value2, ...]</code>, when the values are implicitly indexed by natural numbers starting from zero (those objects are called arrays or lists). 
 				That would be the same as <code>{"0": value1, "1": value2, ...}</code>.</p>
-			<h3>Structured representation</h3>
+			<h3 id="sec_structured_representation"><a href="#sec_structured_representation" class="section-link">Structured representation</a></h3>
 			<p>The <em>structured representation</em> is made to be readable and editable, while also understandable by a computer. 
 				In this format, you must use numerical indices (explicitly or not) to attach structures (i.e. patterns, subnodes; whether notes or blocks of notes) that should be played; you can use names (quoted strings) for node reuse, but for them to be played, they must be instantiated under a numerical index (e.g. <code>"0": "myPattern", "myPattern": {...}</code>). 
 				Use <a href="https://en.wikipedia.org/wiki/Natural_number">natural numbers</a> starting at 0 and don't skip numbers. 
@@ -615,7 +718,7 @@
 			</dl>
 			<p>In the structured format, note properties are (influenced by block property values):</p>
 			<dl>
-				<dt><strong><code>noteStart</code></strong> (default <em>noteStop of previous note</em> or <code>0</code>)</dt>
+				<dt><strong><code>noteStart</code></strong> (default <!-- <em>noteStop of previous note</em> or  --><code>0</code>)</dt>
 				<dd>The moment in time the note is played.</dd>
 				<dd>Affected by timeDelta and timeScale.</dd>
 
@@ -629,7 +732,7 @@
 				<dd>Affected by timeScale.</dd>
 
 				<dt><strong><code>freq</code></strong> (default <code>1</code>)</dt>
-				<dd>Frequency, which represents pitch.</dd>
+				<dd>Frequency, which represents pitch. While unfiltered noise has no specific frequency, freq is still used for decayFactor.</dd>
 				<dd>Affected by freqRatio.</dd>
 
 				<dt><strong><code>vol</code></strong> (default <code>1</code>)</dt>
@@ -642,7 +745,7 @@
 				<dd>Absolute override when present.</dd>
 
 				<dt><strong><code>q</code></strong> (default <code>1</code>)</dt>
-				<dd>Inverse of relative bandwidth for a resonance filter. Used only with noise.</dd>
+				<dd>Inverse of relative bandwidth for a resonance filter. Used only with noise. The higher the number, the more tonal the timbre will be. Set to 0 prevent frequency filtering.</dd>
 				<dd>Absolute override when present.</dd>
 
 				<dt><strong><code>decayFactor</code></strong> (default <code>256</code>)</dt>
@@ -683,7 +786,7 @@
 				<dd>Inheritable property meant to be ignored by the computer (works like comments in a programming language). Can store a string or other things in its value.</dd>
 				<dd>Absolute override when present.</dd>
 			</dl>
-			<h3>Numbers</h3>
+			<h3 id="sec_numbers"><a href="#sec_numbers" class="section-link">Numbers</a></h3>
 			<p>In the structured representation, block and note properties support several <strong>number formats</strong>. Examples:</p>
 			<ul>
 				<li><code>1.25</code> = 1.25 (literal number)</li>
@@ -713,7 +816,7 @@
 				<li>Addition, multiplication and exponentiation are right-associative: e.g. <code>4^3^2</code> = <code>4^(3^2)</code>, not <code>(4^3)^2</code></li>
 				<li>Subtraction and division are left-associative: e.g. <code>4 - 3 - 2</code> = <code>(4 - 3) - 2</code>, not <code>4 - (3 - 2)</code></li>
 			</ul>
-			<h3>Flattened representation</h3>
+			<h3 id="sec_flattened_representation"><a href="#sec_flattened_representation" class="section-link">Flattened representation</a></h3>
 			<p>Eventually, the structured representation is converted (by the page) into a <em>flattened representation</em>, which is easier for a computer to play. 
 				In this format, blocks, recursion, named patterns, numerical structures and arithmetics are not available. 
 				For creative representation (reading and editing), prefer the structured format; the flattened representation is only needed when the computer is going to play the music.</p>
@@ -762,14 +865,14 @@
 
 				<dt><strong><code>tag</code></strong></dt>
 			</dl>
-		</article>
+		</section>
 		<footer>
 			<hr />
-			<p>Project page (including source code): <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/">https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/</a></p>
 			<p>Currently, there are no features about rewrite rules (other than simply named nodes), custom synthesis (only sine waves and noise are played), custom filtering, custom effects, multiple tracks/custom mixing pipeline or multiple channels/spatialization.</p>
+			<p>Project page (including source code): <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/">https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/</a></p>
 			<p>By regretronics; licensed under the <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution Share-alike (CC BY-SA) license</a>.</p>
 			<p>I'm still <a href="https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/json-player/README.md">waiting for your feedback</a>! Thanks.</p>
 		</footer>
-	</section>
+	</article>
 </body>
 </html>

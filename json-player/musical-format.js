@@ -1,26 +1,78 @@
 "use strict";
 
 //imported variables
-var elems;
-var autoFlatten;
+var elems; //?
+//var autoFlatten;
 
 //shared variables
 var struct;
 
+function parseExpRanges(event) {
+	if(!window.ctlPrimeExpRanges) return false;
+	try {
+		const parsed = JSON.parse(codeBoxContentGet(ctlPrimeExpRanges));
+		if(!parsed) throw(new Error("Exponent ranges: couldn't parse JSON code."));
+		ctlPrimeExpRanges.classList.remove("invalid");
+		ctlPrimeExpRanges.title = "";
+		//ctlPrimeExpRanges.setCustomValidity(""); //setCustomValidity not available for <pre> elements
+		if(!adjustingPreferences) setToolTip(outToolTip, "");
+
+		//clean-copying of JSON code
+		const newExpRanges = {};
+		let hasAnyRanges = false;
+		for(const strFactor in parsed) {
+			if(!Object.hasOwn(parsed, strFactor)) continue;
+			const factor = parseNumber(strFactor);
+			if(isNaN(factor)) continue;
+			if(!primes.includes(factor)) continue;
+
+			let element = parsed[strFactor];
+			//normalize to 2-element array, ignore invalid entries
+			if(typeof(element) === "number")
+				element = [0, element];
+			else
+				if(Array.isArray(element))
+					element = [NaNToDefault(parseNumber(element[0]), 0), NaNToDefault(parseNumber(element[1]), 0)];
+				else {
+					const elementNum = parseNumber(parseNumber);
+					if(isNaN(elementNum)) continue;
+					element = [0, elementNum];
+				}
+			if(element[0] > element[1]) continue;
+			newExpRanges[factor] = element;
+			hasAnyRanges ||= (element[1] > element[0]);
+		}
+		if(Object.keys(newExpRanges) <= 0) throw(new Error("Exponent ranges: no valid entries."));
+		if(!hasAnyRanges) throw(new Error("Exponent ranges: no valid ranges."));
+
+		prefs.primeFactors.expRanges = newExpRanges;
+		if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
+	} catch(error) {
+		console.warn(error);
+		//codeBoxContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
+		ctlPrimeExpRanges?.classList?.add?.("invalid");
+		if(window.ctlPrimeExpRanges) ctlPrimeExpRanges.title = (error.message ?? error).toString();
+		//ctlPrimeExpRanges?.setCustomValidity?.((error.message ?? error).toString());
+		return false;
+	}
+	return true;
+}
+
 //recursive function
 //to do: consider negative time scales
-//question: propagation of arbitrary/unrecognized properties? (probably a bad idea, because of patterns)
 //question: require a special format for pattern names? (to prevent collision with future properties)
+//question: 	or maybe group them into a "patterns" property?
+//question: propagation of arbitrary/unrecognized properties? (currently a bad idea, because of patterns)
 function parseNode(flatStruct, node, blockContext) {
 	//alter context.
 	const newContext = Object.assign({}, blockContext);
 	//to do: bounds check and node elimination? (e.g. when freqRatio or freq or volRatio or vol or timeScale = 0)
-	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), 0); //additive
+	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), defaultBlockNode.timeDelta); //additive
 
 	//multiplicative
-	newContext.timeScale *= NaNToDefault(parseNumber(node.timeScale), 1);
-	newContext.volRatio *= NaNToDefault(parseNumber(node.volRatio), 1);
-	newContext.freqRatio *= NaNToDefault(parseNumber(node.freqRatio), 1);
+	newContext.timeScale *= NaNToDefault(parseNumber(node.timeScale), defaultBlockNode.timeScale);
+	newContext.freqRatio *= NaNToDefault(parseNumber(node.freqRatio), defaultBlockNode.freqRatio);
+	newContext.volRatio *= NaNToDefault(parseNumber(node.volRatio), defaultBlockNode.volRatio);
 
 	//absolute/substitutive
 	/*for(const prop in node) { //and others
@@ -46,8 +98,15 @@ function parseNode(flatStruct, node, blockContext) {
 	if(node.remark) newContext.remark = node.remark; //string expected.
 	if(node.tag) newContext.tag = node.tag; //string expected.
 
-	//to do: allow noteStart to be inferred from previous noteStop? or inferred by its node index?
-	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") || node.hasOwnProperty("freq") || node.hasOwnProperty("vol"))
+	//the presence of any of certain properties confirms there is a note in the node
+	//to do: !allow noteStart to be inferred from previous noteStop
+	//question:	or inferred by its node index?
+	//to do: 	!how to get the previous note and its noteStop?
+	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") 
+		|| node.hasOwnProperty("freq") //even for unfiltered noise, presence of freq is accepted
+		//|| (node.hasOwnProperty("freq") && (node.timbre != "noise" || node.q != 0 || defaultNoteNode.q != 0)) //presence of freq only doesn't matter for unfiltered noise
+		|| node.hasOwnProperty("vol"))
+
 		try {
 			//register a note.
 			node.noteStart = NaNToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
@@ -69,23 +128,30 @@ function parseNode(flatStruct, node, blockContext) {
 			if(node.freq0) newNote.freq0 = newContext.freqRatio * node.freq0;
 			//to do: calculate proper freq0 while notes are still in hierarchy
 			newNote.freq = newContext.freqRatio * NaNToDefault(parseNumber(node.freq), defaultNoteNode.freq); //unconditional, but later than timbre and freq0
-			for(const prop in newContext) { //copy other properties
-				if(!relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
+			for(const prop in newContext) //copy other properties
+				if(newNote[prop] === undefined //not already present
+					&& !relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
 					&& !incrementalNoteProps.includes(prop) //exclude "blended" note properties
 					&& (newNote.timbre != "noise" || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
-						const val = newContext[prop];
-						if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
-							newNote[prop] = val;
-					}
-			}
+
+					const val = newContext[prop];
+					if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
+						newNote[prop] = val;
+				}
+			/* //unfiltered noise has no intrinsic frequency, but uses it for calculating decayFactor
+			if(newNote.timbre == "noise" && (newNote.q == 0 || (newNote.q === undefined && defaultNoteNode.q == 0))) {
+				//delete newNote.freq; //frequency value being useless and omitted
+				newNote.freq = 1 / newContext.timeScale; //frequency value being redefined from timeScale (ignoring freqRatio)
+				delete newNote.freq0; //currently, no noise portamento
+			} */
 			if(newContext.remark != defaultNoteNode.remark) newNote.remark = newContext.remark;
 			if(newContext.tag != defaultNoteNode.tag) newNote.tag = newContext.tag;
 
 			flatStruct.push(newNote);
 		} catch(error) {
-			console.error(error);
+			console.warn(error);
 		}
-		else
+	else
 		if(node.remark) {
 			//remark-only dummy note
 			node.noteStart = NaNToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
@@ -116,12 +182,17 @@ function parseNode(flatStruct, node, blockContext) {
 }
 
 let hasScriptChanged = true;
-function flattenStruct() {
+function flattenStruct(event) {
 	if(!hasScriptChanged) return false;
+	if(!window.ctlStructuredScript) return false;
 	try {
-		struct = JSON.parse(codeEditorContentGet(ctlStructuredScript));
+		struct = JSON.parse(codeBoxContentGet(ctlStructuredScript));
+		if(!struct) throw(new Error("Structured script: couldn't parse JSON code."));
+
 		ctlStructuredScript.classList.remove("invalid");
+		ctlStructuredScript.title = "";
 		//ctlStructuredScript.setCustomValidity(""); //setCustomValidity not available for <pre> elements
+		setToolTip(outToolTip, "");
 
 		const flatStruct = [];
 		if(Array.isArray(struct)) {
@@ -131,43 +202,57 @@ function flattenStruct() {
 			parseNode(flatStruct, struct, defaultBlockNode);
 
 		//finally, yield the flattened version
-		let s = JSON.stringify(flatStruct, null, "\t");
+		let objText = JSON.stringify(flatStruct, null, "\t");
 		struct = null; //frees memory, hopefully
 		//final adjustments on indentation
 		let regex = new RegExp(/\{\n\t{2,}/, "g");
-		s = s.replace(regex, "{");
+		objText = objText.replace(regex, "{");
 		regex = new RegExp(/\n\t{2,}/, "g"); //to do: review this one closely, against hypothetical effects like " }"
-		s = s.replace(regex, " ");
+		objText = objText.replace(regex, " ");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
-		s = s.replace(regex, "}");
+		objText = objText.replace(regex, "}");
 
-		saveControlPreference(ctlStructuredScript);
-		codeEditorContentSet(ctlFlatScript, s);
-		ctlFlatScript.classList.remove("invalid");
+		if(!adjustingPreferences) saveControlPreference(ctlStructuredScript);
+		codeBoxContentSet(ctlFlatScript, objText);
+		ctlFlatScript.classList.remove("invalid", "outdated");
 	} catch(error) {
-		//codeEditorContentSet(ctlFlatScript, error.name + ": " + error.message);
-		codeEditorContentSet(ctlFlatScript, error.toString());
-		ctlStructuredScript.classList.add("invalid");
-		//ctlStructuredScript.setCustomValidity(error.toString());
+		console.warn(error);
+		//codeBoxContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
+		//codeBoxContentSet(ctlFlatScript, (error.message ?? error).toString());
+		setToolTip(outToolTip, "Failure in structured code conversion. " + (error.message ?? error ?? ""), 3);
+
+		ctlStructuredScript?.classList?.add?.("invalid");
+		if(window.ctlStructuredScript) ctlStructuredScript.title = (error.message ?? error).toString();
+		//ctlStructuredScript?.setCustomValidity?.((error.message ?? error).toString());
+		return false;
 	}
 	//job done, don't do it again
 	hasScriptChanged = false;
 	btnFlattenStruct.innerText = "Flattened";
+	console.log("flattenStruct(): function ending");
+	return true;
 }
 
-function setStructuredText(s) {
+function setStructuredText(codeText) {
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 	if(window.ctlStructuredScript) {
-		codeEditorContentSet(ctlStructuredScript, s);
-		saveControlPreference(ctlStructuredScript);
-	}
-	if(autoFlatten) flattenStruct();
+		codeBoxContentSet(ctlStructuredScript, codeText);
+		if(!adjustingPreferences) saveControlPreference(ctlStructuredScript);
+	} else
+		throw(new Error("Control ctlStructuredScript not found."));
+	if(prefs.flatScript.autoFlatten) flattenStruct();
+	return true;
 }
 
 let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
-function scriptChanged() {
+function scriptChanged(event) {
+	ctlFlatScript?.classList?.add?.("outdated");
+	if(!window.flattenStruct) {
+		console.info("scriptChanged(): function flattenStruct() not found. Returning.");
+		return false;
+	}
 	hasScriptChanged = true;
 	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 
@@ -175,18 +260,22 @@ function scriptChanged() {
 		window.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
-	if(autoFlatten)
+	if(prefs.flatScript.autoFlatten && !adjustingPreferences)
 		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
+	return true;
 }
 
 function setAutoFlatten(value) {
-	autoFlatten = value;
-	if(autoFlatten) {
-		if(hasScriptChanged && !flattenTimeoutID) flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
+	if(!window.flattenStruct) return false;
+	prefs.flatScript.autoFlatten = value;
+	if(prefs.flatScript.autoFlatten) {
+		if(hasScriptChanged && !flattenTimeoutID)
+			flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
 	} else {
 		if(flattenTimeoutID) {
 			window.clearTimeout(flattenTimeoutID);
 			flattenTimeoutID = undefined;
 		}
 	}
+	return true;
 }

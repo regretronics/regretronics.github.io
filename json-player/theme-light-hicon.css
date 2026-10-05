@@ -19,6 +19,7 @@
 	scrollbar-color:
 		hsl(var(--hue-accent2, 300), 12.5%, 12.5%)
 		hsl(var(--hue-accent2, 300), 12.5%, 93.75%);
+	outline-color: hsl(var(--hue-accent, 120), 25%, 25%);
 }
 *::-webkit-scrollbar {
 	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
@@ -45,7 +46,7 @@
 body {
 	font-weight: 500;
 }
-:is(.code-editor, code)::selection {
+:is(.code-box, code)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 1) !important;
 	color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 0.9375) !important;
 }
@@ -58,15 +59,18 @@ h1, h2, h3, strong, em {
 		background-color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
 		color: hsl(var(--hue-accent, 120), 0%, 100%) !important;
 	}
-	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
+	:is(& code, .code-box &, code &) {
 		&::selection {
 			color: hsl(var(--hue-accent2, 300), 100%, 6.25%) !important;
 		}
 	}
 }
 
-noscript, #translationWarning {
-	color: hsl(0, 100%, 12.5%);
+.alert-error {
+	color: hsl(0, 100%, 25%);
+}
+.alert-warn {
+	color: hsl(60, 75%, 18.75%);
 }
 hr {
 	border-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
@@ -74,11 +78,26 @@ hr {
 .separator {
 	background-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
 }
-table, caption {
+table:has(> caption), caption, table:not(:has(> caption)) tbody :is(td, th):not(.empty) {
 	background-color: hsla(0, 0%, 50%, 0.25);
 }
-td {
+table:has(> caption) tbody :is(td, th):not(.empty) {
 	background-color: hsla(0, 0%, 100%, 0.5);
+}
+summary:first-of-type {
+	&:hover, &:focus {
+		background-color: hsla(var(--hue-accent, 120), 50%, 0%, 0.25);
+		outline-style: solid;
+		outline-width: 0.25em;
+		outline-color: hsla(var(--hue-accent, 120), 50%, 0%, 0.25);
+	}
+
+	details:has(.outdated) > & {
+		color: hsla(30, 50%, 25%, 0.75);
+	}
+	details:has(.invalid) > & {
+		color: hsla(0, 100%, 25%, 0.875);
+	}
 }
 
 a:link {
@@ -147,12 +166,21 @@ input.invalid {
 }
 .tool-tip {
 	background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
+	--inactive-opacity: 0.9375;
+
+	&[data-warn-level] {
+		background-color: hsl(var(--warn-hue), calc(100% * var(--warn-sat)), 93.75%, 0.875);
+	}
 }
 
-.code-editor {
+.code-box {
 	background-color: hsla(var(--hue-accent, 120), 0%, 87.5%, 0.625);
 	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
 
+	&.outdated {
+		background-color: hsla(30, 25%, 93.75%, 0.875);
+		color: hsla(30, 25%, 6.25%, 0.75);
+	}
 	&.invalid {
 		background-color: hsla(0, 100%, 87.5%, 0.875);
 	}
@@ -160,8 +188,6 @@ input.invalid {
 
 #imgVisualizer {
 	background-color: hsla(0, 0%, 100%, 0.5);
-}
-linearGradient#noteFill1 stop {
-	/* stop-color: hsla(var(--hue-accent2, 300), 0%, 0%, 0.875); */
-	stop-color: hsl(var(--hue-accent2, 300), 0%, 0%);
+	/* --fill-color: hsla(var(--hue-accent2, 300), 0%, 0%, 0.875); */
+	--fill-color: hsl(0, 0%, 0%);
 }

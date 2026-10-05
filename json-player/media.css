@@ -1,54 +1,80 @@
 @media screen {
-	/*for wide viewports, a two-column layout (control panel + documentation)*/
-	/*@media (min-width: 160ch) {*/
-	@media
-		(orientation: landscape) and (min-width: 160ch),
-		(min-aspect-ratio: 3/2) and (min-width: 128ch),
-		(min-aspect-ratio: 2/1) and (min-width: 80ch) {
-		/* (min-aspect-ratio: 2/1) and (min-width: calc(var(--page-scale, 1) * 80ch)) { */
-		:root {
-			height: 100%;
+	.section-link:is(:hover, :focus) {
+		&::after {
+			/* display: inline; */
+			font-size: 0.85em;
+			content: " 🖇︎" / attr(href);
+			/* 🔖📑🔗🖇🔖︎📑︎🔗︎🖇︎ */
 		}
+	}
+
+	/*for wide viewports, a two-column layout (control panel + documentation)*/
+	/*@media (min-inline-size: 160ch) {*/
+	/* @media
+		(orientation: landscape) and (min-inline-size: 160ch),
+		(min-aspect-ratio: 3/2) and (min-inline-size: 128ch),
+		(min-aspect-ratio: 2/1) and (min-inline-size: 80ch) { */
+		/* (min-aspect-ratio: 2/1) and (min-inline-size: calc(var(--page-scale, 1) * 80ch)) { */
+	/* @container
+		(inline-size >= 160ch) or
+		((orientation: landscape) and (inline-size >= 144ch)) or
+		((aspect-ratio >= 3/2) and (inline-size >= 104ch)) or
+		((aspect-ratio >= 2/1) and (inline-size >= 88ch)) { */
+	@container
+		(inline-size >= calc(960px + 20ch)) or
+		((orientation: landscape) and (inline-size >= calc(864px + 18ch))) or
+		((aspect-ratio >= 3/2) and (inline-size >= calc(624px + 13ch))) or
+		((aspect-ratio >= 2/1) and (inline-size >= calc(528px + 11ch))) {
 		body {
+			box-sizing: border-box;
+			margin: 0em;
+			block-size: 100%;
+
 			display: flex;
 			flex-direction: row;
 			flex-wrap: nowrap;
 			justify-content: center;
 			align-items: stretch;
 
-			box-sizing: border-box;
-			margin: 0em;
-			height: 100%;
-			/*height: 100vh;*/
-
 			& > .major-section {
 				box-sizing: border-box;
-				height: 100%;
-				overflow-y: auto;
+				block-size: 100%;
+				overflow-block: auto;
 				/* padding: 2vmin; */
-				padding: max(0em, calc(7.5vmin - 8ch));
+				/* padding: max(1.5vmin, 5vmin - 8ch); */
+				/* padding: max(1vmin, 4vmin - 2ch, 9vmin - 8ch); */
+				--viewport-frac: calc(3.125vmax + 6.25vmin);
+				--text-frac: calc(8 * (1em + 1ch));
+				padding: calc(0.0625 * max(/* 0ch, */ 
+					var(--viewport-frac), 
+					4 * var(--viewport-frac) - var(--text-frac), 
+					9 * var(--viewport-frac) - 4 * var(--text-frac)));
 			}
 			& > main {
 				flex-basis: 96ch;
 				flex-grow: 1;
 			}
-			& > section {
-				/*min-width: 64ch;*/
+			& > :not(main) {
+				/*min-inline-size: 64ch;*/
 				flex-basis: 64ch;
 				flex-grow: 0.5;
-				max-width: 144ch;
+				max-inline-size: 144ch;
 			}
-			& > hr, & > .bg {
+			/* & > hr, */ & > .bg {
 				display: none;
 			}
-		}
-		#outToolTip {
-			padding-inline: 1em;
-			max-width: 100%;
+			& > hr {
+				flex-grow: 0;
+				flex-shrink: 0;
+				margin: 0em;
+				writing-mode: vertical-lr;
+
+				flex-basis: 0em;
+			}
 		}
 	}
-	.code-editor {
-		height: 12em;
+	.code-box {
+		block-size: 12em;
 	}
 	/*try to show spin buttons on numerical fields*/
 	/*input[type=number]::inner-spin-button, 
@@ -85,7 +111,7 @@
 		}
 		img, svg, a:link, :any-link, table, caption, td,
 		input, button, textarea, select, label, meter, progress,
-		.buttons-area, .buttons-area *, .code-editor, .tool-tip {
+		.buttons-area, .buttons-area *, .code-box, .tool-tip {
 			transition-property: opacity;
 			/* transition-property: background-color, color, accent-color, border-color, scrollbar-color, stop-color, opacity, filter; */
 			transition-duration: 0.25s;
@@ -104,6 +130,17 @@
 	}
 }
 @media print {
+	:any-link {
+		text-decoration: none;
+
+		&:not(.section-link)::after {
+			content: "<" attr(href) ">";
+			line-break: anywhere;
+			/* word-break: break-all; */
+			overflow-wrap: anywhere;
+			opacity: 0.7;
+		}
+	}
 	input[type=number] {
 		appearance: textfield;
 
@@ -127,8 +164,8 @@
 	.print-dp-none, button/*, .cell:has(input[type=checkbox])*/ {
 		display: none;
 	}
-	.code-editor {
-		height: unset;
+	.code-box {
+		block-size: unset;
 		white-space: pre-wrap;
 		resize: none;
 		@supports (field-sizing: content) {

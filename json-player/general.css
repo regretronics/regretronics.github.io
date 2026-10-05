@@ -3,6 +3,12 @@
 	--page-scale: 1;
 	font-size: calc(var(--page-scale, 1) * 1em);
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+
+	container-name: root;
+	container-type: size;
+	block-size: 100%;
+
+	background-color: Canvas;
 }
 /*body {
 	display: flex;
@@ -22,6 +28,12 @@
 main, hr, .bg {
 	display: revert;
 }
+body, body > *, body > main > .flex-row, body > article > *, body > article > * > * { /*layout optimization for performance*/
+	container-type: inline-size;
+}
+main > div {
+	margin-block: 1em;
+}
 
 h1, h2, h3, h4, h5, h6 {
 	margin-block-end: 0.75em;
@@ -33,14 +45,22 @@ h1, h2, h3, h4, h5, h6 {
 		margin-block-start: 0.5em;
 	}
 }
-div > h1:first-child {
+details {
+	margin-block: 1em;
+
+	&[open]::details-content {
+		margin-block-start: 0.5em;
+		margin-block-end: 1em;
+	}
+}
+header > * {
 	margin-block: 0em;
 }
-details {
-	margin-bottom: 1.5em;
-}
-noscript {
+noscript { /*like a paragraph*/
+	display: block;
+	margin-block: 1em;
 	font-size: 1.25em;
+	/* font-weight: bold; */
 }
 
 /*p {*/
@@ -57,58 +77,41 @@ p, p * {
 }
 
 /* input[type=number] {
-	width: 8ch;
+	inline-size: 8ch;
 } */
-input:is([type=number], [type=text]) {
-	&[size] {
-		box-sizing: border-box;
-		width: calc(2*5em/32 + 2ch + var(--size, 6)*1ch); /*inspired by Firefox sizing of input's*/
-	}
-	&[size="3"] { /*as of 2025-03, Chrome requires quotes for numeric contents*/
-		--size: 3;
-	}
-	&[size="4"] {
-		--size: 4;
-	}
-	&[size="5"] {
-		--size: 5;
-	}
-	&[size="6"] {
-		--size: 6;
-	}
-	&[size="7"] {
-		--size: 7;
-	}
-	&[size="11"] {
-		--size: 11;
-	}
+input:is([type=number], [type=text])[size] {
+	box-sizing: border-box;
+	--size: attr(size type(<number>));
+	inline-size: calc(2*5em/32 + 2ch + var(--size, 6)*1ch); /*inspired by Firefox sizing of input's*/
 }
 input[type=number], .right {
-	text-align: right;
+	&, table.controls-group :is(th, td):not(.left):has(&) {
+		text-align: right;
+	}
+}
+.align-inline-end {
+	text-align: end;
 }
 /*input[type=number]:not([size]) {
-	width: 8ch;
+	inline-size: 8ch;
 }*/
 /*input.exp:not([size]) {
-	width: 8ch;
+	inline-size: 8ch;
 }*/
 input[type=checkbox] {
 	/* scale: var(--page-scale, 1); */
-	width: 1em;
-	height: 1em;
+	inline-size: 1em;
+	block-size: 1em;
 }
 /* input[type=range] {
 	vertical-align: middle;
 	scale: var(--page-scale, 1);
-	height: 1em;
+	block-size: 1em;
 
 	--length: 8;
-	width: calc(1em * var(--length, 8) / var(--page-scale, 1));
+	inline-size: calc(1em * var(--length, 8) / var(--page-scale, 1));
 	margin-inline: calc(0.5em + 0.5em * var(--length, 8) * (1 - 1 / var(--page-scale, 1)));
 } */
-#txtRhythmFactors {
-	width: 12ch;
-}
 
 .flex-row {
 	display: flex;
@@ -116,15 +119,14 @@ input[type=checkbox] {
 	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
+	margin-block: 1em;
 
-	div& {
-		margin-block: 1em;
-	}
 	&:first-child {
 		margin-block-start: 0em;
 	}
 
-	& > *:not(wbr, .right) {
+	& > *:not(wbr, .align-inline-end) {
+		/* @supports (interpolate-size) { */
 		@supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
 			flex-basis: calc-size(max-content, 0.5625 * size);
 		}
@@ -134,23 +136,24 @@ input[type=checkbox] {
 	& > wbr {
 		display: none;
 	}
-	& > .right {
+	& > .align-inline-end {
 		/* flex-basis: 12ch; */
 		flex-basis: min-content;
 		flex-grow: 1;
 		flex-shrink: 2;
 	}
-	/*@media (min-width: 96ch) {
+	/*@media (min-inline-size: 96ch) {
 		flex-wrap: nowrap;
 	}*/
 }
-/* @supports (flex-basis: calc-size(max-content, 0.5625 * size)) {
-	.flex-row > *:not(wbr, .right) {
+/* @supports (flex-basis: calc-size(max-content, 0.5625 * size)) { */
+/* @supports (interpolate-size) {
+	.flex-row > :not(wbr, .align-inline-end) {
 		flex-basis: calc-size(max-content, 0.5625 * size);
 	}
 } */
 
-.align-top {
+.align-block-start {
 	align-items: flex-start;
 }
 .cell, .chunk {
@@ -159,16 +162,52 @@ input[type=checkbox] {
 /* .chunk {
 	text-wrap-mode: wrap;
 } */
+.tool-tip {
+	z-index: 256;
+	block-size: auto;
+	padding-block: 1em;
+	/* padding-inline: max(2ch, 50% - 0.5*120ch);
+	block-size: calc(100% - 2*2ch);
+	max-block-size: 120ch; */
+	padding-inline: 2ch;
 
-.code-editor {
+	background-color: ButtonFace;
+
+	&:is(:empty/* , :blank */)::before {
+		/* @media not all and (prefers-contrast: more) { */
+			opacity: var(--inactive-opacity, 0.75);
+		/* } */
+		content: attr(data-def-caption);
+	}
+	&.active {
+		position: sticky;
+		inset-block-end: 0em; /*this property is replacing bottom, but could yield weird positioning with writing-mode: vertical-lr*/
+	}
+}
+/* #outToolTip {
+	padding-inline: 1em;
+	max-inline-size: 100%;
+} */
+/* .section-link:not(:hover) {
+	color: inherit;
+	text-decoration: none;
+} */
+.section-link {
+	text-decoration: none;
+	&:not(:hover) {
+		color: inherit;
+	}
+}
+
+.code-box {
 	box-sizing: border-box;
-	padding: 0.125em;
 	/* border: solid 0.25em; */
-	width: 100%;
+	inline-size: 100%;
+	padding: 0.125em;
 
 	/* resize: none; */
-	overflow-y: auto;
-	min-height: 8em;
+	overflow-block: auto;
+	min-block-size: 8em;
 
 	tab-size: 4;
 	white-space: pre;
@@ -177,16 +216,28 @@ input[type=checkbox] {
 	/* line-break: anywhere; */
 	/* overflow-wrap: anywhere; */
 
+	background-color: Field;
+
+	td > & {
+		margin-block: 0em;
+	}
+	td:has(> &) {
+		max-inline-size: 75cqi;
+	}
+	&:not(td > &) {
+		margin-block: 1em;
+	}
 	textarea& {
 		appearance: none;
 		display: block;
 	}
 	&:not(.expanded) {
-		resize: vertical;
-		max-height: 93.75svh;
+		resize: block;
+		max-block-size: 93.75svb; /*small viewport block-size*/
 	}
 	&.expanded {
 		resize: none;
+		block-size: unset !important; /*override inline style*/
 		height: unset !important;
 
 		@supports (field-sizing: content) {
@@ -200,46 +251,64 @@ input[type=checkbox] {
 	}
 }
 
-#imgVisualizer {
-	width: 100%;
-	height: 96px;
+#grpUiOptions {
+	float: inline-end;
+	max-inline-size: max(33.33%, 32ch);
+	position: relative; /*for drawing over occasional (summary hover/active) outlines*/
+	/* z-index: 256; */
+
+	&[open] {
+		inline-size: min-content;
+	}
 }
-#title-icon {
-	height: 1em;
-	width: auto;
+#titleIcon {
+	/* block-size: 1em;
+	inline-size: auto; */
 
 	& img {
-		height: 1em;
-		width: auto;
+		block-size: 1em;
+		inline-size: auto;
 		vertical-align: text-bottom;
 		/*vertical-align: middle;*/
 	}
 }
+#outPrimeList .partial {
+	opacity: 0.7; /*to do: consider font-weight?*/
+}
+#imgVisualizer {
+	inline-size: 100%;
+	block-size: 96px;
+
+	background-color: Field;
+}
 #tblFractionIntervals {
-	width: 100%;
+	inline-size: 100%;
 
 	& #colFraction {
 	/* & thead tr th:nth-child(1), & tbody tr td:nth-child(1) { */
-		max-width: 10ch;
+		max-inline-size: 10ch;
 	}
 	& #colPrimeFactors {
 	/* & thead tr th:nth-child(2), & tbody tr td:nth-child(2) { */
-		max-width: 14ch;
+		max-inline-size: 14ch;
 	}
 	& #colSizeSemitones {
 	/* & thead tr th:nth-child(3), & tbody tr td:nth-child(3) { */
-		max-width: 9ch;
+		max-inline-size: 9ch;
 	}
 	& #colIntervalName {
 	/* & thead tr th:nth-child(4), & tbody tr td:nth-child(4) { */
-		max-width: 16ch;
+		max-inline-size: 16ch;
 	}
 	/*apparently Chrome (as of 2025-08) has a bug that fails to deactivate comments in the middle of the selector.*/
 	& #colSoundSample, & td[headers=colSoundSample] {
-		max-width: 6ch;
+		max-inline-size: 6ch;
 	}
-	& #colNotes, & td[headers=colNotes] {
-		min-width: 10ch;
+	& td[headers=colSoundSample]:not(:has(button)) {
+		display: none;
+	}
+	& #colRemarks, & td[headers=colRemarks] {
+		min-inline-size: 10ch;
 	}
 
 	& td:nth-child(1) {
@@ -252,11 +321,11 @@ input[type=checkbox] {
 	& td:nth-child(3) {
 		text-align: right;
 	}
-	@media print {
+	@media screen {
 		/* &:has(.sample-cell) :is(td, th):nth-child(5) { */
 		/* &:has(#colSoundSample) :is(td, th):nth-child(5) { */
 		& #colSoundSample, & td[headers=colSoundSample] {
-			display: none;
+			display: revert;
 		}
 	}
 }

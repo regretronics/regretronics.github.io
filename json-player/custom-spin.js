@@ -3,12 +3,24 @@
 const spinInterval = 250; //milliseconds.
 function spinEditTimer(spinEdit, pointerId) {
 	//console.log("spinEditTimer", spinEdit, pointerId);
-	if(!spinEdit) return;
+	if(!spinEdit) {
+		console.info("spinEditTimer(): parameter spinEdit is empty. Returning.");
+		return false;
+	}
 	const buttonsArea = spinEdit.querySelector(".buttons-area");
-	if(!buttonsArea) return;
+	if(!buttonsArea) {
+		console.info("spinEditTimer(): descendant element .buttons-area not found. Returning.");
+		return false;
+	}
 	buttonsArea.deltaTimer = 0;
-	//if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) return;
-	if(!buttonsArea.hasPointerCapture(pointerId)) return;
+	/* if(!buttonsArea.matches(":active") && !buttonsArea.querySelector(":active")) {
+		console.info("spinEditTimer(): clicked element not found. Returning.");
+		return false;
+	} */
+	if(!buttonsArea.hasPointerCapture(pointerId)) {
+		console.info("spinEditTimer(): pointerId parameter is not captured now. Returning.");
+		return false;
+	}
 	/* let force = 1.0;
 	if(buttonsArea.lastPointerEvent) {
 		if(buttonsArea.lastPointerEvent.pointerType === "mouse")
@@ -38,7 +50,7 @@ function spinEditTimer(spinEdit, pointerId) {
 				//for(let i = 0; i < iterations; i++)
 					txtControl.stepUp();
 				txtControl.dispatchEvent(new Event("input"));
-			};
+			}
 			//buttonsArea.currentDelta++;
 		}
 	}
@@ -49,13 +61,20 @@ function spinEditTimer(spinEdit, pointerId) {
 		nextInterval = spinInterval * Math.pow(0.5, Math.abs(currentDelta) / 16.0);
 	buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, nextInterval, spinEdit, pointerId);
 	//buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 0.25 * spinInterval, spinEdit, pointerId);
+	return true;
 }
 
 function spinEditPointerDown(event) {
-	if(!event?.target) return;
-	if(event.button != 0) return;
+	if(!event?.target) {
+		console.info("spinEditPointerDown(): parameter event.target is empty. Returning.");
+		return false;
+	}
+	if(event.button != 0) return false;
 	const buttonsArea = event.currentTarget; //to do: try event.target.closest(".buttons-area") ?
-	if(!buttonsArea) return;
+	if(!buttonsArea) {
+		console.info("spinEditPointerDown(): parameter event.currentTarget is empty. Returning.");
+		return false;
+	}
 
 	buttonsArea.classList.add("active");
 	buttonsArea.lastPointerEvent = event;
@@ -72,11 +91,20 @@ function spinEditPointerDown(event) {
 	spinEditTimer(buttonsArea.parentElement, event.pointerId);
 }
 function spinEditPointerMove(event) {
-	if(!event) return;
+	if(!event) {
+		console.info("spinEditPointerMove(): parameter event is empty. Returning.");
+		return false;
+	}
 	const buttonsArea = event.target;
-	if(!buttonsArea) return;
+	if(!buttonsArea) {
+		console.info("spinEditPointerMove(): parameter event.target is empty. Returning.");
+		return false;
+	}
 
-	if(!buttonsArea.hasPointerCapture(event.pointerId)) return;
+	if(!buttonsArea.hasPointerCapture(event.pointerId)) {
+		console.info("spinEditPointerMove(): event.pointerId parameter is not captured now. Returning.");
+		return false;
+	}
 	buttonsArea.lastPointerEvent = event;
 	let hit = document.elementFromPoint(event.clientX, event.clientY);
 	if(!buttonsArea.contains(hit)) hit = null;
@@ -86,7 +114,10 @@ function spinEditPointerMove(event) {
 	buttonsArea.hoverElem = hit;
 }
 function spinEditPointerUp(event) {
-	if(!event?.srcElement) return;
+	if(!event?.srcElement) {
+		console.info("spinEditPointerUp(): parameter event.srcElement is empty. Returning.");
+		return false;
+	}
 	const buttonsArea = event.srcElement;
 	//buttonsArea.pointerDown = false;
 
@@ -101,14 +132,20 @@ function spinEditPointerUp(event) {
 	buttonsArea.removeEventListener("pointermove", spinEditPointerMove, true);
 }
 function spinEditPointerLeave(event) {
-	if(!event?.srcElement) return;
+	if(!event?.srcElement) {
+		console.info("spinEditPointerLeave(): parameter event.srcElement is empty. Returning.");
+		return false;
+	}
 	const buttonsArea = event.srcElement;
 
 	if(buttonsArea.hoverElem) buttonsArea.hoverElem.classList.remove("hover");
 	buttonsArea.hoverElem = null;
 }
 function spinEditPointerCancel(event) {
-	if(!event?.srcElement) return;
+	if(!event?.srcElement) {
+		console.info("spinEditPointerCancel(): parameter event.srcElement is empty. Returning.");
+		return false;
+	}
 	const buttonsArea = event.srcElement;
 	//buttonsArea.pointerDown = false;
 
@@ -127,6 +164,7 @@ function initSpinControls() {
 		if(!spinEdit) {
 			spinEdit = document.createElement("span");
 			spinEdit.classList.add("spin-edit");
+			//spinEdit.dir = "ltr";
 			txtControl.parentElement.insertBefore(spinEdit, txtControl);
 			spinEdit.insertBefore(txtControl, null);
 		}

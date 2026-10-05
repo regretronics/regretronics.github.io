@@ -16,6 +16,9 @@
 } */
 
 :root {
+	/*to do: !migrate from hsl to oklch*/
+	/*to do: !more use of variables (custom properties) for colors, with less specific rules in the color scheme files*/
+	/*to do: !more use of variables (custom properties) for scheme parameters*/
 	/*question: include deg unit for hues? (currently never)*/
 	--hue-accent0: 120;
 	/*0deg hsl -> red; ~25deg oklch -> red*/
@@ -36,9 +39,9 @@
 	margin: 0px;
 	border-width: 0px;
 
-	width: 100%;
-	height: 100%;
-	min-height: 100%;
+	inline-size: 100%;
+	block-size: 100%;
+	min-block-size: 100%;
 	padding: 0px;
 } */
 /* body {
@@ -46,8 +49,8 @@
 	margin: 0px;
 	border-width: 0px;
 
-	width: 100%;
-	height: 100%;
+	inline-size: 100%;
+	block-size: 100%;
 	padding: 0px;
 } */
 /* body > #wrapper {
@@ -55,19 +58,34 @@
 	margin: 0px;
 	border-width: 0px;
 
-	width: 100%;
-	height: 100%;
-	overflow-x: hidden;
-	overflow-y: scroll;
+	inline-size: 100%;
+	block-size: 100%;
+	overflow-inline: hidden;
+	overflow-block: scroll;
 	padding: 0px;
 } */
 
-article, footer {
-	/*max-width: 120ch;*/
-	margin-inline: max(0ch, calc(50% - 0.5*120ch));
+/* @media (max-inline-size: 64ch) { */
+@container (inline-size < 64ch) {
+	header:has(details[open]) h1 {
+		clear: both;
+	}
 }
-details > summary {
-	cursor: pointer;
+details {
+	margin-inline: 1ch;
+
+	& > summary:first-of-type {
+		display: list-item flow-root; /*flow-root induces a new block formatting context, which inhibits superposition with floating boxes*/
+		cursor: pointer;
+		font-weight: bold;
+	}
+}
+hr {
+	border-style: none;
+	block-size: 0em;
+
+	border-block-start-style: solid;
+	border-width: 0.5ch;
 }
 
 code:not(.long) { /*class "long" reserved for future use*/
@@ -88,17 +106,17 @@ button, input:not([type=radio]), select {
 		padding-inline: 0.375em;
 		border-radius: 0.25em;
 	}
-	button&, input:not([type=checkbox], [type=radio], [type=range])&, textarea:not(.code-editor)&, select& {
+	button&, input:not([type=checkbox], [type=radio], [type=range])&, textarea:not(.code-box)&, select& {
 		border-width: calc(5em/32);
 
 		&:not(:active, :focus, :hover) {
 			opacity: 0.875;
 		}
 	}
-	&:is(input[type=text], textarea, select, .code-editor):not(.right) {
+	&:is(input[type=text], textarea, select, .code-box):dir(ltr):not(.right) {
 		border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
 	}
-	input&[type=number], &:is(input, button, textarea, .code-editor).right {
+	input&[type=number]:not(.left), &:is(input, button, textarea, .code-box):is(:dir(rtl), .right):not(.left) {
 		border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
 	}
 }
@@ -119,6 +137,10 @@ input:is([type=checkbox], [type=radio]) + label {
 	border-style: none;
 	background-color: transparent;
 }
+.controls-group th[scope=rowgroup] {
+	font-weight: normal;
+	max-inline-size: 25cqi;
+}
 
 .cell {
 	margin-inline: 0.375ch;
@@ -138,8 +160,8 @@ input:is([type=checkbox], [type=radio]) + label {
 }
 .separator {
 	display: inline-block;
-	width: 0.125em;
-	height: 100%;
+	inline-size: 0.125em;
+	block-size: 100%;
 	background-color: GrayText;
 	/* background-clip: content-box; */
 	/* opacity: 0.5; */
@@ -181,24 +203,29 @@ input:is([type=checkbox], [type=radio]) + label {
 		}
 	}
 }
-#outAudioT {
+output {
 	display: inline-block;
-	min-width: 6ch;
+	&[data-min-size] {
+		min-inline-size: attr(data-min-size ch, 3ch);
+	}
 }
 .tool-tip {
 	font-style: italic;
 
-	z-index: 256;
-	/*position: sticky;*/
-	bottom: 0em;
-	padding-block: 1em;
-	padding-inline: max(2ch, calc(50% - 0.5*120ch));
-	width: calc(100% - 2*2ch);
-	max-width: 120ch;
+	/* padding-inline: max(2ch, 50% - 0.5*120ch);
+	inline-size: calc(100% - 2*2ch);
+	max-inline-size: 120ch; */
 
-	background-color: Canvas;
+	&[data-warn-level] {
+		--warn-level: attr(data-warn-level type(<number>));
+		/*0: minimal (info or trivial), 1: note, 2: attention warning, 3: error or severe*/
+		--warn-hue: clamp(-60, 135 - 45 * var(--warn-level), 180); /*limited between magenta and cyan*/
+		--warn-sat: min(abs(var(--warn-level)) / 2.5, 1);
+		--warn-font-wgt: clamp(100, 200 * var(--warn-level) + 200, 950);
+		font-weight: var(--warn-font-wgt);
+	}
 }
-code, .code-editor {
+code, .code-box {
 	font-size: 0.8em;
 }
 
@@ -209,25 +236,36 @@ img:not(.true-colors) { /*class "true-colors" reserved for future use*/
 	/*filter: var(--img-filter1) hue-rotate(calc(var(--hue-accent, 120)*1deg - 120deg));*/
 }
 
-/*svg rect {*/
-svg g {
-	fill: url(#noteFill1);
+#noteFill1 stop {
+	stop-color: var(--fill-color, FieldText);
+}
+/*svg g {*/
+#visArea {
+	rect:not(.tapered) {
+		fill: var(--fill-color, FieldText);
+	}
+	rect.tapered {
+		fill: url(#noteFill1);
+	}
 }
 #tblFractionIntervals {
-	height: fit-content; /*necessary to allow cell height-filling buttons*/
+	block-size: fit-content; /*necessary to allow cell height-filling buttons*/
 }
-td {
-	padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em);
+td, th, caption {
+	/* padding: clamp(0em, calc(2.5vmin - 0.75em), 0.5em); */
+	/*svb instead of cqb, since the block-size is not always determined top-down in hierarchy*/
+	padding: clamp(0.125em, 0.75svb + 1.5cqi - 0.25em - 8px, 0.25em + 0.5cqi);
 
 	/* &:has(.interval-sample) { */
 	/* &.sample-cell { */
 	&[headers=colSoundSample] {
+		container-type: size;
 		padding: 0em;
 		text-align: center;
 
-		& button {
-			width: 100%;
-			height: 100%;
+		& > button {
+			inline-size: 100%;
+			block-size: 100%; /*to do: stopped working in Ffx*/
 			margin: 0em;
 			cursor: pointer;
 		}

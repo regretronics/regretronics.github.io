@@ -22,7 +22,7 @@
 	scrollbar-color:
 		hsla(var(--hue-accent, 120), 37.5%, 25%, 0.875)
 		hsla(var(--hue-accent, 120), 25%, 75%, 0.875);
-
+	outline-color: hsl(var(--hue-accent, 120), 50%, 37.5%);
 }
 *::-webkit-scrollbar {
 	background-color: hsla(var(--hue-accent, 120), 25%, 75%, 0.875);
@@ -48,7 +48,7 @@
 
 /* body {
 } */
-:is(.code-editor, code)::selection {
+:is(.code-box, code)::selection {
 	background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.75) !important;
 	color: hsla(var(--hue-accent2, 300), 100%, 12.5%, 0.875) !important;
 }
@@ -61,7 +61,7 @@ h1, h2, h3, strong, em {
 		background-color: hsla(var(--hue-accent, 120), 100%, 12.5%, 0.75) !important;
 		color: hsl(var(--hue-accent, 120), 100%, 87.5%) !important;
 	}
-	:is(/* & .code-editor, */ & code, .code-editor &, code &) {
+	:is(& code, .code-box &, code &) {
 		&::selection {
 			background-color: hsla(var(--hue-accent2, 300), 50%, 87.5%, 0.875) !important;
 			color: hsl(var(--hue-accent2, 300), 100%, 12.5%) !important;
@@ -69,8 +69,11 @@ h1, h2, h3, strong, em {
 	}
 }
 
-noscript, #translationWarning {
-	color: hsl(0, 100%, 12.5%);
+.alert-error {
+	color: hsl(0, 100%, 25%);
+}
+.alert-warn {
+	color: hsl(60, 75%, 18.75%);
 }
 hr {
 	border-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.75);
@@ -78,8 +81,26 @@ hr {
 .separator {
 	background-color: hsla(var(--hue-accent, 120), 25%, 50%, 0.75);
 }
-table, caption, td {
-	background-color: hsla(0, 0%, 100%, 0.25);
+table:has(> caption), caption {
+	background-color: hsla(0, 0%, 100%, 0.125);
+}
+tbody :is(td, th):not(.empty) {
+	background-color: hsla(var(--hue-accent, 120), 50%, 93.75%, 0.25);
+}
+summary:first-of-type {
+	&:hover, &:focus {
+		background-color: hsla(var(--hue-accent, 120), 50%, 100%, 0.25);
+		outline-style: solid;
+		outline-width: 0.25em;
+		outline-color: hsla(var(--hue-accent, 120), 50%, 100%, 0.25);
+	}
+
+	details:has(.outdated) > & {
+		color: hsla(30, 50%, 18.75%, 0.75);
+	}
+	details:has(.invalid) > & {
+		color: hsla(0, 100%, 25%, 0.875);
+	}
 }
 
 a:link {
@@ -150,22 +171,29 @@ input.invalid {
 }
 .tool-tip {
 	background-color: hsla(var(--hue-accent, 120), 25%, 87.5%, 0.875);
+	--inactive-opacity: 0.75;
+
+	&[data-warn-level] {
+		background-color: hsl(var(--warn-hue), calc(75% * var(--warn-sat)), 87.5%, 0.875);
+	}
 }
 
-.code-editor {
+.code-box {
 	background-color: hsla(var(--hue-accent, 120), 12.5%, 0%, 0.625);
 	color: hsl(var(--hue-accent, 120), 25%, 100%);
 	scrollbar-color: hsla(var(--hue-accent, 120), 37.5%, 75%, 0.875) hsla(var(--hue-accent, 120), 25%, 25%, 0.875);
 
+	&.outdated {
+		background-color: hsla(30, 50%, 25%, 0.75);
+		color: hsla(30, 50%, 87.5%, 0.75);
+	}
 	&.invalid {
 		background-color: hsla(0, 100%, 25%, 0.75);
 	}
 }
 
 #imgVisualizer {
-	background-color: hsla(0, 0%, 100%, 0.25);
-}
-linearGradient#noteFill1 stop {
-	/* stop-color: hsla(var(--hue-accent2, 300), 75%, 25%, 0.875); */
-	stop-color: hsl(var(--hue-accent2, 300), 75%, 25%);
+	background-color: hsla(0, 0%, 100%, 0.5);
+	/* --fill-color: hsla(var(--hue-accent2, 300), 75%, 25%, 0.875); */
+	--fill-color: hsl(var(--hue-accent2, 300), 100%, 12.5%);
 }
