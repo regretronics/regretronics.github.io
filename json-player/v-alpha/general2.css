@@ -199,9 +199,11 @@ input:is([type=checkbox], [type=radio]) + label {
 		}
 	}
 }
-#outAudioT {
+output {
 	display: inline-block;
-	min-inline-size: 6ch;
+	&[data-min-size] {
+		min-inline-size: attr(data-min-size ch, 3ch);
+	}
 }
 .tool-tip {
 	font-style: italic;

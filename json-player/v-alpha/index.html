@@ -67,6 +67,7 @@
 		<header>
 			<!-- <span class="align-inline-end print-dp-none" style="flex-basis: 30ch;"> -->
 			<!--to do: ?persistent options for the open state of newly added detail elements-->
+			<!--to do: use aria-labelledby yet a few more times-->
 			<details id="grpUiOptions" class="align-inline-end print-dp-none">
 				<summary>UI options</summary>
 				<span class="cell"><strong class="chunk">Text size:</strong> 
@@ -108,27 +109,9 @@
 			Those texts are expected to become inaccurate or incomprehensible, even despite adaptations to aid automatic translation.</p>
 		<noscript class="alert-error">If you are reading this through a user agent, it seems you have disabled scripting. This page can't do things without JavaScript enabled.</noscript>
 		<details>
-			<summary>Generator parameters</summary>
-			<datalist id="tunings">
-				<option value="256"></option>
-				<option value="258.65"></option>
-				<option value="415"></option>
-				<option value="427"></option>
-				<option value="430"></option>
-				<option value="432"></option>
-				<option value="435"></option>
-				<option value="440"></option>
-				<option value="442"></option>
-				<option value="443"></option>
-				<option value="466"></option>
-			</datalist>
+			<summary>Basic parameters</summary>
 			<table class="controls-group">
 				<tbody>
-					<!--question: have minimum and maximum for frequency parameters and their controls? (not freqRangeMin/Max proper, but something like 10 to 24000 for the three of them)-->
-					<tr>
-						<td><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label></td>
-						<td><input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></td>
-					</tr>
 					<tr>
 						<td><label for="txtFreqRangeMin"><span class="lang-static" translate="no">freq. range, min</span><span class="lang-flex" hidden="hidden">minimum frequency</span> (Hz)</label></td>
 						<td><input type="number" id="txtFreqRangeMin" value="30" step="1" class="exp custom-spin" data-pref="genParams.freqRangeMin" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
@@ -137,19 +120,66 @@
 						<td><label for="txtFreqRangeMax"><span class="lang-static" translate="no">freq. range, max</span><span class="lang-flex" hidden="hidden">maximum frequency</span> (Hz)</label></td>
 						<td><input type="number" id="txtFreqRangeMax" value="13000" step="1" class="exp custom-spin" data-pref="genParams.freqRangeMax" title="Used by chord, rhythm and melody generators, and visualizer. Supports non-integers." size="6" /></td>
 					</tr>
+				</tbody>
+			</table>
+		</details>
+		<details>
+			<summary>Generator parameters</summary>
+			<table class="controls-group">
+				<tbody>
+					<!--question: have minimum and maximum for frequency parameters and their controls? (not freqRangeMin/Max proper, but something like 10 to 24000 for the three of them)-->
+					<tr>
+						<datalist id="tunings">
+							<option value="256"></option>
+							<option value="258.65"></option>
+							<option value="415"></option>
+							<option value="427"></option>
+							<option value="430"></option>
+							<option value="432"></option>
+							<option value="435"></option>
+							<option value="440"></option>
+							<option value="442"></option>
+							<option value="443"></option>
+							<option value="466"></option>
+						</datalist>
+						<td><label for="txtBaseFreq"><span class="lang-static" translate="no">base&nbsp;freq.&nbsp;(Hz)</span><span class="lang-flex" hidden="hidden">base frequency (Hz)</span></label></td>
+						<td><input type="number" id="txtBaseFreq" value="440" required="required" class="exp custom-spin" list="tunings" data-step-ratio="0.0625" data-pref="genParams.baseFreq" title="Used by chord, rhythm and melody generators. Supports non-integers. When blank, you can see a list of traditional frequency suggestions. Default 440." size="7" /></td>
+					</tr>
 					<tr>
 						<!--to do: consider negative time scale values (currently not implemented due to limitations in Web Audio API)-->
 						<td><label for="txtTimeScale">time&nbsp;scale&nbsp;(s)</label></td>
 						<td><input type="number" id="txtTimeScale" value="0.5" required="required" data-min="0" step="0.25" class="exp custom-spin" data-pref="genParams.timeScale" title="Inverse speed. Used by chord, rhythm and melody generators." size="6" /></td>
 					</tr>
 					<tr>
+						<td><label for="txtVoiceCount">voices</label></td>
+						<td><input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" /></td>
+					</tr>
+					<tr>
 						<td><label for="txtPatternCount"><span class="lang-static" translate="no">pattern count</span><span class="lang-flex" hidden="hidden">pattern count</span></label></td>
 						<td><input type="number" id="txtPatternCount" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="genParams.patternCount" title="Amount of content to make. Used by chord and melody generators." size="5" /></td>
 					</tr>
 					<tr>
+						<td><label for="txtReptCount"><span class="lang-static" translate="no">rept.&nbsp;count</span><span class="lang-flex" hidden="hidden">repeat count</span></label></td>
+						<td><input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtReptPeriod"><span class="lang-static" translate="no">rept.&nbsp;period</span><span class="lang-flex" hidden="hidden">repeat period</span></label></td>
+						<td><input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Interval between repetitions, in patterns. Used by melody generator." size="4" /></td>
+					</tr>
+					<tr>
+						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></td>
+					</tr>
+				</tbody>
+			</table>
+		</details>
+		<details>
+			<summary>Prime factor parameters</summary>
+			<table class="controls-group">
+				<tbody>
+					<tr>
 						<td><label for="txtPrimeCount"><span class="lang-static" translate="no">prime&nbsp;factors&nbsp;(oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label></td>
 						<td><input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></td>
-						<td><output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular); melody generator may use more than specified"></output></td>
+						<td><output id="outPrimeList" translate="no" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output></td>
 					</tr>
 					<tr>
 						<td><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth scale (exponent variance)</span></label></td>
@@ -158,13 +188,13 @@
 					<tr>
 						<!--question: default state: line wrapping? overflow?-->
 						<!--question: make code boxes always left-to-right?-->
-						<td colspan="2"><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="genParams.primeExpRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
+						<td colspan="2"><label for="ctlPrimeExpRanges">Exponent ranges:</label> <br /><pre id="ctlPrimeExpRanges" contenteditable="true" class="code-box" lang="zxx x-json" xml:lang="zxx x-json" translate="no" spellcheck="false" autocapitalize="none" enterkeyhint="enter" virtualkeyboardpolicy="auto" autocomplete="section-json" writingsuggestions="false" autocorrect="off" data-pref="genParams.primeExpRanges" title="Ranges of exponents for prime factors" role="textbox" aria-multiline="true" aria-placeholder="{&quot;2&quot;: 3.0, &quot;3&quot;: [-0.5, 1.0]}"></pre></td>
 					</tr>
 				</tbody>
 			</table>
 		</details>
 		<details>
-			<summary>Rhythm</summary>
+			<summary>Rhythm parameters</summary>
 			<table class="controls-group">
 				<tbody>
 					<tr>
@@ -176,28 +206,6 @@
 						<td><label for="txtRhythmFactors">structure formula</label></td>
 						<td><input type="text" id="txtRhythmFactors" class="right" value="2*2*2" data-pref="rhythmParams.rhythmFactors" translate="no" title="Used by rhythm and melody generators. Supports non-integers." size="12" /></td>
 						<td><output id="outRhythmScales" translate="no" title="Cascade of rhythmic scales">1</output></td>
-					</tr>
-				</tbody>
-			</table>
-		</details>
-		<details>
-			<summary>Additional generator parameters</summary>
-			<table class="controls-group">
-				<tbody>
-					<tr>
-						<td><label for="txtVoiceCount">voices</label></td>
-						<td><input type="number" id="txtVoiceCount" value="3" required="required" min="1" step="1" class="custom-spin" data-pref="addGenParams.voiceCount" title="Used by chord generator." size="3" /></td>
-					</tr>
-					<tr>
-						<td><label for="txtReptCount"><span class="lang-static" translate="no">rept.&nbsp;count</span><span class="lang-flex" hidden="hidden">repeat count</span></label></td>
-						<td><input type="number" id="txtReptCount" value="2" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptCount" title="Used by rhythm and melody generators. Factors like 2 and 4 help build a conventional, looped song structure." size="4" /></td>
-					</tr>
-					<tr>
-						<td><label for="txtReptPeriod"><span class="lang-static" translate="no">rept.&nbsp;period</span><span class="lang-flex" hidden="hidden">repeat period</span></label></td>
-						<td><input type="number" id="txtReptPeriod" value="4" required="required" step="1" min="1" class="custom-spin" data-pref="addGenParams.reptPeriod" title="Used by melody generator." size="4" /></td>
-					</tr>
-					<tr>
-						<td colspan="2"><input type="checkbox" id="chkPercussivePattern" checked="checked" data-pref="addGenParams.percussivePattern" title="Includes a pattern of the rhythmic structure in the generated script. Used by rhythm and melody generators." /><label for="chkPercussivePattern">Render&nbsp;percussive&nbsp;pattern</label></td>
 					</tr>
 				</tbody>
 			</table>
@@ -216,7 +224,7 @@
 					<button id="btnStructDownload" accesskey="v" title="Offers the structured format as a file to save locally."><span class="lang-static" translate="no">Sa<u>v</u>e local file</span><span class="lang-flex" hidden="hidden">Save local file (<u>v</u>)</span></button>
 				</span>
 				<span class="cell">
-					<span class="chunk"><input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below." /><label for="chkOverflow1"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
+					<span class="chunk"><input id="chkOverflow1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.overflow" title="Expand or contract the editor below" /><label for="chkOverflow1"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
 					<span class="chunk"><input id="chkLineWrap1" type="checkbox" data-target="ctlStructuredScript" data-pref="structuredMusic.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap1">Line wrapping</label></span>
 				</span>
 			</span>
@@ -255,7 +263,7 @@
 				</span><wbr />
 				<!-- <span class="controls-group align-inline-end"> -->
 				<span class="controls-group align-inline-end" style="flex-basis: 14ch;">
-					<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below." /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
+					<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below" /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
 					<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
 				</span>
 			</p>
@@ -268,15 +276,15 @@
 				<tbody>
 					<tr>
 						<td><label for="txtPlayFreqScale"><span class="lang-static" translate="no">freq./tuning</span><span class="lang-flex" hidden="hidden">frequency and tuning</span></label></td>
-						<td><input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.freqScale" title="Multiplicative factor" size="6" /></td>
+						<td><input type="number" id="txtPlayFreqScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.freqScale" title="Multiplicative factor." size="6" /></td>
 					</tr>
 					<tr>
 						<td><label for="txtPlayVolScale">volume</label></td>
-						<td><input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.volScale" title="Multiplicative factor" size="6" /></td>
+						<td><input type="number" id="txtPlayVolScale" value="1" step="0.25" class="exp custom-spin" data-pref="clipParams.volScale" title="Multiplicative factor." size="6" /></td>
 					</tr>
 					<tr>
 						<td><label for="txtPlayTimeScale">time&nbsp;scale</label></td>
-						<td><input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp custom-spin" data-pref="clipParams.timeScale" title="Multiplicative factor" size="6" /></td>
+						<td><input type="number" id="txtPlayTimeScale" value="1" data-min="0" step="0.25" class="exp custom-spin" data-pref="clipParams.timeScale" title="Multiplicative factor." size="6" /></td>
 					</tr>
 					<tr>
 						<td><label for="txtPlayTimeDelta"><span class="lang-static" translate="no">time&nbsp;delta (skip&nbsp;vs.&nbsp;lead-in)</span><span class="lang-flex" hidden="hidden">time displacement (skipping vs. lead-in)</span> (s)</label></td>
@@ -293,13 +301,13 @@
 				</span>
 				<span class="cell print-dp-none"><input type="checkbox" id="chkAutoReload" data-pref="player.autoReload" title="Autonomously loads whatever is in the flattened code box when playback ends by itself. Can be used as a 'repeat' feature." /><label for="chkAutoReload">Auto-reload</label>
 				</span>
-				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" title="Elapsed time (rounded down)">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration (rounded down)">0</output>&nbsp;s.</span>
+				<span class="cell"><span class="chunk">Play time:</span> <span translate="no"><output id="outAudioT" class="right" data-min-size="6" title="Elapsed time (rounded down)">0</output>&nbsp;s/<output id="outAudioDur" title="Total duration (rounded down)">0</output>&nbsp;s.</span>
 				</span>
 			</span><wbr />
 			<!-- <span class="align-inline-end" style="flex-basis: 20ch;"> -->
 			<span class="controls-group align-inline-end">
-				<span class="cell"><span class="chunk">Note count:</span> <span translate="no"><output id="outNoteCount">0</output>.</span></span>
-				<span class="cell"><span class="chunk">Loaded generators:</span> <span translate="no"><output id="outGenCount">0</output>.</span></span>
+				<span class="cell"><span class="chunk">Note count:</span> <span translate="no"><output id="outNoteCount" data-min-size="3">0</output>.</span></span>
+				<span class="cell"><span class="chunk">Loaded generators:</span> <span translate="no"><output id="outGenCount" data-min-size="3">0</output>.</span></span>
 			</span>
 		</p>
 
