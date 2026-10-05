@@ -172,11 +172,11 @@ function limitFreq(tuning, freq) {
 	let freqAbs = Math.abs(tuning) * parseNumber(freq);
 	if(!freq[2]) freq[2] = 0;
 	while(true) {
-		if(freqAbs > prefs.genParams.freqRangeMax) {
+		if(freqAbs > prefs.basicParams.freqRangeMax) {
 			freq[2]--;
 			freqAbs *= 0.5;
 		} else
-			if(freqAbs < prefs.genParams.freqRangeMin) {
+			if(freqAbs < prefs.basicParams.freqRangeMin) {
 				freq[2]++;
 				freqAbs *= 2;
 			} else

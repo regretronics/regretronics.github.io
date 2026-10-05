@@ -4,9 +4,9 @@ const preferencesKeysFlat = [ //maybe unnecessary
 	"pageAppearance.textSize",
 	"pageAppearance.theme",
 	"pageAppearance.hue",
+	"basicParams.freqRangeMin",
+	"basicParams.freqRangeMax",
 	"genParams.baseFreq",
-	"genParams.freqRangeMin",
-	"genParams.freqRangeMax",
 	"genParams.timeScale",
 	"genParams.patternCount",
 	"genParams.primeCount",
@@ -32,6 +32,7 @@ const preferencesKeysFlat = [ //maybe unnecessary
 	"clipParams.timeDelta",
 	"player.autoReload",
 	"reset.pageAppearance",
+	"reset.basicParams",
 	"reset.genParams",
 	"reset.rhythmParams",
 	"reset.addGenParams",
@@ -42,11 +43,14 @@ const preferencesKeysFlat = [ //maybe unnecessary
 	"reset.reset"
 ];
 const preferencesKeysDeprecatedFlat = [
+	"genParams.freqRangeMin",
+	"genParams.freqRangeMax",
 	"genParams.expVariance"
 ];
 const preferencesKeysTree = {
 	pageAppearance: ["textSize", "theme", "hue"],
-	genParams: ["baseFreq", "freqRangeMin", "freqRangeMax", "timeScale", "patternCount", "primeCount", "expRangeLower", "expRangeUpper", "primeExpRanges"],
+	basicParams: ["freqRangeMin", "freqRangeMax"],
+	genParams: ["baseFreq", "timeScale", "patternCount", "primeCount", "expRangeLower", "expRangeUpper", "primeExpRanges"],
 	rhythmParams: ["rhythmScale", "rhythmFactors"],
 	addGenParams: ["voiceCount", "reptCount", "reptPeriod", "percussivePattern"],
 	structuredMusic: ["overflow", "lineWrapping", "content"],
@@ -81,11 +85,13 @@ const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0
 //to do: 	the isolated constants will tend to be replaced by the defaults structure
 const prefsDefault = {
 	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
-	genParams: {
-		baseFreq: 440, 
+	basicParams: {
 		//I know the human ear is supposed to hear more than this, but it's already outside the ordinary. I can barely hear these extremes.
 		freqRangeMin: 30, 
-		freqRangeMax: 13000, 
+		freqRangeMax: 13000
+	},
+	genParams: {
+		baseFreq: 440, 
 		timeScale: 0.5/* defaultBlockNode.timeScale */, 
 		patternCount: 4, 
 		primeCount: 3, 
@@ -109,7 +115,7 @@ const prefsDefault = {
 		timeDelta: 0/* defaultBlockNode.timeDelta */
 	},
 	player: {autoReload: false},
-	reset: {pageAppearance: false, genParams: false, rhythmParams: false, addGenParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
+	reset: {pageAppearance: false, basicParams: false, genParams: false, rhythmParams: false, addGenParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
 };
 var prefs = Object.assign({}, prefsDefault);
 
@@ -137,6 +143,10 @@ function loadPreferences(triggerNow) {
 			if((s = localStorage.getItem("reset.pageAppearance")) && window.chkResetPageAppearance) {
 				chkResetPageAppearance.checked = JSON.parse(s);
 				//chkResetPageAppearance.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("reset.basicParams")) && window.chkResetBasicParams) {
+				chkResetBasicParams.checked = JSON.parse(s);
+				//chkResetBasicParams.dispatchEvent(new Event("input"));
 			}
 			if((s = localStorage.getItem("reset.genParams")) && window.chkResetGenParams) {
 				chkResetGenParams.checked = JSON.parse(s);
@@ -191,19 +201,23 @@ function loadPreferences(triggerNow) {
 			}
 		}
 
+		//Basic parameters
+		if(!window.chkResetBasicParams?.checked) {
+			if((s = localStorage.getItem("basicParams.freqRangeMin") ?? localStorage.getItem("genParams.freqRangeMin")) && window.txtFreqRangeMin) {
+				txtFreqRangeMin.value = s;
+				txtFreqRangeMin.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("basicParams.freqRangeMax") ?? localStorage.getItem("genParams.freqRangeMax")) && window.txtFreqRangeMax) {
+				txtFreqRangeMax.value = s;
+				txtFreqRangeMax.dispatchEvent(new Event("input"));
+			}
+		}
+
 		//Generator parameters
 		if(!window.chkResetGenParams?.checked) {
 			if((s = localStorage.getItem("genParams.baseFreq")) && window.txtBaseFreq) {
 				txtBaseFreq.value = s;
 				txtBaseFreq.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.freqRangeMin")) && window.txtFreqRangeMin) {
-				txtFreqRangeMin.value = s;
-				txtFreqRangeMin.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.freqRangeMax")) && window.txtFreqRangeMax) {
-				txtFreqRangeMax.value = s;
-				txtFreqRangeMax.dispatchEvent(new Event("input"));
 			}
 			if((s = localStorage.getItem("genParams.timeScale")) && window.txtTimeScale) {
 				txtTimeScale.value = s;
@@ -367,13 +381,14 @@ function saveAllPreferences() {
 		/* if(window.cboPageTheme)
 			localStorage.setItem("pageAppearance.theme", cboPageTheme.value); */
 		localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
+		//Basic parameters
+		/* if(window.txtFreqRangeMin)
+			localStorage.setItem("basicParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(prefs.basicParams.freqRangeMin)?
+		if(window.txtFreqRangeMax)
+			localStorage.setItem("basicParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(prefs.basicParams.freqRangeMax)? */
 		//Generator parameters
 		/* if(window.txtBaseFreq)
 			localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(prefs.genParams.baseFreq)?
-		if(window.txtFreqRangeMin)
-			localStorage.setItem("genParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(prefs.genParams.freqRangeMin)?
-		if(window.txtFreqRangeMax)
-			localStorage.setItem("genParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(prefs.genParams.freqRangeMax)?
 		if(window.txtTimeScale)
 			localStorage.setItem("genParams.timeScale", txtTimeScale.value);
 		if(window.txtPatternCount)
@@ -433,6 +448,8 @@ function saveAllPreferences() {
 		//Reset preferences
 		/* if(window.chkResetPageAppearance)
 			localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance.checked));
+		if(window.chkResetBasicParams)
+			localStorage.setItem("reset.basicParams", JSON.stringify(chkResetBasicParams.checked));
 		if(window.chkResetGenParams)
 			localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
 		if(window.chkResetRhythmParams)
@@ -473,10 +490,19 @@ function btnResetPreferencesClick(event) {
 			document.documentElement.style.setProperty("--hue-accent0", prefsDefault.pageAppearance.hue);
 			updateThemeColor(prefsDefault.pageAppearance.hue);
 		}
-		if(window.chkResetGenParams?.checked) {
-			localStorage.removeItem("genParams.baseFreq");
+		if(window.chkResetBasicParams?.checked) {
 			localStorage.removeItem("genParams.freqRangeMin");
 			localStorage.removeItem("genParams.freqRangeMax");
+			localStorage.removeItem("basicParams.freqRangeMin");
+			localStorage.removeItem("basicParams.freqRangeMax");
+
+			txtFreqRangeMin.value = prefsDefault.basicParams.freqRangeMin.toString();
+			txtFreqRangeMin.dispatchEvent(new Event("input"));
+			txtFreqRangeMax.value = prefsDefault.basicParams.freqRangeMax.toString();
+			txtFreqRangeMax.dispatchEvent(new Event("input"));
+		}
+		if(window.chkResetGenParams?.checked) {
+			localStorage.removeItem("genParams.baseFreq");
 			localStorage.removeItem("genParams.timeScale");
 			localStorage.removeItem("genParams.patternCount");
 			localStorage.removeItem("genParams.primeCount");
@@ -487,10 +513,6 @@ function btnResetPreferencesClick(event) {
 
 			txtBaseFreq.value = prefsDefault.genParams.baseFreq.toString();
 			txtBaseFreq.dispatchEvent(new Event("input"));
-			txtFreqRangeMin.value = prefsDefault.genParams.freqRangeMin.toString();
-			txtFreqRangeMin.dispatchEvent(new Event("input"));
-			txtFreqRangeMax.value = prefsDefault.genParams.freqRangeMax.toString();
-			txtFreqRangeMax.dispatchEvent(new Event("input"));
 			txtTimeScale.value = prefsDefault.genParams.timeScale.toString();
 			txtTimeScale.dispatchEvent(new Event("input"));
 			txtPatternCount.value = prefsDefault.genParams.patternCount.toString();
@@ -576,6 +598,7 @@ function btnResetPreferencesClick(event) {
 		}
 		if(window.chkResetReset?.checked) {
 			localStorage.removeItem("reset.pageAppearance");
+			localStorage.removeItem("reset.basicParams");
 			localStorage.removeItem("reset.genParams");
 			localStorage.removeItem("reset.rhythmParams");
 			localStorage.removeItem("reset.addGenParams");
@@ -586,6 +609,7 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("reset.reset");
 
 			if(window.chkResetPageAppearance) chkResetPageAppearance.checked = prefsDefault.reset.pageAppearance;
+			if(window.chkResetBasicParams) chkResetBasicParams.checked = prefsDefault.reset.basicParams;
 			if(window.chkResetGenParams) chkResetGenParams.checked = prefsDefault.reset.genParams;
 			if(window.chkResetRhythmParams) chkResetRhythmParams.checked = prefsDefault.reset.rhythmParams;
 			if(window.chkResetAddGenParams) chkResetAddGenParams.checked = prefsDefault.reset.addGenParams;
@@ -891,8 +915,8 @@ function baseFreqChanged(event) {
 	let newBaseFreq = parseNumber(txtBaseFreq.value);
 	if(isNaN(newBaseFreq)) return false; //reject it
 	//newBaseFreq = NaNToDefault(newBaseFreq, prefsDefault.genParams.baseFreq); //correct it
-	if(newBaseFreq < prefs.genParams.freqRangeMin) newBaseFreq = prefs.genParams.freqRangeMin;
-	if(newBaseFreq > prefs.genParams.freqRangeMax) newBaseFreq = prefs.genParams.freqRangeMax;
+	if(newBaseFreq < prefs.basicParams.freqRangeMin) newBaseFreq = prefs.basicParams.freqRangeMin;
+	if(newBaseFreq > prefs.basicParams.freqRangeMax) newBaseFreq = prefs.basicParams.freqRangeMax;
 
 	window.txtBaseFreq?.classList?.toggle?.("invalid", !newBaseFreq);
 	if(!newBaseFreq) {

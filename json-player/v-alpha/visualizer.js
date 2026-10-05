@@ -108,17 +108,17 @@ function visualizerUpdate(clip, tNow) {
 function updateVisAreaTransform() {
 	if(!window.imgVisualizer) return false;
 
-	prefs.genParams.freqRangeMin = NaNToDefault(parseNumber(window.txtFreqRangeMin?.value), prefsDefault.genParams.freqRangeMin);
-	prefs.genParams.freqRangeMax = NaNToDefault(parseNumber(window.txtFreqRangeMax?.value), prefsDefault.genParams.freqRangeMax);
+	prefs.basicParams.freqRangeMin = NaNToDefault(parseNumber(window.txtFreqRangeMin?.value), prefsDefault.basicParams.freqRangeMin);
+	prefs.basicParams.freqRangeMax = NaNToDefault(parseNumber(window.txtFreqRangeMax?.value), prefsDefault.basicParams.freqRangeMax);
 	//if(window.visArea) visArea.setAttributeNS(null, "transform", `translate()`);
 	if(!window.visArea?.transform?.baseVal) return false;
 
 	const newScale = imgVisualizer.createSVGTransform();
-	newScale.setScale(1 / Math.log2(prefs.genParams.freqRangeMax / prefs.genParams.freqRangeMin), 1 / visSliceCount);
-	//newScale.setScale(1 / Math.log2(prefs.genParams.freqRangeMax / prefs.genParams.freqRangeMin), 1 / (visSliceCount * audioTimerInterval));
+	newScale.setScale(1 / Math.log2(prefs.basicParams.freqRangeMax / prefs.basicParams.freqRangeMin), 1 / visSliceCount);
+	//newScale.setScale(1 / Math.log2(prefs.basicParams.freqRangeMax / prefs.basicParams.freqRangeMin), 1 / (visSliceCount * audioTimerInterval));
 	visArea.transform.baseVal.initialize(newScale);
 	const newTranslate = imgVisualizer.createSVGTransform();
-	newTranslate.setTranslate(- Math.log2(prefs.genParams.freqRangeMin), 0);
+	newTranslate.setTranslate(- Math.log2(prefs.basicParams.freqRangeMin), 0);
 	visArea.transform.baseVal.appendItem(newTranslate);
 	return true;
 }

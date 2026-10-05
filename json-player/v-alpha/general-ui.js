@@ -315,8 +315,8 @@ function btnRhythmFactorsGenClick(event) {
 }
 function btnChordGenClick(event) {
 	try {
-		prefs.genParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
-		prefs.genParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.basicParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
+		prefs.basicParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), prefs.genParams.primeCount, primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
@@ -328,8 +328,8 @@ function btnChordGenClick(event) {
 }
 function btnRhythmGenClick(event) {
 	try {
-		prefs.genParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
-		prefs.genParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.basicParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
+		prefs.basicParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
 		if(rootStruct === false) throw(new Error());
 
@@ -341,8 +341,8 @@ function btnRhythmGenClick(event) {
 }
 function btnMelodyGenClick(event) {
 	try {
-		prefs.genParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
-		prefs.genParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.basicParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
+		prefs.basicParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
 		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, prefs.genParams.primeCount, primeExpRanges);
 		if(rootStruct === false) throw(new Error());
 
