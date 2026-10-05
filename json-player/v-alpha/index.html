@@ -178,13 +178,19 @@
 			<table class="controls-group">
 				<tbody>
 					<tr>
+						<td class="empty"></td>
 						<td><label for="txtPrimeCount"><span class="lang-static" translate="no">prime factors (oddity)</span><span class="lang-flex" hidden="hidden">prime factor reach (harmonic oddity)</span></label></td>
 						<td><input type="number" id="txtPrimeCount" value="3" required="required" min="1.25" step="0.25" max="15" class="custom-spin" data-pref="genParams.primeCount" title="Used by rhythm structure, chord and melody generators (inmost scale)." size="4" /></td>
 						<td><output id="outPrimeList" translate="no" data-min-size="4" title="List of prime factors accepted by the generators (lower ones are more basic and familiar, higher ones are more complex and irregular)"></output></td>
 					</tr>
 					<tr>
-						<td><label for="txtExpVariance"><span class="lang-static" translate="no">tone&nbsp;(exponent)&nbsp;depth</span><span class="lang-flex" hidden="hidden">tone depth scale (exponent variance)</span></label></td>
-						<td><input type="number" id="txtExpVariance" value="2" required="required" min="0.5" step="0.25" max="8" class="custom-spin" data-pref="genParams.expVariance" title="Exponent deviation scale (higher prime factors have narrower variance). Used by chord and melody generators. Higher values (wider ranges) produce more atonality. Low values may freeze the generator due to lack of choices." size="5" /></td>
+						<th scope="rowgroup" rowspan="3"><span class="lang-static" translate="no">tone (exponent) ranges</span><span class="lang-flex" hidden="hidden">tone depth (exponent ranges)</span></th>
+						<td><label for="txtExpRangeLower">lower</label></td>
+						<td><input type="number" id="txtExpRangeLower" value="0" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="genParams.expRangeLower" title="Exponent variation range, lower bound (higher prime factors have narrower variance). Used by chord and melody generators. Lower values produce more utonality, while wider ranges in general produce more atonality." size="5" /></td>
+					</tr>
+					<tr>
+						<td><label for="txtExpRangeUpper">upper</label></td>
+						<td><input type="number" id="txtExpRangeUpper" value="2" required="required" min="-8" step="0.25" max="8" class="custom-spin" data-pref="genParams.expRangeUpper" title="Exponent variation range, upper bound (higher prime factors have narrower variance). Used by chord and melody generators. Higher values produce more otonality, while wider ranges in general produce more atonality." size="5" /></td>
 					</tr>
 					<tr>
 						<!--question: default state: line wrapping? overflow?-->

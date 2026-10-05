@@ -42,7 +42,8 @@ function loadEventHandlers() {
 
 	txtBaseFreq.addEventListener("input", baseFreqChanged);
 	txtPrimeCount.addEventListener("input", primeCountChanged);
-	txtExpVariance.addEventListener("input", expVarianceChanged);
+	txtExpRangeLower.addEventListener("input", txtExpRangeLowerChanged);
+	txtExpRangeUpper.addEventListener("input", txtExpRangeUpperChanged);
 	ctlPrimeExpRanges.addEventListener("input", parseExpRanges);
 
 	btnRhythmFactorsGen.addEventListener("click", btnRhythmFactorsGenClick);

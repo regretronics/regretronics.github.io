@@ -10,7 +10,8 @@ const preferencesKeysFlat = [ //maybe unnecessary
 	"genParams.timeScale",
 	"genParams.patternCount",
 	"genParams.primeCount",
-	"genParams.expVariance",
+	"genParams.expRangeLower",
+	"genParams.expRangeUpper",
 	"genParams.primeExpRanges",
 	"rhythmParams.rhythmScale",
 	"rhythmParams.rhythmFactors",
@@ -40,9 +41,12 @@ const preferencesKeysFlat = [ //maybe unnecessary
 	"reset.player",
 	"reset.reset"
 ];
+const preferencesKeysDeprecatedFlat = [
+	"genParams.expVariance"
+];
 const preferencesKeysTree = {
 	pageAppearance: ["textSize", "theme", "hue"],
-	genParams: ["baseFreq", "freqRangeMin", "freqRangeMax", "timeScale", "patternCount", "primeCount", "expVariance", "primeExpRanges"],
+	genParams: ["baseFreq", "freqRangeMin", "freqRangeMax", "timeScale", "patternCount", "primeCount", "expRangeLower", "expRangeUpper", "primeExpRanges"],
 	rhythmParams: ["rhythmScale", "rhythmFactors"],
 	addGenParams: ["voiceCount", "reptCount", "reptPeriod", "percussivePattern"],
 	structuredMusic: ["overflow", "lineWrapping", "content"],
@@ -85,7 +89,8 @@ const prefsDefault = {
 		timeScale: 0.5/* defaultBlockNode.timeScale */, 
 		patternCount: 4, 
 		primeCount: 3, 
-		expVariance: 2, 
+		expRangeLower: 0, 
+		expRangeUpper: 2, 
 		primeExpRanges: undefined //to be calculated
 	},
 	rhythmParams: {
@@ -212,9 +217,13 @@ function loadPreferences(triggerNow) {
 				txtPrimeCount.value = s;
 				txtPrimeCount.dispatchEvent(new Event("input"));
 			}
-			if((s = localStorage.getItem("genParams.expVariance")) && window.txtExpVariance) {
-				txtExpVariance.value = s;
-				txtExpVariance.dispatchEvent(new Event("input"));
+			if((s = localStorage.getItem("genParams.expRangeLower")) && window.txtExpRangeLower) {
+				txtExpRangeLower.value = s;
+				txtExpRangeLower.dispatchEvent(new Event("input"));
+			}
+			if((s = localStorage.getItem("genParams.expRangeUpper") ?? localStorage.getItem("genParams.expVariance")) && window.txtExpRangeUpper) {
+				txtExpRangeUpper.value = s;
+				txtExpRangeUpper.dispatchEvent(new Event("input"));
 			}
 			if(s = localStorage.getItem("genParams.primeExpRanges")) {
 				codeBoxContentSet(ctlPrimeExpRanges, s);
@@ -338,6 +347,10 @@ function loadPreferences(triggerNow) {
 	} finally {
 		adjustingPreferences = false;
 	}
+
+	for(const key of preferencesKeysDeprecatedFlat)
+		localStorage.removeItem(key);
+
 	return true;
 }
 //function currently out of use
@@ -367,8 +380,10 @@ function saveAllPreferences() {
 			localStorage.setItem("genParams.patternCount", txtPatternCount.value);
 		if(window.txtPrimeCount)
 			localStorage.setItem("genParams.primeCount", txtPrimeCount.value); //JSON.stringify(prefs.genParams.primeCount)?
-		if(window.txtExpVariance)
-			localStorage.setItem("genParams.expVariance", txtExpVariance.value); //JSON.stringify(prefs.genParams.expVariance)?
+		if(window.txtExpRangeLower)
+			localStorage.setItem("genParams.expRangeLower", txtExpRangeLower.value); //JSON.stringify(prefs.genParams.expRangeLower)?
+		if(window.txtExpRangeUpper)
+			localStorage.setItem("genParams.expRangeUpper", txtExpRangeUpper.value); //JSON.stringify(prefs.genParams.expRangeUpper)?
 		if(window.ctlPrimeExpRanges)
 			localStorage.setItem("genParams.primeExpRanges", codeBoxContentGet(ctlPrimeExpRanges)); */
 		//Rhythm parameters
@@ -466,6 +481,8 @@ function btnResetPreferencesClick(event) {
 			localStorage.removeItem("genParams.patternCount");
 			localStorage.removeItem("genParams.primeCount");
 			localStorage.removeItem("genParams.expVariance");
+			localStorage.removeItem("genParams.expRangeLower");
+			localStorage.removeItem("genParams.expRangeUpper");
 			localStorage.removeItem("genParams.primeExpRanges");
 
 			txtBaseFreq.value = prefsDefault.genParams.baseFreq.toString();
@@ -480,8 +497,10 @@ function btnResetPreferencesClick(event) {
 			txtPatternCount.dispatchEvent(new Event("input"));
 			txtPrimeCount.value = prefsDefault.genParams.primeCount.toString();
 			txtPrimeCount.dispatchEvent(new Event("input"));
-			txtExpVariance.value = prefsDefault.genParams.expVariance.toString();
-			txtExpVariance.dispatchEvent(new Event("input"));
+			txtExpRangeLower.value = prefsDefault.genParams.expRangeLower.toString();
+			txtExpRangeLower.dispatchEvent(new Event("input"));
+			txtExpRangeUpper.value = prefsDefault.genParams.expRangeUpper.toString();
+			txtExpRangeUpper.dispatchEvent(new Event("input"));
 			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
 			recalcExpRanges(true);
 		}
@@ -781,24 +800,61 @@ function primeCountChanged(event) {
 	recalcExpRanges();
 	return true;
 }
-function expVarianceChanged(event) {
-	if(!window.txtExpVariance) return false;
+function txtExpRangeLowerChanged(event) {
+	if(!window.txtExpRangeLower) return false;
 
 	//question: reject value, correct it, or set to default?
-	const newExpVariance = parseNumber(txtExpVariance.value); //reject it
-	if(isNaN(newExpVariance) || newExpVariance < 0.5 || newExpVariance > 8) return false;
-	/* let newExpVariance = NaNToDefault(parseNumber(txtExpVariance.value), prefsDefault.genParams.expVariance); //correct it
-	if(newExpVariance < 0.5) newExpVariance = 0.5;
-	if(newExpVariance > 8) newExpVariance = 8; */
-	prefs.genParams.expVariance = newExpVariance;
+	const newExpRangeLower = parseNumber(txtExpRangeLower.value); //reject it
+	if(isNaN(newExpRangeLower)) {
+		txtExpRangeLower.setCustomValidity("Input not recognized as a real number.");
+		txtExpRangeLower.classList.add("invalid");
+		return false;
+	}
+	if(newExpRangeLower < -8 || newExpRangeLower >= prefs.genParams.expRangeUpper) {
+		txtExpRangeLower.setCustomValidity("Input is out of valid bounds.");
+		txtExpRangeLower.classList.add("invalid");
+		return false;
+	}
+	/* let newExpRangeLower = NaNToDefault(parseNumber(txtExpRangeLower.value), prefsDefault.genParams.expRangeLower); //correct it
+	if(newExpRangeLower < -8) newExpRangeLower = -8;
+	if(newExpRangeLower >= prefs.genParams.expRangeUpper) newExpRangeLower = prefs.genParams.expRangeUpper - Number(txtExpRangeLower.step); */
+	prefs.genParams.expRangeLower = newExpRangeLower;
+	txtExpRangeLower.setCustomValidity("");
+	txtExpRangeLower.classList.remove("invalid");
+
+	recalcExpRanges();
+}
+function txtExpRangeUpperChanged(event) {
+	if(!window.txtExpRangeUpper) return false;
+
+	//question: reject value, correct it, or set to default?
+	const newExpRangeUpper = parseNumber(txtExpRangeUpper.value); //reject it
+	if(isNaN(newExpRangeUpper)) {
+		txtExpRangeUpper.setCustomValidity("Input not recognized as a real number.");
+		txtExpRangeUpper.classList.add("invalid");
+		return false;
+	}
+	if(newExpRangeUpper <= prefs.genParams.expRangeLower || newExpRangeUpper > 8) {
+		txtExpRangeUpper.setCustomValidity("Input is out of valid bounds.");
+		txtExpRangeUpper.classList.add("invalid");
+		return false;
+	}
+	/* let newExpRangeUpper = NaNToDefault(parseNumber(txtExpRangeUpper.value), prefsDefault.genParams.expRangeUpper); //correct it
+	if(newExpRangeUpper <= prefsDefault.genParams.expRangeUpper) newExpRangeUpper = prefsDefault.genParams.expRangeUpper + Number(txtExpRangeUpper.step);
+	if(newExpRangeUpper > 8) newExpRangeUpper = 8; */
+	prefs.genParams.expRangeUpper = newExpRangeUpper;
+	txtExpRangeUpper.setCustomValidity("");
+	txtExpRangeUpper.classList.remove("invalid");
 
 	recalcExpRanges();
 }
 function recalcExpRanges(force) {
 	if(adjustingPreferences && !force) return false; //fails silently
 	//prefs.genParams.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.genParams.primeCount);
-	//prefs.genParams.expVariance = NaNToDefault(parseNumber(txtExpVariance.value), prefsDefault.genParams.expVariance);
-	const primeCount = prefs.genParams.primeCount, expVariance = prefs.genParams.expVariance;
+	const 
+		primeCount = prefs.genParams.primeCount, 
+		expRangeLower = prefs.genParams.expRangeLower,
+		expRangeUpper = prefs.genParams.expRangeUpper;
 
 	try {
 		const primeCountCeil = Math.ceil(primeCount);
@@ -808,13 +864,9 @@ function recalcExpRanges(force) {
 		for(let i = 0; i < primeCountCeil; i++) {
 			const 
 				varFraction = (i <= (primeCount - 1) ? 1 : (primeCount % 1)), 
-				range = varFraction * expVariance / Math.log2(primes[i]);
+				range = varFraction / Math.log2(primes[i]);
 
-			//newExpRanges[i] = range;
-			//question: what will be the proper default range? can the factors only go upwards? is signed (bipolar) random better?
-			newExpRanges[primes[i]] = [0, range];
-			//newExpRanges[primes[i]] = [-0.5 * range, range];
-			//newExpRanges[primes[i]] = [-range, range];
+			newExpRanges[primes[i]] = [Number((expRangeLower * range).toFixed(4)), Number((expRangeUpper * range).toFixed(4))];
 		}
 		primeExpRanges = newExpRanges;
 
