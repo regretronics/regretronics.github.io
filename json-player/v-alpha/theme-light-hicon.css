@@ -1,41 +1,41 @@
 /*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
 :root {
-	background-color: hsl(var(--hue-accent, 120), 25%, 96.875%);
-	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
-	accent-color: hsl(var(--hue-accent, 120), 25%, 25%);
+	background-color: oklch(96.875% 25% var(--hue-accent));
+	color: oklch(0% 25% var(--hue-accent) / 0.9375);
+	accent-color: oklch(25% 25% var(--hue-accent));
 	color-scheme: light;
 
 	&::selection {
-		/*background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.9375);
-		color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);*/
-		background-color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 0%, 0.9375);
-		color: hsla(calc(var(--hue-accent, 120) + var(--hue-anim, 0)), 0%, 100%, 0.875);
+		/*background-color: oklch(0% 0% var(--hue-accent) / 0.9375);
+		color: oklch(100% 0% var(--hue-accent) / 0.875);*/
+		background-color: oklch(0% 0% calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.9375);
+		color: oklch(100% 0% calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875);
 	}
 }
 * {
-	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 87.5%) hsl(var(--hue-accent2, 300), 25%, 12.5%);*/
-	/*scrollbar-color: hsl(var(--hue-accent2, 300), 12.5%, 12.5%) hsl(var(--hue-accent2, 300), 12.5%, 93.75%);*/
+	/*scrollbar-color: oklch(87.5% 12.5% var(--hue-accent2)) oklch(12.5% 25% var(--hue-accent2));*/
+	/*scrollbar-color: oklch(12.5% 12.5% var(--hue-accent2)) oklch(93.75% 12.5% var(--hue-accent2));*/
 	scrollbar-color:
-		hsl(var(--hue-accent2, 300), 12.5%, 12.5%)
-		hsl(var(--hue-accent2, 300), 12.5%, 93.75%);
-	outline-color: hsl(var(--hue-accent, 120), 25%, 25%);
+		oklch(12.5% 12.5% var(--hue-accent2))
+		oklch(93.75% 12.5% var(--hue-accent2));
+	outline-color: oklch(25% 25% var(--hue-accent));
 }
 *::-webkit-scrollbar {
-	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
-	/* color: hsla(var(--hue-accent, 120), 25%, 75%); */
+	background-color: oklch(93.75% 12.5% var(--hue-accent));
+	/* color: oklch(75% 25% var(--hue-accent)); */
 }
 *::-webkit-scrollbar-thumb {
-	background-color: hsl(var(--hue-accent, 120), 12.5%, 12.5%);
+	background-color: oklch(12.5% 12.5% var(--hue-accent));
 }
 *::-webkit-scrollbar-track {
-	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
+	background-color: oklch(93.75% 12.5% var(--hue-accent));
 }
 /* *::-webkit-scrollbar-track-piece {
 	background-color: black;
 } */
 *::-webkit-scrollbar-corner {
-	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
+	background-color: oklch(93.75% 12.5% var(--hue-accent));
 }
 /* *::-webkit-resizer {
 	background-color: black;
@@ -47,8 +47,8 @@ body {
 	font-weight: 500;
 }
 :is(.code-box, code)::selection {
-	background-color: hsla(var(--hue-accent2, 300), 100%, 93.75%, 1) !important;
-	color: hsla(var(--hue-accent2, 300), 100%, 6.25%, 0.9375) !important;
+	background-color: oklch(93.75% 100% var(--hue-accent2) / 1) !important;
+	color: oklch(6.25% 100% var(--hue-accent2) / 0.9375) !important;
 }
 
 strong {
@@ -56,138 +56,138 @@ strong {
 }
 h1, h2, h3, strong, em {
 	&::selection {
-		background-color: hsl(var(--hue-accent, 120), 0%, 0%) !important;
-		color: hsl(var(--hue-accent, 120), 0%, 100%) !important;
+		background-color: oklch(0% 0% var(--hue-accent)) !important;
+		color: oklch(100% 0% var(--hue-accent)) !important;
 	}
 	:is(& code, .code-box &, code &) {
 		&::selection {
-			color: hsl(var(--hue-accent2, 300), 100%, 6.25%) !important;
+			color: oklch(6.25% 100% var(--hue-accent2)) !important;
 		}
 	}
 }
 
 .alert-error {
-	color: hsl(0, 100%, 25%);
+	color: oklch(25% 100% 25deg);
 }
 .alert-warn {
-	color: hsl(60, 75%, 18.75%);
+	color: oklch(18.75% 75% 85deg);
 }
 hr {
-	border-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
+	border-color: oklch(50% 0% var(--hue-accent) / 0.9375);
 }
 .separator {
-	background-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.9375);
+	background-color: oklch(50% 0% var(--hue-accent) / 0.9375);
 }
 table:has(> caption), caption, table:not(:has(> caption)) tbody :is(td, th):not(.empty) {
-	background-color: hsla(0, 0%, 50%, 0.25);
+	background-color: oklch(50% 0% 0deg / 0.25);
 }
 table:has(> caption) tbody :is(td, th):not(.empty) {
-	background-color: hsla(0, 0%, 100%, 0.5);
+	background-color: oklch(100% 0% 0deg / 0.5);
 }
 summary:first-of-type {
 	&:hover, &:focus {
-		background-color: hsla(var(--hue-accent, 120), 50%, 0%, 0.25);
+		background-color: oklch(0% 50% var(--hue-accent) / 0.25);
 		outline-style: solid;
 		outline-width: 0.25em;
-		outline-color: hsla(var(--hue-accent, 120), 50%, 0%, 0.25);
+		outline-color: oklch(0% 50% var(--hue-accent) / 0.25);
 	}
 
 	details:has(.outdated) > & {
-		color: hsla(30, 50%, 25%, 0.75);
+		color: oklch(25% 50% 55deg / 0.75);
 	}
 	details:has(.invalid) > & {
-		color: hsla(0, 100%, 25%, 0.875);
+		color: oklch(25% 100% 25deg / 0.875);
 	}
 }
 
 a:link {
-	color: hsla(var(--hue-accent, 120), 50%, 12.5%, 0.9375);
+	color: oklch(12.5% 50% var(--hue-accent) / 0.9375);
 }
 a:visited {
-	color: hsla(30, 50%, 25%, 0.9375);
+	color: oklch(25% 50% 55deg / 0.9375);
 }
 :any-link:active {
-	color: hsl(var(--hue-accent, 120), 100%, 12.5%);
+	color: oklch(12.5% 100% var(--hue-accent));
 }
 
 input::selection {
-	background-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.75);
-	color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
+	background-color: oklch(0% 0% var(--hue-accent) / 0.75);
+	color: oklch(100% 0% var(--hue-accent) / 0.875);
 }
 button {
-	/*background-color: hsl(var(--hue-accent, 120), 0%, 25%);
-	color: hsl(var(--hue-accent, 120), 0%, 75%);*/
-	background-color: hsl(var(--hue-accent, 120), 25%, 93.75%);
-	color: hsl(var(--hue-accent, 120), 50%, 6.25%);
+	/*background-color: oklch(25% 0% var(--hue-accent));
+	color: oklch(75% 0% var(--hue-accent));*/
+	background-color: oklch(93.75% 25% var(--hue-accent));
+	color: oklch(6.25% 50% var(--hue-accent));
 
 	border-style: solid;
-	border-top-color: hsla(var(--hue-accent, 120), 0%, 100%, 1);
-	border-right-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
-	border-left-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
-	border-bottom-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.625);
+	border-top-color: oklch(100% 0% var(--hue-accent) / 1);
+	border-right-color: oklch(50% 0% var(--hue-accent) / 0.25);
+	border-left-color: oklch(50% 0% var(--hue-accent) / 0.25);
+	border-bottom-color: oklch(0% 0% var(--hue-accent) / 0.625);
 
 	&:active {
-		border-top-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.25);
-		border-bottom-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.5);
+		border-top-color: oklch(0% 0% var(--hue-accent) / 0.25);
+		border-bottom-color: oklch(100% 0% var(--hue-accent) / 0.5);
 	}
 }
 input[type=number], input[type=text], textarea, select {
-	background-color: hsl(var(--hue-accent, 120), 12.5%, 93.75%);
-	color: hsl(var(--hue-accent, 120), 12.5%, 6.25%);
+	background-color: oklch(93.75% 12.5% var(--hue-accent));
+	color: oklch(6.25% 12.5% var(--hue-accent));
 
 	border-style: solid;
-	border-top-color: hsla(var(--hue-accent, 120), 0%, 0%, 0.625);
-	border-right-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
-	border-left-color: hsla(var(--hue-accent, 120), 0%, 50%, 0.25);
-	border-bottom-color: hsla(var(--hue-accent, 120), 0%, 100%, 1);
+	border-top-color: oklch(0% 0% var(--hue-accent) / 0.625);
+	border-right-color: oklch(50% 0% var(--hue-accent) / 0.25);
+	border-left-color: oklch(50% 0% var(--hue-accent) / 0.25);
+	border-bottom-color: oklch(100% 0% var(--hue-accent) / 1);
 }
 /*input:invalid {*/
 input.invalid {
-	background-color: hsl(0, 100%, 87.5%) !important;
+	background-color: oklch(87.5% 100% 25deg) !important;
 }
 
 .spin-edit .buttons-area {
-	background-color: hsl(var(--hue-accent, 120), 25%, 93.75%);
-	color: hsl(var(--hue-accent, 120), 100%, 6.25%);
+	background-color: oklch(93.75% 25% var(--hue-accent));
+	color: oklch(6.25% 100% var(--hue-accent));
 
 	& > *:is(:hover, .hover) {
-		background-color: hsl(var(--hue-accent, 120), 100%, 6.25%);
-		color: hsl(var(--hue-accent, 120), 100%, 100%);
+		background-color: oklch(6.25% 100% var(--hue-accent));
+		color: oklch(100% 100% var(--hue-accent));
 	}
 	&:is(:active, .active, :has(:active)) {
-		background-color: hsl(var(--hue-accent, 120), 50%, 87.5%);
-		color: hsl(var(--hue-accent, 120), 100%, 0%);
+		background-color: oklch(87.5% 50% var(--hue-accent));
+		color: oklch(0% 100% var(--hue-accent));
 
 		& > *:is(:hover, .hover) {
-			/* box-shadow: 0 0 0.25em hsl(var(--hue-accent, 120), 100%, 6.25%); */
-			box-shadow: 0 0 0.25em 0.125em hsl(var(--hue-accent, 120), 100%, 6.25%);
+			/* box-shadow: 0 0 0.25em oklch(6.25% 100% var(--hue-accent)); */
+			box-shadow: 0 0 0.25em 0.125em oklch(6.25% 100% var(--hue-accent));
 		}
 	}
 }
 .tool-tip {
-	background-color: hsla(var(--hue-accent, 120), 0%, 100%, 0.875);
+	background-color: oklch(100% 0% var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.9375;
 
 	&[data-warn-level] {
-		background-color: hsl(var(--warn-hue), calc(100% * var(--warn-sat)), 93.75%, 0.875);
+		background-color: oklch(93.75% calc(100% * var(--warn-sat)) var(--warn-hue) / 0.875);
 	}
 }
 
 .code-box {
-	background-color: hsla(var(--hue-accent, 120), 0%, 87.5%, 0.625);
-	color: hsla(var(--hue-accent, 120), 25%, 0%, 0.9375);
+	background-color: oklch(87.5% 0% var(--hue-accent) / 0.625);
+	color: oklch(0% 25% var(--hue-accent) / 0.9375);
 
 	&.outdated {
-		background-color: hsla(30, 25%, 93.75%, 0.875);
-		color: hsla(30, 25%, 6.25%, 0.75);
+		background-color: oklch(93.75% 25% 55deg / 0.875);
+		color: oklch(6.25% 25% 55deg / 0.75);
 	}
 	&.invalid {
-		background-color: hsla(0, 100%, 87.5%, 0.875);
+		background-color: oklch(87.5% 100% 25deg / 0.875);
 	}
 }
 
 #imgVisualizer {
-	background-color: hsla(0, 0%, 100%, 0.5);
-	/* --fill-color: hsla(var(--hue-accent2, 300), 0%, 0%, 0.875); */
-	--fill-color: hsl(0, 0%, 0%);
+	background-color: oklch(100% 0% 0deg / 0.5);
+	/* --fill-color: oklch(0% 0% var(--hue-accent2) / 0.875); */
+	--fill-color: oklch(0% 0% 0deg);
 }

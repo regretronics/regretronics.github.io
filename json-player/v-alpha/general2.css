@@ -1,8 +1,8 @@
 /*general cosmetic styles*/
 @property --hue-accent {
-	syntax: "<number>"; /*makes interpolation possible*/
+	syntax: "<angle>"; /*makes interpolation possible*/
 	inherits: true;
-	initial-value: 120;
+	initial-value: 145deg;
 }
 /* @property --hue-accent-init {
 	syntax: "<number>";
@@ -18,16 +18,17 @@
 :root {
 	/*to do: !migrate from hsl to oklch*/
 	/*to do: !more use of variables (custom properties) for colors, with less specific rules in the color scheme files*/
-	/*to do: !more use of variables (custom properties) for scheme parameters*/
+	/*to do: !more use of variables (custom properties) for scheme parameters (like typical saturation and contrast)*/
 	/*question: include deg unit for hues? (currently never)*/
 	--hue-accent0: 120;
 	/*0deg hsl -> red; ~25deg oklch -> red*/
-	--hue-accent: var(--hue-accent0, 120);
-	--hue-accent2: calc(var(--hue-accent, 120) + 180);
+	--hue-accent: calc(var(--hue-accent0, 120) * 1deg + 25deg);
+	--hue-accent2: calc(var(--hue-accent) + 180deg);
 	/*--img-filter1: ;*/
 	/*--img-filter1: brightness(1);*/ /*placebo*/
 	/*--img-hue-shift: 0deg;*/
-	--img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg);
+	/* --img-hue-shift: calc(var(--hue-accent, 120)*1deg - 120deg); */
+	--img-hue-shift: calc(var(--hue-accent) - 25deg - 120deg);
 	/*--img-filter: var(--img-filter1, none);*/
 
 	font-family: 'Liberation Serif', 'Linux Libertine G', Cambria, 'Source Serif 4 Variable', 'Noto Serif', Constantia, 'Baskerville Old Face', Times, 'Times New Roman', 'DejaVu Serif Condensed', 'Bell MT', Garamond, 'Goudy Old Style', 'Georgia Pro', Georgia, serif;
@@ -219,7 +220,7 @@ output {
 	&[data-warn-level] {
 		--warn-level: attr(data-warn-level type(<number>));
 		/*0: minimal (info or trivial), 1: note, 2: attention warning, 3: error or severe*/
-		--warn-hue: clamp(-60, 135 - 45 * var(--warn-level), 180); /*limited between magenta and cyan*/
+		--warn-hue: clamp(-35deg, 160deg - 45deg * var(--warn-level), 205deg); /*limited between magenta and cyan*/
 		--warn-sat: min(abs(var(--warn-level)) / 2.5, 1);
 		--warn-font-wgt: clamp(100, 200 * var(--warn-level) + 200, 950);
 		font-weight: var(--warn-font-wgt);
