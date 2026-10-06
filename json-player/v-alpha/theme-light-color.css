@@ -1,45 +1,46 @@
-/*we live in an HDR/deep color era, so 24-bit color codes are a thing of the past.*/
-/*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
+@import url("theme-general.css");
+
 :root {
 	--img-filter1: invert(87.5%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent) + 180deg - 120deg);
 	--sat-scale: 0.15625;
 
-	background-color: oklch(0.75 calc(0.375 * var(--sat-scale)) var(--hue-accent));
-	color: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
-	accent-color: oklch(0.375 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+	--root-bg: oklch(0.75 calc(0.375 * var(--sat-scale)) var(--hue-accent));
+	--root-fg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--accent-clr: oklch(0.375 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 	color-scheme: light;
 
 	&::selection {
-		background-color: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.625);
-		color: oklch(0.875 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
-		/* background-color: oklch(0.125 calc(1 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.625);
-		color: oklch(0.875 calc(1 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875); */
+		--sel-bg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.625);
+		--sel-fg: oklch(0.875 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
+		/* --sel-bg: oklch(0.125 calc(1 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.625);
+		--sel-fg: oklch(0.875 calc(1 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875); */
 	}
 }
 * {
-	/*scrollbar-color: oklch(0.625 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875) oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);*/
-	/*scrollbar-color: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875) oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);*/
-	scrollbar-color:
-		oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875)
-		oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
-	outline-color: oklch(0.375 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+	/*--scroll-fg: oklch(0.625 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--scroll-bg: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);*/
+	/*--scroll-fg: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);*/
+	--scroll-fg: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--outline-clr: oklch(0.375 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 }
 *::-webkit-scrollbar {
-	background-color: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
-	/* color: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875); */
+	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	/* --scroll-fg: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875); */
 }
 *::-webkit-scrollbar-thumb {
-	background-color: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--scroll-fg: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 *::-webkit-scrollbar-track {
-	background-color: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 /* *::-webkit-scrollbar-track-piece {
 	background-color: black;
 } */
 *::-webkit-scrollbar-corner {
-	background-color: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 /* *::-webkit-resizer {
 	background-color: black;
@@ -50,151 +51,144 @@
 /* body {
 } */
 :is(.code-box, code)::selection {
-	background-color: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent2) / 0.75) !important;
-	color: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent2) / 0.875) !important;
+	--sel-alt-bg: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent2) / 0.75);
+	--sel-alt-fg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent2) / 0.875);
 }
 
 strong {
-	color: black;
+	--strong-fg: black;
 }
-h1, h2, h3, strong, em {
+h1, h2, h3, strong, em, summary:first-of-type, caption, th:not([scope=rowgroup]) {
 	&::selection {
-		background-color: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.75) !important;
-		color: oklch(0.875 calc(1 * var(--sat-scale)) var(--hue-accent)) !important;
+		--sel-em-bg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.75);
+		--sel-em-fg: oklch(0.875 calc(1 * var(--sat-scale)) var(--hue-accent));
 	}
 	:is(& code, .code-box &, code &) {
 		&::selection {
-			background-color: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent2) / 0.875) !important;
-			color: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent2)) !important;
+			--sel-alt-em-bg: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent2) / 0.875);
+			--sel-alt-em-fg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent2));
 		}
 	}
 }
 
 .alert-error {
-	color: oklch(0.25 calc(1 * var(--sat-scale)) 25deg);
+	--alert-error-fg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg);
 }
 .alert-warn {
-	color: oklch(0.1875 calc(0.75 * var(--sat-scale)) 85deg);
+	--alert-warn-fg: oklch(0.1875 calc(0.75 * var(--sat-scale)) 85deg);
 }
 hr {
-	border-color: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--separator-clr: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
 }
 .separator {
-	background-color: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--separator-clr: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
 }
 table:has(> caption), caption {
-	background-color: oklch(1 calc(0 * var(--sat-scale)) 0deg / 0.125);
+	--tbl-layer-bg: oklch(1 calc(0 * var(--sat-scale)) 0deg / 0.125);
 }
 tbody :is(td, th):not(.empty) {
-	background-color: oklch(0.9375 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--tbl-cell-bg: oklch(0.9375 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
 }
 summary:first-of-type {
 	&:hover, &:focus {
-		background-color: oklch(1 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
-		outline-style: solid;
-		outline-width: 0.25em;
-		outline-color: oklch(1 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
+		--summary-hl-bg: oklch(1 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
 	}
 
 	details:has(.outdated) > & {
-		color: oklch(0.1875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
+		--summary-outdated-fg: oklch(0.1875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
 	}
 	details:has(.invalid) > & {
-		color: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.875);
+		--summary-invalid-fg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.875);
 	}
 }
 
 a:link {
-	color: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--link-fg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 a:visited {
-	color: oklch(0.25 calc(0.75 * var(--sat-scale)) 55deg / 0.875);
+	--link-visited-fg: oklch(0.25 calc(0.75 * var(--sat-scale)) 55deg / 0.875);
 }
 :any-link:active {
-	color: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent));
+	--link-active-fg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent));
 }
 
 input::selection {
-	background-color: oklch(0.125 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
-	color: oklch(0.875 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--editable-bg: oklch(0.125 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--editable-fg: oklch(0.875 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 :not(.custom) {
 	button& {
-		/*background-color: oklch(0.25 calc(0 * var(--sat-scale)) var(--hue-accent));
-		color: oklch(0.75 calc(0 * var(--sat-scale)) var(--hue-accent));*/
-		background-color: oklch(0.8125 calc(0.375 * var(--sat-scale)) var(--hue-accent));
-		color: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+		/*--button-bg: oklch(0.25 calc(0 * var(--sat-scale)) var(--hue-accent));
+		--button-fg: oklch(0.75 calc(0 * var(--sat-scale)) var(--hue-accent));*/
+		--button-bg: oklch(0.8125 calc(0.375 * var(--sat-scale)) var(--hue-accent));
+		--button-fg: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 
-		border-style: solid;
-		border-top-color: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
-		border-right-color: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-		border-left-color: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-		border-bottom-color: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
+		--button-border-top: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
+		--button-border-mid: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
+		--button-border-bottom: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
 
 		&:active {
-			border-top-color: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
-			border-bottom-color: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
+			--button-pressed-border-top: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
+			--button-pressed-border-bottom: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
 		}
 	}
 	&:is(input[type=number], input[type=text], textarea, select) {
-		background-color: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-		color: oklch(0.125 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+		--box-bg: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+		--box-fg: oklch(0.125 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 
-		border-style: solid;
-		border-top-color: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
-		border-right-color: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-		border-left-color: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-		border-bottom-color: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
+		--box-border-top: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
+		--box-border-mid: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
+		--box-border-bottom: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
 	}
 }
 /*input:invalid {*/
 input.invalid {
-	background-color: oklch(0.875 calc(1 * var(--sat-scale)) 25deg) !important;
+	--ctl-invalid-bg: oklch(0.875 calc(1 * var(--sat-scale)) 25deg);
 }
 
 .spin-edit .buttons-area {
-	background-color: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-	color: oklch(0.25 calc(0.125 * var(--sat-scale)) var(--hue-accent));
+	--spin-btn-bg: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+	--spin-btn-fg: oklch(0.25 calc(0.125 * var(--sat-scale)) var(--hue-accent));
 
 	& > *:is(:hover, .hover) {
-		background-color: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-		color: oklch(0.875 calc(0.125 * var(--sat-scale)) var(--hue-accent));
+		--spin-btn-hover-bg: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+		--spin-btn-hover-fg: oklch(0.875 calc(0.125 * var(--sat-scale)) var(--hue-accent));
 	}
 	&:is(:active, .active, :has(:active)) {
-		background-color: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent));
-		color: oklch(0.125 calc(0.125 * var(--sat-scale)) var(--hue-accent));
+		--spin-btn-pressed-bg: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent));
+		--spin-btn-pressed-fg: oklch(0.125 calc(0.125 * var(--sat-scale)) var(--hue-accent));
 
 		& > *:is(:hover, .hover) {
-			/* box-shadow: 0 0 0.25em oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent)); */
-			box-shadow: 0 0 0.25em 0.125em oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+			--spin-btn-bg-glow: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 		}
 	}
 }
 .tool-tip {
-	background-color: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--tooltip-bg: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.75;
 
-	&[data-warn-level] {
+	/* &[data-warn-level] {
 		background-color: oklch(0.875 calc(75% * var(--warn-sat)) var(--warn-hue) / 0.875);
-	}
+	} */
 }
 
 .code-box {
-	background-color: oklch(0 calc(0.125 * var(--sat-scale)) var(--hue-accent) / 0.625);
-	color: oklch(1 calc(0.25 * var(--sat-scale)) var(--hue-accent));
-	scrollbar-color: oklch(0.75 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875) oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--codebox-bg: oklch(0 calc(0.125 * var(--sat-scale)) var(--hue-accent) / 0.625);
+	--codebox-fg: oklch(1 calc(0.25 * var(--sat-scale)) var(--hue-accent));
+	--codebox-scroll-fg: oklch(0.75 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--codebox-scroll-bg: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 
 	&.outdated {
-		background-color: oklch(0.25 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
-		color: oklch(0.875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
+		--codebox-outdated-bg: oklch(0.25 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
+		--codebox-outdated-fg: oklch(0.875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
 	}
 	&.invalid {
-		background-color: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.75);
+		--codebox-invalid-bg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.75);
 	}
 }
 
 #imgVisualizer {
-	background-color: oklch(1 calc(0 * var(--sat-scale)) 0deg / 0.5);
+	--vis-bg: oklch(1 calc(0 * var(--sat-scale)) 0deg / 0.5);
 	/* --fill-color: oklch(0.25 calc(0.75 * var(--sat-scale)) var(--hue-accent2) / 0.875); */
 	--fill-color: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent2));
 }
