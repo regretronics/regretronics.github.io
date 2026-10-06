@@ -4,41 +4,41 @@
 	--img-filter1: invert(87.5%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent) + 180deg - 120deg);
 
-	background-color: oklch(75% 37.5% var(--hue-accent));
-	color: oklch(0% 0% var(--hue-accent) / 0.875);
-	accent-color: oklch(37.5% 50% var(--hue-accent));
+	background-color: oklch(0.75 37.5% var(--hue-accent));
+	color: oklch(0 0% var(--hue-accent) / 0.875);
+	accent-color: oklch(0.375 50% var(--hue-accent));
 	color-scheme: light;
 
 	&::selection {
-		/*background-color: oklch(12.5% 100% var(--hue-accent) / 0.625);
-		color: oklch(87.5% 100% var(--hue-accent) / 0.875);*/
-		background-color: oklch(12.5% 100% calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.625);
-		color: oklch(87.5% 100% calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875);
+		/*background-color: oklch(0.125 100% var(--hue-accent) / 0.625);
+		color: oklch(0.875 100% var(--hue-accent) / 0.875);*/
+		background-color: oklch(0.125 100% calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.625);
+		color: oklch(0.875 100% calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875);
 	}
 }
 * {
-	/*scrollbar-color: oklch(62.5% 37.5% var(--hue-accent) / 0.875) oklch(87.5% 25% var(--hue-accent) / 0.875);*/
-	/*scrollbar-color: oklch(25% 37.5% var(--hue-accent) / 0.875) oklch(75% 25% var(--hue-accent) / 0.875);*/
+	/*scrollbar-color: oklch(0.625 37.5% var(--hue-accent) / 0.875) oklch(0.875 25% var(--hue-accent) / 0.875);*/
+	/*scrollbar-color: oklch(0.25 37.5% var(--hue-accent) / 0.875) oklch(0.75 25% var(--hue-accent) / 0.875);*/
 	scrollbar-color:
-		oklch(25% 37.5% var(--hue-accent) / 0.875)
-		oklch(75% 25% var(--hue-accent) / 0.875);
-	outline-color: oklch(37.5% 50% var(--hue-accent));
+		oklch(0.25 37.5% var(--hue-accent) / 0.875)
+		oklch(0.75 25% var(--hue-accent) / 0.875);
+	outline-color: oklch(0.375 50% var(--hue-accent));
 }
 *::-webkit-scrollbar {
-	background-color: oklch(75% 25% var(--hue-accent) / 0.875);
-	/* color: oklch(25% 25% var(--hue-accent) / 0.875); */
+	background-color: oklch(0.75 25% var(--hue-accent) / 0.875);
+	/* color: oklch(0.25 25% var(--hue-accent) / 0.875); */
 }
 *::-webkit-scrollbar-thumb {
-	background-color: oklch(25% 37.5% var(--hue-accent) / 0.875);
+	background-color: oklch(0.25 37.5% var(--hue-accent) / 0.875);
 }
 *::-webkit-scrollbar-track {
-	background-color: oklch(75% 25% var(--hue-accent) / 0.875);
+	background-color: oklch(0.75 25% var(--hue-accent) / 0.875);
 }
 /* *::-webkit-scrollbar-track-piece {
 	background-color: black;
 } */
 *::-webkit-scrollbar-corner {
-	background-color: oklch(75% 25% var(--hue-accent) / 0.875);
+	background-color: oklch(0.75 25% var(--hue-accent) / 0.875);
 }
 /* *::-webkit-resizer {
 	background-color: black;
@@ -49,8 +49,8 @@
 /* body {
 } */
 :is(.code-box, code)::selection {
-	background-color: oklch(87.5% 50% var(--hue-accent2) / 0.75) !important;
-	color: oklch(12.5% 100% var(--hue-accent2) / 0.875) !important;
+	background-color: oklch(0.875 50% var(--hue-accent2) / 0.75) !important;
+	color: oklch(0.125 100% var(--hue-accent2) / 0.875) !important;
 }
 
 strong {
@@ -58,142 +58,142 @@ strong {
 }
 h1, h2, h3, strong, em {
 	&::selection {
-		background-color: oklch(12.5% 100% var(--hue-accent) / 0.75) !important;
-		color: oklch(87.5% 100% var(--hue-accent)) !important;
+		background-color: oklch(0.125 100% var(--hue-accent) / 0.75) !important;
+		color: oklch(0.875 100% var(--hue-accent)) !important;
 	}
 	:is(& code, .code-box &, code &) {
 		&::selection {
-			background-color: oklch(87.5% 50% var(--hue-accent2) / 0.875) !important;
-			color: oklch(12.5% 100% var(--hue-accent2)) !important;
+			background-color: oklch(0.875 50% var(--hue-accent2) / 0.875) !important;
+			color: oklch(0.125 100% var(--hue-accent2)) !important;
 		}
 	}
 }
 
 .alert-error {
-	color: oklch(25% 100% 25deg);
+	color: oklch(0.25 100% 25deg);
 }
 .alert-warn {
-	color: oklch(18.75% 75% 85deg);
+	color: oklch(0.1875 75% 85deg);
 }
 hr {
-	border-color: oklch(50% 25% var(--hue-accent) / 0.75);
+	border-color: oklch(0.5 25% var(--hue-accent) / 0.75);
 }
 .separator {
-	background-color: oklch(50% 25% var(--hue-accent) / 0.75);
+	background-color: oklch(0.5 25% var(--hue-accent) / 0.75);
 }
 table:has(> caption), caption {
-	background-color: oklch(100% 0% 0deg / 0.125);
+	background-color: oklch(1 0% 0deg / 0.125);
 }
 tbody :is(td, th):not(.empty) {
-	background-color: oklch(93.75% 50% var(--hue-accent) / 0.25);
+	background-color: oklch(0.9375 50% var(--hue-accent) / 0.25);
 }
 summary:first-of-type {
 	&:hover, &:focus {
-		background-color: oklch(100% 50% var(--hue-accent) / 0.25);
+		background-color: oklch(1 50% var(--hue-accent) / 0.25);
 		outline-style: solid;
 		outline-width: 0.25em;
-		outline-color: oklch(100% 50% var(--hue-accent) / 0.25);
+		outline-color: oklch(1 50% var(--hue-accent) / 0.25);
 	}
 
 	details:has(.outdated) > & {
-		color: oklch(18.75% 50% 55deg / 0.75);
+		color: oklch(0.1875 50% 55deg / 0.75);
 	}
 	details:has(.invalid) > & {
-		color: oklch(25% 100% 25deg / 0.875);
+		color: oklch(0.25 100% 25deg / 0.875);
 	}
 }
 
 a:link {
-	color: oklch(12.5% 100% var(--hue-accent) / 0.875);
+	color: oklch(0.125 100% var(--hue-accent) / 0.875);
 }
 a:visited {
-	color: oklch(25% 75% 55deg / 0.875);
+	color: oklch(0.25 75% 55deg / 0.875);
 }
 :any-link:active {
-	color: oklch(12.5% 100% var(--hue-accent));
+	color: oklch(0.125 100% var(--hue-accent));
 }
 
 input::selection {
-	background-color: oklch(12.5% 25% var(--hue-accent) / 0.75);
-	color: oklch(87.5% 100% var(--hue-accent) / 0.875);
+	background-color: oklch(0.125 25% var(--hue-accent) / 0.75);
+	color: oklch(0.875 100% var(--hue-accent) / 0.875);
 }
 :not(.custom) {
 	button& {
-		/*background-color: oklch(25% 0% var(--hue-accent));
-		color: oklch(75% 0% var(--hue-accent));*/
-		background-color: oklch(81.25% 37.5% var(--hue-accent));
-		color: oklch(25% 50% var(--hue-accent));
+		/*background-color: oklch(0.25 0% var(--hue-accent));
+		color: oklch(0.75 0% var(--hue-accent));*/
+		background-color: oklch(0.8125 37.5% var(--hue-accent));
+		color: oklch(0.25 50% var(--hue-accent));
 
 		border-style: solid;
-		border-top-color: oklch(25% 25% var(--hue-accent) / 0.75);
-		border-right-color: oklch(62.5% 25% var(--hue-accent) / 0.5);
-		border-left-color: oklch(62.5% 25% var(--hue-accent) / 0.5);
-		border-bottom-color: oklch(87.5% 25% var(--hue-accent) / 0.75);
+		border-top-color: oklch(0.25 25% var(--hue-accent) / 0.75);
+		border-right-color: oklch(0.625 25% var(--hue-accent) / 0.5);
+		border-left-color: oklch(0.625 25% var(--hue-accent) / 0.5);
+		border-bottom-color: oklch(0.875 25% var(--hue-accent) / 0.75);
 
 		&:active {
-			border-top-color: oklch(87.5% 25% var(--hue-accent) / 0.25);
-			border-bottom-color: oklch(25% 25% var(--hue-accent) / 0.25);
+			border-top-color: oklch(0.875 25% var(--hue-accent) / 0.25);
+			border-bottom-color: oklch(0.25 25% var(--hue-accent) / 0.25);
 		}
 	}
 	&:is(input[type=number], input[type=text], textarea, select) {
-		background-color: oklch(87.5% 50% var(--hue-accent));
-		color: oklch(12.5% 50% var(--hue-accent));
+		background-color: oklch(0.875 50% var(--hue-accent));
+		color: oklch(0.125 50% var(--hue-accent));
 
 		border-style: solid;
-		border-top-color: oklch(87.5% 25% var(--hue-accent) / 0.625);
-		border-right-color: oklch(50% 25% var(--hue-accent) / 0.5);
-		border-left-color: oklch(50% 25% var(--hue-accent) / 0.5);
-		border-bottom-color: oklch(25% 25% var(--hue-accent) / 0.625);
+		border-top-color: oklch(0.875 25% var(--hue-accent) / 0.625);
+		border-right-color: oklch(0.5 25% var(--hue-accent) / 0.5);
+		border-left-color: oklch(0.5 25% var(--hue-accent) / 0.5);
+		border-bottom-color: oklch(0.25 25% var(--hue-accent) / 0.625);
 	}
 }
 /*input:invalid {*/
 input.invalid {
-	background-color: oklch(87.5% 100% 25deg) !important;
+	background-color: oklch(0.875 100% 25deg) !important;
 }
 
 .spin-edit .buttons-area {
-	background-color: oklch(87.5% 50% var(--hue-accent));
-	color: oklch(25% 12.5% var(--hue-accent));
+	background-color: oklch(0.875 50% var(--hue-accent));
+	color: oklch(0.25 12.5% var(--hue-accent));
 
 	& > *:is(:hover, .hover) {
-		background-color: oklch(25% 50% var(--hue-accent));
-		color: oklch(87.5% 12.5% var(--hue-accent));
+		background-color: oklch(0.25 50% var(--hue-accent));
+		color: oklch(0.875 12.5% var(--hue-accent));
 	}
 	&:is(:active, .active, :has(:active)) {
-		background-color: oklch(62.5% 25% var(--hue-accent));
-		color: oklch(12.5% 12.5% var(--hue-accent));
+		background-color: oklch(0.625 25% var(--hue-accent));
+		color: oklch(0.125 12.5% var(--hue-accent));
 
 		& > *:is(:hover, .hover) {
-			/* box-shadow: 0 0 0.25em oklch(25% 50% var(--hue-accent)); */
-			box-shadow: 0 0 0.25em 0.125em oklch(25% 50% var(--hue-accent));
+			/* box-shadow: 0 0 0.25em oklch(0.25 50% var(--hue-accent)); */
+			box-shadow: 0 0 0.25em 0.125em oklch(0.25 50% var(--hue-accent));
 		}
 	}
 }
 .tool-tip {
-	background-color: oklch(87.5% 25% var(--hue-accent) / 0.875);
+	background-color: oklch(0.875 25% var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.75;
 
 	&[data-warn-level] {
-		background-color: oklch(87.5% calc(75% * var(--warn-sat)) var(--warn-hue) / 0.875);
+		background-color: oklch(0.875 calc(75% * var(--warn-sat)) var(--warn-hue) / 0.875);
 	}
 }
 
 .code-box {
-	background-color: oklch(0% 12.5% var(--hue-accent) / 0.625);
-	color: oklch(100% 25% var(--hue-accent));
-	scrollbar-color: oklch(75% 37.5% var(--hue-accent) / 0.875) oklch(25% 25% var(--hue-accent) / 0.875);
+	background-color: oklch(0 12.5% var(--hue-accent) / 0.625);
+	color: oklch(1 25% var(--hue-accent));
+	scrollbar-color: oklch(0.75 37.5% var(--hue-accent) / 0.875) oklch(0.25 25% var(--hue-accent) / 0.875);
 
 	&.outdated {
-		background-color: oklch(25% 50% 55deg / 0.75);
-		color: oklch(87.5% 50% 55deg / 0.75);
+		background-color: oklch(0.25 50% 55deg / 0.75);
+		color: oklch(0.875 50% 55deg / 0.75);
 	}
 	&.invalid {
-		background-color: oklch(25% 100% 25deg / 0.75);
+		background-color: oklch(0.25 100% 25deg / 0.75);
 	}
 }
 
 #imgVisualizer {
-	background-color: oklch(100% 0% 0deg / 0.5);
-	/* --fill-color: oklch(25% 75% var(--hue-accent2) / 0.875); */
-	--fill-color: oklch(12.5% 100% var(--hue-accent2));
+	background-color: oklch(1 0% 0deg / 0.5);
+	/* --fill-color: oklch(0.25 75% var(--hue-accent2) / 0.875); */
+	--fill-color: oklch(0.125 100% var(--hue-accent2));
 }
