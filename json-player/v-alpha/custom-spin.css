@@ -52,7 +52,7 @@
 	&:has(.buttons-area) input:first-of-type {
 		appearance: textfield;
 
-		&::inner-spin-button, &::outer-spin-button {
+		:is(&::inner-spin-button, &::outer-spin-button) {
 			-webkit-appearance: none;
 			appearance: none;
 			display: none;

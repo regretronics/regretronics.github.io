@@ -16,7 +16,7 @@
 } */
 
 :root {
-	/*to do: !migrate from hsl to oklch*/
+	/*to do: !adjust oklch brightness and chromaticity*/
 	/*to do: !more use of variables (custom properties) for colors, with less specific rules in the color scheme files*/
 	/*to do: !more use of variables (custom properties) for scheme parameters (like typical saturation and contrast)*/
 	/*question: include deg unit for hues? (currently never)*/
@@ -96,30 +96,28 @@ code:not(.long) { /*class "long" reserved for future use*/
 button, input:not([type=radio]), select {
 	font-size: 0.85em;
 }
-:not(.custom) {
-	.spin-edit&, :not(.spin-edit) > &:is(button, input:not([type=checkbox], [type=radio]), select) {
-		margin-block: 0.125em;
-	}
-	button& {
-		font-weight: bold;
+.spin-edit:not(.custom), :not(.spin-edit) > :is(button, input:not([type=checkbox], [type=radio]), select):not(.custom) {
+	margin-block: 0.125em;
+}
+button:not(.custom) {
+	font-weight: bold;
 
-		padding-block: 0.125em;
-		padding-inline: 0.375em;
-		border-radius: 0.25em;
-	}
-	button&, input:not([type=checkbox], [type=radio], [type=range])&, textarea:not(.code-box)&, select& {
-		border-width: calc(5em/32);
+	padding-block: 0.125em;
+	padding-inline: 0.375em;
+	border-radius: 0.25em;
+}
+button:not(.custom), input:not(.custom, [type=checkbox], [type=radio], [type=range]), textarea:not(.custom, .code-box), select:not(.custom) {
+	border-width: calc(5em/32);
 
-		&:not(:active, :focus, :hover) {
-			opacity: 0.875;
-		}
+	&:not(:active, :focus, :hover) {
+		opacity: 0.875;
 	}
-	&:is(input[type=text], textarea, select, .code-box):dir(ltr):not(.right) {
-		border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
-	}
-	input&[type=number]:not(.left), &:is(input, button, textarea, .code-box):is(:dir(rtl), .right):not(.left) {
-		border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
-	}
+}
+:is(input[type=text], textarea, select, .code-box):dir(ltr):not(.custom, .right) {
+	border-radius: 0.125em 0.25em 0.25em 0.125em; /*left-aligned -> border slightly sharper at the left side*/
+}
+input[type=number]:not(.custom, .left), :is(input, button, textarea, .code-box):is(:dir(rtl), .right):not(.custom, .left) {
+	border-radius: 0.25em 0.125em 0.125em 0.25em; /*right-aligned -> border slightly sharper at the right side*/
 }
 input[type=number] {
 	padding-inline: 0em;

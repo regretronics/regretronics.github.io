@@ -83,8 +83,8 @@ a, :any-link {
 }
 
 input::selection {
-	--editable-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.75);
-	--editable-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	--sel-editable-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--sel-editable-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 button:not(.custom) {
 	/*--button-bg: oklch(0.25 calc(0 * var(--sat-scale)) var(--hue-accent));
