@@ -20,28 +20,14 @@
 * {
 	/*--scroll-fg: oklch(0.625 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--scroll-bg: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);*/
-	/*--scroll-fg: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
-	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);*/
 	--scroll-fg: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--outline-clr: oklch(0.375 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-}
-*::-webkit-scrollbar {
-	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	/* --scroll-fg: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875); */
-}
-*::-webkit-scrollbar-thumb {
-	--scroll-fg: oklch(0.25 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
-}
-*::-webkit-scrollbar-track {
-	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 /* *::-webkit-scrollbar-track-piece {
 	background-color: black;
 } */
-*::-webkit-scrollbar-corner {
-	--scroll-bg: oklch(0.75 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
-}
 /* *::-webkit-resizer {
 	background-color: black;
 	color: red;
@@ -77,38 +63,24 @@ h1, h2, h3, strong, em, summary:first-of-type, caption, th:not([scope=rowgroup])
 .alert-warn {
 	--alert-warn-fg: oklch(0.1875 calc(0.75 * var(--sat-scale)) 85deg);
 }
-hr {
+hr, .separator {
 	--separator-clr: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
 }
-.separator {
-	--separator-clr: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
-}
-table:has(> caption), caption {
+table {
 	--tbl-layer-bg: oklch(1 calc(0 * var(--sat-scale)) 0deg / 0.125);
 }
-tbody :is(td, th):not(.empty) {
+td, th {
 	--tbl-cell-bg: oklch(0.9375 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
 }
 summary:first-of-type {
-	&:hover, &:focus {
-		--summary-hl-bg: oklch(1 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	}
-
-	details:has(.outdated) > & {
-		--summary-outdated-fg: oklch(0.1875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
-	}
-	details:has(.invalid) > & {
-		--summary-invalid-fg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.875);
-	}
+	--summary-hl-bg: oklch(1 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--summary-outdated-fg: oklch(0.1875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
+	--summary-invalid-fg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.875);
 }
 
-a:link {
+a, :any-link {
 	--link-fg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
-}
-a:visited {
 	--link-visited-fg: oklch(0.25 calc(0.75 * var(--sat-scale)) 55deg / 0.875);
-}
-:any-link:active {
 	--link-active-fg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent));
 }
 
@@ -116,60 +88,43 @@ input::selection {
 	--editable-bg: oklch(0.125 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
 	--editable-fg: oklch(0.875 calc(1 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
-:not(.custom) {
-	button& {
-		/*--button-bg: oklch(0.25 calc(0 * var(--sat-scale)) var(--hue-accent));
-		--button-fg: oklch(0.75 calc(0 * var(--sat-scale)) var(--hue-accent));*/
-		--button-bg: oklch(0.8125 calc(0.375 * var(--sat-scale)) var(--hue-accent));
-		--button-fg: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+button:not(.custom) {
+	/*--button-bg: oklch(0.25 calc(0 * var(--sat-scale)) var(--hue-accent));
+	--button-fg: oklch(0.75 calc(0 * var(--sat-scale)) var(--hue-accent));*/
+	--button-bg: oklch(0.8125 calc(0.375 * var(--sat-scale)) var(--hue-accent));
+	--button-fg: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 
-		--button-border-top: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
-		--button-border-mid: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-		--button-border-bottom: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
-
-		&:active {
-			--button-pressed-border-top: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
-			--button-pressed-border-bottom: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
-		}
-	}
-	&:is(input[type=number], input[type=text], textarea, select) {
-		--box-bg: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-		--box-fg: oklch(0.125 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-
-		--box-border-top: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
-		--box-border-mid: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-		--box-border-bottom: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
-	}
+	--button-border-top: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--button-border-mid: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
+	--button-border-bottom: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--button-pressed-border-top: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--button-pressed-border-bottom: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.25);
 }
-/*input:invalid {*/
-input.invalid {
+:is(input[type=number], input[type=text], textarea, select):not(.custom) {
+	--box-bg: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+	--box-fg: oklch(0.125 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+
+	--box-border-top: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
+	--box-border-mid: oklch(0.5 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
+	--box-border-bottom: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
+}
+input {
 	--ctl-invalid-bg: oklch(0.875 calc(1 * var(--sat-scale)) 25deg);
 }
 
 .spin-edit .buttons-area {
 	--spin-btn-bg: oklch(0.875 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 	--spin-btn-fg: oklch(0.25 calc(0.125 * var(--sat-scale)) var(--hue-accent));
-
-	& > *:is(:hover, .hover) {
-		--spin-btn-hover-bg: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-		--spin-btn-hover-fg: oklch(0.875 calc(0.125 * var(--sat-scale)) var(--hue-accent));
-	}
-	&:is(:active, .active, :has(:active)) {
-		--spin-btn-pressed-bg: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent));
-		--spin-btn-pressed-fg: oklch(0.125 calc(0.125 * var(--sat-scale)) var(--hue-accent));
-
-		& > *:is(:hover, .hover) {
-			--spin-btn-bg-glow: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
-		}
-	}
+	--spin-btn-hover-bg: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
+	--spin-btn-hover-fg: oklch(0.875 calc(0.125 * var(--sat-scale)) var(--hue-accent));
+	--spin-btn-pressed-bg: oklch(0.625 calc(0.25 * var(--sat-scale)) var(--hue-accent));
+	--spin-btn-pressed-fg: oklch(0.125 calc(0.125 * var(--sat-scale)) var(--hue-accent));
+	--spin-btn-bg-glow: oklch(0.25 calc(0.5 * var(--sat-scale)) var(--hue-accent));
 }
 .tool-tip {
 	--tooltip-bg: oklch(0.875 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.75;
-
-	/* &[data-warn-level] {
-		background-color: oklch(0.875 calc(75% * var(--warn-sat)) var(--warn-hue) / 0.875);
-	} */
+	--tooltip-warn-bg: oklch(0.875 calc(75% * var(--warn-sat)) var(--warn-hue) / 0.875);
 }
 
 .code-box {
@@ -177,14 +132,9 @@ input.invalid {
 	--codebox-fg: oklch(1 calc(0.25 * var(--sat-scale)) var(--hue-accent));
 	--codebox-scroll-fg: oklch(0.75 calc(0.375 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--codebox-scroll-bg: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
-
-	&.outdated {
-		--codebox-outdated-bg: oklch(0.25 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
-		--codebox-outdated-fg: oklch(0.875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
-	}
-	&.invalid {
-		--codebox-invalid-bg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.75);
-	}
+	--codebox-outdated-bg: oklch(0.25 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
+	--codebox-outdated-fg: oklch(0.875 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
+	--codebox-invalid-bg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.75);
 }
 
 #imgVisualizer {
