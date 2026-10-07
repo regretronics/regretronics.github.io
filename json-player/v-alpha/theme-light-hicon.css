@@ -6,9 +6,9 @@
 
 	color-scheme: light;
 }
-* {
-	/* --scroll-fg: oklch(calc(-0.5 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent)); */
-}
+/* * {
+	--scroll-fg: oklch(calc(-0.5 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent));
+} */
 
 summary:first-of-type {
 	--summary-outdated-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.5 * var(--sat-scale)) 55deg / 0.75);

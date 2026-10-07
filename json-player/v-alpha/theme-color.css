@@ -1,7 +1,7 @@
 :root {
 	--sat-scale: 0.15625;
 
-	--root-bg: oklch(calc(-0.5 * var(--l-scale) + 0.5) calc(0.375 * var(--sat-scale)) var(--hue-accent));
+	--root-bg: oklch(calc(-0.375 * var(--l-scale) + 0.5) calc(0.375 * var(--sat-scale)) var(--hue-accent));
 	--root-fg: oklch(calc(1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--accent-clr: oklch(calc(0.25 * var(--l-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-accent));
 }
@@ -79,7 +79,7 @@ button:not(.custom) {
 
 	--box-border-top: oklch(calc(-0.75 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
 	--box-border-mid: oklch(calc(0 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-	/* --box-border-bottom: oklch(calc(0.75 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625); */
+	--box-border-bottom: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
 }
 input {
 	--ctl-invalid-bg: oklch(calc(-0.75 * var(--l-scale) + 0.5) calc(1 * var(--sat-scale)) 25deg);
@@ -97,9 +97,9 @@ input {
 .alert-error {
 	--alert-error-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(1 * var(--sat-scale)) 25deg);
 }
-.alert-warn {
-	/* --alert-warn-fg: oklch(calc(0.25 * var(--l-scale) + 0.5) calc(0.75 * var(--sat-scale)) 85deg); */
-}
+/* .alert-warn {
+	--alert-warn-fg: oklch(calc(0.25 * var(--l-scale) + 0.5) calc(0.75 * var(--sat-scale)) 85deg);
+} */
 .tool-tip {
 	--tooltip-bg: oklch(calc(-0.75 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.75;

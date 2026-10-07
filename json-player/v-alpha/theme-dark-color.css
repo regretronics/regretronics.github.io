@@ -13,12 +13,6 @@ summary:first-of-type {
 	--summary-invalid-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(1 * var(--sat-scale)) 25deg / 0.875);
 }
 
-:is(input[type=number], input[type=text], textarea, select):not(.custom) {
-	--box-border-top: oklch(calc(-0.75 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
-	--box-border-mid: oklch(calc(0 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.5);
-	--box-border-bottom: oklch(calc(0.75 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.625);
-}
-
 .alert-warn {
 	--alert-warn-fg: oklch(calc(0.25 * var(--l-scale) + 0.5) calc(0.75 * var(--sat-scale)) 85deg);
 }

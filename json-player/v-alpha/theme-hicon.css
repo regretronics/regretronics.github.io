@@ -96,9 +96,9 @@ input {
 .alert-error {
 	--alert-error-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(1 * var(--sat-scale)) 25deg);
 }
-.alert-warn {
-	/* --alert-warn-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.75 * var(--sat-scale)) 85deg); */
-}
+/* .alert-warn {
+	--alert-warn-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.75 * var(--sat-scale)) 85deg);
+} */
 .tool-tip {
 	--tooltip-bg: oklch(calc(-1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.9375;
