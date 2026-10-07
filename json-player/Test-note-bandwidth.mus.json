@@ -6,8 +6,13 @@
 	"decayFactor": 128,
 	"attack": "1/64",
 	"0": {"timbre": "sine", "freqRatio": 1, "timeDelta": 0, "duration": 2},
-	"1": {"timbre": "noise", "volRatio": 24, "q": 64, "freqRatio": 1, "timeDelta": 2, "duration": 2},
-	"2": {"timbre": "noise", "volRatio": 12, "q": 16, "freqRatio": 1, "timeDelta": 4, "duration": 2},
-	"3": {"timbre": "noise", "volRatio": 6, "q": 4, "freqRatio": 1, "timeDelta": 6, "duration": 2},
-	"4": {"timbre": "noise", "volRatio": 3, "q": 1, "freqRatio": 1, "timeDelta": 8, "duration": 2}
+	"1": {"timbre": "noise", "volRatio": "1 + 262144", "q": 262144, "freqRatio": 1, "timeDelta": 2, "duration": 2},
+	"2": {"timbre": "noise", "volRatio": "1 + 32768", "q": 32768, "freqRatio": 1, "timeDelta": 4, "duration": 2},
+	"3": {"timbre": "noise", "volRatio": "1 + 4096", "q": 4096, "freqRatio": 1, "timeDelta": 6, "duration": 2},
+	"4": {"timbre": "noise", "volRatio": "1 + 512", "q": 512, "freqRatio": 1, "timeDelta": 8, "duration": 2},
+	"5": {"timbre": "noise", "volRatio": "1 + 64", "q": 64, "freqRatio": 1, "timeDelta": 10, "duration": 2},
+	"6": {"timbre": "noise", "volRatio": "1 + 8", "q": 8, "freqRatio": 1, "timeDelta": 12, "duration": 2},
+	"7": {"timbre": "noise", "volRatio": "1 + 1", "q": 1, "freqRatio": 1, "timeDelta": 14, "duration": 2},
+	"8": {"timbre": "noise", "volRatio": "1 + 0.125", "q": 0.125, "freqRatio": 1, "timeDelta": 16, "duration": 2},
+	"9": {"timbre": "noise", "volRatio": 1, "q": 0, "freqRatio": 1, "timeDelta": 18, "duration": 2}
 }
