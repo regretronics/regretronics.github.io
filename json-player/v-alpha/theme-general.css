@@ -41,11 +41,6 @@
 	accent-color: red;
 } */
 
-:is(.code-box, code)::selection {
-	background-color: var(--sel-alt-bg) !important;
-	color: var(--sel-alt-fg) !important;
-}
-
 strong {
 	color: var(--strong-fg);
 }
@@ -64,9 +59,6 @@ h1, h2, h3, strong, em, summary:first-of-type, caption, th:not([scope=rowgroup])
 
 hr {
 	border-color: var(--separator-clr);
-}
-.separator {
-	background-color: var(--separator-clr);
 }
 table:has(> caption), caption {
 	background-color: var(--tbl-layer-bg);
@@ -131,8 +123,20 @@ button:not(.custom) {
 	border-left-color: var(--box-border-mid);
 	border-bottom-color: var(--box-border-bottom);
 }
-/*input[type=checkbox] {
-}*/ /*question!*/
+input[type=checkbox] {
+	&:checked + label {
+		font-weight: 600;
+		color: var(--strong-fg);
+	}
+}
+
+:is(.code-box, code)::selection {
+	background-color: var(--sel-alt-bg) !important;
+	color: var(--sel-alt-fg) !important;
+}
+.separator {
+	background-color: var(--separator-clr);
+}
 /*input:invalid {*/
 input.invalid {
 	background-color: var(--ctl-invalid-bg) !important;

@@ -1,6 +1,4 @@
 :root {
-	--sat-scale: 0.15625;
-
 	--root-bg: oklch(calc(-0.5 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent));
 	--root-fg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--accent-clr: oklch(calc(0.25 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent));
@@ -37,7 +35,7 @@
 	--sel-editable-fg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }
 
-strong {
+body {
 	--strong-fg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) 0deg);
 }
 hr, .separator {
