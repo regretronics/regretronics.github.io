@@ -7,13 +7,6 @@
 	--root-fg: oklch(0 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.9375);
 	--accent-clr: oklch(0.25 calc(0.25 * var(--sat-scale)) var(--hue-accent));
 	color-scheme: light;
-
-	&::selection {
-		--sel-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.9375);
-		--sel-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
-		/* --sel-bg: oklch(0 calc(0 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.9375);
-		--sel-fg: oklch(1 calc(0 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875); */
-	}
 }
 * {
 	/*--scroll-fg: oklch(0.875 calc(0.125 * var(--sat-scale)) var(--hue-accent2));
@@ -31,35 +24,25 @@
 	color: red;
 	accent-color: red;
 } */
+::selection {
+	--sel-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.9375);
+	--sel-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
+	/* --sel-bg: oklch(0 calc(0 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.9375);
+	--sel-fg: oklch(1 calc(0 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875); */
+	--sel-alt-bg: oklch(0.9375 calc(1 * var(--sat-scale)) var(--hue-accent2) / 1);
+	--sel-alt-fg: oklch(0.0625 calc(1 * var(--sat-scale)) var(--hue-accent2) / 0.9375);
+	--sel-em-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent));
+	--sel-em-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent));
+	--sel-alt-em-fg: oklch(0.0625 calc(1 * var(--sat-scale)) var(--hue-accent2));
+	--sel-editable-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--sel-editable-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
+}
 
 body {
 	font-weight: 500;
 }
-:is(.code-box, code)::selection {
-	--sel-alt-bg: oklch(0.9375 calc(1 * var(--sat-scale)) var(--hue-accent2) / 1);
-	--sel-alt-fg: oklch(0.0625 calc(1 * var(--sat-scale)) var(--hue-accent2) / 0.9375);
-}
-
 strong {
 	--strong-fg: black;
-}
-h1, h2, h3, strong, em, summary:first-of-type, caption, th:not([scope=rowgroup]) {
-	&::selection {
-		--sel-em-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent));
-		--sel-em-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent));
-	}
-	:is(& code, .code-box &, code &) {
-		&::selection {
-			--sel-alt-em-fg: oklch(0.0625 calc(1 * var(--sat-scale)) var(--hue-accent2));
-		}
-	}
-}
-
-.alert-error {
-	--alert-error-fg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg);
-}
-.alert-warn {
-	--alert-warn-fg: oklch(0.1875 calc(0.75 * var(--sat-scale)) 85deg);
 }
 hr, .separator {
 	--separator-clr: oklch(0.5 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.9375);
@@ -71,21 +54,16 @@ td, th {
 	--tbl-cell-bg: oklch(1 calc(0 * var(--sat-scale)) 0deg / 0.5);
 }
 summary:first-of-type {
-	--summary-hl-bg: oklch(0 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--summary-hl-bg: oklch(0 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.125);
 	--summary-outdated-fg: oklch(0.25 calc(0.5 * var(--sat-scale)) 55deg / 0.75);
 	--summary-invalid-fg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg / 0.875);
 }
-
 a, :any-link {
 	--link-fg: oklch(0.125 calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.9375);
 	--link-visited-fg: oklch(0.25 calc(0.5 * var(--sat-scale)) 55deg / 0.9375);
 	--link-active-fg: oklch(0.125 calc(1 * var(--sat-scale)) var(--hue-accent));
 }
 
-input::selection {
-	--sel-editable-bg: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.75);
-	--sel-editable-fg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
-}
 button:not(.custom) {
 	/*--button-bg: oklch(0.25 calc(0 * var(--sat-scale)) var(--hue-accent));
 	--button-fg: oklch(0.75 calc(0 * var(--sat-scale)) var(--hue-accent));*/
@@ -119,12 +97,17 @@ input {
 	--spin-btn-pressed-fg: oklch(0 calc(1 * var(--sat-scale)) var(--hue-accent));
 	--spin-btn-bg-glow: oklch(0.0625 calc(1 * var(--sat-scale)) var(--hue-accent));
 }
+.alert-error {
+	--alert-error-fg: oklch(0.25 calc(1 * var(--sat-scale)) 25deg);
+}
+.alert-warn {
+	--alert-warn-fg: oklch(0.1875 calc(0.75 * var(--sat-scale)) 85deg);
+}
 .tool-tip {
 	--tooltip-bg: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.9375;
 	--tooltip-warn-bg: oklch(0.9375 calc(100% * var(--warn-sat)) var(--warn-hue) / 0.875);
 }
-
 .code-box {
 	--codebox-bg: oklch(0.875 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
 	--codebox-fg: oklch(0 calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.9375);

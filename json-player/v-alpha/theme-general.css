@@ -6,15 +6,14 @@
 	background-color: var(--root-bg);
 	color: var(--root-fg);
 	accent-color: var(--accent-clr);
-
-	&::selection {
-		background-color: var(--sel-bg);
-		color: var(--sel-fg);
-	}
 }
 * {
 	scrollbar-color: var(--scroll-fg) var(--scroll-bg);
 	outline-color: var(--outline-clr, var(--accent-clr));
+}
+::selection { /*Chrome only requires :root::selection; Ffx requires *::selection*/
+	background-color: var(--sel-bg);
+	color: var(--sel-fg);
 }
 /* * {
 	transition-property: --hue-accent !important;
@@ -51,24 +50,18 @@ strong {
 	color: var(--strong-fg);
 }
 h1, h2, h3, strong, em, summary:first-of-type, caption, th:not([scope=rowgroup]) {
-	&::selection {
-		background-color: var(--sel-em-bg) !important;
-		color: var(--sel-em-fg) !important;
+	&::selection, & ::selection { /*since ::selection was required (instead of :root::selection), & ::selection is for fixing inheritance*/
+		background-color: var(--sel-em-bg, var(--sel-bg)) !important;
+		color: var(--sel-em-fg, var(--sel-fg)) !important;
 	}
 	:is(& code, .code-box &, code &) {
-		&::selection {
-			background-color: var(--sel-alt-em-bg) !important;
-			color: var(--sel-alt-em-fg) !important;
+		&::selection, & ::selection {
+			background-color: var(--sel-alt-em-bg, var(--sel-alt-bg)) !important;
+			color: var(--sel-alt-em-fg, var(--sel-alt-fg)) !important;
 		}
 	}
 }
 
-.alert-error {
-	color: var(--alert-error-fg);
-}
-.alert-warn {
-	color: var(--alert-warn-fg);
-}
 hr {
 	border-color: var(--separator-clr);
 }
@@ -163,6 +156,12 @@ input.invalid {
 		}
 	}
 }
+.alert-error {
+	color: var(--alert-error-fg);
+}
+.alert-warn {
+	color: var(--alert-warn-fg);
+}
 .tool-tip {
 	background-color: var(--tooltip-bg);
 	/* --inactive-opacity: 0.75; */
@@ -172,7 +171,6 @@ input.invalid {
 		background-color: var(--tooltip-warn-bg);
 	}
 }
-
 .code-box { /*question: distinct style for editable ones?*/
 	background-color: var(--codebox-bg);
 	color: var(--codebox-fg);
