@@ -57,6 +57,10 @@ a, :any-link {
 	--link-active-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent));
 }
 
+button {
+	--button-hl: oklch(calc(0.875 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent));
+	--button-hl-glow: oklch(calc(-0.875 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent));
+}
 button:not(.custom) {
 	/*--button-bg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
 	--button-fg: oklch(calc(-0.5 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));*/

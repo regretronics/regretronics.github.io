@@ -654,6 +654,8 @@ function playIntervalHandler(event) {
 
 		const noteTInterval = 0.25, noteDuration = 3;
 		const clip = new SoundClip(null, playTimeScale * (noteDuration + noteTInterval), playTimeScale, playTimeDelta, prefs.clipParams.volScale, prefs.clipParams.freqScale);
+		clip.playButton = event.target;
+		clip.onClipEnd = clipEndInterval;
 		if(playerClip) clip.audioCtx = playerClip.audioCtx;
 		if(!clip.audioCtx || clip.audioCtx.state === 'closed') {
 			console.debug("playIntervalHandler(): creating new AudioContext.");
@@ -675,7 +677,10 @@ function playIntervalHandler(event) {
 				portamento: 0, vibratoFreq: 0, vibratoDepth: 0, vibratoAttack: 0
 			});
 		if(clip.audioCtx.state === 'suspended')
-			clip.audioCtx.resume()/* ?.then(value => playerClip = clip) */?.catch?.(reason => {
+			clip.audioCtx.resume()?.then?.(nil => {
+					//playerClip = clip
+					clip.playButton.classList?.add?.("playing");
+				})?.catch?.(reason => {
 					setToolTip(outToolTipIntervals, "Could not resume playback. " + (reason.message ?? reason ?? ""), 3);
 					//window.reportError(reason);
 					console.error(reason);
@@ -687,4 +692,22 @@ function playIntervalHandler(event) {
 		return false;
 	}
 	return true;
+}
+function clipEndInterval(suspend) {
+	const clip = this /* ?? intervalClip */;
+	if(!clip) {
+		console.info("clipEndInterval(): parameter 'this' is empty. Returning.");
+		//console.info("clipEndInterval(): parameters this and intervalClip are empty. Returning.");
+		return false;
+	}
+
+	return clip.clipEndDefault(true)?.then?.(nil => {
+			if(clip.playButton)
+				clip.playButton.classList?.remove?.("playing");
+			//clip.audioCtx.close(); //to do: use this in place of suspend()?
+			//if(intervalClip === clip) intervalClip = null;
+		}/* , reason => {
+			window.reportError(reason);
+		} */);
+	//return true;
 }

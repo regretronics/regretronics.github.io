@@ -141,6 +141,12 @@ input[type=checkbox] {
 input.invalid {
 	background-color: var(--ctl-invalid-bg) !important;
 }
+button.playing {
+	background-color: var(--button-hl);
+	td[headers=colSoundSample] > & {
+		text-shadow: 0 0 0.25em var(--button-hl-glow, Canvas);
+	}
+}
 
 .spin-edit .buttons-area {
 	background-color: var(--spin-btn-bg);
