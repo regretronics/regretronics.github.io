@@ -2,6 +2,9 @@
 /*question: alpha makes the page ready for custom backgrounds, but surely consumes more GPU.*/
 :root {
 	--sat-scale: 0.15625;
+	--hue-old: 55deg;
+	--hue-error: 25deg;
+	--hue-warn: 85deg;
 
 	background-color: var(--root-bg);
 	color: var(--root-fg);
@@ -184,7 +187,7 @@ button.playing {
 .code-box { /*question: distinct style for editable ones?*/
 	background-color: var(--codebox-bg);
 	color: var(--codebox-fg);
-	scrollbar-color: var(--codebox-scroll-fg) var(--codebox-scroll-bg);
+	scrollbar-color: var(--codebox-scroll-fg, var(--scroll-fg)) var(--codebox-scroll-bg, var(--scroll-bg));
 
 	&.outdated {
 		background-color: var(--codebox-outdated-bg);

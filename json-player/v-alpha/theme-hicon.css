@@ -35,25 +35,25 @@
 
 body {
 	font-weight: 500;
-	--strong-fg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) 0deg);
+	--strong-fg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
 }
 hr, .separator {
 	--separator-clr: oklch(calc(0 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.9375);
 }
 table {
-	--tbl-layer-bg: oklch(calc(0 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) 0deg / 0.25);
+	--tbl-layer-bg: oklch(calc(0 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
 }
 td, th {
-	--tbl-cell-bg: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) 0deg / 0.5);
+	--tbl-cell-bg: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
 }
 summary:first-of-type {
 	--summary-hl-bg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.125);
-	/* --summary-outdated-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) 55deg / 0.75);
-	--summary-invalid-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) 25deg / 0.875); */
+	/* --summary-outdated-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-old) / 0.75);
+	--summary-invalid-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-error) / 0.875); */
 }
 a, :any-link {
 	--link-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent) / 0.9375);
-	--link-visited-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) 55deg / 0.9375);
+	--link-visited-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-old) / 0.9375);
 	--link-active-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent));
 }
 
@@ -82,7 +82,7 @@ button:not(.custom) {
 	--box-border-bottom: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625); */
 }
 input {
-	--ctl-invalid-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) 25deg);
+	--ctl-invalid-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-error));
 }
 
 .spin-edit .buttons-area {
@@ -95,10 +95,10 @@ input {
 	--spin-btn-bg-glow: oklch(calc(0.875 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent));
 }
 .alert-error {
-	--alert-error-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) 25deg);
+	--alert-error-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-error));
 }
 /* .alert-warn {
-	--alert-warn-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.375 * var(--sat-scale)) 85deg);
+	--alert-warn-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.375 * var(--sat-scale)) var(--hue-warn));
 } */
 .tool-tip {
 	--tooltip-bg: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
@@ -108,13 +108,13 @@ input {
 .code-box {
 	--codebox-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
 	--codebox-fg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.9375);
-	--codebox-outdated-bg: oklch(calc(-0.875 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) 55deg / 0.875);
-	--codebox-outdated-fg: oklch(calc(0.875 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) 55deg / 0.75);
-	--codebox-invalid-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) 25deg / 0.875);
+	--codebox-outdated-bg: oklch(calc(-0.875 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-old) / 0.875);
+	--codebox-outdated-fg: oklch(calc(0.875 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-old) / 0.75);
+	--codebox-invalid-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-error) / 0.875);
 }
 
 #imgVisualizer {
-	--vis-bg: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) 0deg / 0.5);
+	--vis-bg: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
 	/* --fill-color: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent2) / 0.875); */
-	--fill-color: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) 0deg);
+	--fill-color: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
 }
