@@ -3,16 +3,16 @@
 
 :root {
 	--img-filter1: contrast(87.5%);
-	--l-scale: 0.5;
+	--lgt-scale: 0.5;
 
 	color-scheme: dark;
 }
 
 summary:first-of-type {
-	--summary-outdated-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) 55deg / 0.75);
-	--summary-invalid-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.5 * var(--sat-scale)) 25deg / 0.875);
+	--summary-outdated-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) 55deg / 0.75);
+	--summary-invalid-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) 25deg / 0.875);
 }
 
 .alert-warn {
-	--alert-warn-fg: oklch(calc(0.25 * var(--l-scale) + 0.5) calc(0.625 * var(--sat-scale)) 85deg);
+	--alert-warn-fg: oklch(calc(0.25 * var(--lgt-scale) + 0.5) calc(0.625 * var(--sat-scale)) 85deg);
 }

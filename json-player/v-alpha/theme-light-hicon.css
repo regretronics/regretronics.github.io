@@ -2,32 +2,32 @@
 @import url("theme-hicon.css");
 
 :root {
-	--l-scale: -0.5;
+	--lgt-scale: -0.5;
 
 	color-scheme: light;
 }
 /* * {
-	--scroll-fg: oklch(calc(-0.5 * var(--l-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent));
+	--scroll-fg: oklch(calc(-0.5 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent));
 } */
 
 summary:first-of-type {
-	--summary-outdated-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) 55deg / 0.75);
-	--summary-invalid-fg: oklch(calc(0.5 * var(--l-scale) + 0.5) calc(0.5 * var(--sat-scale)) 25deg / 0.875);
+	--summary-outdated-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) 55deg / 0.75);
+	--summary-invalid-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) 25deg / 0.875);
 }
 
 button:not(.custom) {
-	--button-border-top: oklch(calc(-1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
-	--button-border-mid: oklch(calc(0 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	--button-border-bottom: oklch(calc(1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
-	--button-pressed-border-top: oklch(calc(1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	--button-pressed-border-bottom: oklch(calc(-1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
+	--button-border-top: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
+	--button-border-mid: oklch(calc(0 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--button-border-bottom: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
+	--button-pressed-border-top: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--button-pressed-border-bottom: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
 }
 :is(input[type=number], input[type=text], textarea, select):not(.custom) {
-	--box-border-top: oklch(calc(1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
-	--box-border-mid: oklch(calc(0 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	--box-border-bottom: oklch(calc(-1 * var(--l-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
+	--box-border-top: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
+	--box-border-mid: oklch(calc(0 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--box-border-bottom: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
 }
 
 .alert-warn {
-	--alert-warn-fg: oklch(calc(0.625 * var(--l-scale) + 0.5) calc(0.25 * var(--sat-scale)) 85deg);
+	--alert-warn-fg: oklch(calc(0.625 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) 85deg);
 }
