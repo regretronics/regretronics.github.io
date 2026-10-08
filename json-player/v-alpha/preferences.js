@@ -1,47 +1,46 @@
 "use strict";
 
-const preferencesKeysFlat = { //maybe generate automatically
-	//"boolean" "number" "object" "string"
-	"pageAppearance.textSize": "string",
+var preferencesKeysFlat = { //maybe generate automatically
+	"pageAppearance.textSize": "number",
 	"pageAppearance.theme": "string",
-	"pageAppearance.hue": "string",
-	"basicParams.freqRangeMin": "string",
-	"basicParams.freqRangeMax": "string",
-	"genParams.baseFreq": "string",
-	"genParams.timeScale": "string",
-	"genParams.voiceCount": "string",
-	"genParams.patternCount": "string",
-	"genParams.reptCount": "string",
-	"genParams.reptPeriod": "string",
-	"genParams.percussivePattern": "string",
-	"primeFactors.primeCount": "string",
-	"primeFactors.expRangeLower": "string",
-	"primeFactors.expRangeUpper": "string",
-	"primeFactors.expRanges": "string",
-	"rhythmParams.rhythmScale": "string",
-	"rhythmParams.rhythmFactors": "string",
-	"structuredMusic.overflow": "string",
-	"structuredMusic.lineWrapping": "string",
+	"pageAppearance.hue": "number",
+	"basicParams.freqRangeMin": "number",
+	"basicParams.freqRangeMax": "number",
+	"genParams.baseFreq": "number",
+	"genParams.timeScale": "number",
+	"genParams.voiceCount": "number",
+	"genParams.patternCount": "number",
+	"genParams.reptCount": "number",
+	"genParams.reptPeriod": "number",
+	"genParams.percussivePattern": "boolean",
+	"primeFactors.primeCount": "number",
+	"primeFactors.expRangeLower": "number",
+	"primeFactors.expRangeUpper": "number",
+	"primeFactors.expRanges": "object",
+	"rhythmParams.rhythmScale": "number",
+	"rhythmParams.rhythmFactors": "object",
+	"structuredMusic.overflow": "boolean",
+	"structuredMusic.lineWrapping": "boolean",
 	"structuredMusic.content": "string",
-	"flatScript.autoFlatten": "string",
-	"flatScript.overflow": "string",
-	"flatScript.lineWrapping": "string",
+	"flatScript.autoFlatten": "boolean",
+	"flatScript.overflow": "boolean",
+	"flatScript.lineWrapping": "boolean",
 	"flatScript.content": "string",
-	"clipParams.freqScale": "string",
-	"clipParams.volScale": "string",
-	"clipParams.timeScale": "string",
-	"clipParams.timeDelta": "string",
-	"player.autoReload": "string",
-	"reset.pageAppearance": "string",
-	"reset.basicParams": "string",
-	"reset.genParams": "string",
-	"reset.rhythmParams": "string",
-	"reset.addGenParams": "string",
-	"reset.structuredMusic": "string",
-	"reset.flatScript": "string",
-	"reset.clipParams": "string",
-	"reset.player": "string",
-	"reset.reset": "string"
+	"clipParams.freqScale": "number",
+	"clipParams.volScale": "number",
+	"clipParams.timeScale": "number",
+	"clipParams.timeDelta": "number",
+	"player.autoReload": "boolean",
+	"reset.pageAppearance": "boolean",
+	"reset.basicParams": "boolean",
+	"reset.genParams": "boolean",
+	"reset.primeFactors": "boolean",
+	"reset.rhythmParams": "boolean",
+	"reset.structuredMusic": "boolean",
+	"reset.flatScript": "boolean",
+	"reset.clipParams": "boolean",
+	"reset.player": "boolean",
+	"reset.reset": "boolean"
 };
 const preferencesKeysDeprecatedFlat = {
 	"genParams.freqRangeMin": "basicParams.freqRangeMin",
@@ -67,7 +66,7 @@ const preferencesKeysTree = { //maybe generate automatically; maybe unnecessary
 	flatScript: ["autoFlatten", "overflow", "lineWrapping", "content"],
 	clipParams: ["freqScale", "volScale", "timeScale", "timeDelta"],
 	player: ["autoReload"],
-	reset: ["pageAppearance", "genParams", "rhythmParams", "addGenParams", "structuredMusic", "flatScript", "clipParams", "player", "reset"]
+	reset: ["pageAppearance", "basicParams", "genParams", "primeFactors", "rhythmParams", "structuredMusic", "flatScript", "clipParams", "player", "reset"]
 };
 const defStructuredCode = '{\n\
 	"freqRatio": 440,\n\
@@ -111,7 +110,7 @@ const prefsDefault = {
 		primeCount: 3, 
 		expRangeLower: 0, 
 		expRangeUpper: 2, 
-		expRanges: undefined //variability per prime factor (2, 3, 5, 7, ...); array of array of numbers. to be calculated.
+		expRanges: {} //variability per prime factor (2, 3, 5, 7, ...); array of array of numbers. to be calculated.
 	},
 	rhythmParams: {
 		rhythmScale: 8, 
@@ -207,6 +206,27 @@ function prefsToCtlDefaults(prefs) {
 
 /* function prefsToStorage(params) {
 } */
+function genPrefsKeysFlat() {
+	//recursive function
+	function prefsSubNodes(node, prefix) {
+		//if(typeof(node) !== "object") return false;
+		if(node == undefined) return false;
+		if(typeof(node) !== "object") {
+			preferencesKeysFlat[prefix] = typeof(node);
+			return true;
+		}
+
+		if(prefix.length > 0) prefix += ".";
+		for(const key of Object.keys(node)) {
+			const item = node[key];
+			//preferencesKeysFlat[prefix + "." + key] = typeof(item);
+			prefsSubNodes(item, prefix + key);
+		}
+	}
+
+	prefsSubNodes(prefsDefault, "");
+	return true;
+}
 function storageToPrefs(targetObj) { //to do: convert from strings to other types
 	//an alternative would be using a classic for loop, localStorage.length and localStorage.key(i)
 	for(const storageKey of Object.keys(localStorage))
