@@ -25,7 +25,7 @@ function drawNote(group, sourceNode) {
 		let width = (isTone ? noteVisWidth : 8 * sourceNode.fltBandPass.Q.value ** (-1 / 3)); //hand-tuned parameters
 		if(isTone && sourceNode.modGainVibrato) {
 			const vibratoGain = sourceNode.modGainVibrato.gain.value / 1200;
-			if(sourceNode.oscVibrato) //question: precisely estimate vibrato oscillation? (currently yes)
+			if(sourceNode.oscVibrato) //question: precisely estimate vibrato oscillation? (currently yes when possible)
 				freq *= 2 ** (vibratoGain * Math.sin(2 * Math.PI * (sourceNode.context.currentTime - sourceNode.oscVibrato.tStart) * sourceNode.oscVibrato.frequency.value)); //yes
 			else
 				width = Math.max(wid, 4 * vibratoGain); //no

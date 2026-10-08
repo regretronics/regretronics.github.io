@@ -250,7 +250,7 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) { //question: 
 }
 //question: which one to prefer? noteStop (current choice) or duration?
 function renderNote(clip, note) { //question: should this be a SoundClip method?
-	//to do: maybe Object.assign() from defaultNoteNode and note into a new note object
+	//to do: maybe Object.assign() or structuredClone() from defaultNoteNode and note into a new note object
 	const noteFreq = clip.playFreqScale * note.freq;
 	let noteStart = clip.playTimeScale * note.noteStart;
 	let noteStop = clip.playTimeScale * note.noteStop;

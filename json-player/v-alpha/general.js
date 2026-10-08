@@ -161,12 +161,12 @@ function parseNumber(n) {
 	//a product (object with explicit factors)
 	if(t === "object") {
 		let r = 1;
-		for(const i in n) {
+		for(const factor of Object.keys(n)) {
 			//1 as default base neutralizes unrecognized bases
 			//to do: probably there are objects that shouldn't be boiled down straight into numbers. names that can't become numbers may be a sign of that.
-			const iNum = NaNToDefault(parseNumber(i), 1); //even the factors can actually be complex things
-			if(isNaN(iNum)) continue;
-			r *= Math.pow(iNum, NaNToDefault(parseNumber(n[i]), 0));
+			const factorNum = NaNToDefault(parseNumber(factor), 1); //even the factors can actually be complex things
+			if(isNaN(factorNum)) continue;
+			r *= Math.pow(factorNum, NaNToDefault(parseNumber(n[factor]), 0));
 		}
 		return r;
 	}

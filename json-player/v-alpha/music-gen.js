@@ -10,13 +10,12 @@ function renormalizeOctave(refFreq, targetFreq) {
 	targetFreq[2] += refOctave - targetOctave;
 }
 //makes a simple interval by introducing a random prime factor up or down one unit
-//to do: reuse this in melodySubNodes? (probably not)
+//to do: reuse this in melodySubNodes? (probably not, but at least remove part of the repetition)
 function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 	//evaluate choices and ranges for each prime factor, building a revised table of ranges
 	const newPrimeExpRanges = {};
 	const maxFactor = primes[Math.ceil(primeCount) - 1], spans = [];
-	for(const factor in primeExpRanges) {
-		if(!Object.hasOwn(primeExpRanges, factor)) continue;
+	for(const factor of Object.keys(primeExpRanges)) {
 		if(factor > maxFactor) break;
 
 		//the default range can be further restricted by current exponent values
@@ -35,7 +34,7 @@ function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 	//through proportional division, try to find a random factor and a new exponent
 	let accum = 0;
 	for(const i in spans) {
-		if(!Object.hasOwn(spans, i)) continue;
+		//if(!Object.hasOwn(spans, i)) continue; //probably unnecessary for arrays
 
 		accum += spans[i];
 		spans[i] = accum;
@@ -198,7 +197,7 @@ function rhythmSubNodes(struct, level, tuning) {
 	//when using non-integer measures, sub-bars may become non-uniform in number of beats
 	const beats2 = struct.duration / scale;
 	for(let i = 0; i < beats2; i++) {
-		const newNode = Object.assign({}, subNodePattern);
+		const newNode = structuredClone(subNodePattern);
 		struct[i] = newNode;
 		newNode.timeDelta = i.toString() + "*" + scale.toString();
 		if(i === 0) newNode.vol = 0; //omit strong beats, but not all their descendants
@@ -308,7 +307,7 @@ function melodySubNodesOld(struct, level, tuning, primeCount, primeExpRanges) {
 		volRatio: "1/" + beats.toString(),
 
 		duration: 0,
-		freq: null //using {} here will cause a bug of using the same reference without cloning {}
+		freq: {}
 	};
 	tuning *= subNodePattern.freqRatio;
 	//when using non-integer measures, sub-bars may become non-uniform in number of beats
@@ -317,7 +316,7 @@ function melodySubNodesOld(struct, level, tuning, primeCount, primeExpRanges) {
 	//const beatStrengthInv = Math.random() < 0.25;
 	const beatStrengthInv = false;
 	for(let i = 0; i < beats2; i++) {
-		const newNode = Object.assign({}, subNodePattern);
+		const newNode = structuredClone(subNodePattern);
 		struct[i] = newNode;
 		newNode.timeDelta = i.toString() + "*" + scale.toString();
 
@@ -331,7 +330,7 @@ function melodySubNodesOld(struct, level, tuning, primeCount, primeExpRanges) {
 		let previous = (i < 1 ? struct : struct[0]); //yes
 		//alternative: each note is based on a random previous note in the same level
 		//previous = (i < 1 ? struct : struct[Math.floor(i * Math.random())]); //don't use rnd here
-		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
+		Object.assign(newNode.freq, previous.freq); //must be a fresh, independent instance
 
 		//factor selection
 		//const beatType = i < 1; //is first beat?
@@ -423,7 +422,7 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 		volRatio: "1/" + beats.toString(),
 
 		duration: 0,
-		freq: null //using {} here will cause a bug of using the same reference without cloning {}
+		freq: {}
 	};
 	tuning *= subNodePattern.freqRatio;
 	//when using non-integer measures, sub-bars may become non-uniform in number of beats
@@ -432,7 +431,7 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 	//const beatStrengthInv = Math.random() < 0.25;
 	const beatStrengthInv = false;
 	for(let i = 0; i < beats2; i++) {
-		const newNode = Object.assign({}, subNodePattern);
+		const newNode = structuredClone(subNodePattern);
 		struct[i] = newNode;
 		newNode.timeDelta = i.toString() + "*" + scale.toString();
 
@@ -446,7 +445,7 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 		let previous = (i < 1 ? struct : struct[0]); //yes
 		//alternative: each note is based on a random previous note in the same level
 		//previous = (i < 1 ? struct : struct[Math.floor(i * Math.random())]); //don't use rnd here
-		newNode.freq = Object.assign({}, previous.freq); //must be a fresh, independent instance
+		Object.assign(newNode.freq, previous.freq); //must be a fresh, independent instance
 
 		//factor selection
 		//const beatType = i < 1; //is first beat?
@@ -455,8 +454,7 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 		//evaluate choices and ranges for each prime factor, building a revised table of ranges
 		const newPrimeExpRanges = {};
 		const maxFactor = primes[Math.ceil(primeCount) - 1], spans = [];
-		for(const factor in primeExpRanges) {
-			if(!Object.hasOwn(primeExpRanges, factor)) continue;
+		for(const factor of Object.keys(primeExpRanges)) {
 			if(factor > maxFactor) break;
 
 			//the default range can be further restricted by current exponent values
@@ -473,7 +471,7 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 		//through proportional division, try to find a random factor and a new exponent
 		let accum = 0;
 		for(const i in spans) {
-			if(!Object.hasOwn(spans, i)) continue;
+			//if(!Object.hasOwn(spans, i)) continue; //probably unnecessary for arrays
 
 			accum += spans[i];
 			spans[i] = accum;

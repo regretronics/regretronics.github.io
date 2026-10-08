@@ -130,7 +130,7 @@ const prefsDefault = {
 	player: {autoReload: false},
 	reset: {pageAppearance: false, basicParams: false, genParams: false, primeFactors: false, rhythmParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
 };
-var prefs = Object.assign({}, prefsDefault);
+var prefs = structuredClone(prefsDefault);
 
 //let textSize = prefsDefault.pageAppearance.textSize;
 //to do: rename rhythmFactorsAccum -> rhythmScales?
@@ -151,7 +151,7 @@ function setObjByPath(obj, path, value, overwrite) {
 	const keySegs = path.split(".");
 	let subObj = obj;
 	for(const i in keySegs) {
-		if(!Object.hasOwn(keySegs, i)) continue;
+		//if(!Object.hasOwn(keySegs, i)) continue; //probably unnecessary for arrays
 
 		const seg = keySegs[i];
 		if(i < keySegs.length - 1) {
@@ -209,9 +209,7 @@ function prefsToCtlDefaults(prefs) {
 } */
 function storageToPrefs(targetObj) { //to do: convert from strings to other types
 	//an alternative would be using a classic for loop, localStorage.length and localStorage.key(i)
-	for(const storageKey in localStorage) {
-		if(!Object.hasOwn(localStorage, storageKey)) continue;
-
+	for(const storageKey of Object.keys(localStorage))
 		try {
 			if(preferencesKeysFlat[storageKey])
 				setObjByPath(targetObj, storageKey, localStorage[storageKey], true);
@@ -222,7 +220,6 @@ function storageToPrefs(targetObj) { //to do: convert from strings to other type
 		} catch(error) {
 			console.warn(error);
 		}
-	}
 	return targetObj;
 }
 
@@ -476,9 +473,8 @@ function loadPreferences(triggerNow) {
 		adjustingPreferences = false;
 	}
 
-	for(const key in preferencesKeysDeprecatedFlat)
-		if(Object.hasOwn(preferencesKeysDeprecatedFlat, key))
-			localStorage.removeItem(key);
+	for(const key of Object.keys(preferencesKeysDeprecatedFlat))
+		localStorage.removeItem(key);
 
 	return true;
 }

@@ -20,8 +20,7 @@ function parseExpRanges(event) {
 		//clean-copying of JSON code
 		const newExpRanges = {};
 		let hasAnyRanges = false;
-		for(const strFactor in parsed) {
-			if(!Object.hasOwn(parsed, strFactor)) continue;
+		for(const strFactor of Object.keys(parsed)) {
 			const factor = parseNumber(strFactor);
 			if(isNaN(factor)) continue;
 			if(!primes.includes(factor)) continue;
@@ -42,7 +41,7 @@ function parseExpRanges(event) {
 			newExpRanges[factor] = element;
 			hasAnyRanges ||= (element[1] > element[0]);
 		}
-		if(Object.keys(newExpRanges) <= 0) throw(new Error("Exponent ranges: no valid entries."));
+		if(Object.keys(newExpRanges).length <= 0) throw(new Error("Exponent ranges: no valid entries."));
 		if(!hasAnyRanges) throw(new Error("Exponent ranges: no valid ranges."));
 
 		prefs.primeFactors.expRanges = newExpRanges;
@@ -65,7 +64,8 @@ function parseExpRanges(event) {
 //question: propagation of arbitrary/unrecognized properties? (currently a bad idea, because of patterns)
 function parseNode(flatStruct, node, blockContext) {
 	//alter context.
-	const newContext = Object.assign({}, blockContext);
+	//const newContext = Object.assign({}, blockContext);
+	const newContext = structuredClone(blockContext);
 	//to do: bounds check and node elimination? (e.g. when freqRatio or freq or volRatio or vol or timeScale = 0)
 	newContext.timeDelta += newContext.timeScale * NaNToDefault(parseNumber(node.timeDelta), defaultBlockNode.timeDelta); //additive
 
@@ -75,7 +75,7 @@ function parseNode(flatStruct, node, blockContext) {
 	newContext.volRatio *= NaNToDefault(parseNumber(node.volRatio), defaultBlockNode.volRatio);
 
 	//absolute/substitutive
-	/*for(const prop in node) { //and others
+	/*for(const prop of Object.keys(node)) { //and others
 		if(!relativeBlockProps.includes(prop) //exclude "blend" block properties
 			&& isNaN(Number(prop))) { //numerical indices are reserved for notes
 			let val = node[prop];
@@ -102,16 +102,16 @@ function parseNode(flatStruct, node, blockContext) {
 	//to do: !allow noteStart to be inferred from previous noteStop
 	//question:	or inferred by its node index?
 	//to do: 	!how to get the previous note and its noteStop?
-	if(node.hasOwnProperty("noteStart") || node.hasOwnProperty("duration") 
-		|| node.hasOwnProperty("freq") //even for unfiltered noise, presence of freq is accepted
-		//|| (node.hasOwnProperty("freq") && (node.timbre != "noise" || node.q != 0 || defaultNoteNode.q != 0)) //presence of freq only doesn't matter for unfiltered noise
-		|| node.hasOwnProperty("vol"))
+	if(Object.hasOwn(node, "noteStart") || Object.hasOwn(node, "duration") 
+		|| Object.hasOwn(node, "freq") //even for unfiltered noise, presence of freq is accepted
+		//|| (Object.hasOwn(node, "freq") && (node.timbre != "noise" || node.q != 0 || defaultNoteNode.q != 0)) //presence of freq only doesn't matter for unfiltered noise
+		|| Object.hasOwn(node, "vol"))
 
 		try {
 			//register a note.
 			node.noteStart = NaNToDefault(parseNumber(node.noteStart), defaultNoteNode.noteStart);
 			//if a node doesn't have the duration property, don't add it; adding it might override noteStop.
-			if(node.hasOwnProperty("duration")) {
+			if(Object.hasOwn(node, "duration")) {
 				node.duration = NaNToDefault(parseNumber(node.duration), defaultNoteNode.duration);
 				node.noteStop = node.noteStart + node.duration;
 			} else
@@ -128,14 +128,14 @@ function parseNode(flatStruct, node, blockContext) {
 			if(node.freq0) newNote.freq0 = newContext.freqRatio * node.freq0;
 			//to do: calculate proper freq0 while notes are still in hierarchy
 			newNote.freq = newContext.freqRatio * NaNToDefault(parseNumber(node.freq), defaultNoteNode.freq); //unconditional, but later than timbre and freq0
-			for(const prop in newContext) //copy other properties
+			for(const prop of Object.keys(newContext)) //copy other properties
 				if(newNote[prop] === undefined //not already present
 					&& !relativeBlockProps.includes(prop) //exclude "blend" (relative) block properties
 					&& !incrementalNoteProps.includes(prop) //exclude "blended" note properties
 					&& (newNote.timbre != "noise" || !tonalOnlyProps.includes(prop))) { //some properties are pointless for atonal notes
 
 					const val = newContext[prop];
-					if(val !== undefined && (!defaultNoteNode.hasOwnProperty(prop) || val != defaultNoteNode[prop]))
+					if(val !== undefined && (!Object.hasOwn(defaultNoteNode, prop) || val != defaultNoteNode[prop]))
 						newNote[prop] = val;
 				}
 			/* //unfiltered noise has no intrinsic frequency, but uses it for calculating decayFactor
@@ -170,11 +170,11 @@ function parseNode(flatStruct, node, blockContext) {
 		if(typeof(t) === "string") { //reference by name
 			//pattern invocation, local
 			//question: local first really?
-			if(node.hasOwnProperty(t))
+			if(Object.hasOwn(node, t))
 				parseNode(flatStruct, node[t], newContext);
 			else
 				//pattern invocation, global
-				if(struct.hasOwnProperty(t)) parseNode(flatStruct, struct[t], newContext);
+				if(Object.hasOwn(struct, t)) parseNode(flatStruct, struct[t], newContext);
 		} else
 			//primary recursion point.
 			parseNode(flatStruct, t, newContext);
