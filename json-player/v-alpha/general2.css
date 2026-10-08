@@ -16,10 +16,7 @@
 } */
 
 :root {
-	/*to do: !adjust oklch brightness and chromaticity*/
-	/*to do: !more use of variables (custom properties) for colors, with less specific rules in the color scheme files*/
-	/*to do: !more use of variables (custom properties) for scheme parameters (like typical saturation and contrast)*/
-	/*question: include deg unit for hues? (currently never)*/
+	/*to do: further adjust oklch brightness and chromaticity?*/
 	--hue-accent0: 120;
 	/*0deg hsl -> red; ~25deg oklch -> red*/
 	--hue-accent: calc(var(--hue-accent0, 120) * 1deg + 25deg);

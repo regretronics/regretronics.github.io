@@ -5,18 +5,9 @@
 	--img-filter1: invert(87.5%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent) + 180deg - 120deg);
 	--lgt-scale: -0.5;
-
 	color-scheme: light;
 }
 
-summary:first-of-type {
-	--summary-outdated-fg: oklch(calc(0.625 * var(--lgt-scale) + 0.5) calc(0.1875 * var(--sat-scale)) var(--hue-old) / 0.75);
-	--summary-invalid-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-error) / 0.875);
-}
-
-.alert-warn {
-	--alert-warn-fg: oklch(calc(0.625 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-warn));
-}
 .code-box {
 	--lgt-scale: 0.5;
 }

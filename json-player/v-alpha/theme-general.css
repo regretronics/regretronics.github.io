@@ -113,6 +113,8 @@ button:not(.custom) {
 
 	&:active {
 		border-top-color: var(--button-pressed-border-top);
+		border-right-color: var(--button-pressed-border-mid, var(--button-border-mid));
+		border-left-color: var(--button-pressed-border-mid, var(--button-border-mid));
 		border-bottom-color: var(--button-pressed-border-bottom);
 	}
 }

@@ -5,30 +5,7 @@
 	--img-filter1: invert(100%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent) + 180deg - 120deg);
 	--lgt-scale: 0.5;
-
 	color-scheme: dark;
 }
 /* * {
 } */
-
-summary:first-of-type {
-	--summary-outdated-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-old) / 0.75);
-	--summary-invalid-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-error) / 0.875);
-}
-
-button:not(.custom) {
-	--button-border-top: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
-	--button-border-mid: oklch(calc(0 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	--button-border-bottom: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
-	--button-pressed-border-top: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
-	--button-pressed-border-bottom: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-}
-:is(input[type=number], input[type=text], textarea, select):not(.custom) {
-	--box-border-top: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
-	--box-border-mid: oklch(calc(-0.25 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	--box-border-bottom: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
-}
-
-.alert-warn {
-	--alert-warn-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.375 * var(--sat-scale)) var(--hue-warn));
-}

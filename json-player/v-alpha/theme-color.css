@@ -49,7 +49,7 @@ td, th {
 }
 summary:first-of-type {
 	--summary-hl-bg: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	/* --summary-outdated-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-old) / 0.75); */
+	--summary-outdated-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-old) / 0.75);
 	--summary-invalid-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-error) / 0.875);
 }
 a, :any-link {
@@ -100,9 +100,9 @@ input {
 .alert-error {
 	--alert-error-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-error));
 }
-/* .alert-warn {
-	--alert-warn-fg: oklch(calc(0.25 * var(--lgt-scale) + 0.5) calc(0.625 * var(--sat-scale)) var(--hue-warn));
-} */
+.alert-warn {
+	--alert-warn-fg: oklch(calc(0.375 * var(--lgt-scale) + 0.5) calc(0.625 * var(--sat-scale)) var(--hue-warn));
+}
 .tool-tip {
 	--tooltip-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.75;

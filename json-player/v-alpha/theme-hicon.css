@@ -1,5 +1,5 @@
 :root {
-	--root-bg: oklch(calc(-0.9375 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
+	--root-bg: oklch(calc(-0.875 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
 	--root-fg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.9375);
 	--accent-clr: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent));
 	--contrast-glow-clr: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
@@ -48,8 +48,8 @@ td, th {
 }
 summary:first-of-type {
 	--summary-hl-bg: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-accent) / 0.125);
-	/* --summary-outdated-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-old) / 0.75);
-	--summary-invalid-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-error) / 0.875); */
+	--summary-outdated-fg: oklch(calc(0.625 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-old) / 0.75);
+	--summary-invalid-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-error) / 0.875);
 }
 a, :any-link {
 	--link-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.125 * var(--sat-scale)) var(--hue-accent) / 0.9375);
@@ -67,19 +67,20 @@ button:not(.custom) {
 	--button-bg: oklch(calc(-0.875 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
 	--button-fg: oklch(calc(0.875 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent));
 
-	/* --button-border-top: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625);
-	--button-border-mid: oklch(calc(0 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	--button-border-bottom: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
-	--button-pressed-border-top: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
-	--button-pressed-border-bottom: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25); */
+	--button-border-top: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
+	--button-border-mid: oklch(0.5 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.75);
+	--button-border-bottom: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
+	--button-pressed-border-top: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--button-pressed-border-mid: oklch(0.5 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
+	--button-pressed-border-bottom: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.75);
 }
 :is(input[type=number], input[type=text], textarea, select):not(.custom) {
 	--box-bg: oklch(calc(-0.875 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
 	--box-fg: oklch(calc(0.875 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent));
 
-	/* --box-border-top: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 1);
-	--box-border-mid: oklch(calc(-0.25 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
-	--box-border-bottom: oklch(calc(1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.625); */
+	--box-border-top: oklch(0 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.25);
+	--box-border-mid: oklch(0.5 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.5);
+	--box-border-bottom: oklch(1 calc(0 * var(--sat-scale)) var(--hue-accent) / 0.75);
 }
 input {
 	--ctl-invalid-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-error));
@@ -97,9 +98,9 @@ input {
 .alert-error {
 	--alert-error-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.5 * var(--sat-scale)) var(--hue-error));
 }
-/* .alert-warn {
+.alert-warn {
 	--alert-warn-fg: oklch(calc(0.5 * var(--lgt-scale) + 0.5) calc(0.375 * var(--sat-scale)) var(--hue-warn));
-} */
+}
 .tool-tip {
 	--tooltip-bg: oklch(calc(-1 * var(--lgt-scale) + 0.5) calc(0 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	--inactive-opacity: 0.9375;
