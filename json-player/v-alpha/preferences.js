@@ -1,62 +1,63 @@
 "use strict";
 
-const preferencesKeysFlat = [ //maybe unnecessary
-	"pageAppearance.textSize",
-	"pageAppearance.theme",
-	"pageAppearance.hue",
-	"basicParams.freqRangeMin",
-	"basicParams.freqRangeMax",
-	"genParams.baseFreq",
-	"genParams.timeScale",
-	"genParams.voiceCount",
-	"genParams.patternCount",
-	"genParams.reptCount",
-	"genParams.reptPeriod",
-	"genParams.percussivePattern",
-	"primeFactors.primeCount",
-	"primeFactors.expRangeLower",
-	"primeFactors.expRangeUpper",
-	"primeFactors.expRanges",
-	"rhythmParams.rhythmScale",
-	"rhythmParams.rhythmFactors",
-	"structuredMusic.overflow",
-	"structuredMusic.lineWrapping",
-	"structuredMusic.content",
-	"flatScript.autoFlatten",
-	"flatScript.overflow",
-	"flatScript.lineWrapping",
-	"flatScript.content",
-	"clipParams.freqScale",
-	"clipParams.volScale",
-	"clipParams.timeScale",
-	"clipParams.timeDelta",
-	"player.autoReload",
-	"reset.pageAppearance",
-	"reset.basicParams",
-	"reset.genParams",
-	"reset.rhythmParams",
-	"reset.addGenParams",
-	"reset.structuredMusic",
-	"reset.flatScript",
-	"reset.clipParams",
-	"reset.player",
-	"reset.reset"
-];
-const preferencesKeysDeprecatedFlat = [
-	"genParams.freqRangeMin",
-	"genParams.freqRangeMax",
-	"genParams.expVariance",
-	"genParams.primeCount",
-	"genParams.expRangeLower",
-	"genParams.expRangeUpper",
-	"genParams.primeExpRanges",
-	"addGenParams.voiceCount",
-	"addGenParams.reptCount",
-	"addGenParams.reptPeriod",
-	"addGenParams.percussivePattern",
-	"reset.addGenParams"
-];
-const preferencesKeysTree = {
+const preferencesKeysFlat = { //maybe generate automatically
+	//"boolean" "number" "object" "string"
+	"pageAppearance.textSize": "string",
+	"pageAppearance.theme": "string",
+	"pageAppearance.hue": "string",
+	"basicParams.freqRangeMin": "string",
+	"basicParams.freqRangeMax": "string",
+	"genParams.baseFreq": "string",
+	"genParams.timeScale": "string",
+	"genParams.voiceCount": "string",
+	"genParams.patternCount": "string",
+	"genParams.reptCount": "string",
+	"genParams.reptPeriod": "string",
+	"genParams.percussivePattern": "string",
+	"primeFactors.primeCount": "string",
+	"primeFactors.expRangeLower": "string",
+	"primeFactors.expRangeUpper": "string",
+	"primeFactors.expRanges": "string",
+	"rhythmParams.rhythmScale": "string",
+	"rhythmParams.rhythmFactors": "string",
+	"structuredMusic.overflow": "string",
+	"structuredMusic.lineWrapping": "string",
+	"structuredMusic.content": "string",
+	"flatScript.autoFlatten": "string",
+	"flatScript.overflow": "string",
+	"flatScript.lineWrapping": "string",
+	"flatScript.content": "string",
+	"clipParams.freqScale": "string",
+	"clipParams.volScale": "string",
+	"clipParams.timeScale": "string",
+	"clipParams.timeDelta": "string",
+	"player.autoReload": "string",
+	"reset.pageAppearance": "string",
+	"reset.basicParams": "string",
+	"reset.genParams": "string",
+	"reset.rhythmParams": "string",
+	"reset.addGenParams": "string",
+	"reset.structuredMusic": "string",
+	"reset.flatScript": "string",
+	"reset.clipParams": "string",
+	"reset.player": "string",
+	"reset.reset": "string"
+};
+const preferencesKeysDeprecatedFlat = {
+	"genParams.freqRangeMin": "basicParams.freqRangeMin",
+	"genParams.freqRangeMax": "basicParams.freqRangeMax",
+	"genParams.expVariance": "primeFactors.expRangeUpper",
+	"genParams.primeCount": "primeFactors.primeCount",
+	"genParams.expRangeLower": "primeFactors.expRangeLower",
+	"genParams.expRangeUpper": "primeFactors.expRangeUpper",
+	"genParams.primeExpRanges": "primeFactors.expRanges",
+	"addGenParams.voiceCount": "genParams.voiceCount",
+	"addGenParams.reptCount": "genParams.reptCount",
+	"addGenParams.reptPeriod": "genParams.reptPeriod",
+	"addGenParams.percussivePattern": "genParams.percussivePattern",
+	"reset.addGenParams": null
+};
+const preferencesKeysTree = { //maybe generate automatically; maybe unnecessary
 	pageAppearance: ["textSize", "theme", "hue"],
 	basicParams: ["freqRangeMin", "freqRangeMax"],
 	genParams: ["baseFreq", "timeScale", "voiceCount", "patternCount", "reptCount", "reptPeriod", "percussivePattern"],
@@ -137,13 +138,114 @@ var
 	rhythmFactorsAccum = [], //to be calculated
 	adjustingPreferences = false;
 
-//to do: !replace these settings functions for ones that consistenly convert from some point to another, using a preferences object for representation (one of the operands)
-//to do: 	all, from HTML controls defaults to object
-//to do: 	all, from object to HTML controls defaults
+//to do: !replace these settings functions for ones that consistently convert from some point to another, using a preferences object for representation (one of the operands)
+//to do: 	?(done) all, from HTML controls defaults to object
+//to do: 	?(done) all, from object to HTML controls defaults
 //to do: 	both specific and all, from object to local storage
-//to do: 	all, from local storage to object
+//to do: 	(done) all, from local storage to object
 //to do: 	specific, from HTML controls values to object
-//to do: 	all, from object to HTML controls values
+//to do: 	(done) all, from object to HTML controls values
+
+function setObjByPath(obj, path, value, overwrite) {
+	//parse path and traverse into obj
+	const keySegs = path.split(".");
+	let subObj = obj;
+	for(const i in keySegs) {
+		if(!Object.hasOwn(keySegs, i)) continue;
+
+		const seg = keySegs[i];
+		if(i < keySegs.length - 1) {
+			const isValObject = typeof(subObj[seg]) === "object";
+			if(overwrite) {
+				if(!isValObject) subObj[seg] = {};
+			} else
+				if(subObj[seg] === undefined)
+					subObj[seg] = {};
+				else
+					if(!isValObject) return false;
+			subObj = subObj[seg];
+		} else //last level gets the value
+			if(overwrite || subObj[seg] === undefined)
+				subObj[seg] = value;
+			else
+				return false;
+	}
+	return true;
+}
+function ctlDefaultsToPrefs(targetObj) {
+	//an alternative would be with a loop over prefs, and document.querySelectorAll(`[data-pref=${path}]`)
+	for(const elem of document.querySelectorAll("[data-pref]"))
+		try {
+			const prefKey = elem.dataset?.pref;
+			if(!prefKey || prefKey == "") continue;
+
+			const value = controlGetDefault(elem);
+			if(value)
+				setObjByPath(targetObj, prefKey, value, true);
+		} catch(error) {
+			console.warn(error);
+		}
+	return true;
+}
+function prefsToCtlDefaults(prefs) {
+	//an alternative would be with a loop over prefs, and document.querySelectorAll(`[data-pref=${path}]`)
+	for(const elem of document.querySelectorAll("[data-pref]"))
+		try {
+			const prefKey = elem.dataset?.pref;
+			if(!prefKey || prefKey == "") continue;
+
+			const keySegs = prefKey.split(".");
+			let subItem = prefs;
+			for(const seg of keySegs)
+				subItem = subItem[seg];
+			controlSetDefault(elem, subItem);
+		} catch(error) {
+			console.warn(error);
+		}
+	return true;
+}
+
+/* function prefsToStorage(params) {
+} */
+function storageToPrefs(targetObj) { //to do: convert from strings to other types
+	//an alternative would be using a classic for loop, localStorage.length and localStorage.key(i)
+	for(const storageKey in localStorage) {
+		if(!Object.hasOwn(localStorage, storageKey)) continue;
+
+		try {
+			if(preferencesKeysFlat[storageKey])
+				setObjByPath(targetObj, storageKey, localStorage[storageKey], true);
+			else
+				//if(Object.keys(preferencesKeysDeprecatedFlat).includes(storageKey)) ;
+				if(preferencesKeysDeprecatedFlat[storageKey])
+					setObjByPath(targetObj, storageKey, localStorage[storageKey], false);
+		} catch(error) {
+			console.warn(error);
+		}
+	}
+	return targetObj;
+}
+
+//note: this function doesn't try to trigger control events (question)
+function prefsToControls(prefs) {
+	//an alternative would be with a loop over prefs, and document.querySelectorAll(`[data-pref=${path}]`)
+	for(const elem of document.querySelectorAll("[data-pref]"))
+		try {
+			const prefKey = elem.dataset?.pref;
+			if(!prefKey || prefKey == "") continue;
+
+			const keySegs = prefKey.split(".");
+			let subItem = prefs;
+			for(const seg of keySegs)
+				subItem = subItem[seg];
+			controlSetValue(elem, subItem);
+		} catch(error) {
+			console.warn(error);
+		}
+}
+/* function controlsToPrefs(params) {
+} */
+
 function loadPreferences(triggerNow) {
 	try {
 		adjustingPreferences = true;
@@ -374,8 +476,9 @@ function loadPreferences(triggerNow) {
 		adjustingPreferences = false;
 	}
 
-	for(const key of preferencesKeysDeprecatedFlat)
-		localStorage.removeItem(key);
+	for(const key in preferencesKeysDeprecatedFlat)
+		if(Object.hasOwn(preferencesKeysDeprecatedFlat, key))
+			localStorage.removeItem(key);
 
 	return true;
 }
@@ -651,57 +754,12 @@ function btnResetPreferencesClick(event) {
 	}
 	return true;
 }
+//function currently out of use
 function resetAllPreferences() {
 	localStorage.clear();
 	loadPreferences(); //?
 }
 
-//to do: !use it in saveControlPreference
-function controlGetValue(elem) { //question: exception on failure? (currently no)
-	if(!elem) {
-		console.info("controlGetValue(): parameter elem is empty. Returning.");
-		return undefined;
-	}
-
-	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
-		return elem.value;
-	if(elem.tagName.toUpperCase() === "INPUT")
-		if(elem.type.toLowerCase() === "checkbox")
-			return elem.checked;
-		else
-			/* if(elem.type.toLowerCase() === "number")
-				return elem.valueAsNumber;
-			else */
-			return elem.value;
-	if(elem.contentEditable.toLowerCase() != "false")
-		return codeBoxContentGet(elem);
-
-	console.warn("controlGetValue(): failed to obtain value. Exceptional control type.");
-	return undefined;
-}
-function controlSetValue(elem, value) { //question: exception on failure? (currently no)
-	if(!elem) {
-		console.info("controlSetValue(): parameter elem is empty. Returning.");
-		return false;
-	}
-
-	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
-		elem.value = value;
-		return true;
-	}
-	if(elem.tagName.toUpperCase() === "INPUT") {
-		if(elem.type.toLowerCase() === "checkbox")
-			elem.checked = value;
-		else
-			elem.value = value;
-		return true;
-	}
-	if(elem.contentEditable.toLowerCase() != "false") {
-		return codeBoxContentSet(elem, value);
-	}
-	console.warn("controlSetValue(): failed to change value. Exceptional control type.");
-	return false;
-}
 function saveControlPreference(elem) {
 	//if(adjustingPreferences) return false; //breaks silently; no need to log this
 	if(!elem) {
@@ -711,24 +769,15 @@ function saveControlPreference(elem) {
 	let prefKey = elem.dataset["pref"];
 	if(!prefKey) return false;
 
-	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
-		localStorage.setItem(prefKey, elem.value);
-		return true;
+	const value = controlGetValue(elem);
+	if(value === undefined) {
+		console.warn("Could not save a preference: exceptional control type.");
+		return false;
 	}
-	if(elem.tagName.toUpperCase() === "INPUT") {
-		if(elem.type.toLowerCase() === "checkbox")
-			localStorage.setItem(prefKey, JSON.stringify(elem.checked));
-		else
-			localStorage.setItem(prefKey, elem.value);
-		return true;
-	}
-	if(elem.contentEditable.toLowerCase() != "false") {
-		//localStorage.setItem(prefKey, elem.innerText);
-		localStorage.setItem(prefKey, codeBoxContentGet(elem));
-		return true;
-	}
-	console.warn("Could not save a preference: exceptional control type.");
-	return false;
+	if(typeof(value) === "string")
+		localStorage.setItem(prefKey, value);
+	else
+		localStorage.setItem(prefKey, JSON.stringify(value));
 }
 function saveInputValue(event) {
 	if(adjustingPreferences) return false;

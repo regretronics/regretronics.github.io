@@ -12,8 +12,9 @@ function codeBoxContentGet(elem) {
 	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
 		return elem.value;
 	else
-		return elem.textContent;
+		return elem.textContent; //question: warn/error when it's not contenteditable?
 }
+//note: this function doesn't try to trigger control events
 function codeBoxContentSet(elem, text) {
 	if(!elem) {
 		console.info("codeBoxContentSet(): parameter elem is empty. Returning.");
@@ -22,8 +23,102 @@ function codeBoxContentSet(elem, text) {
 	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
 		elem.value = text;
 	else
-		elem.textContent = text;
+		elem.textContent = text; //question: warn/error when it's not contenteditable?
 	return true;
+}
+
+function controlGetValue(elem) { //question: exception on failure? (currently no)
+	if(!elem) {
+		console.info("controlGetValue(): parameter elem is empty. Returning.");
+		return undefined;
+	}
+
+	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		return elem.value;
+	if(elem.tagName.toUpperCase() === "INPUT")
+		if(elem.type.toLowerCase() === "checkbox")
+			return elem.checked;
+		else
+			/* if(elem.type.toLowerCase() === "number")
+				return elem.valueAsNumber;
+			else */
+			return elem.value;
+	if(elem.contentEditable.toLowerCase() != "false")
+		return codeBoxContentGet(elem);
+
+	console.warn(`controlGetValue(): failed to obtain value for #${elem.id}. Exceptional control type.`);
+	return undefined;
+}
+function controlGetDefault(elem) { //question: exception on failure? (currently no)
+	if(!elem) {
+		console.info("controlGetDefault(): parameter elem is empty. Returning.");
+		return undefined;
+	}
+
+	if(elem.tagName.toUpperCase() === "SELECT") {
+		const opt = document.querySelector(`#${elem.id} option[selected]`);
+		if(opt) return opt.value;
+	}
+	if(elem.tagName.toUpperCase() === "INPUT" && elem.type.toLowerCase() === "checkbox")
+		return elem.defaultChecked;
+	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase()))
+		return elem.defaultValue;
+
+	//console.warn(`controlGetDefault(): failed to obtain default value for #${elem.id}. Exceptional control type.`);
+	return undefined; //fail silently
+}
+//note: this function doesn't try to trigger control events
+function controlSetValue(elem, value) { //question: exception on failure? (currently no)
+	if(!elem) {
+		console.info("controlSetValue(): parameter elem is empty. Returning.");
+		return false;
+	}
+
+	if(["SELECT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
+		elem.value = value;
+		return true;
+	}
+	if(elem.tagName.toUpperCase() === "INPUT") {
+		if(elem.type.toLowerCase() === "checkbox")
+			elem.checked = value;
+		else
+			elem.value = value;
+		return true;
+	}
+	if(elem.contentEditable.toLowerCase() != "false") {
+		return codeBoxContentSet(elem, value);
+	}
+
+	console.warn(`controlSetValue(): failed to change value for #${elem.id}. Exceptional control type.`);
+	return false;
+}
+//note: this function doesn't try to trigger control events
+function controlSetDefault(elem, value) { //question: exception on failure? (currently no)
+	if(!elem) {
+		console.info("controlSetDefault(): parameter elem is empty. Returning.");
+		return false;
+	}
+
+	if(elem.tagName.toUpperCase() === "SELECT") {
+		for(const option of elem.options)
+			option.defaultSelected = option.value == value;
+		return true;
+	}
+	if(elem.tagName.toUpperCase() === "INPUT" && elem.type.toLowerCase() === "checkbox") {
+		elem.defaultChecked = value;
+		return true;
+	}
+	if(["INPUT", "TEXTAREA"].includes(elem.tagName.toUpperCase())) {
+		elem.defaultValue = value;
+		return true;
+	}
+	/* if(elem.contentEditable.toLowerCase() != "false") {
+		elem.ariaPlaceholder = value;
+		return true;
+	} */
+
+	//console.warn(`controlSetDefault(): failed to change default value for #${elem.id}. Exceptional control type.`);
+	return false; //fail silently
 }
 
 function loadEventHandlers() {
