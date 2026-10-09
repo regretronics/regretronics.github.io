@@ -926,6 +926,7 @@ function themeChanged(event) {
 	return true;
 }
 function updateThemeColor(hue) {
+	//to do: !convert to oklch
 	const hueStr = hue.toString();
 	[ //to do: reconsider this (probably should just follow current theme)
 		["(prefers-color-scheme: light)", `hsl(${hueStr}, 37.5%, 75%)`],
