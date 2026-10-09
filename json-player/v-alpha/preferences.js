@@ -1,73 +1,5 @@
 "use strict";
 
-var preferencesKeysFlat = { //maybe generate automatically
-	"pageAppearance.textSize": "number",
-	"pageAppearance.theme": "string",
-	"pageAppearance.hue": "number",
-	"basicParams.freqRangeMin": "number",
-	"basicParams.freqRangeMax": "number",
-	"genParams.baseFreq": "number",
-	"genParams.timeScale": "number",
-	"genParams.voiceCount": "number",
-	"genParams.patternCount": "number",
-	"genParams.reptCount": "number",
-	"genParams.reptPeriod": "number",
-	"genParams.percussivePattern": "boolean",
-	"primeFactors.primeCount": "number",
-	"primeFactors.expRangeLower": "number",
-	"primeFactors.expRangeUpper": "number",
-	"primeFactors.expRanges": "object",
-	"rhythmParams.rhythmScale": "number",
-	"rhythmParams.rhythmFactors": "object",
-	"structuredMusic.overflow": "boolean",
-	"structuredMusic.lineWrapping": "boolean",
-	"structuredMusic.content": "string",
-	"flatScript.autoFlatten": "boolean",
-	"flatScript.overflow": "boolean",
-	"flatScript.lineWrapping": "boolean",
-	"flatScript.content": "string",
-	"clipParams.freqScale": "number",
-	"clipParams.volScale": "number",
-	"clipParams.timeScale": "number",
-	"clipParams.timeDelta": "number",
-	"player.autoReload": "boolean",
-	"reset.pageAppearance": "boolean",
-	"reset.basicParams": "boolean",
-	"reset.genParams": "boolean",
-	"reset.primeFactors": "boolean",
-	"reset.rhythmParams": "boolean",
-	"reset.structuredMusic": "boolean",
-	"reset.flatScript": "boolean",
-	"reset.clipParams": "boolean",
-	"reset.player": "boolean",
-	"reset.reset": "boolean"
-};
-const preferencesKeysDeprecatedFlat = {
-	"genParams.freqRangeMin": "basicParams.freqRangeMin",
-	"genParams.freqRangeMax": "basicParams.freqRangeMax",
-	"genParams.expVariance": "primeFactors.expRangeUpper",
-	"genParams.primeCount": "primeFactors.primeCount",
-	"genParams.expRangeLower": "primeFactors.expRangeLower",
-	"genParams.expRangeUpper": "primeFactors.expRangeUpper",
-	"genParams.primeExpRanges": "primeFactors.expRanges",
-	"addGenParams.voiceCount": "genParams.voiceCount",
-	"addGenParams.reptCount": "genParams.reptCount",
-	"addGenParams.reptPeriod": "genParams.reptPeriod",
-	"addGenParams.percussivePattern": "genParams.percussivePattern",
-	"reset.addGenParams": null
-};
-const preferencesKeysTree = { //maybe generate automatically; maybe unnecessary
-	pageAppearance: ["textSize", "theme", "hue"],
-	basicParams: ["freqRangeMin", "freqRangeMax"],
-	genParams: ["baseFreq", "timeScale", "voiceCount", "patternCount", "reptCount", "reptPeriod", "percussivePattern"],
-	primeFactors: ["primeCount", "expRangeLower", "expRangeUpper", "expRanges"],
-	rhythmParams: ["rhythmScale", "rhythmFactors"],
-	structuredMusic: ["overflow", "lineWrapping", "content"],
-	flatScript: ["autoFlatten", "overflow", "lineWrapping", "content"],
-	clipParams: ["freqScale", "volScale", "timeScale", "timeDelta"],
-	player: ["autoReload"],
-	reset: ["pageAppearance", "basicParams", "genParams", "primeFactors", "rhythmParams", "structuredMusic", "flatScript", "clipParams", "player", "reset"]
-};
 const defStructuredCode = '{\n\
 	"freqRatio": 440,\n\
 	"volRatio": 0.5,\n\
@@ -127,11 +59,42 @@ const prefsDefault = {
 		timeDelta: 0/* defaultBlockNode.timeDelta */
 	},
 	player: {autoReload: false},
+	//audioExport: {},
 	reset: {pageAppearance: false, basicParams: false, genParams: false, primeFactors: false, rhythmParams: false, structuredMusic: false, flatScript: false, clipParams: false, player: false, reset: false}
 };
 var prefs = structuredClone(prefsDefault);
 
-//let textSize = prefsDefault.pageAppearance.textSize;
+var preferencesKeysFlat = { //filled automatically, with few exceptions
+	"primeFactors.expRanges": "object",
+	"rhythmParams.rhythmFactors": "object"
+};
+const preferencesKeysDeprecatedFlat = {
+	"genParams.freqRangeMin": "basicParams.freqRangeMin",
+	"genParams.freqRangeMax": "basicParams.freqRangeMax",
+	"genParams.expVariance": "primeFactors.expRangeUpper",
+	"genParams.primeCount": "primeFactors.primeCount",
+	"genParams.expRangeLower": "primeFactors.expRangeLower",
+	"genParams.expRangeUpper": "primeFactors.expRangeUpper",
+	"genParams.primeExpRanges": "primeFactors.expRanges",
+	"addGenParams.voiceCount": "genParams.voiceCount",
+	"addGenParams.reptCount": "genParams.reptCount",
+	"addGenParams.reptPeriod": "genParams.reptPeriod",
+	"addGenParams.percussivePattern": "genParams.percussivePattern",
+	"reset.addGenParams": null
+};
+/* const preferencesKeysTree = { //maybe generate automatically; maybe unnecessary
+	pageAppearance: ["textSize", "theme", "hue"],
+	basicParams: ["freqRangeMin", "freqRangeMax"],
+	genParams: ["baseFreq", "timeScale", "voiceCount", "patternCount", "reptCount", "reptPeriod", "percussivePattern"],
+	primeFactors: ["primeCount", "expRangeLower", "expRangeUpper", "expRanges"],
+	rhythmParams: ["rhythmScale", "rhythmFactors"],
+	structuredMusic: ["overflow", "lineWrapping", "content"],
+	flatScript: ["autoFlatten", "overflow", "lineWrapping", "content"],
+	clipParams: ["freqScale", "volScale", "timeScale", "timeDelta"],
+	player: ["autoReload"],
+	reset: ["pageAppearance", "basicParams", "genParams", "primeFactors", "rhythmParams", "structuredMusic", "flatScript", "clipParams", "player", "reset"]
+}; */
+
 //to do: rename rhythmFactorsAccum -> rhythmScales?
 var 
 	rhythmFactorsAccum = [], //to be calculated
@@ -184,6 +147,7 @@ function setObjByPath(obj, path, value, overwrite) {
 	}
 	return true;
 }
+
 function ctlDefaultsToPrefs(targetObj) {
 	//an alternative would be with a loop over prefs, and document.querySelectorAll(`[data-pref=${path}]`)
 	for(const elem of document.querySelectorAll("[data-pref]"))
@@ -214,19 +178,21 @@ function prefsToCtlDefaults(prefs) {
 	return true;
 }
 
-/* function prefsToStorage(params) {
+/* function prefsToStorage(params) { //maybe unnecessary
 } */
-//not ready for use
-//to do: bug: traversal goes unchecked into objects that shouldn't be broken down
+//note: traversal goes unchecked into objects if they are not already defined in preferencesKeysFlat.
 function genPrefsKeysFlat() {
 	//recursive function
 	function prefsSubNodes(node, prefix) {
 		//if(typeof(node) !== "object") return false;
 		if(node == undefined) return false;
-		if(typeof(node) !== "object") {
+		if(typeof(node) !== "object") { //base case
 			preferencesKeysFlat[prefix] = typeof(node);
 			return true;
 		}
+
+		//if it's an object but there's already a type, stop delving and go back
+		if(preferencesKeysFlat[prefix]) return true;
 
 		if(prefix.length > 0) prefix += ".";
 		for(const key of Object.keys(node)) {
@@ -249,7 +215,7 @@ function storageToPrefs(targetObj) {
 				valueStr ??= "";
 				if(valueStr == "") return undefined;
 				return JSON.parse(valueStr);
-			case "string":
+			//case "string":
 			default:
 				return valueStr;
 		}
@@ -282,7 +248,7 @@ function storageToPrefs(targetObj) {
 	return targetObj;
 }
 
-//note: this function doesn't try to trigger control events (question)
+//note: this function doesn't try to trigger control events
 function prefsToControls(prefs) {
 	//an alternative would be with a loop over prefs, and document.querySelectorAll(`[data-pref=${path}]`)
 	for(const elem of document.querySelectorAll("[data-pref]"))
@@ -291,15 +257,16 @@ function prefsToControls(prefs) {
 			if(!prefKey || prefKey == "") continue;
 
 			const value = getObjByPath(prefs, prefKey);
-			if(value !== undefined) controlSetValue(elem, value);
+			if(value !== undefined && typeof(value) !== "object") controlSetValue(elem, value);
 		} catch(error) {
 			console.warn(error);
 		}
 	return true;
 }
-/* function controlsToPrefs(params) {
+/* function controlsToPrefs(params) { //maybe unnecessary
 } */
 
+//question: necessary?
 function triggerPrefControls() {
 	const evtInput = new Event("input"), evtClick = new Event("click");
 	for(const elem of document.querySelectorAll("[data-pref]"))
@@ -317,7 +284,7 @@ function triggerPrefControls() {
 	return true;
 }
 
-function loadPreferencesOld(triggerNow) { //to do: !change into simpler steps
+function loadAllPreferencesOld(triggerNow) { //to do: !change into simpler steps
 	try {
 		adjustingPreferences = true;
 		let s;
@@ -448,7 +415,7 @@ function loadPreferencesOld(triggerNow) { //to do: !change into simpler steps
 				codeBoxContentSet(ctlPrimeExpRanges, s);
 				globalThis.ctlPrimeExpRanges?.dispatchEvent?.(new Event("input"));
 			} else
-				recalcExpRanges(false);
+				expRangesFromParams(false);
 		}
 
 		//Rhythm parameters
@@ -552,22 +519,29 @@ function loadPreferencesOld(triggerNow) { //to do: !change into simpler steps
 
 	return true;
 }
-function loadPreferences(triggerNow) {
+function loadAllPreferences(triggerNow) {
 	try {
 		adjustingPreferences = true;
 
-		//prefs = storageToPrefs({});
 		storageToPrefs(prefs);
 		for(const key of Object.keys(preferencesKeysDeprecatedFlat))
 			localStorage.removeItem(key);
 
 		prefsToControls(prefs);
-
-		//exceptions (?)
+		//exceptions to prefsToControls
 		document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
 		const hue = prefs.pageAppearance.hue, hueMod = ((hue % 360) + 360) % 360;
 		document.documentElement.style.setProperty("--hue-accent0", hueMod);
-		//recalcExpRanges(false); //?
+		//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
+		if(triggerNow) updateThemeColor(hueMod);
+		if(prefs.primeFactors.expRanges) {
+			if(globalThis.ctlPrimeExpRanges) {
+				const objText = toJSONCodeAdjusted(prefs.primeFactors.expRanges);
+				codeBoxContentSet(ctlPrimeExpRanges, objText);
+			} else
+				throw(new Error("Control ctlPrimeExpRanges not found."));
+		} else
+			expRangesFromParams(false);
 		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
 		globalThis.ctlStructuredScript?.classList?.toggle?.("expanded", prefs.structuredMusic.overflow);
 		globalThis.ctlStructuredScript?.classList?.toggle?.("line-wrap", prefs.structuredMusic.lineWrapping);
@@ -584,7 +558,7 @@ function loadPreferences(triggerNow) {
 	}
 	return true;
 }
-//function currently out of use
+//function currently unused
 function saveAllPreferences() { //to do: !probably change into simpler steps
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		try {
@@ -592,6 +566,7 @@ function saveAllPreferences() { //to do: !probably change into simpler steps
 		} catch(error) {
 			console.warn(error);
 		}
+
 	try {
 		//Page appearance
 		localStorage.setItem("pageAppearance.textSize", JSON.stringify(prefs.pageAppearance.textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
@@ -765,7 +740,7 @@ function btnResetPreferencesClick(event) { //to do: !change into simpler steps
 			txtExpRangeUpper.value = prefsDefault.primeFactors.expRangeUpper.toString();
 			txtExpRangeUpper.dispatchEvent(new Event("input"));
 			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
-			recalcExpRanges(true);
+			expRangesFromParams(true);
 		}
 		if(globalThis.chkResetRhythmParams?.checked) {
 			localStorage.removeItem("rhythmParams.rhythmScale");
@@ -859,9 +834,10 @@ function btnResetPreferencesClick(event) { //to do: !change into simpler steps
 //function currently out of use
 function resetAllPreferences() {
 	localStorage.clear();
-	loadPreferences(); //?
+	loadAllPreferences(); //?
 }
 
+//from individual control to prefs object and to localStorage
 function saveControlPreference(elem) {
 	//if(adjustingPreferences) return false; //breaks silently; no need to log this
 	if(!elem) {
@@ -871,15 +847,22 @@ function saveControlPreference(elem) {
 	let prefKey = elem.dataset["pref"];
 	if(!prefKey) return false;
 
-	const value = controlGetValue(elem);
+	let value = controlGetValue(elem);
 	if(value === undefined) {
 		console.warn("Could not save a preference: exceptional control type.");
 		return false;
 	}
+
+	const valueType = preferencesKeysFlat[prefKey];
+	if(valueType === "object") return false;
+
+	if(valueType === "number") value = NaNToDefault(parseNumber(value), getObjByPath(prefsDefault, prefKey));
+	setObjByPath(prefs, prefKey, value, true);
 	if(typeof(value) === "string")
 		localStorage.setItem(prefKey, value);
 	else
 		localStorage.setItem(prefKey, JSON.stringify(value));
+	return true;
 }
 function saveInputValue(event) {
 	if(adjustingPreferences) return false;
@@ -999,7 +982,7 @@ function primeCountChanged(event) {
 	prefs.primeFactors.primeCount = newPrimeCount;
 
 	updatePrimeList();
-	recalcExpRanges();
+	expRangesFromParams();
 	return true;
 }
 function txtExpRangeLowerChanged(event) {
@@ -1024,7 +1007,7 @@ function txtExpRangeLowerChanged(event) {
 	txtExpRangeLower.setCustomValidity("");
 	txtExpRangeLower.classList.remove("invalid");
 
-	recalcExpRanges();
+	expRangesFromParams();
 }
 function txtExpRangeUpperChanged(event) {
 	if(!globalThis.txtExpRangeUpper) return false;
@@ -1048,9 +1031,10 @@ function txtExpRangeUpperChanged(event) {
 	txtExpRangeUpper.setCustomValidity("");
 	txtExpRangeUpper.classList.remove("invalid");
 
-	recalcExpRanges();
+	expRangesFromParams();
 }
-function recalcExpRanges(force) {
+//apart from recreating prefs.primeFactors.expRanges, this routine also updates the code box (ctlPrimeExpRanges) and localStorage
+function expRangesFromParams(force) {
 	if(adjustingPreferences && !force) return false; //fails silently
 	//prefs.primeFactors.primeCount = NaNToDefault(parseNumber(txtPrimeCount.value), prefsDefault.primeFactors.primeCount);
 	const 
@@ -1072,12 +1056,13 @@ function recalcExpRanges(force) {
 		}
 		prefs.primeFactors.expRanges = newExpRanges;
 
-		const objText = toJSONCodeAdjusted(newExpRanges);
 		if(globalThis.ctlPrimeExpRanges) {
+			const objText = toJSONCodeAdjusted(newExpRanges);
 			codeBoxContentSet(ctlPrimeExpRanges, objText);
-			saveControlPreference(ctlPrimeExpRanges);
+			//saveControlPreference(ctlPrimeExpRanges);
 		} else
 			throw(new Error("Control ctlPrimeExpRanges not found."));
+		if(!adjustingPreferences) localStorage.setItem("primeFactors.expRanges", JSON.stringify(newExpRanges));
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to refresh exponent variance ranges. " + (error.message ?? error ?? ""), 3);
@@ -1153,7 +1138,9 @@ function rhythmFactorsChanged(event) {
 		txtRhythmFactors?.setCustomValidity?.(error.toString());
 		return false;
 	}
+
 	prefs.rhythmParams.rhythmFactors = newRhythmFactors;
+	if(!adjustingPreferences) localStorage.setItem("rhythmParams.rhythmFactors", JSON.stringify(newRhythmFactors));
 	updateRhythmAccum();
 	return true;
 }

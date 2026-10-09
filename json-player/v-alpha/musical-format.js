@@ -45,7 +45,8 @@ function parseExpRanges(event) {
 		if(!hasAnyRanges) throw(new Error("Exponent ranges: no valid ranges."));
 
 		prefs.primeFactors.expRanges = newExpRanges;
-		if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
+		//if(!adjustingPreferences) saveControlPreference(ctlPrimeExpRanges);
+		if(!adjustingPreferences) localStorage.setItem("primeFactors.expRanges", JSON.stringify(newExpRanges));
 	} catch(error) {
 		console.warn(error);
 		//codeBoxContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));

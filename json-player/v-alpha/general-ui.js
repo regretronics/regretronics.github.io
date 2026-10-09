@@ -178,8 +178,12 @@ function loadEventHandlers() {
 
 	btnResetPreferences.addEventListener("click", btnResetPreferencesClick);
 
-	for(const elem of document.querySelectorAll("[data-pref]"))
-		elem.addEventListener("input", saveInputValue);
+	for(const elem of document.querySelectorAll("[data-pref]")) {
+		const prefKey = elem.dataset?.pref;
+		if(!prefKey || prefKey == "") continue;
+		if(preferencesKeysFlat[prefKey] !== "object")
+			elem.addEventListener("input", saveInputValue);
+	}
 
 	//editable code-box'es: having the contenteditable attribute, but not with false as its value
 	for(const elem of document.querySelectorAll(".code-box[contenteditable]:not([contenteditable=false i])")) {
@@ -222,7 +226,8 @@ function pageLoaded(event) {
 	for(const s of document.querySelectorAll('[id]'))
 		globalThis[s.id] = s;
 
-	globalThis.loadPreferences(false); //preferences.js
+	genPrefsKeysFlat();
+	globalThis.loadAllPreferences(false); //preferences.js
 	//globalThis.rhythmFactorsChanged?.();
 
 	if(globalThis.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
@@ -247,20 +252,18 @@ function pageReady(event) {
 			console.log("pageReady() promise: function started...");
 			loadEventHandlers();
 
-			//globalThis.loadPreferences?.(false); //preferences.js
 			updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
 			setAutoFlatten(prefs.flatScript.autoFlatten);
 			adjustingPreferences = true;
 			try {
-				/* const evt = new Event("input");
 				for(const elem of document.querySelectorAll("input.exp"))
-					elem.dispatchEvent(evt); */
+					//expSpinnerChanged({target: elem});
+					updateExpSpinner(elem);
 				triggerPrefControls();
 			} finally {
 				adjustingPreferences = false;
 			}
 
-			//globalThis.primeCountChanged?.();
 			globalThis.updatePrimeList?.();
 			//globalThis.rhythmFactorsChanged?.();
 			globalThis.updateRhythmAccum?.();
@@ -329,15 +332,7 @@ function lineWrapToggle(event) {
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("line-wrap")));
 }
 
-//to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
-function expSpinnerChanged(event) {
-	//console.log(event);
-	const elem = event.target;
-	if(!elem) {
-		console.info("expSpinnerChanged(): parameter event.target is empty. Returning.");
-		return false;
-	}
-
+function updateExpSpinner(elem) {
 	//let val = elem.valueAsNumber;
 	let val = parseNumber(elem.value);
 	const valNaN = isNaN(val);
@@ -361,6 +356,17 @@ function expSpinnerChanged(event) {
 		elem.step = Math.max(min, step);
 		elem.min = Math.max(min, dynMin);
 	}
+}
+//to do: force-allow arbitrary strings for "parseNumber" inputs by using type="text".
+function expSpinnerChanged(event) {
+	//console.log(event);
+	const elem = event.target;
+	if(!elem) {
+		console.info("expSpinnerChanged(): parameter event.target is empty. Returning.");
+		return false;
+	}
+	updateExpSpinner(event.target);
+
 	//console.log(event, elem.checkValidity());
 	//elem.checkValidity();
 	//elem.reportValidity();
@@ -399,11 +405,12 @@ function btnRhythmFactorsGenClick(event) {
 		setToolTip(outToolTip, "Rhythm structure generator failed. " + (error.message ?? error ?? ""), 3);
 		return false;
 	}
+	if(!adjustingPreferences) localStorage.setItem("rhythmParams.rhythmFactors", JSON.stringify(prefs.rhythmParams.rhythmFactors));
 	if(globalThis.txtRhythmFactors) {
 		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
-		txtRhythmFactors.dispatchEvent(new Event("input"));
+		//txtRhythmFactors.dispatchEvent(new Event("input"));
 	}
-	//updateRhythmAccum();
+	updateRhythmAccum();
 	return true;
 }
 function btnChordGenClick(event) {
