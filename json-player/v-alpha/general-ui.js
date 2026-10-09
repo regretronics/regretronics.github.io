@@ -222,20 +222,15 @@ function pageLoaded(event) {
 	for(const s of document.querySelectorAll('[id]'))
 		window[s.id] = s;
 
+	window.loadPreferences(false); //preferences.js
+	//window.rhythmFactorsChanged?.();
+
 	if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 
 	initialCalculations();
-
-	try {
-		codeBoxContentSet(ctlStructuredScript, defStructuredCode);
-		codeBoxContentSet(ctlFlatScript, defFlattenedCode);
-	} catch(error) {
-		console.error(error);
-		setToolTip(outToolTip, "Failed to set code box contents. " + (error.message ?? error ?? ""), 3);
-	}
 
 	Promise.resolve().then(addControlSeparators)/* ?.catch?.(reason => {
 			window.reportError(reason);
@@ -252,20 +247,23 @@ function pageReady(event) {
 			console.log("pageReady() promise: function started...");
 			loadEventHandlers();
 
-			window.loadPreferences?.(false); //preferences.js
+			//window.loadPreferences?.(false); //preferences.js
 			updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
 			setAutoFlatten(prefs.flatScript.autoFlatten);
 			adjustingPreferences = true;
 			try {
-				const evt = new Event("input");
+				/* const evt = new Event("input");
 				for(const elem of document.querySelectorAll("input.exp"))
-					elem.dispatchEvent(evt);
+					elem.dispatchEvent(evt); */
+				triggerPrefControls();
 			} finally {
 				adjustingPreferences = false;
 			}
 
-			window.primeCountChanged?.();
-			window.rhythmFactorsChanged?.();
+			//window.primeCountChanged?.();
+			window.updatePrimeList?.();
+			//window.rhythmFactorsChanged?.();
+			window.updateRhythmAccum?.();
 			window.initSpinControls?.(); //custom-spin.js
 
 			addToolTipHandler("body>main", event => updateCtlToolTip(event, outToolTip));

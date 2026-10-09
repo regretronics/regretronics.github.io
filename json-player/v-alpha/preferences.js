@@ -145,7 +145,20 @@ var
 //to do: 	specific, from HTML controls values to object
 //to do: 	(done) all, from object to HTML controls values
 
+function getObjByPath(obj, path) {
+	if(!obj) return obj;
+	if(!path) return undefined;
+	const keySegs = path.split(".");
+	let subItem = obj;
+	for(const seg of keySegs) {
+		subItem = subItem[seg];
+		if(subItem === undefined) return undefined;
+	}
+	return subItem;
+}
 function setObjByPath(obj, path, value, overwrite) {
+	if(!obj || !path) return false;
+
 	//parse path and traverse into obj
 	const keySegs = path.split(".");
 	let subObj = obj;
@@ -193,11 +206,8 @@ function prefsToCtlDefaults(prefs) {
 			const prefKey = elem.dataset?.pref;
 			if(!prefKey || prefKey == "") continue;
 
-			const keySegs = prefKey.split(".");
-			let subItem = prefs;
-			for(const seg of keySegs)
-				subItem = subItem[seg];
-			controlSetDefault(elem, subItem);
+			const value = getObjByPath(prefs, prefKey);
+			if(value !== undefined) controlSetDefault(elem, value);
 		} catch(error) {
 			console.warn(error);
 		}
@@ -206,6 +216,8 @@ function prefsToCtlDefaults(prefs) {
 
 /* function prefsToStorage(params) {
 } */
+//not ready for use
+//to do: bug: traversal goes unchecked into objects that shouldn't be broken down
 function genPrefsKeysFlat() {
 	//recursive function
 	function prefsSubNodes(node, prefix) {
@@ -227,19 +239,46 @@ function genPrefsKeysFlat() {
 	prefsSubNodes(prefsDefault, "");
 	return true;
 }
-function storageToPrefs(targetObj) { //to do: convert from strings to other types
+function storageToPrefs(targetObj) {
+	function convertStoredValue(valueStr, type) {
+		switch(type) {
+			case "number":
+				return NaNToDefault(Number(valueStr), undefined);
+			case "boolean":
+			case "object":
+				valueStr ??= "";
+				if(valueStr == "") return undefined;
+				return JSON.parse(valueStr);
+			case "string":
+			default:
+				return valueStr;
+		}
+	}
+
 	//an alternative would be using a classic for loop, localStorage.length and localStorage.key(i)
+	const errorPrefs = [];
 	for(const storageKey of Object.keys(localStorage))
 		try {
-			if(preferencesKeysFlat[storageKey])
-				setObjByPath(targetObj, storageKey, localStorage[storageKey], true);
-			else
-				//if(Object.keys(preferencesKeysDeprecatedFlat).includes(storageKey)) ;
-				if(preferencesKeysDeprecatedFlat[storageKey])
-					setObjByPath(targetObj, storageKey, localStorage[storageKey], false);
+			let valueType = preferencesKeysFlat[storageKey];
+			if(valueType) {
+				const value = convertStoredValue(localStorage[storageKey], valueType);
+				if(value != undefined) setObjByPath(targetObj, storageKey, value, true);
+			}
+			else {
+				const targetKey = preferencesKeysDeprecatedFlat[storageKey];
+				if(targetKey) {
+					valueType = preferencesKeysFlat[targetKey];
+					const value = convertStoredValue(localStorage[storageKey], valueType);
+					if(value != undefined) setObjByPath(targetObj, targetKey, value, false);
+				}
+			}
 		} catch(error) {
 			console.warn(error);
+			errorPrefs.push(storageKey); //don't mutate the key list yet
 		}
+
+	for(const storageKey of errorPrefs)
+		localStorage.removeItem(storageKey);
 	return targetObj;
 }
 
@@ -251,19 +290,34 @@ function prefsToControls(prefs) {
 			const prefKey = elem.dataset?.pref;
 			if(!prefKey || prefKey == "") continue;
 
-			const keySegs = prefKey.split(".");
-			let subItem = prefs;
-			for(const seg of keySegs)
-				subItem = subItem[seg];
-			controlSetValue(elem, subItem);
+			const value = getObjByPath(prefs, prefKey);
+			if(value !== undefined) controlSetValue(elem, value);
 		} catch(error) {
 			console.warn(error);
 		}
+	return true;
 }
 /* function controlsToPrefs(params) {
 } */
 
-function loadPreferences(triggerNow) {
+function triggerPrefControls() {
+	const evtInput = new Event("input"), evtClick = new Event("click");
+	for(const elem of document.querySelectorAll("[data-pref]"))
+		try {
+			if(getObjByPath(prefs, elem.dataset?.pref)) continue;
+
+			if(/* elem.tagName.toUpperCase() === "SELECT" 
+				|| */ (elem.tagName.toUpperCase() === "INPUT" && elem.type.toLowerCase() === "checkbox"))
+				elem.dispatchEvent(evtClick);
+			else
+				elem.dispatchEvent(evtInput);
+		} catch(error) {
+			console.warn(error);
+		}
+	return true;
+}
+
+function loadPreferencesOld(triggerNow) { //to do: !change into simpler steps
 	try {
 		adjustingPreferences = true;
 		let s;
@@ -325,7 +379,7 @@ function loadPreferences(triggerNow) {
 				cboPageTheme.dispatchEvent(new Event("input"));
 			}
 			if(s = localStorage.getItem("pageAppearance.hue")) {
-				const hue = parseNumber(JSON.parse(s)), hueMod = ((hue % 360) + 360.0) % 360.0;
+				const hue = parseNumber(JSON.parse(s)), hueMod = ((hue % 360) + 360) % 360;
 				document.documentElement.style.setProperty("--hue-accent0", hueMod);
 				//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
 				if(triggerNow) updateThemeColor(hueMod);
@@ -498,8 +552,40 @@ function loadPreferences(triggerNow) {
 
 	return true;
 }
+function loadPreferences(triggerNow) {
+	try {
+		adjustingPreferences = true;
+
+		//prefs = storageToPrefs({});
+		storageToPrefs(prefs);
+		for(const key of Object.keys(preferencesKeysDeprecatedFlat))
+			localStorage.removeItem(key);
+
+		prefsToControls(prefs);
+
+		//exceptions (?)
+		document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
+		const hue = prefs.pageAppearance.hue, hueMod = ((hue % 360) + 360) % 360;
+		document.documentElement.style.setProperty("--hue-accent0", hueMod);
+		//recalcExpRanges(false); //?
+		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
+		window.ctlStructuredScript?.classList?.toggle?.("expanded", prefs.structuredMusic.overflow);
+		window.ctlStructuredScript?.classList?.toggle?.("line-wrap", prefs.structuredMusic.lineWrapping);
+		window.ctlFlatScript?.classList?.toggle?.("expanded", prefs.flatScript.overflow);
+		window.ctlFlatScript?.classList?.toggle?.("line-wrap", prefs.flatScript.lineWrapping);
+
+		if(triggerNow) return triggerPrefControls();
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to load preferences. " + (error.message ?? error ?? ""), 3);
+		return false;
+	} finally {
+		adjustingPreferences = false;
+	}
+	return true;
+}
 //function currently out of use
-function saveAllPreferences() {
+function saveAllPreferences() { //to do: !probably change into simpler steps
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		try {
 			saveControlPreference(elem);
@@ -604,7 +690,7 @@ function saveAllPreferences() {
 	}
 	return true;
 }
-function btnResetPreferencesClick(event) {
+function btnResetPreferencesClick(event) { //to do: !change into simpler steps
 	//resetAllPreferences();
 	//to do: point those things to prefsDefault instead of literals
 	try {
@@ -893,6 +979,13 @@ function btnHueClick(event) {
 	localStorage.setItem("pageAppearance.hue", JSON.stringify(hue));
 }
 
+function updatePrimeList() {
+	const lastPrime = Math.ceil(prefs.primeFactors.primeCount), primesList = primes.slice(0, lastPrime);
+	//for fractional sizes, represent the last prime in a different way
+	if(prefs.primeFactors.primeCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
+	//if(window.outPrimeList) outPrimeList.innerText = "[" + primesList.join(", ") + "]";
+	if(window.outPrimeList) outPrimeList.innerHTML = "[" + primesList.join(", ") + "]";
+}
 function primeCountChanged(event) {
 	if(!window.txtPrimeCount) return false;
 
@@ -904,11 +997,7 @@ function primeCountChanged(event) {
 	if(newPrimeCount > primes.length) newPrimeCount = primes.length; */
 	prefs.primeFactors.primeCount = newPrimeCount;
 
-	const lastPrime = Math.ceil(newPrimeCount), primesList = primes.slice(0, lastPrime);
-	//for fractional sizes, represent the last prime in a different way
-	if(newPrimeCount % 1 > 0) primesList[lastPrime - 1] = `<span class="partial">${primesList[lastPrime - 1]}</span>`;
-	//if(window.outPrimeList) outPrimeList.innerText = "[" + primesList.join(", ") + "]";
-	if(window.outPrimeList) outPrimeList.innerHTML = "[" + primesList.join(", ") + "]";
+	updatePrimeList();
 	recalcExpRanges();
 	return true;
 }
