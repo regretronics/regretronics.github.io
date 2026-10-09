@@ -8,7 +8,7 @@ var elems; //?
 var struct;
 
 function parseExpRanges(event) {
-	if(!window.ctlPrimeExpRanges) return false;
+	if(!globalThis.ctlPrimeExpRanges) return false;
 	try {
 		const parsed = JSON.parse(codeBoxContentGet(ctlPrimeExpRanges));
 		if(!parsed) throw(new Error("Exponent ranges: couldn't parse JSON code."));
@@ -50,7 +50,7 @@ function parseExpRanges(event) {
 		console.warn(error);
 		//codeBoxContentSet(ctlFlatScript, error.name + ": " + (error.message ?? error));
 		ctlPrimeExpRanges?.classList?.add?.("invalid");
-		if(window.ctlPrimeExpRanges) ctlPrimeExpRanges.title = (error.message ?? error).toString();
+		if(globalThis.ctlPrimeExpRanges) ctlPrimeExpRanges.title = (error.message ?? error).toString();
 		//ctlPrimeExpRanges?.setCustomValidity?.((error.message ?? error).toString());
 		return false;
 	}
@@ -184,7 +184,7 @@ function parseNode(flatStruct, node, blockContext) {
 let hasScriptChanged = true;
 function flattenStruct(event) {
 	if(!hasScriptChanged) return false;
-	if(!window.ctlStructuredScript) return false;
+	if(!globalThis.ctlStructuredScript) return false;
 	try {
 		struct = JSON.parse(codeBoxContentGet(ctlStructuredScript));
 		if(!struct) throw(new Error("Structured script: couldn't parse JSON code."));
@@ -222,7 +222,7 @@ function flattenStruct(event) {
 		setToolTip(outToolTip, "Failure in structured code conversion. " + (error.message ?? error ?? ""), 3);
 
 		ctlStructuredScript?.classList?.add?.("invalid");
-		if(window.ctlStructuredScript) ctlStructuredScript.title = (error.message ?? error).toString();
+		if(globalThis.ctlStructuredScript) ctlStructuredScript.title = (error.message ?? error).toString();
 		//ctlStructuredScript?.setCustomValidity?.((error.message ?? error).toString());
 		return false;
 	}
@@ -235,8 +235,8 @@ function flattenStruct(event) {
 
 function setStructuredText(codeText) {
 	hasScriptChanged = true;
-	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
-	if(window.ctlStructuredScript) {
+	if(globalThis.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
+	if(globalThis.ctlStructuredScript) {
 		codeBoxContentSet(ctlStructuredScript, codeText);
 		if(!adjustingPreferences) saveControlPreference(ctlStructuredScript);
 	} else
@@ -249,31 +249,31 @@ let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
 function scriptChanged(event) {
 	ctlFlatScript?.classList?.add?.("outdated");
-	if(!window.flattenStruct) {
+	if(!globalThis.flattenStruct) {
 		console.info("scriptChanged(): function flattenStruct() not found. Returning.");
 		return false;
 	}
 	hasScriptChanged = true;
-	if(window.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
+	if(globalThis.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 
 	if(flattenTimeoutID) {
-		window.clearTimeout(flattenTimeoutID);
+		globalThis.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
 	if(prefs.flatScript.autoFlatten && !adjustingPreferences)
-		flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
+		flattenTimeoutID = globalThis.setTimeout(flattenStruct, flattenInterval * 1000);
 	return true;
 }
 
 function setAutoFlatten(value) {
-	if(!window.flattenStruct) return false;
+	if(!globalThis.flattenStruct) return false;
 	prefs.flatScript.autoFlatten = value;
 	if(prefs.flatScript.autoFlatten) {
 		if(hasScriptChanged && !flattenTimeoutID)
-			flattenTimeoutID = window.setTimeout(flattenStruct, flattenInterval * 1000);
+			flattenTimeoutID = globalThis.setTimeout(flattenStruct, flattenInterval * 1000);
 	} else {
 		if(flattenTimeoutID) {
-			window.clearTimeout(flattenTimeoutID);
+			globalThis.clearTimeout(flattenTimeoutID);
 			flattenTimeoutID = undefined;
 		}
 	}

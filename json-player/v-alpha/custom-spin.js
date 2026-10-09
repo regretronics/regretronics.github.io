@@ -59,8 +59,8 @@ function spinEditTimer(spinEdit, pointerId) {
 	let nextInterval = spinInterval;
 	if(txtControl && !txtControl.classList.contains("exp"))
 		nextInterval = spinInterval * Math.pow(0.5, Math.abs(currentDelta) / 16.0);
-	buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, nextInterval, spinEdit, pointerId);
-	//buttonsArea.deltaTimer = window.setTimeout(spinEditTimer, 0.25 * spinInterval, spinEdit, pointerId);
+	buttonsArea.deltaTimer = globalThis.setTimeout(spinEditTimer, nextInterval, spinEdit, pointerId);
+	//buttonsArea.deltaTimer = globalThis.setTimeout(spinEditTimer, 0.25 * spinInterval, spinEdit, pointerId);
 	return true;
 }
 
@@ -125,7 +125,7 @@ function spinEditPointerUp(event) {
 	if(buttonsArea.hoverElem) buttonsArea.hoverElem.classList.remove("hover");
 	buttonsArea.hoverElem = null;
 
-	window.clearTimeout(buttonsArea.deltaTimer);
+	globalThis.clearTimeout(buttonsArea.deltaTimer);
 	buttonsArea.deltaTimer = undefined;
 
 	buttonsArea.releasePointerCapture(event.pointerId);
@@ -149,7 +149,7 @@ function spinEditPointerCancel(event) {
 	const buttonsArea = event.srcElement;
 	//buttonsArea.pointerDown = false;
 
-	window.clearTimeout(buttonsArea.deltaTimer);
+	globalThis.clearTimeout(buttonsArea.deltaTimer);
 	buttonsArea.deltaTimer = undefined;
 
 	buttonsArea.releasePointerCapture(event.pointerId);

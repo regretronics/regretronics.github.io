@@ -55,7 +55,7 @@ function drawNote(group, sourceNode) {
 
 var visT;
 function updateVisualizer(clip, tNow) {
-	if(!window.imgVisualizer) return false;
+	if(!globalThis.imgVisualizer) return false;
 	const nowY = visSliceCount - 1; //to do: !change scale reference
 
 	//scroll
@@ -93,7 +93,7 @@ function updateVisualizer(clip, tNow) {
 	//slice.setAttributeNS(null, "transform", `translate(0 ${nowY / visSliceCount})`);
 	slice.setAttributeNS(null, "transform", `translate(0 ${nowY})`);
 	//slice.setAttributeNS(null, "transform", `translate(0 ${nowY}) scale(1 ${1})`);
-	window.visArea?.appendChild?.(slice); //to do: some operations should actually fail and break the flow; maybe I'm using too many checks all the time
+	globalThis.visArea?.appendChild?.(slice); //to do: some operations should actually fail and break the flow; maybe I'm using too many checks all the time
 	for(const node of clip.generators)
 		try { //visualizer note errors shouldn't block the rest of the execution flow
 			drawNote(slice, node);
@@ -106,12 +106,12 @@ function updateVisualizer(clip, tNow) {
 }
 
 function updateVisAreaTransform() {
-	if(!window.imgVisualizer) return false;
+	if(!globalThis.imgVisualizer) return false;
 
-	prefs.basicParams.freqRangeMin = NaNToDefault(parseNumber(window.txtFreqRangeMin?.value), prefsDefault.basicParams.freqRangeMin);
-	prefs.basicParams.freqRangeMax = NaNToDefault(parseNumber(window.txtFreqRangeMax?.value), prefsDefault.basicParams.freqRangeMax);
-	//if(window.visArea) visArea.setAttributeNS(null, "transform", `translate()`);
-	if(!window.visArea?.transform?.baseVal) return false;
+	prefs.basicParams.freqRangeMin = NaNToDefault(parseNumber(globalThis.txtFreqRangeMin?.value), prefsDefault.basicParams.freqRangeMin);
+	prefs.basicParams.freqRangeMax = NaNToDefault(parseNumber(globalThis.txtFreqRangeMax?.value), prefsDefault.basicParams.freqRangeMax);
+	//if(globalThis.visArea) visArea.setAttributeNS(null, "transform", `translate()`);
+	if(!globalThis.visArea?.transform?.baseVal) return false;
 
 	const newScale = imgVisualizer.createSVGTransform();
 	newScale.setScale(1 / Math.log2(prefs.basicParams.freqRangeMax / prefs.basicParams.freqRangeMin), 1 / visSliceCount);

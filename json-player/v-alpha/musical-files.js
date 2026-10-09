@@ -3,9 +3,9 @@
 let lastCodeObjURL = null;
 
 function structDownload(event) {
-	//for the future (as of 2024-08)?: window.showSaveFilePicker()
+	//for the future (as of 2024-08)?: globalThis.showSaveFilePicker()
 	try {
-		if(!window.ctlStructuredScript) throw(new Error("Structured script control not found."));
+		if(!globalThis.ctlStructuredScript) throw(new Error("Structured script control not found."));
 
 		//based on code from https://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
 		const data = codeBoxContentGet(ctlStructuredScript);
@@ -25,7 +25,7 @@ function structDownload(event) {
 		if(lastCodeObjURL) URL.revokeObjectURL(lastCodeObjURL);
 		lastCodeObjURL = URL.createObjectURL(file);
 
-		if(!window.aStructDownload) throw(new Error("Anchor element not found (page may be corrupted)."));
+		if(!globalThis.aStructDownload) throw(new Error("Anchor element not found (page may be corrupted)."));
 		aStructDownload.setAttribute('href', lastCodeObjURL);
 		aStructDownload.setAttribute('download', fileName);
 		/*const newEvent = new MouseEvent('click');
@@ -69,7 +69,7 @@ function mainDrop(event) {
 				if(item.kind === "file") {
 					item.getAsFile().text()?.then?.(setStructuredText)?.catch?.(reason => {
 							setToolTip(outToolTip, "Failed to import dropped file. " + (reason.message ?? reason ?? ""), 3);
-							//window.reportError(reason);
+							//globalThis.reportError(reason);
 							console.error(reason);
 						});
 				}
@@ -80,7 +80,7 @@ function mainDrop(event) {
 			}
 			event.dataTransfer.files[0].text()?.then?.(setStructuredText)?.catch?.(reason => {
 					setToolTip(outToolTip, "Failed to import dropped file. " + (reason.message ?? reason ?? ""), 3);
-					//window.reportError(reason);
+					//globalThis.reportError(reason);
 					console.error(reason);
 				});
 		}
@@ -93,7 +93,7 @@ function mainDrop(event) {
 }
 
 function btnStructImportClick(event) {
-	//for the future (as of 2024-08)?: window.showOpenFilePicker()
+	//for the future (as of 2024-08)?: globalThis.showOpenFilePicker()
 	importForm.reset(); //needed to reload when choosing same file on Chrome.
 	inFile.showPicker(); //asynchronous
 }
@@ -107,7 +107,7 @@ function inFileChange(event) {
 		const file = fileList[0];
 		file.text()?.then?.(setStructuredText)?.catch?.(reason => {
 				setToolTip(outToolTip, "Chosen file could not be read. " + (reason.message ?? reason ?? ""), 3);
-				//window.reportError(reason);
+				//globalThis.reportError(reason);
 				console.error(reason);
 			});
 	} catch(error) {

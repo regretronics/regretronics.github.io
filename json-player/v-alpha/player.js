@@ -144,10 +144,10 @@ function clipEndPlayer(suspend) {
 
 	if(clip === playerClip) {
 		if(clip.open) updateAudioT();
-		if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
+		if(globalThis.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 	}
 	return clip.clipEndDefault(suspend)/* ?.catch?.(reason => {
-			window.reportError(reason);
+			globalThis.reportError(reason);
 		}) */;
 }
 //event handler for generator audio nodes
@@ -185,7 +185,7 @@ function defNodeEnded(event) {
 		console.info("defNodeEnded(): member clip.audioCtx is empty. Returning.");
 		if(clip.open)
 			clip.onClipEnd?.(false);
-		if(playerClip === clip && window.chkAutoReload?.checked)
+		if(playerClip === clip && globalThis.chkAutoReload?.checked)
 			loadAndPlay();
 		return true;
 	}
@@ -206,10 +206,10 @@ function defNodeEnded(event) {
 			console.log("defNodeEnded(): will suspend audioCtx.");
 			clip.audioCtx.suspend()?.then?.(nil => { //suspend, resume, close yield promise's, but their values are just undefined.
 					//question: remove the extra playerClip === clip check? (here and elsewhere)
-					if(playerClip === clip && window.chkAutoReload?.checked)
+					if(playerClip === clip && globalThis.chkAutoReload?.checked)
 						loadAndPlay();
 				}/* , reason => {
-					window.reportError(reason);
+					globalThis.reportError(reason);
 				} */); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
 		}
 	}
@@ -424,7 +424,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 	if(!clip.open) {
 		console.info("audioTimer(): clip is not open. Returning.");
 		if(clip?.timerID) {
-			window.clearInterval(clip.timerID);
+			globalThis.clearInterval(clip.timerID);
 			clip.timerID = NaN;
 		}
 		return false;
@@ -432,12 +432,12 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 	if(!clip.audioCtx && !clip.flatStruct) {
 		console.info("audioTimer(): members clip.audioCtx and clip.flatStruct are both empty. Returning.");
 		if(clip?.timerID) {
-			window.clearInterval(clip.timerID);
+			globalThis.clearInterval(clip.timerID);
 			clip.timerID = NaN;
 		}
 		return false;
 	}
-	//clip.playTimeScale = NaNToDefault(parseNumber(window.txtPlayTimeScale?.value), / * defaultBlockNode.timeScale * /prefsDefault.clipParams.timeScale); //to do: ?variable speed
+	//clip.playTimeScale = NaNToDefault(parseNumber(globalThis.txtPlayTimeScale?.value), / * defaultBlockNode.timeScale * /prefsDefault.clipParams.timeScale); //to do: ?variable speed
 	if(clip === playerClip) updateAudioT();
 	const ctxTime = clip.audioCtx.currentTime, tNow = ctxTime - clip.t0;
 	//if(clip.flatStruct.length < 1 && tNow >= clip.duration) {
@@ -454,14 +454,14 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 			console.log("audioTimer(): will suspend audioCtx and return.");
 			clip.audioCtx?.suspend?.()?.then?.(nil => {
 					//question: remove the extra playerClip === clip check?
-					if(playerClip === clip && window.chkAutoReload?.checked)
+					if(playerClip === clip && globalThis.chkAutoReload?.checked)
 						loadAndPlay();
 				}/* , reason => {
-					window.reportError(reason);
+					globalThis.reportError(reason);
 				} */); //keep audioCtx to avoid recreating noiseBuffer for different contexts.
 		}
 		if(clip?.timerID) {
-			window.clearInterval(clip.timerID);
+			globalThis.clearInterval(clip.timerID);
 			clip.timerID = NaN;
 		}
 		return false;
@@ -473,7 +473,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 		printClip(clip, "audioTimer(): ");
 		console.info(`audioTimer(): member clip.audioCtx.state is ${clip.audioCtx.state}. Returning.`);
 		if(clip?.timerID) {
-			window.clearInterval(clip.timerID);
+			globalThis.clearInterval(clip.timerID);
 			clip.timerID = NaN;
 		}
 		return false;
@@ -496,25 +496,25 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 			console.warn(error);
 		}
 
-	//window.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
+	//globalThis.setTimeout(audioTimer, audioTimerInterval * 1000, clip);
 	//if(tNow >= (clip.duration - 1))
 	//if(tNow >= 0.1)
 		//throw("Test."); //call stack test
-	//window.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
+	//globalThis.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
 	//to do: allow skipping/fast forward/rewind?
 	return true;
 }
 
 //loadNewClip() presumes that a flattened representation already exists in ctlFlatScript.
 function loadNewClip() {
-	if(!window.ctlFlatScript) return false;
+	if(!globalThis.ctlFlatScript) return false;
 	if(prefs.clipParams.freqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
 
 	//to do: allow dynamic change of playTimeScale? (very hard)
-	const playTimeScale = NaNToDefault(parseNumber(window.txtPlayTimeScale?.value), /* defaultBlockNode.timeScale */prefsDefault.clipParams.timeScale);
+	const playTimeScale = NaNToDefault(parseNumber(globalThis.txtPlayTimeScale?.value), /* defaultBlockNode.timeScale */prefsDefault.clipParams.timeScale);
 	//question: allow reverse playback? (how? apparently it will require a script-based audio node for the reverse of an exponential decay.)
 	if(playTimeScale <= 0) throw(new Error("Invalid playback time scale setting.")); //currently no.
-	const playTimeDelta = NaNToDefault(parseNumber(window.txtPlayTimeDelta?.value), /* defaultBlockNode.timeDelta */prefsDefault.clipParams.timeDelta);
+	const playTimeDelta = NaNToDefault(parseNumber(globalThis.txtPlayTimeDelta?.value), /* defaultBlockNode.timeDelta */prefsDefault.clipParams.timeDelta);
 
 	let flatStruct;
 	try {
@@ -524,7 +524,7 @@ function loadNewClip() {
 		ctlFlatScript.title = "";
 	} catch(error) {
 		ctlFlatScript?.classList?.add?.("invalid");
-		if(window.ctlFlatScript) ctlFlatScript.title = (error.message ?? error).toString();
+		if(globalThis.ctlFlatScript) ctlFlatScript.title = (error.message ?? error).toString();
 		console.error(error); //to do: change to console.warn()?
 		return false; //to do: move this handler outwards?
 	}
@@ -579,7 +579,7 @@ function playerBeforePlay() {
 
 	try { //visualizer errors shouldn't block the rest of the procedure
 		visT = 0;
-		if(window.imgVisualizer) {
+		if(globalThis.imgVisualizer) {
 			const slices = imgVisualizer.getElementsByClassName("vis-slice");
 			for(let i = slices.length - 1; i >= 0; i--)
 				slices[i].remove();
@@ -593,20 +593,20 @@ function playerBeforePlay() {
 	enqueueNotes(playerClip, playerClip.playTimeDelta, 2 * audioTimerInterval);
 	if(playerClip.audioCtx.state === 'suspended')
 		playerClip.audioCtx.resume()?.then?.(nil => {
-				//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+				//globalThis.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
 				audioTimer(playerClip);
-				playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
+				playerClip.timerID = globalThis.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 			}, reason => {
 				setToolTip(outToolTip, "Could not resume playback. " + (reason.message ?? reason ?? ""), 3);
-				//window.reportError(reason);
+				//globalThis.reportError(reason);
 				console.error(reason);
 			});
 	else
 		//audioTimer(playerClip);
-		//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-		//window.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
-		playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
-	if(window.btnPause) {
+		//globalThis.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+		//globalThis.requestAnimationFrame(timestamp => audioTimer(clip, timestamp));
+		playerClip.timerID = globalThis.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
+	if(globalThis.btnPause) {
 		btnPause.innerHTML = pauseToggleCaptions[true];
 		btnPause.disabled = false;
 	}
@@ -633,10 +633,10 @@ async function loadAndPlay(event) {
 		playerClip.onClipEnd = clipEndPlayer;
 
 		//to do: don't include empty remark nodes.
-		if(window.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
-		if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(playerClip.duration, timeDisplPrecision);
+		if(globalThis.outNoteCount) outNoteCount.innerText = playerClip.flatStruct.length.toString();
+		if(globalThis.outAudioDur) outAudioDur.innerText = toFixedTrunc(playerClip.duration, timeDisplPrecision);
 		if(playerClip.flatStruct.length <= 0)
-			if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision); //question: ignore lead-in here? (currently yes)
+			if(globalThis.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision); //question: ignore lead-in here? (currently yes)
 
 		playerClip.open = true;
 		if(!playerClip.audioCtx || playerClip.audioCtx.state === 'closed') {
@@ -650,7 +650,7 @@ async function loadAndPlay(event) {
 			playerClip.audioCtx.suspend()?.then?.(playerBeforePlay, playerBeforePlay)
 				?.catch?.(reason => {
 					setToolTip(outToolTip, "Playback reset failed. " + (reason.message ?? reason ?? ""), 2);
-					//window.reportError(reason);
+					//globalThis.reportError(reason);
 					console.error(reason);
 				});
 		else
@@ -675,29 +675,29 @@ function pauseToggle(event) {
 			playerClip.audioCtx.suspend()?.then?.(nil => {
 					updateAudioT();
 					lastT = playerClip.audioCtx.currentTime;
-					if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
+					if(globalThis.btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
 					if(playerClip?.timerID) {
-						window.clearInterval(playerClip.timerID);
+						globalThis.clearInterval(playerClip.timerID);
 						playerClip.timerID = NaN;
 					}
 				}/* , reason => {
-					window.reportError(reason);
+					globalThis.reportError(reason);
 				} */);
 		} else {
 			updateVisAreaTransform();
 			playerClip.audioCtx.resume()?.then?.(nil => {
-					//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-					//window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp))
+					//globalThis.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+					//globalThis.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp))
 					audioTimer(playerClip);
-					if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
-					playerClip.timerID = window.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
+					if(globalThis.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
+					playerClip.timerID = globalThis.setInterval(audioTimer, audioTimerInterval * 1000, playerClip);
 				}, reason => {
 					setToolTip(outToolTip, "Could not resume playback. " + (reason.message ?? reason ?? ""), 3);
-					//window.reportError(reason);
+					//globalThis.reportError(reason);
 					console.error(reason);
 				});
-			//window.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
-			//window.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp));
+			//globalThis.setTimeout(audioTimer, audioTimerInterval * 1000, playerClip);
+			//globalThis.requestAnimationFrame(timestamp => audioTimer(playerClip, timestamp));
 		}
 		//audioTimer(playerClip.audioCtx.state !== 'running');
 		//audioTimer(playerClip); //question: is this statement necessary?

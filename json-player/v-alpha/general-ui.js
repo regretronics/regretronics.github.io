@@ -189,7 +189,7 @@ function loadEventHandlers() {
 		//elem.addEventListener("keyup", recalcEditorCursorPos);
 		//elem.addEventListener("click", recalcEditorCursorPos);
 	}
-	//window.addEventListener("paste", editorPaste);
+	//globalThis.addEventListener("paste", editorPaste);
 
 	{
 		const main1 = document.getElementsByTagName("main")[0]; //limited scope and life-time declaration
@@ -220,24 +220,24 @@ function addControlSeparators() {
 function pageLoaded(event) {
 	//load HTML element references (renders document.getElementById unnecessary)
 	for(const s of document.querySelectorAll('[id]'))
-		window[s.id] = s;
+		globalThis[s.id] = s;
 
-	window.loadPreferences(false); //preferences.js
-	//window.rhythmFactorsChanged?.();
+	globalThis.loadPreferences(false); //preferences.js
+	//globalThis.rhythmFactorsChanged?.();
 
-	if(window.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
-	if(window.outAudioDur) outAudioDur.innerText = toFixedTrunc(0, timeDisplPrecision);
-	if(window.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
+	if(globalThis.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
+	if(globalThis.outAudioDur) outAudioDur.innerText = toFixedTrunc(0, timeDisplPrecision);
+	if(globalThis.txtPrimeCount) txtPrimeCount.max = primes.length.toString();
 	//to do: normalize() for ctlStructuredScript and ctlFlatScript?
 
 	initialCalculations();
 
 	Promise.resolve().then(addControlSeparators)/* ?.catch?.(reason => {
-			window.reportError(reason);
+			globalThis.reportError(reason);
 		}) */;
 
 	Promise.resolve().then(addIntervalSamples)/* ?.catch?.(reason => {
-			window.reportError(reason);
+			globalThis.reportError(reason);
 		}) */;
 
 	console.log("pageLoaded(): function ending");
@@ -247,7 +247,7 @@ function pageReady(event) {
 			console.log("pageReady() promise: function started...");
 			loadEventHandlers();
 
-			//window.loadPreferences?.(false); //preferences.js
+			//globalThis.loadPreferences?.(false); //preferences.js
 			updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
 			setAutoFlatten(prefs.flatScript.autoFlatten);
 			adjustingPreferences = true;
@@ -260,11 +260,11 @@ function pageReady(event) {
 				adjustingPreferences = false;
 			}
 
-			//window.primeCountChanged?.();
-			window.updatePrimeList?.();
-			//window.rhythmFactorsChanged?.();
-			window.updateRhythmAccum?.();
-			window.initSpinControls?.(); //custom-spin.js
+			//globalThis.primeCountChanged?.();
+			globalThis.updatePrimeList?.();
+			//globalThis.rhythmFactorsChanged?.();
+			globalThis.updateRhythmAccum?.();
+			globalThis.initSpinControls?.(); //custom-spin.js
 
 			addToolTipHandler("body>main", event => updateCtlToolTip(event, outToolTip));
 			addToolTipHandler("#tblFractionIntervals", event => updateCtlToolTip(event, outToolTipIntervals));
@@ -273,13 +273,13 @@ function pageReady(event) {
 				s.title = s.control?.title ?? "";
 			console.log("pageReady() promise: function ending");
 		})/* ?.catch?.(reason => {
-			window.reportError(reason);
+			globalThis.reportError(reason);
 		}) */;
 
 	//just eye candy
-	//if(window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-		//window.setInterval(hueAnimation, 150);
-		/*window.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
+	//if(globalThis.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+		//globalThis.setInterval(hueAnimation, 150);
+		/*globalThis.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
 				const bars = "▁▂▃▄▅▆▇█";
 				let s = "";
 				for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
@@ -291,10 +291,10 @@ if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
 else //DOMContentLoaded has already fired
 	pageLoaded();
-window.addEventListener("load", pageReady);
-//window.addEventListener("load", async event => {pageReady(event);});
-//window.addEventListener("load", event => {Promise.resolve().then(value => {pageReady(event);});});
-//window.addEventListener("load", event => {Promise.resolve().then(pageReady);});
+globalThis.addEventListener("load", pageReady);
+//globalThis.addEventListener("load", async event => {pageReady(event);});
+//globalThis.addEventListener("load", event => {Promise.resolve().then(value => {pageReady(event);});});
+//globalThis.addEventListener("load", event => {Promise.resolve().then(pageReady);});
 
 if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON music (unstable)";
 
@@ -399,7 +399,7 @@ function btnRhythmFactorsGenClick(event) {
 		setToolTip(outToolTip, "Rhythm structure generator failed. " + (error.message ?? error ?? ""), 3);
 		return false;
 	}
-	if(window.txtRhythmFactors) {
+	if(globalThis.txtRhythmFactors) {
 		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
 		txtRhythmFactors.dispatchEvent(new Event("input"));
 	}
@@ -408,8 +408,8 @@ function btnRhythmFactorsGenClick(event) {
 }
 function btnChordGenClick(event) {
 	try {
-		prefs.basicParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
-		prefs.basicParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.basicParams.freqRangeMin = parseNumber(globalThis.txtFreqRangeMin?.value);
+		prefs.basicParams.freqRangeMax = parseNumber(globalThis.txtFreqRangeMax?.value);
 		const rootStruct = makeChords(parseInt(txtPatternCount.value), parseInt(txtVoiceCount.value), parseNumber(txtTimeScale.value), prefs.primeFactors.primeCount, prefs.primeFactors.expRanges);
 		if(rootStruct === false) throw(new Error());
 
@@ -421,8 +421,8 @@ function btnChordGenClick(event) {
 }
 function btnRhythmGenClick(event) {
 	try {
-		prefs.basicParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
-		prefs.basicParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.basicParams.freqRangeMin = parseNumber(globalThis.txtFreqRangeMin?.value);
+		prefs.basicParams.freqRangeMax = parseNumber(globalThis.txtFreqRangeMax?.value);
 		const rootStruct = makeRhythm(parseInt(txtReptCount.value), chkPercussivePattern.checked, parseNumber(txtTimeScale.value));
 		if(rootStruct === false) throw(new Error());
 
@@ -434,8 +434,8 @@ function btnRhythmGenClick(event) {
 }
 function btnMelodyGenClick(event) {
 	try {
-		prefs.basicParams.freqRangeMin = parseNumber(window.txtFreqRangeMin?.value);
-		prefs.basicParams.freqRangeMax = parseNumber(window.txtFreqRangeMax?.value);
+		prefs.basicParams.freqRangeMin = parseNumber(globalThis.txtFreqRangeMin?.value);
+		prefs.basicParams.freqRangeMax = parseNumber(globalThis.txtFreqRangeMax?.value);
 		const rootStruct = makeMelody(parseInt(txtPatternCount.value), parseNumber(txtReptPeriod.value), parseInt(txtReptCount.value), parseNumber(txtTimeScale.value), chkPercussivePattern.checked, prefs.primeFactors.primeCount, prefs.primeFactors.expRanges);
 		if(rootStruct === false) throw(new Error());
 
@@ -463,9 +463,9 @@ function btnStopClick(event) {
 function deletePrevTab() {
 	//outdent line (actually, erase the nearest tab before caret)
 	try {
-		const rng = window.getSelection?.()?.getRangeAt?.(0); //disregarding multiple selection, which only Firefox supports (to do?)
+		const rng = globalThis.getSelection?.()?.getRangeAt?.(0); //disregarding multiple selection, which only Firefox supports (to do?)
 		if(!rng) {
-			console.info("deletePrevTab(): member window.getSelection().getRangeAt(0) is empty. Returning.");
+			console.info("deletePrevTab(): member globalThis.getSelection().getRangeAt(0) is empty. Returning.");
 			return false;
 		}
 
@@ -528,10 +528,10 @@ function editorKeyDown(event) {
 function editorPaste(event) {
 	event.preventDefault();
 
-	let paste = (event.clipboardData || window.clipboardData).getData("text");
-	const selection = window.getSelection?.();
+	let paste = (event.clipboardData || globalThis.clipboardData).getData("text");
+	const selection = globalThis.getSelection?.();
 	if(!selection || !selection.rangeCount) {
-		console.info("editorPaste(): member window.getSelection().rangeCount is empty. Returning.");
+		console.info("editorPaste(): member globalThis.getSelection().rangeCount is empty. Returning.");
 		return false;
 	}
 	selection.deleteFromDocument();
@@ -563,9 +563,9 @@ function recalcEditorCursorPos(event) { //not working, at least in Ffx
 	}
 	elem.normalize();
 
-	const rng = window.getSelection?.()?.getRangeAt?.(0); //disregarding multiple selection, which only Firefox supports (to do?)
+	const rng = globalThis.getSelection?.()?.getRangeAt?.(0); //disregarding multiple selection, which only Firefox supports (to do?)
 	if(!rng) {
-		console.info("recalcEditorCursorPos(): member window.getSelection().getRangeAt(0) is empty. Returning.");
+		console.info("recalcEditorCursorPos(): member globalThis.getSelection().getRangeAt(0) is empty. Returning.");
 		return false;
 	}
 	let pos = rng.endOffset;
@@ -616,9 +616,9 @@ function addToolTipHandler(rootSelector, handler) {
 	}
 }
 function setToolTip(toolTipCtl, s, warnLevel) {
-	if(!toolTipCtl) toolTipCtl = window.outToolTip;
+	if(!toolTipCtl) toolTipCtl = globalThis.outToolTip;
 	if(!toolTipCtl) {
-		console.info("toolTipCtl(): toolTipCtl parameter and window.outToolTip are both empty. Returning.");
+		console.info("toolTipCtl(): toolTipCtl parameter and globalThis.outToolTip are both empty. Returning.");
 		return false;
 	}
 
@@ -739,10 +739,10 @@ function playIntervalHandler(event) {
 
 		if(prefs.genParams.baseFreq == 0) throw(new Error("Invalid base frequency setting."));
 		if(prefs.clipParams.freqScale == 0) throw(new Error("Invalid playback frequency scale setting."));
-		const playTimeScale = NaNToDefault(parseNumber(window.txtPlayTimeScale?.value), prefsDefault.clipParams.timeScale);
+		const playTimeScale = NaNToDefault(parseNumber(globalThis.txtPlayTimeScale?.value), prefsDefault.clipParams.timeScale);
 		//to do: allow reverse playback? (currently no)
 		if(playTimeScale <= 0) throw(new Error("Invalid playback time scale setting."));
-		//const playTimeDelta = NaNToDefault(parseNumber(window.txtPlayTimeDelta?.value), prefsDefault.clipParams.timeDelta); //question: applicable here?
+		//const playTimeDelta = NaNToDefault(parseNumber(globalThis.txtPlayTimeDelta?.value), prefsDefault.clipParams.timeDelta); //question: applicable here?
 		const playTimeDelta = 0; //probably not, I think.
 
 		const noteTInterval = 0.25, noteDuration = 3;
@@ -775,7 +775,7 @@ function playIntervalHandler(event) {
 					clip.playButton.classList?.add?.("playing");
 				})?.catch?.(reason => {
 					setToolTip(outToolTipIntervals, "Could not resume playback. " + (reason.message ?? reason ?? ""), 3);
-					//window.reportError(reason);
+					//globalThis.reportError(reason);
 					console.error(reason);
 				});
 		clip.open = true;
@@ -800,7 +800,7 @@ function clipEndInterval(suspend) {
 			//clip.audioCtx.close(); //to do: use this in place of suspend()?
 			//if(intervalClip === clip) intervalClip = null;
 		}/* , reason => {
-			window.reportError(reason);
+			globalThis.reportError(reason);
 		} */);
 	//return true;
 }

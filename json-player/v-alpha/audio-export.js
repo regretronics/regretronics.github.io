@@ -29,13 +29,13 @@ function audioDownload(data) {
 		lastAudioObjURL = URL.createObjectURL(file);
 		//console.log("audioDownload(): createObjectURL object");
 
-		if(!window.aAudioDownload) throw(new Error("Anchor element not found (page may be corrupted)."));
+		if(!globalThis.aAudioDownload) throw(new Error("Anchor element not found (page may be corrupted)."));
 		aAudioDownload.setAttribute('href', lastAudioObjURL);
 		aAudioDownload.setAttribute('download', fileName);
 		aAudioDownload.click();
 
 		const sizeKB = file.size / 1024, sizeMB = sizeKB / 1024;
-		if(window.outExportProgress) {
+		if(globalThis.outExportProgress) {
 			outExportProgress.innerText = `Exported (${sizeKB.toFixed(2)} kiB/${sizeMB.toFixed(2)} MiB)`;
 			outExportProgress.classList?.remove?.("alert-error");
 		}
@@ -45,8 +45,8 @@ function audioDownload(data) {
 		//question: direct message to outToolTip (currently yes), btnAudioExport.title or outExportProgress (currently yes)?
 		setToolTip(outToolTip, "Failure in audio saving. " + (error.message ?? error ?? ""), 3);
 		//if(event && event?.target?.title) event.target.title = (error.message ?? error).toString();
-		//if(window.btnAudioExport) btnAudioExport.title = (error.message ?? error).toString();
-		if(window.outExportProgress) {
+		//if(globalThis.btnAudioExport) btnAudioExport.title = (error.message ?? error).toString();
+		if(globalThis.outExportProgress) {
 			outExportProgress.innerText = (error.message ?? error).toString();
 			outExportProgress.classList?.add?.("alert-error");
 		}
@@ -65,7 +65,7 @@ function clipEndExport(suspend) {
 	return clip.clipEndDefault(true)?.then?.(nil => {
 	//if(clip.audioCtx)
 	//	clip.audioCtx.close?.()?.then?.(nil => {
-			if(window.outExportProgress) {
+			if(globalThis.outExportProgress) {
 				outExportProgress.innerText = "Rendered";
 				outExportProgress.classList?.remove?.("alert-error");
 			}
@@ -77,7 +77,7 @@ function clipEndExport(suspend) {
 			clip.audioCtx.close(); //to do: use this in place of suspend()?
 			if(exportClip === clip) exportClip = null;
 		}/* , reason => {
-			window.reportError(reason);
+			globalThis.reportError(reason);
 		} */);
 	//return true;
 }
@@ -89,13 +89,13 @@ function exportAudioTimer(clip) { //question: should this be a SoundClip method?
 	if(!clip.open || !clip.audioCtx) {
 		console.info("exportAudioTimer(): clip is either not open or has an empty audioCtx. Cancelling timer.");
 		if(clip?.timerID) {
-			window.clearInterval(clip.timerID);
+			globalThis.clearInterval(clip.timerID);
 			clip.timerID = NaN;
 		}
 		return false;
 	}
 	const ctxTime = clip.audioCtx.currentTime;
-	if(window.outExportProgress) {
+	if(globalThis.outExportProgress) {
 		//question: round (toFixed) or trunc (toFixedTrunc) for completion? (currently trunc, as with time)
 		//outExportProgress.innerText = (100 * ctxTime / (clip.duration + clip.t0)).toFixed(2) + "%";
 		outExportProgress.innerText = toFixedTrunc(100 * ctxTime / (clip.duration + clip.t0), 2) + "%";
@@ -107,7 +107,7 @@ function exportAudioTimer(clip) { //question: should this be a SoundClip method?
 		console.log("exportAudioTimer(): will stop exporting and cancel timer.");
 		clip.onClipEnd?.(true);
 		if(clip?.timerID) {
-			window.clearInterval(clip.timerID);
+			globalThis.clearInterval(clip.timerID);
 			clip.timerID = NaN;
 		}
 		return true;
@@ -115,13 +115,13 @@ function exportAudioTimer(clip) { //question: should this be a SoundClip method?
 	if(clip.audioCtx.state === 'closed') {
 		console.debug("exportAudioTimer(): member clip.audioCtx.state is closed. Cancelling timer.");
 		if(clip?.timerID) {
-			window.clearInterval(clip.timerID);
+			globalThis.clearInterval(clip.timerID);
 			clip.timerID = NaN;
 		}
 		return false;
 	}
-	//window.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000, clip);
-	//window.requestAnimationFrame(timestamp => exportAudioTimer(clip, timestamp));
+	//globalThis.setTimeout(exportAudioTimer, 2 * audioTimerInterval * 1000, clip);
+	//globalThis.requestAnimationFrame(timestamp => exportAudioTimer(clip, timestamp));
 	return true;
 }
 function beforeRecord() {
@@ -142,7 +142,7 @@ function beforeRecord() {
 	const _exportType = 'audio/ogg; codecs=opus';
 	if(MediaRecorder.isTypeSupported(_exportType)) exportType = _exportType;
 	mediaRecorder = new MediaRecorder(dest.stream, {mimeType: exportType});
-	if(window.outExportFormat) outExportFormat.innerText = exportType;
+	if(globalThis.outExportFormat) outExportFormat.innerText = exportType;
 	mediaRecorder.ondataavailable = event => {
 			//push each chunk (blobs) in an array
 			console.debug("MediaRecorder.ondataavailable event");
@@ -156,17 +156,17 @@ function beforeRecord() {
 
 	enqueueNotes(exportClip, lastT, Infinity);
 	//console.log("beforeRecord(): enqueueNotes done.");
-	if(window.outExportProgress) {
+	if(globalThis.outExportProgress) {
 		outExportProgress.innerText = "Starting";
 		outExportProgress.classList?.remove?.("alert-error");
 	}
 	mediaRecorder.start();
 	exportClip.audioCtx.resume()?.then?.(nil => {
 			exportAudioTimer(exportClip);
-			exportClip.timerID = window.setInterval(exportAudioTimer, audioTimerInterval * 1000, exportClip);
+			exportClip.timerID = globalThis.setInterval(exportAudioTimer, audioTimerInterval * 1000, exportClip);
 		}, reason => {
 			setToolTip(outToolTip, "Could not resume recording. " + (reason.message ?? reason ?? ""), 3);
-			//window.reportError(reason);
+			//globalThis.reportError(reason);
 			console.error(reason);
 		});
 
@@ -181,7 +181,7 @@ function beforeRecord() {
 			console.log("audioCtx startRendering promise then end");
 		}, reason => {
 			setToolTip(outToolTip, "Could not start rendering. " + (reason.message ?? reason ?? ""), 3);
-			//window.reportError(reason);
+			//globalThis.reportError(reason);
 			console.error(reason);
 			//note: the promise should reject when startRendering is called a second time on an OfflineAudioContext
 		});*/
@@ -192,12 +192,12 @@ function audioExport(event) {
 		exportClip = loadNewClip();
 		if(!exportClip || !exportClip.flatStruct) throw(new Error("Failed to create or initialize clip object."));
 		exportClip.onClipEnd = clipEndExport;
-		if(window.outExportProgress) {
+		if(globalThis.outExportProgress) {
 			outExportProgress.innerText = "Note list loaded";
 			outExportProgress.classList?.remove?.("alert-error");
 		}
 		//question: round (toFixed) or trunc (toFixedTrunc) here?
-		if(window.outExportDuration) outExportDuration.innerText = exportClip.duration.toFixed(timeDisplPrecision);
+		if(globalThis.outExportDuration) outExportDuration.innerText = exportClip.duration.toFixed(timeDisplPrecision);
 		//to do: stop AudioContext playback? (probably unnecessary)
 		exportClip.open = true;
 		const sampleRate = 48000; //to do: will become a variable later
@@ -208,7 +208,7 @@ function audioExport(event) {
 		exportClip.audioCtx.addEventListener("statechange", audioCtxDefStateChanged);
 		exportClip.audioCtx.suspend()?.then?.(beforeRecord)
 			/* ?.catch?.(reason => {
-				window.reportError(reason);
+				globalThis.reportError(reason);
 			}) */;
 		return true;
 	} catch(error) {
@@ -220,7 +220,7 @@ function audioExport(event) {
 function audioExportCancel(event) {
 	if(!exportClip) return false;
 	exportClip.clipEndDefault(true)?.then?.(nil => {
-			if(window.outExportProgress) {
+			if(globalThis.outExportProgress) {
 				outExportProgress.innerText = "Canceled";
 				outExportProgress.classList?.remove?.("alert-error");
 			}
@@ -233,7 +233,7 @@ function audioExportCancel(event) {
 			exportClip.audioCtx.close();
 			exportClip = null;
 		}/* , reason => {
-			window.reportError(reason);
+			globalThis.reportError(reason);
 		} */);
 	return true;
 }

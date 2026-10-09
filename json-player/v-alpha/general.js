@@ -218,7 +218,7 @@ function updateRhythmAccum() {
 		rhythmFactorsAccum.unshift(product); //add as first
 	}
 	//rhythmFactorsAccum.push(1);
-	if(window.outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
+	if(globalThis.outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
 	prefs.rhythmParams.rhythmFactors.push(1); //? (equalization?)
 	return true;
 }
