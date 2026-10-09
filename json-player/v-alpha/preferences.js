@@ -1064,7 +1064,7 @@ function rhythmFactorsChanged(event) {
 		return false;
 	}
 	prefs.rhythmParams.rhythmFactors = newRhythmFactors;
-	rhythmAccumUpdate();
+	updateRhythmAccum();
 	return true;
 }
 

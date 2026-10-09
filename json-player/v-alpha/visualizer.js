@@ -54,7 +54,7 @@ function drawNote(group, sourceNode) {
 }
 
 var visT;
-function visualizerUpdate(clip, tNow) {
+function updateVisualizer(clip, tNow) {
 	if(!window.imgVisualizer) return false;
 	const nowY = visSliceCount - 1; //to do: !change scale reference
 

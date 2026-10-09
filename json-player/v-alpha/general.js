@@ -208,7 +208,7 @@ async function initialCalculations() {
 	}
 }
 
-function rhythmAccumUpdate() {
+function updateRhythmAccum() {
 	if(!prefs.rhythmParams.rhythmFactors) prefs.rhythmParams.rhythmFactors = [];
 	const factors = prefs.rhythmParams.rhythmFactors.slice(); //array clone
 	let product = 1;

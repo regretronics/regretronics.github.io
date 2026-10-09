@@ -143,7 +143,7 @@ function clipEndPlayer(suspend) {
 	}
 
 	if(clip === playerClip) {
-		if(clip.open) audioTUpdate();
+		if(clip.open) updateAudioT();
 		if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[true];
 	}
 	return clip.clipEndDefault(suspend)/* ?.catch?.(reason => {
@@ -400,7 +400,7 @@ function enqueueNotes(clip, tNow, tMargin) { //question: should this be a SoundC
 	return true;
 }
 
-function audioTUpdate() {
+function updateAudioT() {
 	if(!playerClip) return false;
 	try {
 		if(playerClip.audioCtx && outAudioT)
@@ -438,7 +438,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 		return false;
 	}
 	//clip.playTimeScale = NaNToDefault(parseNumber(window.txtPlayTimeScale?.value), / * defaultBlockNode.timeScale * /prefsDefault.clipParams.timeScale); //to do: ?variable speed
-	if(clip === playerClip) audioTUpdate();
+	if(clip === playerClip) updateAudioT();
 	const ctxTime = clip.audioCtx.currentTime, tNow = ctxTime - clip.t0;
 	//if(clip.flatStruct.length < 1 && tNow >= clip.duration) {
 	if(clip.audioCtx.state !== 'suspended'
@@ -491,7 +491,7 @@ function audioTimer(clip) { //question: should this be a SoundClip method?
 	//visualization
 	if(clip === playerClip)
 		try {
-			visualizerUpdate(clip, tNow);
+			updateVisualizer(clip, tNow);
 		} catch(error) {
 			console.warn(error);
 		}
@@ -589,7 +589,7 @@ function playerBeforePlay() {
 		console.warn(error);
 	}
 	//audioTimer(playerClip);
-	audioTUpdate();
+	updateAudioT();
 	enqueueNotes(playerClip, playerClip.playTimeDelta, 2 * audioTimerInterval);
 	if(playerClip.audioCtx.state === 'suspended')
 		playerClip.audioCtx.resume()?.then?.(nil => {
@@ -669,11 +669,11 @@ function pauseToggle(event) {
 	try {
 		if(!playerClip) return false;
 		if(!playerClip.open || !playerClip.audioCtx) return false;
-		//audioTUpdate();
+		//updateAudioT();
 		if(playerClip.audioCtx.state === 'closed') return false;
 		if(playerClip.audioCtx.state === 'running') {
 			playerClip.audioCtx.suspend()?.then?.(nil => {
-					audioTUpdate();
+					updateAudioT();
 					lastT = playerClip.audioCtx.currentTime;
 					if(window.btnPause) btnPause.innerHTML = pauseToggleCaptions[false];
 					if(playerClip?.timerID) {

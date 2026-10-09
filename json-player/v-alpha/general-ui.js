@@ -405,7 +405,7 @@ function btnRhythmFactorsGenClick(event) {
 		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
 		txtRhythmFactors.dispatchEvent(new Event("input"));
 	}
-	//rhythmAccumUpdate();
+	//updateRhythmAccum();
 	return true;
 }
 function btnChordGenClick(event) {
