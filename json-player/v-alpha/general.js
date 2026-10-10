@@ -77,9 +77,9 @@ function exprEliminateParens(str) {
 	//warning: this is a string-to-string operation, where numbers become decimal-to-binary-to-decimal coded
 	const re = new RegExp(/\(([^\(\)]*)\)/, "g");
 	do {
-		const s = str.replace(re, (match, p1, offset, string) => parseNumber(p1).toString());
-		if(s == str) break;
-		str = s;
+		const strNew = str.replace(re, (match, p1, offset, string) => parseNumber(p1).toString());
+		if(strNew == str) break;
+		str = strNew;
 	} while(true);
 	return str;
 }
@@ -201,12 +201,12 @@ const releaseCurveSize = 8192;
 async function initialCalculations() {
 	//initialize look-up table
 	releaseCurve = new Float32Array(releaseCurveSize);
-	for(let i = 0; i < releaseCurveSize; i++) {
+	for(let iSample = 0; iSample < releaseCurveSize; iSample++) {
 		//opposite of growing exponential
-		//releaseCurve[i] = 1 - Math.pow(2, 4 * (i / releaseCurveSize - 1));
+		//releaseCurve[iSample] = 1 - Math.pow(2, 4 * (iSample / releaseCurveSize - 1));
 
 		//parabolic
-		releaseCurve[i] = 1 - (i / releaseCurveSize) ** 2;
+		releaseCurve[iSample] = 1 - (iSample / releaseCurveSize) ** 2;
 	}
 }
 

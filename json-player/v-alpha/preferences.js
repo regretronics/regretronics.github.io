@@ -996,12 +996,12 @@ function expRangesFromParams(force) {
 		//const newExpRanges = new Array(primeCountCeil);
 		const newExpRanges = {};
 		//build table of exponent variance per prime factor (tonality limitation: high factors are too odd, and should have low exponents)
-		for(let i = 0; i < primeCountCeil; i++) {
+		for(let iPrime = 0; iPrime < primeCountCeil; iPrime++) {
 			const 
-				varFraction = (i <= (primeCount - 1) ? 1 : (primeCount % 1)), 
-				range = varFraction / Math.log2(primes[i]);
+				varFraction = (iPrime <= (primeCount - 1) ? 1 : (primeCount % 1)), 
+				range = varFraction / Math.log2(primes[iPrime]);
 
-			newExpRanges[primes[i]] = [Number((expRangeLower * range).toFixed(4)), Number((expRangeUpper * range).toFixed(4))];
+			newExpRanges[primes[iPrime]] = [Number((expRangeLower * range).toFixed(4)), Number((expRangeUpper * range).toFixed(4))];
 		}
 		prefs.primeFactors.expRanges = newExpRanges;
 

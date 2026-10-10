@@ -65,8 +65,8 @@ function updateVisualizer(clip, tNow) {
 		slice.setAttributeNS(null, "data-dt", (tNow - t1).toString());
 	}
 	//to do: adjust visArea transform instead of moving every row
-	for(let i = lastSlice; i >= 0; i--) {
-		const slice = slices[i];
+	for(let iSlice = lastSlice; iSlice >= 0; iSlice--) {
+		const slice = slices[iSlice];
 		const absY = parseFloat(slice.getAttribute("data-t")) / audioTimerInterval; //dataset doesn't work here, somehow (to do: re-check)
 		//const newY = absY + (nowY - visT) /* * audioTimerInterval */;
 		const newY = absY + nowY - tNow / audioTimerInterval;

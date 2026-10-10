@@ -46,19 +46,19 @@ function SoundClip(flatStruct, duration, playTimeScale, playTimeDelta, playVolSc
 const noiseBufferTime = 86400 / 4096; //seconds
 function createNoiseBuffer(audioCtx) {
 	if(!audioCtx) return false;
-	const sampleCount = noiseBufferTime * audioCtx.sampleRate;
-	const buffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
+	const sampleRate = audioCtx.sampleRate, sampleCount = noiseBufferTime * sampleRate;
+	const buffer = audioCtx.createBuffer(1, sampleCount, sampleRate);
 	const arr = buffer.getChannelData(0);
 
-	for(let i = 0; i < sampleCount; i++) {
+	for(let iSample = 0; iSample < sampleCount; iSample++) {
 		//noise
-		//arr[i] = 2 * Math.random() - 1; //non-gaussian
+		//arr[iSample] = 2 * Math.random() - 1; //non-gaussian
 		//gaussian noise
-		arr[i] = 0.5 * (Math.random() - Math.random() + Math.random() - Math.random());
-		//arr[i] = 1 * (Math.random() - Math.random() + Math.random() - Math.random()); //can result in overdrive/clipping, but in practice seems ok
+		arr[iSample] = 0.5 * (Math.random() - Math.random() + Math.random() - Math.random());
+		//arr[iSample] = 1 * (Math.random() - Math.random() + Math.random() - Math.random()); //can result in overdrive/clipping, but in practice seems ok
 
 		//test: sine wave that fades in and then out
-		//arr[i] = (1 - Math.abs((i - 0.5 * sampleCount) / (0.5 * sampleCount))) * Math.sin(2 * Math.PI * 440 * i / audioCtx.sampleRate);
+		//arr[iSample] = (1 - Math.abs((iSample - 0.5 * sampleCount) / (0.5 * sampleCount))) * Math.sin(2 * Math.PI * 440 * iSample / sampleRate);
 	}
 
 	return buffer;
@@ -68,8 +68,8 @@ function createNoiseBuffer(audioCtx) {
 //currently an in-place operation (instead of pure function), with optional return.
 function removeFrom(arr, item) {
 	if(!item || !arr) return false; //breaks silently; no need to log this
-	const i = arr.indexOf(item);
-	if(i >= 0) arr.splice(i, 1);
+	const pos = arr.indexOf(item);
+	if(pos >= 0) arr.splice(pos, 1);
 	return arr;
 }
 
@@ -531,10 +531,10 @@ function loadNewClip() {
 
 	//estimate total clip duration and fills order-dependent implied noteStart's
 	let duration = 0;
-	const len = flatStruct.length;
+	const noteCount = flatStruct.length;
 	let lastNoteStop = 0;
-	for(let i = 0, note; i < len; i++) {
-		note = flatStruct[i];
+	for(let iNote = 0, note; iNote < noteCount; iNote++) {
+		note = flatStruct[iNote];
 		//in the flattened structure, all notes must have (non-zero) frequency...
 		if(!note.freq) //even unfiltered noise
 		//if(!note.freq && ((note.timbre ?? defaultNoteNode.timbre) != "noise" || (note.q ?? defaultNoteNode.q) != 0)) //except for unfiltered noise
@@ -555,7 +555,7 @@ function loadNewClip() {
 			if(note.noteStop == note.noteStart) continue; //(currently no.)
 		duration = Math.max(duration, playTimeScale * note.noteStop);
 	}
-	if(len <= 0) return false;
+	if(noteCount <= 0) return false;
 	//lastFreq = flatStruct[0].freq; //the first note may be actually noise...
 	flatStruct.sort((a, b) => {
 			let diff = a.noteStart - b.noteStart; //earlier start
@@ -581,8 +581,8 @@ function playerBeforePlay() {
 		visT = 0;
 		if(globalThis.imgVisualizer) {
 			const slices = imgVisualizer.getElementsByClassName("vis-slice");
-			for(let i = slices.length - 1; i >= 0; i--)
-				slices[i].remove();
+			for(let iSlice = slices.length - 1; iSlice >= 0; iSlice--)
+				slices[iSlice].remove();
 		}
 		updateVisAreaTransform();
 	} catch(error) {

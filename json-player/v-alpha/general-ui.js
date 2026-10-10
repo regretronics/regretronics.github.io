@@ -215,7 +215,7 @@ function addControlSeparators() {
 		const first = controlCell.firstChild;
 		if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
 			controlCell.removeChild(first);
-		controlCell.insertBefore(separator, s.firstChild);
+		controlCell.insertBefore(separator, controlCell.firstChild);
 		//controlCell.prepend(separator, "\u{A0}");
 	}
 	console.log("addControlSeparators(): function ending");
@@ -285,11 +285,11 @@ function pageReady(event) {
 	//just eye candy
 	//if(globalThis.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
 		//globalThis.setInterval(hueAnimation, 150);
-		/*globalThis.setInterval(() => { //spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
-				const bars = "▁▂▃▄▅▆▇█";
-				let s = "";
-				for(let i = 0; i < 4; i++) {s += bars[Math.floor(Math.random() * bars.length)];}
-				document.title = s + " JSON music";
+		/*globalThis.setInterval(() => { //test: spectrum bars (bad performance as of Ffx 114 and Chrome 116 for Windows)
+				const barsArr = "▁▂▃▄▅▆▇█";
+				let barsStr = "";
+				for(let rept = 0; rept < 4; rept++) barsStr += barsArr[Math.floor(Math.random() * bars.length)];
+				document.title = barsStr + " JSON music";
 			}, 200);*/
 	//}
 }
@@ -298,9 +298,9 @@ if(document.readyState === "loading")
 else //DOMContentLoaded has already fired
 	pageLoaded();
 globalThis.addEventListener("load", pageReady);
-//globalThis.addEventListener("load", async event => {pageReady(event);});
-//globalThis.addEventListener("load", event => {Promise.resolve().then(value => {pageReady(event);});});
-//globalThis.addEventListener("load", event => {Promise.resolve().then(pageReady);});
+//globalThis.addEventListener("load", async event => pageReady(event););
+//globalThis.addEventListener("load", event => Promise.resolve().then(value => {pageReady(event);}););
+//globalThis.addEventListener("load", event => Promise.resolve().then(pageReady););
 
 if(location.pathname.split("/").at(-2) != "json-player") document.title = "JSON music (unstable)";
 
@@ -353,7 +353,7 @@ function updateExpSpinner(elem) {
 	const dynMin = val - 2 * Math.sign(val) * step, min = parseFloat(elem.dataset.min);
 	if(min === undefined || isNaN(min)) {
 		elem.step = step;
-		//if(elem == txtBaseFreq) {elem.min = val - 2 * step;}
+		//if(elem == txtBaseFreq) elem.min = val - 2 * step;
 		elem.min = dynMin;
 	} else {
 		elem.step = Math.max(min, step);
@@ -625,25 +625,25 @@ function addToolTipHandler(rootSelector, handler) {
 		elem.addEventListener("pointerdown", handler);
 	}
 }
-function setToolTip(toolTipCtl, s, warnLevel) {
+function setToolTip(toolTipCtl, text, warnLevel) {
 	if(!toolTipCtl) toolTipCtl = globalThis.outToolTip;
 	if(!toolTipCtl) {
 		console.info("toolTipCtl(): toolTipCtl parameter and globalThis.outToolTip are both empty. Returning.");
 		return false;
 	}
 
-	/* if(!s) {
-		console.info("toolTipCtl(): parameter s is empty. Returning.");
+	/* if(!text) {
+		console.info("toolTipCtl(): parameter text is empty. Returning.");
 		return false;
 	}
-	if(typeof(s) !== "string") s = s.toString(); */
-	if(!s) s = "";
-	if(typeof(s) !== "string") s = s.toString();
-	s = s.trim();
+	if(typeof(text) !== "string") text = text.toString(); */
+	if(!text) text = "";
+	if(typeof(text) !== "string") text = text.toString();
+	text = text.trim();
 
-	toolTipCtl.innerText = s;
-	//toolTipCtl.innerHTML = s;
-	toolTipCtl.classList.toggle("active", s !== "");
+	toolTipCtl.innerText = text;
+	//toolTipCtl.innerHTML = text;
+	toolTipCtl.classList.toggle("active", text !== "");
 
 	/* if(warnLevel)
 		toolTipCtl.dataset.warnLevel = warnLevel.toString();

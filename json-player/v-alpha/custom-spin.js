@@ -39,7 +39,7 @@ function spinEditTimer(spinEdit, pointerId) {
 		if(buttonsArea.hoverElem.classList.contains("dec")) {
 			//if(txtControl) txtControl.valueAsNumber -= txtControl.step;
 			if(txtControl) {
-				//for(let i = 0; i < iterations; i++)
+				//for(let rept = 0; rept < iterations; rept++)
 					txtControl.stepDown();
 				txtControl.dispatchEvent(new Event("input"));
 			}
@@ -47,7 +47,7 @@ function spinEditTimer(spinEdit, pointerId) {
 		} else if(buttonsArea.hoverElem.classList.contains("inc")) {
 			//if(txtControl) txtControl.valueAsNumber += txtControl.step;
 			if(txtControl) {
-				//for(let i = 0; i < iterations; i++)
+				//for(let rept = 0; rept < iterations; rept++)
 					txtControl.stepUp();
 				txtControl.dispatchEvent(new Event("input"));
 			}

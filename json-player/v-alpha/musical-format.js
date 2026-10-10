@@ -167,18 +167,18 @@ function parseNode(flatStruct, node, blockContext) {
 		}
 
 	delete newContext.remark;
-	for(let iNote = 0, t; (t = node[iNote]); iNote++) { //indexed sub-nodes
-		if(typeof(t) === "string") { //reference by name
+	for(let iNode = 0, nodeValue; (nodeValue = node[iNode]); iNode++) { //indexed sub-nodes
+		if(typeof(nodeValue) === "string") { //reference by name
 			//pattern invocation, local
 			//question: local first really?
-			if(Object.hasOwn(node, t))
-				parseNode(flatStruct, node[t], newContext);
+			if(Object.hasOwn(node, nodeValue))
+				parseNode(flatStruct, node[nodeValue], newContext);
 			else
 				//pattern invocation, global
-				if(Object.hasOwn(struct, t)) parseNode(flatStruct, struct[t], newContext);
+				if(Object.hasOwn(struct, nodeValue)) parseNode(flatStruct, struct[nodeValue], newContext);
 		} else
 			//primary recursion point.
-			parseNode(flatStruct, t, newContext);
+			parseNode(flatStruct, nodeValue, newContext);
 	}
 }
 
@@ -225,10 +225,11 @@ function flattenStruct(event) {
 		let regex = new RegExp(/\{\n\t{2,}/, "g");
 		objText = objText.replace(regex, "{");
 		regex = new RegExp(/\n\t{2,}/, "g"); //to do: review this one closely, against hypothetical effects like " }"
-		objText = objText.replace(regex, " ");
-		//objText = objText.replace(regex, "\t");
+		objText = objText.replace(regex, /* " " */"\t");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		objText = objText.replace(regex, "}");
+		/* regex = new RegExp(/: /, "g"); //space to tab between property and value
+		objText = objText.replace(regex, ":\t"); */
 
 		if(!adjustingPreferences) saveControlPreference(ctlStructuredScript);
 		codeBoxContentSet(ctlFlatScript, objText);
