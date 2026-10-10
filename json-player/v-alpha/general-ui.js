@@ -204,27 +204,27 @@ function loadEventHandlers() {
 function addControlSeparators() {
 	console.log("addControlSeparators(): function started...");
 	//control separators
-	//for(const s of document.querySelectorAll('.cell:not(:first-of-type)')) {
-	for(const s of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
+	//for(const controlCell of document.querySelectorAll('.cell:not(:first-of-type)')) {
+	for(const controlCell of document.querySelectorAll(':nth-child(n + 2 of .cell)')) {
 		const separator = document.createElement("span");
 		separator.classList.add("separator");
 
-		//s.parentElement.insertBefore(separator, s);
-		//s.insertBefore(separator, s.firstElementChild);
+		//controlCell.parentElement.insertBefore(separator, controlCell);
+		//controlCell.insertBefore(separator, controlCell.firstElementChild);
 		//remove unwanted white space that could affect spacing
-		const first = s.firstChild;
+		const first = controlCell.firstChild;
 		if(first.nodeType == Node.TEXT_NODE && first.nodeValue.trim() == "")
-			s.removeChild(first);
-		s.insertBefore(separator, s.firstChild);
-		//s.prepend(separator, "\u{A0}");
+			controlCell.removeChild(first);
+		controlCell.insertBefore(separator, s.firstChild);
+		//controlCell.prepend(separator, "\u{A0}");
 	}
 	console.log("addControlSeparators(): function ending");
 }
 //to do: rigorous review of load routine order
 function pageLoaded(event) {
 	//load HTML element references (renders document.getElementById unnecessary)
-	for(const s of document.querySelectorAll('[id]'))
-		globalThis[s.id] = s;
+	for(const elem of document.querySelectorAll('[id]'))
+		globalThis[elem.id] = elem;
 
 	genPrefsKeysFlat();
 	ctlDefaultsToPrefs(prefsDefault);
@@ -274,9 +274,9 @@ function pageReady(event) {
 
 			addToolTipHandler("body>main", event => updateCtlToolTip(event, outToolTip));
 			addToolTipHandler("#tblFractionIntervals", event => updateCtlToolTip(event, outToolTipIntervals));
-			for(let s of document.querySelectorAll('label[for]'))
-				//s.title = document.getElementById(s.htmlFor).title ?? "";
-				s.title = s.control?.title ?? "";
+			for(let label of document.querySelectorAll('label[for]'))
+				//label.title = document.getElementById(label.htmlFor).title ?? "";
+				label.title = label.control?.title ?? "";
 			console.log("pageReady() promise: function ending");
 		})/* ?.catch?.(reason => {
 			globalThis.reportError(reason);

@@ -96,12 +96,12 @@ function parseNumber(n) {
 	if(t === "function") return parseNumber(n()); //?question
 
 	if(Array.isArray(n)) {
-		//a product, prime factor-based
-		let r = 1;
+		//a product/rational, prime factor-based
+		let ratio = 1;
 		//to do: lisp-like (polish notation) array interpretation as s-expressions? (e.g. ["+", 12, 34, 56] -> 12 + 34 + 56)
-		for(const i in n)
-			r *= Math.pow(primes[i], NaNToDefault(parseNumber(n[i]), 0));
-		return r;
+		for(const iPrime in n)
+			ratio *= Math.pow(primes[iPrime], NaNToDefault(parseNumber(n[iPrime]), 0));
+		return ratio;
 	}
 
 	//try conversion to number
@@ -221,7 +221,7 @@ function updateRhythmAccum() {
 	}
 	//rhythmFactorsAccum.push(1);
 	if(globalThis.outRhythmScales) outRhythmScales.innerText = rhythmFactorsAccum.join("/");
-	prefs.rhythmParams.rhythmFactors.push(1); //? (equalization?)
+	prefs.rhythmParams.rhythmFactors.push(1); //implicit one-pulse bottom-level scale (question: remove?)
 	return true;
 }
 
@@ -229,12 +229,13 @@ function getDateTimeCode(size) { //hard-coded to Western calendar.
 	if(size < 1) return "";
 	const 
 		now = new Date(),
-		dArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()],
+		dateArr = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()],
 		separators = ["-", "-", "_", "-", "-", "-"]; //something like 1999-12-31_23-59
-	if(size < 7) dArr.length = size;
-	const dPadding = [4, 2, 2, 2, 2, 2, 3]; //digits per field
-	for(const i in dArr)
-		dArr[i] = dArr[i].toString().padStart(dPadding[i], "0") + (i < (dArr.length - 1) ? separators[i] : "");
+	if(size < 7) dateArr.length = size;
+	const fieldWidths = [4, 2, 2, 2, 2, 2, 3]; //digits per field
+	for(const iField in dateArr)
+		dateArr[iField] = dateArr[iField].toString().padStart(fieldWidths[iField], "0") 
+			+ (iField < (dateArr.length - 1) ? separators[iField] : "");
 	//return dArr.join("-"); //something like 1999-12-31-23-59
-	return dArr.join("");
+	return dateArr.join("");
 }

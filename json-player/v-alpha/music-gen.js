@@ -33,11 +33,11 @@ function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 
 	//through proportional division, try to find a random factor and a new exponent
 	let accum = 0;
-	for(const i in spans) {
-		//if(!Object.hasOwn(spans, i)) continue; //probably unnecessary for arrays
+	for(const iSpan in spans) {
+		//if(!Object.hasOwn(spans, iSpan)) continue; //probably unnecessary for arrays
 
-		accum += spans[i];
-		spans[i] = accum;
+		accum += spans[iSpan];
+		spans[iSpan] = accum;
 	}
 	const randAccum = accum * Math.random(), iPrime = spans.findIndex((value, index, obj) => value > randAccum);
 	//const newExp = Math.floor(newPrimeExpRanges[primes[iPrime]] + randAccum - spans[iPrime]);
@@ -470,11 +470,11 @@ function melodySubNodes(struct, level, tuning, primeCount, primeExpRanges) {
 
 		//through proportional division, try to find a random factor and a new exponent
 		let accum = 0;
-		for(const i in spans) {
-			//if(!Object.hasOwn(spans, i)) continue; //probably unnecessary for arrays
+		for(const iSpan in spans) {
+			//if(!Object.hasOwn(spans, iSpan)) continue; //probably unnecessary for arrays
 
-			accum += spans[i];
-			spans[i] = accum;
+			accum += spans[iSpan];
+			spans[iSpan] = accum;
 		}
 		//const sumRange = spans.reduce((previousValue, currentValue, currentIndex, array) => previousValue + currentValue);
 		const randAccum = accum * Math.random(), iPrime = spans.findIndex((value, index, obj) => value > randAccum);

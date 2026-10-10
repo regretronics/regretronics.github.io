@@ -115,11 +115,11 @@ function setObjByPath(obj, path, value, overwrite) {
 	//parse path and traverse into obj
 	const keySegs = path.split(".");
 	let subObj = obj;
-	for(const i in keySegs) {
-		//if(!Object.hasOwn(keySegs, i)) continue; //probably unnecessary for arrays
+	for(const iSeg in keySegs) {
+		//if(!Object.hasOwn(keySegs, iSeg)) continue; //probably unnecessary for arrays
 
-		const seg = keySegs[i];
-		if(i < keySegs.length - 1) {
+		const seg = keySegs[iSeg];
+		if(iSeg < keySegs.length - 1) {
 			const isValObject = typeof(subObj[seg]) === "object";
 			if(overwrite) {
 				if(!isValObject) subObj[seg] = {};
@@ -607,6 +607,13 @@ function saveAllPreferences() { //to do: !probably change into simpler steps
 	}
 	return true;
 }
+//to do: !test it
+//to do: !use it
+function applyPrefsReset(prefs) {
+	for(const path of Object.keys(prefs.reset)) {
+		if(prefs.reset[path]) prefs[path] = structuredClone(prefsDefault[path]);
+	}
+}
 function btnResetPreferencesClick(event) { //to do: !change into simpler steps
 	//resetAllPreferences();
 	//to do: point those things to prefsDefault instead of literals
@@ -1044,21 +1051,21 @@ function rhythmFactorsChanged(event) {
 	//to do: support rational numbers (e.g. 4/3 beats) without reducing to floats?
 	//to do: !maybe interpret the rightmost factor (deepest into the small scale) as a duration in pulses, not a group of pulses, which would change the number of levels (2 * 2 would have 4/2 as levels, instead of 4/2/1)
 	if(!globalThis.txtRhythmFactors) return false;
-	let s = txtRhythmFactors.value.toString(); //text
+	let factorsStr = txtRhythmFactors.value.toString(); //text
 	const newRhythmFactors = []; //will become an array of numbers
-	if(s.length >= 1) {
-		s = exprEliminateParens(s).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
-		for(const n of s) {
+	if(factorsStr.length >= 1) {
+		factorsStr = exprEliminateParens(factorsStr).split("*"); //multiplications inside parens won't be parsed as rhythmic levels
+		for(const factor of factorsStr) {
 			//expand powers (e.g. 2^3 -> 2*2*2 -> [2, 2, 2], not [8])
-			const pos = n.indexOf("^");
+			const pos = factor.indexOf("^");
 			if(pos >= 0) {
-				const base = NaNToDefault(parseNumber(n.slice(0, pos)), 2);
-				for(let exp = NaNToDefault(parseNumber(n.slice(pos + 1)), 1); exp >= 1; exp--)
+				const base = NaNToDefault(parseNumber(factor.slice(0, pos)), 2);
+				for(let exp = NaNToDefault(parseNumber(factor.slice(pos + 1)), 1); exp >= 1; exp--)
 					newRhythmFactors.push(base);
 				//question: non-integer exponents? (if(exp > 0) ...)
 				//question: negative exponents?
 			} else
-				newRhythmFactors.push((n.length < 1) ? 1 : parseNumber(n));
+				newRhythmFactors.push((factor.length < 1) ? 1 : parseNumber(factor));
 		}
 	}
 	//to do: invalidate factors below 1? and negative factors?
