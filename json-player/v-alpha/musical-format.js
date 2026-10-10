@@ -1,7 +1,7 @@
 "use strict";
 
 //imported variables
-var elems; //?
+//var elems; //?
 //var autoFlatten;
 
 //shared variables
@@ -202,6 +202,22 @@ function flattenStruct(event) {
 		} else
 			parseNode(flatStruct, struct, defaultBlockNode);
 
+		//limit precision of numbers
+		//an alternative would be by injecting a custom toJSON(key) in the property values
+		for(const iNote in flatStruct) {
+			//if(!Object.hasOwn(flatStruct, iNote)) continue; //probably unnecessary for arrays
+
+			const note = flatStruct[iNote], digits = 5;
+			const numericProps = ["noteStart", "noteStop", "duration", "freq", "vol", "q", "decayFactor", "attack", "portamento", "freq0", "vibratoFreq", "vibratoDepth", "vibratoAttack"];
+			for(const prop of Object.keys(note))
+				if(numericProps.includes(prop)) {
+					//question: cast in fixed-point (Math.round() etc.) or exponential (toExponential())?
+					//const scale = Math.pow(10, digits), valueNew = Math.round(scale * note[prop]) / scale;
+					const valueNew = parseFloat(note[prop].toExponential(digits));
+					note[prop] = JSON.rawJSON(valueNew.toString());
+				}
+		}
+
 		//finally, yield the flattened version
 		let objText = JSON.stringify(flatStruct, null, "\t");
 		struct = null; //frees memory, hopefully
@@ -210,6 +226,7 @@ function flattenStruct(event) {
 		objText = objText.replace(regex, "{");
 		regex = new RegExp(/\n\t{2,}/, "g"); //to do: review this one closely, against hypothetical effects like " }"
 		objText = objText.replace(regex, " ");
+		//objText = objText.replace(regex, "\t");
 		regex = new RegExp(/\n\t{1,}\}/, "g");
 		objText = objText.replace(regex, "}");
 

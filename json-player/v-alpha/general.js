@@ -1,6 +1,7 @@
 "use strict";
 
 //to do: put some project-neutral scripts (e.g. parseNumber) in a "shared" file
+//to do: I think it will be good to put return's even in events
 //to do: return true more often? (in this case, start by finding "return false" occurrences)
 //to do: (done?) more console reports and exception handling (success and failure of many operations)
 //to do: !consider worker threads or scheduler
@@ -10,8 +11,9 @@
 //to do: 	commands to generate, play, reset preferences
 //to do: 	take urls to import .mus.json files
 //to do: !revise and remove excess dead code
-//to do: I think it will be good to put return's even in events
 //to do: try more use of promise.then (or async?) for heavy code, hopefully improving UI performance
+//to do: !consider other structured data formats, e.g. json5, yaml
+//to do: !use javascript modules for more agile loading
 
 //to do: !add note release extra time? (so that duration may affect nonspecified next noteStart, but release won't)
 const defaultBlockNode = {
@@ -91,7 +93,7 @@ function parseNumber(n) {
 
 	//simpler attempts first.
 	if(t === "number" || t === "bigint") return n;
-	if(t === "function") return parseNumber(n()); //?
+	if(t === "function") return parseNumber(n()); //?question
 
 	if(Array.isArray(n)) {
 		//a product, prime factor-based

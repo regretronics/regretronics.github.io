@@ -19,9 +19,7 @@ const defStructuredCode = '{\n\
 }';
 const defFlattenedCode = '[{"noteStart": 0, "noteStop": 2, "freq": 660, "vol": 0.375},\n\
 {"noteStart": 2, "noteStop": 4, "freq": 440, "vol": 1}]';
-//to do: what to follow (and when)? there are default values in the HTML controls, a defaults structure below, and defaultBlockNode.
-//to do: 	!either read the defaults from HTML and store here, or do the converse
-//to do: 	get a criterion for when or whether to use defaultBlockNode besides for structured code
+//to do: what to follow (and when)? get a criterion for when or whether to use defaultBlockNode besides for structured code
 const prefsDefault = {
 	pageAppearance: {textSize: 1, theme: "Automatic", hue: 120},
 	basicParams: {
@@ -99,14 +97,6 @@ const preferencesKeysDeprecatedFlat = {
 var 
 	rhythmFactorsAccum = [], //to be calculated
 	adjustingPreferences = false;
-
-//to do: !replace these settings functions for ones that consistently convert from some point to another, using a preferences object for representation (one of the operands)
-//to do: 	?(done) all, from HTML controls defaults to object
-//to do: 	?(done) all, from object to HTML controls defaults
-//to do: 	both specific and all, from object to local storage
-//to do: 	(done) all, from local storage to object
-//to do: 	specific, from HTML controls values to object
-//to do: 	(done) all, from object to HTML controls values
 
 function getObjByPath(obj, path) {
 	if(!obj) return obj;
@@ -284,6 +274,7 @@ function triggerPrefControls() {
 	return true;
 }
 
+//to do: !(doing) these functions will give way to the ones above that consistently convert from some point to another, using a preferences object for representation (one of the operands)
 function loadAllPreferencesOld(triggerNow) { //to do: !change into simpler steps
 	try {
 		adjustingPreferences = true;
@@ -519,10 +510,11 @@ function loadAllPreferencesOld(triggerNow) { //to do: !change into simpler steps
 
 	return true;
 }
-function loadAllPreferences(triggerNow) {
+function loadAllPreferences(triggerNow) { //to do: maybe remove triggerNow
 	try {
 		adjustingPreferences = true;
 
+		//to do: reset-filtering
 		storageToPrefs(prefs);
 		for(const key of Object.keys(preferencesKeysDeprecatedFlat))
 			localStorage.removeItem(key);
@@ -538,10 +530,11 @@ function loadAllPreferences(triggerNow) {
 			if(globalThis.ctlPrimeExpRanges) {
 				const objText = toJSONCodeAdjusted(prefs.primeFactors.expRanges);
 				codeBoxContentSet(ctlPrimeExpRanges, objText);
-			} else
-				throw(new Error("Control ctlPrimeExpRanges not found."));
+			} /* else
+				throw(new Error("Control ctlPrimeExpRanges not found.")); */
 		} else
 			expRangesFromParams(false);
+		//to do: deal with the automatic extra 1 factor
 		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
 		globalThis.ctlStructuredScript?.classList?.toggle?.("expanded", prefs.structuredMusic.overflow);
 		globalThis.ctlStructuredScript?.classList?.toggle?.("line-wrap", prefs.structuredMusic.lineWrapping);
@@ -567,97 +560,46 @@ function saveAllPreferences() { //to do: !probably change into simpler steps
 			console.warn(error);
 		}
 
+	//exceptions
 	try {
 		//Page appearance
-		localStorage.setItem("pageAppearance.textSize", JSON.stringify(prefs.pageAppearance.textSize)); //getComputedStyle(document.documentElement).getPropertyValue("--page-scale")?
-		/* if(globalThis.cboPageTheme)
-			localStorage.setItem("pageAppearance.theme", cboPageTheme.value); */
-		localStorage.setItem("pageAppearance.hue", getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0").toString());
-		//Basic parameters
-		/* if(globalThis.txtFreqRangeMin)
-			localStorage.setItem("basicParams.freqRangeMin", txtFreqRangeMin.value); //JSON.stringify(prefs.basicParams.freqRangeMin)?
-		if(globalThis.txtFreqRangeMax)
-			localStorage.setItem("basicParams.freqRangeMax", txtFreqRangeMax.value); //JSON.stringify(prefs.basicParams.freqRangeMax)? */
-		//Generator parameters
-		/* if(globalThis.txtBaseFreq)
-			localStorage.setItem("genParams.baseFreq", txtBaseFreq.value); //JSON.stringify(prefs.genParams.baseFreq)?
-		if(globalThis.txtTimeScale)
-			localStorage.setItem("genParams.timeScale", txtTimeScale.value);
-		if(globalThis.txtVoiceCount)
-			localStorage.setItem("genParams.voiceCount", txtVoiceCount.value);
-		if(globalThis.txtPatternCount)
-			localStorage.setItem("genParams.patternCount", txtPatternCount.value);
-		if(globalThis.txtReptCount)
-			localStorage.setItem("genParams.reptCount", txtReptCount.value);
-		if(globalThis.txtReptPeriod)
-			localStorage.setItem("genParams.reptPeriod", txtReptPeriod.value);
-		if(globalThis.chkPercussivePattern)
-			localStorage.setItem("genParams.percussivePattern", JSON.stringify(chkPercussivePattern.checked)); */
+		prefs.pageAppearance.textSize = parseNumber(getComputedStyle(document.documentElement).getPropertyValue("--page-scale"));
+		localStorage.setItem("pageAppearance.textSize", JSON.stringify(prefs.pageAppearance.textSize));
+		prefs.pageAppearance.hue = parseNumber(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
+		localStorage.setItem("pageAppearance.hue", JSON.stringify(prefs.pageAppearance.hue));
+
+		//Basic parameters: nothing
+		//Generator parameters: nothing
 		//Prime factors parameters
-		/* if(globalThis.txtPrimeCount)
-			localStorage.setItem("primeFactors.primeCount", txtPrimeCount.value); //JSON.stringify(prefs.primeFactors.primeCount)?
-		if(globalThis.txtExpRangeLower)
-			localStorage.setItem("primeFactors.expRangeLower", txtExpRangeLower.value); //JSON.stringify(prefs.primeFactors.expRangeLower)?
-		if(globalThis.txtExpRangeUpper)
-			localStorage.setItem("primeFactors.expRangeUpper", txtExpRangeUpper.value); //JSON.stringify(prefs.primeFactors.expRangeUpper)?
-		if(globalThis.ctlPrimeExpRanges)
-			localStorage.setItem("primeFactors.expRanges", codeBoxContentGet(ctlPrimeExpRanges)); */
+		//if(globalThis.ctlPrimeExpRanges) ; //to do: update prefs.primeFactors.expRanges
+		localStorage.setItem("primeFactors.expRanges", JSON.stringify(prefs.primeFactors.expRanges));
+
 		//Rhythm parameters
-		/* if(globalThis.txtRhythmScale)
-			localStorage.setItem("rhythmParams.rhythmScale", txtRhythmScale.value);
-		if(globalThis.txtRhythmFactors)
-			localStorage.setItem("rhythmParams.rhythmFactors", txtRhythmFactors.value); //JSON.stringify(prefs.rhythmParams.rhythmFactors)? */
+		//if(globalThis.txtRhythmFactors) ; //to do: update prefs.rhythmParams.rhythmFactors
+		//to do: deal with the automatic extra 1 factor
+		localStorage.setItem("rhythmParams.rhythmFactors", JSON.stringify(prefs.rhythmParams.rhythmFactors));
+
 		//Structured music editor
 		/* if(globalThis.ctlStructuredScript?.classList?.contains) {
-			localStorage.setItem("structuredMusic.overflow", JSON.stringify(ctlStructuredScript.classList.contains("expanded")));
-			localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(ctlStructuredScript.classList.contains("line-wrap")));
-		}
-		if(globalThis.ctlStructuredScript)
-			localStorage.setItem("structuredMusic.content", codeBoxContentGet(ctlStructuredScript)); */
+			prefs.structuredMusic.overflow = ctlStructuredScript.classList.contains("expanded");
+			prefs.structuredMusic.lineWrapping = ctlStructuredScript.classList.contains("line-wrap");
+			localStorage.setItem("structuredMusic.overflow", JSON.stringify(prefs.structuredMusic.overflow));
+			localStorage.setItem("structuredMusic.lineWrapping", JSON.stringify(prefs.structuredMusic.lineWrapping));
+		} */
+
 		//Flattened note list
-		/* if(globalThis.chkAutoFlatten)
-			localStorage.setItem("flatScript.autoFlatten", JSON.stringify(chkAutoFlatten.checked));
-		if(globalThis.ctlFlatScript?.classList?.contains) {
-			localStorage.setItem("flatScript.overflow", JSON.stringify(ctlFlatScript.classList.contains("expanded")));
-			localStorage.setItem("flatScript.lineWrapping", JSON.stringify(ctlFlatScript.classList.contains("line-wrap")));
-		}
-		if(globalThis.ctlFlatScript)
-			localStorage.setItem("flatScript.content", codeBoxContentGet(ctlFlatScript)); */
-		//Overall play controls
-		/* if(globalThis.txtPlayFreqScale)
-			localStorage.setItem("clipParams.freqScale", txtPlayFreqScale.value); //JSON.stringify(prefs.clipParams.freqScale)?
-		if(globalThis.txtPlayVolScale)
-			localStorage.setItem("clipParams.volScale", txtPlayVolScale.value); //JSON.stringify(prefs.clipParams.volScale)?
-		if(globalThis.txtPlayTimeScale)
-			localStorage.setItem("clipParams.timeScale", txtPlayTimeScale.value);
-		if(globalThis.txtPlayTimeDelta)
-			localStorage.setItem("clipParams.timeDelta", txtPlayTimeDelta.value); */
-		//Player
-		/* if(globalThis.chkAutoReload)
-			localStorage.setItem("player.autoReload", JSON.stringify(chkAutoReload.checked)); */
-		//Audio export
+		/* if(globalThis.ctlFlatScript?.classList?.contains) {
+			prefs.flatScript.overflow = ctlFlatScript.classList.contains("expanded");
+			prefs.flatScript.lineWrapping = ctlFlatScript.classList.contains("line-wrap");
+			localStorage.setItem("flatScript.overflow", JSON.stringify(prefs.flatScript.overflow));
+			localStorage.setItem("flatScript.lineWrapping", JSON.stringify(prefs.flatScript.lineWrapping));
+		} */
+
+		//Overall play controls: nothing
+		//Player: nothing
+		//Audio export: coming soon
 		//localStorage.setItem("audioExport.", JSON.stringify());
-		//Reset preferences
-		/* if(globalThis.chkResetPageAppearance)
-			localStorage.setItem("reset.pageAppearance", JSON.stringify(chkResetPageAppearance.checked));
-		if(globalThis.chkResetBasicParams)
-			localStorage.setItem("reset.basicParams", JSON.stringify(chkResetBasicParams.checked));
-		if(globalThis.chkResetGenParams)
-			localStorage.setItem("reset.genParams", JSON.stringify(chkResetGenParams.checked));
-		if(globalThis.chkResetPrimeFactorsParams)
-			localStorage.setItem("reset.primeFactors", JSON.stringify(chkResetPrimeFactorsParams.checked));
-		if(globalThis.chkResetRhythmParams)
-			localStorage.setItem("reset.rhythmParams", JSON.stringify(chkResetRhythmParams.checked));
-		if(globalThis.chkResetStructuredMusic)
-			localStorage.setItem("reset.structuredMusic", JSON.stringify(chkResetStructuredMusic.checked));
-		if(globalThis.chkResetFlatScript)
-			localStorage.setItem("reset.flatScript", JSON.stringify(chkResetFlatScript.checked));
-		if(globalThis.chkResetClipParams)
-			localStorage.setItem("reset.clipParams", JSON.stringify(chkResetClipParams.checked));
-		if(globalThis.chkResetPlayer)
-			localStorage.setItem("reset.player", JSON.stringify(chkResetPlayer.checked));
-		if(globalThis.chkResetReset)
-			localStorage.setItem("reset.reset", JSON.stringify(chkResetReset.checked)); */
+		//Reset preferences: nothing
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to bulk-save preferences. " + (error.message ?? error ?? ""), 3);
@@ -844,7 +786,7 @@ function saveControlPreference(elem) {
 		console.info("saveControlPreference(): parameter elem is empty. Returning.");
 		return false;
 	}
-	let prefKey = elem.dataset["pref"];
+	let prefKey = elem.dataset?.pref;
 	if(!prefKey) return false;
 
 	let value = controlGetValue(elem);

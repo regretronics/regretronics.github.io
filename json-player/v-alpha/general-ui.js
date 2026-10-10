@@ -227,7 +227,9 @@ function pageLoaded(event) {
 		globalThis[s.id] = s;
 
 	genPrefsKeysFlat();
+	ctlDefaultsToPrefs(prefsDefault);
 	globalThis.loadAllPreferences(false); //preferences.js
+	themeChanged({target: cboPageTheme});
 	//globalThis.rhythmFactorsChanged?.();
 
 	if(globalThis.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
@@ -250,16 +252,17 @@ function pageLoaded(event) {
 function pageReady(event) {
 	Promise.resolve().then(value => {
 			console.log("pageReady() promise: function started...");
+			//prefsToCtlDefaults(prefsDefault);
 			loadEventHandlers();
 
-			updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
+			//updateThemeColor(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
 			setAutoFlatten(prefs.flatScript.autoFlatten);
 			adjustingPreferences = true;
 			try {
 				for(const elem of document.querySelectorAll("input.exp"))
 					//expSpinnerChanged({target: elem});
 					updateExpSpinner(elem);
-				triggerPrefControls();
+				//triggerPrefControls();
 			} finally {
 				adjustingPreferences = false;
 			}

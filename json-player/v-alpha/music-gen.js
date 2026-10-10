@@ -52,7 +52,7 @@ function addInterval(refFreq, targetFreq, primeCount, tuning, primeExpRanges) {
 	if(iPrime > 1 && Math.random() < 0.5 * (1 - 0.5 ** iPrime)) targetFreq[3] -= sign; //occasional factor-3 compensation (up to 50% of chance for higher primes)
 	if(iPrime >= 1) renormalizeOctave(refFreq, targetFreq);
 
-	limitFreq(tuning, targetFreq); //?
+	limitFreq(tuning, targetFreq); //question: applicable for chords?
 }
 function newChord(voiceCount, polyphony, primeCount, tuning, primeExpRanges) {
 	const chordStruct = {

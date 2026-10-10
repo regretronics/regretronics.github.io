@@ -222,7 +222,7 @@ function newToneNode(clip, noteFreq, minStart, portamento, freq0) { //question: 
 	try {
 		if(portamento <= 0) return; //breaks silently; no need to log this or to provide a return value
 		//portamento (using detune for an exponential frequency variation)
-		//fixed start frequency?
+		//fixed start frequency (freq0 defined)?
 		//question: should an explicit freq0 of 0 also disable portamento? (currently yes)
 		if(isNaN(freq0)) {
 			if(!clip.lastFreq) return;
