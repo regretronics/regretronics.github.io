@@ -25,12 +25,12 @@
 	--sel-fg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 	/* --sel-bg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.625);
 	--sel-fg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) calc(var(--hue-accent) + var(--hue-anim, 0deg)) / 0.875); */
-	--sel-alt-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent2) / 0.75);
-	--sel-alt-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent2) / 0.875);
+	--sel-alt-bg: oklch(calc(-0.75 * var(--root-lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent2) / 0.75);
+	--sel-alt-fg: oklch(calc(0.75 * var(--root-lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent2) / 0.875);
 	--sel-em-bg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.75);
 	--sel-em-fg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent));
-	--sel-alt-em-bg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent2) / 0.875);
-	--sel-alt-em-fg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent2));
+	--sel-alt-em-bg: oklch(calc(-0.75 * var(--root-lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent2) / 0.875);
+	--sel-alt-em-fg: oklch(calc(0.75 * var(--root-lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent2));
 	--sel-editable-bg: oklch(calc(0.75 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent) / 0.75);
 	--sel-editable-fg: oklch(calc(-0.75 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent) / 0.875);
 }

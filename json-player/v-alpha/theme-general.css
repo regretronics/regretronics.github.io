@@ -5,6 +5,7 @@
 	--hue-old: 55deg;
 	--hue-error: 25deg;
 	--hue-warn: 85deg;
+	--lgt-scale: var(--root-lgt-scale, 0.5);
 
 	background-color: var(--root-bg);
 	color: var(--root-fg);

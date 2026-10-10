@@ -2,7 +2,7 @@
 @import url("theme-hicon.css");
 
 :root {
-	--lgt-scale: -0.5;
+	--root-lgt-scale: -0.5;
 	color-scheme: light;
 }
 @media print {

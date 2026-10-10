@@ -3,10 +3,13 @@
 
 :root {
 	--img-filter1: contrast(87.5%);
-	--lgt-scale: 0.5;
+	--root-lgt-scale: 0.5;
 	color-scheme: dark;
 }
 
 .code-box {
 	--lgt-scale: -0.5;
+	/* &::selection, & ::selection {
+		--lgt-scale: 0.5;
+	} */
 }

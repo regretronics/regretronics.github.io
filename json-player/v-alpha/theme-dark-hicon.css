@@ -4,7 +4,7 @@
 :root {
 	--img-filter1: invert(100%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent) + 180deg - 120deg);
-	--lgt-scale: 0.5;
+	--root-lgt-scale: 0.5;
 	color-scheme: dark;
 }
 /* * {

@@ -4,10 +4,13 @@
 :root {
 	--img-filter1: invert(87.5%)/* hue-rotate(180deg)*/;
 	--img-hue-shift: calc(var(--hue-accent) + 180deg - 120deg);
-	--lgt-scale: -0.5;
+	--root-lgt-scale: -0.5;
 	color-scheme: light;
 }
 
 .code-box {
 	--lgt-scale: 0.5;
+	/* &::selection, & ::selection {
+		--lgt-scale: 0.5;
+	} */
 }
