@@ -3,6 +3,8 @@
 //to do: code editors:
 //to do: 	?line numbers in left side in code editors
 //to do: 	?caret position (row, column, char index) status label
+//to do: 	?breadcrumb/cascade navigation
+//to do: 	?calculate block (inherited) properties for caret context
 
 function codeBoxContentGet(elem) {
 	if(!elem) {

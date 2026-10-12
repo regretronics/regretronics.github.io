@@ -1,3 +1,4 @@
+/*to do: further adjust oklch brightness and chromaticity?*/
 :root {
 	--root-bg: oklch(calc(-0.5 * var(--lgt-scale) + 0.5) calc(0.25 * var(--sat-scale)) var(--hue-accent));
 	--root-fg: oklch(calc(0.9375 * var(--lgt-scale) + 0.5) calc(0.0625 * var(--sat-scale)) var(--hue-accent) / 0.875);

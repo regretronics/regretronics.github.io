@@ -16,7 +16,6 @@
 } */
 
 :root {
-	/*to do: further adjust oklch brightness and chromaticity?*/
 	--hue-accent0: 120;
 	/*0deg hsl -> red; ~25deg oklch -> red*/
 	--hue-accent: calc(var(--hue-accent0, 120) * 1deg + 25deg);
@@ -229,7 +228,6 @@ img:not(.true-colors) { /*class "true-colors" reserved for future use*/
 	/*filter: var(--img-filter, none);*/
 	/*filter: hue-rotate(var(--img-hue-shift, 0deg));*/
 	filter: var(--img-filter1, ) hue-rotate(var(--img-hue-shift, 0deg));
-	/*filter: var(--img-filter1) hue-rotate(calc(var(--hue-accent, 120)*1deg - 120deg));*/
 }
 
 #noteFill1 stop {

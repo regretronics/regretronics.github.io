@@ -66,7 +66,6 @@
 	<main class="major-section" hidden="hidden">
 		<!-- <header class="flex-row align-block-start"> -->
 		<header>
-			<!-- <span class="align-inline-end print-dp-none" style="flex-basis: 30ch;"> -->
 			<!--to do: ?persistent options for the open state of newly added detail elements-->
 			<!--to do: use aria-labelledby yet a few more times-->
 			<details id="grpUiOptions" class="align-inline-end print-dp-none">
@@ -88,7 +87,7 @@
 					<button id="btnHueFine1" data-delta="-1" translate="no" title="magenta&ndash;blue&ndash;cyan&ndash;green&ndash;yellow&ndash;red">MBCGYR</button>
 					<button id="btnHueFine2" data-delta="1" translate="no" title="red&ndash;yellow&ndash;green&ndash;cyan&ndash;blue&ndash;magenta">RYGCBM</button></span>
 			</details>
-			<h1 style="flex-basis: 16ch;">
+			<h1>
 				<picture id="titleIcon">
 					<!-- <source srcset="icon/Musical-science-white-optim.svg" type="image/svg+xml" width="192" height="192" /> -->
 					<source srcset="icon/Musical-science-white-1024.png 1024w" type="image/png" width="1024" height="1024" />
@@ -267,9 +266,9 @@
 			<p class="flex-row">
 				<span class="controls-group" style="flex-basis: 24ch;">
 					<button id="btnFlattenStruct" title="Convert the node structure into a simple list of notes only.">Flatten</button>
+					<!--to do: change check box into combo box for flatten delay (debounce)-->
 					<span class="cell print-dp-none"><input type="checkbox" id="chkAutoFlatten" checked="checked" data-pref="flatScript.autoFlatten" /><label for="chkAutoFlatten">Automatically flatten</label></span>
 				</span><wbr />
-				<!-- <span class="controls-group align-inline-end"> -->
 				<span class="controls-group align-inline-end" style="flex-basis: 14ch;">
 					<span class="chunk"><input id="chkOverflow2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.overflow" title="Expand or contract the editor below" /><label for="chkOverflow2"><span class="lang-static" translate="no">Overflow</span><span class="lang-flex" hidden="hidden">Text overflow</span></label></span>
 					<span class="chunk"><input id="chkLineWrap2" type="checkbox" data-target="ctlFlatScript" data-pref="flatScript.lineWrapping" title="For the editor below, toggles between line breaking and long lines." /><label for="chkLineWrap2">Line wrapping</label></span>
