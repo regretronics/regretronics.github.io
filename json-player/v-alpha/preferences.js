@@ -40,7 +40,7 @@ const prefsDefault = {
 		primeCount: 3, 
 		expRangeLower: 0, 
 		expRangeUpper: 2, 
-		expRanges: {} //variability per prime factor (2, 3, 5, 7, ...); array of array of numbers. to be calculated.
+		expRanges: null //variability per prime factor (2, 3, 5, 7, ...); array of array of numbers. to be calculated.
 	},
 	rhythmParams: {
 		rhythmScale: 8, 
@@ -239,12 +239,16 @@ function storageToPrefs(targetObj) {
 }
 
 //note: this function doesn't try to trigger control events
-function prefsToControls(prefs) {
+function prefsToControls(prefs, resetIncluded) {
 	//an alternative would be with a loop over prefs, and document.querySelectorAll(`[data-pref=${path}]`)
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		try {
 			const prefKey = elem.dataset?.pref;
 			if(!prefKey || prefKey == "") continue;
+
+			//check exclusion by reset preferences
+			const prefix = prefKey.split(".")[0];
+			if(prefs.reset[prefix] ^ resetIncluded) continue;
 
 			const value = getObjByPath(prefs, prefKey);
 			if(value !== undefined && typeof(value) !== "object") controlSetValue(elem, value);
@@ -253,15 +257,51 @@ function prefsToControls(prefs) {
 		}
 	return true;
 }
+function prefsToControlsSpecial(prefs, resetIncluded) {
+	//exceptions to prefsToControls
+	if(!prefs.reset.pageAppearance ^ resetIncluded) {
+		document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
+		const hue = prefs.pageAppearance.hue, hueMod = ((hue % 360) + 360) % 360;
+		document.documentElement.style.setProperty("--hue-accent0", hueMod);
+		//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
+		updateThemeColor(hueMod);
+	}
+	if(!prefs.reset.primeFactors ^ resetIncluded) {
+		if(prefs.primeFactors.expRanges) {
+			if(globalThis.ctlPrimeExpRanges) {
+				const objText = toJSONCodeAdjusted(prefs.primeFactors.expRanges);
+				codeBoxContentSet(ctlPrimeExpRanges, objText);
+			} /* else
+				throw(new Error("Control ctlPrimeExpRanges not found.")); */
+		} else
+			expRangesFromParams(false);
+	}
+	if(!prefs.reset.rhythmParams ^ resetIncluded)
+		//to do: deal with the automatic extra 1 factor
+		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
+	if(!prefs.reset.structuredMusic ^ resetIncluded) {
+		globalThis.ctlStructuredScript?.classList?.toggle?.("expanded", prefs.structuredMusic.overflow);
+		globalThis.ctlStructuredScript?.classList?.toggle?.("line-wrap", prefs.structuredMusic.lineWrapping);
+	}
+	if(!prefs.reset.flatScript ^ resetIncluded) {
+		globalThis.ctlFlatScript?.classList?.toggle?.("expanded", prefs.flatScript.overflow);
+		globalThis.ctlFlatScript?.classList?.toggle?.("line-wrap", prefs.flatScript.lineWrapping);
+	}
+	return true;
+}
 /* function controlsToPrefs(params) { //maybe unnecessary
 } */
-
 //question: necessary?
-function triggerPrefControls() {
+function triggerPrefControls(resetIncluded) {
 	const evtInput = new Event("input"), evtClick = new Event("click");
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		try {
-			if(getObjByPath(prefs, elem.dataset?.pref)) continue;
+			const prefKey = elem.dataset?.pref;
+			//if(getObjByPath(prefs, prefKey)) continue; //?
+
+			//check exclusion by reset preferences
+			const prefix = prefKey.split(".")[0];
+			if(prefs.reset[prefix] ^ resetIncluded) continue;
 
 			if(/* elem.tagName.toUpperCase() === "SELECT" 
 				|| */ (elem.tagName.toUpperCase() === "INPUT" && elem.type.toLowerCase() === "checkbox"))
@@ -272,6 +312,17 @@ function triggerPrefControls() {
 			console.warn(error);
 		}
 	return true;
+}
+
+function applyPrefsReset(prefs, prefsDefault) {
+	for(const path of Object.keys(prefs.reset)) {
+		if(prefs.reset[path])
+			if(prefsDefault)
+				prefs[path] = structuredClone(prefsDefault[path]);
+			else
+				delete prefs[path];
+	}
+	return prefs;
 }
 
 //to do: !(doing) these functions will give way to the ones above that consistently convert from some point to another, using a preferences object for representation (one of the operands)
@@ -514,34 +565,14 @@ function loadAllPreferences(triggerNow) { //to do: maybe remove triggerNow
 	try {
 		adjustingPreferences = true;
 
-		//to do: reset-filtering
 		storageToPrefs(prefs);
+		applyPrefsReset(prefs, prefsDefault);
 		for(const key of Object.keys(preferencesKeysDeprecatedFlat))
 			localStorage.removeItem(key);
 
-		prefsToControls(prefs);
-		//exceptions to prefsToControls
-		document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
-		const hue = prefs.pageAppearance.hue, hueMod = ((hue % 360) + 360) % 360;
-		document.documentElement.style.setProperty("--hue-accent0", hueMod);
-		//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
-		if(triggerNow) updateThemeColor(hueMod);
-		if(prefs.primeFactors.expRanges) {
-			if(globalThis.ctlPrimeExpRanges) {
-				const objText = toJSONCodeAdjusted(prefs.primeFactors.expRanges);
-				codeBoxContentSet(ctlPrimeExpRanges, objText);
-			} /* else
-				throw(new Error("Control ctlPrimeExpRanges not found.")); */
-		} else
-			expRangesFromParams(false);
-		//to do: deal with the automatic extra 1 factor
-		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
-		globalThis.ctlStructuredScript?.classList?.toggle?.("expanded", prefs.structuredMusic.overflow);
-		globalThis.ctlStructuredScript?.classList?.toggle?.("line-wrap", prefs.structuredMusic.lineWrapping);
-		globalThis.ctlFlatScript?.classList?.toggle?.("expanded", prefs.flatScript.overflow);
-		globalThis.ctlFlatScript?.classList?.toggle?.("line-wrap", prefs.flatScript.lineWrapping);
-
-		if(triggerNow) return triggerPrefControls();
+		prefsToControls(prefs, false);
+		prefsToControlsSpecial(prefs, false);
+		if(triggerNow) return triggerPrefControls(false);
 	} catch(error) {
 		console.error(error);
 		setToolTip(outToolTip, "Failed to load preferences. " + (error.message ?? error ?? ""), 3);
@@ -563,9 +594,10 @@ function saveAllPreferences() { //to do: !probably change into simpler steps
 	//exceptions
 	try {
 		//Page appearance
-		prefs.pageAppearance.textSize = parseNumber(getComputedStyle(document.documentElement).getPropertyValue("--page-scale"));
+		const rootStyles = getComputedStyle(document.documentElement);
+		prefs.pageAppearance.textSize = parseNumber(rootStyles.getPropertyValue("--page-scale"));
 		localStorage.setItem("pageAppearance.textSize", JSON.stringify(prefs.pageAppearance.textSize));
-		prefs.pageAppearance.hue = parseNumber(getComputedStyle(document.documentElement).getPropertyValue("--hue-accent0"));
+		prefs.pageAppearance.hue = parseNumber(rootStyles.getPropertyValue("--hue-accent0"));
 		localStorage.setItem("pageAppearance.hue", JSON.stringify(prefs.pageAppearance.hue));
 
 		//Basic parameters: nothing
@@ -607,169 +639,39 @@ function saveAllPreferences() { //to do: !probably change into simpler steps
 	}
 	return true;
 }
-//to do: !test it
-//to do: !use it
-function applyPrefsReset(prefs) {
-	for(const path of Object.keys(prefs.reset)) {
-		if(prefs.reset[path]) prefs[path] = structuredClone(prefsDefault[path]);
-	}
-}
-function btnResetPreferencesClick(event) { //to do: !change into simpler steps
+function btnResetPreferencesClick(event) { //to do: !(doing) change into simpler steps
 	//resetAllPreferences();
-	//to do: point those things to prefsDefault instead of literals
 	try {
 		adjustingPreferences = true;
-		if(globalThis.chkResetPageAppearance?.checked) {
-			localStorage.removeItem("pageAppearance.textSize");
-			localStorage.removeItem("pageAppearance.theme");
-			localStorage.removeItem("pageAppearance.hue");
+		for(const key of Object.keys(preferencesKeysDeprecatedFlat))
+			localStorage.removeItem(key);
 
-			prefs.pageAppearance.textSize = prefsDefault.pageAppearance.textSize;
-			document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
-			cboPageTheme.value = prefsDefault.pageAppearance.theme;
-			cboPageTheme.dispatchEvent(new Event("input"));
-			document.documentElement.style.setProperty("--hue-accent0", prefsDefault.pageAppearance.hue);
-			updateThemeColor(prefsDefault.pageAppearance.hue);
+		applyPrefsReset(prefs, prefsDefault);
+		/* for(const path of Object.keys(prefs.reset))
+			if(prefs.reset[path])
+				for(const key of Object.keys(localStorage)) {
+					const prefix = key.split(".")[0];
+					if(prefix == path) localStorage.removeItem(key);
+				} */
+		for(const key of Object.keys(localStorage)) {
+			const prefix = key.split(".")[0];
+			if(!prefix || prefix == "") continue;
+			if(prefs.reset[prefix]) localStorage.removeItem(key);
 		}
-		if(globalThis.chkResetBasicParams?.checked) {
-			localStorage.removeItem("genParams.freqRangeMin"); //deprecated
-			localStorage.removeItem("genParams.freqRangeMax"); //deprecated
-			localStorage.removeItem("basicParams.freqRangeMin");
-			localStorage.removeItem("basicParams.freqRangeMax");
 
-			txtFreqRangeMin.value = prefsDefault.basicParams.freqRangeMin.toString();
-			txtFreqRangeMin.dispatchEvent(new Event("input"));
-			txtFreqRangeMax.value = prefsDefault.basicParams.freqRangeMax.toString();
-			txtFreqRangeMax.dispatchEvent(new Event("input"));
+		prefsToControls(prefs, true);
+		prefsToControlsSpecial(prefs, true);
+		triggerPrefControls(true);
+
+		//exceptions
+		if(prefs.reset.primeFactors) {
+			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid"); //?
 		}
-		if(globalThis.chkResetGenParams?.checked) {
-			localStorage.removeItem("genParams.baseFreq");
-			localStorage.removeItem("genParams.timeScale");
-			localStorage.removeItem("addGenParams.voiceCount"); //deprecated
-			localStorage.removeItem("genParams.voiceCount");
-			localStorage.removeItem("genParams.patternCount");
-			localStorage.removeItem("addGenParams.reptCount"); //deprecated
-			localStorage.removeItem("addGenParams.reptPeriod"); //deprecated
-			localStorage.removeItem("addGenParams.percussivePattern"); //deprecated
-			localStorage.removeItem("genParams.reptCount");
-			localStorage.removeItem("genParams.reptPeriod");
-			localStorage.removeItem("genParams.percussivePattern");
-
-			txtBaseFreq.value = prefsDefault.genParams.baseFreq.toString();
-			txtBaseFreq.dispatchEvent(new Event("input"));
-			txtTimeScale.value = prefsDefault.genParams.timeScale.toString();
-			txtTimeScale.dispatchEvent(new Event("input"));
-			txtVoiceCount.value = prefsDefault.genParams.voiceCount.toString();
-			txtVoiceCount.dispatchEvent(new Event("input"));
-			txtPatternCount.value = prefsDefault.genParams.patternCount.toString();
-			txtPatternCount.dispatchEvent(new Event("input"));
-			txtReptCount.value = prefsDefault.genParams.reptCount.toString();
-			txtReptCount.dispatchEvent(new Event("input"));
-			txtReptPeriod.value = prefsDefault.genParams.reptPeriod.toString();
-			txtReptPeriod.dispatchEvent(new Event("input"));
-			chkPercussivePattern.checked = prefsDefault.genParams.percussivePattern;
-			chkPercussivePattern.dispatchEvent(new Event("click"));
+		if(prefs.reset.structuredMusic) {
+			ctlStructuredScript.classList.remove("invalid");
 		}
-		if(globalThis.chkResetPrimeFactorsParams?.checked) {
-			localStorage.removeItem("genParams.primeCount"); //deprecated
-			localStorage.removeItem("genParams.expVariance"); //deprecated
-			localStorage.removeItem("genParams.expRangeLower"); //deprecated
-			localStorage.removeItem("genParams.expRangeUpper"); //deprecated
-			localStorage.removeItem("genParams.primeExpRanges"); //deprecated
-			localStorage.removeItem("primeFactors.primeCount");
-			localStorage.removeItem("primeFactors.expVariance");
-			localStorage.removeItem("primeFactors.expRangeLower");
-			localStorage.removeItem("primeFactors.expRangeUpper");
-			localStorage.removeItem("primeFactors.expRanges");
-
-			txtPrimeCount.value = prefsDefault.primeFactors.primeCount.toString();
-			txtPrimeCount.dispatchEvent(new Event("input"));
-			txtExpRangeLower.value = prefsDefault.primeFactors.expRangeLower.toString();
-			txtExpRangeLower.dispatchEvent(new Event("input"));
-			txtExpRangeUpper.value = prefsDefault.primeFactors.expRangeUpper.toString();
-			txtExpRangeUpper.dispatchEvent(new Event("input"));
-			ctlPrimeExpRanges.classList.remove("expanded", "line-wrap", "invalid");
-			expRangesFromParams(true);
-		}
-		if(globalThis.chkResetRhythmParams?.checked) {
-			localStorage.removeItem("rhythmParams.rhythmScale");
-			localStorage.removeItem("rhythmParams.rhythmFactors");
-
-			txtRhythmScale.value = prefsDefault.rhythmParams.rhythmScale.toString();
-			txtRhythmScale.dispatchEvent(new Event("input"));
-			txtRhythmFactors.value = prefsDefault.rhythmParams.rhythmFactors.join("*");
-			txtRhythmFactors.dispatchEvent(new Event("input"));
-		}
-		if(globalThis.chkResetStructuredMusic?.checked) {
-			localStorage.removeItem("structuredMusic.overflow");
-			localStorage.removeItem("structuredMusic.lineWrapping");
-			localStorage.removeItem("structuredMusic.content");
-
-			chkOverflow1.checked = prefsDefault.structuredMusic.overflow;
-			chkLineWrap1.checked = prefsDefault.structuredMusic.lineWrapping;
-			codeBoxContentSet(ctlStructuredScript, prefsDefault.structuredMusic.content);
-			ctlStructuredScript.classList.remove("expanded", "line-wrap", "invalid");
-			//ctlStructuredScript.dispatchEvent(new Event("input"));
-		}
-		if(globalThis.chkResetFlatScript?.checked) {
-			localStorage.removeItem("flatScript.autoFlatten");
-			localStorage.removeItem("flatScript.overflow");
-			localStorage.removeItem("flatScript.lineWrapping");
-			localStorage.removeItem("flatScript.content");
-
-			chkAutoFlatten.checked = prefsDefault.flatScript.autoFlatten;
-			//chkAutoFlatten.dispatchEvent(new Event("click"));
-			chkOverflow2.checked = prefsDefault.flatScript.overflow;
-			chkLineWrap2.checked = prefsDefault.flatScript.lineWrapping;
-			codeBoxContentSet(ctlFlatScript, prefsDefault.flatScript.content);
-			ctlFlatScript.classList.remove("expanded", "line-wrap", "invalid");
-			ctlFlatScript.dispatchEvent(new Event("input"));
-		}
-		if(globalThis.chkResetClipParams?.checked) {
-			localStorage.removeItem("clipParams.freqScale");
-			localStorage.removeItem("clipParams.volScale");
-			localStorage.removeItem("clipParams.timeScale");
-			localStorage.removeItem("clipParams.timeDelta");
-
-			txtPlayFreqScale.value = prefsDefault.clipParams.freqScale.toString();
-			txtPlayFreqScale.dispatchEvent(new Event("input"));
-			txtPlayVolScale.value = prefsDefault.clipParams.volScale.toString();
-			txtPlayVolScale.dispatchEvent(new Event("input"));
-			txtPlayTimeScale.value = prefsDefault.clipParams.timeScale.toString();
-			txtPlayTimeScale.dispatchEvent(new Event("input"));
-			txtPlayTimeDelta.value = prefsDefault.clipParams.timeDelta.toString();
-			txtPlayTimeDelta.dispatchEvent(new Event("input"));
-		}
-		if(globalThis.chkResetPlayer?.checked) {
-			localStorage.removeItem("player.autoReload");
-
-			chkAutoReload.checked = prefsDefault.player.autoReload;
-			chkAutoReload.dispatchEvent(new Event("click"));
-		}
-		if(globalThis.chkResetReset?.checked) {
-			localStorage.removeItem("reset.pageAppearance");
-			localStorage.removeItem("reset.basicParams");
-			localStorage.removeItem("reset.genParams");
-			localStorage.removeItem("reset.primeFactors");
-			localStorage.removeItem("reset.rhythmParams");
-			localStorage.removeItem("reset.addGenParams"); //deprecated
-			localStorage.removeItem("reset.structuredMusic");
-			localStorage.removeItem("reset.flatScript");
-			localStorage.removeItem("reset.clipParams");
-			localStorage.removeItem("reset.player");
-			localStorage.removeItem("reset.reset");
-
-			if(globalThis.chkResetPageAppearance) chkResetPageAppearance.checked = prefsDefault.reset.pageAppearance;
-			if(globalThis.chkResetBasicParams) chkResetBasicParams.checked = prefsDefault.reset.basicParams;
-			if(globalThis.chkResetGenParams) chkResetGenParams.checked = prefsDefault.reset.genParams;
-			if(globalThis.chkResetPrimeFactorsParams) chkResetPrimeFactorsParams.checked = prefsDefault.reset.primeFactors;
-			if(globalThis.chkResetRhythmParams) chkResetRhythmParams.checked = prefsDefault.reset.rhythmParams;
-			if(globalThis.chkResetStructuredMusic) chkResetStructuredMusic.checked = prefsDefault.reset.structuredMusic;
-			if(globalThis.chkResetFlatScript) chkResetFlatScript.checked = prefsDefault.reset.flatScript;
-			if(globalThis.chkResetClipParams) chkResetClipParams.checked = prefsDefault.reset.clipParams;
-			if(globalThis.chkResetPlayer) chkResetPlayer.checked = prefsDefault.reset.player;
-			chkResetReset.checked = prefsDefault.reset.reset;
-			//.dispatchEvent(new Event("input"));
+		if(prefs.reset.flatScript) {
+			ctlFlatScript.classList.remove("invalid");
 		}
 	} catch(error) {
 		console.error(error);
@@ -782,7 +684,7 @@ function btnResetPreferencesClick(event) { //to do: !change into simpler steps
 }
 //function currently out of use
 function resetAllPreferences() {
-	localStorage.clear();
+	localStorage.clear(); //? might affect other apps in the same domain
 	loadAllPreferences(); //?
 }
 
