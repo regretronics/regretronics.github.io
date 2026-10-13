@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 384" preserveAspectRatio="xMidYMid meet">
+	<title>SVG experiment: color transfer functions</title>
+	<defs>
+		<style>/*<![CDATA[*/
+			@property --blob-scale {
+				syntax: "\<number\>";
+				initial-value: 0.0;
+				inherits: true;
+			}
+			/* @property --squash-t {
+				syntax: "\3c number\3e";
+				inherits: true;
+				initial-value: 0.0;
+			}
+			@keyframes squashTransition {
+				from {--squash-t: 0;}
+				to {--squash-t: 1;}
+			} */
+			:root {
+				background: gray;
+				color-scheme: dark;
+				font-variant: slashed-zero;
+				/* dynamic-range-limit: no-limit; */
+
+				/* filter: url(#transferFunc1); */
+				/* color-interpolation-filters: sRGB; */
+				/* interpolation-filters: sRGB; */
+
+				transition-property: --blob-scale;
+				transition-duration: 0.75s;
+				transition-timing-function: ease;
+				transition-delay: 0s;
+
+				/* --filter1: ;
+				--filter2: ; */
+
+				/* timeline-scope: --scroll-squash;
+				animation-name: squashTransition;
+				animation-duration: 1s;
+				animation-timing-function: linear;
+				animation-fill-mode: both;
+				animation-timeline: --scroll-squash; */
+			}
+
+			radialGradient stop {
+				/* --i: sibling-index(); */
+				/* --i: attr(data-i type(<number>)); */
+				stop-color: white;
+				/* stop-opacity: calc(1 - var(--i) / 6); */
+			}
+			filter :not(.interp-revert) {
+				color-interpolation-filters: sRGB; /* linearRGB */
+			}
+			filter .interp-revert {
+				color-interpolation-filters: linearRGB;
+			}
+			#main {
+				filter: var(--filter1, ) var(--filter2, );
+
+				/* :root:has(#chkColorTransfer:checked) & {
+					--filter1: url(#fltTransferSquash);
+				} */
+				/* :root:has(#chkPosterize:checked) & {
+					--filter2: url(#fltPosterize) / * blur(1px) * /;
+				} */
+			}
+			.blob {
+				/* r: calc(25% * var(--blob-scale, 1)); */
+				r: calc(25% * pow(2, var(--blob-scale, 0)));
+				fill: var(--blob-fill, url("#blobGradBinomial0"));
+				/* mask: url("#blobMask"); */
+			}
+
+			#divControls {
+				block-size: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				flex-direction: column;
+				/* place-items: center; */
+				place-content: center;
+			}
+			.ctl-cell {
+				/* zoom: calc(4 / sibling-count()); */
+				font-size: calc(48px / sibling-count());
+				/* &:first-child {
+					position: relative;
+					left: calc(1em * var(--squash-t));
+				} */
+			}
+			input, select, textarea {
+				font: inherit;
+			}
+			#selBlobSize :checked {
+				:root:has(&[label="-1"]) {--blob-scale: -1;}
+				:root:has(&[label="-0.75"]) {--blob-scale: -0.75;}
+				:root:has(&[label="-0.5"]) {--blob-scale: -0.5;}
+				:root:has(&[label="-0.25"]) {--blob-scale: -0.25;}
+				:root:has(&[label="0"]) {--blob-scale: 0;}
+				:root:has(&[label="0.25"]) {--blob-scale: 0.25;}
+				:root:has(&[label="0.5"]) {--blob-scale: 0.5;}
+				:root:has(&[label="0.75"]) {--blob-scale: 0.75;}
+				:root:has(&[label="1"]) {--blob-scale: 1;}
+			}
+			#selBlobGradient :checked {
+				:root:has(&[value="2"]) {--blob-fill: url("#blobGradBinomial0");}
+				:root:has(&[value="3"]) {--blob-fill: url("#blobGradBinomial2");}
+				:root:has(&[value="4"]) {--blob-fill: url("#blobGradBinomial4");}
+				:root:has(&[value="5"]) {--blob-fill: url("#blobGradBinomial6");}
+				:root:has(&[value="6"]) {--blob-fill: url("#blobGradBinomial8");}
+				:root:has(&[value="7"]) {--blob-fill: url("#blobGradBinomial10");}
+				:root:has(&[value="8"]) {--blob-fill: url("#blobGradBinomial12");}
+				:root:has(&[value="9"]) {--blob-fill: url("#blobGradBinomial14");}
+			}
+			#selColorTransfer :checked {
+				:root:has(&[value="0"]) {--filter1: ;}
+				:root:has(&[value="1"]) {--filter1: url("#fltTransferSquash3");}
+				:root:has(&[value="2"]) {--filter1: url("#fltTransferSquash5");}
+			}
+			#selPosterization :checked {
+				:root:has(&[label="off"]) {--filter2: ;}
+				:root:has(&[label="monotonic"]) {--filter2: url(#fltPosterizeMonotonic) /* blur(1px) */;}
+				:root:has(&[label="stripes"]) {--filter2: url(#fltPosterizeStripes) blur(1px);}
+			}
+			/* .scroll-bar {
+				--scale: 0.5;
+				--width: 8em;
+				--height: 4em;
+				display: inline-block;
+				scale: var(--scale);
+				width: var(--width);
+				max-width: calc(100% / var(--scale));
+				height: var(--height);
+				vertical-align: middle;
+
+				outline-style: solid;
+				outline-width: 0.125em;
+				outline-color: oklch(1 0 0deg / 0.5);
+
+				margin-block: calc(-0.5 * var(--scale) * var(--height));
+				margin-inline: calc(-0.5 * var(--scale) * var(--width));
+				overflow-x: hidden;
+				overflow-y: scroll;
+				contain: strict;
+
+				background-color: oklch(0.25 0 0deg);
+			}
+			#scrollBar1 {
+				scroll-timeline: --scroll-squash block;
+			}
+			.scroll-area {
+				width: 100%;
+				height: 400%;
+
+				padding: 0;
+				border-width: 0;
+				contain: strict;
+
+				background: linear-gradient(to bottom, black, white);
+
+				& .label {
+					position: absolute;
+					font-variant: small-caps;
+
+					&.min {
+						top: 0;
+						color: white;
+					}
+					&.max {
+						bottom: 0;
+						color: black;
+					}
+				}
+			}
+			#g3r {
+				animation-timeline: --scroll-squash;
+				animation-duration: 1s;
+				animation-timing-function: linear;
+				animation-fill-mode: both;
+			} */
+			/* #selColorTransfer {
+				& option { / * forces transition events triggering * /
+					transition-property: --squash-t;
+					transition-duration: 0.1s;
+					transition-timing-function: linear;
+					transition-delay: 0s;
+					--squash-t: 0;
+
+					&:checked { / * trigger in a one-sided way * /
+						transition-property: none;
+						--squash-t: 1;
+					}
+				}
+			} */
+		/*]]>*/</style>
+
+		<linearGradient id="colorScale" x1="0" x2="1">
+			<stop offset="0" stop-opacity="1" stop-color="black" />
+			<stop offset="1" stop-opacity="1" stop-color="white" />
+		</linearGradient>
+		<!--opacities based on binomial distribution/Pascal's triangle-->
+		<radialGradient id="blobGradBinomial0">
+			<stop offset="0" stop-opacity="1" />
+			<stop offset="1" stop-opacity="0" />
+		</radialGradient>
+		<!-- <radialGradient id="blobGradBinomial2">
+			<stop offset="0"   stop-opacity="calc(1 * 2 / 2)" />
+			<stop offset="0.5" stop-opacity="calc(1 * 1 / 2)" />
+			<stop offset="1"   stop-opacity="calc(1 * 0 / 2)" />
+		</radialGradient> -->
+		<radialGradient id="blobGradBinomial4">
+			<stop offset="0"       stop-opacity="calc(1 * 6 / 6)" />
+			<stop offset="0.33333" stop-opacity="calc(1 * 4 / 6)" />
+			<stop offset="0.66667" stop-opacity="calc(1 * 1 / 6)" />
+			<stop offset="1"       stop-opacity="calc(1 * 0 / 6)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial6">
+			<stop offset="0"    stop-opacity="calc(1 * 20 / 20)" />
+			<stop offset="0.25" stop-opacity="calc(1 * 15 / 20)" />
+			<stop offset="0.5"  stop-opacity="calc(1 *  6 / 20)" />
+			<stop offset="0.75" stop-opacity="calc(1 *  1 / 20)" />
+			<stop offset="1"    stop-opacity="calc(1 *  0 / 20)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial8">
+			<stop offset="0"   stop-opacity="calc(1 * 70 / 70)" />
+			<stop offset="0.2" stop-opacity="calc(1 * 56 / 70)" />
+			<stop offset="0.4" stop-opacity="calc(1 * 28 / 70)" />
+			<stop offset="0.6" stop-opacity="calc(1 *  8 / 70)" />
+			<stop offset="0.8" stop-opacity="calc(1 *  1 / 70)" />
+			<stop offset="1"   stop-opacity="calc(1 *  0 / 70)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial10">
+			<stop offset="0"       stop-opacity="calc(1 * 252 / 252)" />
+			<stop offset="0.16667" stop-opacity="calc(1 * 210 / 252)" />
+			<stop offset="0.33333" stop-opacity="calc(1 * 120 / 252)" />
+			<stop offset="0.5"     stop-opacity="calc(1 *  45 / 252)" />
+			<stop offset="0.66667" stop-opacity="calc(1 *  10 / 252)" />
+			<stop offset="0.83333" stop-opacity="calc(1 *   1 / 252)" />
+			<stop offset="1"       stop-opacity="calc(1 *   0 / 252)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial12">
+			<stop offset="0"       stop-opacity="calc(1 * 924 / 924)" />
+			<stop offset="0.14286" stop-opacity="calc(1 * 792 / 924)" />
+			<stop offset="0.28571" stop-opacity="calc(1 * 495 / 924)" />
+			<stop offset="0.42857" stop-opacity="calc(1 * 220 / 924)" />
+			<stop offset="0.57143" stop-opacity="calc(1 *  66 / 924)" />
+			<stop offset="0.71429" stop-opacity="calc(1 *  12 / 924)" />
+			<stop offset="0.85714" stop-opacity="calc(1 *   1 / 924)" />
+			<stop offset="1"       stop-opacity="calc(1 *   0 / 924)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial14">
+			<stop offset="0"     stop-opacity="calc(1 * 3432 / 3432)" />
+			<stop offset="0.125" stop-opacity="calc(1 * 3003 / 3432)" />
+			<stop offset="0.25"  stop-opacity="calc(1 * 2002 / 3432)" />
+			<stop offset="0.375" stop-opacity="calc(1 * 1001 / 3432)" />
+			<stop offset="0.5"   stop-opacity="calc(1 *  364 / 3432)" />
+			<stop offset="0.625" stop-opacity="calc(1 *   91 / 3432)" />
+			<stop offset="0.75"  stop-opacity="calc(1 *   14 / 3432)" />
+			<stop offset="0.875" stop-opacity="calc(1 *    1 / 3432)" />
+			<stop offset="1"     stop-opacity="calc(1 *    0 / 3432)" />
+		</radialGradient>
+
+		<!-- original (cubic) smoothstep function (squashing effect) -->
+		<!-- x="0" y="0" width="1" height="1" -->
+		<filter id="fltTransferSquashOld" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<!-- 3x^2 - 2x^3 -->
+			<!-- 3x^2 - 3(2/3 x^3) and 3x^2 + 3(1 - 2/3 x^3) - 3 didn't work properly. -->
+			<feComponentTransfer in="SourceGraphic" result="gamma3">
+				<feFuncR type="gamma" amplitude="1" exponent="3" offset="0" />
+				<feFuncG type="gamma" amplitude="1" exponent="3" offset="0" />
+				<feFuncB type="gamma" amplitude="1" exponent="3" offset="0" />
+				<!-- <feFuncA type="linear" slope="-1" intercept="1" /> -->
+			</feComponentTransfer>
+			<feComponentTransfer in="SourceGraphic" result="gamma2">
+				<feFuncR type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncG type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncB type="gamma" amplitude="1" exponent="2" offset="0" />
+				<!-- <feFuncA type="linear" slope="0" intercept="1" /> -->
+			</feComponentTransfer>
+			<!--feComposite greatly complicates alpha manipulation, and trying to reset alpha beforehand doesn't seem to avoid this. but with k2+k3 = 1 (e.g. 3 and -2 as slopes), the alpha tends to pass through.-->
+			<feComposite in="gamma3" in2="gamma2" result="polynomial" operator="arithmetic" k1="0" k2="-2" k3="3" k4="0" />
+			<!-- <feComposite in="gamma2" in2="gamma3" result="polynomial" operator="arithmetic" k1="0" k2="3" k3="-3" k4="0" /> -->
+			<!-- <feComponentTransfer>
+				<feFuncR type="identity" />
+				<feFuncG type="identity" />
+				<feFuncB type="identity" />
+				<feFuncA type="linear" slope="0" intercept="1" />
+			</feComponentTransfer> -->
+			<!-- <feComposite in2="SourceAlpha" operator="arithmetic" k1="0" k2="1" k3="0" k4="0" /> -->
+		</filter>
+		<filter id="fltTransferSquash3" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<!-- 3x^2 - 2x^3 = x^2 (3 - 2x) = 3 x^2 (1 - 2x/3) -->
+			<feComponentTransfer in="SourceGraphic" result="linear3_2">
+				<feFuncR type="linear" slope="-0.6667" intercept="1" />
+				<feFuncG type="linear" slope="-0.6667" intercept="1" />
+				<feFuncB type="linear" slope="-0.6667" intercept="1" />
+			</feComponentTransfer>
+			<feComponentTransfer in="SourceGraphic" result="gamma2">
+				<feFuncR type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncG type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncB type="gamma" amplitude="1" exponent="2" offset="0" />
+			</feComponentTransfer>
+			<feComposite in="linear3_2" in2="gamma2" result="polynomial" operator="arithmetic" k1="3" k2="0" k3="0" k4="0" />
+			<!-- <feBlend in="linear3_2" in2="gamma2" result="polynomial" mode="multiply" /> -->
+		</filter>
+		<!-- quintic smoothstep (a.k.a. smootherstep) function -->
+		<filter id="fltTransferSquash5" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<!-- 6x^5 - 15x^4 + 10x^3 = x^3 (6x^2 - 15x + 10) = 10x^3 (3/5 x^2 - 3/2 x + 1) -->
+			<!-- ? x^3 (6x^2 + 5 (2 - 3x)) -->
+			<!-- <feComponentTransfer in="SourceGraphic" result="linear_inv">
+				<feFuncR type="linear" slope="-1" intercept="1" />
+				<feFuncG type="linear" slope="-1" intercept="1" />
+				<feFuncB type="linear" slope="-1" intercept="1" />
+			</feComponentTransfer> -->
+			<feComponentTransfer in="SourceGraphic" result="gamma2">
+				<feFuncR type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncG type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncB type="gamma" amplitude="1" exponent="2" offset="0" />
+			</feComponentTransfer>
+			<feComponentTransfer in="SourceGraphic" result="gamma3">
+				<feFuncR type="gamma" amplitude="1" exponent="3" offset="0" />
+				<feFuncG type="gamma" amplitude="1" exponent="3" offset="0" />
+				<feFuncB type="gamma" amplitude="1" exponent="3" offset="0" />
+			</feComponentTransfer>
+			<!-- <feComposite in="SourceGraphic" in2="gamma2" result="polynomial" operator="arithmetic" k1="0" k2="2" k3="-1" k4="0" /> -->
+			<feComposite in="SourceGraphic" in2="gamma2" result="polynomial" operator="arithmetic" k1="0" k2="-1.5" k3="0.6" k4="1" />
+			<feComposite in="polynomial" in2="gamma3" result="polynomial" operator="arithmetic" k1="10" k2="0" k3="0" k4="0" />
+			<!-- <feBlend in="linear3_2" in2="gamma2" result="polynomial" mode="multiply" /> -->
+			<feGaussianBlur stdDeviation="0.0009765625" />
+		</filter>
+		<filter id="fltTransferSquashTest" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<!-- 3x^2 - 2x^3 -->
+			<feComponentTransfer in="SourceGraphic" result="gamma3">
+				<feFuncR id="g3r" type="gamma" amplitude="1" exponent="3" offset="0">
+					<!-- <animate
+						id="g3r_anim"
+						href="#g3r"
+						attributeType="XML"
+						attributeName="amplitude"
+						calcMode="linear"
+						from="0"
+						to="2"
+						dur="media"
+						repeatCount="indefinite" /> -->
+					<!-- <set
+						href="#g3r"
+						attributeType="XML"
+						attributeName="amplitude"
+						to="0.5"
+						begin="optSquash0.focus;optSquash0.change;optSquash0.focusin;optSquash0.click;optSquash0.input;optSquash0.select;optSquash0.selectionchange;optSquash0.selectstart;optSquash0.toggle"
+						dur="indefinite" /> -->
+					<set
+						href="#g3r"
+						attributeType="XML"
+						attributeName="amplitude"
+						to="0.5"
+						begin="optSquash0.transitionrun"
+						 />
+					<set
+						href="#g3r"
+						attributeType="XML"
+						attributeName="amplitude"
+						to="1.5"
+						begin="optSquash1.transitionrun"
+						 />
+				</feFuncR>
+				<feFuncG type="gamma" amplitude="1" exponent="3" offset="0" />
+				<feFuncB type="gamma" amplitude="1" exponent="3" offset="0" />
+			</feComponentTransfer>
+			<feComponentTransfer in="SourceGraphic" result="gamma2">
+				<feFuncR type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncG type="gamma" amplitude="1" exponent="2" offset="0" />
+				<feFuncB type="gamma" amplitude="1" exponent="2" offset="0" />
+			</feComponentTransfer>
+			<feComposite in="gamma3" in2="gamma2" result="polynomial" operator="arithmetic" k1="0" k2="-2" k3="3" k4="0" />
+		</filter>
+		<filter id="fltPosterizeMonotonic" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<feComponentTransfer>
+				<feFuncR type="discrete" tableValues="0 0.0625 0.125 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1" />
+				<feFuncG type="discrete" tableValues="0 0.0625 0.125 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1" />
+				<feFuncB type="discrete" tableValues="0 0.0625 0.125 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1" />
+			</feComponentTransfer>
+			<!-- <feGaussianBlur stdDeviation="0.0078125" /> -->
+		</filter>
+		<filter id="fltPosterizeStripes" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<feComponentTransfer>
+				<feFuncR type="discrete" tableValues="0 1 0 1 0 1 0 1" />
+				<feFuncG type="discrete" tableValues="0 1 0 1 0 1 0 1" />
+				<feFuncB type="discrete" tableValues="0 1 0 1 0 1 0 1" />
+			</feComponentTransfer>
+			<!-- <feGaussianBlur stdDeviation="0.0078125" /> -->
+		</filter>
+	</defs>
+
+	<g id="main">
+		<rect x="0%" y="0%" width="100%" height="25%" fill="url(#colorScale)" />
+
+		<rect x="0%" y="25%" width="100%" height="75%" fill="black" />
+		<circle class="blob" cx="37.5%" cy="50%" />
+		<circle class="blob" cx="62.5%" cy="50%" />
+	</g>
+	<foreignObject x="0%" y="75%" width="100%" height="25%">
+		<div xmlns="http://www.w3.org/1999/xhtml" id="divControls">
+			<div class="ctl-cell">
+				<label for="selBlobSize">Blob scale</label>: 
+				<select id="selBlobSize">
+					<option label="-1"></option>
+					<option label="-0.75"></option>
+					<option label="-0.5"></option>
+					<option label="-0.25"></option>
+					<option label="0" selected="selected"></option>
+					<option label="0.25"></option>
+					<option label="0.5"></option>
+					<option label="0.75"></option>
+					<option label="1"></option>
+				</select>
+			</div>
+			<div class="ctl-cell">
+				<label for="selBlobGradient">Blob gradient</label>: 
+				<select id="selBlobGradient">
+					<option value="2" label="binomial-0 (triangle)"></option>
+					<!-- <option value="3" label="binomial-2 (3-point)"></option> -->
+					<option value="4" label="binomial-4 (4-point)"></option>
+					<option value="5" label="binomial-6 (5-point)" selected="selected"></option>
+					<option value="6" label="binomial-8 (6-point)"></option>
+					<option value="7" label="binomial-10 (7-point)"></option>
+					<option value="8" label="binomial-12 (8-point)"></option>
+					<option value="9" label="binomial-14 (9-point)"></option>
+				</select>
+			</div>
+			<!-- <div class="ctl-cell">
+				<input type="checkbox" id="chkColorTransfer" checked="checked" />
+				<label for="chkColorTransfer">Enable color transfer function</label>
+			</div> -->
+			<!-- <div id="scrollBar1" class="scroll-bar">
+				<div class="scroll-area">
+					<span class="label min">minimum</span>
+					<span class="label max">maximum</span>
+				</div>
+			</div> -->
+			<div class="ctl-cell">
+				<label for="selColorTransfer">Color transfer function</label>: 
+				<select id="selColorTransfer">
+					<option id="optSquash0" value="0" label="off"></option>
+					<option id="optSquash1" value="1" label="cubic (smoothstep)" selected="selected"></option>
+					<option id="optSquash2" value="2" label="quintic (smootherstep)"></option>
+				</select>
+			</div>
+			<div class="ctl-cell">
+				<label for="selPosterization">Posterization</label>: 
+				<select id="selPosterization">
+					<option label="off" selected="selected"></option>
+					<option label="monotonic"></option>
+					<option label="stripes"></option>
+				</select>
+			</div>
+		</div>
+	</foreignObject>
+</svg>
