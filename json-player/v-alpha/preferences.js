@@ -1,5 +1,7 @@
 "use strict";
 
+//to do: use an application prefix in localStorage keys (e.g. "musicalCode.")
+
 const defStructuredCode = '{\n\
 	"freqRatio": 440,\n\
 	"volRatio": 0.5,\n\
@@ -145,6 +147,8 @@ function ctlDefaultsToPrefs(targetObj) {
 			const prefKey = elem.dataset?.pref;
 			if(!prefKey || prefKey == "") continue;
 
+			if(preferencesKeysFlat[prefKey] === "object") continue;
+
 			const value = controlGetDefault(elem);
 			if(value)
 				setObjByPath(targetObj, prefKey, value, true);
@@ -274,7 +278,7 @@ function prefsToControlsSpecial(prefs, resetIncluded) {
 			} /* else
 				throw(new Error("Control ctlPrimeExpRanges not found.")); */
 		} else
-			expRangesFromParams(false);
+			expRangesFromParams(true);
 	}
 	if(!prefs.reset.rhythmParams ^ resetIncluded)
 		//to do: deal with the automatic extra 1 factor
@@ -566,9 +570,10 @@ function loadAllPreferences(triggerNow) { //to do: maybe remove triggerNow
 		adjustingPreferences = true;
 
 		storageToPrefs(prefs);
+		/* for(const key of Object.keys(preferencesKeysDeprecatedFlat))
+			localStorage.removeItem(key); */
+		clearStoragePrefs(prefs.reset);
 		applyPrefsReset(prefs, prefsDefault);
-		for(const key of Object.keys(preferencesKeysDeprecatedFlat))
-			localStorage.removeItem(key);
 
 		prefsToControls(prefs, false);
 		prefsToControlsSpecial(prefs, false);
@@ -639,16 +644,14 @@ function saveAllPreferences() { //to do: !probably change into simpler steps
 	}
 	return true;
 }
-function btnResetPreferencesClick(event) { //to do: !(doing) change into simpler steps
-	//resetAllPreferences();
-	try {
-		adjustingPreferences = true;
-		for(const key of Object.keys(preferencesKeysDeprecatedFlat))
-			localStorage.removeItem(key);
+function clearStoragePrefs(resetObj) {
+	//question: delete from preferencesKeysDeprecatedFlat here as well?
+	for(const key of Object.keys(preferencesKeysDeprecatedFlat))
+		localStorage.removeItem(key);
 
-		applyPrefsReset(prefs, prefsDefault);
-		/* for(const path of Object.keys(prefs.reset))
-			if(prefs.reset[path])
+	if(resetObj) {
+		/* for(const path of Object.keys(resetObj))
+			if(resetObj[path])
 				for(const key of Object.keys(localStorage)) {
 					const prefix = key.split(".")[0];
 					if(prefix == path) localStorage.removeItem(key);
@@ -656,8 +659,22 @@ function btnResetPreferencesClick(event) { //to do: !(doing) change into simpler
 		for(const key of Object.keys(localStorage)) {
 			const prefix = key.split(".")[0];
 			if(!prefix || prefix == "") continue;
-			if(prefs.reset[prefix]) localStorage.removeItem(key);
+			if(resetObj[prefix]) localStorage.removeItem(key);
 		}
+	} else
+		for(const key of Object.keys(preferencesKeysFlat))
+			localStorage.removeItem(key);
+	return true;
+}
+function btnResetPreferencesClick(event) { //to do: !what's the difference from loadAllPreferences now?
+	//resetAllPreferences();
+	try {
+		adjustingPreferences = true;
+		/* for(const key of Object.keys(preferencesKeysDeprecatedFlat))
+			localStorage.removeItem(key); */
+
+		clearStoragePrefs(prefs.reset);
+		applyPrefsReset(prefs, prefsDefault);
 
 		prefsToControls(prefs, true);
 		prefsToControlsSpecial(prefs, true);
@@ -713,6 +730,7 @@ function saveControlPreference(elem) {
 		localStorage.setItem(prefKey, value);
 	else
 		localStorage.setItem(prefKey, JSON.stringify(value));
+	elem.classList?.remove?.("unsaved");
 	return true;
 }
 function saveInputValue(event) {
@@ -739,7 +757,7 @@ function rescaleText(event) {
 	document.documentElement.style.setProperty("--page-scale", newTextSize);
 	prefs.pageAppearance.textSize = newTextSize;
 
-	localStorage.setItem("pageAppearance.textSize", strTextSize);
+	if(!adjustingPreferences) localStorage.setItem("pageAppearance.textSize", strTextSize);
 	return true;
 }
 function themeChanged(event) {
@@ -811,7 +829,7 @@ function btnHueClick(event) {
 			elem2.setAttribute("content", "red");
 	}*/
 
-	localStorage.setItem("pageAppearance.hue", JSON.stringify(hue));
+	if(!adjustingPreferences) localStorage.setItem("pageAppearance.hue", JSON.stringify(hue));
 }
 
 function updatePrimeList() {

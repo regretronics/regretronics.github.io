@@ -8,7 +8,7 @@
 var struct;
 
 function parseExpRanges(event) {
-	if(!globalThis.ctlPrimeExpRanges) return false;
+	if(!globalThis.ctlPrimeExpRanges || adjustingPreferences) return false;
 	try {
 		const parsed = JSON.parse(codeBoxContentGet(ctlPrimeExpRanges));
 		if(!parsed) throw(new Error("Exponent ranges: couldn't parse JSON code."));
@@ -182,9 +182,9 @@ function parseNode(flatStruct, node, blockContext) {
 	}
 }
 
-let hasScriptChanged = true;
+let scriptTranslationDue = true;
 function flattenStruct(event) {
-	if(!hasScriptChanged) return false;
+	if(!scriptTranslationDue) return false;
 	if(!globalThis.ctlStructuredScript) return false;
 	try {
 		struct = JSON.parse(codeBoxContentGet(ctlStructuredScript));
@@ -231,7 +231,7 @@ function flattenStruct(event) {
 		/* regex = new RegExp(/: /, "g"); //space to tab between property and value
 		objText = objText.replace(regex, ":\t"); */
 
-		if(!adjustingPreferences) saveControlPreference(ctlStructuredScript);
+		if(!adjustingPreferences && ctlStructuredScript.classList.contains("unsaved")) saveControlPreference(ctlStructuredScript);
 		codeBoxContentSet(ctlFlatScript, objText);
 		ctlFlatScript.classList.remove("invalid", "outdated");
 	} catch(error) {
@@ -246,14 +246,14 @@ function flattenStruct(event) {
 		return false;
 	}
 	//job done, don't do it again
-	hasScriptChanged = false;
+	scriptTranslationDue = false;
 	btnFlattenStruct.innerText = "Flattened";
 	console.log("flattenStruct(): function ending");
 	return true;
 }
 
 function setStructuredText(codeText) {
-	hasScriptChanged = true;
+	scriptTranslationDue = true;
 	if(globalThis.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 	if(globalThis.ctlStructuredScript) {
 		codeBoxContentSet(ctlStructuredScript, codeText);
@@ -267,20 +267,26 @@ function setStructuredText(codeText) {
 let flattenTimeoutID;
 const flattenInterval = 1.5; //seconds
 function scriptChanged(event) {
+	ctlStructuredScript?.classList?.add?.("unsaved");
 	ctlFlatScript?.classList?.add?.("outdated");
 	if(!globalThis.flattenStruct) {
 		console.info("scriptChanged(): function flattenStruct() not found. Returning.");
 		return false;
 	}
-	hasScriptChanged = true;
+	scriptTranslationDue = true;
 	if(globalThis.btnFlattenStruct) btnFlattenStruct.innerText = "Flatten";
 
 	if(flattenTimeoutID) {
 		globalThis.clearTimeout(flattenTimeoutID);
 		flattenTimeoutID = undefined;
 	}
-	if(prefs.flatScript.autoFlatten && !adjustingPreferences)
+	if(prefs.flatScript.autoFlatten)
 		flattenTimeoutID = globalThis.setTimeout(flattenStruct, flattenInterval * 1000);
+	else //might save immediately
+		if(!adjustingPreferences) {
+			saveControlPreference(ctlStructuredScript);
+			ctlStructuredScript?.classList?.remove?.("unsaved");
+		}
 	return true;
 }
 
@@ -288,7 +294,7 @@ function setAutoFlatten(value) {
 	if(!globalThis.flattenStruct) return false;
 	prefs.flatScript.autoFlatten = value;
 	if(prefs.flatScript.autoFlatten) {
-		if(hasScriptChanged && !flattenTimeoutID)
+		if(scriptTranslationDue && !flattenTimeoutID)
 			flattenTimeoutID = globalThis.setTimeout(flattenStruct, flattenInterval * 1000);
 	} else {
 		if(flattenTimeoutID) {

@@ -231,6 +231,8 @@ function pageLoaded(event) {
 	genPrefsKeysFlat();
 	ctlDefaultsToPrefs(prefsDefault);
 	globalThis.loadAllPreferences(false); //preferences.js
+	globalThis.prefsToControls(prefs, true);
+	globalThis.prefsToControlsSpecial(prefs, true);
 	themeChanged({target: cboPageTheme});
 	//globalThis.rhythmFactorsChanged?.();
 
@@ -318,7 +320,7 @@ function overflowToggle(event) {
 		return false;
 	}
 	control.classList.toggle("expanded", elem.checked);
-	if(elem.dataset["pref"])
+	if(!adjustingPreferences && elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("expanded")));
 }
 function lineWrapToggle(event) {
@@ -333,7 +335,7 @@ function lineWrapToggle(event) {
 		return false;
 	}
 	control.classList.toggle("line-wrap", elem.checked);
-	if(elem.dataset["pref"])
+	if(!adjustingPreferences && elem.dataset["pref"])
 		localStorage.setItem(elem.dataset["pref"], JSON.stringify(control.classList.contains("line-wrap")));
 }
 
