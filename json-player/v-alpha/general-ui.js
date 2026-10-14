@@ -228,13 +228,26 @@ function pageLoaded(event) {
 	for(const elem of document.querySelectorAll('[id]'))
 		globalThis[elem.id] = elem;
 
-	genPrefsKeysFlat();
-	ctlDefaultsToPrefs(prefsDefault);
-	globalThis.loadAllPreferences(false); //preferences.js
-	globalThis.prefsToControls(prefs, true);
-	globalThis.prefsToControlsSpecial(prefs, true);
-	themeChanged({target: cboPageTheme});
-	//globalThis.rhythmFactorsChanged?.();
+	try {
+		adjustingPreferences = true;
+
+		globalThis.genPrefsKeysFlat();
+		globalThis.ctlDefaultsToPrefs(prefsDefault);
+		storageToPrefs(prefs);
+		/* let prevResetState = */ applyPrefsReset(prefs, prefsDefault);
+
+		globalThis.prefsToControls(prefs, undefined, null); //null is for touching both controls that were and weren't reset
+		globalThis.prefsToControlsSpecial(prefs, undefined, null);
+		themeChanged({target: cboPageTheme});
+		//globalThis.rhythmFactorsChanged?.();
+		//triggerPrefControls(false, prevResetState);
+	} catch(error) {
+		console.error(error);
+		setToolTip(outToolTip, "Failed to load preferences. " + (error.message ?? error ?? ""), 3);
+		return false;
+	} finally {
+		adjustingPreferences = false;
+	}
 
 	if(globalThis.outAudioT) outAudioT.innerText = toFixedTrunc(0, timeDisplPrecision);
 	if(globalThis.outAudioDur) outAudioDur.innerText = toFixedTrunc(0, timeDisplPrecision);
@@ -299,8 +312,10 @@ function pageReady(event) {
 }
 if(document.readyState === "loading")
 	document.addEventListener("DOMContentLoaded", pageLoaded);
-else //DOMContentLoaded has already fired
+else {
+	console.info("DOMContentLoaded has already fired unhooked.");
 	pageLoaded();
+}
 globalThis.addEventListener("load", pageReady);
 //globalThis.addEventListener("load", async event => pageReady(event););
 //globalThis.addEventListener("load", event => Promise.resolve().then(value => {pageReady(event);}););

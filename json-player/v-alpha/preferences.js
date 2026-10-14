@@ -243,7 +243,8 @@ function storageToPrefs(targetObj) {
 }
 
 //note: this function doesn't try to trigger control events
-function prefsToControls(prefs, resetIncluded) {
+function prefsToControls(prefs, resetIncluded, resetObj) {
+	if(resetObj === undefined) resetObj = prefs.reset; //this can still be avoided by passing null to resetObj, which wouldn't filter out any keys
 	//an alternative would be with a loop over prefs, and document.querySelectorAll(`[data-pref=${path}]`)
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		try {
@@ -252,7 +253,7 @@ function prefsToControls(prefs, resetIncluded) {
 
 			//check exclusion by reset preferences
 			const prefix = prefKey.split(".")[0];
-			if(prefs.reset[prefix] ^ resetIncluded) continue;
+			if(resetObj && resetObj[prefix] ^ resetIncluded) continue;
 
 			const value = getObjByPath(prefs, prefKey);
 			if(value !== undefined && typeof(value) !== "object") controlSetValue(elem, value);
@@ -261,33 +262,33 @@ function prefsToControls(prefs, resetIncluded) {
 		}
 	return true;
 }
-function prefsToControlsSpecial(prefs, resetIncluded) {
+function prefsToControlsSpecial(prefs, resetIncluded, resetObj) {
+	if(resetObj === undefined) resetObj = prefs.reset; //this can still be avoided by passing null to resetObj, which wouldn't filter out any keys
 	//exceptions to prefsToControls
-	if(!prefs.reset.pageAppearance ^ resetIncluded) {
+	if(!resetObj || !resetObj.pageAppearance ^ resetIncluded) {
 		document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
 		const hue = prefs.pageAppearance.hue, hueMod = ((hue % 360) + 360) % 360;
 		document.documentElement.style.setProperty("--hue-accent0", hueMod);
 		//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
 		updateThemeColor(hueMod);
 	}
-	if(!prefs.reset.primeFactors ^ resetIncluded) {
+	if(!resetObj || !resetObj.primeFactors ^ resetIncluded) {
 		if(prefs.primeFactors.expRanges) {
-			if(globalThis.ctlPrimeExpRanges) {
-				const objText = toJSONCodeAdjusted(prefs.primeFactors.expRanges);
-				codeBoxContentSet(ctlPrimeExpRanges, objText);
-			} /* else
+			if(globalThis.ctlPrimeExpRanges)
+				codeBoxContentSet(ctlPrimeExpRanges, toJSONCodeAdjusted(prefs.primeFactors.expRanges));
+			/* else
 				throw(new Error("Control ctlPrimeExpRanges not found.")); */
 		} else
-			expRangesFromParams(true);
+			expRangesFromParams(true); //to do: move extra computations into a new function?
 	}
-	if(!prefs.reset.rhythmParams ^ resetIncluded)
+	if(!resetObj || !resetObj.rhythmParams ^ resetIncluded)
 		//to do: deal with the automatic extra 1 factor
 		txtRhythmFactors.value = prefs.rhythmParams.rhythmFactors.join("*");
-	if(!prefs.reset.structuredMusic ^ resetIncluded) {
+	if(!resetObj || !resetObj.structuredMusic ^ resetIncluded) {
 		globalThis.ctlStructuredScript?.classList?.toggle?.("expanded", prefs.structuredMusic.overflow);
 		globalThis.ctlStructuredScript?.classList?.toggle?.("line-wrap", prefs.structuredMusic.lineWrapping);
 	}
-	if(!prefs.reset.flatScript ^ resetIncluded) {
+	if(!resetObj || !resetObj.flatScript ^ resetIncluded) {
 		globalThis.ctlFlatScript?.classList?.toggle?.("expanded", prefs.flatScript.overflow);
 		globalThis.ctlFlatScript?.classList?.toggle?.("line-wrap", prefs.flatScript.lineWrapping);
 	}
@@ -296,7 +297,8 @@ function prefsToControlsSpecial(prefs, resetIncluded) {
 /* function controlsToPrefs(params) { //maybe unnecessary
 } */
 //question: necessary?
-function triggerPrefControls(resetIncluded) {
+function triggerPrefControls(resetIncluded, resetObj) {
+	if(resetObj === undefined) resetObj = prefs.reset; //this can still be avoided by passing null to resetObj, which wouldn't filter out any keys
 	const evtInput = new Event("input"), evtClick = new Event("click");
 	for(const elem of document.querySelectorAll("[data-pref]"))
 		try {
@@ -305,7 +307,7 @@ function triggerPrefControls(resetIncluded) {
 
 			//check exclusion by reset preferences
 			const prefix = prefKey.split(".")[0];
-			if(prefs.reset[prefix] ^ resetIncluded) continue;
+			if(resetObj && resetObj[prefix] ^ resetIncluded) continue;
 
 			if(/* elem.tagName.toUpperCase() === "SELECT" 
 				|| */ (elem.tagName.toUpperCase() === "INPUT" && elem.type.toLowerCase() === "checkbox"))
@@ -318,275 +320,44 @@ function triggerPrefControls(resetIncluded) {
 	return true;
 }
 
-function applyPrefsReset(prefs, prefsDefault) {
-	for(const path of Object.keys(prefs.reset)) {
-		if(prefs.reset[path])
-			if(prefsDefault)
-				prefs[path] = structuredClone(prefsDefault[path]);
-			else
-				delete prefs[path];
-	}
-	return prefs;
-}
-
-//to do: !(doing) these functions will give way to the ones above that consistently convert from some point to another, using a preferences object for representation (one of the operands)
-function loadAllPreferencesOld(triggerNow) { //to do: !change into simpler steps
-	try {
-		adjustingPreferences = true;
-		let s;
-
-		//Reset preferences (influences later conditionals)
-		//to do: use triggerNow many more times
-		if(!globalThis.chkResetReset?.checked) {
-			if((s = localStorage.getItem("reset.pageAppearance")) && globalThis.chkResetPageAppearance) {
-				chkResetPageAppearance.checked = JSON.parse(s);
-				//chkResetPageAppearance.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.basicParams")) && globalThis.chkResetBasicParams) {
-				chkResetBasicParams.checked = JSON.parse(s);
-				//chkResetBasicParams.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.genParams")) && globalThis.chkResetGenParams) {
-				chkResetGenParams.checked = JSON.parse(s);
-				//chkResetGenParams.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.primeFactors")) && globalThis.chkResetPrimeFactorsParams) {
-				chkResetPrimeFactorsParams.checked = JSON.parse(s);
-				//chkResetPrimeFactorsParams.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.rhythmParams")) && globalThis.chkResetRhythmParams) {
-				chkResetRhythmParams.checked = JSON.parse(s);
-				//chkResetRhythmParams.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.structuredMusic")) && globalThis.chkResetStructuredMusic) {
-				chkResetStructuredMusic.checked = JSON.parse(s);
-				//chkResetStructuredMusic.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.flatScript")) && globalThis.chkResetFlatScript) {
-				chkResetFlatScript.checked = JSON.parse(s);
-				//chkResetFlatScript.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.clipParams")) && globalThis.chkResetClipParams) {
-				chkResetClipParams.checked = JSON.parse(s);
-				//chkResetClipParams.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.player")) && globalThis.chkResetPlayer) {
-				chkResetPlayer.checked = JSON.parse(s);
-				//chkResetPlayer.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("reset.reset")) && globalThis.chkResetReset) {
-				chkResetReset.checked = JSON.parse(s);
-				//chkResetReset.dispatchEvent(new Event("input"));
-			}
-		}
-
-		//Page appearance
-		if(!globalThis.chkResetPageAppearance?.checked) {
-			if(s = localStorage.getItem("pageAppearance.textSize")) {
-				prefs.pageAppearance.textSize = JSON.parse(s);
-				//document.documentElement.style.fontSize = prefs.pageAppearance.textSize.toString() + "em";
-				document.documentElement.style.setProperty("--page-scale", prefs.pageAppearance.textSize);
-			}
-			if((s = localStorage.getItem("pageAppearance.theme")) && globalThis.cboPageTheme) {
-				cboPageTheme.value = s;
-				cboPageTheme.dispatchEvent(new Event("input"));
-			}
-			if(s = localStorage.getItem("pageAppearance.hue")) {
-				const hue = parseNumber(JSON.parse(s)), hueMod = ((hue % 360) + 360) % 360;
-				document.documentElement.style.setProperty("--hue-accent0", hueMod);
-				//document.documentElement.style.setProperty("--hue-accent-init", hueMod);
-				if(triggerNow) updateThemeColor(hueMod);
-			}
-		}
-
-		//Basic parameters
-		if(!globalThis.chkResetBasicParams?.checked) {
-			if((s = localStorage.getItem("basicParams.freqRangeMin") ?? localStorage.getItem("genParams.freqRangeMin")) && globalThis.txtFreqRangeMin) {
-				txtFreqRangeMin.value = s;
-				txtFreqRangeMin.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("basicParams.freqRangeMax") ?? localStorage.getItem("genParams.freqRangeMax")) && globalThis.txtFreqRangeMax) {
-				txtFreqRangeMax.value = s;
-				txtFreqRangeMax.dispatchEvent(new Event("input"));
-			}
-		}
-
-		//Generator parameters
-		if(!globalThis.chkResetGenParams?.checked) {
-			if((s = localStorage.getItem("genParams.baseFreq")) && globalThis.txtBaseFreq) {
-				txtBaseFreq.value = s;
-				txtBaseFreq.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.timeScale")) && globalThis.txtTimeScale) {
-				txtTimeScale.value = s;
-				txtTimeScale.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.voiceCount") ?? localStorage.getItem("addGenParams.voiceCount")) && globalThis.txtVoiceCount) {
-				txtVoiceCount.value = s;
-				txtVoiceCount.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.patternCount")) && globalThis.txtPatternCount) {
-				txtPatternCount.value = s;
-				txtPatternCount.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.reptCount") ?? localStorage.getItem("addGenParams.reptCount")) && globalThis.txtReptCount) {
-				txtReptCount.value = s;
-				txtReptCount.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.reptPeriod") ?? localStorage.getItem("addGenParams.reptPeriod")) && globalThis.txtReptPeriod) {
-				txtReptPeriod.value = s;
-				txtReptPeriod.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("genParams.percussivePattern") ?? localStorage.getItem("addGenParams.percussivePattern")) && globalThis.chkPercussivePattern) {
-				chkPercussivePattern.checked = JSON.parse(s);
-				chkPercussivePattern.dispatchEvent(new Event("click")); //question: input or click event for check boxes?
-			}
-		}
-
-		//Prime factors parameters
-		if(!globalThis.chkResetPrimeFactorsParams?.checked) {
-			if((s = localStorage.getItem("primeFactors.primeCount") ?? localStorage.getItem("genParams.primeCount")) && globalThis.txtPrimeCount) {
-				txtPrimeCount.value = s;
-				txtPrimeCount.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("primeFactors.expRangeLower") ?? localStorage.getItem("genParams.expRangeLower")) && globalThis.txtExpRangeLower) {
-				txtExpRangeLower.value = s;
-				txtExpRangeLower.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("primeFactors.expRangeUpper") ?? localStorage.getItem("genParams.expRangeUpper") ?? localStorage.getItem("genParams.expVariance")) && globalThis.txtExpRangeUpper) {
-				txtExpRangeUpper.value = s;
-				txtExpRangeUpper.dispatchEvent(new Event("input"));
-			}
-			if(s = localStorage.getItem("primeFactors.expRanges") ?? localStorage.getItem("genParams.primeExpRanges")) {
-				codeBoxContentSet(ctlPrimeExpRanges, s);
-				globalThis.ctlPrimeExpRanges?.dispatchEvent?.(new Event("input"));
-			} else
-				expRangesFromParams(false);
-		}
-
-		//Rhythm parameters
-		if(!globalThis.chkResetRhythmParams?.checked) {
-			if((s = localStorage.getItem("rhythmParams.rhythmScale")) && globalThis.txtRhythmScale) {
-				txtRhythmScale.value = s;
-				txtRhythmScale.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("rhythmParams.rhythmFactors")) && globalThis.txtRhythmFactors) {
-				txtRhythmFactors.value = s;
-				txtRhythmFactors.dispatchEvent(new Event("input"));
-			}
-		}
-
-		//Structured music editor
-		if(!globalThis.chkResetStructuredMusic?.checked) {
-			if(s = localStorage.getItem("structuredMusic.overflow")) {
-				const parsed = JSON.parse(s);
-				if(globalThis.chkOverflow1) chkOverflow1.checked = parsed;
-				//chkOverflow1.dispatchEvent(new Event("input"));
-				globalThis.ctlStructuredScript?.classList?.toggle?.("expanded", parsed);
-			}
-			if(s = localStorage.getItem("structuredMusic.lineWrapping")) {
-				const parsed = JSON.parse(s);
-				if(globalThis.chkLineWrap1) chkLineWrap1.checked = parsed;
-				//chkLineWrap1.dispatchEvent(new Event("input"));
-				globalThis.ctlStructuredScript?.classList?.toggle?.("line-wrap", parsed);
-			}
-			if(s = localStorage.getItem("structuredMusic.content")) {
-				codeBoxContentSet(ctlStructuredScript, s);
-				globalThis.ctlStructuredScript?.dispatchEvent?.(new Event("input"));
-			}
-		}
-
-		//Flattened note list
-		if(!globalThis.chkResetFlatScript?.checked) {
-			if((s = localStorage.getItem("flatScript.autoFlatten")) && globalThis.chkAutoFlatten) {
-				chkAutoFlatten.checked = JSON.parse(s);
-				//chkAutoFlatten.dispatchEvent(new Event("click"));
-			}
-			if(s = localStorage.getItem("flatScript.overflow")) {
-				const parsed = JSON.parse(s);
-				if(globalThis.chkOverflow2) chkOverflow2.checked = parsed;
-				//chkOverflow2.dispatchEvent(new Event("input"));
-				globalThis.ctlFlatScript?.classList?.toggle?.("expanded", parsed);
-			}
-			if(s = localStorage.getItem("flatScript.lineWrapping")) {
-				const parsed = JSON.parse(s);
-				if(globalThis.chkLineWrap2) chkLineWrap2.checked = parsed;
-				//chkLineWrap2.dispatchEvent(new Event("input"));
-				globalThis.ctlFlatScript?.classList?.toggle?.("line-wrap", parsed);
-			}
-			if(s = localStorage.getItem("flatScript.content")) {
-				codeBoxContentSet(ctlFlatScript, s);
-				globalThis.ctlFlatScript?.dispatchEvent?.(new Event("input"));
-			}
-		}
-
-		//Overall play controls
-		if(!globalThis.chkResetClipParams?.checked) {
-			if((s = localStorage.getItem("clipParams.freqScale")) && globalThis.txtPlayFreqScale) {
-				txtPlayFreqScale.value = s;
-				txtPlayFreqScale.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("clipParams.volScale")) && globalThis.txtPlayVolScale) {
-				txtPlayVolScale.value = s;
-				txtPlayVolScale.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("clipParams.timeScale")) && globalThis.txtPlayTimeScale) {
-				txtPlayTimeScale.value = s;
-				txtPlayTimeScale.dispatchEvent(new Event("input"));
-			}
-			if((s = localStorage.getItem("clipParams.timeDelta")) && globalThis.txtPlayTimeDelta) {
-				txtPlayTimeDelta.value = s;
-				txtPlayTimeDelta.dispatchEvent(new Event("input"));
-			}
-		}
-
-		//Player
-		if(!globalThis.chkResetPlayer?.checked) {
-			if((s = localStorage.getItem("player.autoReload")) && globalThis.chkAutoReload) {
-				chkAutoReload.checked = JSON.parse(s);
-				chkAutoReload.dispatchEvent(new Event("click"));
-			}
-		}
-
-		//Audio export
-		/* if(!chkResetAudioExport.checked) {
-			s = localStorage.getItem("audioExport.");
-		} */
-	} catch(error) {
-		console.error(error);
-		setToolTip(outToolTip, "Failed to load preferences. " + (error.message ?? error ?? ""), 3);
-		return false;
-	} finally {
-		adjustingPreferences = false;
-	}
-
+function clearStoragePrefs(resetObj) {
+	//question: delete from preferencesKeysDeprecatedFlat here as well?
 	for(const key of Object.keys(preferencesKeysDeprecatedFlat))
 		localStorage.removeItem(key);
 
+	if(resetObj) {
+		/* for(const path of Object.keys(resetObj))
+			if(resetObj[path])
+				for(const key of Object.keys(localStorage)) {
+					const prefix = key.split(".")[0];
+					if(prefix == path) localStorage.removeItem(key);
+				} */
+		for(const key of Object.keys(localStorage)) {
+			const prefix = key.split(".")[0];
+			if(!prefix || prefix == "") continue;
+			if(resetObj[prefix]) localStorage.removeItem(key);
+		}
+	} else
+		for(const key of Object.keys(preferencesKeysFlat))
+			localStorage.removeItem(key);
 	return true;
 }
-function loadAllPreferences(triggerNow) { //to do: maybe remove triggerNow
-	try {
-		adjustingPreferences = true;
+function applyPrefsReset(prefs, prefsDefault) {
+	/* for(const key of Object.keys(preferencesKeysDeprecatedFlat))
+		localStorage.removeItem(key); */
+	let prevResetState = prefs.reset;
+	clearStoragePrefs(prevResetState);
 
-		storageToPrefs(prefs);
-		/* for(const key of Object.keys(preferencesKeysDeprecatedFlat))
-			localStorage.removeItem(key); */
-		clearStoragePrefs(prefs.reset);
-		applyPrefsReset(prefs, prefsDefault);
-
-		prefsToControls(prefs, false);
-		prefsToControlsSpecial(prefs, false);
-		if(triggerNow) return triggerPrefControls(false);
-	} catch(error) {
-		console.error(error);
-		setToolTip(outToolTip, "Failed to load preferences. " + (error.message ?? error ?? ""), 3);
-		return false;
-	} finally {
-		adjustingPreferences = false;
+	for(const path of Object.keys(prevResetState)) {
+		if(prefs.reset[path])
+			if(prefsDefault)
+				prefs[path] = structuredClone(prefsDefault[path]); //this may change prefs.reset
+			else
+				delete prefs[path];
 	}
-	return true;
+	return prevResetState;
 }
+
 //function currently unused
 function saveAllPreferences() { //to do: !probably change into simpler steps
 	for(const elem of document.querySelectorAll("[data-pref]"))
@@ -644,41 +415,16 @@ function saveAllPreferences() { //to do: !probably change into simpler steps
 	}
 	return true;
 }
-function clearStoragePrefs(resetObj) {
-	//question: delete from preferencesKeysDeprecatedFlat here as well?
-	for(const key of Object.keys(preferencesKeysDeprecatedFlat))
-		localStorage.removeItem(key);
-
-	if(resetObj) {
-		/* for(const path of Object.keys(resetObj))
-			if(resetObj[path])
-				for(const key of Object.keys(localStorage)) {
-					const prefix = key.split(".")[0];
-					if(prefix == path) localStorage.removeItem(key);
-				} */
-		for(const key of Object.keys(localStorage)) {
-			const prefix = key.split(".")[0];
-			if(!prefix || prefix == "") continue;
-			if(resetObj[prefix]) localStorage.removeItem(key);
-		}
-	} else
-		for(const key of Object.keys(preferencesKeysFlat))
-			localStorage.removeItem(key);
-	return true;
-}
 function btnResetPreferencesClick(event) { //to do: !what's the difference from loadAllPreferences now?
 	//resetAllPreferences();
 	try {
 		adjustingPreferences = true;
-		/* for(const key of Object.keys(preferencesKeysDeprecatedFlat))
-			localStorage.removeItem(key); */
 
-		clearStoragePrefs(prefs.reset);
-		applyPrefsReset(prefs, prefsDefault);
-
-		prefsToControls(prefs, true);
-		prefsToControlsSpecial(prefs, true);
-		triggerPrefControls(true);
+		let prevResetState = applyPrefsReset(prefs, prefsDefault);
+		//only touching controls that were reset
+		prefsToControls(prefs, true, prevResetState);
+		prefsToControlsSpecial(prefs, true, prevResetState);
+		//triggerPrefControls(true, prevResetState);
 
 		//exceptions
 		if(prefs.reset.primeFactors) {
