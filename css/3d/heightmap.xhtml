@@ -11,24 +11,26 @@
 		:root {
 			background-color: Canvas;
 			color: CanvasText;
-			font-size: 3em;
+			/* font-size: 3em; */
 
 			block-size: 100%;
 			inline-size: 100%;
 			overflow: hidden;
-			display: flex;
+			/* display: flex; */
 		}
 		body {
+			--target-size: 12in;
+
 			/* block-size: 100vmin;
 			inline-size: 100vmin; */
-			--target-size: 12in;
-			block-size: var(--target-size);
-			inline-size: var(--target-size);
-			overflow: hidden;
+			block-size: 100%;
+			inline-size: 100%;
+			/* overflow: hidden; */
 			margin: auto;
 
-			scale: calc(100vmin / var(--target-size));
 			perspective: 6in;
+			/* transform-origin: top left; */
+			/* transform-style: preserve-3d; */
 
 			display: flex;
 			flex-wrap: nowrap;
@@ -51,9 +53,16 @@
 		.heightmap {
 			--rows: 4;
 
-			transform-style: preserve-3d;
 			/* display: contents; */
-			/* perspective: 2in; */
+			/* block-size: var(--target-size);
+			inline-size: var(--target-size); */
+			block-size: 0in;
+			inline-size: 0in;
+			transform-style: preserve-3d;
+			/* transform-origin: top left; */
+			scale: calc(100vmin / var(--target-size));
+			/* perspective: 6in; */
+
 			animation-name: parallax-x, parallax-y;
 			animation-delay: 0s;
 			animation-duration: 4s, 5.657s;
@@ -116,25 +125,21 @@
 				--z2: --rnd(var(--vertex2)); */
 
 				position: absolute;
-				/* block-size: 50%;
-				inline-size: 50%; */
-				/* block-size: calc(1in * var(--tri-h)); */
 				block-size: var(--tri-size);
 				inline-size: var(--tri-size);
 
-				/* clip-path: polygon(0% 0%, 100% 0%, 50% 100%); */
 				clip-path: if(
 					style(--ymod = 0): polygon(0% 0%, 100% 0%, 50% 100%);
 					else: polygon(50% 0%, 100% 100%, 0% 100%););
-				/* transform-origin: top left; */
 				transform-origin: if(
 					style(--ymod = 0): top left;
 					else: bottom left;);
 				transform: 
+					/* scale(calc(100vmin / var(--target-size))) */
 					/* scale3d(0.5, 0.5, 0.5) */
 					scaleY(var(--tri-h))
 					translate3d(
-						calc(var(--tri-size) * (var(--x) - 0.5 * var(--rows) + 0.5 * mod(var(--y2) + var(--ymod), 2))), 
+						calc(var(--tri-size) * (var(--x) - 0.5 * var(--rows) + 0.5 * mod(var(--y2) + var(--ymod), 2) - 0.25)), 
 						calc(var(--tri-size) * (var(--y2) - var(--ymod) * 0.155 - 0.25 * var(--cols))), 
 						calc(var(--tri-size) * var(--z0)))
 					matrix3d(
@@ -167,13 +172,11 @@
 					color: hsl(210deg 25% 25%);
 					/* color: red; */
 					text-shadow: 
-						0in 0in 8px white,
-						0in 0in 8px white,
+						0in 0in 2px white,
+						0in 0in 4px white,
 						0in 0in 8px white;
-					/* font-size: 0.25em; */
 					font-size: calc(0.125 * var(--tri-size));
 
-					/* white-space: pre; */
 					white-space-collapse: preserve; /* allows \00000a to work in contents property */
 				}
 				&/* :hover */::before {

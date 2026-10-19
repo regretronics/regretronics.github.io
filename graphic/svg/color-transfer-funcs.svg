@@ -19,6 +19,8 @@
 				to {--squash-t: 1;}
 			} */
 			:root {
+				width: stretch;
+				height: stretch;
 				background: gray;
 				color-scheme: dark;
 				font-variant: slashed-zero;
@@ -120,8 +122,10 @@
 			}
 			#selPosterization :checked {
 				:root:has(&[label="off"]) {--filter2: ;}
-				:root:has(&[label="monotonic"]) {--filter2: url(#fltPosterizeMonotonic) /* blur(1px) */;}
-				:root:has(&[label="stripes"]) {--filter2: url(#fltPosterizeStripes) blur(1px);}
+				:root:has(&[label="monotonic 1/4"]) {--filter2: url(#fltPosterizeMonotonic4) blur(0.5px);}
+				:root:has(&[label="monotonic 1/16"]) {--filter2: url(#fltPosterizeMonotonic16) /* blur(1px) */;}
+				:root:has(&[label="stripes 1/8"]) {--filter2: url(#fltPosterizeStripes8) blur(1px);}
+				:root:has(&[label="stripes smooth 1/8"]) {--filter2: url(#fltPosterizeStripesSmooth8) blur(0.25px);}
 			}
 			/* .scroll-bar {
 				--scale: 0.5;
@@ -375,7 +379,15 @@
 			</feComponentTransfer>
 			<feComposite in="gamma3" in2="gamma2" result="polynomial" operator="arithmetic" k1="0" k2="-2" k3="3" k4="0" />
 		</filter>
-		<filter id="fltPosterizeMonotonic" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+		<filter id="fltPosterizeMonotonic4" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<feComponentTransfer>
+				<feFuncR type="discrete" tableValues="0 0.25 0.5 0.75 1" />
+				<feFuncG type="discrete" tableValues="0 0.25 0.5 0.75 1" />
+				<feFuncB type="discrete" tableValues="0 0.25 0.5 0.75 1" />
+			</feComponentTransfer>
+			<!-- <feGaussianBlur stdDeviation="0.0078125" /> -->
+		</filter>
+		<filter id="fltPosterizeMonotonic16" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
 			<feComponentTransfer>
 				<feFuncR type="discrete" tableValues="0 0.0625 0.125 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1" />
 				<feFuncG type="discrete" tableValues="0 0.0625 0.125 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1" />
@@ -383,11 +395,19 @@
 			</feComponentTransfer>
 			<!-- <feGaussianBlur stdDeviation="0.0078125" /> -->
 		</filter>
-		<filter id="fltPosterizeStripes" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+		<filter id="fltPosterizeStripes8" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
 			<feComponentTransfer>
 				<feFuncR type="discrete" tableValues="0 1 0 1 0 1 0 1" />
 				<feFuncG type="discrete" tableValues="0 1 0 1 0 1 0 1" />
 				<feFuncB type="discrete" tableValues="0 1 0 1 0 1 0 1" />
+			</feComponentTransfer>
+			<!-- <feGaussianBlur stdDeviation="0.0078125" /> -->
+		</filter>
+		<filter id="fltPosterizeStripesSmooth8" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+			<feComponentTransfer>
+				<feFuncR type="table" tableValues="0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1" />
+				<feFuncG type="table" tableValues="0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1" />
+				<feFuncB type="table" tableValues="0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1" />
 			</feComponentTransfer>
 			<!-- <feGaussianBlur stdDeviation="0.0078125" /> -->
 		</filter>
@@ -450,9 +470,11 @@
 			<div class="ctl-cell">
 				<label for="selPosterization">Posterization</label>: 
 				<select id="selPosterization">
-					<option label="off" selected="selected"></option>
-					<option label="monotonic"></option>
-					<option label="stripes"></option>
+					<option label="off"></option>
+					<option label="monotonic 1/4" selected="selected"></option>
+					<option label="monotonic 1/16"></option>
+					<option label="stripes 1/8"></option>
+					<option label="stripes smooth 1/8"></option>
 				</select>
 			</div>
 		</div>
