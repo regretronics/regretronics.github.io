@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>CSS experiment: targets/URL hashes</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			font-size: 10vmin;
+		}
+
+		.nav-link::after {
+			content: attr(href);
+		}
+		.target::after {
+			content: attr(id);
+		}
+		.target {
+			transition-property: background-color, color;
+			transition-duration: 0.5s;
+			transition-delay: 0.25s;
+			transition-timing-function: ease;
+		}
+		:target {
+			background-color: lightgray;
+			color: black;
+		}
+
+		.nav-link:not(.always) {
+			display: none;
+		}
+		body:has(.a1:target) #targetMenu .a1,
+		body:has(.a2:target) #targetMenu .a2,
+		body:has(.a3:target) #targetMenu .a3,
+		body:has(.a4:target) #targetMenu .a4,
+		body:has(.b1:target) #targetMenu .b1,
+		body:has(.b2:target) #targetMenu .b2,
+		body:has(.b3:target) #targetMenu .b3,
+		body:has(.b4:target) #targetMenu .b4 {
+			display: revert;
+		}
+		body:not(:has(:target)) .nav-link.a1.b1 {
+			display: revert;
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<nav id="targetMenu">
+		<a href="#" class="nav-link always"></a>
+		<a href="#1_1" class="nav-link a1 b1"></a>
+		<a href="#1_2" class="nav-link a1 b2"></a>
+		<a href="#1_3" class="nav-link a1 b3"></a>
+		<a href="#1_4" class="nav-link a1 b4"></a>
+		<a href="#2_1" class="nav-link a2 b1"></a>
+		<a href="#2_2" class="nav-link a2 b2"></a>
+		<a href="#2_3" class="nav-link a2 b3"></a>
+		<a href="#2_4" class="nav-link a2 b4"></a>
+		<a href="#3_1" class="nav-link a3 b1"></a>
+		<a href="#3_2" class="nav-link a3 b2"></a>
+		<a href="#3_3" class="nav-link a3 b3"></a>
+		<a href="#3_4" class="nav-link a3 b4"></a>
+		<a href="#4_1" class="nav-link a4 b1"></a>
+		<a href="#4_2" class="nav-link a4 b2"></a>
+		<a href="#4_3" class="nav-link a4 b3"></a>
+		<a href="#4_4" class="nav-link a4 b4"></a>
+	</nav>
+	<p id="targets">
+		<div class="target-row a1">
+			<span id="1_1" class="target a1 b1"></span>
+			<span id="1_2" class="target a1 b2"></span>
+			<span id="1_3" class="target a1 b3"></span>
+			<span id="1_4" class="target a1 b4"></span>
+		</div>
+		<div class="target-row a2">
+			<span id="2_1" class="target a2 b1"></span>
+			<span id="2_2" class="target a2 b2"></span>
+			<span id="2_3" class="target a2 b3"></span>
+			<span id="2_4" class="target a2 b4"></span>
+		</div>
+		<div class="target-row a3">
+			<span id="3_1" class="target a3 b1"></span>
+			<span id="3_2" class="target a3 b2"></span>
+			<span id="3_3" class="target a3 b3"></span>
+			<span id="3_4" class="target a3 b4"></span>
+		</div>
+		<div class="target-row a4">
+			<span id="4_1" class="target a4 b1"></span>
+			<span id="4_2" class="target a4 b2"></span>
+			<span id="4_3" class="target a4 b3"></span>
+			<span id="4_4" class="target a4 b4"></span>
+		</div>
+	</p>
+</body>
+</html>
