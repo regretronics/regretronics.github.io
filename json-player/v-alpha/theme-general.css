@@ -98,7 +98,7 @@ a:visited {
 
 /*input, button, textarea, *[contenteditable]:not([contenteditable=false i]) {
 }*/
-input::selection {
+:is(input, textarea, :read-write)::selection {
 	background-color: var(--sel-editable-bg);
 	color: var(--sel-editable-fg);
 }
