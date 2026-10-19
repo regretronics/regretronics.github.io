@@ -26,7 +26,7 @@
 			--dur: 86400;
 
 			/* Firefox (as of v142) seems to use single-precision (float32) numbers. */
-			--ti: round(down, var(--start) + var(--t)); 
+			--ti: round(down, var(--start) + var(--t));
 			/* --ti1: calc(var(--ti) + 1);
 			--ti2: calc(var(--ti) + 2);
 			--ti3: calc(var(--ti) + 3); */
@@ -39,28 +39,27 @@
 			--interp-hermite-11: calc(-1 * var(--tfrac) * var(--tfrac) * var(--tfrac1)); */
 
 			/* https://arxiv.org/abs/2004.06278 */
-			/* --key: 1443; */ /* 0x5a3 */
-			--key: 11703715; /* 0xb295a3 */
+			--key: 3315107; /* 0x3295a3 */
 
-			--ti-weyl-y: mod(var(--ti) * var(--key), 16777216);
-			--ti-weyl-z: mod(var(--ti-weyl-y) + var(--key), 16777216);
+			--ti-weyl-y: mod(var(--ti) * var(--key), 4194304);
+			--ti-weyl-z: mod(var(--ti-weyl-y) + var(--key), 4194304);
 
-			--rnd-r0-sq: mod(pow(mod(var(--ti-weyl-y), 4096), 2) + var(--ti-weyl-y), 16777216);
-			--rnd-r0-rot: calc(round(down, var(--rnd-r0-sq) / 4096) + 4096 * mod(var(--rnd-r0-sq), 4096));
-			--rnd-r0f: calc(var(--rnd-r0-rot) / 16777216);
+			--rnd-r0-sq: mod(pow(mod(var(--ti-weyl-y), 2048), 2) + var(--ti-weyl-y), 4194304);
+			--rnd-r0-rot: calc(round(down, var(--rnd-r0-sq) / 2048) + 2048 * mod(var(--rnd-r0-sq), 2048));
+			--rnd-r0f: calc(var(--rnd-r0-rot) / 4194304);
 
-			--rnd-r1-sq: mod(pow(mod(var(--rnd-r0-rot), 4096), 2) + var(--ti-weyl-z), 16777216);
-			--rnd-r1-rot: calc(round(down, var(--rnd-r1-sq) / 4096) + 4096 * mod(var(--rnd-r1-sq), 4096));
-			--rnd-r1f: calc(var(--rnd-r1-rot) / 16777216);
+			--rnd-r1-sq: mod(pow(mod(var(--rnd-r0-rot), 2048), 2) + var(--ti-weyl-z), 4194304);
+			--rnd-r1-rot: calc(round(down, var(--rnd-r1-sq) / 2048) + 2048 * mod(var(--rnd-r1-sq), 2048));
+			--rnd-r1f: calc(var(--rnd-r1-rot) / 4194304);
 
-			--rnd-r2-sq: mod(pow(mod(var(--rnd-r1-rot), 4096), 2) + var(--ti-weyl-y), 16777216);
-			--rnd-r2-rot: calc(round(down, var(--rnd-r2-sq) / 4096) + 4096 * mod(var(--rnd-r2-sq), 4096));
-			--rnd-r2f: calc(var(--rnd-r2-rot) / 16777216);
+			--rnd-r2-sq: mod(pow(mod(var(--rnd-r1-rot), 2048), 2) + var(--ti-weyl-y), 4194304);
+			--rnd-r2-rot: calc(round(down, var(--rnd-r2-sq) / 2048) + 2048 * mod(var(--rnd-r2-sq), 2048));
+			--rnd-r2f: calc(var(--rnd-r2-rot) / 4194304);
 
-			--rnd-r3-sq: mod(pow(mod(var(--rnd-r2-rot), 4096), 2) + var(--ti-weyl-z), 16777216);
-			--rnd-r3-rot: calc(round(down, var(--rnd-r3-sq) / 4096) + 4096 * mod(var(--rnd-r3-sq), 4096));
-			--rnd-r3f: calc(var(--rnd-r3-sq) / 16777216);
-			--rnd-final: calc(round(down, var(--rnd-r3-sq) / 4096));
+			--rnd-r3-sq: mod(pow(mod(var(--rnd-r2-rot), 2048), 2) + var(--ti-weyl-z), 4194304);
+			--rnd-r3-rot: calc(round(down, var(--rnd-r3-sq) / 2048) + 2048 * mod(var(--rnd-r3-sq), 2048));
+			--rnd-r3f: calc(var(--rnd-r3-sq) / 4194304);
+			--rnd-final: round(down, var(--rnd-r3-sq) / 2048);
 
 			/* --rnd1: 0;
 			--rnd2: 0;
