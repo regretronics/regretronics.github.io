@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>CSS/SVG experiment: heightmap in 3-d</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			background-color: Canvas;
+			color: CanvasText;
+			font-size: 3em;
+
+			block-size: 100%;
+			inline-size: 100%;
+			overflow: hidden;
+			display: flex;
+		}
+		body {
+			/* block-size: 100vmin;
+			inline-size: 100vmin; */
+			--target-size: 12in;
+			block-size: var(--target-size);
+			inline-size: var(--target-size);
+			overflow: hidden;
+			margin: auto;
+
+			scale: calc(100vmin / var(--target-size));
+			perspective: 6in;
+
+			display: flex;
+			flex-wrap: nowrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		/* @function --rnd(--i <integer>) returns <number> {
+		} */
+		@keyframes parallax-x {
+			from {translate: -1in;}
+			50% {translate: 1in;}
+			to {translate: -1in;}
+		}
+		@keyframes parallax-y {
+			from {translate: 0 -1in;}
+			50% {translate: 0 1in;}
+			to {translate: 0 -1in;}
+		}
+		.heightmap {
+			--rows: 4;
+
+			transform-style: preserve-3d;
+			/* display: contents; */
+			/* perspective: 2in; */
+			animation-name: parallax-x, parallax-y;
+			animation-delay: 0s;
+			animation-duration: 4s, 5.657s;
+			animation-timing-function: ease-in-out;
+			animation-fill-mode: both;
+			animation-iteration-count: infinite;
+			animation-composition: add/* accumulate */;
+
+			& > span {
+				--i: calc(sibling-index() - 1);
+				--x: mod(var(--i), var(--rows));
+				--y: round(down, var(--i) / var(--rows));
+				--ymod: mod(var(--y), 2);
+				--y2: round(down, var(--y) / 2);
+
+				--tri-h: sqrt(0.75);
+				/* --count: sibling-count(); */
+				--cols: round(up, sibling-count() / var(--rows));
+				--tri-size: 2in;
+
+				--vertex0: calc(var(--x) + (var(--rows) + 1) * (var(--y2) + var(--ymod)));
+				--vertex1: calc(var(--vertex0) + 1);
+				--vertex2: calc(var(--vertex0) + (1 - 2 * var(--ymod)) * (var(--rows) + 1) + mod(var(--y2) + var(--ymod), 2));
+
+				/* https://arxiv.org/abs/2004.06278 */
+				--key: 3315107; /* 0x3295a3 */
+
+				--v0-weyl-y: mod(var(--vertex0) * var(--key), 4194304);
+				--v0-weyl-z: mod(var(--v0-weyl-y) + var(--key), 4194304);
+				--z0-rnd-r0-sq: mod(pow(mod(var(--v0-weyl-y), 2048), 2) + var(--v0-weyl-y), 4194304);
+				--z0-rnd-r0-rot: calc(round(down, var(--z0-rnd-r0-sq) / 2048) + 2048 * mod(var(--z0-rnd-r0-sq), 2048));
+				--z0-rnd-r1-sq: mod(pow(mod(var(--z0-rnd-r0-rot), 2048), 2) + var(--v0-weyl-z), 4194304);
+				--z0-rnd-r1-rot: calc(round(down, var(--z0-rnd-r1-sq) / 2048) + 2048 * mod(var(--z0-rnd-r1-sq), 2048));
+				--z0-rnd-r2-sq: mod(pow(mod(var(--z0-rnd-r1-rot), 2048), 2) + var(--v0-weyl-y), 4194304);
+				--z0-rnd-r2-rot: calc(round(down, var(--z0-rnd-r2-sq) / 2048) + 2048 * mod(var(--z0-rnd-r2-sq), 2048));
+				--z0: mod((pow(mod(var(--z0-rnd-r2-rot), 2048), 2) + var(--v0-weyl-z)) / 4194304, 1);
+
+				--v1-weyl-y: mod(var(--vertex1) * var(--key), 4194304);
+				--v1-weyl-z: mod(var(--v1-weyl-y) + var(--key), 4194304);
+				--z1-rnd-r0-sq: mod(pow(mod(var(--v1-weyl-y), 2048), 2) + var(--v1-weyl-y), 4194304);
+				--z1-rnd-r0-rot: calc(round(down, var(--z1-rnd-r0-sq) / 2048) + 2048 * mod(var(--z1-rnd-r0-sq), 2048));
+				--z1-rnd-r1-sq: mod(pow(mod(var(--z1-rnd-r0-rot), 2048), 2) + var(--v1-weyl-z), 4194304);
+				--z1-rnd-r1-rot: calc(round(down, var(--z1-rnd-r1-sq) / 2048) + 2048 * mod(var(--z1-rnd-r1-sq), 2048));
+				--z1-rnd-r2-sq: mod(pow(mod(var(--z1-rnd-r1-rot), 2048), 2) + var(--v1-weyl-y), 4194304);
+				--z1-rnd-r2-rot: calc(round(down, var(--z1-rnd-r2-sq) / 2048) + 2048 * mod(var(--z1-rnd-r2-sq), 2048));
+				--z1: mod((pow(mod(var(--z1-rnd-r2-rot), 2048), 2) + var(--v1-weyl-z)) / 4194304, 1);
+
+				--v2-weyl-y: mod(var(--vertex2) * var(--key), 4194304);
+				--v2-weyl-z: mod(var(--v2-weyl-y) + var(--key), 4194304);
+				--z2-rnd-r0-sq: mod(pow(mod(var(--v2-weyl-y), 2048), 2) + var(--v2-weyl-y), 4194304);
+				--z2-rnd-r0-rot: calc(round(down, var(--z2-rnd-r0-sq) / 2048) + 2048 * mod(var(--z2-rnd-r0-sq), 2048));
+				--z2-rnd-r1-sq: mod(pow(mod(var(--z2-rnd-r0-rot), 2048), 2) + var(--v2-weyl-z), 4194304);
+				--z2-rnd-r1-rot: calc(round(down, var(--z2-rnd-r1-sq) / 2048) + 2048 * mod(var(--z2-rnd-r1-sq), 2048));
+				--z2-rnd-r2-sq: mod(pow(mod(var(--z2-rnd-r1-rot), 2048), 2) + var(--v2-weyl-y), 4194304);
+				--z2-rnd-r2-rot: calc(round(down, var(--z2-rnd-r2-sq) / 2048) + 2048 * mod(var(--z2-rnd-r2-sq), 2048));
+				--z2: mod((pow(mod(var(--z2-rnd-r2-rot), 2048), 2) + var(--v2-weyl-z)) / 4194304, 1);
+
+				/* --z0: --rnd(var(--vertex0));
+				--z1: --rnd(var(--vertex1));
+				--z2: --rnd(var(--vertex2)); */
+
+				position: absolute;
+				/* block-size: 50%;
+				inline-size: 50%; */
+				/* block-size: calc(1in * var(--tri-h)); */
+				block-size: var(--tri-size);
+				inline-size: var(--tri-size);
+
+				/* clip-path: polygon(0% 0%, 100% 0%, 50% 100%); */
+				clip-path: if(
+					style(--ymod = 0): polygon(0% 0%, 100% 0%, 50% 100%);
+					else: polygon(50% 0%, 100% 100%, 0% 100%););
+				/* transform-origin: top left; */
+				transform-origin: if(
+					style(--ymod = 0): top left;
+					else: bottom left;);
+				transform: 
+					/* scale3d(0.5, 0.5, 0.5) */
+					scaleY(var(--tri-h))
+					translate3d(
+						calc(var(--tri-size) * (var(--x) - 0.5 * var(--rows) + 0.5 * mod(var(--y2) + var(--ymod), 2))), 
+						calc(var(--tri-size) * (var(--y2) - var(--ymod) * 0.155 - 0.25 * var(--cols))), 
+						calc(var(--tri-size) * var(--z0)))
+					matrix3d(
+						1, 0, calc(var(--z1) - var(--z0)), 0,
+						0, 1, calc((1 - 2 * var(--ymod)) * (var(--z2) - 0.5 * var(--z0) - 0.5 * var(--z1))), 0,
+						0, 0, 1, 0,
+						0, 0, 0, 1
+					)
+					/* scaleY(if(style(--ymod = 0): 1; else: -1;)) */;
+
+				display: inline-flex;
+				flex-direction: column;
+				align-items: center;
+				/* justify-content: center; */
+				justify-content: if(
+					style(--ymod = 0): start;
+					else: end;);
+				/* background-color: oklch(mod((sibling-index() - 0.5) / sibling-count(), 1) 0.0625 55deg); */
+				/* background-color: oklch(calc(0.5 * mod(var(--x) + var(--y), 2) + 0.25) 0.0625 55deg); */
+				/* background-color: hsl(30deg 25% calc(12.5% * mod(var(--x) + 2 * var(--y), 4) + 50%)); */
+				background-image: if(
+					style(--ymod = 0): linear-gradient(transparent, hsl(0deg 0% calc(100% * var(--z2))));
+					else: linear-gradient(hsl(0deg 0% calc(100% * var(--z2))), transparent);),
+					linear-gradient(to right, hsl(0deg 0% calc(100% * var(--z0))), hsl(0deg 0% calc(100% * var(--z1))));
+
+				counter-reset: x var(--x) y var(--y)
+					v0 var(--vertex0) v1 var(--vertex1) v2 var(--vertex2);
+
+				&::before, &::after {
+					color: hsl(210deg 25% 25%);
+					/* color: red; */
+					text-shadow: 
+						0in 0in 8px white,
+						0in 0in 8px white,
+						0in 0in 8px white;
+					/* font-size: 0.25em; */
+					font-size: calc(0.125 * var(--tri-size));
+
+					/* white-space: pre; */
+					white-space-collapse: preserve; /* allows \00000a to work in contents property */
+				}
+				&/* :hover */::before {
+					content: "x" counter(x) " y" counter(y);
+				}
+				&/* :hover */::after {
+					content: /* "x" counter(x) " y" counter(y)  */
+						"v (" counter(v0) ", " counter(v1) ", " counter(v2) ")";
+				}
+			}
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<div class="heightmap">
+		<span></span><span></span><span></span><span></span>
+		<span></span><span></span><span></span><span></span>
+		<span></span><span></span><span></span><span></span>
+		<span></span><span></span><span></span><span></span>
+		<span></span><span></span><span></span><span></span>
+		<span></span><span></span><span></span><span></span>
+		<span></span><span></span><span></span><span></span>
+		<span></span><span></span><span></span><span></span>
+	</div>
+</body>
+</html>
