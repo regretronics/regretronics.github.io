@@ -6,93 +6,157 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 
-	<title>CSS/SVG experiment: 3-d walls.</title>
+	<title>CSS/SVG experiment: 3-d walls</title>
 	<style type="text/css">/*<![CDATA[*/
 		:root {
-			color-scheme: dark;
 			background-color: Canvas;
 			color: CanvasText;
-			font-size: 3em;
+			/* font-size: 3em; */
 
-			width: 100%;
-			height: 100%;
+			block-size: 100%;
+			inline-size: 100%;
 			overflow: hidden;
-			display: flex;
+			/* display: flex; */
 		}
 		body {
+			--scale: 4in;
+			--target-size: calc(1 * var(--scale));
 			/* width: 100vmin;
 			height: 100vmin; */
-			width: 4in;
-			height: 4in;
-			overflow: hidden;
+			block-size: 100%;
+			inline-size: 100%;
+			/* overflow: hidden; */
 			margin: auto;
 
-			scale: tan(atan2(100vmin, 4in)); /*this workaround means division*/
-			perspective: 1in;
+			perspective: calc(2 * var(--scale));
 
 			display: flex;
 			flex-wrap: nowrap;
 			align-items: center;
 			justify-content: center;
 		}
+
 		#svgDefs {
 			display: none;
 		}
-		div {
-			transform-style: preserve-3d;
-			display: contents;
-		}
-		.wall {
-			position: absolute;
-			/* width: 1in; */
-			height: 1in;
-			/* width: 50%;
-			height: 50%; */
 
-			/*prism: square*/
-			/* rotate: z calc(0.25turn * (sibling-index() - 1));
-			transform: translateY(-0.5in) rotateX(0.25turn); */
-			--sides: 4;
-			width: calc(1in * tan(0.5turn / var(--sides)));
-			rotate: z calc(1turn * (sibling-index() - 1) / var(--sides));
-			transform: translateY(-0.5in) rotateX(0.25turn);
+		@keyframes parallax-x {
+			from {transform: translateX(calc(-0.5 * var(--scale)));}
+			50% {transform: translateX(calc(0.5 * var(--scale)));}
+			to {transform: translateX(calc(-0.5 * var(--scale)));}
+		}
+		@keyframes parallax-y {
+			from {transform: translateY(calc(-0.5 * var(--scale)));}
+			50% {transform: translateY(calc(0.5 * var(--scale)));}
+			to {transform: translateY(calc(-0.5 * var(--scale)));}
+		}
+		@keyframes parallax-z {
+			from {transform: translateZ(0in);}
+			50% {transform: translateZ(calc(1 * var(--scale)));}
+			to {transform: translateZ(0in);}
+		}
+		.tube {
+			--tube-radius: 4;
+
+			block-size: 0in;
+			inline-size: 0in;
+
+			transform-style: preserve-3d;
+			scale: calc(100vmin / var(--target-size));
+			/* translate: calc(-1.18 * var(--scale)) calc(-1.18 * var(--scale)); */ /* hand-tuned (?) */
+			/* transform: translate3d(calc(-0.181 * var(--scale)), calc(-0.5 * var(--scale)), calc(0.98 * var(--scale))); */
+			/* transform: translate3d(calc(0 * var(--scale)), calc(0 * var(--scale)), calc(0.98 * var(--scale))); */
+			/* display: contents; */
+
+			--anim-cycle: 16s;
+			--anim-2-scale: sqrt(2);
+			--anim-3-scale: sqrt(3);
+			/* animation-name: parallax-x, parallax-y, parallax-z; */
+			animation-delay: calc(-0.25 * var(--anim-cycle)), calc(var(--anim-2-scale) * -0.25 * var(--anim-cycle)), 0s;
+			animation-duration: var(--anim-cycle), calc(var(--anim-2-scale) * var(--anim-cycle)), calc(var(--anim-3-scale) * var(--anim-cycle));
+			animation-timing-function: ease-in-out;
+			animation-fill-mode: both;
+			animation-iteration-count: infinite;
+			animation-composition: add/* accumulate */;
+		}
+		/* .wall */.tube > svg { /* prism */
+			--sides: 6;
+			--i: calc(sibling-index() - 1);
+			--i2: calc(var(--i) / var(--sides));
+			--wall-side: mod(var(--i), var(--sides));
+			--wall-seg: round(down, var(--i2));
+
+			--tube-diag-factor: calc(1 / cos(0.5turn / var(--sides))); /* inverse apothem */
+			--tube-thick: 0.25;
+			--aspct-rt: calc(var(--tube-thick) * tan(0.5turn / var(--sides)));
+
+			--seg-turn: 0.0625turn;
+			--turn-cut: calc(var(--aspct-rt) * tan(0.5 * var(--seg-turn)));
+			--face0-cut: calc(var(--turn-cut) * (0.5 - 0.5 * sin(1turn * (var(--i) - 0.5) / var(--sides))));
+			--face1-cut: calc(var(--turn-cut) * (0.5 - 0.5 * sin(1turn * (var(--i) + 0.5) / var(--sides))));
+
+			position: absolute;
+			height: var(--scale);
+			width: calc(var(--scale) * var(--aspct-rt));
+			clip-path: polygon(
+				0% calc(100% * (var(--face0-cut))), 
+				100% calc(100% * (var(--face1-cut))), 
+				100% calc(100% * (1 - var(--face1-cut))), 
+				0% calc(100% * (1 - var(--face0-cut))));
+
+			backface-visibility: visible;
+			/* transform-origin: top; */
+			/* transform-origin: bottom; */
+			transform: 
+				/* translateX(calc(-5 * var(--scale) * (1 - cos(var(--seg-turn) * var(--wall-seg))))) */
+				/* translateZ(calc(-1 * var(--scale) * var(--wall-seg))) */
+				/* translateX(calc(0.25 * var(--scale) * var(--tube-diag-factor) * var(--tube-thick) * (1 - cos(var(--seg-turn) * var(--wall-seg))))) */
+				rotateY(calc(var(--seg-turn) * var(--wall-seg)))
+				/* rotate3d(0, 1, 0, calc(var(--seg-turn) * var(--wall-seg))) */
+				translateY(calc(-0.5 * var(--scale)))
+				translateX(calc(-0.5 * var(--scale) * var(--aspct-rt)))
+				rotateZ(calc(1turn * var(--i2)))
+				translateY(calc(-0.5 * var(--tube-thick) * var(--scale)))
+				/* translateX(calc(0.25 * var(--scale) * var(--aspct-rt))) */
+				rotateX(0.25turn);
 
 			/* background-color: gray; */
 			opacity: 0.75;
-
-			/* :nth-child(1 of &) {
-			} */
 		}
 	/*]]>*/</style>
 </head>
-<body xmlns:xlink="http://www.w3.org/1999/xlink">
-	<svg id="svgDefs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
-		<defs>
-			<filter id="noiseStill" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
-			<!-- <filter id="noiseStill" filterUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse"> -->
-				<feTurbulence
+<body xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<svg:svg id="svgDefs" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
+		<svg:defs>
+			<svg:filter id="noiseStill" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
+			<!-- <svg:filter id="noiseStill" filterUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse"> -->
+				<svg:feTurbulence
 					type="fractalNoise"
 					baseFrequency="2"
 					numOctaves="1"
 					stitchTiles="stitch"
 					color-interpolation-filters="sRGB">
-				</feTurbulence>
-				<feColorMatrix result="noise_0" type="matrix" values="
+				</svg:feTurbulence>
+				<svg:feColorMatrix result="noise_0" type="matrix" values="
 					1 0 0 0 0
 					0 1 0 0 0
 					0 0 1 0 0
 					0 0 0 0 1"
 					color-interpolation-filters="sRGB" />
-			</filter>
-			<!-- <rect id="wall1" x="0" y="0" width="1" height="1" filter="url(#noiseStill)" /> -->
-			<rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
-		</defs>
-	</svg>
+			</svg:filter>
+			<!-- <svg:rect id="wall1" x="0" y="0" width="1" height="1" filter="url(#noiseStill)" /> -->
+			<svg:rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
+		</svg:defs>
+	</svg:svg>
 	<div class="tube">
-		<svg xmlns="http://www.w3.org/2000/svg" class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
-		<svg xmlns="http://www.w3.org/2000/svg" class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
-		<svg xmlns="http://www.w3.org/2000/svg" class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
-		<svg xmlns="http://www.w3.org/2000/svg" class="wall" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#wall1" /></svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
+		<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
 	</div>
 </body>
 </html>

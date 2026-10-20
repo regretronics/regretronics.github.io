@@ -61,7 +61,6 @@
 			transform-style: preserve-3d;
 			/* transform-origin: top left; */
 			scale: calc(100vmin / var(--target-size));
-			/* perspective: 6in; */
 
 			animation-name: parallax-x, parallax-y;
 			animation-delay: 0s;
@@ -140,7 +139,7 @@
 					scaleY(var(--tri-h))
 					translate3d(
 						calc(var(--tri-size) * (var(--x) - 0.5 * var(--rows) + 0.5 * mod(var(--y2) + var(--ymod), 2) - 0.25)), 
-						calc(var(--tri-size) * (var(--y2) - var(--ymod) * 0.155 - 0.25 * var(--cols))), 
+						calc(var(--tri-size) * (var(--y2) - var(--ymod) * 0.155 - 0.25 * var(--cols))),  /* 0.155 was hand-tuned (?) */
 						calc(var(--tri-size) * var(--z0)))
 					matrix3d(
 						1, 0, calc(var(--z1) - var(--z0)), 0,
@@ -157,13 +156,18 @@
 				justify-content: if(
 					style(--ymod = 0): start;
 					else: end;);
+
+				/* color-interpolation: sRGB/ * linearRGB * /; */
 				/* background-color: oklch(mod((sibling-index() - 0.5) / sibling-count(), 1) 0.0625 55deg); */
 				/* background-color: oklch(calc(0.5 * mod(var(--x) + var(--y), 2) + 0.25) 0.0625 55deg); */
 				/* background-color: hsl(30deg 25% calc(12.5% * mod(var(--x) + 2 * var(--y), 4) + 50%)); */
+				/* --clr-sp: srgb; */
+				--clr-sp: srgb-linear;
+				/* --clr-sp: oklab; */
 				background-image: if(
-					style(--ymod = 0): linear-gradient(transparent, hsl(0deg 0% calc(100% * var(--z2))));
-					else: linear-gradient(hsl(0deg 0% calc(100% * var(--z2))), transparent);),
-					linear-gradient(to right, hsl(0deg 0% calc(100% * var(--z0))), hsl(0deg 0% calc(100% * var(--z1))));
+					style(--ymod = 0): linear-gradient(in var(--clr-sp), transparent, hsl(0deg 0% calc(100% * var(--z2))));
+					else: linear-gradient(in var(--clr-sp), hsl(0deg 0% calc(100% * var(--z2))), transparent);),
+					linear-gradient(to right in var(--clr-sp), hsl(0deg 0% calc(100% * var(--z0))), hsl(0deg 0% calc(100% * var(--z1))));
 
 				counter-reset: x var(--x) y var(--y)
 					v0 var(--vertex0) v1 var(--vertex1) v2 var(--vertex2);
