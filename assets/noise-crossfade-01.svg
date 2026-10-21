@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" 
+	viewBox="0 0 1 1" preserveAspectRatio="none">
+	<defs>
+		<style>/*<![CDATA[*/
+			filter :not(.interp-revert) {
+				color-interpolation-filters: sRGB; /* linearRGB */
+			}
+		/*]]>*/</style>
+		<filter id="noise" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="objectBoundingBox">
+		<!-- <filter id="noiseStill" filterUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse"> -->
+			<feTurbulence
+				type="fractalNoise"
+				baseFrequency="2"
+				numOctaves="6"
+				stitchTiles="stitch">
+			</feTurbulence>
+			<feColorMatrix result="noise_0" type="matrix" values="
+				1 0 0 0 0
+				0 1 0 0 0
+				0 0 1 0 0
+				0 0 0 0 1" />
+		</filter>
+		<filter id="noiseCrossFade" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="objectBoundingBox">
+			<feTurbulence
+				type="fractalNoise"
+				baseFrequency="2"
+				numOctaves="6"
+				stitchTiles="stitch">
+				<animate attributeName="seed" from="1" by="1" dur="1s" accumulate="sum" repeatCount="indefinite" />
+			</feTurbulence>
+			<feColorMatrix result="noise_0" type="matrix" values="
+				1 0 0 0 0
+				0 1 0 0 0
+				0 0 1 0 0
+				0 0 0 0 1" />
+			<feTurbulence
+				type="fractalNoise"
+				baseFrequency="2"
+				numOctaves="6"
+				stitchTiles="stitch">
+				<animate attributeName="seed" from="1" by="1" begin="-1s" dur="1s" accumulate="sum" repeatCount="indefinite" />
+			</feTurbulence>
+			<feColorMatrix result="noise_1" type="matrix" values="
+				1 0 0 0 0
+				0 1 0 0 0
+				0 0 1 0 0
+				0 0 0 0 1">
+				<animate attributeName="values" from="
+				1 0 0 0 0
+				0 1 0 0 0
+				0 0 1 0 0
+				0 0 0 0 0"
+				to="
+				1 0 0 0 0
+				0 1 0 0 0
+				0 0 1 0 0
+				0 0 0 0 1"
+				dur="1s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 1" keySplines="0.5 0 0.5 1" />
+			</feColorMatrix>
+			<feMerge>
+				<feMergeNode in="noise_0" />
+				<feMergeNode in="noise_1" />
+			</feMerge>
+		</filter>
+	</defs>
+	<rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseCrossFade)" />
+</svg>
