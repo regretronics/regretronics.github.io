@@ -8,15 +8,6 @@
 
 	<title>CSS/SVG experiment: heightmap in 3-d</title>
 	<style type="text/css">/*<![CDATA[*/
-		@property --rot-x {
-			syntax: "\3c angle\3e";
-			inherits: true;
-			initial-value: 0turn;
-		}
-		@keyframes rot-x {
-			from {--rot-x: 0turn;}
-			to {--rot-x: 0.25turn;}
-		}
 		:root {
 			background-color: Canvas;
 			color: CanvasText;
@@ -25,13 +16,6 @@
 			block-size: 100%;
 			inline-size: 100%;
 			overflow: hidden;
-
-			timeline-scope: --scroll-rot-x;
-			animation-name: rot-x;
-			animation-duration: 1s;
-			animation-timing-function: linear;
-			animation-fill-mode: both;
-			animation-timeline: --scroll-rot-x;
 		}
 		body {
 			margin: auto;
@@ -49,9 +33,21 @@
 			/* align-items: center; */
 			align-items: stretch;
 			justify-content: center;
+
+			timeline-scope: --scroll-rot-x;
 		}
 		body, body > * {
 			box-sizing: border-box;
+		}
+
+		@property --rot-x {
+			syntax: "\3c angle\3e";
+			inherits: true;
+			initial-value: 0turn;
+		}
+		@keyframes rot-x {
+			from {--rot-x: 0turn;}
+			to {--rot-x: 0.25turn;}
 		}
 		body > main {
 			--scale: 2in;
@@ -66,6 +62,13 @@
 			container-type: size;
 
 			perspective: calc(3 * var(--scale));
+
+			animation-name: rot-x;
+			animation-duration: 1ms;
+			animation-timing-function: linear;
+			animation-direction: alternate;
+			animation-fill-mode: both;
+			animation-timeline: --scroll-rot-x;
 		}
 		#selResolution :checked {
 			:root:has(&[label="0.25x"]) body > main {--scale: 0.25in;}
@@ -112,6 +115,16 @@
 			50% {transform: translateZ(calc(1 * var(--scale)));}
 			to {transform: translateZ(0in);}
 		}
+		@property --cols {
+			syntax: "\3c integer\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@property --y {
+			syntax: "\3c integer\3e";
+			inherits: true;
+			initial-value: 0;
+		}
 		.heightmap {
 			--rows: 4;
 
@@ -147,17 +160,22 @@
 			:root:has(#chkSwingX:checked) & {--swing-x-state: running;}
 			:root:has(#chkSwingY:checked) & {--swing-y-state: running;}
 			:root:has(#chkSwingZ:checked) & {--swing-z-state: running;}
+		}
+		.heightmap > span {
+			--cols: sibling-count();
+			--y: calc(sibling-index() - 1);
+			--ymod: mod(var(--y), 2);
+			--y2: round(down, var(--y) / 2);
+
+			position: absolute;
+			transform-style: preserve-3d;
 
 			& > span {
 				--i: calc(sibling-index() - 1);
-				--x: mod(var(--i), var(--rows));
-				--y: round(down, var(--i) / var(--rows));
-				--ymod: mod(var(--y), 2);
-				--y2: round(down, var(--y) / 2);
+				--x: var(--i);
 
 				--tri-h: sqrt(0.75);
 				/* --count: sibling-count(); */
-				--cols: round(up, sibling-count() / var(--rows));
 				--tri-size: var(--scale);
 
 				--vertex0: calc(var(--x) + (var(--rows) + 1) * (var(--y2) + var(--ymod)));
@@ -205,12 +223,12 @@
 				block-size: var(--tri-size);
 				inline-size: var(--tri-size);
 
-				clip-path: if(
+				/* clip-path: if(
 					style(--ymod = 0): polygon(0% 0%, 100% 0%, 50% 100%);
-					else: polygon(50% 0%, 100% 100%, 0% 100%););
-				transform-origin: if(
+					else: polygon(50% 0%, 100% 100%, 0% 100%);); */
+				/* transform-origin: if(
 					style(--ymod = 0): top left;
-					else: bottom left;);
+					else: bottom left;); */
 				transform: 
 					/* scale(calc(100vmin / var(--target-size))) */
 					/* scale3d(0.5, 0.5, 0.5) */
@@ -231,9 +249,9 @@
 				flex-direction: column;
 				align-items: center;
 				/* justify-content: center; */
-				justify-content: if(
+				/* justify-content: if(
 					style(--ymod = 0): start;
-					else: end;);
+					else: end;); */
 
 				counter-reset: x var(--x) y var(--y)
 					v0 var(--vertex0) v1 var(--vertex1) v2 var(--vertex2);
@@ -256,13 +274,28 @@
 				}
 			}
 		}
+		@container style(--ymod = 0) {
+			.heightmap > span > span {
+				clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+				transform-origin: top left;
+				justify-content: start;
+			}
+		}
+		@container style(--ymod = 1) {
+			.heightmap > span > span {
+				clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+				transform-origin: bottom left;
+				justify-content: end;
+			}
+		}
+
 		#selBackground :checked {
-			:root:has(&[label="alternating colors"]) .heightmap > span {
+			:root:has(&[label="alternating colors"]) .heightmap > span > span {
 				/* background-color: oklch(mod((sibling-index() - 0.5) / sibling-count(), 1) 0.0625 55deg); */
 				/* background-color: oklch(calc(0.5 * mod(var(--x) + var(--y), 2) + 0.25) 0.0625 55deg); */
 				background-color: hsl(30deg 25% calc(12.5% * mod(var(--x) + 2 * var(--y), 4) + 50%));
 			}
-			:root:has(&[label="heightmap"]) .heightmap > span {
+			:root:has(&[label="heightmap"]) .heightmap > span > span {
 				/* color-interpolation: sRGB/ * linearRGB * /; */
 				--clr-sp: srgb;
 				/* --clr-sp: srgb-linear; */
@@ -270,21 +303,30 @@
 				/* --clr-sp2: srgb; */
 				--clr-sp2: srgb-linear;
 				/* --clr-sp2: rec2020; */
-				background-image: if(
-					style(--ymod = 0): linear-gradient(
-						in var(--clr-sp), 
-						transparent, 
-						color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)));
-					else: linear-gradient(
-						in var(--clr-sp), 
-						color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)), 
-						transparent);),
+				background-image: var(--vert-gradient),
 					linear-gradient(
 						to right in var(--clr-sp), 
 						color(var(--clr-sp2) var(--z0) var(--z0) var(--z0)), 
 						color(var(--clr-sp2) var(--z1) var(--z1) var(--z1)));
+
+				@container style(--ymod = 0) {
+					& {
+						--vert-gradient: linear-gradient(
+							in var(--clr-sp), 
+							transparent, 
+							color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)));
+					}
+				}
+				@container style(--ymod = 1) {
+					& {
+						--vert-gradient: linear-gradient(
+							in var(--clr-sp), 
+							color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)), 
+							transparent);
+					}
+				}
 			}
-			:root:has(&[label="noise (static)"]) .heightmap > span {
+			:root:has(&[label="noise (static)"]) .heightmap > span > span {
 				background-image: url("../../assets/noise-01.svg");
 				/* background-repeat: no-repeat; */
 				background-size: 
@@ -294,7 +336,7 @@
 					calc(-1 * var(--tri-size) * (var(--x) + 0.5 * mod(var(--y2) + var(--ymod), 2))) 
 					calc(-1 * var(--tri-size) * var(--y2));
 			}
-			:root:has(&[label="noise (animated)"]) .heightmap > span {
+			:root:has(&[label="noise (animated)"]) .heightmap > span > span {
 				background-image: url("../../assets/noise-crossfade-01.svg");
 				/* background-repeat: no-repeat; */
 				background-size: 
@@ -305,6 +347,7 @@
 					calc(-1 * var(--tri-size) * var(--y2));
 			}
 		}
+
 		.scroll-bar {
 			--scale: 0.5;
 			--width: 16em;
@@ -325,6 +368,7 @@
 			overflow-inline: scroll;
 			overflow-block: hidden;
 			contain: strict;
+			/* contain: size; */
 
 			background-color: oklch(0.25 0 0deg);
 		}
@@ -332,25 +376,30 @@
 			scroll-timeline: --scroll-rot-x inline;
 		}
 		.scroll-area {
-			inline-size: 400%;
+			inline-size: 300%;
 			block-size: 100%;
 
 			padding: 0;
 			border-width: 0;
 			contain: strict;
+			/* contain: size paint; */
+			container-type: size;
+			user-select: none;
 
 			background: linear-gradient(to right, black, white);
 
 			& .label {
 				position: absolute;
-				font-variant: small-caps;
+				text-transform: uppercase;
+				/* font-variant: small-caps; */
+				font-size: min(1em / var(--scale), 100cqb);
 
 				&.max {
-					top: 0;
+					left: 0;
 					color: white;
 				}
 				&.min {
-					bottom: 0;
+					right: 0;
 					color: black;
 				}
 			}
@@ -360,14 +409,30 @@
 <body>
 	<main>
 		<div class="heightmap"><!-- to do: make it compatible with Ffx -->
-			<span></span><span></span><span></span><span></span>
-			<span></span><span></span><span></span><span></span>
-			<span></span><span></span><span></span><span></span>
-			<span></span><span></span><span></span><span></span>
-			<span></span><span></span><span></span><span></span>
-			<span></span><span></span><span></span><span></span>
-			<span></span><span></span><span></span><span></span>
-			<span></span><span></span><span></span><span></span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
+			<span>
+				<span></span><span></span><span></span><span></span>
+			</span>
 		</div>
 	</main>
 	<div id="controls">

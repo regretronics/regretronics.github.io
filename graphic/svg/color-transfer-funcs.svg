@@ -28,7 +28,7 @@
 
 				/* filter: url(#transferFunc1); */
 				/* color-interpolation-filters: sRGB; */
-				/* interpolation-filters: sRGB; */
+				/* color-interpolation: sRGB; */
 
 				transition-property: --blob-scale;
 				transition-duration: 0.75s;

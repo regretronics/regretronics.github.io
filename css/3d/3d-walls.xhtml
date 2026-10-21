@@ -11,17 +11,26 @@
 		:root {
 			background-color: Canvas;
 			color: CanvasText;
-			/* font-size: 1.5em; */
 
 			block-size: 100%;
 			inline-size: 100%;
 			overflow: hidden;
 		}
+		@property --tube-thick-log-smooth {
+			syntax: "\3c number\3e";
+			inherits: true;
+			initial-value: 0;
+		}
 		body {
+			--sides: 6;
+			--sides-delay: var(--sides);
+			--tube-thick-log-delay: calc(var(--tube-thick-log) + 256); /* the offset is for a Chrome bug that doesn't track negative numbers in transitions */
+			--tube-thick-log-smooth: var(--tube-thick-log);
+			/* --tube-thick: 0.25; */
+			--tube-thick: pow(2, 0.5 * var(--tube-thick-log-smooth) - 2);
+
 			margin: auto;
 			border: none;
-			/* block-size: 100vmin;
-			inline-size: 100vmin; */
 			block-size: 100%;
 			inline-size: 100%;
 			padding: 0;
@@ -32,9 +41,49 @@
 			/* align-items: center; */
 			align-items: stretch;
 			justify-content: center;
+
+			transition-property: --sides-delay, --tube-thick-log-delay, --tube-thick-log-smooth;
+			transition-delay: 0s;
+			transition-duration: 100ms, 500ms, 500ms;
+			/* transition-timing-function: linear; */
+			transition-behavior: allow-discrete, allow-discrete, normal;
+
+			timeline-scope: --scroll-rot-x;
+		}
+		#selTubeThick :checked {
+			:root:has(&[label="-2"]) body {--tube-thick-log: -2;}
+			:root:has(&[label="-1"]) body {--tube-thick-log: -1;}
+			:root:has(&[label="0"])  body {--tube-thick-log: 0;}
+			:root:has(&[label="1"])  body {--tube-thick-log: 1;}
+			:root:has(&[label="2"])  body {--tube-thick-log: 2;}
+			:root:has(&[label="3"])  body {--tube-thick-log: 3;}
+			:root:has(&[label="4"])  body {--tube-thick-log: 4;}
+		}
+		#selTubeSides :checked {
+			:root:has(&[label="3"]) body {--sides: 3;}
+			:root:has(&[label="4"]) body {--sides: 4;}
+			:root:has(&[label="5"]) body {--sides: 5;}
+			:root:has(&[label="6"]) body {--sides: 6;}
+			:root:has(&[label="7"]) body {--sides: 7;}
+			:root:has(&[label="8"]) body {--sides: 8;}
+			:root:has(&[label="9"]) body {--sides: 9;}
 		}
 		body, body > * {
 			box-sizing: border-box;
+		}
+
+		@property --rot-x {
+			syntax: "\3c angle\3e";
+			inherits: true;
+			initial-value: 0turn;
+		}
+		@keyframes rot-x {
+			from {--rot-x: 0turn;}
+			to {--rot-x: -0.25turn;}
+			/* from {rotate: x 0turn;}
+			to {rotate: x 0.25turn;} */
+			/* from {transform: rotateX(0turn);}
+			to {transform: rotateX(0.25turn);} */
 		}
 		body > main {
 			--scale: 4in;
@@ -49,18 +98,49 @@
 			container-type: size;
 
 			perspective: calc(2 * var(--scale));
+			/* transform: perspective(calc(2 * var(--scale)));
+			transform-style: preserve-3d; */
+
+			animation-name: rot-x;
+			animation-duration: 1ms;
+			animation-timing-function: linear;
+			animation-direction: alternate;
+			animation-fill-mode: both;
+			animation-timeline: --scroll-rot-x;
+			animation-composition: /* add *//* accumulate */replace;
+		}
+		#selResolution :checked {
+			:root:has(&[label="0.5x"]) body > main {--scale: 0.5in;}
+			:root:has(&[label="1x"]) body > main {--scale: 1in;}
+			:root:has(&[label="2x"]) body > main {--scale: 2in;}
+			:root:has(&[label="4x"]) body > main {--scale: 4in;}
+			:root:has(&[label="8x"]) body > main {--scale: 8in;}
 		}
 		body > div {
 			flex-grow: 0;
 			flex-shrink: 0;
 			padding-inline: min(1em, 2cqi);
 			background-color: oklch(0.25 0 0deg);
+			/* background-color: oklch(0.5 0.125 calc(30deg * var(--sides-delay))); */
+		}
+		#controls {
+			max-block-size: 20svb;
+			display: flex;
+			flex-wrap: wrap;
+			flex-direction: column;
+			/* place-items: center; */
+			place-content: center;
+			/* gap: 1em; */
+
+			& > p {
+				margin-block: 0.5em;
+				margin-inline: 1em;
+			}
 		}
 
 		#svgDefs {
 			display: none;
 		}
-
 		@keyframes swing-x {
 			from {transform: translateX(calc(-0.5 * var(--scale)));}
 			50% {transform: translateX(calc(0.5 * var(--scale)));}
@@ -73,7 +153,7 @@
 		}
 		@keyframes swing-z {
 			from {transform: translateZ(0in);}
-			50% {transform: translateZ(calc(1 * var(--scale)));}
+			50% {transform: translateZ(calc(2 * var(--scale)));}
 			to {transform: translateZ(0in);}
 		}
 		.tube {
@@ -88,6 +168,7 @@
 
 			transform-style: preserve-3d;
 			scale: calc(100cqmin / var(--target-size));
+			transform: rotateX(var(--rot-x));
 
 			--anim-cycle: 8s;
 			--anim-2-scale: sqrt(2);
@@ -111,8 +192,17 @@
 			:root:has(#chkSwingY:checked) & {--swing-y-state: running;}
 			:root:has(#chkSwingZ:checked) & {--swing-z-state: running;}
 		}
+		#selTorusTurn :checked {
+			:root:has(&[value="1/32"]) .tube {--seg-turn: calc(1turn / 32);}
+			:root:has(&[value="1/24"]) .tube {--seg-turn: calc(1turn / 24);}
+			:root:has(&[value="1/16"]) .tube {--seg-turn: calc(1turn / 16);}
+			:root:has(&[value="1/12"]) .tube {--seg-turn: calc(1turn / 12);}
+			:root:has(&[value="1/8"])  .tube {--seg-turn: calc(1turn / 8);}
+			:root:has(&[value="1/6"])  .tube {--seg-turn: calc(1turn / 6);}
+			:root:has(&[value="1/4"])  .tube {--seg-turn: calc(1turn / 4);}
+		}
 		.tube > svg { /* prism */
-			--sides: 6;
+			/* --sides: 6; */
 			--ext-ang: calc(1turn / var(--sides));
 			--wall-rot: 0turn;
 			/* --wall-rot: calc(0.5 * var(--ext-ang)); */
@@ -124,7 +214,6 @@
 			--wall-seg: round(down, var(--i2));
 
 			--tube-diag-factor: calc(1 / cos(0.5 * var(--ext-ang))); /* inverse apothem */
-			--tube-thick: 0.5;
 			--aspct-rt: calc(var(--tube-thick) * tan(0.5 * var(--ext-ang)));
 
 			--turn-cut: calc(var(--tube-diag-factor) * var(--tube-thick) * tan(0.5 * var(--seg-turn)));
@@ -143,48 +232,129 @@
 			backface-visibility: visible;
 			/* transform-origin: center; */
 			transform: 
-				rotateX(0.0625turn)
-				translateX(calc(0.25 * var(--scale) * var(--tube-diag-factor) * var(--tube-thick))) /* reversing outer side to the center */
+				translateX(calc(-0.5 * var(--scale) * var(--aspct-rt))) /* centralization */
+				translateX(calc(0.5 * var(--scale) * var(--tube-diag-factor) * var(--tube-thick))) /* reversing outer side to the center */
 				translateX(calc(-1 * var(--tube-radius) * var(--scale))) /* reversing placement in torus */
 				rotateY(calc(var(--seg-turn) * var(--wall-seg))) /* torus orientation */
 				translateX(calc(var(--tube-radius) * var(--scale))) /* placement in torus */
 				translateX(calc(-0.5 * var(--scale) * var(--tube-diag-factor) * var(--tube-thick))) /* outer side to the center */
 				translateY(calc(-0.5 * var(--scale))) /* centralization */
-				/* translateX(calc(-0.5 * var(--scale) * var(--aspct-rt))) */ /* centralization (?) */
 				rotateZ(calc(1turn * var(--i2) + var(--wall-rot))) /* wall orientation */
 				translateY(calc(-0.5 * var(--tube-thick) * var(--scale))) /* eccentricity */
 				/* translateX(calc(0.25 * var(--scale) * var(--aspct-rt))) */
 				rotateX(0.25turn); /* vertical to horizontal */
 
-			/* background-color: gray; */
 			opacity: 0.75;
+		}
+
+		@keyframes dummy {
+			to {}
+		}
+		#animSides {
+			animation-name: none;
+			/* animation-name: dummy; */
+			/* animation-duration: 50ms; */
+			animation-duration: max(90ms, 30ms * (0.5 * var(--sides) * pow(0.5, 0.5 * var(--tube-thick-log) - 2) - 0.5));
+			/* animation-duration: 1s; */
+			animation-timing-function: linear/* steps(1) */;
+			animation-iteration-count: 1;
+			/* animation-iteration-count: calc(0.5 * var(--sides) / var(--tube-thick) - 0.5); */
+			/* animation-iteration-count: max(1, 0.5 * var(--sides) * pow(0.5, 0.5 * var(--tube-thick-log) - 2) - 0.5); */
+			/* animation-timeline: none; */
+			/* animation-trigger: --sides-change replay; */
+
+			@container 
+				style(var(--sides) = var(--sides-delay)) 
+				and style(calc(var(--tube-thick-log) + 256) = var(--tube-thick-log-delay)) {
+				animation-name: dummy;
+				/* animation-timeline: auto; */
+			}
+		}
+
+		#selTubeThick {
+			field-sizing: content;
+			/* box-sizing: content-box; */
+			/* inline-size: 8em; */
+			/* block-size: 1lh; */
+			/* block-size: fit-content; */
+
+			overflow-block: clip;
+			overflow-inline: auto;
+
+			/* appearance: none; */
+
+			& option {
+				/* appearance: none; */
+				/* field-sizing: content; */
+				display: inline-block;
+
+				/* inline-size: 4em; */
+				/* block-size: 3em; */
+				/* border-style: solid; */
+				/* border-width: 0.5em; */
+				padding-inline: 0.5em;
+				padding-block: 0em;
+			}
+		}
+
+		.scroll-bar {
+			--scale: 0.5;
+			--width: 16em;
+			--height: 3em;
+			display: inline-block;
+			scale: var(--scale);
+			width: var(--width);
+			max-width: calc(100% / var(--scale));
+			height: var(--height);
+			vertical-align: middle;
+
+			outline-style: solid;
+			outline-width: 0.125em;
+			outline-color: oklch(1 0 0deg / 0.5);
+
+			margin-block: calc(-0.5 * var(--scale) * var(--height));
+			margin-inline: calc(-0.5 * var(--scale) * var(--width));
+			overflow-inline: scroll;
+			overflow-block: hidden;
+			contain: strict;
+
+			background-color: oklch(0.25 0 0deg);
+		}
+		#scrollBar1 {
+			scroll-timeline: --scroll-rot-x inline;
+		}
+		.scroll-area {
+			inline-size: 300%;
+			block-size: 100%;
+
+			padding: 0;
+			border-width: 0;
+			contain: strict;
+			container-type: size;
+			user-select: none;
+
+			background: linear-gradient(to right, black, white);
+
+			& .label {
+				position: absolute;
+				text-transform: uppercase;
+				/* font-variant: small-caps; */
+				font-size: min(1em / var(--scale), 100cqb);
+
+				&.min {
+					left: 0;
+					color: white;
+				}
+				&.max {
+					right: 0;
+					color: black;
+				}
+			}
 		}
 	/*]]>*/</style>
 </head>
-<body xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-	<svg:svg id="svgDefs" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
-		<svg:defs>
-			<svg:filter id="noiseStill" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="objectBoundingBox">
-			<!-- <svg:filter id="noiseStill" filterUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse"> -->
-				<svg:feTurbulence
-					type="fractalNoise"
-					baseFrequency="2 4"
-					numOctaves="2"
-					stitchTiles="stitch"
-					color-interpolation-filters="sRGB">
-				</svg:feTurbulence>
-				<svg:feColorMatrix result="noise_0" type="matrix" values="
-					1 0 0 0 0
-					0 1 0 0 0
-					0 0 1 0 0
-					0 0 0 0 1"
-					color-interpolation-filters="sRGB" />
-			</svg:filter>
-			<!-- <svg:rect id="wall1" x="0" y="0" width="1" height="1" filter="url(#noiseStill)" /> -->
-			<svg:rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
-		</svg:defs>
-	</svg:svg>
-	<main>
+<body>
+	<main xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<div class="tube">
 			<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
 			<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
@@ -211,21 +381,117 @@
 			<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
 			<svg:svg viewBox="0 0 1 1" preserveAspectRatio="none"><svg:use href="#wall1" /></svg:svg>
 		</div>
+		<svg:svg id="svgDefs" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice" hidden="hidden">
+			<svg:defs>
+				<svg:filter id="noiseStill" filterUnits="objectBoundingBox" x="0%" y="0%" width="100%" height="100%" primitiveUnits="objectBoundingBox">
+				<!-- <svg:filter id="noiseStill" filterUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%" primitiveUnits="userSpaceOnUse"> -->
+					<svg:feTurbulence
+						type="fractalNoise"
+						baseFrequency="2 2"
+						numOctaves="1"
+						stitchTiles="stitch"
+						color-interpolation-filters="sRGB">
+						<svg:animate
+							attributeType="XML"
+							attributeName="baseFrequency"
+							by="0 1"
+							begin="animSides.animationstart"
+							end="animSides.animationend"
+							dur="30ms"
+							additive="sum"
+							calcMode="discrete"
+							accumulate="sum"
+							repeatCount="64"
+							fill="freeze"
+							/>
+					</svg:feTurbulence>
+					<svg:feColorMatrix result="noise_0" type="matrix" values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 0 1"
+						color-interpolation-filters="sRGB" />
+				</svg:filter>
+				<svg:rect id="wall1" x="0%" y="0%" width="100%" height="100%" filter="url(#noiseStill)" />
+			</svg:defs>
+		</svg:svg>
 	</main>
 	<div id="controls">
-		<!-- to do: controls for number of sides, torus angle, tube rotation, view x rotation -->
+		<!-- to do: controls for: ?tube rotation -->
+		<p>
+			<label for="selResolution">Resolution</label>: 
+			<select id="selResolution">
+				<option label="0.5x"></option>
+				<option label="1x"></option>
+				<option label="2x" selected="selected"></option>
+				<option label="4x"></option>
+				<option label="8x"></option>
+			</select>
+		</p>
+		<p>
+			<label for="selTorusTurn">Torus ext. angle</label>: 
+			<select id="selTorusTurn">
+				<option value="1/32" label="&tau; / 32"></option>
+				<option value="1/24" label="&tau; / 24"></option>
+				<option value="1/16" label="&tau; / 16" selected="selected"></option>
+				<option value="1/12" label="&tau; / 12"></option>
+				<option value="1/8" label="&tau; / 8"></option>
+				<option value="1/6" label="&tau; / 6"></option>
+				<option value="1/4" label="&tau; / 4"></option>
+			</select>
+		</p>
+		<p>
+			<label for="selTubeThick">Tube thickness</label>: 
+			<select id="selTubeThick" size="4">
+				<option label="-2"></option>
+				<option label="-1"></option>
+				<option label="0" selected="selected"></option>
+				<option label="1"></option>
+				<option label="2"></option>
+				<option label="3"></option>
+				<option label="4"></option>
+			</select>
+		</p>
+		<p>
+			<label for="selTubeSides">Tube sides</label>: 
+			<select id="selTubeSides">
+				<option label="3"></option>
+				<option label="4"></option>
+				<option label="5"></option>
+				<option label="6" selected="selected"></option>
+				<option label="7"></option>
+				<option label="8"></option>
+				<option label="9"></option>
+			</select>
+		</p>
+		<p>
+			Pitch: 
+			<div id="scrollBar1" class="scroll-bar">
+				<div class="scroll-area">
+					<span class="label min">minimum</span>
+					<span class="label max">maximum</span>
+				</div>
+			</div>
+		</p>
 		<p>
 			<input type="checkbox" id="chkSwingX" /> 
 			<label for="chkSwingX">Swing in x axis</label> 
-		</p>
-		<p>
+			<br />
 			<input type="checkbox" id="chkSwingY" /> 
 			<label for="chkSwingY">Swing in y axis</label> 
-		</p>
-		<p>
+			<br />
 			<input type="checkbox" id="chkSwingZ" /> 
 			<label for="chkSwingZ">Swing in z axis</label> 
 		</p>
 	</div>
+	<div id="animSides"></div>
+	<!-- <script>
+		function logger(event) {console.log(event.type, event);}
+		const elem = document.getElementById("animSides");
+		elem.addEventListener("animationstart", logger);
+		elem.addEventListener("animationiteration", logger);
+		elem.addEventListener("animationend", logger);
+		elem.addEventListener("animationcancel", logger);
+	</script> -->
 </body>
 </html>
