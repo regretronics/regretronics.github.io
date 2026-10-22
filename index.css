@@ -12,7 +12,7 @@
 	/* font-size: 1.5em; */
 	/* font-size: calc(2vmin + 0.5vmax); */
 	/* font-size: max(0.8em, 1.5svb + 1svi); */ /*small viewport block-axis, small viewport inline-axis*/
-	font-size: max(0.8em, 1em * pow((3svb + 2svi) / 1em, 0.5)); /*non-linear bounded responsive scale*/
+	font-size: max(0.8em, 1em * pow((1.5svb + 1svi) / 1em, 0.5)); /*non-linear bounded responsive scale*/
 	/* font-size: env(preferred-text-scale); */
 
 	color-scheme: dark;
@@ -56,8 +56,8 @@ body {
 
 		column-width: clamp(12em, 30svmin + 15svmax, 49svi); /*small viewport lesser/greater/inline axis*/
 		--margin-lines: clamp(0, round(down, sqrt(25svb / 1em)), 4); /*non-linear responsive*/
-		orphans: var(--margin-lines);
-		widows: var(--margin-lines);
+		orphans: var(--margin-lines, 1);
+		widows: var(--margin-lines, 1);
 
 		body {
 			margin: 0em;
