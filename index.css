@@ -2,8 +2,8 @@
 	--hue1-ang: 55deg; /*red = ~25deg*/
 
 	box-sizing: border-box;
-	container-name: root;
-	container-type: inline-size;
+	/* container-name: root;
+	container-type: size; */
 	/* block-size: 100%; */
 	/* margin: 3svh; */
 	/* border: 3svh solid transparent; */
@@ -12,6 +12,7 @@
 	/* font-size: 1.5em; */
 	/* font-size: calc(2vmin + 0.5vmax); */
 	font-size: max(0.8em, 1.5svb + 1svi); /*small viewport block-axis, small viewport inline-axis*/
+	/* font-size: env(preferred-text-scale); */
 
 	color-scheme: dark;
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
@@ -42,16 +43,16 @@ body {
 	((aspect-ratio >= 2/1) and (width >= calc(528px + 11ch))) or
 	(aspect-ratio >= 4/1) {
 	:root.col-multi {
-		overflow-inline: auto;
-		overflow-block: clip;
+		/* overflow-inline: auto;
+		overflow-block: clip; */
 
 		block-size: 100svb; /*small viewport block-axis*/
 		padding-block: max(16px, 3svmin);
 
 		/* column-width: max(45svmin, 16em); */ /*small viewport lesser axis*/
 		column-width: max(30svmin + 15svmax, 16em); /*small viewport lesser/greater axis*/
-		orphans: 4;
-		widows: 4;
+		orphans: 3;
+		widows: 3;
 
 		body {
 			margin: 0em;
