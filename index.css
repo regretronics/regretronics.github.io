@@ -56,8 +56,8 @@ body {
 
 		column-width: clamp(12em, 30svmin + 15svmax, 49svi); /*small viewport lesser/greater/inline axis*/
 		--margin-lines: clamp(0, round(down, sqrt(25svb / 1em)), 4); /*non-linear responsive*/
-		orphans: var(--margin-lines, 1);
-		widows: var(--margin-lines, 1);
+		orphans: var(--margin-lines);
+		widows: var(--margin-lines);
 
 		body {
 			margin: 0em;
