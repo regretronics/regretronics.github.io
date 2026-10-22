@@ -1,17 +1,17 @@
 :root {
 	--hue1-ang: 55deg; /*red = ~25deg*/
 
-	/* font-size: 1.5em; */
-	/* font-size: calc(2vmin + 0.5vmax); */
-	font-size: calc(1.5svb + 1svi); /*small viewport block-axis, small viewport inline-axis*/
-
 	box-sizing: border-box;
 	container-name: root;
-	container-type: size;
+	container-type: inline-size;
 	/* block-size: 100%; */
 	/* margin: 3svh; */
 	/* border: 3svh solid transparent; */
-	padding: max(16px, 3svmin); /*small viewport lesser axis*/
+	padding-inline: max(16px, 3svmin); /*small viewport lesser axis*/
+
+	/* font-size: 1.5em; */
+	/* font-size: calc(2vmin + 0.5vmax); */
+	font-size: max(0.8em, 1.5svb + 1svi); /*small viewport block-axis, small viewport inline-axis*/
 
 	color-scheme: dark;
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
@@ -28,7 +28,7 @@
 	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 }
 body {
-	margin: 0em;
+	margin-block: 1em;
 	font-variant: slashed-zero;
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
 	@media (hover: hover) {
@@ -46,6 +46,7 @@ body {
 		overflow-block: clip;
 
 		block-size: 100svb; /*small viewport block-axis*/
+		padding-block: max(16px, 3svmin);
 
 		/* column-width: max(45svmin, 16em); */ /*small viewport lesser axis*/
 		column-width: max(30svmin + 15svmax, 16em); /*small viewport lesser/greater axis*/
@@ -79,11 +80,21 @@ body {
 	background-color: oklch(0.75 0.1875 var(--hue1-ang, 0deg));
 } */
 ::marker {
-	/* color: oklch(0.625 0.0625 var(--hue1-ang, 0deg)); */
-	color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
+	/* --marker-color: oklch(0.625 0.0625 var(--hue1-ang, 0deg)); */
+	--marker-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
+	color: var(--marker-color);
+
+	transition-property: text-shadow;
+	transition-delay: 0.125s;
+	transition-duration: 1s;
+	transition-timing-function: ease-in-out;
 }
 :is(:active, :has(:active), :focus-within/* , :has(::selection) */)::marker {
-	color: oklch(0.75 0.125 var(--hue1-ang, 0deg));
+	--marker-color: oklch(0.75 0.125 var(--hue1-ang, 0deg));
+	text-shadow: 
+		0px 0px 0.125em var(--marker-color),
+		0px 0px 0.25em var(--marker-color),
+		0px 0px 0.5em var(--marker-color);
 }
 
 h1 {
@@ -113,6 +124,10 @@ a:visited {
 }
 :any-link:active, :any-link:focus {
 	color: oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
+	/* text-shadow: 0px 0px 0.125em light-dark(black, white); */
+	text-shadow: 
+		0px 0px 0.0625em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)),
+		0px 0px 0.25em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 
 label {
@@ -176,10 +191,10 @@ body > ul {
 		opacity: 0.85; /*using semitransparency breaks the backdrop-filter of the link URL overlay, so it's made conditional*/
 	}
 	:is(&, & *)::marker {
-		color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
+		--marker-color: oklch(0.625 0.0625 var(--hue1-ang, 0deg));
 	}
 	:is(&, & *):is(:active, :has(:active), :focus-within)::marker {
-		color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
+		--marker-color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 	}
 
 	:root:not(:has(#chkEntriesExpand:checked)) & {
@@ -309,7 +324,7 @@ a:any-link {
 			/* text-align: center; */
 			/* margin-inline: auto; */
 
-			backdrop-filter: /* invert() */ blur(0.125em);
+			backdrop-filter: invert() blur(0.125em);
 			background-color: light-dark(
 				oklch(0.75 0 0deg / 0.5), 
 				oklch(0.25 0 0deg / 0.5));
