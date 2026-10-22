@@ -93,7 +93,7 @@ body {
 	transition-property: text-shadow;
 	transition-delay: 0.125s;
 	transition-duration: 1s;
-	transition-timing-function: ease-in-out;
+	transition-timing-function: ease-out;
 }
 :is(:active, :has(:active), :focus-within/* , :has(::selection) */)::marker {
 	--marker-color: oklch(0.75 0.125 var(--hue1-ang, 0deg));
