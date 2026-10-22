@@ -5,6 +5,14 @@
 	/* font-size: calc(2vmin + 0.5vmax); */
 	font-size: calc(1.5svb + 1svi); /*small viewport block-axis, small viewport inline-axis*/
 
+	box-sizing: border-box;
+	container-name: root;
+	container-type: size;
+	/* block-size: 100%; */
+	/* margin: 3svh; */
+	/* border: 3svh solid transparent; */
+	padding: max(16px, 3svmin); /*small viewport lesser axis*/
+
 	color-scheme: dark;
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
@@ -15,19 +23,56 @@
 		color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 	}
 }
-body {
-	/* margin: min(1em, 3vmin); */
-	margin: 3vmin;
-	font-variant: slashed-zero;
-	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
-	&.col-multi {
-		column-width: max(65svh, 16em); /*small viewport height*/
-	}
-}
 ::selection { /*required for Firefox*/
 	background-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
 	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 }
+body {
+	margin: 0em;
+	font-variant: slashed-zero;
+	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
+	@media (hover: hover) {
+		contain: layout;
+	}
+}
+
+@media 
+	((orientation: landscape) and (width >= calc(864px + 18ch))) or
+	((aspect-ratio >= 3/2) and (width >= calc(624px + 13ch))) or
+	((aspect-ratio >= 2/1) and (width >= calc(528px + 11ch))) or
+	(aspect-ratio >= 4/1) {
+	:root.col-multi {
+		overflow-inline: auto;
+		overflow-block: clip;
+
+		block-size: 100svb; /*small viewport block-axis*/
+
+		/* column-width: max(45svmin, 16em); */ /*small viewport lesser axis*/
+		column-width: max(30svmin + 15svmax, 16em); /*small viewport lesser/greater axis*/
+		orphans: 4;
+		widows: 4;
+
+		body {
+			margin: 0em;
+			box-sizing: border-box;
+			/* max-block-size: stretch; */ /* not supported in Ffx */
+			/* max-block-size: 100cqb; */
+	
+			/* column-fill: auto; */
+			/* column-width: max(65svb, 16em); */
+	
+			/* &::column {
+				contain: strict;
+			} */
+		}
+	}
+}
+/* @container
+	(inline-size >= calc(960px + 20ch)) or
+	((orientation: landscape) and (inline-size >= calc(864px + 18ch))) or
+	((aspect-ratio >= 3/2) and (inline-size >= calc(624px + 13ch))) or
+	((aspect-ratio >= 2/1) and (inline-size >= calc(528px + 11ch))) {
+	&.col-multi { */
 
 /* :active::selection */
 /* body:has(:active::selection) ::selection {
@@ -114,6 +159,12 @@ input:is([type=checkbox], [type=radio]) {
 p, ul, ol {
 	hyphens: auto;
 }
+:is(dt, dd, li) :is(dl, ol, ul), p:last-child {
+	break-before: avoid;
+}
+body > ul {
+	break-after: avoid;
+}
 .no-hyphen {
 	hyphenate-character: "";
 }
@@ -139,12 +190,18 @@ p, ul, ol {
 	}
 }
 
+/* body > *, body > ul > li {
+	contain: inline-size layout;
+} */
 a:any-link {
 	touch-action: none;
+	anchor-scope: --link-text;
+	anchor-name: --link-text;
 
-	&::before {
+	&::after {
 		left: 0px;
 		right: 0px;
+		padding-block: 0.25em;
 
 		/* display: none; */
 		/* visibility: hidden; */
@@ -153,7 +210,6 @@ a:any-link {
 
 		word-break: break-all;
 		overflow-wrap: break-word;
-		/* overflow-wrap: anywhere; */
 
 		text-align: center;
 		text-wrap-style: balance;
@@ -162,6 +218,7 @@ a:any-link {
 		/* backdrop-filter: blur(0em); */
 		background-color: transparent;
 		color: transparent;
+		text-shadow: none;
 
 		content: attr(href); /*fallback for Firefox*/
 		content: attr(data-href, attr(href));
@@ -171,33 +228,27 @@ a:any-link {
 		pointer-events: none;
 		z-index: 256;
 
-		transition-property: visibility, content-visibility, pointer-events, backdrop-filter, background-color, color;
+		transition-property: visibility, content-visibility, pointer-events, backdrop-filter, background-color, color, text-shadow;
 		transition-duration: 1s;
 		transition-timing-function: /* linear */ cubic-bezier(0,0,0.25,1);
 		/* transition-timing-function: linear, linear, cubic-bezier(0,0,0,1), linear, cubic-bezier(0,0,0,1), linear; */
 		transition-behavior: allow-discrete;
 	}
-	&[data-href]::before {
+	&[data-href]::after {
 		/*anything but word-break: break-all;*/
 		/* word-break: break-word; */
 		word-break: normal;
 		/* word-break: keep-all; */
 
-		/* overflow-wrap: break-word; */
 		overflow-wrap: anywhere;
 	}
 
 	@media (hover: hover) {
-		&::before {
-			/* position: relative; */
+		&::after {
+			position-anchor: --link-text;
 			position: absolute;
-			/* position: fixed; */
-			/* position: sticky; */
 			/* top: anchor(bottom); */
-			/* top: 0px; */
-			/* margin-top: -1lh;
-			height: 1lh; */
-			margin-top: 1lh;
+			bottom: anchor(top);
 
 			display: inline-block;
 			/* user-select: all; */
@@ -212,20 +263,23 @@ a:any-link {
 				transition-delay: 1s, 1s, 0s, 0s, 0s;
 			} */
 		}
-		&:hover::before, &:focus::before {
+		&:hover::after, &:focus::after {
+			/* position: static; */
 			visibility: visible;
 			content-visibility: visible;
 
-			/* margin-inline: auto; */
-			/* text-align: center; */
-
 			/* background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
 			color: light-dark(oklch(0.25 0.125 var(--hue1-ang, 0deg)), oklch(0.75 0.125 var(--hue1-ang, 0deg))); */
-			backdrop-filter: blur(0.125em);
-			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
+			backdrop-filter: /* invert() */ blur(0.125em);
+			background-color: light-dark(
+				oklch(0.75 0 0deg / 0.5), 
+				oklch(0.25 0 0deg / 0.5));
 			color: light-dark(
-				oklch(0.25 0.1875 var(--hue1-ang, 0deg)), 
-				oklch(0.75 0.1875 var(--hue1-ang, 0deg)));
+				oklch(0.25 0.125 var(--hue1-ang, 0deg)), 
+				oklch(0.75 0.125 var(--hue1-ang, 0deg)));
+			text-shadow: 
+				0px 0px 0.0625em light-dark(white, black),
+				0px 0px 0.125em light-dark(white, black);
 
 			/* content: attr(href); */
 			pointer-events: revert;
@@ -242,24 +296,29 @@ a:any-link {
 		}
 	}
 	@media not all and (hover: hover) {
-		&::before {
+		&::after {
 			position: fixed;
 			top: 0px;
 
 			display: block;
 			transition-delay: 0s;
 		}
-		&:hover::before, &:active::before/* , &:focus::before */ {
+		&:hover::after, &:active::after/* , &:focus::after */ {
 			visibility: visible;
 			content-visibility: visible;
 			/* text-align: center; */
 			/* margin-inline: auto; */
 
-			backdrop-filter: blur(0.125em);
-			background-color: light-dark(oklch(1 0 0deg / 0.5), oklch(0 0 0deg / 0.5));
+			backdrop-filter: /* invert() */ blur(0.125em);
+			background-color: light-dark(
+				oklch(0.75 0 0deg / 0.5), 
+				oklch(0.25 0 0deg / 0.5));
 			color: light-dark(
 				oklch(0.25 0.125 var(--hue1-ang, 0deg)), 
 				oklch(0.75 0.125 var(--hue1-ang, 0deg)));
+			text-shadow: 
+				0px 0px 0.0625em light-dark(white, black),
+				0px 0px 0.125em light-dark(white, black);
 			user-select: all;
 
 			/* @starting-style {
