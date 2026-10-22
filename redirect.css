@@ -1,5 +1,5 @@
 :root {
-	font-size: min(3em, 15vmin);
+	font-size: min(3em, 7vmin);
 }
 @keyframes timeoutState {
 	from {width: 0%;}

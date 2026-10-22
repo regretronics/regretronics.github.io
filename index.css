@@ -7,11 +7,12 @@
 	/* block-size: 100%; */
 	/* margin: 3svh; */
 	/* border: 3svh solid transparent; */
-	padding-inline: max(16px, 3svmin); /*small viewport lesser axis*/
+	padding-inline: max(4px, 3svmin); /*small viewport lesser axis*/
 
 	/* font-size: 1.5em; */
 	/* font-size: calc(2vmin + 0.5vmax); */
-	font-size: max(0.8em, 1.5svb + 1svi); /*small viewport block-axis, small viewport inline-axis*/
+	/* font-size: max(0.8em, 1.5svb + 1svi); */ /*small viewport block-axis, small viewport inline-axis*/
+	font-size: max(0.8em, 1em * pow((3svb + 2svi) / 1em, 0.5)); /*non-linear bounded responsive scale*/
 	/* font-size: env(preferred-text-scale); */
 
 	color-scheme: dark;
@@ -37,27 +38,31 @@ body {
 	}
 }
 
-@media 
+/* @media 
 	((orientation: landscape) and (width >= calc(864px + 18ch))) or
 	((aspect-ratio >= 3/2) and (width >= calc(624px + 13ch))) or
 	((aspect-ratio >= 2/1) and (width >= calc(528px + 11ch))) or
-	(aspect-ratio >= 4/1) {
+	(aspect-ratio >= 4/1) { */
+/*non-linear bounded responsive condition*/
+@media 
+	(((orientation: landscape) and (width >= calc(8 * 96px * (1svh / 1svw)))) or
+	(aspect-ratio >= 3/1)) and (width >= calc(5 * 96px)) {
+	/* ((aspect-ratio >= 3/1) and (width >= 32em)) { */
 	:root.col-multi {
-		/* overflow-inline: auto;
-		overflow-block: clip; */
+		overflow-inline: scroll;
 
-		block-size: 100svb; /*small viewport block-axis*/
-		padding-block: max(16px, 3svmin);
+		block-size: calc(100svb - 8px); /*small viewport block-axis*/
+		padding-block: max(4px, 3svmin);
 
-		/* column-width: max(45svmin, 16em); */ /*small viewport lesser axis*/
-		column-width: max(30svmin + 15svmax, 16em); /*small viewport lesser/greater axis*/
-		orphans: 3;
-		widows: 3;
+		column-width: clamp(12em, 30svmin + 15svmax, 49svi); /*small viewport lesser/greater/inline axis*/
+		--margin-lines: clamp(0, round(down, sqrt(25svb / 1em)), 4); /*non-linear responsive*/
+		orphans: var(--margin-lines, 1);
+		widows: var(--margin-lines, 1);
 
 		body {
 			margin: 0em;
 			box-sizing: border-box;
-			/* max-block-size: stretch; */ /* not supported in Ffx */
+			/* max-block-size: stretch; */ /*not supported in Ffx*/
 			/* max-block-size: 100cqb; */
 	
 			/* column-fill: auto; */
@@ -349,17 +354,17 @@ a:any-link {
 
 @counter-style bullets {
 	system: cyclic;
-	/* •⚫︎⚪⚫⬡⬢⬣❭ */
-	/* half/fullwidth block: ･ｰ￭￮ */
-	/* U+0020   SPACE */
-	/* U+00A0   NO-BREAK SPACE */
-	/* U+2002   EN SPACE */
-	/* U+2003   EM SPACE */
-	/* U+3000 　 ideographic space */
-	/* U+FFA0 ﾠ HALFWIDTH HANGUL FILLER */
+	/*•⚫︎⚪⚫⬡⬢⬣❭*/
+	/*half/fullwidth block: ･ｰ￭￮*/
+	/*U+0020   SPACE*/
+	/*U+00A0   NO-BREAK SPACE*/
+	/*U+2002   EN SPACE*/
+	/*U+2003   EM SPACE*/
+	/*U+3000 　 ideographic space*/
+	/*U+FFA0 ﾠ HALFWIDTH HANGUL FILLER*/
 	symbols: "￭ ";
 	/* symbols: "⬢"; */
-	/* apparently, property "suffix" has no effect when using counters(), only if using counter(). */
+	/*apparently, property "suffix" has no effect when using counters(), only if using counter().*/
 }
 @counter-style even {
 	/* system: cyclic;
@@ -408,7 +413,7 @@ ul > li::marker {
 li:first-of-type {
 	counter-increment: list-nesting 1;
 } */
-/* won't work when a list of lists ends abruptly (will only decrement once) */
+/*won't work when a list of lists ends abruptly (will only decrement once)*/
 /* *:is(*:has(li) + *) { */
 /* *:is(*:has(> ul) + *) {
 	counter-increment: list-nesting -1;
