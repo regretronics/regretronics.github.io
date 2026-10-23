@@ -8,6 +8,7 @@
 	/* margin: 3svh; */
 	/* border: 3svh solid transparent; */
 	padding-inline: max(4px, 3svmin); /*small viewport lesser axis*/
+	/* contain: size style; */
 
 	/* font-size: 1.5em; */
 	/* font-size: calc(2vmin + 0.5vmax); */
@@ -30,10 +31,18 @@
 	color: oklch(0.125 0.1875 var(--hue1-ang, 0deg));
 }
 body {
-	margin-block: 1em;
 	font-variant: slashed-zero;
 	overflow-wrap: break-word; /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
-	@media (hover: hover) {
+}
+body, article {
+	margin-block: 1em;
+	margin-inline: 0em;
+}
+article {
+	display: inline;
+}
+@media (hover: hover) {
+	/* body:not(:has(> article)), */ article {
 		contain: layout;
 	}
 }
@@ -47,33 +56,35 @@ body {
 @media ((
 		(orientation: landscape) and (width >= calc(8 * 96px * 1svh / 1svw))
 	) or (aspect-ratio >= 3/1)) 
-	and (width >= calc(5 * 96px)) {
-	/* ((aspect-ratio >= 3/1) and (width >= 32em)) { */
+	and (width >= 20em) {
 	:root.col-multi {
-		overflow-inline: scroll;
+		/* overflow-inline: scroll; */
 
-		max-inline-size: clamp(20em, 60svmin + 30svmax, 40em); /*small viewport lesser/greater axis*/
-		block-size: calc(99svb - 12px); /*small viewport block-axis*/
+		block-size: 100%;
+		max-inline-size: clamp(20em, 40svmin + 30svmax, 32em); /*small viewport lesser/greater axis*/
+		/* container-type: block-size; */
 		padding-block: max(4px, 3svmin);
 
-		/* column-width: clamp(12em, 30svmin + 15svmax, 49svi); */
-		column-width: 100cqi;
 		--margin-lines: clamp(0, round(down, sqrt(25svb / 1em)), 4); /*non-linear responsive*/
 		orphans: var(--margin-lines, 1);
 		widows: var(--margin-lines, 1);
 
 		body {
 			margin: 0em;
-			box-sizing: border-box;
-			/* max-block-size: stretch; */ /*not supported in Ffx*/
-			/* max-block-size: 100cqb; */
-	
+			/* box-sizing: border-box; */
+			block-size: 100%;
+
+			/* column-width: clamp(12em, 30svmin + 15svmax, 49svi); */
+			column-width: 100cqi;
 			/* column-fill: auto; */
-			/* column-width: max(65svb, 16em); */
-	
-			/* &::column {
-				contain: strict;
-			} */
+		}
+		body:has(> article) {
+			gap: 0em; /*replaced by margin-inline-end*/
+		}
+		body > article {
+			margin-block: 0em;
+			margin-inline-end: 1em; /*compensate for the lack of room at the right end of the page*/
+			display: revert-layer;
 		}
 	}
 }
@@ -94,8 +105,8 @@ body {
 	color: var(--marker-color);
 
 	transition-property: text-shadow;
-	transition-delay: 0.125s;
-	transition-duration: 1s;
+	transition-delay: 0s;
+	transition-duration: 2s;
 	transition-timing-function: ease-out;
 }
 :is(:active, :has(:active), :focus-within/* , :has(::selection) */)::marker {
@@ -186,7 +197,7 @@ p, ul, ol {
 :is(dt, dd, li) :is(dl, ol, ul), p:last-child {
 	break-before: avoid;
 }
-body > ul {
+body > ul, body > article > ul {
 	break-after: avoid;
 }
 .no-hyphen {
