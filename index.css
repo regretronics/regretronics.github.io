@@ -44,17 +44,20 @@ body {
 	((aspect-ratio >= 2/1) and (width >= calc(528px + 11ch))) or
 	(aspect-ratio >= 4/1) { */
 /*non-linear bounded responsive condition*/
-@media 
-	(((orientation: landscape) and (width >= calc(8 * 96px * (1svh / 1svw)))) or
-	(aspect-ratio >= 3/1)) and (width >= calc(5 * 96px)) {
+@media ((
+		(orientation: landscape) and (width >= calc(8 * 96px * 1svh / 1svw))
+	) or (aspect-ratio >= 3/1)) 
+	and (width >= calc(5 * 96px)) {
 	/* ((aspect-ratio >= 3/1) and (width >= 32em)) { */
 	:root.col-multi {
 		overflow-inline: scroll;
 
-		block-size: calc(100svb - 8px); /*small viewport block-axis*/
+		max-inline-size: clamp(20em, 60svmin + 30svmax, 40em); /*small viewport lesser/greater axis*/
+		block-size: calc(99svb - 12px); /*small viewport block-axis*/
 		padding-block: max(4px, 3svmin);
 
-		column-width: clamp(12em, 30svmin + 15svmax, 49svi); /*small viewport lesser/greater/inline axis*/
+		/* column-width: clamp(12em, 30svmin + 15svmax, 49svi); */
+		column-width: 100cqi;
 		--margin-lines: clamp(0, round(down, sqrt(25svb / 1em)), 4); /*non-linear responsive*/
 		orphans: var(--margin-lines, 1);
 		widows: var(--margin-lines, 1);
