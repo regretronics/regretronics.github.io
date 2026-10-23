@@ -198,6 +198,15 @@ input[type=checkbox] {
 		color: inherit;
 	}
 }
+:target {
+	font-weight: bolder;
+	/* color: alpha(from currentColor / 1); */
+	text-shadow: 
+		/* 0px 0px 0.0625em var(--strong-fg, var(--root-fg, CanvasText)); */
+		0px 0px 0.03125em currentColor,
+		0px 0px 0.125em currentColor,
+		0px 0px 0.5em currentColor;
+}
 
 .code-box {
 	box-sizing: border-box;

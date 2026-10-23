@@ -109,12 +109,12 @@ article {
 	transition-duration: 2s;
 	transition-timing-function: ease-out;
 }
-:is(:active, :has(:active), :focus-within/* , :has(::selection) */)::marker {
+:is(:active, :has(:active), :focus-within/* , :has(::selection) */, :target, :has(:target))::marker {
 	--marker-color: oklch(0.75 0.125 var(--hue1-ang, 0deg));
 	text-shadow: 
-		0px 0px 0.125em var(--marker-color),
+		0px 0px 0.0625em var(--marker-color),
 		0px 0px 0.25em var(--marker-color),
-		0px 0px 0.5em var(--marker-color);
+		0px 0px 1em var(--marker-color);
 }
 
 h1 {
@@ -147,7 +147,8 @@ a:visited {
 	/* text-shadow: 0px 0px 0.125em light-dark(black, white); */
 	text-shadow: 
 		0px 0px 0.0625em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)),
-		0px 0px 0.25em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
+		0px 0px 0.25em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)),
+		0px 0px 1em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
 a.section-link {
 	text-decoration: none;
@@ -160,8 +161,13 @@ a.section-link {
 			font-size: 0.85em;
 			content: " 🖇︎" / attr(href);
 		}
+		:target &, &:target {
+			font-weight: bolder;
+		}
 	}
 }
+/* li:target {
+} */
 
 label {
 	cursor: pointer;
@@ -220,7 +226,7 @@ body > ul, body > article > ul {
 	color: oklch(0.875 0.046875 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.0625 var(--hue1-ang, 0deg));
 	
-	:is(&, & *):not(:hover, :active, :has(:active), :focus-within) {
+	:is(&, & *):not(:hover, :active, :has(:active), :focus-within, :target, :has(:target)) {
 		opacity: 0.85; /*using semitransparency breaks the backdrop-filter of the link URL overlay, so it's made conditional*/
 	}
 	:is(&, & *)::marker {
@@ -230,7 +236,7 @@ body > ul, body > article > ul {
 		--marker-color: oklch(0.75 0.0625 var(--hue1-ang, 0deg));
 	}
 
-	:root:not(:has(#chkEntriesExpand:checked)) & {
+	:root:not(:has(#chkEntriesExpand:checked)) &:not(:target, :has(:target)) {
 		display: none;
 	}
 	:root:not(:has(&)) :has(> #chkEntriesExpand) {
@@ -327,7 +333,7 @@ a:any-link:not(.section-link) {
 				oklch(0.75 0.125 var(--hue1-ang, 0deg)));
 			text-shadow: 
 				0px 0px 0.0625em light-dark(white, black),
-				0px 0px 0.125em light-dark(white, black);
+				0px 0px 0.25em light-dark(white, black);
 
 			/* content: attr(href); */
 			pointer-events: revert;
@@ -366,7 +372,7 @@ a:any-link:not(.section-link) {
 				oklch(0.75 0.125 var(--hue1-ang, 0deg)));
 			text-shadow: 
 				0px 0px 0.0625em light-dark(white, black),
-				0px 0px 0.125em light-dark(white, black);
+				0px 0px 0.25em light-dark(white, black);
 			user-select: all;
 
 			/* @starting-style {

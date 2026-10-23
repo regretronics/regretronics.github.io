@@ -1,5 +1,5 @@
 @media screen {
-	.section-link:is(:hover, :focus) {
+	.section-link:is(:hover, :focus):not(:has(:any-link:is(:hover, :focus))) {
 		&::after {
 			/* display: inline; */
 			font-size: 0.85em;
