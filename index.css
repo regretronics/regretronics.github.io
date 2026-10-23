@@ -149,6 +149,19 @@ a:visited {
 		0px 0px 0.0625em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg)),
 		0px 0px 0.25em oklch(0.75 0.1875 calc(var(--hue1-ang, 0deg) - 30deg));
 }
+a.section-link {
+	text-decoration: none;
+	&:not(:hover) {
+		color: inherit;
+	}
+	@media screen {
+		&:is(:hover, :focus):not(:has(:any-link:is(:hover, :focus)))::after {
+			/* display: inline; */
+			font-size: 0.85em;
+			content: " 🖇︎" / attr(href);
+		}
+	}
+}
 
 label {
 	cursor: pointer;
@@ -228,7 +241,7 @@ body > ul, body > article > ul {
 /* body > *, body > ul > li {
 	contain: inline-size layout;
 } */
-a:any-link {
+a:any-link:not(.section-link) {
 	touch-action: none;
 	anchor-scope: --link-text;
 	anchor-name: --link-text;
