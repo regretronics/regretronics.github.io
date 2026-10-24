@@ -129,6 +129,7 @@
 			max-block-size: 30svb;
 			display: flex;
 			flex-wrap: wrap;
+			flex-wrap: balance;
 			flex-direction: column;
 			/* place-items: center; */
 			place-content: center;
@@ -262,26 +263,27 @@
 
 		#selTubeThick {
 			field-sizing: content;
-			/* box-sizing: content-box; */
-			/* inline-size: 8em; */
-			/* block-size: 1lh; */
+			box-sizing: content-box;
+			inline-size: 14em;
+			block-size: 1lh;
 			/* block-size: fit-content; */
 
 			overflow: auto;
-
-			/* appearance: none; */
+			overflow-block: clip;
 
 			& option {
-				/* appearance: none; */
 				/* field-sizing: content; */
 				display: inline-block;
 
-				/* inline-size: 4em; */
-				/* block-size: 3em; */
+				box-sizing: border-box;
+				inline-size: calc(100% / sibling-count());
+				/* block-size: 2em; */
 				/* border-style: solid; */
 				/* border-width: 0.5em; */
 				padding-inline: 0.5em;
 				padding-block: 0em;
+
+				text-align: end;
 			}
 		}
 
