@@ -126,7 +126,9 @@
 			background-color: oklch(0.25 0 0deg);
 		}
 		#controls {
-			max-block-size: 30svb;
+			/* max-block-size: 35svb; */
+			/* max-block-size: max(20svb, 10em); */
+			max-block-size: max(20svb, clamp(4em, 13em * 1cqb / 1cqi, 20em));
 			display: flex;
 			flex-wrap: wrap;
 			flex-wrap: balance;
@@ -264,7 +266,7 @@
 		#selTubeThick {
 			field-sizing: content;
 			box-sizing: content-box;
-			inline-size: 14em;
+			inline-size: 9em;
 			block-size: 1lh;
 			/* block-size: fit-content; */
 
@@ -280,7 +282,7 @@
 				/* block-size: 2em; */
 				/* border-style: solid; */
 				/* border-width: 0.5em; */
-				padding-inline: 0.5em;
+				padding-inline: 0.125em;
 				padding-block: 0em;
 
 				text-align: end;

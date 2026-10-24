@@ -84,9 +84,11 @@
 			background-color: oklch(0.25 0 0deg);
 		}
 		#controls {
-			max-block-size: 20svb;
+			/* max-block-size: 20svb; */
+			max-block-size: max(20svb, clamp(4em, 8em * 1cqb / 1cqi, 18em));
 			display: flex;
 			flex-wrap: wrap;
+			flex-wrap: balance;
 			flex-direction: column;
 			/* place-items: center; */
 			place-content: center;
