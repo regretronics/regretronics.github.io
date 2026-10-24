@@ -272,20 +272,16 @@
 					content: "x" counter(x) " y" counter(y) 
 						"\0av (" counter(v0) ", " counter(v1) ", " counter(v2) ")";
 				}
-			}
-		}
-		@container style(--ymod = 0) {
-			.heightmap > span > span {
-				clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
-				transform-origin: top left;
-				justify-content: start;
-			}
-		}
-		@container style(--ymod = 1) {
-			.heightmap > span > span {
-				clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-				transform-origin: bottom left;
-				justify-content: end;
+				@container style(--ymod = 0) {
+					clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+					transform-origin: top left;
+					justify-content: start;
+				}
+				@container style(--ymod = 1) {
+					clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+					transform-origin: bottom left;
+					justify-content: end;
+				}
 			}
 		}
 
@@ -310,20 +306,16 @@
 						color(var(--clr-sp2) var(--z1) var(--z1) var(--z1)));
 
 				@container style(--ymod = 0) {
-					& {
-						--vert-gradient: linear-gradient(
-							in var(--clr-sp), 
-							transparent, 
-							color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)));
-					}
+					--vert-gradient: linear-gradient(
+						in var(--clr-sp), 
+						transparent, 
+						color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)));
 				}
 				@container style(--ymod = 1) {
-					& {
-						--vert-gradient: linear-gradient(
-							in var(--clr-sp), 
-							color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)), 
-							transparent);
-					}
+					--vert-gradient: linear-gradient(
+						in var(--clr-sp), 
+						color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)), 
+						transparent);
 				}
 			}
 			:root:has(&[label="noise (static)"]) .heightmap > span > span {
