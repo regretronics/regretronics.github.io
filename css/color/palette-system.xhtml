@@ -24,9 +24,13 @@
 	/* body {
 		overflow-wrap: break-word; / *2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug* /
 	} */
+	h1 {
+		margin: 0em;
+		font-size: 1.2em;
+	}
 
 	.paragraph {
-		margin-block: 1em;
+		margin-block: 0.5em;
 		padding-block: 0.5em;
 		padding-inline: 0.5em;
 		border-radius: 0.5em;
@@ -141,6 +145,7 @@
 	}
 
 	.color-plate {
+		display: inline-block;
 		border-radius: 0.1875em;
 		padding: 0.125em;
 		overflow-block: clip;
@@ -212,8 +217,18 @@
 		--fg: contrast-color(var(--attr-color));
 		background-color: var(--attr-color);
 
+		font-size: 0.667em;
+		/* text-shadow: 
+			0 0 0.03125em var(--shadow-clr),
+			0 0 0.125em var(--shadow-clr),
+			0 0 0.5em var(--shadow-clr); */
+		text-shadow: 
+			0 0 0.015625em var(--shadow-clr),
+			0 0 0.0625em var(--shadow-clr),
+			0 0 0.25em var(--shadow-clr),
+			0 0 1em var(--shadow-clr);
+
 		&::before, &::after {
-			display: block;
 			user-select: all;
 			pointer-events: all;
 			
@@ -222,14 +237,10 @@
 			/* word-break: break-all; */ /*"line break opportunities for non-CJK scripts"*/
 			word-wrap: break-word; /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit"*/
 			/* overflow-wrap: anywhere; */ /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit within the line box"*/
-
-			text-shadow: 
-				0 0 0.03125em var(--shadow-clr),
-				0 0 0.125em var(--shadow-clr),
-				0 0 0.5em var(--shadow-clr);
 		}
 		&::before {
-			font-size: 0.75em;
+			display: block;
+			font-size: 1.2em;
 			content: attr(data-color);
 			/* content: attr(data-color) " " var(--attr-color-str); */
 		}
@@ -247,9 +258,9 @@
 					else: "\00000a(l " counter(luma) ")";);
 			}
 
-			font-size: 0.667em;
+			font-size: 1em;
 			white-space-collapse: preserve; /*allows \00000a to work in contents property*/
-			content: attr(data-categ, "") var(--clr-support) var(--clr-luma, "");
+			content: var(--clr-support) var(--clr-luma, "");
 		}
 
 		&[data-color] {
@@ -369,111 +380,111 @@
 	/*]]>*/</style>
 </head>
 <body>
-	<div class="paragraph light">
-		Light mode:
-		<div class="color-group">
-			<span class="color-plate" data-categ="system" data-color="AccentColor"></span>
-			<span class="color-plate" data-categ="system" data-color="AccentColorText"></span>
-			<span class="color-plate" data-categ="system" data-color="ActiveText"></span>
-			<span class="color-plate" data-categ="system" data-color="ButtonBorder"></span>
-			<span class="color-plate" data-categ="system" data-color="ButtonFace"></span>
-			<span class="color-plate" data-categ="system" data-color="ButtonText"></span>
-			<span class="color-plate" data-categ="system" data-color="Canvas"></span>
-			<span class="color-plate" data-categ="system" data-color="CanvasText"></span>
-			<span class="color-plate" data-categ="system" data-color="Field"></span>
-			<span class="color-plate" data-categ="system" data-color="FieldText"></span>
-			<span class="color-plate" data-categ="system" data-color="GrayText"></span>
-			<span class="color-plate" data-categ="system" data-color="Highlight"></span>
-			<span class="color-plate" data-categ="system" data-color="HighlightText"></span>
-			<span class="color-plate" data-categ="system" data-color="LinkText"></span>
-			<span class="color-plate" data-categ="system" data-color="Mark"></span>
-			<span class="color-plate" data-categ="system" data-color="MarkText"></span>
-			<span class="color-plate" data-categ="system" data-color="SelectedItem"></span>
-			<span class="color-plate" data-categ="system" data-color="SelectedItemText"></span>
-			<span class="color-plate" data-categ="system" data-color="VisitedText"></span>
-		</div>
-		<div class="color-group">
-			<span class="color-plate" data-categ="legacy" data-color="ActiveBorder"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ActiveCaption"></span>
-			<span class="color-plate" data-categ="legacy" data-color="AppWorkspace"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Background"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ButtonHighlight"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ButtonShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="CaptionText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InactiveBorder"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InactiveCaption"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InactiveCaptionText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InfoBackground"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InfoText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Menu"></span>
-			<span class="color-plate" data-categ="legacy" data-color="MenuText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Scrollbar"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDDarkShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDFace"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDHighlight"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDLightShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Window"></span>
-			<span class="color-plate" data-categ="legacy" data-color="WindowFrame"></span>
-			<span class="color-plate" data-categ="legacy" data-color="WindowText"></span>
-		</div>
-		<div class="color-group">
+	<article class="paragraph light">
+		<h1>Light mode:</h1>
+		<section class="color-group">
+			<span class="color-plate" data-color="AccentColor">system</span>
+			<span class="color-plate" data-color="AccentColorText">system</span>
+			<span class="color-plate" data-color="ActiveText">system</span>
+			<span class="color-plate" data-color="ButtonBorder">system</span>
+			<span class="color-plate" data-color="ButtonFace">system</span>
+			<span class="color-plate" data-color="ButtonText">system</span>
+			<span class="color-plate" data-color="Canvas">system</span>
+			<span class="color-plate" data-color="CanvasText">system</span>
+			<span class="color-plate" data-color="Field">system</span>
+			<span class="color-plate" data-color="FieldText">system</span>
+			<span class="color-plate" data-color="GrayText">system</span>
+			<span class="color-plate" data-color="Highlight">system</span>
+			<span class="color-plate" data-color="HighlightText">system</span>
+			<span class="color-plate" data-color="LinkText">system</span>
+			<span class="color-plate" data-color="Mark">system</span>
+			<span class="color-plate" data-color="MarkText">system</span>
+			<span class="color-plate" data-color="SelectedItem">system</span>
+			<span class="color-plate" data-color="SelectedItemText">system</span>
+			<span class="color-plate" data-color="VisitedText">system</span>
+		</section>
+		<section class="color-group">
+			<span class="color-plate" data-color="ActiveBorder">legacy</span>
+			<span class="color-plate" data-color="ActiveCaption">legacy</span>
+			<span class="color-plate" data-color="AppWorkspace">legacy</span>
+			<span class="color-plate" data-color="Background">legacy</span>
+			<span class="color-plate" data-color="ButtonHighlight">legacy</span>
+			<span class="color-plate" data-color="ButtonShadow">legacy</span>
+			<span class="color-plate" data-color="CaptionText">legacy</span>
+			<span class="color-plate" data-color="InactiveBorder">legacy</span>
+			<span class="color-plate" data-color="InactiveCaption">legacy</span>
+			<span class="color-plate" data-color="InactiveCaptionText">legacy</span>
+			<span class="color-plate" data-color="InfoBackground">legacy</span>
+			<span class="color-plate" data-color="InfoText">legacy</span>
+			<span class="color-plate" data-color="Menu">legacy</span>
+			<span class="color-plate" data-color="MenuText">legacy</span>
+			<span class="color-plate" data-color="Scrollbar">legacy</span>
+			<span class="color-plate" data-color="ThreeDDarkShadow">legacy</span>
+			<span class="color-plate" data-color="ThreeDFace">legacy</span>
+			<span class="color-plate" data-color="ThreeDHighlight">legacy</span>
+			<span class="color-plate" data-color="ThreeDLightShadow">legacy</span>
+			<span class="color-plate" data-color="ThreeDShadow">legacy</span>
+			<span class="color-plate" data-color="Window">legacy</span>
+			<span class="color-plate" data-color="WindowFrame">legacy</span>
+			<span class="color-plate" data-color="WindowText">legacy</span>
+		</section>
+		<section class="color-group">
 			<span class="color-plate" data-color="ArbitraryName"></span>
 			<!-- <span class="color-plate" data-color="currentColor"></span> -->
-		</div>
-	</div>
-	<div class="paragraph dark">
-		Dark mode:
-		<div class="color-group">
-			<span class="color-plate" data-categ="system" data-color="AccentColor"></span>
-			<span class="color-plate" data-categ="system" data-color="AccentColorText"></span>
-			<span class="color-plate" data-categ="system" data-color="ActiveText"></span>
-			<span class="color-plate" data-categ="system" data-color="ButtonBorder"></span>
-			<span class="color-plate" data-categ="system" data-color="ButtonFace"></span>
-			<span class="color-plate" data-categ="system" data-color="ButtonText"></span>
-			<span class="color-plate" data-categ="system" data-color="Canvas"></span>
-			<span class="color-plate" data-categ="system" data-color="CanvasText"></span>
-			<span class="color-plate" data-categ="system" data-color="Field"></span>
-			<span class="color-plate" data-categ="system" data-color="FieldText"></span>
-			<span class="color-plate" data-categ="system" data-color="GrayText"></span>
-			<span class="color-plate" data-categ="system" data-color="Highlight"></span>
-			<span class="color-plate" data-categ="system" data-color="HighlightText"></span>
-			<span class="color-plate" data-categ="system" data-color="LinkText"></span>
-			<span class="color-plate" data-categ="system" data-color="Mark"></span>
-			<span class="color-plate" data-categ="system" data-color="MarkText"></span>
-			<span class="color-plate" data-categ="system" data-color="SelectedItem"></span>
-			<span class="color-plate" data-categ="system" data-color="SelectedItemText"></span>
-			<span class="color-plate" data-categ="system" data-color="VisitedText"></span>
-		</div>
-		<div class="color-group">
-			<span class="color-plate" data-categ="legacy" data-color="ActiveBorder"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ActiveCaption"></span>
-			<span class="color-plate" data-categ="legacy" data-color="AppWorkspace"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Background"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ButtonHighlight"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ButtonShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="CaptionText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InactiveBorder"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InactiveCaption"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InactiveCaptionText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InfoBackground"></span>
-			<span class="color-plate" data-categ="legacy" data-color="InfoText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Menu"></span>
-			<span class="color-plate" data-categ="legacy" data-color="MenuText"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Scrollbar"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDDarkShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDFace"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDHighlight"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDLightShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="ThreeDShadow"></span>
-			<span class="color-plate" data-categ="legacy" data-color="Window"></span>
-			<span class="color-plate" data-categ="legacy" data-color="WindowFrame"></span>
-			<span class="color-plate" data-categ="legacy" data-color="WindowText"></span>
-		</div>
-		<div class="color-group">
+		</section>
+	</article>
+	<article class="paragraph dark">
+		<h1>Dark mode:</h1>
+		<section class="color-group">
+			<span class="color-plate" data-color="AccentColor">system</span>
+			<span class="color-plate" data-color="AccentColorText">system</span>
+			<span class="color-plate" data-color="ActiveText">system</span>
+			<span class="color-plate" data-color="ButtonBorder">system</span>
+			<span class="color-plate" data-color="ButtonFace">system</span>
+			<span class="color-plate" data-color="ButtonText">system</span>
+			<span class="color-plate" data-color="Canvas">system</span>
+			<span class="color-plate" data-color="CanvasText">system</span>
+			<span class="color-plate" data-color="Field">system</span>
+			<span class="color-plate" data-color="FieldText">system</span>
+			<span class="color-plate" data-color="GrayText">system</span>
+			<span class="color-plate" data-color="Highlight">system</span>
+			<span class="color-plate" data-color="HighlightText">system</span>
+			<span class="color-plate" data-color="LinkText">system</span>
+			<span class="color-plate" data-color="Mark">system</span>
+			<span class="color-plate" data-color="MarkText">system</span>
+			<span class="color-plate" data-color="SelectedItem">system</span>
+			<span class="color-plate" data-color="SelectedItemText">system</span>
+			<span class="color-plate" data-color="VisitedText">system</span>
+		</section>
+		<section class="color-group">
+			<span class="color-plate" data-color="ActiveBorder">legacy</span>
+			<span class="color-plate" data-color="ActiveCaption">legacy</span>
+			<span class="color-plate" data-color="AppWorkspace">legacy</span>
+			<span class="color-plate" data-color="Background">legacy</span>
+			<span class="color-plate" data-color="ButtonHighlight">legacy</span>
+			<span class="color-plate" data-color="ButtonShadow">legacy</span>
+			<span class="color-plate" data-color="CaptionText">legacy</span>
+			<span class="color-plate" data-color="InactiveBorder">legacy</span>
+			<span class="color-plate" data-color="InactiveCaption">legacy</span>
+			<span class="color-plate" data-color="InactiveCaptionText">legacy</span>
+			<span class="color-plate" data-color="InfoBackground">legacy</span>
+			<span class="color-plate" data-color="InfoText">legacy</span>
+			<span class="color-plate" data-color="Menu">legacy</span>
+			<span class="color-plate" data-color="MenuText">legacy</span>
+			<span class="color-plate" data-color="Scrollbar">legacy</span>
+			<span class="color-plate" data-color="ThreeDDarkShadow">legacy</span>
+			<span class="color-plate" data-color="ThreeDFace">legacy</span>
+			<span class="color-plate" data-color="ThreeDHighlight">legacy</span>
+			<span class="color-plate" data-color="ThreeDLightShadow">legacy</span>
+			<span class="color-plate" data-color="ThreeDShadow">legacy</span>
+			<span class="color-plate" data-color="Window">legacy</span>
+			<span class="color-plate" data-color="WindowFrame">legacy</span>
+			<span class="color-plate" data-color="WindowText">legacy</span>
+		</section>
+		<section class="color-group">
 			<span class="color-plate" data-color="ArbitraryName"></span>
 			<!-- <span class="color-plate" data-color="currentColor"></span> -->
-		</div>
-	</div>
+		</section>
+	</article>
 </body>
 </html>
