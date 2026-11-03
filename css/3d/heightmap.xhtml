@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 
-	<title>CSS/SVG experiment: heightmap in 3-d</title>
+	<title>CSS 3-d experiment: triangle mesh heightmap</title>
 	<style type="text/css">/*<![CDATA[*/
 		:root {
 			background-color: Canvas;
@@ -184,8 +184,8 @@
 				--vertex1: calc(var(--vertex0) + 1);
 				--vertex2: calc(var(--vertex0) + (1 - 2 * var(--ymod)) * (var(--rows) + 1) + mod(var(--y2) + var(--ymod), 2));
 
-				/* https://arxiv.org/abs/2004.06278 */
-				--key: 3315107; /* 0x3295a3 */
+				/*https://arxiv.org/abs/2004.06278*/
+				--key: 3315107; /*0x3295a3*/
 
 				--v0-weyl-y: mod(var(--vertex0) * var(--key), 4194304);
 				--v0-weyl-z: mod(var(--v0-weyl-y) + var(--key), 4194304);
@@ -268,7 +268,7 @@
 					font-size: calc(0.125 * var(--tri-size));
 					text-align: center;
 
-					white-space-collapse: preserve; /* allows \00000a to work in contents property */
+					white-space-collapse: preserve; /*allows \00000a to work in contents property*/
 				}
 				:root:has(#chkDebugCaptions:checked) &::before {
 					content: "x" counter(x) " y" counter(y) 
@@ -402,7 +402,7 @@
 </head>
 <body>
 	<main>
-		<div class="heightmap"><!-- to do: make it compatible with Ffx -->
+		<div class="heightmap">
 			<span>
 				<span></span><span></span><span></span><span></span>
 			</span>

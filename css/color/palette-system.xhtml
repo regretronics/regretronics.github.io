@@ -21,9 +21,9 @@
 		/* font-size: 2.5vmin; */
 		font-size: calc(1.5vmin + 1.5vmax);
 	}
-	body {
-		/* overflow-wrap: break-word; */ /*2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug*/
-	}
+	/* body {
+		overflow-wrap: break-word; / *2024-08: fix for Chrome vs. Ffx layout differences and Chrome layout bug* /
+	} */
 
 	.paragraph {
 		margin-block: 1em;
@@ -217,16 +217,19 @@
 			user-select: all;
 			pointer-events: all;
 			
-			font-size: 0.75em;
 			/* text-wrap-mode: wrap; */ /*"whether the text inside an element is wrapped"*/
 			/* line-break: anywhere; */ /*"what set of line breaking restrictions are in effect within the element"*/
 			/* word-break: break-all; */ /*"line break opportunities for non-CJK scripts"*/
 			word-wrap: break-word; /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit"*/
 			/* overflow-wrap: anywhere; */ /*"whether the UA may break within a word to prevent overflow when an otherwise-unbreakable string is too long to fit within the line box"*/
 
-			text-shadow: 0 0 0.125em var(--shadow-clr);
+			text-shadow: 
+				0 0 0.03125em var(--shadow-clr),
+				0 0 0.125em var(--shadow-clr),
+				0 0 0.5em var(--shadow-clr);
 		}
 		&::before {
+			font-size: 0.75em;
 			content: attr(data-color);
 			/* content: attr(data-color) " " var(--attr-color-str); */
 		}
@@ -241,8 +244,11 @@
 					else: " \002713";);
 				--clr-luma: if(
 					style(--attr-color: auto): ""; 
-					else: " (l " counter(luma) ")";);
+					else: "\00000a(l " counter(luma) ")";);
 			}
+
+			font-size: 0.667em;
+			white-space-collapse: preserve; /*allows \00000a to work in contents property*/
 			content: attr(data-categ, "") var(--clr-support) var(--clr-luma, "");
 		}
 
