@@ -38,9 +38,12 @@
 	--rnd-exp2: calc(20 / 7);
 	--rnd-exp3: calc(110 / 113);
 	--rnd-offset: mod(pow(1451, 1 / 7), 1);
+	--i: 0;
+	--blob-count: 0;
 }
 
-#svg1 > circle {
+/* #svg1 > circle { */
+#svg1 [data-i], .blob {
 	--tilog-x: log(2 * (var(--ti) * var(--blob-count) + var(--i)) + pi);
 	--ti1log-x: log(2 * (var(--ti1) * var(--blob-count) + var(--i)) + pi);
 	--ti2log-x: log(2 * (var(--ti2) * var(--blob-count) + var(--i)) + pi);

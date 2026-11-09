@@ -5,18 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 	<title>CSS blobs and PRNG, with SVG warping</title>
+
+	<link rel="stylesheet" type="text/css" href="random-cubic.css" />
 	<style type="text/css">/*<![CDATA[*/
-		@property --t {
-			syntax: "\<number\>";
-			initial-value: 0.0;
-			inherits: true;
-		}
-		@keyframes shuffle {
-			to {
-				/* --t: var(--dur); */
-				--t: calc(0.25 * var(--dur));
-			}
-		}
 		@property --phase {
 			syntax: "\<angle\>";
 			initial-value: 0turn;
@@ -40,28 +31,7 @@
 			background-color: black;
 			--dur: 43200;
 
-			--ti: round(down, var(--t));
-			/* --ti: round(down, 30000 + var(--t)); */
-			--ti1: calc(var(--ti) + 1);
-			--ti2: calc(var(--ti) + 2);
-			--ti3: calc(var(--ti) + 3);
-			--tfrac: mod(var(--t), 1);
-			--tfrac1: calc(1 - var(--tfrac));
-
-			--interp-hermite-00: calc((1 + 2 * var(--tfrac)) * var(--tfrac1) * var(--tfrac1));
-			--interp-hermite-10: calc(0.735 * var(--tfrac) * var(--tfrac1) * var(--tfrac1));
-			--interp-hermite-01: calc(var(--tfrac) * var(--tfrac) * (3 - 2 * var(--tfrac)));
-			--interp-hermite-11: calc(-0.735 * var(--tfrac) * var(--tfrac) * var(--tfrac1));
-
-			--rnd-ratio1: mod(sqrt(7), 1);
-			--rnd-ratio2: mod(pow(349, 1 / 5), -1);
-			--rnd-ratio3: mod(pow(3181, 1 / 3), 1);
-			--rnd-exp1: calc(pi * 2 / 3);
-			--rnd-exp2: calc(20 / 7);
-			--rnd-exp3: calc(110 / 113);
-			--rnd-offset: mod(pow(1451, 1 / 7), 1);
-
-			animation-name: shuffle, rotate-rg;
+			animation-name: clock, rotate-rg;
 			animation-duration: calc(1s * var(--dur)), 4s;
 			animation-iteration-count: infinite, infinite;
 			animation-timing-function: linear, linear;
@@ -90,7 +60,7 @@
 			overflow: hidden; */
 			display: none;
 		}
-		.blobSet {
+		.blob-set {
 			position: absolute;
 			width: 100%;
 			height: 100%;
@@ -117,76 +87,6 @@
 
 			/* --i: sibling-index(); */
 			--i: attr(data-i type(<number>));
-
-			--tilog-x: log(2 * (var(--ti) * var(--blob-count) + var(--i)) + pi);
-			--ti1log-x: log(2 * (var(--ti1) * var(--blob-count) + var(--i)) + pi);
-			--ti2log-x: log(2 * (var(--ti2) * var(--blob-count) + var(--i)) + pi);
-			--ti3log-x: log(2 * (var(--ti3) * var(--blob-count) + var(--i)) + pi);
-			--tilog-y: log(2 * (var(--ti) * var(--blob-count) + var(--i)) + 1 + pi);
-			--ti1log-y: log(2 * (var(--ti1) * var(--blob-count) + var(--i)) + 1 + pi);
-			--ti2log-y: log(2 * (var(--ti2) * var(--blob-count) + var(--i)) + 1 + pi);
-			--ti3log-y: log(2 * (var(--ti3) * var(--blob-count) + var(--i)) + 1 + pi);
-			--rnd-x: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog-x)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog-x)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--tilog-x)) 
-				+ var(--rnd-offset), 
-				1);
-			--rnd1-x: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti1log-x)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti1log-x)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti1log-x)) 
-				+ var(--rnd-offset), 
-				1);
-			--rnd2-x: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti2log-x)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti2log-x)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti2log-x)) 
-				+ var(--rnd-offset), 
-				1);
-			--rnd3-x: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti3log-x)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti3log-x)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti3log-x)) 
-				+ var(--rnd-offset), 
-				1);
-			--rnd-y: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--tilog-y)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--tilog-y)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--tilog-y)) 
-				+ var(--rnd-offset), 
-				1);
-			--rnd1-y: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti1log-y)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti1log-y)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti1log-y)) 
-				+ var(--rnd-offset), 
-				1);
-			--rnd2-y: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti2log-y)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti2log-y)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti2log-y)) 
-				+ var(--rnd-offset), 
-				1);
-			--rnd3-y: mod(
-				var(--rnd-ratio1) * exp(var(--rnd-exp1) * var(--ti3log-y)) 
-				+ var(--rnd-ratio2) * exp(var(--rnd-exp2) * var(--ti3log-y)) 
-				+ var(--rnd-ratio3) * exp(var(--rnd-exp3) * var(--ti3log-y)) 
-				+ var(--rnd-offset), 
-				1);
-
-			--rnd-interp-x: calc(
-				var(--interp-hermite-00) * var(--rnd1-x)
-				+ var(--interp-hermite-10) * (var(--rnd2-x) - var(--rnd-x))
-				+ var(--interp-hermite-01) * var(--rnd2-x)
-				+ var(--interp-hermite-11) * (var(--rnd3-x) - var(--rnd1-x))
-			);
-			--rnd-interp-y: calc(
-				var(--interp-hermite-00) * var(--rnd1-y)
-				+ var(--interp-hermite-10) * (var(--rnd2-y) - var(--rnd-y))
-				+ var(--interp-hermite-01) * var(--rnd2-y)
-				+ var(--interp-hermite-11) * (var(--rnd3-y) - var(--rnd1-y))
-			);
 
 			left: calc(100% * var(--rnd-interp-x));
 			top: calc(100% * var(--rnd-interp-y));
@@ -218,18 +118,17 @@
 	/*]]>*/</style>
 </head>
 <body id="b1">
-	<div id="divBlobs" class="blobSet">
-		<div class="blob" data-i="0"></div>
-		<div class="blob" data-i="1"></div>
-		<div class="blob" data-i="2"></div>
-		<div class="blob" data-i="3"></div>
-		<div class="blob" data-i="4"></div>
-		<div class="blob" data-i="5"></div>
-		<div class="blob" data-i="6"></div>
-		<div class="blob" data-i="7"></div>
+	<div id="divBlobs" class="blob-set">
+		<span class="blob" data-i="0"></span>
+		<span class="blob" data-i="1"></span>
+		<span class="blob" data-i="2"></span>
+		<span class="blob" data-i="3"></span>
+		<span class="blob" data-i="4"></span>
+		<span class="blob" data-i="5"></span>
+		<span class="blob" data-i="6"></span>
+		<span class="blob" data-i="7"></span>
 	</div>
-	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" preserveAspectRatio="xMidYMid slice">
-		<!-- filter="url('#warp')" -->
+	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<defs>
 			<filter id="warp" filterUnits="objectBoundingBox" x="-0.25" y="-0.25" width="1.5" height="1.5" primitiveUnits="objectBoundingBox">
 			<!-- <filter id="warp" filterUnits="objectBoundingBox" x="-25%" y="-25%" width="150%" height="150%" primitiveUnits="objectBoundingBox"> -->
