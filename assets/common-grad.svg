@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" 
+	viewBox="0 0 1 1" preserveAspectRatio="none">
+	<defs>
+		<style>/*<![CDATA[*/
+			radialGradient stop {
+				/* --i: sibling-index(); */
+				/* --i: attr(data-i type(<number>)); */
+				stop-color: white;
+				/* stop-opacity: calc(1 - var(--i) / 6); */
+			}
+		/*]]>*/</style>
+		<!--opacities based on binomial distribution/Pascal's triangle-->
+		<radialGradient id="blobGradBinomial0">
+			<stop offset="0" stop-opacity="1" />
+			<stop offset="1" stop-opacity="0" />
+		</radialGradient>
+		<!-- <radialGradient id="blobGradBinomial2">
+			<stop offset="0"   stop-opacity="calc(2 / 2)" />
+			<stop offset="0.5" stop-opacity="calc(1 / 2)" />
+			<stop offset="1"   stop-opacity="calc(0 / 2)" />
+		</radialGradient> -->
+		<radialGradient id="blobGradBinomial4">
+			<stop offset="0"       stop-opacity="calc(6 / 6)" />
+			<stop offset="0.33333" stop-opacity="calc(4 / 6)" />
+			<stop offset="0.66667" stop-opacity="calc(1 / 6)" />
+			<stop offset="1"       stop-opacity="calc(0 / 6)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial6">
+			<stop offset="0"    stop-opacity="calc(20 / 20)" />
+			<stop offset="0.25" stop-opacity="calc(15 / 20)" />
+			<stop offset="0.5"  stop-opacity="calc( 6 / 20)" />
+			<stop offset="0.75" stop-opacity="calc( 1 / 20)" />
+			<stop offset="1"    stop-opacity="calc( 0 / 20)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial8">
+			<stop offset="0"   stop-opacity="calc(70 / 70)" />
+			<stop offset="0.2" stop-opacity="calc(56 / 70)" />
+			<stop offset="0.4" stop-opacity="calc(28 / 70)" />
+			<stop offset="0.6" stop-opacity="calc( 8 / 70)" />
+			<stop offset="0.8" stop-opacity="calc( 1 / 70)" />
+			<stop offset="1"   stop-opacity="calc( 0 / 70)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial10">
+			<stop offset="0"       stop-opacity="calc(252 / 252)" />
+			<stop offset="0.16667" stop-opacity="calc(210 / 252)" />
+			<stop offset="0.33333" stop-opacity="calc(120 / 252)" />
+			<stop offset="0.5"     stop-opacity="calc( 45 / 252)" />
+			<stop offset="0.66667" stop-opacity="calc( 10 / 252)" />
+			<stop offset="0.83333" stop-opacity="calc(  1 / 252)" />
+			<stop offset="1"       stop-opacity="calc(  0 / 252)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial12">
+			<stop offset="0"       stop-opacity="calc(924 / 924)" />
+			<stop offset="0.14286" stop-opacity="calc(792 / 924)" />
+			<stop offset="0.28571" stop-opacity="calc(495 / 924)" />
+			<stop offset="0.42857" stop-opacity="calc(220 / 924)" />
+			<stop offset="0.57143" stop-opacity="calc( 66 / 924)" />
+			<stop offset="0.71429" stop-opacity="calc( 12 / 924)" />
+			<stop offset="0.85714" stop-opacity="calc(  1 / 924)" />
+			<stop offset="1"       stop-opacity="calc(  0 / 924)" />
+		</radialGradient>
+		<radialGradient id="blobGradBinomial14">
+			<stop offset="0"     stop-opacity="calc(3432 / 3432)" />
+			<stop offset="0.125" stop-opacity="calc(3003 / 3432)" />
+			<stop offset="0.25"  stop-opacity="calc(2002 / 3432)" />
+			<stop offset="0.375" stop-opacity="calc(1001 / 3432)" />
+			<stop offset="0.5"   stop-opacity="calc( 364 / 3432)" />
+			<stop offset="0.625" stop-opacity="calc(  91 / 3432)" />
+			<stop offset="0.75"  stop-opacity="calc(  14 / 3432)" />
+			<stop offset="0.875" stop-opacity="calc(   1 / 3432)" />
+			<stop offset="1"     stop-opacity="calc(   0 / 3432)" />
+		</radialGradient>
+	</defs>
+</svg>
