@@ -58,6 +58,9 @@ article {
 	) or (aspect-ratio >= 3/1)) 
 	and (width >= 20em) {
 	:root.col-multi {
+		/* writing-mode: vertical-lr; */
+		/* writing-mode: sideways-lr; */
+		/* writing-mode: sideways-rl; */
 		/* overflow-inline: scroll; */
 
 		block-size: 100%;
@@ -70,6 +73,11 @@ article {
 		widows: var(--margin-lines, 1);
 
 		body {
+			/* writing-mode: vertical-lr; */
+			/* writing-mode: sideways-lr; */
+			/* writing-mode: horizontal-tb; */
+			/* column-height: 100cqb; */
+
 			margin: 0em;
 			/* box-sizing: border-box; */
 			block-size: 100%;
@@ -82,6 +90,7 @@ article {
 			gap: 0em; /*replaced by margin-inline-end*/
 		}
 		body > article {
+			/* writing-mode: horizontal-tb; */
 			margin-block: 0em;
 			margin-inline-end: 1em; /*compensate for the lack of room at the right end of the page*/
 			display: revert-layer;
@@ -258,8 +267,8 @@ a:any-link:not(.section-link) {
 	anchor-name: --link-text;
 
 	&::after {
-		left: 0px;
-		right: 0px;
+		inset-inline-start: 0px;
+		inset-inline-end: 0px;
 		padding-block: 0.25em;
 
 		/* display: none; */
@@ -306,8 +315,8 @@ a:any-link:not(.section-link) {
 		&::after {
 			position-anchor: --link-text;
 			position: absolute;
-			/* top: anchor(bottom); */
-			bottom: anchor(top);
+			/* inset-block-start: anchor(bottom); */
+			inset-block-end: anchor(outside);
 
 			display: inline-block;
 			/* user-select: all; */
@@ -357,7 +366,7 @@ a:any-link:not(.section-link) {
 	@media not all and (hover: hover) {
 		&::after {
 			position: fixed;
-			top: 0px;
+			inset-block-start: 0px;
 
 			display: block;
 			transition-delay: 0s;
