@@ -71,6 +71,8 @@
 			overflow: hidden;
 			background-color: black;
 			/* filter: url("#warp"); */
+			/* filter: url("#colorMap"); */
+			filter: url("#fltTransferSquash3") url("#colorMap");
 
 			--blob-count: 32;
 		}
@@ -161,7 +163,7 @@
 			/* mix-blend-mode: hard-light; */
 			/* fill: white; */
 			fill: url("#blobGrad");
-			opacity: 0.1875;
+			opacity: 0.375;
 			r: 0.1875;
 			/* mask: url("#blobMask"); */
 		}
@@ -174,22 +176,37 @@
 	/*]]>*/</style>
 </head>
 <body>
-	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" filter="url('#colorMap')">
+	<svg id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet">
 		<!-- filter="url('#warp')" -->
 		<defs>
 			<radialGradient id="blobGrad">
 				<!--opacities based on binomial distribution-->
-				<!--<stop data-i="0" offset="0"       stop-opacity="calc(1 * 252 / 252)" />
+				<stop data-i="0" offset="0"       stop-opacity="calc(1 * 252 / 252)" />
 				<stop data-i="1" offset="0.16667" stop-opacity="calc(1 * 210 / 252)" />
 				<stop data-i="2" offset="0.33333" stop-opacity="calc(1 * 120 / 252)" />
 				<stop data-i="3" offset="0.5"     stop-opacity="calc(1 * 45 / 252)" />
 				<stop data-i="4" offset="0.66667" stop-opacity="calc(1 * 10 / 252)" />
 				<stop data-i="5" offset="0.83333" stop-opacity="calc(1 * 1 / 252)" />
-				<stop data-i="6" offset="1"       stop-opacity="calc(1 * 0 / 252)" />-->
+				<stop data-i="6" offset="1"       stop-opacity="calc(1 * 0 / 252)" />
 
-				<stop data-i="0" offset="0"       stop-opacity="1" />
-				<stop data-i="1" offset="1"       stop-opacity="0" />
+				<!-- <stop data-i="0" offset="0"       stop-opacity="1" />
+				<stop data-i="1" offset="1"       stop-opacity="0" /> -->
 			</radialGradient>
+			<filter id="fltTransferSquash3" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+				<!-- 3x^2 - 2x^3 = x^2 (3 - 2x) = 3 x^2 (1 - 2x/3) -->
+				<feComponentTransfer in="SourceGraphic" result="linear3_2">
+					<feFuncR type="linear" slope="-0.6667" intercept="1" />
+					<feFuncG type="linear" slope="-0.6667" intercept="1" />
+					<feFuncB type="linear" slope="-0.6667" intercept="1" />
+				</feComponentTransfer>
+				<feComponentTransfer in="SourceGraphic" result="gamma2">
+					<feFuncR type="gamma" amplitude="1" exponent="2" offset="0" />
+					<feFuncG type="gamma" amplitude="1" exponent="2" offset="0" />
+					<feFuncB type="gamma" amplitude="1" exponent="2" offset="0" />
+				</feComponentTransfer>
+				<feComposite in="linear3_2" in2="gamma2" result="polynomial" operator="arithmetic" k1="3" k2="0" k3="0" k4="0" />
+				<!-- <feBlend in="linear3_2" in2="gamma2" result="polynomial" mode="multiply" /> -->
+			</filter>
 			<filter id="colorMap" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox">
 				<feComponentTransfer color-interpolation-filters="sRGB">
 					<feFuncR type="table" tableValues="0.0169 0.0182 0.0192 0.0198 0.0199 0.0196 0.0188 0.0175 0.0157 0.0136 0.0111 0.0085 0.006 0.0036 0.0017 0.0004 0.0 0.0007 0.0028 0.0063 0.0115 0.0184 0.0269 0.037 0.0485 0.0611 0.0746 0.0885 0.1023 0.1156 0.1276 0.138 0.1462 0.1518 0.1543 0.1535 0.1493 0.1417 0.1309 0.1173 0.1014 0.084 0.0659 0.0482 0.0317 0.0177 0.0072 0.0011 0.0004 0.0058 0.0177 0.0363 0.0617 0.0933 0.1306 0.1725 0.2179 0.2651 0.3126 0.3586 0.4012 0.4387 0.4695 0.4921 0.5054 0.5086 0.5013 0.4836 0.4559 0.4193 0.3752 0.3254 0.2719 0.2172 0.1639 0.1143 0.0711 0.0365 0.0126 0.001 0.0027 0.0185 0.0483 0.0915 0.147 0.2131 0.2876 0.3677 0.4505 0.533 0.6119 0.6841 0.7466 0.797 0.833 0.8531 0.8565 0.8427 0.8122 0.7662 0.7064 0.6351 0.5553 0.4701 0.383 0.2976 0.2175 0.146 0.0863 0.0408 0.0116 0.0001 0.0071 0.0324 0.0752 0.134 0.2066 0.2904 0.3821 0.4781 0.5747 0.6682 0.7549 0.8314 0.8947 0.9422 0.972 0.9831" />

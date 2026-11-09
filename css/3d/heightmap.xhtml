@@ -294,30 +294,42 @@
 				background-color: hsl(30deg 25% calc(12.5% * mod(var(--x) + 2 * var(--y), 4) + 50%));
 			}
 			:root:has(&[label="heightmap"]) .heightmap > span > span {
+				/* --gamma: calc(1);
+				--c0: pow(var(--z0), 1 / var(--gamma));
+				--c1: pow(var(--z1), 1 / var(--gamma));
+				--c2: pow(var(--z2), 1 / var(--gamma)); */
+				--c0: var(--z0);
+				--c1: var(--z1);
+				--c2: var(--z2);
+
 				/* color-interpolation: sRGB/ * linearRGB * /; */
-				--clr-sp: srgb;
-				/* --clr-sp: srgb-linear; */
-				/* --clr-sp: oklab; */
-				/* --clr-sp2: srgb; */
-				--clr-sp2: srgb-linear;
+				/* --clr-sp: srgb; */
+				/* --clr-sp: srgb-linear; */ /*awful*/
+				/* --clr-sp: rec2020; */
+				--clr-sp: oklab;
+				--clr-sp2: srgb;
+				/* --clr-sp2: srgb-linear; */
 				/* --clr-sp2: rec2020; */
+				/* --clr-sp2: xyz-d50; */
 				background-image: var(--vert-gradient),
 					linear-gradient(
 						to right in var(--clr-sp), 
-						color(var(--clr-sp2) var(--z0) var(--z0) var(--z0)), 
-						color(var(--clr-sp2) var(--z1) var(--z1) var(--z1)));
+						color(var(--clr-sp2) var(--c0) var(--c0) var(--c0)), 
+						color(var(--clr-sp2) var(--c1) var(--c1) var(--c1)));
 
 				@container style(--ymod = 0) {
 					--vert-gradient: linear-gradient(
 						in var(--clr-sp), 
 						transparent, 
-						color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)));
+						/* color(var(--clr-sp2) var(--c2) var(--c2) var(--c2) / 0),  */
+						color(var(--clr-sp2) var(--c2) var(--c2) var(--c2)));
 				}
 				@container style(--ymod = 1) {
 					--vert-gradient: linear-gradient(
 						in var(--clr-sp), 
-						color(var(--clr-sp2) var(--z2) var(--z2) var(--z2)), 
+						color(var(--clr-sp2) var(--c2) var(--c2) var(--c2)), 
 						transparent);
+						/* color(var(--clr-sp2) var(--c2) var(--c2) var(--c2) / 0)); */
 				}
 			}
 			:root:has(&[label="noise (static)"]) .heightmap > span > span {
@@ -380,7 +392,9 @@
 			container-type: size;
 			user-select: none;
 
-			background: linear-gradient(to right, black, white);
+			--clr-0: black;
+			--clr-1: white;
+			background: linear-gradient(to right, var(--clr-0), var(--clr-1));
 
 			& .label {
 				position: absolute;
@@ -389,12 +403,12 @@
 				font-size: min(1em / var(--scale), 100cqb);
 
 				&.max {
-					left: 0;
-					color: white;
+					inset-inline-start: 0;
+					color: contrast-color(var(--clr-0));
 				}
 				&.min {
-					right: 0;
-					color: black;
+					inset-inline-end: 0;
+					color: contrast-color(var(--clr-1));
 				}
 			}
 		}
