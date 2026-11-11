@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>CSS experiment: "CPU" animation hack</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --t {
+			syntax: "\3c number\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@property --pulse {
+			syntax: "\3c integer\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@keyframes clock {
+			to {--t: 86400;}
+		}
+		:root {
+			--pulse: mod(round(down, 30 * var(--t)), 4);
+
+			animation-name: clock;
+			animation-delay: 0s;
+			animation-duration: 86400s;
+			animation-timing-function: linear;
+			/* animation-fill-mode: both; */
+			animation-iteration-count: infinite;
+
+			container-type: normal;
+			font-size: 5vmin;
+		}
+
+		@property --cycle {
+			syntax: "\3c integer\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@keyframes cache-1 {
+			from, to {--cache-1: calc(var(--cycle) + var(--inc));}
+		}
+		@keyframes cache-2 {
+			from, to {--cache-2: var(--cache-1);}
+		}
+		body {
+			--inc: 1;
+			--cycle: var(--cache-2);
+
+			&:has(#btn1:active) {
+				--inc: -1;
+			}
+
+			animation-name: cache-1, cache-2;
+			animation-delay: 0s;
+			animation-duration: 1s;
+			animation-timing-function: linear;
+			/* animation-fill-mode: both; */
+			animation-iteration-count: infinite;
+			/* animation-composition: / * add * /accumulate; */
+
+			animation-play-state: 
+				if(style(--pulse = 2): running; else: paused;), 
+				if(style(--pulse = 0): running; else: paused;);
+
+			/* animation-play-state: paused, paused;
+			@container style(--pulse = 0) {
+				animation-play-state: paused, running;
+			}
+			@container style(--pulse = 2) {
+				animation-play-state: running, paused;
+			} */
+		}
+		#outPulse {
+			--out: var(--pulse);
+		}
+		#outCycle {
+			--out: var(--cycle);
+		}
+		.var-out:after {
+			/* --var0: attr(data-target type(<custom-ident>)); */
+			/* counter-reset: var var(attr(data-target type(<custom-ident>))); */
+			/* counter-reset: var ident(var(--var0)); */
+			counter-reset: var var(--out);
+			/* content: attr(data-target) " = " counter(var); */
+			content: counter(var);
+		}
+
+		.button {
+			display: inline-block;
+			padding-inline: 2em;
+			padding-block: 1em;
+			border-radius: 0.25em;
+			background-color: oklch(0.375 0.09375 55deg / 0.75);
+
+			&:active {
+				background-color: oklch(0.5 0.125 55deg / 1);
+			}
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<p>pulse: <output class="var-out" id="outPulse"></output></p>
+	<p>cycle: <output class="var-out" id="outCycle"></output></p>
+	<p><div class="button" id="btn1">press</div></p>
+</body>
+</html>
