@@ -86,31 +86,26 @@
 			--ang: calc(var(--i) * var(--ang-inc));
 			--r: --shp-distance(var(--ang));
 			/* --d: --shp-distance-diff(var(--ang)); */
-			--d: calc(0.125 * var(--t) * --shp-distance-diff(var(--ang)));
+			--tmult: calc(2 * var(--t) / var(--shp-points-count));
+			--d: calc(var(--tmult) * --shp-distance-diff(var(--ang)));
 
 			result: 
-				calc((var(--r) + var(--d)) * (cos(var(--ang)) - 0.125 * var(--t) * sin(var(--ang))) + 50%)
-				calc((var(--r) + var(--d)) * (sin(var(--ang)) + 0.125 * var(--t) * cos(var(--ang))) + 50%);
+				calc((var(--r) + var(--d)) * (cos(var(--ang)) - var(--tmult) * sin(var(--ang))) + 50%)
+				calc((var(--r) + var(--d)) * (sin(var(--ang)) + var(--tmult) * cos(var(--ang))) + 50%);
 		}
 
 		#img1 {
-			margin: auto;
-			inline-size: 100cqmin;
-			block-size: 100cqmin;
-
-			background-color: CanvasText;
-
 			--wave1-amp: 0.125;
 			--wave1-vel: 1;
 			--wave1-freq: 2;
-			--wave2-amp: 0.125;
+			--wave2-amp: 0.09375;
 			--wave2-vel: -1;
 			--wave2-freq: 5;
 
 			--shp-scale: 0.375;
 			--ang-inc: calc(1turn / var(--shp-points-count));
 			/* --shp-points-count: 32;
-			clip-path: shape(
+			--shp: shape(
 				from --shp-vertex(0),
 				line to --shp-vertex(1),
 				line to --shp-vertex(2),
@@ -144,7 +139,8 @@
 				line to --shp-vertex(30),
 				line to --shp-vertex(31),
 				close); */
-			/* clip-path: polygon(round 100cqmin,
+			/* --shp-points-count: 32;
+			--shp: polygon(round 100cqmin,
 				--shp-vertex(0),
 				--shp-vertex(1),
 				--shp-vertex(2),
@@ -177,8 +173,8 @@
 				--shp-vertex(29),
 				--shp-vertex(30),
 				--shp-vertex(31)); */
-			/* --ang-inc: calc(1turn / 32);
-			clip-path: shape(
+			/* --shp-points-count: 32;
+			--shp: shape(
 				from --shp-vertex(0),
 				smooth to --shp-vertex(1),
 				smooth to --shp-vertex(2),
@@ -213,19 +209,19 @@
 				smooth to --shp-vertex(31),
 				close); */
 			/* --shp-points-count: 8;
-			clip-path: shape(
+			--shp: shape(
 				from --shp-vertex(0),
-				smooth to --shp-vertex(1) with --shp-ctl-pt(1) from origin,
-				smooth to --shp-vertex(2) with --shp-ctl-pt(2) from origin,
-				smooth to --shp-vertex(3) with --shp-ctl-pt(3) from origin,
-				smooth to --shp-vertex(4) with --shp-ctl-pt(4) from origin,
-				smooth to --shp-vertex(5) with --shp-ctl-pt(5) from origin,
-				smooth to --shp-vertex(6) with --shp-ctl-pt(6) from origin,
-				smooth to --shp-vertex(7) with --shp-ctl-pt(7) from origin,
-				smooth to --shp-vertex(8) with --shp-ctl-pt(8) from origin,
+				smooth to --shp-vertex(1) with --shp-ctl-pt(1, -1) from origin,
+				smooth to --shp-vertex(2) with --shp-ctl-pt(2, -1) from origin,
+				smooth to --shp-vertex(3) with --shp-ctl-pt(3, -1) from origin,
+				smooth to --shp-vertex(4) with --shp-ctl-pt(4, -1) from origin,
+				smooth to --shp-vertex(5) with --shp-ctl-pt(5, -1) from origin,
+				smooth to --shp-vertex(6) with --shp-ctl-pt(6, -1) from origin,
+				smooth to --shp-vertex(7) with --shp-ctl-pt(7, -1) from origin,
+				smooth to --shp-vertex(8) with --shp-ctl-pt(8, -1) from origin,
 				close); */
-			/* --ang-inc: calc(1turn / 12);
-			clip-path: shape(
+			/* --shp-points-count: 12;
+			--shp: shape(
 				from --shp-vertex(0),
 				curve to --shp-vertex(2) 
 					with --shp-vertex(1) from origin,
@@ -240,8 +236,8 @@
 				curve to --shp-vertex(12) 
 					with --shp-vertex(11) from origin,
 				close); */
-			--shp-points-count: 16;
-			clip-path: shape(
+			--shp-points-count: 32;
+			--shp: shape(
 				from --shp-vertex(0),
 				curve to --shp-vertex( 1) with --shp-ctl-pt( 0, 1) / --shp-ctl-pt( 1, -1),
 				curve to --shp-vertex( 2) with --shp-ctl-pt( 1, 1) / --shp-ctl-pt( 2, -1),
@@ -258,8 +254,41 @@
 				curve to --shp-vertex(13) with --shp-ctl-pt(12, 1) / --shp-ctl-pt(13, -1),
 				curve to --shp-vertex(14) with --shp-ctl-pt(13, 1) / --shp-ctl-pt(14, -1),
 				curve to --shp-vertex(15) with --shp-ctl-pt(14, 1) / --shp-ctl-pt(15, -1),
-				curve to --shp-vertex( 0) with --shp-ctl-pt(15, 1) / --shp-ctl-pt( 0, -1),
+				curve to --shp-vertex(16) with --shp-ctl-pt(15, 1) / --shp-ctl-pt(16, -1),
+				curve to --shp-vertex(17) with --shp-ctl-pt(16, 1) / --shp-ctl-pt(17, -1),
+				curve to --shp-vertex(18) with --shp-ctl-pt(17, 1) / --shp-ctl-pt(18, -1),
+				curve to --shp-vertex(19) with --shp-ctl-pt(18, 1) / --shp-ctl-pt(19, -1),
+				curve to --shp-vertex(20) with --shp-ctl-pt(19, 1) / --shp-ctl-pt(20, -1),
+				curve to --shp-vertex(21) with --shp-ctl-pt(20, 1) / --shp-ctl-pt(21, -1),
+				curve to --shp-vertex(22) with --shp-ctl-pt(21, 1) / --shp-ctl-pt(22, -1),
+				curve to --shp-vertex(23) with --shp-ctl-pt(22, 1) / --shp-ctl-pt(23, -1),
+				curve to --shp-vertex(24) with --shp-ctl-pt(23, 1) / --shp-ctl-pt(24, -1),
+				curve to --shp-vertex(25) with --shp-ctl-pt(24, 1) / --shp-ctl-pt(25, -1),
+				curve to --shp-vertex(26) with --shp-ctl-pt(25, 1) / --shp-ctl-pt(26, -1),
+				curve to --shp-vertex(27) with --shp-ctl-pt(26, 1) / --shp-ctl-pt(27, -1),
+				curve to --shp-vertex(28) with --shp-ctl-pt(27, 1) / --shp-ctl-pt(28, -1),
+				curve to --shp-vertex(29) with --shp-ctl-pt(28, 1) / --shp-ctl-pt(29, -1),
+				curve to --shp-vertex(30) with --shp-ctl-pt(29, 1) / --shp-ctl-pt(30, -1),
+				curve to --shp-vertex(31) with --shp-ctl-pt(30, 1) / --shp-ctl-pt(31, -1),
+				curve to --shp-vertex( 0) with --shp-ctl-pt(31, 1) / --shp-ctl-pt( 0, -1),
 				close);
+
+			margin: 0;
+			inline-size: 100cqmin;
+			block-size: 100cqmin;
+
+			/* background-color: CanvasText; */
+			background-color: oklch(0.75 0.09375 55deg / 0.25);
+
+			/* clip-path: var(--shp); */
+			border-shape: var(--shp);
+
+			border-style: solid;
+			border-width: 3.125cqmin;
+			border-color: oklch(0.75 0.25 55deg / 0.5);
+			box-shadow:
+				3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(1 0 0deg / 0.25),
+				3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(1 0 0deg / 0.25) inset;
 		}
 	/*]]>*/</style>
 </head>
