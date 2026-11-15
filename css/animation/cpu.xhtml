@@ -74,12 +74,8 @@
 				animation-play-state: running, paused;
 			} */
 		}
-		#outPulse {
-			--out: var(--pulse);
-		}
-		#outCycle {
-			--out: var(--cycle);
-		}
+		#outPulse {--out: var(--pulse);}
+		#outCycle {--out: var(--cycle);}
 		.var-out:after {
 			/* --var0: attr(data-target type(<custom-ident>)); */
 			/* counter-reset: var var(attr(data-target type(<custom-ident>))); */
@@ -95,6 +91,8 @@
 			padding-block: 1em;
 			border-radius: 0.25em;
 			background-color: oklch(0.375 0.09375 55deg / 0.75);
+			cursor: pointer;
+			user-select: none;
 
 			&:active {
 				background-color: oklch(0.5 0.125 55deg / 1);
@@ -105,6 +103,14 @@
 <body>
 	<p>pulse: <output class="var-out" id="outPulse"></output></p>
 	<p>cycle: <output class="var-out" id="outCycle"></output></p>
-	<p><div class="button" id="btn1">press</div></p>
+	<p><div class="button" id="btn1">hold to revert</div></p>
+	<!--potential applications:
+		pong
+		breakout
+		maze
+		navigation
+		3-d in general
+		+
+		-->
 </body>
 </html>

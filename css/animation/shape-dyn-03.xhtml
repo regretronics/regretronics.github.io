@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>Experiment: vector graphics</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --t1 {
+			syntax: "\3c angle\3e";
+			initial-value: 0turn;
+			inherits: true;
+		}
+		@property --t2 {
+			syntax: "\3c angle\3e";
+			initial-value: 0turn;
+			inherits: true;
+		}
+		@keyframes clock1 {
+			to {--t1: 1turn;}
+		}
+		@keyframes clock2 {
+			to {--t2: 1turn;}
+		}
+
+		:root {
+			color-scheme: dark;
+			background-color: Canvas;
+			color: CanvasText;
+
+			inline-size: 100%;
+			block-size: 100%;
+			overflow: hidden;
+
+			animation-name: clock1, clock2;
+			animation-duration: 4s, 7s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+		}
+		body {
+			margin: 0;
+			inline-size: 100%;
+			block-size: 100%;
+			overflow: hidden;
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		@function --shp-distance(--ang <angle>) returns <percentage> {
+			/* r = k * cos(l * t1 + m * ang) */
+			result: calc(
+				100% * var(--shp-scale) * (
+					1 
+					+ var(--wave1-amp) * cos(var(--wave1-vel) * var(--t1) + var(--wave1-freq) * var(--ang))
+					+ var(--wave2-amp) * cos(var(--wave2-vel) * var(--t2) + var(--wave2-freq) * var(--ang))));
+		}
+		@function --shp-distance-diff(--ang <angle>) returns <percentage> {
+			/* dr/dang = -k * sin(l * t1 + m * ang) * m */
+			result: calc(
+				-100% * var(--shp-scale) * (
+					var(--wave1-amp) * sin(var(--wave1-vel) * var(--t1) + var(--wave1-freq) * var(--ang)) * var(--wave1-freq)
+					+ var(--wave2-amp) * sin(var(--wave2-vel) * var(--t2) + var(--wave2-freq) * var(--ang)) * var(--wave2-freq)));
+		}
+		@function --shp-vertex(--i <integer>) returns type(<percentage>+) {
+			--ang: calc(var(--i) * var(--ang-inc));
+			--r: --shp-distance(var(--ang));
+
+			result: 
+				calc(var(--r) * cos(var(--ang)) + 50%)
+				calc(var(--r) * sin(var(--ang)) + 50%);
+		}
+		/* @function --shp-ctl-pt(--i <integer>) returns type(<percentage>+) {
+			--ang: calc(var(--i) * var(--ang-inc));
+			--r: --shp-distance(var(--ang));
+			--d: --shp-distance-diff(var(--ang));
+
+			result: 
+				calc(var(--r) * cos(var(--ang)) + 50% - 0.25 * var(--d) * sin(var(--ang)))
+				calc(var(--r) * sin(var(--ang)) + 50% + 0.25 * var(--d) * cos(var(--ang)));
+		} */
+		@function --shp-ctl-pt(--i <integer>, --t <number>) returns type(<percentage>+) {
+			--ang: calc(var(--i) * var(--ang-inc));
+			--r: --shp-distance(var(--ang));
+			/* --d: --shp-distance-diff(var(--ang)); */
+			--d: calc(0.125 * var(--t) * --shp-distance-diff(var(--ang)));
+
+			result: 
+				calc((var(--r) + var(--d)) * (cos(var(--ang)) - 0.125 * var(--t) * sin(var(--ang))) + 50%)
+				calc((var(--r) + var(--d)) * (sin(var(--ang)) + 0.125 * var(--t) * cos(var(--ang))) + 50%);
+		}
+
+		#img1 {
+			margin: auto;
+			inline-size: 100cqmin;
+			block-size: 100cqmin;
+
+			background-color: CanvasText;
+
+			--wave1-amp: 0.125;
+			--wave1-vel: 1;
+			--wave1-freq: 2;
+			--wave2-amp: 0.125;
+			--wave2-vel: -1;
+			--wave2-freq: 5;
+
+			--shp-scale: 0.375;
+			--ang-inc: calc(1turn / var(--shp-points-count));
+			/* --shp-points-count: 32;
+			clip-path: shape(
+				from --shp-vertex(0),
+				line to --shp-vertex(1),
+				line to --shp-vertex(2),
+				line to --shp-vertex(3),
+				line to --shp-vertex(4),
+				line to --shp-vertex(5),
+				line to --shp-vertex(6),
+				line to --shp-vertex(7),
+				line to --shp-vertex(8),
+				line to --shp-vertex(9),
+				line to --shp-vertex(10),
+				line to --shp-vertex(11),
+				line to --shp-vertex(12),
+				line to --shp-vertex(13),
+				line to --shp-vertex(14),
+				line to --shp-vertex(15),
+				line to --shp-vertex(16),
+				line to --shp-vertex(17),
+				line to --shp-vertex(18),
+				line to --shp-vertex(19),
+				line to --shp-vertex(20),
+				line to --shp-vertex(21),
+				line to --shp-vertex(22),
+				line to --shp-vertex(23),
+				line to --shp-vertex(24),
+				line to --shp-vertex(25),
+				line to --shp-vertex(26),
+				line to --shp-vertex(27),
+				line to --shp-vertex(28),
+				line to --shp-vertex(29),
+				line to --shp-vertex(30),
+				line to --shp-vertex(31),
+				close); */
+			/* clip-path: polygon(round 100cqmin,
+				--shp-vertex(0),
+				--shp-vertex(1),
+				--shp-vertex(2),
+				--shp-vertex(3),
+				--shp-vertex(4),
+				--shp-vertex(5),
+				--shp-vertex(6),
+				--shp-vertex(7),
+				--shp-vertex(8),
+				--shp-vertex(9),
+				--shp-vertex(10),
+				--shp-vertex(11),
+				--shp-vertex(12),
+				--shp-vertex(13),
+				--shp-vertex(14),
+				--shp-vertex(15),
+				--shp-vertex(16),
+				--shp-vertex(17),
+				--shp-vertex(18),
+				--shp-vertex(19),
+				--shp-vertex(20),
+				--shp-vertex(21),
+				--shp-vertex(22),
+				--shp-vertex(23),
+				--shp-vertex(24),
+				--shp-vertex(25),
+				--shp-vertex(26),
+				--shp-vertex(27),
+				--shp-vertex(28),
+				--shp-vertex(29),
+				--shp-vertex(30),
+				--shp-vertex(31)); */
+			/* --ang-inc: calc(1turn / 32);
+			clip-path: shape(
+				from --shp-vertex(0),
+				smooth to --shp-vertex(1),
+				smooth to --shp-vertex(2),
+				smooth to --shp-vertex(3),
+				smooth to --shp-vertex(4),
+				smooth to --shp-vertex(5),
+				smooth to --shp-vertex(6),
+				smooth to --shp-vertex(7),
+				smooth to --shp-vertex(8),
+				smooth to --shp-vertex(9),
+				smooth to --shp-vertex(10),
+				smooth to --shp-vertex(11),
+				smooth to --shp-vertex(12),
+				smooth to --shp-vertex(13),
+				smooth to --shp-vertex(14),
+				smooth to --shp-vertex(15),
+				smooth to --shp-vertex(16),
+				smooth to --shp-vertex(17),
+				smooth to --shp-vertex(18),
+				smooth to --shp-vertex(19),
+				smooth to --shp-vertex(20),
+				smooth to --shp-vertex(21),
+				smooth to --shp-vertex(22),
+				smooth to --shp-vertex(23),
+				smooth to --shp-vertex(24),
+				smooth to --shp-vertex(25),
+				smooth to --shp-vertex(26),
+				smooth to --shp-vertex(27),
+				smooth to --shp-vertex(28),
+				smooth to --shp-vertex(29),
+				smooth to --shp-vertex(30),
+				smooth to --shp-vertex(31),
+				close); */
+			/* --shp-points-count: 8;
+			clip-path: shape(
+				from --shp-vertex(0),
+				smooth to --shp-vertex(1) with --shp-ctl-pt(1) from origin,
+				smooth to --shp-vertex(2) with --shp-ctl-pt(2) from origin,
+				smooth to --shp-vertex(3) with --shp-ctl-pt(3) from origin,
+				smooth to --shp-vertex(4) with --shp-ctl-pt(4) from origin,
+				smooth to --shp-vertex(5) with --shp-ctl-pt(5) from origin,
+				smooth to --shp-vertex(6) with --shp-ctl-pt(6) from origin,
+				smooth to --shp-vertex(7) with --shp-ctl-pt(7) from origin,
+				smooth to --shp-vertex(8) with --shp-ctl-pt(8) from origin,
+				close); */
+			/* --ang-inc: calc(1turn / 12);
+			clip-path: shape(
+				from --shp-vertex(0),
+				curve to --shp-vertex(2) 
+					with --shp-vertex(1) from origin,
+				curve to --shp-vertex(4) 
+					with --shp-vertex(3) from origin,
+				curve to --shp-vertex(6) 
+					with --shp-vertex(5) from origin,
+				curve to --shp-vertex(8) 
+					with --shp-vertex(7) from origin,
+				curve to --shp-vertex(10) 
+					with --shp-vertex(9) from origin,
+				curve to --shp-vertex(12) 
+					with --shp-vertex(11) from origin,
+				close); */
+			--shp-points-count: 16;
+			clip-path: shape(
+				from --shp-vertex(0),
+				curve to --shp-vertex( 1) with --shp-ctl-pt( 0, 1) / --shp-ctl-pt( 1, -1),
+				curve to --shp-vertex( 2) with --shp-ctl-pt( 1, 1) / --shp-ctl-pt( 2, -1),
+				curve to --shp-vertex( 3) with --shp-ctl-pt( 2, 1) / --shp-ctl-pt( 3, -1),
+				curve to --shp-vertex( 4) with --shp-ctl-pt( 3, 1) / --shp-ctl-pt( 4, -1),
+				curve to --shp-vertex( 5) with --shp-ctl-pt( 4, 1) / --shp-ctl-pt( 5, -1),
+				curve to --shp-vertex( 6) with --shp-ctl-pt( 5, 1) / --shp-ctl-pt( 6, -1),
+				curve to --shp-vertex( 7) with --shp-ctl-pt( 6, 1) / --shp-ctl-pt( 7, -1),
+				curve to --shp-vertex( 8) with --shp-ctl-pt( 7, 1) / --shp-ctl-pt( 8, -1),
+				curve to --shp-vertex( 9) with --shp-ctl-pt( 8, 1) / --shp-ctl-pt( 9, -1),
+				curve to --shp-vertex(10) with --shp-ctl-pt( 9, 1) / --shp-ctl-pt(10, -1),
+				curve to --shp-vertex(11) with --shp-ctl-pt(10, 1) / --shp-ctl-pt(11, -1),
+				curve to --shp-vertex(12) with --shp-ctl-pt(11, 1) / --shp-ctl-pt(12, -1),
+				curve to --shp-vertex(13) with --shp-ctl-pt(12, 1) / --shp-ctl-pt(13, -1),
+				curve to --shp-vertex(14) with --shp-ctl-pt(13, 1) / --shp-ctl-pt(14, -1),
+				curve to --shp-vertex(15) with --shp-ctl-pt(14, 1) / --shp-ctl-pt(15, -1),
+				curve to --shp-vertex( 0) with --shp-ctl-pt(15, 1) / --shp-ctl-pt( 0, -1),
+				close);
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<div id="img1"></div>
+</body>
+</html>
