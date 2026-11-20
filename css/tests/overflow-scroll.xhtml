@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>CSS experiment: overflow scroll</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			background-color: Canvas;
+			color: CanvasText;
+			/* font-size: 1.5em; */
+		}
+
+		.scroll-bar {
+			--scale: 1;
+			--width: 16em;
+			--height: 3em;
+			display: inline-block;
+			scale: var(--scale);
+			width: var(--width);
+			max-width: calc(100% / var(--scale));
+			height: var(--height);
+			vertical-align: middle;
+
+			outline-style: solid;
+			outline-width: 0.125em;
+			outline-color: oklch(1 0 0deg / 0.5);
+
+			/* margin-block: calc(-0.5 * var(--scale) * var(--height));
+			margin-inline: calc(-0.5 * var(--scale) * var(--width)); */
+			overflow-inline: scroll;
+			overflow-block: hidden;
+			contain: strict;
+			/* contain: size; */
+
+			/* display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			align-items: stretch; */
+			text-wrap-mode: nowrap;
+			/* scroll-padding: 1em; */
+			/* scroll-snap-type: inline mandatory; */
+			/* padding-left: -1em; */
+			/* margin-left: -1em; */
+
+			background-color: oklch(0.25 0 0deg);
+		}
+		/* #scrollBar1 {
+			scroll-timeline: --scroll-rot-x inline;
+		} */
+		.scroll-area.pre {
+			inline-size: 0%;
+			block-size: 100%;
+			display: inline-block;
+			/* display: none; */
+			position: relative;
+			left: -1em;
+		}
+		.scroll-area.post {
+			inline-size: 300%;
+			block-size: 100%;
+			display: inline-block;
+
+			padding: 0;
+			border-width: 0;
+			contain: strict;
+			/* contain: size paint; */
+			container-type: size;
+			user-select: none;
+
+			--clr-0: black;
+			--clr-1: white;
+			background: linear-gradient(to right, var(--clr-0), var(--clr-1));
+
+			& .label {
+				position: absolute;
+				text-transform: uppercase;
+				/* font-variant: small-caps; */
+				font-size: min(1em / var(--scale), 100cqb);
+
+				&.max {
+					inset-inline-start: 0;
+					color: contrast-color(var(--clr-0));
+				}
+				&.min {
+					inset-inline-end: 0;
+					color: contrast-color(var(--clr-1));
+				}
+			}
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<div id="scrollBar1" class="scroll-bar">
+		<div class="scroll-area pre"></div>
+		<div class="scroll-area post">
+			<span class="label max" tabindex="0">maximum</span>
+			<span class="label min" tabindex="0">minimum</span>
+		</div>
+	</div>
+</body>
+</html>

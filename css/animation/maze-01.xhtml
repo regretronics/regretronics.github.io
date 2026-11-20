@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+
+	<title>CSS experiment: maze</title>
+	<style type="text/css">/*<![CDATA[*/
+		:root {
+			block-size: 100%;
+			inline-size: 100%;
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			font-size: 10vmin;
+
+			background-color: black;
+			color: white;
+		}
+
+		@property --t {
+			syntax: "\3c number\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@keyframes time {
+			to {--t: 86400;}
+		}
+		body {
+			margin: auto;
+			/* block-size: 100%;
+			inline-size: 100%; */
+			container-type: size;
+			contain: layout size;
+			block-size: 100svmin;
+			inline-size: 100svmin;
+
+			animation-name: time;
+			animation-delay: 0s;
+			animation-duration: 86400s;
+			animation-timing-function: linear;
+			animation-fill-mode: both;
+			animation-iteration-count: infinite;
+
+			--grid-w: 21;
+			--grid-h: 21;
+			--ti: round(down, var(--t));
+			/* --dir: mod(var(--ti), 4); */
+
+			/* https://arxiv.org/abs/2004.06278 */
+			--key: 3315107; /* 0x3295a3 */
+
+			--ti-weyl-y: mod(var(--ti) * var(--key), 4194304);
+			--ti-weyl-z: mod(var(--ti-weyl-y) + var(--key), 4194304);
+
+			--rnd-r0-sq: mod(pow(mod(var(--ti-weyl-y), 2048), 2) + var(--ti-weyl-y), 4194304);
+			--rnd-r0-rot: calc(round(down, var(--rnd-r0-sq) / 2048) + 2048 * mod(var(--rnd-r0-sq), 2048));
+			--rnd-r1-sq: mod(pow(mod(var(--rnd-r0-rot), 2048), 2) + var(--ti-weyl-z), 4194304);
+			--rnd-r1-rot: calc(round(down, var(--rnd-r1-sq) / 2048) + 2048 * mod(var(--rnd-r1-sq), 2048));
+			--rnd-r2-sq: mod(pow(mod(var(--rnd-r1-rot), 2048), 2) + var(--ti-weyl-y), 4194304);
+			--rnd-r2-rot: calc(round(down, var(--rnd-r2-sq) / 2048) + 2048 * mod(var(--rnd-r2-sq), 2048));
+			--rnd-r3-sq: mod(pow(mod(var(--rnd-r2-rot), 2048), 2) + var(--ti-weyl-z), 4194304);
+			--rnd-final: round(down, var(--rnd-r3-sq) / 2048);
+			--dir: mod(var(--rnd-final), 4);
+		}
+
+		main {
+			/* block-size: 100svmin;
+			inline-size: 100svmin; */
+			block-size: 100cqb;
+			inline-size: 100cqi;
+
+			display: grid;
+			grid-template-columns: 1fr repeat(4, 3.75fr 1fr);
+			grid-template-rows: 1fr repeat(4, 3.75fr 1fr);
+			column-gap: 0em;
+			row-gap: 0em;
+		}
+		main > div {
+			background-color: oklch(mod(sibling-index() / 2 - 0.25, 1) 0 0turn);
+		}
+
+		@property --pos-x {
+			syntax: "\3c number\3e";
+			inherits: false;
+			initial-value: 0;
+		}
+		@property --pos-y {
+			syntax: "\3c number\3e";
+			inherits: false;
+			initial-value: 0;
+		}
+		@keyframes player-move-left {
+			to {--pos-x: 21;}
+		}
+		@keyframes player-move-right {
+			to {--pos-x: -21;}
+		}
+		@keyframes player-move-up {
+			to {--pos-y: -21;}
+		}
+		@keyframes player-move-down {
+			to {--pos-y: 21;}
+		}
+		#player {
+			--size: 5cqmin;
+			--pos-scale: calc(100cqmin / var(--grid-w));
+			--pos-x: 10.5;
+			--pos-y: 10.5;
+			--pos-x-mod: mod(var(--pos-x), var(--grid-w));
+			--pos-y-mod: mod(var(--pos-y), var(--grid-h));
+
+			position: absolute;
+			left: calc(var(--pos-x-mod) * var(--pos-scale) - 0.5 * var(--size));
+			top: calc(var(--pos-y-mod) * var(--pos-scale) - 0.5 * var(--size));
+			/* place-self: center; */
+
+			block-size: var(--size);
+			inline-size: var(--size);
+			/* border-radius: 50%; */
+
+			clip-path: polygon(0% 65%,
+				60% 65%,
+				60% 75%,
+				100% 50%,
+				60% 25%,
+				60% 35%,
+				0% 35%);
+			transform-origin: center;
+			background-color: chartreuse;
+
+			animation-name: player-move-left, player-move-right, player-move-up, player-move-down;
+			animation-delay: 0s;
+			animation-duration: 21s;
+			animation-timing-function: linear;
+			animation-fill-mode: both;
+			animation-iteration-count: infinite;
+			animation-play-state: running, paused, paused, paused;
+			/* animation-play-state: if(
+				style(--t < 4): paused; 
+				else: running;
+				), paused, paused, paused; */
+			animation-composition: /* add */accumulate;
+		}
+		/* @container style(--dir = 0) {
+			#player { / * they don't work on :root or html * /
+				animation-play-state: paused, running, paused, paused;
+			}
+			/ * :scope > * {
+				background-color: red !important;
+			} * /
+		} */
+		@container style(--dir = 1) {
+			#player {
+				animation-play-state: paused, paused, running, paused;
+				rotate: -0.25turn;
+			}
+		}
+		@container style(--dir = 2) {
+			#player {
+				animation-play-state: paused, running, paused, paused;
+				rotate: -0.5turn;
+			}
+		}
+		@container style(--dir = 3) {
+			#player {
+				animation-play-state: paused, paused, paused, running;
+				rotate: -0.75turn;
+			}
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<main>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+	</main>
+	<div id="player"></div>
+</body>
+</html>

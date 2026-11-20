@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--This document aims to be Polyglot HTML5, so no XML PIs or XML declaration.-->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" xml:lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
+	<meta name="viewport" content="width=device-width, height=device-height, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+	<meta name="color-scheme" content="dark" />
+	<meta http-equiv="refresh" content="0;url=#pos_start" />
+
+	<title>CSS experiment: overflow scroll</title>
+	<style type="text/css">/*<![CDATA[*/
+		@property --sx {
+			syntax: "\3c number\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@property --sy {
+			syntax: "\3c number\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@keyframes scroll-x {
+			to {--sx: 1;}
+		}
+		@keyframes scroll-y {
+			to {--sy: 1;}
+		}
+		:root {
+			inline-size: 100%;
+			block-size: 100%;
+			align-items: center;
+			justify-content: center;
+
+			font-size: 1.5em;
+
+			background-color: Canvas;
+			color: CanvasText;
+			/* touch-action: none; */
+
+			timeline-scope: --scroll-x, --scroll-y;
+
+			animation-name: scroll-x, scroll-y;
+			animation-duration: 1ms;
+			animation-timing-function: linear;
+			animation-direction: alternate;
+			animation-fill-mode: both;
+			animation-timeline: --scroll-x, --scroll-y;
+		}
+
+		@property --sx-smooth {
+			syntax: "\3c number\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		@property --sy-smooth {
+			syntax: "\3c number\3e";
+			inherits: true;
+			initial-value: 0;
+		}
+		body {
+			inline-size: stretch;
+			block-size: stretch;
+			margin: 1em;
+			box-sizing: border-box;
+
+			/* display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			align-content: center;
+			align-items: center;
+			justify-content: center; */
+			/* zoom: 0.5; */
+
+			container-type: size;
+			contain: layout;
+
+			--sx-smooth: var(--sx);
+			--sy-smooth: var(--sy);
+			transition-property: --sx-smooth, --sy-smooth;
+			transition-duration: 6s;
+			/* transition-delay: 1s; */ /*funky*/
+			/* transition-timing-function: cubic-bezier(0.1875, 1, 0.5, 1); */ /*approximates 1 - 2^(-8t), 0 <= t <= 1*/
+			transition-timing-function: cubic-bezier(0.15625, 1, 0.4375, 1); /*approximates 1 - 2^(-9t), 0 <= t <= 1*/
+		}
+
+		.scroll-box {
+			inline-size: 100cqi;
+			block-size: 100cqb;
+			/* block-size: stretch;
+			flex-grow: 1; */
+			box-sizing: border-box;
+
+			margin-block: auto;
+			margin-inline: auto;
+
+			outline-style: solid;
+			outline-width: 0.125em;
+			outline-color: oklch(1 0 0deg / 0.5);
+
+			overflow: scroll;
+			/* contain: layout; */
+			/* contain: size; */
+			/* contain: paint; */
+			/* contain: style; */
+			/* contain: content; */
+			/* contain: strict; */
+			/* container-type: scroll; */
+			/* container-type: size; */
+			/* overscroll-behavior: contain; */
+			scroll-axis-lock: none;
+			scroll-behavior: smooth;
+
+			/* display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			align-items: stretch; */
+			/* text-wrap-mode: nowrap; */
+			/* scroll-padding: 1em; */
+			/* scroll-snap-type: inline mandatory; */
+			/* padding-left: -1em; */
+			/* margin-left: -1em; */
+
+			background-color: oklch(0.5 0 0deg);
+		}
+		#scrollBox1 {
+			scroll-timeline-name: --scroll-x, --scroll-y;
+			scroll-timeline-axis: x, y;
+		}
+
+		.scroll-area {
+			inline-size: 300%;
+			block-size: 300%;
+			display: inline-block;
+
+			border-width: 0;
+			padding: 0;
+			/* contain: size; */
+			contain: paint;
+			/* contain: style; */
+			/* contain: content; */
+			/* contain: strict; */
+			/* contain: size paint; */
+			/* container-type: size; */
+			user-select: none;
+
+			--checkerboard: conic-gradient(
+					oklch(0.625 0 0deg / 0.5) 0.25turn,
+					oklch(0.375 0 0deg / 0.5) 0.25turn 0.5turn,
+					oklch(0.625 0 0deg / 0.5) 0.5turn 0.75turn,
+					oklch(0.375 0 0deg / 0.5) 0.75turn
+				);
+			background-image: var(--checkerboard), var(--checkerboard), var(--checkerboard);
+			background-position: center;
+			/* background-origin: border-box; */
+			background-repeat: repeat;
+			background-size: 16em 16em, 4em 4em, 1em 1em;
+			/* background-size: 1em 1em, 4em 4em, 16em 16em; */
+
+			/* touch-action: pan-x pan-y; */
+			/* touch-action: pinch-zoom; */
+		}
+		#pos_start {
+			position: absolute;
+			inset: 0;
+			place-self: center;
+			inline-size: 100cqi;
+			block-size: 100cqb;
+
+			background-color: oklch(0.5 0.125 55deg / 0.7);
+		}
+
+		#spanInfo {
+			position: absolute;
+			/* position: fixed; */
+			/* position: sticky; */
+
+			left: 0;
+			top: 0;
+
+			max-inline-size: 30cqi;
+			max-block-size: 100cqb;
+			padding: 0.5em;
+			overflow-block: auto;
+
+			background-color: oklch(0 0 55deg / 0.7);
+		}
+		#spanInfo output {
+			display: inline-block;
+			min-inline-size: 6ch;
+			text-align: right;
+
+			&:after {
+				counter-reset: out round(nearest, 100000 * var(--out));
+				content: counter(out);
+			}
+		}
+		#outSX {--out: var(--sx);}
+		#outSY {--out: var(--sy);}
+		#outSXSmooth {--out: var(--sx-smooth);}
+		#outSYSmooth {--out: var(--sy-smooth);}
+
+		.target {
+			position: absolute;
+			inset: 0;
+			place-self: center;
+
+			inline-size: 2em;
+			block-size: 2em;
+			border-radius: 50%;
+
+			background-color: oklch(0.625 0.125 235deg / 0.5);
+
+			pointer-events: none;
+		}
+		#divTargetFixed {
+			translate: 
+				calc(100cqi * (var(--sx) - 0.5)) 
+				calc(100cqb * (var(--sy) - 0.5));
+		}
+		#divTargetControl {
+			translate: 
+				calc(100cqi * (var(--sx-smooth) - 0.5)) 
+				calc(100cqb * (var(--sy-smooth) - 0.5));
+		}
+
+		#divArrow3d {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			/* place-self: bottom right; */
+
+			inline-size: 8em;
+			block-size: 8em;
+			border-radius: 0.5em;
+
+			perspective: 8em;
+			backface-visibility: visible;
+			/* transform-style: preserve-3d; */
+
+			background-color: oklch(0 0 55deg / 0.3);
+			backdrop-filter: blur(0.125em);
+
+			user-select: none;
+			pointer-events: none;
+		}
+		.arrow-axis {
+			position: absolute;
+			inset: 0;
+			place-self: center;
+
+			width: 25%;
+			height: 25%;
+
+			translate: 0 0 4em;
+			/* background-color: oklch(0.75 0.125 235deg / 0.9); */
+
+			&:nth-child(1) {
+				clip-path: polygon(0% 0%, 0% 100%, 100% 50%);
+				transform: rotateY(calc(-0.5turn * var(--sx-smooth) + 0.5turn));
+				background-image: repeating-conic-gradient(
+					from 0.015625turn at right,
+					oklch(0.75 0.125 235deg / 0.9) 0turn,
+					oklch(0.75 0.125 235deg / 0.5) 0turn 0.03125turn,
+					oklch(0.75 0.125 235deg / 0.9) 0.03125turn 0.0625turn,
+					oklch(0.75 0.125 235deg / 0.5) 0.0625turn
+				);
+			}
+			&:nth-child(2) {
+				clip-path: polygon(0% 100%, 100% 100%, 50% 0%);
+				transform: rotateX(calc(0.5turn * var(--sy-smooth) - 0turn));
+				background-image: repeating-conic-gradient(
+					from 0.015625turn at top,
+					oklch(0.75 0.125 235deg / 0.9) 0turn,
+					oklch(0.75 0.125 235deg / 0.5) 0turn 0.03125turn,
+					oklch(0.75 0.125 235deg / 0.9) 0.03125turn 0.0625turn,
+					oklch(0.75 0.125 235deg / 0.5) 0.0625turn
+				);
+			}
+		}
+	/*]]>*/</style>
+</head>
+<body>
+	<div class="scroll-box" id="scrollBox1">
+		<div class="scroll-area">
+			<span id="pos_start"></span>
+		</div>
+	</div>
+	<div id="spanInfo">
+		sx: <output id="outSX"></output>
+		<br />
+		sy: <output id="outSY"></output>
+		<br />
+		sx-smooth: <output id="outSXSmooth"></output>
+		<br />
+		sy-smooth: <output id="outSYSmooth"></output>
+	</div>
+	<div class="target" id="divTargetFixed"></div>
+	<div class="target" id="divTargetControl"></div>
+	<div id="divArrow3d">
+		<div class="arrow-axis"></div>
+		<div class="arrow-axis"></div>
+	</div>
+</body>
+</html>
