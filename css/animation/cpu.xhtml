@@ -63,8 +63,8 @@
 			/* animation-composition: / * add * /accumulate; */
 
 			animation-play-state: 
-				if(style(--pulse = 2): running; else: paused;), 
-				if(style(--pulse = 0): running; else: paused;);
+				if(style(--pulse = 2): running; else: paused), 
+				if(style(--pulse = 0): running; else: paused);
 
 			/* animation-play-state: paused, paused;
 			@container style(--pulse = 0) {
@@ -103,13 +103,16 @@
 <body>
 	<p>pulse: <output class="var-out" id="outPulse"></output></p>
 	<p>cycle: <output class="var-out" id="outCycle"></output></p>
-	<p><div class="button" id="btn1">hold to revert</div></p>
+	<p><div class="button" id="btn1" tabindex="0">hold to revert</div></p>
 	<!--potential applications:
 		pong
 		breakout
 		maze
 		navigation
 		3-d in general
+		? non-rigid materials
+		animation with variable speed
+		animation with variable outcomes
 		+
 		-->
 </body>

@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 
-	<title>Experiment: vector graphics</title>
+	<title>Experiment: CSS-only vector graphics</title>
 	<style type="text/css">/*<![CDATA[*/
 		@property --t1 {
 			syntax: "\3c angle\3e";
@@ -22,13 +22,15 @@
 			to {--t1: 1turn;}
 		}
 		@keyframes clock2 {
-			to {--t2: 1turn;}
+			to {--t2: -1turn;}
 		}
 
 		:root {
 			color-scheme: dark;
-			background-color: Canvas;
-			color: CanvasText;
+			/* background-color: Canvas;
+			color: CanvasText; */
+			background-color: oklch(0.5 0.0625 55deg);
+			color: oklch(1 0 55deg);
 
 			inline-size: 100%;
 			block-size: 100%;
@@ -55,15 +57,15 @@
 			result: calc(
 				100% * var(--shp-scale) * (
 					1 
-					+ var(--wave1-amp) * cos(var(--wave1-vel) * var(--t1) + var(--wave1-freq) * var(--ang))
-					+ var(--wave2-amp) * cos(var(--wave2-vel) * var(--t2) + var(--wave2-freq) * var(--ang))));
+					+ var(--wave1-amp) * cos(var(--t1) + var(--wave1-freq) * var(--ang))
+					+ var(--wave2-amp) * cos(var(--t2) + var(--wave2-freq) * var(--ang))));
 		}
 		@function --shp-distance-diff(--ang <angle>) returns <percentage> {
 			/* dr/dang = -k * sin(l * t1 + m * ang) * m */
 			result: calc(
 				-100% * var(--shp-scale) * (
-					var(--wave1-amp) * sin(var(--wave1-vel) * var(--t1) + var(--wave1-freq) * var(--ang)) * var(--wave1-freq)
-					+ var(--wave2-amp) * sin(var(--wave2-vel) * var(--t2) + var(--wave2-freq) * var(--ang)) * var(--wave2-freq)));
+					var(--wave1-amp) * sin(var(--t1) + var(--wave1-freq) * var(--ang)) * var(--wave1-freq)
+					+ var(--wave2-amp) * sin(var(--t2) + var(--wave2-freq) * var(--ang)) * var(--wave2-freq)));
 		}
 		@function --shp-vertex(--i <integer>) returns type(<percentage>+) {
 			--ang: calc(var(--i) * var(--ang-inc));
@@ -82,24 +84,24 @@
 				calc(var(--r) * cos(var(--ang)) + 50% - 0.25 * var(--d) * sin(var(--ang)))
 				calc(var(--r) * sin(var(--ang)) + 50% + 0.25 * var(--d) * cos(var(--ang)));
 		} */
-		@function --shp-ctl-pt(--i <integer>, --t <number>) returns type(<percentage>+) {
+		@function --shp-ctl-pt(--i <integer>, --t <integer>) returns type(<percentage>+) {
 			--ang: calc(var(--i) * var(--ang-inc));
 			--r: --shp-distance(var(--ang));
 			/* --d: --shp-distance-diff(var(--ang)); */
 			--tmult: calc(2 * var(--t) / var(--shp-points-count));
-			--d: calc(var(--tmult) * --shp-distance-diff(var(--ang)));
+			--d: calc(var(--r) + var(--tmult) * --shp-distance-diff(var(--ang)));
+			--sin: sin(var(--ang));
+			--cos: cos(var(--ang));
 
 			result: 
-				calc((var(--r) + var(--d)) * (cos(var(--ang)) - var(--tmult) * sin(var(--ang))) + 50%)
-				calc((var(--r) + var(--d)) * (sin(var(--ang)) + var(--tmult) * cos(var(--ang))) + 50%);
+				calc(var(--d) * (var(--cos) - var(--tmult) * var(--sin)) + 50%)
+				calc(var(--d) * (var(--sin) + var(--tmult) * var(--cos)) + 50%);
 		}
 
 		#img1 {
 			--wave1-amp: 0.125;
-			--wave1-vel: 1;
 			--wave1-freq: 2;
 			--wave2-amp: 0.09375;
-			--wave2-vel: -1;
 			--wave2-freq: 5;
 
 			--shp-scale: 0.375;
@@ -278,7 +280,8 @@
 			block-size: 100cqmin;
 
 			/* background-color: CanvasText; */
-			background-color: oklch(0.75 0.09375 55deg / 0.25);
+			/* background-color: oklch(0.75 0.09375 55deg / 0.25); */
+			background-color: oklch(0.375 0 235deg / 1);
 
 			/* clip-path: var(--shp); */
 			border-shape: var(--shp);
@@ -287,8 +290,13 @@
 			border-width: 3.125cqmin;
 			border-color: oklch(0.75 0.25 55deg / 0.5);
 			box-shadow:
-				3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(1 0 0deg / 0.25),
-				3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(1 0 0deg / 0.25) inset;
+				/* 3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(1 0 0deg / 0.25),
+				3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(1 0 0deg / 0.25) inset; */
+				0cqmin 0cqmin 6.25cqmin 18.75cqmin oklch(0.25 0 55deg / 1) inset,
+				-3.125cqmin -3.125cqmin 12.5cqmin 0 oklch(0.125 0.0625 55deg / 1),
+				3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(0.875 0.0625 55deg / 1);
+				/* -3.125cqmin -3.125cqmin 12.5cqmin 0 oklch(1 0 0deg / 0.8) inset,
+				3.125cqmin 3.125cqmin 12.5cqmin 0 oklch(0 0 0deg / 0.8) inset; */
 		}
 	/*]]>*/</style>
 </head>
