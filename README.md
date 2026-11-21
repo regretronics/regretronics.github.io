@@ -1,5 +1,6 @@
 # Technicore repository (and site) #
 
+* [https://regretronics.github.io/](https://regretronics.github.io/)
 * [https://technicore.bitbucket.io/](https://technicore.bitbucket.io/)
 * https://bitbucket.org/technicore/technicore.bitbucket.io/src/master/
 
