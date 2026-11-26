@@ -13,13 +13,17 @@
 	/* font-size: 1.5em; */
 	/* font-size: calc(2vmin + 0.5vmax); */
 	/* font-size: max(0.8em, 1.5svb + 1svi); */ /*small viewport block-axis, small viewport inline-axis*/
-	font-size: max(0.8em, 1em * pow((1.5svb + 1svi) / 1em, 0.5)); /*non-linear bounded responsive scale*/
+	font-size: max(0.8em, var(--text-scale, 1em) * pow((1.5svb + 1svi) / 1em, 0.5)); /*non-linear bounded responsive scale*/
 	/* font-size: env(preferred-text-scale); */
 
 	color-scheme: dark;
 	background-color: oklch(0.125 0.03125 var(--hue1-ang, 0deg));
 	color: oklch(0.875 0.0625 var(--hue1-ang, 0deg));
 	accent-color: oklch(0.375 0.125 var(--hue1-ang, 0deg));
+
+	&[text-scale] {
+		--text-scale: attr(text-scale em, 1em);
+	}
 
 	&::selection {/*for Chrome, that's enough (inheritance does the rest), but not for Firefox*/
 		background-color: oklch(0.625 0.125 var(--hue1-ang, 0deg));
@@ -261,7 +265,7 @@ body > ul, body > article > ul {
 /* body > *, body > ul > li {
 	contain: inline-size layout;
 } */
-a:any-link:not(.section-link) {
+a:any-link:not(.section-link, .no-tool-tip) {
 	touch-action: none;
 	anchor-scope: --link-text;
 	anchor-name: --link-text;
